@@ -86,7 +86,7 @@ e44a12035ae1fa9f490526f0e19f48620970efdaa3e6ad757ba935e6719d94f6  ./frontend/dis
 2c9eee67ec55c4d0870ae6f36e41c4849962ac3bbe805c93767f500c77cbcf31  ./frontend/dist/manifest.webmanifest
 e35076a42bbb54b5e6b27940d70f832bc4a7c7a0c38391848a24ac87a96692db  ./frontend/dist/sw.js
 a730be65ed39cf5dc93f8a1d23539270e10af1c840f6f0e226edb9f40ee90ceb  ./frontend/index.html
-7091257091258df000ae5bf76fb5943a2f30a16a12c715b3fd6c541a2b1ae249  ./frontend/package-lock.json
+c8c705a6ca44fa817c033650547cf1e18fea6af2629d860612353ef889cc77f5  ./frontend/package-lock.json
 39d52e4eabdf00a3c0eb63694972b0e09f94b92bf199c86d82716cd3cc25095d  ./frontend/package.json
 40bb485506b61dbcd4e9bdc73b2870cd4a83aa8c627d7e930ce06e7978f88b10  ./frontend/public/assets/badges/explorer.svg
 8996526046e7a64e2e1054617ac55487b591e8faa01bd507bc541c214acda036  ./frontend/public/assets/badges/first-word.svg
