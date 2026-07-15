@@ -1,4 +1,4 @@
-# Module: Windows development launcher
+﻿# Module: Windows development launcher
 # Purpose: Run the local FastAPI and Vite development servers in separate processes.
 # Author: Kevin "Lirioth" Cusnir
 # Date: 2026-07-15 | TZ: Asia/Jerusalem

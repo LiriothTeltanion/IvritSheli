@@ -43,7 +43,7 @@
 ### Operations
 
 - macOS/Linux setup, development, and test scripts.
-- Windows PowerShell setup and development scripts.
+- Windows one-click daily launcher plus PowerShell setup and development scripts.
 - Dockerfile and Docker Compose.
 - GitHub Actions CI.
 - Environment template.

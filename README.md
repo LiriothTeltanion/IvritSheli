@@ -58,10 +58,31 @@ The system tracks what you recognize, what you can produce, where you hesitate, 
 
 ## Run locally
 
+### Easiest Windows start 🟢
+
+Double-click [`START_IVRIT_SHELI.bat`](START_IVRIT_SHELI.bat) in the project folder.
+
+The launcher automatically:
+
+- Installs dependencies when needed.
+- Builds the latest interface.
+- Creates and seeds the private local database on first launch.
+- Keeps personal learning data in `%LOCALAPPDATA%\IvritSheli\data`, outside the OneDrive-synced source folder.
+- Starts one private server bound to `127.0.0.1`.
+- Opens Ivrit Sheli in your default browser.
+
+Keep the launcher window open while using the app. Press `Ctrl+C` in that window to stop it safely; your progress remains stored locally. You can also launch it from PowerShell:
+
+```powershell
+.\scripts\start.ps1
+```
+
+The default address is `http://127.0.0.1:8000`. If that port is busy, the launcher selects the next available local port and opens the correct address automatically.
+
 ### Requirements
 
 - Python 3.10+
-- Node.js 20+
+- Node.js 20.19+; Node.js 22 LTS is recommended
 - npm 10+
 - SQLite with FTS5 support
 
@@ -74,14 +95,14 @@ The system tracks what you recognize, what you can produce, where you hesitate, 
 
 Then open `http://127.0.0.1:5173`.
 
-### One-command setup on Windows PowerShell
+### Windows development mode
 
 ```powershell
 .\scripts\setup.ps1
 .\scripts\run-dev.ps1
 ```
 
-Then open `http://127.0.0.1:5173`.
+Development mode uses hot reload and opens at `http://127.0.0.1:5173`.
 
 ### Manual setup
 

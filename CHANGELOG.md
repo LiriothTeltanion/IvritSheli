@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- One-click Windows launcher with automatic setup, browser opening, safe repeat launches, and clean shutdown.
+- Dependency fingerprinting so repeat launches stay fast while setup refreshes when requirements change.
+
+### Changed
+
+- One-click launches keep live SQLite data under `%LOCALAPPDATA%` instead of the OneDrive-synced source tree.
+- Docker Compose binds to localhost by default.
+- Windows setup now validates native command failures, Node/npm versions, and UTF-8 console output.
+
 ## 1.0.0 — 2026-07-15
 
 ### Added

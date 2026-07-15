@@ -2,6 +2,20 @@
 
 ## 1. First launch
 
+### Windows — one click
+
+Double-click `START_IVRIT_SHELI.bat` in the main project folder. The first launch installs the required local dependencies, builds the interface, creates your private SQLite profile, adds the starter phrases and demo dictionary, and opens the app automatically. By default, private learning data is stored in `%LOCALAPPDATA%\IvritSheli\data` so the live SQLite database is not synchronized by OneDrive.
+
+Keep the launcher window open while learning. Press `Ctrl+C` in that window to stop the app; your local progress is preserved. The default address is `http://127.0.0.1:8000`.
+
+The same launcher can be started from PowerShell:
+
+```powershell
+.\scripts\start.ps1
+```
+
+### Development mode
+
 Run the setup script, then start the development launcher:
 
 ```bash
@@ -9,7 +23,7 @@ Run the setup script, then start the development launcher:
 ./scripts/run-dev.sh
 ```
 
-Open `http://127.0.0.1:5173`. The first setup creates a private SQLite profile, eight practical starter phrases, the demo dictionary, the achievement catalog, and a production frontend build.
+Open `http://127.0.0.1:5173`. Development mode runs separate API and Vite hot-reload servers.
 
 On Windows PowerShell:
 

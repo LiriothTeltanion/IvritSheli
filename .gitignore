@@ -20,8 +20,12 @@ frontend/dist/
 frontend/coverage/
 
 # Local user data
-data/*.db
-data/*.sqlite*
+data/**/*.db*
+data/**/*.sqlite*
+*.db-wal
+*.db-shm
+*.sqlite-wal
+*.sqlite-shm
 data/audio/*
 data/private/*
 data/imports/*.jsonl
