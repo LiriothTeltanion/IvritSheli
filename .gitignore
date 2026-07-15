@@ -1,0 +1,36 @@
+# Secrets
+.env
+*.pem
+credentials.json
+token.json
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+frontend/coverage/
+
+# Local user data
+data/*.db
+data/*.sqlite*
+data/audio/*
+data/private/*
+data/imports/*.jsonl
+data/imports/*.jsonl.gz
+data/backups/*
+!data/**/.gitkeep
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

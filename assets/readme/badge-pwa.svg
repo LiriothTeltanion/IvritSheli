@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="136" height="30" role="img" aria-label="Installable PWA">
+  <rect width="136" height="30" rx="15" fill="#111d38"/><rect x="9" y="6" width="16" height="18" rx="4" fill="#5c83ff"/><rect x="13" y="9" width="8" height="10" rx="1" fill="#07111f"/><circle cx="17" cy="21" r="1" fill="#07111f"/>
+  <text x="32" y="20" fill="#eaf2ff" font-family="Arial, sans-serif" font-size="12" font-weight="700">Installable PWA</text>
+</svg>

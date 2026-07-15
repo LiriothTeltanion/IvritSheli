@@ -1,0 +1,82 @@
+# Module: continuous integration
+# Purpose: Verify Python 3.10 compatibility, TypeScript correctness, tests, production assets, and package integrity.
+# Author: Kevin "Lirioth" Cusnir
+# Date: 2026-07-15 | TZ: Asia/Jerusalem
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PYTHONPATH: backend/src
+      APP_DATA_DIR: /tmp/ivrit-sheli/data
+      APP_DB_PATH: /tmp/ivrit-sheli/data/learning.db
+      DICTIONARY_DB_PATH: /tmp/ivrit-sheli/data/dictionary.db
+      AI_PROVIDER: offline
+      ALLOW_CLOUD_PROCESSING: "false"
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: pip
+          cache-dependency-path: backend/requirements-dev.txt
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install backend dependencies
+        run: python -m pip install -r backend/requirements-dev.txt
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Lint Python
+        run: ruff check backend/src backend/tests scripts/verify_package.py
+
+      - name: Type-check Python
+        run: mypy --config-file backend/pyproject.toml backend/src
+
+      - name: Test backend
+        run: pytest backend/tests -q
+
+      - name: Compile Python
+        run: python -m compileall -q backend/src scripts/verify_package.py
+
+      - name: Run offline diagnostics
+        run: python -m ivrit_sheli --doctor
+
+      - name: Type-check frontend
+        working-directory: frontend
+        run: npm run typecheck
+
+      - name: Test frontend
+        working-directory: frontend
+        run: npm run test:run
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
+      - name: Verify distributable package
+        run: python scripts/verify_package.py

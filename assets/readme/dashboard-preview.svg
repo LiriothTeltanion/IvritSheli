@@ -1,0 +1,81 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Ivrit Sheli dashboard preview</title>
+  <desc id="desc">A dark, polished dashboard with daily Hebrew practice, an XP bar, an AI coach, progress cards, and a dictionary drawer.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1600" y2="900" gradientUnits="userSpaceOnUse"><stop stop-color="#071022"/><stop offset="0.52" stop-color="#0C1530"/><stop offset="1" stop-color="#171034"/></linearGradient>
+    <linearGradient id="a" x1="88" y1="80" x2="1340" y2="820" gradientUnits="userSpaceOnUse"><stop stop-color="#3BE7DD"/><stop offset="0.52" stop-color="#657BFF"/><stop offset="1" stop-color="#BE5EFF"/></linearGradient>
+    <linearGradient id="card" x1="300" y1="100" x2="1500" y2="820" gradientUnits="userSpaceOnUse"><stop stop-color="#172447" stop-opacity="0.96"/><stop offset="1" stop-color="#111933" stop-opacity="0.92"/></linearGradient>
+    <filter id="blur"><feGaussianBlur stdDeviation="80"/></filter>
+    <filter id="shadow"><feDropShadow dx="0" dy="22" stdDeviation="35" flood-color="#020714" flood-opacity="0.75"/></filter>
+  </defs>
+  <rect width="1600" height="900" rx="42" fill="url(#bg)"/>
+  <circle cx="1420" cy="92" r="190" fill="#A65DFF" opacity="0.15" filter="url(#blur)"/>
+  <circle cx="310" cy="830" r="250" fill="#2DE7DA" opacity="0.1" filter="url(#blur)"/>
+  <rect x="42" y="42" width="1516" height="816" rx="36" fill="#091226" stroke="#334475" filter="url(#shadow)"/>
+  <rect x="42" y="42" width="238" height="816" rx="36" fill="#0D1731"/>
+  <circle cx="96" cy="104" r="32" fill="url(#a)" opacity="0.25"/>
+  <text x="96" y="124" text-anchor="middle" font-size="54" font-family="Arial" font-weight="700" fill="#71E9E2">א</text>
+  <text x="141" y="101" font-size="21" font-family="Arial" font-weight="800" fill="#F3F7FF">Ivrit Sheli</text>
+  <text x="142" y="126" font-size="14" font-family="Arial" fill="#8FA2D5">העברית שלי</text>
+  <g font-family="Arial" font-size="17" fill="#8FA2D5">
+    <rect x="66" y="180" width="190" height="50" rx="16" fill="#19294F" stroke="#4E67BC"/>
+    <text x="104" y="212" fill="#FFFFFF">⌂  Today</text>
+    <text x="78" y="278">◇  Learn</text><text x="78" y="333">◉  Speak</text><text x="78" y="388">⌕  Dictionary</text><text x="78" y="443">★  Achievements</text><text x="78" y="498">↗  Progress</text>
+  </g>
+  <rect x="66" y="684" width="190" height="130" rx="22" fill="#101D3B" stroke="#263A6D"/>
+  <text x="82" y="718" font-family="Arial" font-size="13" fill="#91A5D8">WEEKLY STREAK</text>
+  <text x="82" y="764" font-family="Arial" font-size="34" font-weight="800" fill="#FFD66B">🔥 12 days</text>
+  <rect x="82" y="785" width="152" height="8" rx="4" fill="#24345F"/><rect x="82" y="785" width="122" height="8" rx="4" fill="url(#a)"/>
+
+  <text x="326" y="105" font-family="Arial" font-size="31" font-weight="800" fill="#F3F7FF">שלום Kevin 👋</text>
+  <text x="326" y="137" font-family="Arial" font-size="16" fill="#96A8D8">Your personalized Hebrew mission is ready.</text>
+  <rect x="1188" y="77" width="324" height="66" rx="22" fill="#121E3C" stroke="#2D4278"/>
+  <text x="1213" y="103" font-family="Arial" font-size="12" fill="#91A5D8">LEVEL 18 • 4,820 XP</text>
+  <rect x="1213" y="116" width="274" height="9" rx="4.5" fill="#273861"/><rect x="1213" y="116" width="209" height="9" rx="4.5" fill="url(#a)"/>
+
+  <rect x="314" y="172" width="758" height="277" rx="30" fill="url(#card)" stroke="#304677"/>
+  <circle cx="989" cy="238" r="52" fill="url(#a)" opacity="0.2"/><text x="989" y="257" text-anchor="middle" font-size="58" font-family="Arial" fill="#79E9E3">✦</text>
+  <text x="354" y="218" font-family="Arial" font-size="14" font-weight="700" fill="#74EAE3">TODAY'S ADAPTIVE SESSION</text>
+  <text x="354" y="275" font-family="Arial" font-size="48" font-weight="800" fill="#F6F8FF">Speak with confidence</text>
+  <text x="354" y="317" font-family="Arial" font-size="22" fill="#C4CEF0">Workplace Hebrew • Future tense • 16 minutes</text>
+  <g font-family="Arial" font-size="15" fill="#DDE5FF">
+    <rect x="354" y="350" width="148" height="43" rx="15" fill="#1C2B52"/><text x="378" y="378">8 reviews</text>
+    <rect x="516" y="350" width="148" height="43" rx="15" fill="#1C2B52"/><text x="542" y="378">2 phrases</text>
+    <rect x="678" y="350" width="174" height="43" rx="15" fill="#1C2B52"/><text x="701" y="378">1 speaking drill</text>
+  </g>
+  <rect x="875" y="356" width="155" height="52" rx="18" fill="url(#a)"/><text x="952" y="389" text-anchor="middle" font-family="Arial" font-size="17" font-weight="800" fill="#071022">Start session</text>
+
+  <rect x="1094" y="172" width="418" height="277" rx="30" fill="url(#card)" stroke="#304677"/>
+  <text x="1132" y="216" font-family="Arial" font-size="14" font-weight="700" fill="#D8C6FF">AI COACH • LIVE CONTEXT</text>
+  <text x="1132" y="258" font-family="Arial" font-size="25" font-weight="800" fill="#F4F7FF">Try this at work today</text>
+  <text x="1132" y="314" font-family="Arial" font-size="32" font-weight="800" fill="#81EAE5" direction="rtl">אני אטפל בזה</text>
+  <text x="1132" y="347" font-family="Arial" font-size="15" fill="#AEBBE5">“I’ll take care of it.”</text>
+  <rect x="1132" y="371" width="335" height="48" rx="16" fill="#1A294E"/><text x="1154" y="401" font-family="Arial" font-size="15" fill="#DDE5FF">▶ Hear native-style pronunciation</text>
+
+  <rect x="314" y="473" width="360" height="329" rx="30" fill="url(#card)" stroke="#304677"/>
+  <text x="350" y="518" font-family="Arial" font-size="14" font-weight="700" fill="#8DA3DA">SKILL PULSE</text>
+  <circle cx="494" cy="641" r="86" stroke="#273A66" stroke-width="18"/><path d="M494 555A86 86 0 1 1 421 687" stroke="url(#a)" stroke-width="18" stroke-linecap="round"/>
+  <text x="494" y="640" text-anchor="middle" font-family="Arial" font-size="40" font-weight="800" fill="#F5F7FF">78%</text>
+  <text x="494" y="669" text-anchor="middle" font-family="Arial" font-size="14" fill="#91A5D8">ACTIVE MASTERY</text>
+  <text x="350" y="755" font-family="Arial" font-size="16" fill="#C8D1EF">↑ 9% this month • 5 skills improving</text>
+
+  <rect x="696" y="473" width="376" height="329" rx="30" fill="url(#card)" stroke="#304677"/>
+  <text x="734" y="518" font-family="Arial" font-size="14" font-weight="700" fill="#8DA3DA">RECOMMENDATION ENGINE</text>
+  <text x="734" y="560" font-family="Arial" font-size="21" font-weight="800" fill="#F5F7FF">Focus: prepositions</text>
+  <text x="734" y="590" font-family="Arial" font-size="14" fill="#9DB0DD">38% of recent mistakes • high real-life value</text>
+  <g font-family="Arial" font-size="15">
+    <rect x="734" y="626" width="300" height="46" rx="15" fill="#17294B"/><text x="756" y="655" fill="#E6EBFF">1. ל after movement verbs</text>
+    <rect x="734" y="684" width="300" height="46" rx="15" fill="#17294B"/><text x="756" y="713" fill="#E6EBFF">2. ב for place and tools</text>
+    <rect x="734" y="742" width="300" height="36" rx="13" fill="#17294B"/><text x="756" y="766" fill="#E6EBFF">3. על with לדבר</text>
+  </g>
+
+  <rect x="1094" y="473" width="418" height="329" rx="30" fill="url(#card)" stroke="#304677"/>
+  <text x="1132" y="518" font-family="Arial" font-size="14" font-weight="700" fill="#8DA3DA">DICTIONARY • CLICK ANY HEBREW WORD</text>
+  <text x="1132" y="568" font-family="Arial" font-size="39" font-weight="800" fill="#82EAE5" direction="rtl">לטפל</text>
+  <text x="1132" y="600" font-family="Arial" font-size="14" fill="#AEBBE5">le-ta-pel • verb • Pi'el • root ט־פ־ל</text>
+  <line x1="1132" y1="624" x2="1470" y2="624" stroke="#2A3D6D"/>
+  <text x="1132" y="658" font-family="Arial" font-size="16" fill="#F1F4FF">to handle; to take care of; to treat</text>
+  <text x="1132" y="695" font-family="Arial" font-size="14" fill="#92A6D8">EN • ES • HE  ·  niqqud  ·  forms  ·  audio</text>
+  <rect x="1132" y="727" width="156" height="44" rx="15" fill="#1C2B52"/><text x="1160" y="755" font-family="Arial" font-size="14" fill="#E4E9FF">Add to learning</text>
+  <rect x="1300" y="727" width="168" height="44" rx="15" fill="#1C2B52"/><text x="1328" y="755" font-family="Arial" font-size="14" fill="#E4E9FF">Explore word family</text>
+</svg>

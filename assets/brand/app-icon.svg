@@ -1,0 +1,15 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title">
+  <title id="title">Ivrit Sheli app icon</title>
+  <defs>
+    <linearGradient id="g" x1="58" y1="40" x2="452" y2="478" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3BE7DD"/><stop offset="0.5" stop-color="#6477FF"/><stop offset="1" stop-color="#BF5DFF"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#071022" flood-opacity="0.55"/></filter>
+  </defs>
+  <rect width="512" height="512" rx="128" fill="#081126"/>
+  <rect x="54" y="61" width="404" height="340" rx="112" fill="#101B3A" stroke="url(#g)" stroke-width="16" filter="url(#shadow)"/>
+  <path d="M146 396L118 462L219 401" fill="#101B3A" stroke="#7084FF" stroke-width="16" stroke-linejoin="round"/>
+  <circle cx="256" cy="230" r="127" fill="url(#g)" opacity="0.2"/>
+  <text x="256" y="309" text-anchor="middle" font-size="230" font-family="Arial, sans-serif" font-weight="700" fill="url(#g)">א</text>
+  <path d="M390 91L402 124L435 136L402 148L390 181L378 148L345 136L378 124L390 91Z" fill="#FFD66B"/>
+</svg>

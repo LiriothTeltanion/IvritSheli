@@ -1,0 +1,9 @@
+# Module: backend runtime requirements
+# Purpose: Pin the dependency set verified for Ivrit Sheli Ultimate 1.0.0.
+# Author: Kevin "Lirioth" Cusnir
+# Date: 2026-07-15 | TZ: Asia/Jerusalem
+fastapi==0.139.0
+uvicorn[standard]==0.51.0
+pydantic==2.13.4
+requests==2.34.2
+python-multipart==0.0.32

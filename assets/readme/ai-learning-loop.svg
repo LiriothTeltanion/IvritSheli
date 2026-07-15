@@ -1,0 +1,21 @@
+<svg width="1400" height="500" viewBox="0 0 1400 500" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Adaptive AI learning loop</title>
+  <desc id="desc">Capture, understand, practice, use, and reflect feed a private user model and recommendation engine.</desc>
+  <defs><linearGradient id="g" x1="70" y1="55" x2="1320" y2="450" gradientUnits="userSpaceOnUse"><stop stop-color="#35E7DC"/><stop offset="0.52" stop-color="#687CFF"/><stop offset="1" stop-color="#C05EFF"/></linearGradient><filter id="s"><feDropShadow dx="0" dy="15" stdDeviation="18" flood-color="#060B18" flood-opacity="0.55"/></filter></defs>
+  <rect width="1400" height="500" rx="36" fill="#091227"/>
+  <text x="700" y="68" text-anchor="middle" font-family="Arial" font-size="28" font-weight="800" fill="#F3F6FF">The system learns with the learner — transparently</text>
+  <g filter="url(#s)" font-family="Arial">
+    <g><rect x="55" y="142" width="218" height="128" rx="26" fill="#122043" stroke="#2FDCCE"/><text x="164" y="190" text-anchor="middle" font-size="22" font-weight="800" fill="#F5F8FF">Capture</text><text x="164" y="225" text-anchor="middle" font-size="14" fill="#9FB2DF">Real words, audio, context</text></g>
+    <g><rect x="322" y="142" width="218" height="128" rx="26" fill="#122043" stroke="#54B8F9"/><text x="431" y="190" text-anchor="middle" font-size="22" font-weight="800" fill="#F5F8FF">Understand</text><text x="431" y="225" text-anchor="middle" font-size="14" fill="#9FB2DF">Nikud, root, tone, forms</text></g>
+    <g><rect x="589" y="142" width="218" height="128" rx="26" fill="#122043" stroke="#7582FF"/><text x="698" y="190" text-anchor="middle" font-size="22" font-weight="800" fill="#F5F8FF">Practice</text><text x="698" y="225" text-anchor="middle" font-size="14" fill="#9FB2DF">Adaptive recall and speech</text></g>
+    <g><rect x="856" y="142" width="218" height="128" rx="26" fill="#122043" stroke="#9A6EFF"/><text x="965" y="190" text-anchor="middle" font-size="22" font-weight="800" fill="#F5F8FF">Use</text><text x="965" y="225" text-anchor="middle" font-size="14" fill="#9FB2DF">Real-life missions</text></g>
+    <g><rect x="1123" y="142" width="218" height="128" rx="26" fill="#122043" stroke="#C95EFF"/><text x="1232" y="190" text-anchor="middle" font-size="22" font-weight="800" fill="#F5F8FF">Reflect</text><text x="1232" y="225" text-anchor="middle" font-size="14" fill="#9FB2DF">Confidence and feedback</text></g>
+  </g>
+  <g stroke="url(#g)" stroke-width="5" stroke-linecap="round"><path d="M276 206H312"/><path d="M543 206H579"/><path d="M810 206H846"/><path d="M1077 206H1113"/></g>
+  <g fill="url(#g)"><path d="M308 196L322 206L308 216Z"/><path d="M575 196L589 206L575 216Z"/><path d="M842 196L856 206L842 216Z"/><path d="M1109 196L1123 206L1109 216Z"/></g>
+  <rect x="310" y="334" width="780" height="105" rx="30" fill="#111E3E" stroke="url(#g)" stroke-width="2"/>
+  <text x="700" y="376" text-anchor="middle" font-family="Arial" font-size="22" font-weight="800" fill="#F5F8FF">Private learner model + explainable recommendation engine</text>
+  <text x="700" y="409" text-anchor="middle" font-family="Arial" font-size="15" fill="#AAB9DE">Mastery • mistakes • contexts • response time • confidence • goals • preferred modality</text>
+  <path d="M1232 280C1232 342 1125 386 1100 386" stroke="url(#g)" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M300 386C214 386 164 326 164 280" stroke="url(#g)" stroke-width="5" fill="none" stroke-linecap="round"/>
+</svg>

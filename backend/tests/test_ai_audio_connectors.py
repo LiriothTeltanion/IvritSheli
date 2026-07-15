@@ -1,0 +1,288 @@
+"""
+Module: AI, audio, and personalization connector tests
+Purpose: Verify offline fallbacks, cloud consent/redaction, speech scoring, audio safety, ICS previews, and read-only states.
+Author: Kevin "Lirioth" Cusnir
+Date: 2026-07-15 | TZ: Asia/Jerusalem
+Notes: Minimal deps; comments in ENGLISH; emojis sparingly.
+"""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+from typing import Any
+
+import pytest
+
+from ivrit_sheli.ai_engine import (
+    SUPPORTED_TASKS,
+    TASK_SCHEMAS,
+    AIEngine,
+    OfflineCoach,
+    OpenAIResponsesProvider,
+)
+from ivrit_sheli.audio import MAX_AUDIO_BYTES, AudioService, validate_audio_file
+from ivrit_sheli.config import Settings
+from ivrit_sheli.connectors import (
+    ConnectorService,
+    build_context_preview,
+    detect_context,
+    parse_ics,
+)
+from ivrit_sheli.database import Database
+
+
+class FakeCloudProvider:
+    """Small provider double that records redacted payloads."""
+
+    name = "openai"
+    model = "fake-structured-model"
+
+    def __init__(self, *, fail: bool = False) -> None:
+        self.fail = fail
+        self.payload: dict[str, Any] | None = None
+
+    def run(self, task: str, payload: dict[str, Any], learner_context: dict[str, Any]) -> dict[str, Any]:
+        self.payload = payload
+        if self.fail:
+            raise RuntimeError("provider unavailable")
+        return {"corrected": str(payload.get("text", "")), "is_correct": True}
+
+
+class FakeAudioProvider:
+    """Small speech provider double used without network access."""
+
+    def synthesize(self, text: str, *, voice: str | None = None) -> bytes:
+        return f"audio:{voice}:{text}".encode()
+
+    def transcribe(self, audio_path: Path, language: str = "he") -> dict[str, Any]:
+        return {"provider": "fake", "model": "fake-stt", "transcript": "שלום", "language": language}
+
+
+class FakeHTTPResponse:
+    """Minimal successful HTTP response for provider contract tests."""
+
+    def __init__(self, payload: dict[str, Any]) -> None:
+        self.payload = payload
+
+    def raise_for_status(self) -> None:
+        """Represent a successful provider response."""
+
+    def json(self) -> dict[str, Any]:
+        """Return the configured JSON payload."""
+        return self.payload
+
+
+class FakeHTTPSession:
+    """Record the exact OpenAI request without using the network."""
+
+    def __init__(self, response_payload: dict[str, Any]) -> None:
+        self.response_payload = response_payload
+        self.last_request: dict[str, Any] | None = None
+
+    def post(self, url: str, **kwargs: Any) -> FakeHTTPResponse:
+        """Capture a POST request and return the deterministic response."""
+        self.last_request = {"url": url, **kwargs}
+        return FakeHTTPResponse(self.response_payload)
+
+
+def assert_schema_shape(schema: dict[str, Any], value: Any, path: str = "result") -> None:
+    """Validate the required structural subset of a JSON Schema.
+
+    Args:
+        schema: Task output schema.
+        value: Offline result to inspect.
+        path: Human-readable assertion path.
+
+    Returns:
+        None.
+
+    Example:
+        Used to contract-test every offline AI task.
+    """
+    schema_type = schema.get("type")
+    if schema_type == "object":
+        assert isinstance(value, dict), f"{path} must be an object"
+        required = set(schema.get("required", []))
+        assert required.issubset(value), f"{path} missing {sorted(required - set(value))}"
+        for key, child_schema in schema.get("properties", {}).items():
+            if key in value:
+                assert_schema_shape(child_schema, value[key], f"{path}.{key}")
+    elif schema_type == "array":
+        assert isinstance(value, list), f"{path} must be an array"
+        for index, item in enumerate(value):
+            assert_schema_shape(schema.get("items", {}), item, f"{path}[{index}]")
+    elif schema_type == "string":
+        assert isinstance(value, str), f"{path} must be a string"
+    elif schema_type == "integer":
+        assert isinstance(value, int) and not isinstance(value, bool), f"{path} must be an integer"
+    elif schema_type == "number":
+        assert isinstance(value, (int, float)) and not isinstance(value, bool), f"{path} must be a number"
+    elif schema_type == "boolean":
+        assert isinstance(value, bool), f"{path} must be a boolean"
+
+
+def cloud_settings(tmp_path: Path) -> Settings:
+    """Create settings that explicitly permit a fake cloud provider."""
+    return Settings.from_env(
+        {
+            "APP_DATA_DIR": str(tmp_path / "cloud"),
+            "APP_DB_PATH": str(tmp_path / "cloud" / "app.db"),
+            "DICTIONARY_DB_PATH": str(tmp_path / "cloud" / "dictionary.db"),
+            "AI_PROVIDER": "openai",
+            "ALLOW_CLOUD_PROCESSING": "true",
+            "OPENAI_API_KEY": "test-only-key",
+        }
+    )
+
+
+@pytest.mark.parametrize("task", sorted(SUPPORTED_TASKS))
+def test_every_offline_ai_function_matches_its_contract(task: str) -> None:
+    """Keep every visible AI tool functional without credentials."""
+    result = OfflineCoach().run(
+        task,
+        {
+            "text": "אני עדיין לומד עברית",
+            "translation_en": "I am still learning Hebrew",
+            "translation_es": "Todavía estoy aprendiendo hebreo",
+            "context_label": "workplace",
+        },
+        {
+            "hebrew_level": "A2",
+            "daily_minutes": 20,
+            "focus": "speaking",
+            "active_goals": ["workplace", "daily_life"],
+        },
+    )
+    assert_schema_shape(TASK_SCHEMAS[task], result)
+    json.dumps(result, ensure_ascii=False)
+
+
+def test_openai_provider_uses_current_responses_json_schema_contract(tmp_path: Path) -> None:
+    """Verify model selection and strict structured-output request shape."""
+    settings = cloud_settings(tmp_path)
+    session = FakeHTTPSession({"output_text": '{"corrected":"שלום","is_correct":true}'})
+    provider = OpenAIResponsesProvider(settings, session=session)  # type: ignore[arg-type]
+
+    result = provider.run("correct", {"text": "שלום"}, {"hebrew_level": "A2"})
+
+    assert result["corrected"] == "שלום"
+    assert session.last_request is not None
+    request_body = session.last_request["json"]
+    assert request_body["model"] == "gpt-5.6-luna"
+    assert request_body["text"]["format"]["type"] == "json_schema"
+    assert request_body["text"]["format"]["strict"] is True
+    assert request_body["text"]["format"]["schema"] == TASK_SCHEMAS["correct"]
+
+
+def test_ai_offline_mode_is_always_available(settings: Settings, database: Database) -> None:
+    result = AIEngine(settings, database).run("correct", {"text": "אני  לומד"})
+    assert result["provider"] == "offline"
+    assert result["data"]["corrected"] == "אני לומד"
+    assert result["degraded_mode"] is False
+
+
+def test_cloud_ai_receives_redacted_selected_text(tmp_path: Path) -> None:
+    settings = cloud_settings(tmp_path)
+    database = Database(settings.db_path)
+    database.initialize()
+    provider = FakeCloudProvider()
+    try:
+        result = AIEngine(settings, database, cloud_provider=provider).run(
+            "correct",
+            {"text": "Contact learner@example.com about שלום"},
+            cloud_requested=True,
+        )
+        assert result["provider"] == "openai"
+        assert result["redactions"] == 1
+        assert provider.payload is not None
+        assert provider.payload["text"] == "Contact [EMAIL] about שלום"
+    finally:
+        database.close()
+
+
+def test_cloud_failure_falls_back_to_offline_without_breaking_session(tmp_path: Path) -> None:
+    settings = cloud_settings(tmp_path)
+    database = Database(settings.db_path)
+    database.initialize()
+    try:
+        result = AIEngine(settings, database, cloud_provider=FakeCloudProvider(fail=True)).run(
+            "correct", {"text": "שלום"}, cloud_requested=True
+        )
+        assert result["provider"] == "offline"
+        assert result["degraded_mode"] is True
+        assert result["data"]["corrected"] == "שלום"
+    finally:
+        database.close()
+
+
+def test_audio_browser_fallback_and_scoring(settings: Settings, database: Database) -> None:
+    service = AudioService(settings, database)
+    assert service.tts("שלום")["provider"] == "browser"
+    scored = service.score("תודה רבה", "תודה")
+    assert scored["score"] < 100
+    assert scored["method"] == "transcript_similarity"
+
+
+def test_fake_cloud_audio_can_synthesize_and_transcribe(tmp_path: Path) -> None:
+    settings = cloud_settings(tmp_path)
+    database = Database(settings.db_path)
+    database.initialize()
+    service = AudioService(settings, database, provider=FakeAudioProvider())  # type: ignore[arg-type]
+    recording = tmp_path / "voice.webm"
+    recording.write_bytes(b"valid audio placeholder")
+    try:
+        tts = service.tts("שלום", cloud_requested=True, voice="demo")
+        assert tts["provider"] == "openai"
+        transcript = service.transcribe(recording, cloud_requested=True, delete_after=True)
+        assert transcript["transcript"] == "שלום"
+        assert not recording.exists()
+    finally:
+        database.close()
+
+
+def test_audio_validation_rejects_empty_unknown_and_oversized_files(tmp_path: Path) -> None:
+    empty = tmp_path / "empty.wav"
+    empty.touch()
+    with pytest.raises(ValueError, match="empty"):
+        validate_audio_file(empty)
+
+    unknown = tmp_path / "voice.exe"
+    unknown.write_bytes(b"x")
+    with pytest.raises(ValueError, match="Unsupported"):
+        validate_audio_file(unknown)
+
+    oversized = tmp_path / "large.wav"
+    with oversized.open("wb") as handle:
+        handle.truncate(MAX_AUDIO_BYTES + 1)
+    with pytest.raises(ValueError, match="25 MB"):
+        validate_audio_file(oversized)
+
+
+def test_ics_parser_and_connector_preview_are_bounded(
+    settings: Settings, database: Database, tmp_path: Path
+) -> None:
+    source = tmp_path / "calendar.ics"
+    source.write_text(
+        "BEGIN:VCALENDAR\nBEGIN:VEVENT\nUID:1\nDTSTART:20260716T090000Z\n"
+        "SUMMARY:Sprint planning\nLOCATION:Team room\n"
+        "DESCRIPTION:Contact learner@example.com before the meeting\n"
+        "END:VEVENT\nEND:VCALENDAR\n",
+        encoding="utf-8",
+    )
+    parsed = parse_ics(source.read_text(encoding="utf-8"))
+    assert parsed[0]["summary"] == "Sprint planning"
+
+    service = ConnectorService(settings, database)
+    preview = service.preview_ics(source)[0]
+    assert preview.context_label == "workplace"
+    assert "[EMAIL]" in preview.redacted_excerpt
+    assert preview.phrases
+    assert len(service.states()) == 4
+
+
+def test_context_detection_and_preview_cover_medical_and_daily_life() -> None:
+    assert detect_context("Doctor appointment tomorrow") == "medical"
+    assert detect_context("Coffee with a neighbor") == "daily_life"
+    preview = build_context_preview("test", "Clinic", "My phone is 054-123-4567 at the clinic", {})
+    assert "phone" in preview.redactions

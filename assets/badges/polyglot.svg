@@ -1,0 +1,7 @@
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="polyglot achievement badge">
+  <defs><linearGradient id="g" x1="24" y1="20" x2="156" y2="165" gradientUnits="userSpaceOnUse"><stop stop-color="#39E7DD"/><stop offset="0.52" stop-color="#687BFF"/><stop offset="1" stop-color="#BF5EFF"/></linearGradient></defs>
+  <path d="M90 9L112 25L140 24L149 51L171 68L162 95L171 122L149 139L140 166L112 165L90 181L68 165L40 166L31 139L9 122L18 95L9 68L31 51L40 24L68 25L90 9Z" fill="#101B39" stroke="url(#g)" stroke-width="6"/>
+  <circle cx="90" cy="90" r="53" fill="url(#g)" opacity="0.2"/>
+  <text x="90" y="104" text-anchor="middle" font-family="Arial" font-size="51" font-weight="800" fill="#EAF2FF">p</text>
+  <circle cx="90" cy="90" r="69" stroke="#FFD66B" stroke-opacity="0.5" stroke-width="2" stroke-dasharray="5 8"/>
+</svg>

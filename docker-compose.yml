@@ -1,0 +1,21 @@
+services:
+  ivrit-sheli:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      APP_ENV: production
+      APP_HOST: 0.0.0.0
+      APP_PORT: 8000
+      APP_DATA_DIR: /app/data
+      APP_DB_PATH: /app/data/ivrit_sheli.db
+      DICTIONARY_DB_PATH: /app/data/hebrew_dictionary.db
+      AI_PROVIDER: ${AI_PROVIDER:-offline}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ALLOW_CLOUD_PROCESSING: ${ALLOW_CLOUD_PROCESSING:-false}
+    volumes:
+      - ivrit_data:/app/data
+    restart: unless-stopped
+
+volumes:
+  ivrit_data:
