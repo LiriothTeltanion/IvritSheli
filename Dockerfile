@@ -3,7 +3,7 @@
 FROM node:22-alpine@sha256:16e22a550f3863206a3f701448c45f7912c6896a62de43add43bb9c86130c3e2 AS frontend-build
 WORKDIR /app/frontend
 COPY frontend/package*.json ./
-RUN --mount=type=cache,id=ivrit-sheli-npm-cache,target=/root/.npm npm ci
+RUN npm ci
 COPY frontend/ ./
 RUN npm run build
 
@@ -23,8 +23,7 @@ RUN groupadd --system --gid 10001 ivrit \
     && useradd --system --uid 10001 --gid ivrit --home-dir /app --shell /usr/sbin/nologin ivrit
 
 COPY backend/requirements.txt /app/backend/requirements.txt
-RUN --mount=type=cache,id=ivrit-sheli-pip-cache,target=/root/.cache/pip \
-    python -m pip install -r /app/backend/requirements.txt
+RUN python -m pip install -r /app/backend/requirements.txt
 
 COPY backend/ /app/backend/
 COPY scripts/docker-entrypoint.sh /app/scripts/docker-entrypoint.sh

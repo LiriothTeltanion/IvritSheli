@@ -53,7 +53,7 @@
 - Windows one-click daily launcher plus PowerShell setup and development scripts.
 - Multi-stage non-root Dockerfile and a PostgreSQL Docker Compose integration stack with digest-pinned base images.
 - GitHub Actions CI with local-first, real-PostgreSQL, production-image, CodeQL, and dependency-update gates.
-- Railway deployment-ready configuration with a separate pre-deploy provisioner, readiness probe, schema-compatible numeric deploy timing controls, and Metal-builder-compatible Docker cache IDs.
+- Railway deployment-ready configuration with a separate pre-deploy provisioner, readiness probe, schema-compatible numeric deploy timing controls, and a portable Docker layer-cache policy.
 - Environment template.
 - Security, contribution, deployment, third-party, and test documentation.
 
@@ -90,6 +90,6 @@ No live, personal, or provider credentials are included. The repository contains
 - pip-audit and npm production audit: 0 known vulnerabilities on 2026-07-16.
 - Package asset/link verifier: 52 required files passed.
 
-No live Railway URL, production GitHub OAuth exchange, external provider call, or managed backup/restore drill is claimed by this manifest. The 2.1 package corrects the Railway configuration type mismatch and is deployment-ready pending those operator checks.
+No live Railway URL, production GitHub OAuth exchange, external provider call, or managed backup/restore drill is claimed by this manifest. The 2.1 package corrects the Railway configuration and Docker portability mismatches and is deployment-ready pending those operator checks.
 
 See `TEST_REPORT.md` for exact commands and limitations.

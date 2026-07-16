@@ -166,7 +166,13 @@ def verify_railway_config() -> list[str]:
 
 
 def verify_docker_cache_mounts() -> list[str]:
-    """Require stable cache IDs for Railway's Metal Docker builder."""
+    """Keep the production Dockerfile portable across Railway services.
+
+    Railway Metal requires cache mount IDs to contain the current service ID.
+    Embedding that provider-specific identifier would make this public image
+    definition fail when the repository is deployed as another service, so the
+    production Dockerfile deliberately relies on normal Docker layer caching.
+    """
     path = ROOT / "Dockerfile"
     try:
         lines = path.read_text(encoding="utf-8").splitlines()
@@ -175,9 +181,10 @@ def verify_docker_cache_mounts() -> list[str]:
 
     failures: list[str] = []
     for line_number, line in enumerate(lines, start=1):
-        if "--mount=type=cache" in line and "id=" not in line:
+        if "--mount=type=cache" in line:
             failures.append(
-                f"Dockerfile:{line_number}: cache mounts require an explicit id for Railway"
+                f"Dockerfile:{line_number}: avoid service-bound Railway cache mounts; "
+                "use portable Docker layer caching"
             )
     return failures
 
