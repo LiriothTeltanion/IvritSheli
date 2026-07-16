@@ -1,4 +1,4 @@
-# Deployment — Ivrit Sheli 2.1
+# Deployment — Ivrit Sheli 2.2
 
 This guide covers the private SQLite installation, the reproducible PostgreSQL Docker stack and the public Railway deployment. Production values belong in a secrets manager or hosting dashboard, never in Git.
 
@@ -210,7 +210,7 @@ Verify against the public URL:
 
 1. `/health/live` is `200` without database details.
 2. `/health/ready` is `200` and confirms the expected mode.
-3. `/version` shows `2.1.1` and the deployed commit.
+3. `/version` shows `2.2.0` and the deployed commit.
 4. Demo login works and is read-only.
 5. GitHub login works and logout revokes the session.
 6. Two distinct users cannot read or modify each other's data.
@@ -220,7 +220,16 @@ Verify against the public URL:
 10. A non-allowlisted GitHub user cannot invoke cloud AI, cloud audio or Google previews.
 11. Desktop, 390 px mobile, Hebrew RTL and reduced-motion modes remain usable.
 
-### 2.1.0 production verification record — 2026-07-16
+### Current production verification record — 2.1.1 — 2026-07-16
+
+- URL: https://ivritsheli-production.up.railway.app
+- Runtime identity: release `2.1.1`, environment `production`, storage `postgresql`.
+- `/health/live` and `/health/ready`: HTTPS `200`; the 12-entry/12-sense seed dictionary and PostgreSQL readiness passed.
+- GitHub pull request #11 and Railway deployment completed successfully from merge commit `95d02554d754928483ffc42d42a372b86c6fcb1b`.
+- Browser smoke: desktop, Hebrew RTL and 390 px mobile layouts loaded without console errors; the seeded demo remained read-only.
+- OAuth: GitHub consent handoff is present; final code exchange/session/logout remain pending in a normal browser.
+
+### Historical production verification record — 2.1.0 — 2026-07-16
 
 - URL: https://ivritsheli-production.up.railway.app
 - Runtime identity: release `2.1.0`, environment `production`, storage `postgresql`.

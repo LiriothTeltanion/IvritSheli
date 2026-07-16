@@ -4,7 +4,7 @@
 // Date: 2026-07-15 | TZ: Asia/Jerusalem
 // Notes: Comments in ENGLISH; emojis sparingly.
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { api } from '../api';
 import { useI18n } from '../i18n';
 import { useSessionAccess } from '../session';
@@ -14,7 +14,13 @@ import { Icon } from './Icon';
 
 type CoachTask = 'analyze' | 'correct' | 'exercises' | 'dialogue';
 
-export function AICoach({ onWordClick }: { onWordClick: (word: string) => void }): React.JSX.Element {
+export function AICoach({
+  cloudAvailable = true,
+  onWordClick,
+}: {
+  cloudAvailable?: boolean;
+  onWordClick: (word: string) => void;
+}): React.JSX.Element {
   const { t } = useI18n();
   const { readOnly, readOnlyReason } = useSessionAccess();
   const [task, setTask] = useState<CoachTask>('correct');
@@ -23,6 +29,10 @@ export function AICoach({ onWordClick }: { onWordClick: (word: string) => void }
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AIResponse | null>(null);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (!cloudAvailable) setCloud(false);
+  }, [cloudAvailable]);
 
   const run = async (): Promise<void> => {
     setLoading(true);
@@ -79,9 +89,9 @@ export function AICoach({ onWordClick }: { onWordClick: (word: string) => void }
           <span>{t('hebrewText')}</span>
           <textarea dir="rtl" lang="he" value={text} onChange={(event) => setText(event.target.value)} placeholder={t('aiPlaceholder')} />
         </label>
-        <label className="cloud-consent">
+        <label className="cloud-consent" title={!cloudAvailable ? t('cloudUnavailable') : undefined}>
           <span className="toggle">
-            <input type="checkbox" checked={cloud} onChange={(event) => setCloud(event.target.checked)} disabled={readOnly} />
+            <input type="checkbox" checked={cloud} onChange={(event) => setCloud(event.target.checked)} disabled={readOnly || !cloudAvailable} />
             <span />
           </span>
           <span>

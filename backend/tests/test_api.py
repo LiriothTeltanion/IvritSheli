@@ -8,6 +8,7 @@ Notes: Minimal deps; comments in ENGLISH; emojis sparingly.
 
 from __future__ import annotations
 
+import sqlite3
 from dataclasses import replace
 from pathlib import Path
 
@@ -176,14 +177,41 @@ def test_capture_review_and_progress_flow(client: TestClient) -> None:
     assert client.get("/api/v1/progress").json()["modalities"][0]["attempts"] == 1
 
 
-def test_dictionary_is_linked_to_learning_collection(client: TestClient) -> None:
+def test_dictionary_is_linked_to_learning_collection(
+    client: TestClient, settings: Settings
+) -> None:
+    with sqlite3.connect(settings.db_path) as connection:
+        events_before = connection.execute("SELECT COUNT(*) FROM user_events").fetchone()[0]
+        xp_before = connection.execute("SELECT COUNT(*) FROM xp_ledger").fetchone()[0]
+
     lookup = client.get("/api/v1/dictionary/lookup", params={"word": "שָׁלוֹם"})
     assert lookup.status_code == 200
+    search = client.get("/api/v1/dictionary/search", params={"q": "שלום"})
+    assert search.status_code == 200
+
+    with sqlite3.connect(settings.db_path) as connection:
+        assert connection.execute("SELECT COUNT(*) FROM user_events").fetchone()[0] == events_before
+        assert connection.execute("SELECT COUNT(*) FROM xp_ledger").fetchone()[0] == xp_before
+
     entry = lookup.json()["results"][0]
     learned = client.post(f"/api/v1/dictionary/{entry['id']}/learn")
     assert learned.status_code == 201
     assert learned.json()["hebrew_text"] == "שלום"
     assert learned.json()["source_label"].startswith("dictionary:")
+
+    for source_label in (
+        "dictionary:999",
+        "Connector:calendar",
+        "system:internal",
+        "seed:fixture",
+        " starter_pack ",
+    ):
+        rejected = client.post(
+            "/api/v1/items",
+            json={"hebrew_text": "בדיקה", "source_label": source_label},
+        )
+        assert rejected.status_code == 422
+        assert rejected.json()["error"]["code"] == "validation_error"
 
 
 def test_ai_audio_and_connector_fallbacks_work_without_credentials(client: TestClient) -> None:
@@ -231,6 +259,92 @@ def test_client_pronunciation_claim_cannot_award_mastery_or_xp(client: TestClien
     assert scored.json()["xp_awarded"] == 0
     assert client.get("/api/v1/gamification/status").json()["xp"]["total"] == xp_before
     assert client.get("/api/v1/progress").json()["modalities"] == []
+
+
+def test_word_analysis_returns_provenance_without_awarding_progress(
+    client: TestClient,
+) -> None:
+    xp_before = client.get("/api/v1/gamification/status").json()["xp"]["total"]
+
+    response = client.post(
+        "/api/v1/audio/word-analysis",
+        json={
+            "transcript": "שָׁלוֹם!",
+            "transcript_provider": "browser",
+            "cloud_requested": False,
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["word"] == "שלום"
+    assert payload["dictionary_matches"][0]["word"] == "שלום"
+    assert payload["enrichment"] is None
+    assert payload["provenance"] == {
+        "transcript": "client_reported_browser_recognition",
+        "dictionary": "local_dictionary",
+        "enrichment": None,
+        "audio_retained": False,
+        "learning_progress_updated": False,
+    }
+    assert client.get("/api/v1/gamification/status").json()["xp"]["total"] == xp_before
+    assert client.get("/api/v1/progress").json()["modalities"] == []
+
+
+def test_word_analysis_requires_exactly_one_hebrew_word(client: TestClient) -> None:
+    phrase = client.post(
+        "/api/v1/audio/word-analysis",
+        json={"transcript": "שלום עולם", "transcript_provider": "manual"},
+    )
+    extra_text = client.post(
+        "/api/v1/audio/word-analysis",
+        json={"transcript": "say שלום", "transcript_provider": "manual"},
+    )
+    marks_only = client.post(
+        "/api/v1/audio/word-analysis",
+        json={"transcript": "ְ״", "transcript_provider": "manual"},
+    )
+
+    assert phrase.status_code == 400
+    assert extra_text.status_code == 400
+    assert marks_only.status_code == 400
+
+
+def test_word_analysis_labels_offline_fallback_without_claiming_cloud_facts(
+    client: TestClient,
+) -> None:
+    assert client.put("/api/v1/profile", json={"cloud_consent": True}).status_code == 200
+
+    response = client.post(
+        "/api/v1/audio/word-analysis",
+        json={
+            "transcript": "שלום",
+            "transcript_provider": "manual",
+            "cloud_requested": True,
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["enrichment"]["provider"] == "offline"
+    assert payload["enrichment"]["source"] == "offline_fallback"
+    assert payload["provenance"]["enrichment"] == "offline_fallback"
+
+
+def test_tts_accepts_only_server_mapped_voice_styles(client: TestClient) -> None:
+    selected = client.post(
+        "/api/v1/audio/tts",
+        json={"text": "שלום", "voice_style": "masculine"},
+    )
+    arbitrary_provider_voice = client.post(
+        "/api/v1/audio/tts",
+        json={"text": "שלום", "voice": "client-controlled"},
+    )
+
+    assert selected.status_code == 200
+    assert selected.json()["voice_style"] == "masculine"
+    assert selected.json()["voice_profile"]["pitch"] < 1
+    assert arbitrary_provider_voice.status_code == 422
 
 
 def test_mission_bug_report_and_export(client: TestClient) -> None:

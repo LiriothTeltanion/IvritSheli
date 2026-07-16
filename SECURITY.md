@@ -4,6 +4,7 @@
 
 | Version | Supported |
 |---|---:|
+| 2.2.x | Yes |
 | 2.1.x | Yes |
 | 2.0.x | Critical fixes only; upgrade recommended |
 | 1.0.x | Critical fixes only; upgrade recommended |
@@ -25,7 +26,7 @@ Include:
 
 Do not access another person's data, persist access, degrade the public demo or run destructive tests.
 
-## 2.0 security model
+## 2.x security model
 
 ### Identity and sessions
 

@@ -135,6 +135,23 @@ def test_cloud_requires_auth_and_demo_is_seeded_read_only(tmp_path: Path) -> Non
         before_safe_reads = store.read_state(demo.json()["user"]["id"])
         assert client.get("/api/v1/dictionary/lookup", params={"word": "שלום"}).status_code == 200
         assert client.get("/api/v1/connectors").status_code == 200
+        local_word_analysis = client.post(
+            "/api/v1/audio/word-analysis",
+            json={"transcript": "שלום", "transcript_provider": "browser"},
+        )
+        assert local_word_analysis.status_code == 200
+        assert local_word_analysis.json()["word"] == "שלום"
+        assert local_word_analysis.json()["provenance"]["audio_retained"] is False
+        cloud_word_analysis = client.post(
+            "/api/v1/audio/word-analysis",
+            json={
+                "transcript": "שלום",
+                "transcript_provider": "browser",
+                "cloud_requested": True,
+            },
+        )
+        assert cloud_word_analysis.status_code == 403
+        assert cloud_word_analysis.json()["error"]["code"] == "cloud_feature_not_allowed"
         assert store.read_state(demo.json()["user"]["id"]) == before_safe_reads
 
         mutation = client.post("/api/v1/items", json={"hebrew_text": "פרטי"})
@@ -349,13 +366,13 @@ def test_operational_endpoints_report_version_storage_and_readiness(tmp_path: Pa
             oauth_client=FakeGitHubOAuth(),
         )
     ) as client:
-        assert client.get("/health/live").json()["version"] == "2.1.1"
+        assert client.get("/health/live").json()["version"] == "2.2.0"
         ready = client.get("/health/ready")
         assert ready.status_code == 200
         assert ready.json()["checks"]["postgresql"] is True
         assert ready.json()["checks"]["dictionary_details"]["mode"] == "shared_cloud"
         version = client.get("/version").json()
-        assert version["version"] == "2.1.1"
+        assert version["version"] == "2.2.0"
         assert version["storage"] == "postgresql"
 
 

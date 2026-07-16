@@ -4,118 +4,207 @@
 // Date: 2026-07-15 | TZ: Asia/Jerusalem
 // Notes: Comments in ENGLISH; emojis sparingly.
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { api } from '../api';
 import { useModalDialog } from '../hooks/useModalDialog';
 import { useI18n } from '../i18n';
 import { useSessionAccess } from '../session';
 import type { DictionaryEntry } from '../types';
+import { configureHebrewUtterance } from '../voicePreference';
 import { HebrewText } from './HebrewText';
 import { Icon } from './Icon';
 
+function safeExternalUrl(value: string | null): string | null {
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' ? url.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
 interface DictionaryDrawerProps {
   word: string | null;
+  initialEntryId?: number | undefined;
   onClose: () => void;
   onOpenWord: (word: string) => void;
   onLearned?: () => void;
 }
 
-export function DictionaryDrawer({ word, onClose, onOpenWord, onLearned }: DictionaryDrawerProps): React.JSX.Element | null {
-  const { locale, label, t } = useI18n();
+export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, onLearned }: DictionaryDrawerProps): React.JSX.Element | null {
+  const { label, t } = useI18n();
   const { readOnly, readOnlyReason } = useSessionAccess();
   const [entries, setEntries] = useState<DictionaryEntry[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [adding, setAdding] = useState(false);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
-  const [learned, setLearned] = useState(false);
+  const [learnedEntryIds, setLearnedEntryIds] = useState<Set<number>>(() => new Set());
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const mountedRef = useRef(true);
+  const requestGenerationRef = useRef(0);
   const dialogRef = useModalDialog<HTMLElement>({ open: Boolean(word), onClose });
 
+  const stopPlayback = useCallback((): void => {
+    const audio = audioRef.current;
+    audioRef.current = null;
+    if (audio) {
+      audio.pause();
+      audio.removeAttribute('src');
+      audio.load();
+    }
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+  }, []);
+
+  useEffect(() => stopPlayback, [selectedIndex, stopPlayback, word]);
+
   useEffect(() => {
-    if (!word) return;
-    let active = true;
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      requestGenerationRef.current += 1;
+    };
+  }, []);
+
+  useEffect(() => {
+    const generation = ++requestGenerationRef.current;
+    if (!word) {
+      setEntries([]);
+      setSelectedIndex(0);
+      return;
+    }
     setLoading(true);
     setError('');
-    setLearned(false);
+    setEntries([]);
+    setSelectedIndex(0);
     setSearch(word);
     api.dictionaryLookup(word)
       .then((result) => {
-        if (active) {
+        if (mountedRef.current && generation === requestGenerationRef.current) {
           setEntries(result);
-          setSelectedIndex(0);
+          const requestedIndex = initialEntryId === undefined
+            ? -1
+            : result.findIndex((candidate) => candidate.id === initialEntryId);
+          setSelectedIndex(requestedIndex >= 0 ? requestedIndex : 0);
         }
       })
       .catch((reason: unknown) => {
-        if (active) setError(reason instanceof Error ? reason.message : String(reason));
+        if (mountedRef.current && generation === requestGenerationRef.current) {
+          setError(reason instanceof Error ? reason.message : String(reason));
+        }
       })
       .finally(() => {
-        if (active) setLoading(false);
+        if (mountedRef.current && generation === requestGenerationRef.current) setLoading(false);
       });
-    return () => { active = false; };
-  }, [word]);
+  }, [initialEntryId, word]);
 
   const entry = entries[selectedIndex] ?? null;
-  const gloss = useMemo(() => {
-    if (!entry?.senses.length) return t('noDefinition');
-    const first = entry.senses[0];
-    if (!first) return t('noDefinition');
-    return locale === 'es' ? first.gloss_es ?? first.gloss_en ?? t('noDefinition') : first.gloss_en ?? first.gloss_es ?? t('noDefinition');
-  }, [entry, locale, t]);
+  const learnedInThisSession = Boolean(entry && learnedEntryIds.has(entry.id));
+  const isLearned = learnedInThisSession || Boolean(entry?.learning_item_id);
+  const learningStatus = entry?.learning_status ?? (learnedInThisSession ? 'needs_review' : 'active');
+  const learningStatusLabel = learningStatus === 'mastered'
+    ? t('statusMastered')
+    : learningStatus === 'needs_review'
+      ? t('statusNeedsReview')
+      : t('statusActive');
 
   if (!word) return null;
 
   const submitSearch = async (event: React.FormEvent): Promise<void> => {
     event.preventDefault();
     if (!search.trim()) return;
+    const generation = ++requestGenerationRef.current;
     setLoading(true);
     setError('');
+    setEntries([]);
+    setSelectedIndex(0);
     try {
       const result = await api.dictionarySearch(search.trim());
+      if (!mountedRef.current || generation !== requestGenerationRef.current) return;
       setEntries(result);
       setSelectedIndex(0);
     } catch (reason) {
+      if (!mountedRef.current || generation !== requestGenerationRef.current) return;
       setError(reason instanceof Error ? reason.message : String(reason));
     } finally {
-      setLoading(false);
+      if (mountedRef.current && generation === requestGenerationRef.current) setLoading(false);
     }
   };
 
   const exploreRoot = async (root: string): Promise<void> => {
+    const generation = ++requestGenerationRef.current;
     setLoading(true);
     setError('');
+    setEntries([]);
+    setSelectedIndex(0);
     try {
       const result = await api.dictionarySearch(root);
+      if (!mountedRef.current || generation !== requestGenerationRef.current) return;
       setEntries(result);
       setSelectedIndex(0);
       setSearch(root);
     } catch (reason) {
+      if (!mountedRef.current || generation !== requestGenerationRef.current) return;
       setError(reason instanceof Error ? reason.message : String(reason));
     } finally {
-      setLoading(false);
+      if (mountedRef.current && generation === requestGenerationRef.current) setLoading(false);
     }
   };
 
   const play = (): void => {
     if (!entry) return;
-    const sound = entry.sounds.find((item) => item.audio_url)?.audio_url;
+    stopPlayback();
+    setError('');
+    const sound = entry.sounds
+      .map((item) => safeExternalUrl(item.audio_url))
+      .find((audioUrl) => audioUrl !== null);
     if (sound) {
-      void new Audio(sound).play();
+      playSource(sound);
       return;
     }
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(entry.display_niqqud || entry.word);
-      utterance.lang = 'he-IL';
-      utterance.rate = 0.82;
+      configureHebrewUtterance(utterance, window.speechSynthesis.getVoices());
       window.speechSynthesis.speak(utterance);
     }
   };
 
+  const playSource = (audioUrl: string): void => {
+    stopPlayback();
+    setError('');
+    const audio = new Audio(audioUrl);
+    audioRef.current = audio;
+    audio.addEventListener('ended', () => {
+      if (audioRef.current === audio) audioRef.current = null;
+    }, { once: true });
+    void audio.play().catch((reason: unknown) => {
+      if (audioRef.current !== audio) return;
+      audioRef.current = null;
+      setError(t('audioPlaybackFailed', {
+        error: reason instanceof Error ? reason.message : String(reason),
+      }));
+    });
+  };
+
   const learn = async (): Promise<void> => {
-    if (!entry) return;
-    await api.learnDictionaryEntry(entry.id);
-    setLearned(true);
-    onLearned?.();
+    if (!entry || adding) return;
+    const entryId = entry.id;
+    setAdding(true);
+    setError('');
+    try {
+      await api.learnDictionaryEntry(entryId);
+      if (!mountedRef.current) return;
+      setLearnedEntryIds((current) => new Set(current).add(entryId));
+      onLearned?.();
+    } catch (reason) {
+      if (!mountedRef.current) return;
+      setError(reason instanceof Error ? reason.message : String(reason));
+    } finally {
+      if (mountedRef.current) setAdding(false);
+    }
   };
 
   return (
@@ -173,8 +262,11 @@ export function DictionaryDrawer({ word, onClose, onOpenWord, onLearned }: Dicti
               <button type="button" className="voice-orb" onClick={play} aria-label={t('pronunciation')}>
                 <Icon name="volume" size={24} />
               </button>
-              <p className="dictionary-romanization" dir="ltr">{entry.romanization || entry.sounds.find((item) => item.romanization)?.romanization || '—'}</p>
-              <p className="dictionary-gloss">{gloss}</p>
+              {(entry.romanization || entry.sounds.find((item) => item.romanization)?.romanization) && (
+                <p className="dictionary-romanization" dir="ltr">
+                  {entry.romanization || entry.sounds.find((item) => item.romanization)?.romanization}
+                </p>
+              )}
               <div className="tag-row">
                 {entry.pos && <span>{label(entry.pos)}</span>}
                 {entry.gender && <span>{label(entry.gender)}</span>}
@@ -186,11 +278,59 @@ export function DictionaryDrawer({ word, onClose, onOpenWord, onLearned }: Dicti
                     onClick={() => { void exploreRoot(entry.root ?? ''); }}
                     aria-label={t('exploreRoot', { root: entry.root })}
                   >
-                    שורש · {entry.root}
+                    {t('rootLabel')} · {entry.root}
                   </button>
                 )}
               </div>
+              {isLearned && (
+                <p className={`learned-button is-learned status--${learningStatus.replace('_', '-')}`}>
+                  <Icon name="check" size={16} />
+                  {t('learnedItemState', {
+                    status: learningStatusLabel,
+                  })}
+                </p>
+              )}
             </section>
+
+            <section className="drawer-section dictionary-meanings">
+              <h3>{t('allMeanings')}</h3>
+              {entry.senses.length === 0 && <p className="muted-copy">{t('noDefinition')}</p>}
+              {entry.senses.map((sense, index) => (
+                <article className="dictionary-sense" key={sense.id}>
+                  <span className="count-chip">{index + 1}</span>
+                  <div className="dictionary-sense__translations">
+                    {sense.gloss_en && (
+                      <p><strong>{t('meaningEnglish')}</strong><span lang="en">{sense.gloss_en}</span></p>
+                    )}
+                    {sense.gloss_es && (
+                      <p><strong>{t('meaningSpanish')}</strong><span lang="es">{sense.gloss_es}</span></p>
+                    )}
+                  </div>
+                  {(sense.tags.length > 0 || sense.topics.length > 0) && (
+                    <div className="tag-row">
+                      {[...sense.tags, ...sense.topics].map((tag) => <span key={tag}>{label(tag)}</span>)}
+                    </div>
+                  )}
+                </article>
+              ))}
+            </section>
+
+            {(entry.pos || entry.gender || entry.root || entry.binyan) && (
+              <section className="drawer-section">
+                <h3>{t('grammarDetails')}</h3>
+                <dl className="dictionary-details-grid">
+                  {entry.pos && <div className="dictionary-detail"><dt>{t('partOfSpeech')}</dt><dd>{label(entry.pos)}</dd></div>}
+                  {entry.gender && <div className="dictionary-detail"><dt>{t('genderLabel')}</dt><dd>{label(entry.gender)}</dd></div>}
+                  {entry.binyan && <div className="dictionary-detail"><dt>{t('binyanLabel')}</dt><dd>{label(entry.binyan)}</dd></div>}
+                  {entry.root && (
+                    <div className="dictionary-detail">
+                      <dt>{t('rootLabel')}</dt>
+                      <dd><button type="button" className="root-tag root-tag--button" onClick={() => { void exploreRoot(entry.root ?? ''); }}>{entry.root}</button></dd>
+                    </div>
+                  )}
+                </dl>
+              </section>
+            )}
 
             {entry.forms.length > 0 && (
               <section className="drawer-section">
@@ -214,21 +354,49 @@ export function DictionaryDrawer({ word, onClose, onOpenWord, onLearned }: Dicti
                     <article key={example.id}>
                       <HebrewText text={example.hebrew_text} onWordClick={onOpenWord} className="example-hebrew" as="p" />
                       {example.translation_en && <p>{example.translation_en}</p>}
+                      {example.romanization && <small dir="ltr">{example.romanization}</small>}
                     </article>
                   ))}
                 </div>
               </section>
             )}
 
-            <footer className="dictionary-footer">
+            {entry.sounds.length > 0 && (
+              <section className="drawer-section dictionary-pronunciations">
+                <h3>{t('pronunciationSources')}</h3>
+                <p className="muted-copy">{t('pronunciationSourceDetail')}</p>
+                {entry.sounds.map((sound) => {
+                  const audioUrl = safeExternalUrl(sound.audio_url);
+                  return (
+                    <article className="dictionary-pronunciation" key={sound.id}>
+                      {audioUrl && (
+                        <button type="button" className="icon-button" onClick={() => playSource(audioUrl)} aria-label={t('play')}>
+                          <Icon name="play" size={17} />
+                        </button>
+                      )}
+                      <div>
+                        {sound.ipa && <p><strong>IPA</strong> <span dir="ltr">{sound.ipa}</span></p>}
+                        {sound.romanization && <p dir="ltr">{sound.romanization}</p>}
+                        {sound.tags.length > 0 && <small>{sound.tags.map(label).join(' · ')}</small>}
+                      </div>
+                    </article>
+                  );
+                })}
+              </section>
+            )}
+
+            <footer className="dictionary-footer dictionary-provenance">
               <div>
-                <span className="eyebrow">{t('source')}</span>
+                <span className="eyebrow">{t('provenance')}</span>
                 <p>{entry.source_name}</p>
                 {entry.license_name && <small>{entry.license_name}</small>}
+                {safeExternalUrl(entry.source_url) && (
+                  <a href={safeExternalUrl(entry.source_url) ?? undefined} target="_blank" rel="noreferrer">{t('openSource')}</a>
+                )}
               </div>
-              <button type="button" className="primary-button" onClick={() => { void learn(); }} disabled={readOnly || learned} title={readOnly ? readOnlyReason : undefined}>
-                <Icon name={learned ? 'check' : 'plus'} size={18} />
-                {learned ? t('captured') : t('addToLearning')}
+              <button type="button" className={`primary-button learned-button ${isLearned ? 'is-learned' : ''}`} onClick={() => { void learn(); }} disabled={readOnly || isLearned || adding} title={readOnly ? readOnlyReason : undefined}>
+                {adding ? <span className="spinner" /> : <Icon name={isLearned ? 'check' : 'plus'} size={18} />}
+                {adding ? t('addingToLearning') : isLearned ? t('alreadyInLearning') : t('addToLearning')}
               </button>
             </footer>
           </div>

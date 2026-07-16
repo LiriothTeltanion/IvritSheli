@@ -110,8 +110,7 @@ class CloudLearningRepository:
             "format": STATE_FORMAT,
             "tables": {
                 table: [
-                    dict(row)
-                    for row in connection.execute(f"SELECT * FROM {table}").fetchall()
+                    dict(row) for row in connection.execute(f"SELECT * FROM {table}").fetchall()
                 ]
                 for table in STATE_TABLES
             },
@@ -167,6 +166,17 @@ class CloudLearningRepository:
     def create_item(self, payload: dict[str, Any]) -> dict[str, Any]:
         return cast(dict[str, Any], self._write("create_item", payload))
 
+    def get_or_create_dictionary_item(
+        self,
+        entry_id: int,
+        payload: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Atomically link one exact dictionary entry inside one tenant mutation."""
+        return cast(
+            dict[str, Any],
+            self._write("get_or_create_dictionary_item", entry_id, payload),
+        )
+
     def create_items(self, payloads: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """Create one bounded batch beneath a single hydrate/lock/snapshot cycle."""
 
@@ -185,6 +195,40 @@ class CloudLearningRepository:
 
     def list_items(self, limit: int = 100, query: str = "") -> list[dict[str, Any]]:
         return cast(list[dict[str, Any]], self._read("list_items", limit, query))
+
+    def registry_items(
+        self,
+        *,
+        limit: int = 200,
+        offset: int = 0,
+        query: str = "",
+        status: str = "all",
+        due: str = "all",
+        sort: str = "last_activity_desc",
+    ) -> dict[str, Any]:
+        """Read the authenticated tenant's searchable learning registry."""
+        return cast(
+            dict[str, Any],
+            self._read(
+                "registry_items",
+                limit=limit,
+                offset=offset,
+                query=query,
+                status=status,
+                due=due,
+                sort=sort,
+            ),
+        )
+
+    def learning_states_for_sources(
+        self,
+        source_labels: list[str],
+    ) -> dict[str, dict[str, Any]]:
+        """Read exact dictionary-entry links from only this tenant's hydrated state."""
+        return cast(
+            dict[str, dict[str, Any]],
+            self._read("learning_states_for_sources", source_labels),
+        )
 
     def next_reviews(self, limit: int = 10) -> list[dict[str, Any]]:
         return cast(list[dict[str, Any]], self._read("next_reviews", limit))
@@ -240,6 +284,4 @@ class CloudLearningRepository:
         return cast(dict[str, Any], self._read("get_mission", mission_id))
 
     def complete_mission(self, mission_id: int, payload: dict[str, Any]) -> dict[str, Any]:
-        return cast(
-            dict[str, Any], self._write("complete_mission", mission_id, payload)
-        )
+        return cast(dict[str, Any], self._write("complete_mission", mission_id, payload))

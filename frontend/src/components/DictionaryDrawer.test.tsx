@@ -5,7 +5,7 @@
 // Notes: Comments in ENGLISH; emojis sparingly.
 
 import { useState } from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { api } from '../api';
@@ -25,12 +25,15 @@ const ENTRY: DictionaryEntry = {
   gender: 'masculine',
   etymology: null,
   source_name: 'Test lexicon',
-  source_url: null,
+  source_url: 'https://example.test/hebrew/shalom',
   license_name: 'CC BY-SA',
-  senses: [{ id: 1, gloss_en: 'peace; hello', gloss_es: 'paz; hola', tags: [], topics: [] }],
+  senses: [
+    { id: 1, gloss_en: 'peace; hello', gloss_es: 'paz; hola', tags: ['common'], topics: [] },
+    { id: 4, gloss_en: 'goodbye', gloss_es: 'adiós', tags: [], topics: ['greetings'] },
+  ],
   forms: [{ id: 2, form: 'שלומות', romanization: 'shalomot', tags: ['plural'] }],
   examples: [{ id: 3, hebrew_text: 'שלום לכולם', translation_en: 'Hello everyone', romanization: null }],
-  sounds: [],
+  sounds: [{ id: 5, audio_url: 'https://audio.example.test/shalom.ogg', ipa: 'ʃaˈlom', romanization: 'shalom', tags: ['Modern Hebrew'] }],
 };
 
 const LEARNED_ITEM: LearningItem = {
@@ -69,6 +72,7 @@ function DictionaryHarness({ onClose }: { onClose: () => void }): React.JSX.Elem
 describe('DictionaryDrawer', () => {
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
     localStorage.clear();
   });
 
@@ -86,10 +90,17 @@ describe('DictionaryDrawer', () => {
     );
 
     await waitFor(() => expect(lookup).toHaveBeenCalledWith('שלום'));
-    expect(await screen.findByText('shalom')).toBeInTheDocument();
+    expect((await screen.findAllByText('shalom')).length).toBeGreaterThan(0);
     expect(screen.getByText('peace; hello')).toBeInTheDocument();
+    expect(screen.getByText('paz; hola')).toBeInTheDocument();
+    expect(screen.getByText('goodbye')).toBeInTheDocument();
+    expect(screen.getByText('adiós')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Grammar details' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Pronunciation sources' })).toBeInTheDocument();
+    expect(screen.getByText('ʃaˈlom')).toBeInTheDocument();
     expect(screen.getByText('Test lexicon')).toBeInTheDocument();
     expect(screen.getByText('CC BY-SA')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Open source' })).toHaveAttribute('href', 'https://example.test/hebrew/shalom');
 
     await user.click(screen.getByRole('button', { name: 'Explore Hebrew root שלם' }));
     await waitFor(() => expect(search).toHaveBeenCalledWith('שלם'));
@@ -97,7 +108,231 @@ describe('DictionaryDrawer', () => {
     await user.click(screen.getByRole('button', { name: /Add to learning/i }));
     await waitFor(() => expect(learn).toHaveBeenCalledWith(7));
     expect(onLearned).toHaveBeenCalledOnce();
-    expect(screen.getByRole('button', { name: /Phrase captured/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /Already in learning/i })).toBeDisabled();
+  });
+
+  it('renders persisted learned state without offering a duplicate add', async () => {
+    const lookup = vi.spyOn(api, 'dictionaryLookup').mockResolvedValue([{
+      ...ENTRY,
+      learning_item_id: 99,
+      learning_status: 'mastered',
+      learning_due_state: 'upcoming',
+    }]);
+    const learn = vi.spyOn(api, 'learnDictionaryEntry');
+
+    render(
+      <I18nProvider>
+        <DictionaryDrawer word="שלום" onClose={vi.fn()} onOpenWord={vi.fn()} />
+      </I18nProvider>,
+    );
+
+    await waitFor(() => expect(lookup).toHaveBeenCalledWith('שלום'));
+    expect(await screen.findByText('Learning status: Mastered')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Already in learning/i })).toBeDisabled();
+    expect(learn).not.toHaveBeenCalled();
+  });
+
+  it('uses the device-wide synthetic voice preference for dictionary playback', async () => {
+    class UtteranceStub {
+      lang = '';
+      rate = 1;
+      pitch = 1;
+      voice: SpeechSynthesisVoice | null = null;
+
+      constructor(readonly text: string) {}
+    }
+    const speak = vi.fn();
+    vi.stubGlobal('SpeechSynthesisUtterance', UtteranceStub);
+    vi.stubGlobal('speechSynthesis', {
+      cancel: vi.fn(),
+      getVoices: () => [],
+      speak,
+    });
+    localStorage.setItem('ivrit-sheli:voice-style', 'masculine');
+    vi.spyOn(api, 'dictionaryLookup').mockResolvedValue([{ ...ENTRY, sounds: [] }]);
+    const user = userEvent.setup();
+
+    render(
+      <I18nProvider>
+        <DictionaryDrawer word="שלום" onClose={vi.fn()} onOpenWord={vi.fn()} />
+      </I18nProvider>,
+    );
+
+    await user.click(await screen.findByRole('button', { name: 'Pronunciation' }));
+    const utterance = speak.mock.calls[0]?.[0] as UtteranceStub;
+    expect(utterance.text).toBe('שָׁלוֹם');
+    expect(utterance.lang).toBe('he-IL');
+    expect(utterance.pitch).toBe(0.82);
+  });
+
+  it('stops app-managed audio when the drawer closes', async () => {
+    const pause = vi.fn();
+    const removeAttribute = vi.fn();
+    const load = vi.fn();
+    const play = vi.fn().mockResolvedValue(undefined);
+    class AudioStub {
+      constructor(readonly src: string) {}
+      play = play;
+      pause = pause;
+      removeAttribute = removeAttribute;
+      load = load;
+      addEventListener = vi.fn();
+    }
+    vi.stubGlobal('Audio', AudioStub);
+    vi.spyOn(api, 'dictionaryLookup').mockResolvedValue([ENTRY]);
+    const user = userEvent.setup();
+
+    const { rerender } = render(
+      <I18nProvider>
+        <DictionaryDrawer word="שלום" onClose={vi.fn()} onOpenWord={vi.fn()} />
+      </I18nProvider>,
+    );
+
+    await user.click(await screen.findByRole('button', { name: 'Pronunciation' }));
+    expect(play).toHaveBeenCalledOnce();
+
+    rerender(
+      <I18nProvider>
+        <DictionaryDrawer word={null} onClose={vi.fn()} onOpenWord={vi.fn()} />
+      </I18nProvider>,
+    );
+
+    expect(pause).toHaveBeenCalledOnce();
+    expect(removeAttribute).toHaveBeenCalledWith('src');
+    expect(load).toHaveBeenCalledOnce();
+  });
+
+  it('reports app-managed audio playback failures', async () => {
+    class AudioStub {
+      constructor(readonly src: string) {}
+      play = vi.fn().mockRejectedValue(new Error('playback blocked'));
+      pause = vi.fn();
+      removeAttribute = vi.fn();
+      load = vi.fn();
+      addEventListener = vi.fn();
+    }
+    vi.stubGlobal('Audio', AudioStub);
+    vi.spyOn(api, 'dictionaryLookup').mockResolvedValue([ENTRY]);
+    const user = userEvent.setup();
+
+    render(
+      <I18nProvider>
+        <DictionaryDrawer word="שלום" onClose={vi.fn()} onOpenWord={vi.fn()} />
+      </I18nProvider>,
+    );
+
+    await user.click(await screen.findByRole('button', { name: 'Pronunciation' }));
+    expect(await screen.findByText('Audio playback failed: playback blocked')).toBeInTheDocument();
+  });
+
+  it('keeps newly learned state scoped to the selected dictionary entry', async () => {
+    const secondEntry: DictionaryEntry = {
+      ...ENTRY,
+      id: 8,
+      word: 'ללמוד',
+      normalized_word: 'ללמוד',
+      display_niqqud: 'לִלְמוֹד',
+      pos: 'verb',
+      romanization: 'lilmod',
+      senses: [{ id: 8, gloss_en: 'to learn', gloss_es: 'aprender', tags: [], topics: [] }],
+      forms: [],
+      examples: [],
+      sounds: [],
+    };
+    vi.spyOn(api, 'dictionaryLookup').mockResolvedValue([ENTRY, secondEntry]);
+    const learn = vi.spyOn(api, 'learnDictionaryEntry').mockResolvedValue(LEARNED_ITEM);
+    const user = userEvent.setup();
+
+    render(
+      <I18nProvider>
+        <DictionaryDrawer word="שלום" onClose={vi.fn()} onOpenWord={vi.fn()} />
+      </I18nProvider>,
+    );
+
+    await user.click(await screen.findByRole('button', { name: /Add to learning/i }));
+    expect(screen.getByRole('button', { name: /Already in learning/i })).toBeDisabled();
+
+    await user.click(screen.getByRole('tab', { name: 'Verb' }));
+    expect(screen.getByRole('button', { name: /Add to learning/i })).toBeEnabled();
+    expect(learn).toHaveBeenCalledTimes(1);
+  });
+
+  it('opens and saves the exact requested homograph entry', async () => {
+    const homograph: DictionaryEntry = {
+      ...ENTRY,
+      id: 8,
+      display_niqqud: 'שָׁלוֹם ב׳',
+      pos: 'interjection',
+      romanization: 'shalom-b',
+      senses: [{ id: 8, gloss_en: 'second homograph', gloss_es: 'segundo homógrafo', tags: [], topics: [] }],
+      forms: [],
+      examples: [],
+      sounds: [],
+    };
+    vi.spyOn(api, 'dictionaryLookup').mockResolvedValue([ENTRY, homograph]);
+    const learn = vi.spyOn(api, 'learnDictionaryEntry').mockResolvedValue({ ...LEARNED_ITEM, id: 108 });
+    const user = userEvent.setup();
+
+    render(
+      <I18nProvider>
+        <DictionaryDrawer word="שלום" initialEntryId={8} onClose={vi.fn()} onOpenWord={vi.fn()} />
+      </I18nProvider>,
+    );
+
+    expect(await screen.findByText('second homograph')).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Interjection' })).toHaveAttribute('aria-selected', 'true');
+    await user.click(screen.getByRole('button', { name: /Add to learning/i }));
+    await waitFor(() => expect(learn).toHaveBeenCalledWith(8));
+  });
+
+  it('clears stale entries and ignores an older search response after the word changes', async () => {
+    const nextEntry: DictionaryEntry = {
+      ...ENTRY,
+      id: 12,
+      word: 'חדש',
+      normalized_word: 'חדש',
+      display_niqqud: 'חָדָשׁ',
+      romanization: 'chadash',
+      senses: [{ id: 12, gloss_en: 'new', gloss_es: 'nuevo', tags: [], topics: [] }],
+      forms: [],
+      examples: [],
+      sounds: [],
+    };
+    let resolveSlowSearch!: (entries: DictionaryEntry[]) => void;
+    const slowSearch = new Promise<DictionaryEntry[]>((resolve) => {
+      resolveSlowSearch = resolve;
+    });
+    vi.spyOn(api, 'dictionaryLookup')
+      .mockResolvedValueOnce([ENTRY])
+      .mockResolvedValueOnce([nextEntry]);
+    vi.spyOn(api, 'dictionarySearch').mockReturnValue(slowSearch);
+    const user = userEvent.setup();
+
+    const { rerender } = render(
+      <I18nProvider>
+        <DictionaryDrawer word="שלום" onClose={vi.fn()} onOpenWord={vi.fn()} />
+      </I18nProvider>,
+    );
+    expect(await screen.findByText('peace; hello')).toBeInTheDocument();
+
+    const search = screen.getByRole('textbox', { name: 'Search Hebrew, English, or Spanish' });
+    await user.clear(search);
+    await user.type(search, 'slow search{Enter}');
+    expect(screen.queryByText('peace; hello')).not.toBeInTheDocument();
+
+    rerender(
+      <I18nProvider>
+        <DictionaryDrawer word="חדש" onClose={vi.fn()} onOpenWord={vi.fn()} />
+      </I18nProvider>,
+    );
+    expect(await screen.findByText('new')).toBeInTheDocument();
+
+    await act(async () => {
+      resolveSlowSearch([ENTRY]);
+      await slowSearch;
+    });
+    expect(screen.getByText('new')).toBeInTheDocument();
+    expect(screen.queryByText('peace; hello')).not.toBeInTheDocument();
   });
 
   it('traps focus, closes with Escape, restores the opener, and unlocks scrolling', async () => {

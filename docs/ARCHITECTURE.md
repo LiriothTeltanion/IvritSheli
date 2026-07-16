@@ -1,6 +1,6 @@
-# Architecture — Ivrit Sheli 2.1
+# Architecture — Ivrit Sheli 2.2
 
-Ivrit Sheli 2.1 has two deliberate runtime modes. The original private SQLite application remains the simplest offline installation; the cloud mode adds authenticated multi-user delivery without duplicating or weakening the learning engine.
+Ivrit Sheli 2.2 has two deliberate runtime modes. The original private SQLite application remains the simplest offline installation; the cloud mode adds authenticated multi-user delivery without duplicating or weakening the learning engine.
 
 ## System shape
 
@@ -9,7 +9,7 @@ Browser: React 19 + TypeScript + PWA + EN/ES/HE + RTL
                          │
                          │ same-origin HTTPS + secure session cookie
                          ▼
-Ivrit Sheli 2.1 FastAPI application
+Ivrit Sheli 2.2 FastAPI application
   ├── GitHub OAuth + PKCE + state replay protection
   ├── signed-in / deterministic demo session boundary
   ├── CSRF verification for authenticated mutations

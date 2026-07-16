@@ -6,6 +6,8 @@
 
 export type Locale = 'en' | 'es' | 'he';
 export type ViewKey = 'today' | 'learn' | 'coach' | 'progress' | 'connectors' | 'settings';
+export type VoiceStyle = 'masculine' | 'feminine';
+export type TranscriptProvider = 'browser' | 'openai' | 'manual';
 
 export interface AuthUser {
   id: string;
@@ -126,6 +128,51 @@ export interface LearningItem {
   lapses?: number;
 }
 
+export type RegistryStatus = 'active' | 'mastered' | 'needs_review';
+export type RegistryStatusFilter = 'all' | RegistryStatus;
+export type RegistryDueFilter = 'all' | 'due' | 'upcoming';
+export type RegistrySort =
+  | 'alphabetical'
+  | 'due_asc'
+  | 'last_activity_desc'
+  | 'saved_asc'
+  | 'saved_desc'
+  | 'mastery_desc';
+
+export interface RegistryMastery {
+  recognition: number;
+  production: number;
+  listening: number;
+  speaking: number;
+  observations: number;
+}
+
+export interface RegistryItem extends LearningItem {
+  normalized_text: string;
+  interval_days: number;
+  ease_factor: number;
+  repetitions: number;
+  lapses: number;
+  due_at: string;
+  last_reviewed_at: string | null;
+  status: RegistryStatus;
+  due_state: Exclude<RegistryDueFilter, 'all'>;
+  review_count: number;
+  saved_at: string;
+  last_activity_at: string;
+  mastery: RegistryMastery;
+}
+
+export interface RegistryResponse {
+  items: RegistryItem[];
+  total: number;
+  summary: Record<RegistryStatus, number>;
+  offset: number;
+  limit: number;
+  has_more: boolean;
+  next_offset: number | null;
+}
+
 export interface DictionarySense {
   id: number;
   gloss_en: string | null;
@@ -155,6 +202,9 @@ export interface DictionaryEntry {
   source_name: string;
   source_url: string | null;
   license_name: string | null;
+  learning_item_id?: number | null;
+  learning_status?: RegistryStatus | null;
+  learning_due_state?: Exclude<RegistryDueFilter, 'all'> | null;
   senses: DictionarySense[];
   forms: DictionaryForm[];
   examples: Array<{
@@ -179,6 +229,52 @@ export interface DictionaryStats {
   examples: number;
   sounds: number;
   metadata: Record<string, string>;
+}
+
+export interface WordInsight {
+  word: string;
+  niqqud: string;
+  transliteration: string;
+  meanings_en: string[];
+  meanings_es: string[];
+  grammar: {
+    part_of_speech: string;
+    gender: string;
+    number: string;
+    root: string;
+    binyan: string;
+  };
+  forms: Array<{ hebrew: string; label_en: string; label_es: string }>;
+  usage_notes_en: string[];
+  usage_notes_es: string[];
+  examples: Array<{
+    hebrew: string;
+    translation_en: string;
+    translation_es: string;
+  }>;
+  confidence_note_en: string;
+  confidence_note_es: string;
+}
+
+export interface WordAnalysisResult {
+  word: string;
+  display_word: string;
+  transcript: string;
+  transcript_provider: TranscriptProvider;
+  dictionary_matches: DictionaryEntry[];
+  enrichment: (AIResponse<WordInsight> & {
+    source: 'cloud_ai' | 'offline_fallback';
+  }) | null;
+  provenance: {
+    transcript:
+      | 'client_reported_browser_recognition'
+      | 'client_reported_cloud_transcription'
+      | 'client_reported_manual_entry';
+    dictionary: 'local_dictionary';
+    enrichment: 'cloud_ai' | 'offline_fallback' | null;
+    audio_retained: false;
+    learning_progress_updated: false;
+  };
 }
 
 export interface Achievement {

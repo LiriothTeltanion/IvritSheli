@@ -1,7 +1,7 @@
 <div align="center">
   <img src="assets/brand/logo.svg" alt="Ivrit Sheli Ultimate" width="680" />
 
-  <h1>Ivrit Sheli 2.1.1 Ultimate — העברית שלי</h1>
+  <h1>Ivrit Sheli 2.2.0 Ultimate — העברית שלי</h1>
   <p><strong>A private-first, authenticated, trilingual Hebrew-learning operating system built from real life.</strong></p>
 
   <p>
@@ -15,7 +15,7 @@
   </p>
 
   <p>
-    <img src="assets/readme/badge-tests.svg" alt="149 automated tests passing" />
+    <img src="assets/readme/badge-tests.svg" alt="187 automated tests passing" />
     <img src="assets/readme/badge-private.svg" alt="Local-first private" />
     <img src="assets/readme/badge-trilingual.svg" alt="Hebrew English Spanish" />
     <img src="assets/readme/badge-pwa.svg" alt="Installable PWA" />
@@ -23,7 +23,7 @@
 </div>
 
 <p align="center">
-  <a href="https://ivritsheli-production.up.railway.app"><strong>🌐 Open the live Ivrit Sheli 2.1 demo</strong></a>
+  <a href="https://ivritsheli-production.up.railway.app"><strong>🌐 Open the verified live Ivrit Sheli 2.1.1 demo</strong></a>
 </p>
 
 <picture>
@@ -46,17 +46,25 @@
 </table>
 </details>
 
+> **Screenshot boundary:** these verified images show the deployed 2.1 interface. The 2.2 social preview is current, while refreshed 2.2 desktop/mobile/RTL screenshots remain the first post-deployment visual task.
+
 ## Why this project exists 💙
 
 Most language products make every learner follow the same path. Ivrit Sheli does the opposite: it converts the Hebrew you encounter at work, in Be'er Sheva, in messages, appointments, media, and daily conversations into an evolving personal curriculum.
 
 The system tracks what you recognize, what you can produce, where you hesitate, which grammar errors repeat, which situations matter, and which learning mode works best. Recommendations are explainable: the app tells you *why* it selected a word, exercise, mission, or speaking drill.
 
+## What changed in 2.2.0 🎙️
+
+Version 2.2.0 turns pronunciation and vocabulary history into richer daily learning tools. Learners can keep a device-persisted masculine-style or feminine-style synthetic voice profile, record exactly one Hebrew word, and receive clearly sourced dictionary facts with English/Spanish meanings, grammar, forms, examples and optional consent-gated AI enrichment. Microphone permission is user-triggered, app-managed word-analysis uploads are temporary, and transcripts cannot award XP or change mastery.
+
+The new saved-vocabulary registry makes every saved item searchable and filterable by status or review timing, with sorting, review counts, saved/activity dates and separate recognition, production, listening and speaking mastery. The dictionary now shows learning state, preserves homograph identity and atomically prevents new duplicate additions. Existing duplicate dictionary rows created before 2.2 are intentionally not auto-merged because their review histories need conservative reconciliation. A vector-only visual upgrade adds deeper surfaces, Hebrew letter constellations, refined navigation and restrained responsive motion while preserving RTL, high contrast and a fully stationary reduced-motion experience.
+
 ## What changed in 2.1.1 🔐
 
 The 2.1.1 candidate is a focused safety, correctness, and accessibility release. Cloud AI and audio now require stored learner consent before provider work begins; future reviews stay out of the due queue; dictionary readiness fails closed; SQLite upgrades run as atomic ordered migrations; and pronunciation history is recorded without letting an unverified client transcript change speaking mastery or XP.
 
-The review experience also behaves correctly with keyboards, screen readers, and reduced-motion preferences. Quick capture and dictionary dialogs trap and restore focus, hidden answer controls cannot be reached early, and recorded audio preserves its real MIME type and transcription-provider context. This candidate is implemented and verified on its release branch; the public Railway URL remains the previously verified 2.1.0 deployment until 2.1.1 is merged and deployed.
+The review experience also behaves correctly with keyboards, screen readers, and reduced-motion preferences. Quick capture and dictionary dialogs trap and restore focus, hidden answer controls cannot be reached early, and recorded audio preserves its real MIME type and transcription-provider context. This release is merged and deployed: the public Railway service now reports `2.1.1`, PostgreSQL readiness, and the seeded read-only demo successfully.
 
 ## What changed in 2.1 🚆
 
@@ -66,7 +74,7 @@ Version 2.1 is live on Railway at [ivritsheli-production.up.railway.app](https:/
 
 Version 2.0 turns the complete local-first learning system into a deployment-ready, production-shaped full-stack product without sacrificing its private offline path.
 
-![Ivrit Sheli 2.1 cloud architecture](assets/readme/cloud-architecture.svg)
+![Ivrit Sheli 2.2 cloud architecture](assets/readme/cloud-architecture.svg)
 
 | Production capability | Verifiable implementation |
 |---|---|
@@ -90,9 +98,10 @@ The public-demo design does not contain Kevin's private learning history: it use
 | Learning | Capture, adaptive reviews, speaking drills, sentence creation, missions, reflections |
 | Personalization | Mastery model, mistake taxonomy, context frequency, confidence, latency, modality preference |
 | AI | Offline deterministic coach plus OpenAI Responses adapter with structured outputs and fallback |
-| Dictionary | Clickable Hebrew everywhere, SQLite search, niqqud-insensitive lookup, forms, roots, senses, audio URLs |
+| Dictionary | Clickable Hebrew everywhere, bilingual senses, grammar/forms/examples/provenance, learned state, duplicate prevention |
+| Word registry | Tenant-scoped search, status/due filters, sorting, review history, dates and four-skill mastery |
 | Full lexicon | One-command importer for the current Kaikki/Wiktionary Hebrew JSONL dataset |
-| Audio | Browser TTS, microphone recording, OpenAI TTS/STT adapters, consent-gated cloud processing, transparent transcript scoring, and history-only handling for unverified evidence |
+| Audio | Persistent synthetic voice styles, browser/OpenAI TTS, microphone one-word intelligence, consent-gated STT/AI, transparent scoring and ephemeral raw analysis audio |
 | Gamification | XP ledger, levels, streaks, achievements, badges, mission bonuses, anti-grind limits |
 | Integrations | Read-only Google Calendar, Gmail, and Drive adapters; ICS import; explicit consent gates |
 | Languages | Trilingual interface and content layers: Hebrew, English, Spanish |
@@ -259,6 +268,10 @@ The application supports three layers:
 2. **OpenAI text-to-speech** for generated voice files when configured.
 3. **OpenAI speech-to-text** or browser speech recognition for speaking attempts.
 
+Choose a persistent masculine-style or feminine-style synthetic profile. Browser playback selects a deterministic installed Hebrew voice plus a pitch fallback; cloud playback maps the style to server-controlled provider voice IDs. These labels describe a synthetic presentation preference, not the identity or gender of a real speaker.
+
+The microphone word-intelligence card accepts one Hebrew word from browser recognition, optional cloud transcription, or manual entry. It returns source-labeled dictionary meanings, translations, grammar, forms and examples, with optional consent-gated AI enrichment. Ivrit Sheli does not receive or retain browser-recognition audio, although the browser or operating-system speech provider's policy may apply. App-managed cloud uploads are deleted after processing; the configured provider's policy remains separate. This analysis cannot award XP or update mastery.
+
 Pronunciation scoring is deliberately transparent. It compares normalized transcription, word coverage, sequence similarity, and omitted/extra words. It does **not** claim phoneme-level clinical accuracy.
 
 ## Personalization connectors
@@ -288,21 +301,18 @@ XP rewards language outcomes, not screen tapping.
 
 Daily anti-grind limits reduce exploitative repetition. Streaks use grace rules and never punish Shabbat or a configured weekly rest period.
 
-Included achievement families:
+Implemented achievements:
 
-- First word and first spoken phrase.
-- Review streaks and comeback milestones.
-- Dictionary exploration.
-- Root-family discovery.
-- Real-life usage.
-- Workplace Hebrew.
-- Pronunciation consistency.
-- Trilingual interface use.
-- Error-pattern improvement.
+- First Word — save the first learning item.
+- Seven-Day Flow — sustain a seven-day meaningful-practice streak.
+- Voice Builder — complete 25 speaking attempts.
+- Word Explorer — save 100 distinct active dictionary words.
+- Israel in Action — complete 10 real-life missions successfully.
+- Three-Language Mind — use all three interface languages.
 
 ## Test everything
 
-The 2.1.1 verification baseline is **128 backend tests + 21 frontend tests = 149 passing automated tests**. The local backend run reports 127 passed with the credential-gated PostgreSQL case skipped; the dedicated PostgreSQL 17 job runs all three database-boundary tests and raises the unique backend total to 128. The integration gate is not replaced by SQLite or an in-memory fake.
+The 2.2.0 verification baseline is **139 unique backend tests + 48 frontend tests = 187 passing automated tests**. The ordinary backend run reports 138 passed with one credential-gated PostgreSQL case skipped; the dedicated PostgreSQL 17 gate runs all three database-boundary tests and supplies that one additional unique pass. The integration gate is not replaced by SQLite or an in-memory fake.
 
 ```bash
 ./scripts/test-all.sh
@@ -381,7 +391,7 @@ IvritSheli/
 
 ## Project status
 
-Version 2.1.1 is implemented as a release candidate on `codex/ivrit-sheli-v2.1.1`: the private offline path, authenticated cloud path, migration safety, consent gates, pronunciation integration, and accessible review/dialog behavior are locally verified. The public Railway service still runs the previously verified 2.1.0 build at [ivritsheli-production.up.railway.app](https://ivritsheli-production.up.railway.app) until this branch is merged and deployed. Successful GitHub code exchange, authenticated persistence across refreshes, cross-user production isolation, live OpenAI/Google calls, and backup restoration remain honest operator checks rather than inflated claims.
+Version 2.2.0 is implemented and verified as a release candidate on `codex/ivrit-sheli-v2.2.0`: selectable voice styles, microphone word intelligence, the saved-vocabulary registry, the expanded dictionary and the visual/motion system pass the local automated, real-PostgreSQL and production-image gates documented in [`TEST_REPORT.md`](TEST_REPORT.md). The public Railway service remains the separately verified `2.1.1` deployment at [ivritsheli-production.up.railway.app](https://ivritsheli-production.up.railway.app); 2.2.0 is not claimed as deployed or tagged. Successful GitHub code exchange, authenticated persistence across refreshes, live OpenAI/Google calls, two-identity production isolation, 2.2 interactive browser visual QA and backup restoration remain honest operator checks rather than inflated claims.
 
 Passing tests and healthy local production-image checks materially reduce risk but do not prove that software is defect-free. Operational limits, credential-dependent checks and restore requirements are documented explicitly rather than hidden behind a perfect-score claim.
 

@@ -4,25 +4,29 @@
 // Date: 2026-07-15 | TZ: Asia/Jerusalem
 // Notes: Comments in ENGLISH; emojis sparingly.
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { api } from '../api';
 import { useI18n } from '../i18n';
 import { useSessionAccess } from '../session';
-import type { DictionaryEntry, LearningItem } from '../types';
+import type { DictionaryEntry } from '../types';
 import { AudioPractice } from './AudioPractice';
 import { HebrewText } from './HebrewText';
 import { Icon } from './Icon';
+import { MicWordAnalyzer } from './MicWordAnalyzer';
+import { RegistryPanel } from './RegistryPanel';
 import { ReviewCard } from './ReviewCard';
 
 type LearnTab = 'review' | 'dictionary' | 'audio' | 'collection';
 
 export function LearnPanel({
   initialTab = 'review',
+  cloudAvailable,
   onWordClick,
   onRefresh,
 }: {
   initialTab?: LearnTab;
-  onWordClick: (word: string) => void;
+  cloudAvailable: boolean;
+  onWordClick: (word: string, entryId?: number) => void;
   onRefresh: () => void;
 }): React.JSX.Element {
   const { locale, label, t } = useI18n();
@@ -30,34 +34,47 @@ export function LearnPanel({
   const [tab, setTab] = useState<LearnTab>(initialTab);
   const [query, setQuery] = useState('');
   const [dictionaryResults, setDictionaryResults] = useState<DictionaryEntry[]>([]);
-  const [items, setItems] = useState<LearningItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const mountedRef = useRef(true);
+  const searchGenerationRef = useRef(0);
 
   useEffect(() => setTab(initialTab), [initialTab]);
   useEffect(() => {
-    if (tab === 'collection') {
-      void api.listItems('', 200).then(setItems).catch((reason: unknown) => setMessage(reason instanceof Error ? reason.message : String(reason)));
-    }
-  }, [tab]);
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      searchGenerationRef.current += 1;
+    };
+  }, []);
 
   const search = async (event: React.FormEvent): Promise<void> => {
     event.preventDefault();
-    if (!query.trim()) return;
+    const normalizedQuery = query.trim();
+    if (!normalizedQuery) return;
+    const generation = ++searchGenerationRef.current;
     setLoading(true);
     setMessage('');
     try {
-      setDictionaryResults(await api.dictionarySearch(query.trim()));
+      const results = await api.dictionarySearch(normalizedQuery);
+      if (!mountedRef.current || generation !== searchGenerationRef.current) return;
+      setDictionaryResults(results);
     } catch (reason) {
+      if (!mountedRef.current || generation !== searchGenerationRef.current) return;
       setMessage(reason instanceof Error ? reason.message : String(reason));
     } finally {
-      setLoading(false);
+      if (mountedRef.current && generation === searchGenerationRef.current) setLoading(false);
     }
   };
 
   const addEntry = async (entry: DictionaryEntry): Promise<void> => {
     try {
-      await api.learnDictionaryEntry(entry.id);
+      const learned = await api.learnDictionaryEntry(entry.id);
+      setDictionaryResults((current) => current.map((result) => (
+        result.id === entry.id
+          ? { ...result, learning_item_id: learned.id, learning_status: 'needs_review', learning_due_state: 'due' }
+          : result
+      )));
       setMessage(t('captured'));
       onRefresh();
     } catch (reason) {
@@ -88,7 +105,12 @@ export function LearnPanel({
       {readOnly && tab === 'dictionary' && <div className="demo-inline-notice" role="note"><Icon name="shield" size={16} /> {t('demoDictionaryNotice')} {readOnlyReason}</div>}
       {message && <div className="info-banner"><Icon name="sparkles" size={16} /> {message}</div>}
       {tab === 'review' && <ReviewCard active={tab === 'review'} onWordClick={onWordClick} onReviewed={onRefresh} />}
-      {tab === 'audio' && <AudioPractice onWordClick={onWordClick} />}
+      {tab === 'audio' && (
+        <div className="audio-workspace">
+          <AudioPractice cloudAvailable={cloudAvailable} onWordClick={onWordClick} />
+          <MicWordAnalyzer cloudAvailable={cloudAvailable} onWordClick={onWordClick} />
+        </div>
+      )}
       {tab === 'dictionary' && (
         <section className="dictionary-workspace card">
           <header className="dictionary-workspace__hero">
@@ -97,7 +119,12 @@ export function LearnPanel({
           </header>
           <form className="large-search" onSubmit={(event) => { void search(event); }}>
             <Icon name="search" size={22} />
-            <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t('searchDictionary')} />
+            <input value={query} onChange={(event) => {
+              searchGenerationRef.current += 1;
+              setQuery(event.target.value);
+              setDictionaryResults([]);
+              setLoading(false);
+            }} placeholder={t('searchDictionary')} />
             <button type="submit" className="primary-button" disabled={loading || !query.trim()}>{loading ? <span className="spinner" /> : t('dictionary')}</button>
           </form>
           <div className="dictionary-result-grid">
@@ -106,13 +133,22 @@ export function LearnPanel({
               const meaning = locale === 'es' ? sense?.gloss_es ?? sense?.gloss_en : sense?.gloss_en ?? sense?.gloss_es;
               return (
                 <article className="dictionary-result" key={entry.id}>
-                  <button type="button" className="dictionary-result__main" onClick={() => onWordClick(entry.word)}>
+                  <button type="button" className="dictionary-result__main" onClick={() => onWordClick(entry.word, entry.id)}>
                     <HebrewText text={entry.display_niqqud || entry.word} className="dictionary-result__word" as="h3" />
                     <span dir="ltr">{entry.romanization || '—'}</span>
                     <p>{meaning || t('noDefinition')}</p>
-                    <div className="tag-row">{entry.pos && <span>{entry.pos}</span>}{entry.root && <span>שורש · {entry.root}</span>}</div>
+                    <div className="tag-row">{entry.pos && <span>{label(entry.pos)}</span>}{entry.root && <span>{t('rootLabel')} · {entry.root}</span>}</div>
                   </button>
-                  <button type="button" className="icon-button" onClick={() => { void addEntry(entry); }} aria-label={t('addToLearning')} disabled={readOnly} title={readOnly ? readOnlyReason : undefined}><Icon name="plus" /></button>
+                  <button
+                    type="button"
+                    className={`icon-button learned-button ${entry.learning_item_id ? 'is-learned' : ''}`}
+                    onClick={() => { void addEntry(entry); }}
+                    aria-label={entry.learning_item_id ? t('alreadyInLearning') : t('addToLearning')}
+                    disabled={readOnly || Boolean(entry.learning_item_id)}
+                    title={readOnly ? readOnlyReason : entry.learning_item_id ? t('alreadyInLearning') : undefined}
+                  >
+                    <Icon name={entry.learning_item_id ? 'check' : 'plus'} />
+                  </button>
                 </article>
               );
             })}
@@ -120,23 +156,7 @@ export function LearnPanel({
           {!loading && query && dictionaryResults.length === 0 && <p className="muted-copy">{t('noDefinition')}</p>}
         </section>
       )}
-      {tab === 'collection' && (
-        <section className="collection-section card">
-          <header className="section-heading"><div><span className="eyebrow">{t('yourSourceMaterial')}</span><h2>{t('vocabulary')}</h2></div><span className="count-chip">{items.length}</span></header>
-          <div className="collection-grid">
-            {items.map((item) => (
-              <article key={item.id} className="collection-card">
-                <div className="collection-card__top"><span className="context-pill">{label(item.context_label)}</span><span>{Math.round(item.priority * 100)}%</span></div>
-                <HebrewText text={item.hebrew_with_niqqud || item.hebrew_text} onWordClick={onWordClick} className="collection-hebrew" as="h3" />
-                {item.transliteration && <p className="collection-transliteration" dir="ltr">{item.transliteration}</p>}
-                <p>{locale === 'es' ? item.translation_es ?? item.translation_en : item.translation_en ?? item.translation_es}</p>
-                <footer>{item.root && <span>שורש · {item.root}</span>}{item.binyan && <span>{item.binyan}</span>}</footer>
-              </article>
-            ))}
-          </div>
-          {items.length === 0 && <p className="muted-copy">{t('empty')}</p>}
-        </section>
-      )}
+      {tab === 'collection' && <RegistryPanel onWordClick={onWordClick} />}
     </div>
   );
 }
