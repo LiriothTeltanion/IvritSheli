@@ -22,10 +22,10 @@ if (!root) throw new Error('Missing #root application mount');
 
 createRoot(root).render(
   <StrictMode>
-    <ErrorBoundary>
-      <I18nProvider>
+    <I18nProvider>
+      <ErrorBoundary>
         <App />
-      </I18nProvider>
-    </ErrorBoundary>
+      </ErrorBoundary>
+    </I18nProvider>
   </StrictMode>,
 );

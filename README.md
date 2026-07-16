@@ -1,32 +1,73 @@
 <div align="center">
   <img src="assets/brand/logo.svg" alt="Ivrit Sheli Ultimate" width="680" />
 
-  <h1>Ivrit Sheli Ultimate — העברית שלי</h1>
-  <p><strong>A private, adaptive, trilingual Hebrew-learning operating system built from real life.</strong></p>
+  <h1>Ivrit Sheli 2.0 Ultimate — העברית שלי</h1>
+  <p><strong>A private-first, authenticated, trilingual Hebrew-learning operating system built from real life.</strong></p>
 
   <p>
     <code>Hebrew • English • Spanish</code> ·
-    <code>Local-first</code> ·
+    <code>SQLite + PostgreSQL</code> ·
+    <code>GitHub OAuth</code> ·
+    <code>Docker</code> ·
     <code>AI-optional</code> ·
     <code>RTL-native</code> ·
     <code>Accessible motion</code>
   </p>
 
   <p>
-    <img src="assets/readme/badge-tests.svg" alt="66 tests passing" />
+    <img src="assets/readme/badge-tests.svg" alt="126 automated tests passing" />
     <img src="assets/readme/badge-private.svg" alt="Local-first private" />
     <img src="assets/readme/badge-trilingual.svg" alt="Hebrew English Spanish" />
     <img src="assets/readme/badge-pwa.svg" alt="Installable PWA" />
   </p>
 </div>
 
-![Dashboard preview](assets/readme/dashboard-preview.svg)
+<picture>
+  <source media="(max-width: 640px)" srcset="assets/readme/ivrit-sheli-2-mobile.png" />
+  <img src="assets/readme/ivrit-sheli-2-dashboard.png" width="100%" alt="Ivrit Sheli 2.0 read-only demo dashboard with adaptive Hebrew learning, focused practice and authenticated cloud controls" />
+</picture>
+
+<details>
+<summary><strong>📱 Open the verified mobile and Hebrew RTL views</strong></summary>
+
+<table>
+  <tr>
+    <td width="34%" align="center"><strong>Responsive mobile workspace</strong></td>
+    <td width="66%" align="center"><strong>Hebrew right-to-left workspace</strong></td>
+  </tr>
+  <tr>
+    <td><img src="assets/readme/ivrit-sheli-2-mobile.png" width="100%" alt="Ivrit Sheli 2.0 mobile demo with the compact navigation and focused-session hero" /></td>
+    <td><img src="assets/readme/ivrit-sheli-2-hebrew-rtl.png" width="100%" alt="Ivrit Sheli 2.0 Hebrew interface rendered right to left with the demo learner workspace" /></td>
+  </tr>
+</table>
+</details>
 
 ## Why this project exists 💙
 
 Most language products make every learner follow the same path. Ivrit Sheli does the opposite: it converts the Hebrew you encounter at work, in Be'er Sheva, in messages, appointments, media, and daily conversations into an evolving personal curriculum.
 
 The system tracks what you recognize, what you can produce, where you hesitate, which grammar errors repeat, which situations matter, and which learning mode works best. Recommendations are explainable: the app tells you *why* it selected a word, exercise, mission, or speaking drill.
+
+## What changed in 2.0 🚀
+
+Version 2.0 turns the complete local-first learning system into a deployment-ready, production-shaped full-stack product without sacrificing its private offline path.
+
+![Ivrit Sheli 2.0 cloud architecture](assets/readme/cloud-architecture.svg)
+
+| Production capability | Verifiable implementation |
+|---|---|
+| Authentication | GitHub OAuth web flow with state, PKCE, short-lived single-use state and HMAC-hashed server-side sessions |
+| Session security | Random bearers stored only as hashes; `HttpOnly`, `Secure`, `SameSite` cookies; logout revocation |
+| Demo boundary | Deterministic non-admin tenant with seeded data and server-enforced read-only mutations |
+| PostgreSQL | Users, sessions, OAuth state and one revisioned JSONB learner snapshot per authenticated user |
+| Authorization | Request-derived identity, explicit tenant predicates and forced PostgreSQL row-level security under a restricted runtime role |
+| Migrations | Alembic plus an idempotent provisioner; privileged migration and restricted runtime DSNs are separate |
+| Containers | Multi-stage React/Python image, unprivileged runtime user, health check and persistent Compose volumes |
+| Integration tests | Real PostgreSQL migration, persistence, session, cross-user isolation and RLS denial—not SQLite mocks |
+| Observability | One redacted JSON log per completed request with correlation ID, status, duration, version and build commit |
+| Operations | Independent liveness, readiness and immutable version endpoints plus explicit rollback/restore guidance |
+
+The public-demo design does not contain Kevin's private learning history: it uses synthetic seeded phrases and cannot permanently mutate shared state. Paid AI and Kevin's Google provider credentials must remain disabled in any public recruiter deployment until its identity allowlists and cost controls are explicitly verified.
 
 ## What is included
 
@@ -42,8 +83,8 @@ The system tracks what you recognize, what you can produce, where you hesitate, 
 | Integrations | Read-only Google Calendar, Gmail, and Drive adapters; ICS import; explicit consent gates |
 | Languages | Trilingual interface and content layers: Hebrew, English, Spanish |
 | UI | Responsive React app, RTL/LTR switching, custom SVG icons, motion, reduced-motion support |
-| Reliability | FastAPI error handling, request IDs, local bug reports, health checks, unit/API/UI tests, CI |
-| Privacy | Local SQLite, no analytics by default, no cloud account required, export/delete controls |
+| Reliability | FastAPI error handling, request IDs, liveness/readiness/version probes, real PostgreSQL integration tests, CI |
+| Privacy | Local SQLite mode, isolated PostgreSQL tenants, read-only public demo, no analytics, explicit cloud consent |
 
 ## Product loop
 
@@ -86,6 +127,8 @@ The default address is `http://127.0.0.1:8000`. If that port is busy, the launch
 - npm 10+
 - SQLite with FTS5 support
 
+PostgreSQL is required only for authenticated cloud mode. Docker Compose provides PostgreSQL 17 automatically.
+
 ### One-command setup on macOS/Linux
 
 ```bash
@@ -123,10 +166,31 @@ npm run dev
 ### Docker
 
 ```bash
-docker compose up --build
+docker compose config --quiet
+docker compose up --build --wait
 ```
 
-The production container builds the React frontend, seeds a fresh private volume, and serves the installable PWA through FastAPI.
+Then open `http://127.0.0.1:8000` and enter the seeded read-only demo. Compose builds the React frontend, runs Alembic and provisions the direct least-privilege `ivrit_sheli_runtime` login against PostgreSQL 17, starts the non-root FastAPI container and waits for `/health/ready`.
+
+```bash
+curl http://127.0.0.1:8000/health/live
+curl http://127.0.0.1:8000/health/ready
+curl http://127.0.0.1:8000/version
+```
+
+The checked-in Compose secrets and separate administrator/runtime database passwords are local-development values only. Production variables and Railway deployment are documented in [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
+
+## Authentication and ownership 🔐
+
+Local-first mode remains writable without an online account. Cloud mode requires an authenticated session and never accepts a client-supplied owner ID.
+
+- **GitHub sign-in:** identity-only `read:user` OAuth, state + PKCE, no repository permission.
+- **Private sessions:** session and CSRF tokens are random; only their hashes are durable.
+- **Bounded public surface:** layered client/global auth limits, per-user write and session caps, and a 4 MiB cloud-snapshot ceiling limit abuse and storage growth.
+- **Tenant storage:** one PostgreSQL learner state per user with explicit ownership and forced RLS.
+- **Read-only demo:** synthetic seeded data, no admin rights and `403` on private mutations.
+- **Logout:** server-side revocation, not merely browser cookie removal.
+- **Cloud continuity:** the private SQLite launcher remains available when a hosting service is offline.
 
 ## Full Hebrew dictionary
 
@@ -192,7 +256,7 @@ All connectors are disabled by default and read-only:
 - **Drive:** only explicitly selected documents are processed.
 - **ICS:** local calendar files can be imported without a cloud connection.
 
-The app stores connector state and consent locally. See [`docs/CONNECTORS.md`](docs/CONNECTORS.md).
+The app stores connector state and consent inside the active learner boundary: local SQLite in private mode or that authenticated user's PostgreSQL tenant snapshot in cloud mode. See [`docs/CONNECTORS.md`](docs/CONNECTORS.md).
 
 ## XP and achievements
 
@@ -224,7 +288,7 @@ Included achievement families:
 
 ## Test everything
 
-The packaged verification baseline is **60 backend tests + 6 frontend tests = 66 passing tests**.
+The 2.0 verification baseline is **109 backend tests + 17 frontend tests = 126 passing automated tests**. The local backend run reports 108 passed with the credential-gated PostgreSQL case skipped; the dedicated PostgreSQL 17 job runs all three database-boundary tests and raises the unique backend total to 109. The integration gate is not replaced by SQLite or an in-memory fake.
 
 ```bash
 ./scripts/test-all.sh
@@ -236,6 +300,7 @@ Or separately:
 PYTHONPATH=backend/src pytest backend/tests -q
 cd frontend && npm test -- --run
 cd frontend && npm run build
+docker compose up --build --wait
 ```
 
 External APIs are tested through deterministic HTTP fakes. Live credentials are never required for CI. Use the explicit opt-in smoke test after adding credentials:
@@ -249,10 +314,12 @@ See [`TEST_REPORT.md`](TEST_REPORT.md) for the commands and results produced for
 ## Repository map
 
 ```text
-ivrit-sheli-ultimate/
+IvritSheli/
+├── .github/                    # CI and dependency-update automation
 ├── assets/                     # Brand, README art, achievement badges
 ├── backend/
 │   ├── src/ivrit_sheli/        # API, engines, repositories, connectors, CLI
+│   ├── migrations/             # Versioned PostgreSQL Alembic schema
 │   └── tests/                  # Unit and integration tests
 ├── frontend/
 │   ├── public/                 # PWA manifest and app icon
@@ -262,6 +329,7 @@ ivrit-sheli-ultimate/
 ├── scripts/                    # Setup, run, test, and verification scripts
 ├── Dockerfile
 ├── docker-compose.yml
+├── railway.toml                # Deployment, migration and health policy
 ├── Makefile
 └── README.md
 ```
@@ -283,21 +351,31 @@ ivrit-sheli-ultimate/
 - [`docs/DEMO_DAY.md`](docs/DEMO_DAY.md) — two-minute video and live presentation plan.
 - [`PACKAGE_MANIFEST.md`](PACKAGE_MANIFEST.md) — exact release contents and credential boundaries.
 - [`TEST_REPORT.md`](TEST_REPORT.md) — commands, results, and honest limitations.
+- [`SECURITY.md`](SECURITY.md) — session, tenant, logging, secret-management, reporting, and incident controls.
 
 ## Privacy promise 🔒
 
-- No account required.
+- No account required for private local-first mode.
+- Cloud identities are limited to GitHub ID, login, display name and avatar; GitHub OAuth tokens are never persisted, while optional Google credentials stay only in server-side configuration and never enter learner data.
+- Public demo content is synthetic, tenant-isolated and read-only.
 - No advertising or behavioral analytics.
 - No secret keys in frontend code.
 - No cloud synchronization by default.
 - No automatic email/document ingestion.
-- Export and deletion are always available.
+- Learner data can be exported as JSON; self-service cloud-account deletion is a documented post-2.0 privacy improvement and is not claimed as implemented.
 - External requests are labeled before content leaves the device.
 
 ## Project status
 
-This package is a production-shaped reference implementation: its offline path, domain engines, API, UI build, and mocked provider adapters are testable. Live OpenAI and Google calls require the user's own credentials and consent, so they are not silently exercised during packaging.
+Version 2.0 is a deployment-ready, production-shaped dual-mode product: the offline path, authenticated API, PostgreSQL migrations and isolation, Docker image, trilingual UI and provider adapters are reproducibly testable. A public Railway URL is not claimed until its TLS, OAuth callback, readiness, version, and logs are verified. Live OpenAI and Google calls still require the user's own credentials and consent, so they are never silently exercised during CI or packaging.
+
+Passing tests and healthy local production-image checks materially reduce risk but do not prove that software is defect-free. Operational limits, credential-dependent checks and restore requirements are documented explicitly rather than hidden behind a perfect-score claim.
 
 ## License
 
-Application source code: MIT. Dictionary-derived data: separate Wiktionary/Kaikki terms apply. See [`LICENSE`](LICENSE) and [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
+Application source code and Ivrit Sheli UI graphics: MIT. Dictionary-derived data uses separate Wiktionary/Kaikki terms. The personal `KC ★ LT` identity mark is reserved and excluded from the MIT asset grant. See [`LICENSE`](LICENSE) and [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
+
+<div align="center">
+  <img src="assets/brand/kc-lt-signature.svg" alt="KC star LT — Kevin Cusnir and Lirioth Teltanion signature" width="230" />
+  <p><sub>Designed, engineered and signed by Kevin Cusnir · Lirioth Teltanion 💙</sub></p>
+</div>

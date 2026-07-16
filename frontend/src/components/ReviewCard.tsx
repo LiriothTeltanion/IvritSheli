@@ -7,6 +7,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { api } from '../api';
 import { useI18n } from '../i18n';
+import { useSessionAccess } from '../session';
 import type { LearningItem } from '../types';
 import { HebrewText } from './HebrewText';
 import { Icon } from './Icon';
@@ -18,7 +19,8 @@ interface ReviewCardProps {
 }
 
 export function ReviewCard({ active, onWordClick, onReviewed }: ReviewCardProps): React.JSX.Element {
-  const { locale, t } = useI18n();
+  const { locale, label, t } = useI18n();
+  const { readOnly, readOnlyReason } = useSessionAccess();
   const [items, setItems] = useState<LearningItem[]>([]);
   const [index, setIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);
@@ -85,7 +87,7 @@ export function ReviewCard({ active, onWordClick, onReviewed }: ReviewCardProps)
     return (
       <section className="review-shell card empty-state">
         <span className="success-orb"><Icon name="check" size={28} /></span>
-        <h2>Session complete</h2>
+        <h2>{t('sessionComplete')}</h2>
         <p>{t('empty')}</p>
       </section>
     );
@@ -99,9 +101,10 @@ export function ReviewCard({ active, onWordClick, onReviewed }: ReviewCardProps)
           {items.slice(0, 8).map((entry, dotIndex) => <span key={entry.id} className={dotIndex <= index ? 'active' : ''} />)}
         </div>
       </header>
+      {readOnly && <div className="demo-inline-notice" role="note"><Icon name="shield" size={16} /> {t('demoReviewNotice')}</div>}
       <div className={`review-card-inner ${revealed ? 'is-revealed' : ''}`}>
         <div className="review-face review-front">
-          <span className="context-pill">{item.context_label.replace('_', ' ')}</span>
+          <span className="context-pill">{label(item.context_label)}</span>
           <HebrewText
             text={item.hebrew_with_niqqud || item.hebrew_text}
             onWordClick={onWordClick}
@@ -114,14 +117,14 @@ export function ReviewCard({ active, onWordClick, onReviewed }: ReviewCardProps)
           </button>
         </div>
         <div className="review-face review-back" aria-hidden={!revealed}>
-          <span className="context-pill">Meaning</span>
-          <p className="review-meaning">{translation || 'Add a meaning to this item.'}</p>
+          <span className="context-pill">{t('meaning')}</span>
+          <p className="review-meaning">{translation || t('missingMeaning')}</p>
           <HebrewText text={item.hebrew_text} onWordClick={onWordClick} className="review-answer" as="p" />
           <div className="grade-buttons">
-            <button type="button" className="grade grade--again" disabled={submitting} onClick={() => { void grade('again'); }}>{t('again')}</button>
-            <button type="button" className="grade grade--hard" disabled={submitting} onClick={() => { void grade('difficult'); }}>{t('difficult')}</button>
-            <button type="button" className="grade grade--good" disabled={submitting} onClick={() => { void grade('good'); }}>{t('good')}</button>
-            <button type="button" className="grade grade--easy" disabled={submitting} onClick={() => { void grade('easy'); }}>{t('easy')}</button>
+            <button type="button" className="grade grade--again" disabled={readOnly || submitting} title={readOnly ? readOnlyReason : undefined} onClick={() => { void grade('again'); }}>{t('again')}</button>
+            <button type="button" className="grade grade--hard" disabled={readOnly || submitting} title={readOnly ? readOnlyReason : undefined} onClick={() => { void grade('difficult'); }}>{t('difficult')}</button>
+            <button type="button" className="grade grade--good" disabled={readOnly || submitting} title={readOnly ? readOnlyReason : undefined} onClick={() => { void grade('good'); }}>{t('good')}</button>
+            <button type="button" className="grade grade--easy" disabled={readOnly || submitting} title={readOnly ? readOnlyReason : undefined} onClick={() => { void grade('easy'); }}>{t('easy')}</button>
           </div>
         </div>
       </div>

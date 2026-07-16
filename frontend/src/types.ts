@@ -7,6 +7,30 @@
 export type Locale = 'en' | 'es' | 'he';
 export type ViewKey = 'today' | 'learn' | 'coach' | 'progress' | 'connectors' | 'settings';
 
+export interface AuthUser {
+  id: string;
+  login: string | null;
+  display_name: string;
+  avatar_url: string | null;
+}
+
+export interface AuthCapabilities {
+  cloud_learning: boolean;
+  ai: boolean;
+  audio_scoring: boolean;
+  connectors: boolean;
+  local_first: boolean;
+}
+
+export interface AuthState {
+  authenticated: boolean;
+  demo: boolean;
+  read_only: boolean;
+  user: AuthUser | null;
+  mode: 'local' | 'cloud';
+  capabilities: AuthCapabilities;
+}
+
 export interface Profile {
   id: number;
   display_name: string;

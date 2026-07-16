@@ -9,7 +9,7 @@ import type { Achievement } from '../types';
 import { Icon } from './Icon';
 
 export function AchievementGrid({ achievements }: { achievements: Achievement[] }): React.JSX.Element {
-  const { locale, t } = useI18n();
+  const { locale, label, t } = useI18n();
   const title = (achievement: Achievement): string => {
     if (locale === 'he') return achievement.title_he;
     if (locale === 'es') return achievement.title_es;
@@ -19,7 +19,7 @@ export function AchievementGrid({ achievements }: { achievements: Achievement[] 
     <section className="achievement-section card">
       <header className="section-heading">
         <div>
-          <span className="eyebrow"><Icon name="trophy" size={16} /> Meaningful milestones</span>
+          <span className="eyebrow"><Icon name="trophy" size={16} /> {t('meaningfulMilestones')}</span>
           <h2>{t('achievements')}</h2>
         </div>
         <span className="count-chip">{achievements.filter((item) => item.unlocked).length}/{achievements.length}</span>
@@ -33,7 +33,7 @@ export function AchievementGrid({ achievements }: { achievements: Achievement[] 
             </div>
             <div>
               <h3>{title(achievement)}</h3>
-              <p>{achievement.metric.replaceAll('_', ' ')} · {achievement.threshold}</p>
+              <p>{label(achievement.metric)} · {achievement.threshold}</p>
               <span>+{achievement.xp_reward} XP</span>
             </div>
           </article>

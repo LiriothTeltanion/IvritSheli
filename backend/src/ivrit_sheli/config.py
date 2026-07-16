@@ -12,6 +12,11 @@ import os
 from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
+from urllib.parse import urlparse
+
+from ivrit_sheli.cloud_store import RUNTIME_DATABASE_ROLE
+
+SUPPORTED_APP_ENVS = frozenset({"development", "test", "production"})
 
 
 def parse_bool(value: str | bool | None, default: bool = False) -> bool:
@@ -42,6 +47,27 @@ def parse_bool(value: str | bool | None, default: bool = False) -> bool:
     if normalized in {"0", "false", "no", "off"}:
         return False
     raise ValueError(f"Unsupported boolean value: {value!r}")
+
+
+def parse_csv(value: str, *, casefold: bool = False) -> tuple[str, ...]:
+    """Parse a comma-separated allowlist into unique, non-empty values.
+
+    Args:
+        value: Raw comma-separated setting.
+        casefold: Whether entries should be normalized case-insensitively.
+
+    Returns:
+        Stable tuple with duplicates removed in input order.
+
+    Example:
+        >>> parse_csv("Kevin, kevin", casefold=True)
+        ('kevin',)
+    """
+    normalized = (
+        item.strip().casefold() if casefold else item.strip()
+        for item in value.split(",")
+    )
+    return tuple(dict.fromkeys(item for item in normalized if item))
 
 
 def load_env_file(path: Path) -> dict[str, str]:
@@ -132,6 +158,44 @@ class Settings:
     google_refresh_token: str = ""
     google_access_token: str = ""
     google_redirect_uri: str = "http://127.0.0.1:8765/oauth/callback"
+    database_url: str = ""
+    auth_required: bool = False
+    session_secret: str = ""
+    session_cookie_name: str = "ivrit_session"
+    session_cookie_secure: bool = False
+    session_ttl_seconds: int = 604_800
+    session_retention_seconds: int = 604_800
+    demo_session_limit: int = 64
+    user_session_limit: int = 8
+    oauth_state_limit: int = 1_024
+    trusted_proxy_mode: str = "direct"
+    railway_environment_id: str = ""
+    auth_client_rate_limit_requests: int = 20
+    auth_global_rate_limit_requests: int = 1_000
+    auth_rate_limit_window_seconds: int = 60
+    auth_rate_limit_max_client_keys: int = 10_000
+    authenticated_write_rate_limit_requests: int = 120
+    authenticated_write_rate_limit_window_seconds: int = 60
+    authenticated_write_rate_limit_max_users: int = 10_000
+    max_cloud_snapshot_bytes: int = 4_194_304
+    max_request_body_bytes: int = 1_048_576
+    max_ics_upload_body_bytes: int = 6_291_456
+    max_audio_upload_body_bytes: int = 27_262_976
+    github_client_id: str = ""
+    github_client_secret: str = ""
+    github_redirect_uri: str = "http://127.0.0.1:8000/api/v1/auth/github/callback"
+    public_base_url: str = "http://127.0.0.1:8000"
+    allowed_origins: tuple[str, ...] = (
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+    )
+    build_commit: str = "development"
+    cloud_ai_allowed_github_logins: tuple[str, ...] = ()
+    cloud_ai_allowed_github_ids: tuple[str, ...] = ()
+    google_connectors_allowed_github_logins: tuple[str, ...] = ()
+    google_connectors_allowed_github_ids: tuple[str, ...] = ()
 
     @classmethod
     def from_env(cls, overrides: Mapping[str, str] | None = None) -> Settings:
@@ -172,6 +236,33 @@ class Settings:
         if str(dictionary_path) != ":memory:" and not dictionary_path.is_absolute():
             dictionary_path = (root_dir / dictionary_path).resolve()
 
+        app_env = value("APP_ENV", "development").strip().lower()
+        if app_env not in SUPPORTED_APP_ENVS:
+            supported = ", ".join(sorted(SUPPORTED_APP_ENVS))
+            raise ValueError(f"APP_ENV must be one of: {supported}")
+        public_base_url = value(
+            "PUBLIC_BASE_URL", "http://127.0.0.1:8000"
+        ).strip().rstrip("/")
+        configured_origins = tuple(
+            item.strip().rstrip("/")
+            for item in value("ALLOWED_ORIGINS", "").split(",")
+            if item.strip()
+        )
+        default_origins = (
+            (public_base_url,)
+            if app_env == "production"
+            else (
+                "http://localhost:5173",
+                "http://127.0.0.1:5173",
+                "http://localhost:8000",
+                "http://127.0.0.1:8000",
+            )
+        )
+        public_origin = _origin(public_base_url)
+        allowed_origins = tuple(
+            dict.fromkeys((*default_origins, *configured_origins, public_origin))
+        )
+
         settings = cls(
             root_dir=root_dir,
             data_dir=data_dir,
@@ -180,7 +271,7 @@ class Settings:
             frontend_dist=root_dir / "frontend" / "dist",
             host=value("APP_HOST", "127.0.0.1"),
             port=int(value("APP_PORT", "8000")),
-            app_env=value("APP_ENV", "development"),
+            app_env=app_env,
             log_level=value("LOG_LEVEL", "INFO").upper(),
             debug=parse_bool(values.get("DEBUG"), False),
             ai_provider=value("AI_PROVIDER", "offline").lower(),
@@ -205,9 +296,272 @@ class Settings:
             google_redirect_uri=value(
                 "GOOGLE_REDIRECT_URI", "http://127.0.0.1:8765/oauth/callback"
             ),
+            database_url=value("DATABASE_URL", ""),
+            auth_required=parse_bool(values.get("AUTH_REQUIRED"), app_env == "production"),
+            session_secret=value("SESSION_SECRET", ""),
+            session_cookie_name=value("SESSION_COOKIE_NAME", "ivrit_session"),
+            session_cookie_secure=parse_bool(
+                values.get("SESSION_COOKIE_SECURE"), app_env == "production"
+            ),
+            session_ttl_seconds=int(value("SESSION_TTL_SECONDS", "604800")),
+            session_retention_seconds=int(
+                value("SESSION_RETENTION_SECONDS", "604800")
+            ),
+            demo_session_limit=int(value("DEMO_SESSION_LIMIT", "64")),
+            user_session_limit=int(value("USER_SESSION_LIMIT", "8")),
+            oauth_state_limit=int(value("OAUTH_STATE_LIMIT", "1024")),
+            trusted_proxy_mode=value("TRUSTED_PROXY_MODE", "direct").strip().lower(),
+            railway_environment_id=value("RAILWAY_ENVIRONMENT_ID", "").strip(),
+            auth_client_rate_limit_requests=int(
+                value("AUTH_CLIENT_RATE_LIMIT_REQUESTS", "20")
+            ),
+            auth_global_rate_limit_requests=int(
+                value("AUTH_GLOBAL_RATE_LIMIT_REQUESTS", "1000")
+            ),
+            auth_rate_limit_window_seconds=int(
+                value("AUTH_RATE_LIMIT_WINDOW_SECONDS", "60")
+            ),
+            auth_rate_limit_max_client_keys=int(
+                value("AUTH_RATE_LIMIT_MAX_CLIENT_KEYS", "10000")
+            ),
+            authenticated_write_rate_limit_requests=int(
+                value("AUTHENTICATED_WRITE_RATE_LIMIT_REQUESTS", "120")
+            ),
+            authenticated_write_rate_limit_window_seconds=int(
+                value("AUTHENTICATED_WRITE_RATE_LIMIT_WINDOW_SECONDS", "60")
+            ),
+            authenticated_write_rate_limit_max_users=int(
+                value("AUTHENTICATED_WRITE_RATE_LIMIT_MAX_USERS", "10000")
+            ),
+            max_cloud_snapshot_bytes=int(
+                value("MAX_CLOUD_SNAPSHOT_BYTES", "4194304")
+            ),
+            max_request_body_bytes=int(
+                value("MAX_REQUEST_BODY_BYTES", "1048576")
+            ),
+            max_ics_upload_body_bytes=int(
+                value("MAX_ICS_UPLOAD_BODY_BYTES", "6291456")
+            ),
+            max_audio_upload_body_bytes=int(
+                value("MAX_AUDIO_UPLOAD_BODY_BYTES", "27262976")
+            ),
+            github_client_id=value("GITHUB_CLIENT_ID", ""),
+            github_client_secret=value("GITHUB_CLIENT_SECRET", ""),
+            github_redirect_uri=value(
+                "GITHUB_REDIRECT_URI",
+                f"{public_base_url}/api/v1/auth/github/callback",
+            ).strip().rstrip("/"),
+            public_base_url=public_base_url,
+            allowed_origins=allowed_origins,
+            build_commit=(
+                value("BUILD_COMMIT", "").strip()
+                or value("RAILWAY_GIT_COMMIT_SHA", "").strip()
+                or "development"
+            )[:80],
+            cloud_ai_allowed_github_logins=parse_csv(
+                value("CLOUD_AI_ALLOWED_GITHUB_LOGINS", ""), casefold=True
+            ),
+            cloud_ai_allowed_github_ids=parse_csv(
+                value("CLOUD_AI_ALLOWED_GITHUB_IDS", "")
+            ),
+            google_connectors_allowed_github_logins=parse_csv(
+                value("GOOGLE_CONNECTORS_ALLOWED_GITHUB_LOGINS", ""),
+                casefold=True,
+            ),
+            google_connectors_allowed_github_ids=parse_csv(
+                value("GOOGLE_CONNECTORS_ALLOWED_GITHUB_IDS", "")
+            ),
         )
+        settings.validate_cloud_configuration()
         settings.ensure_directories()
         return settings
+
+    @property
+    def cloud_mode(self) -> bool:
+        """Return whether PostgreSQL-backed multi-user mode is configured."""
+        return bool(self.database_url)
+
+    @property
+    def cloud_ai_allowlist_configured(self) -> bool:
+        """Return whether at least one GitHub identity may use paid cloud AI."""
+        return bool(
+            self.cloud_ai_allowed_github_logins
+            or self.cloud_ai_allowed_github_ids
+        )
+
+    @property
+    def google_connector_allowlist_configured(self) -> bool:
+        """Return whether at least one GitHub identity may use Google previews."""
+        return bool(
+            self.google_connectors_allowed_github_logins
+            or self.google_connectors_allowed_github_ids
+        )
+
+    def allows_cloud_ai(self, login: str | None, github_id: str | None) -> bool:
+        """Match one authenticated GitHub identity against the cloud-AI allowlist."""
+        return self._github_identity_allowed(
+            login,
+            github_id,
+            self.cloud_ai_allowed_github_logins,
+            self.cloud_ai_allowed_github_ids,
+        )
+
+    def allows_google_connectors(
+        self, login: str | None, github_id: str | None
+    ) -> bool:
+        """Match one authenticated GitHub identity against the Google allowlist."""
+        return self._github_identity_allowed(
+            login,
+            github_id,
+            self.google_connectors_allowed_github_logins,
+            self.google_connectors_allowed_github_ids,
+        )
+
+    @staticmethod
+    def _github_identity_allowed(
+        login: str | None,
+        github_id: str | None,
+        allowed_logins: tuple[str, ...],
+        allowed_ids: tuple[str, ...],
+    ) -> bool:
+        normalized_login = login.strip().casefold() if login else ""
+        normalized_id = github_id.strip() if github_id else ""
+        return bool(
+            (normalized_login and normalized_login in allowed_logins)
+            or (normalized_id and normalized_id in allowed_ids)
+        )
+
+    def validate_cloud_configuration(self) -> None:
+        """Reject unsafe production authentication and database settings early."""
+        if not 60 <= self.session_ttl_seconds <= 31_536_000:
+            raise ValueError("SESSION_TTL_SECONDS must be between 60 and 31536000")
+        if not 0 <= self.session_retention_seconds <= 31_536_000:
+            raise ValueError(
+                "SESSION_RETENTION_SECONDS must be between 0 and 31536000"
+            )
+        if not 1 <= self.demo_session_limit <= 1024:
+            raise ValueError("DEMO_SESSION_LIMIT must be between 1 and 1024")
+        if not 1 <= self.user_session_limit <= 100:
+            raise ValueError("USER_SESSION_LIMIT must be between 1 and 100")
+        if not 1 <= self.oauth_state_limit <= 100_000:
+            raise ValueError("OAUTH_STATE_LIMIT must be between 1 and 100000")
+        if self.trusted_proxy_mode not in {"direct", "railway"}:
+            raise ValueError("TRUSTED_PROXY_MODE must be direct or railway")
+        if self.trusted_proxy_mode == "railway" and self.app_env != "production":
+            raise ValueError(
+                "TRUSTED_PROXY_MODE=railway is valid only in production"
+            )
+        if self.trusted_proxy_mode == "railway" and not self.railway_environment_id:
+            raise ValueError(
+                "TRUSTED_PROXY_MODE=railway requires RAILWAY_ENVIRONMENT_ID"
+            )
+        if not 1 <= self.auth_client_rate_limit_requests <= 1_000:
+            raise ValueError(
+                "AUTH_CLIENT_RATE_LIMIT_REQUESTS must be between 1 and 1000"
+            )
+        if not 10 <= self.auth_global_rate_limit_requests <= 100_000:
+            raise ValueError(
+                "AUTH_GLOBAL_RATE_LIMIT_REQUESTS must be between 10 and 100000"
+            )
+        if (
+            self.app_env == "production"
+            and self.auth_global_rate_limit_requests
+            < self.auth_client_rate_limit_requests * 10
+        ):
+            raise ValueError(
+                "Production AUTH_GLOBAL_RATE_LIMIT_REQUESTS must be at least "
+                "10x AUTH_CLIENT_RATE_LIMIT_REQUESTS"
+            )
+        if not 1 <= self.auth_rate_limit_window_seconds <= 3_600:
+            raise ValueError(
+                "AUTH_RATE_LIMIT_WINDOW_SECONDS must be between 1 and 3600"
+            )
+        if not 1 <= self.auth_rate_limit_max_client_keys <= 100_000:
+            raise ValueError(
+                "AUTH_RATE_LIMIT_MAX_CLIENT_KEYS must be between 1 and 100000"
+            )
+        if not 1 <= self.authenticated_write_rate_limit_requests <= 10_000:
+            raise ValueError(
+                "AUTHENTICATED_WRITE_RATE_LIMIT_REQUESTS must be between 1 and 10000"
+            )
+        if not 1 <= self.authenticated_write_rate_limit_window_seconds <= 3_600:
+            raise ValueError(
+                "AUTHENTICATED_WRITE_RATE_LIMIT_WINDOW_SECONDS must be between 1 and 3600"
+            )
+        if not 1 <= self.authenticated_write_rate_limit_max_users <= 100_000:
+            raise ValueError(
+                "AUTHENTICATED_WRITE_RATE_LIMIT_MAX_USERS must be between 1 and 100000"
+            )
+        if not 1_024 <= self.max_cloud_snapshot_bytes <= 67_108_864:
+            raise ValueError(
+                "MAX_CLOUD_SNAPSHOT_BYTES must be between 1024 and 67108864"
+            )
+        request_limits = {
+            "MAX_REQUEST_BODY_BYTES": self.max_request_body_bytes,
+            "MAX_ICS_UPLOAD_BODY_BYTES": self.max_ics_upload_body_bytes,
+            "MAX_AUDIO_UPLOAD_BODY_BYTES": self.max_audio_upload_body_bytes,
+        }
+        for name, limit in request_limits.items():
+            if not 1 <= limit <= 104_857_600:
+                raise ValueError(f"{name} must be between 1 and 104857600")
+        if self.cloud_mode and self.auth_required and len(self.session_secret) < 32:
+            raise ValueError(
+                "Cloud authentication SESSION_SECRET must contain at least 32 characters"
+            )
+        if self.app_env == "production" and self.debug:
+            raise ValueError("Production DEBUG must be false")
+        if self.app_env == "production" and not self.auth_required:
+            raise ValueError("Production requires authentication")
+        if self.app_env == "production" and self.auth_required:
+            if not self.database_url.startswith(("postgresql://", "postgres://")):
+                raise ValueError("Production authentication requires a PostgreSQL DATABASE_URL")
+            database_username = urlparse(self.database_url).username or ""
+            if database_username != RUNTIME_DATABASE_ROLE:
+                raise ValueError(
+                    f"Production DATABASE_URL must authenticate as {RUNTIME_DATABASE_ROLE}"
+                )
+            if len(self.session_secret) < 32:
+                raise ValueError("Production SESSION_SECRET must contain at least 32 characters")
+            if not self.session_cookie_secure:
+                raise ValueError("Production session cookies must be Secure")
+            if not self.public_base_url.startswith("https://"):
+                raise ValueError("Production PUBLIC_BASE_URL must use HTTPS")
+            if not self.github_client_id or not self.github_client_secret:
+                raise ValueError("Production authentication requires GitHub OAuth credentials")
+            expected_callback = (
+                f"{self.public_base_url}/api/v1/auth/github/callback"
+            )
+            if self.github_redirect_uri != expected_callback:
+                raise ValueError(
+                    "GITHUB_REDIRECT_URI must use PUBLIC_BASE_URL and the GitHub callback path"
+                )
+        if self.app_env == "production":
+            for origin in self.allowed_origins:
+                if (
+                    "*" in origin
+                    or not origin.startswith("https://")
+                    or _origin(origin) != origin
+                ):
+                    raise ValueError(
+                        "Production ALLOWED_ORIGINS must contain only exact HTTPS origins"
+                    )
+        if self.app_env == "production" and self.cloud_mode:
+            if self.allow_cloud_processing and not self.cloud_ai_allowlist_configured:
+                raise ValueError(
+                    "Production cloud AI requires an explicit GitHub identity allowlist"
+                )
+            google_credentials_present = any(
+                (
+                    self.google_client_id,
+                    self.google_client_secret,
+                    self.google_refresh_token,
+                    self.google_access_token,
+                )
+            )
+            if google_credentials_present and not self.google_connector_allowlist_configured:
+                raise ValueError(
+                    "Production Google connectors require an explicit GitHub identity allowlist"
+                )
 
     def ensure_directories(self) -> None:
         """Create mutable directories required by the application.
@@ -225,3 +579,11 @@ class Settings:
         self.data_dir.mkdir(parents=True, exist_ok=True)
         for child in ("backups", "imports", "audio", "private"):
             (self.data_dir / child).mkdir(parents=True, exist_ok=True)
+
+
+def _origin(url: str) -> str:
+    """Return the scheme and authority used for strict Origin checks."""
+    parsed = urlparse(url)
+    if not parsed.scheme or not parsed.netloc:
+        raise ValueError(f"Invalid absolute URL: {url!r}")
+    return f"{parsed.scheme}://{parsed.netloc}"

@@ -23,4 +23,6 @@ Google Calendar, Gmail, and Drive are optional read-only integrations. No Google
 
 ## Custom graphics
 
-The logo, interface preview, icons, and achievement badge SVGs in `assets/` were created for this project and are distributed under the repository's MIT license.
+The Ivrit Sheli application logo, interface previews, icons, and achievement badge SVGs in `assets/` were created for this project and are distributed under the repository's MIT license.
+
+The personal `KC ★ LT` signature files at `assets/brand/kc-lt-signature.*` are Kevin Cusnir / Lirioth Teltanion's reserved identity mark. They are excluded from the MIT asset grant: copyright © 2026 Kevin Cusnir, all rights reserved. Repository forks may retain the mark only for accurate attribution and may not use it to imply Kevin's authorship, endorsement, or identity for another product.

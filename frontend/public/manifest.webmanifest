@@ -1,7 +1,7 @@
 {
-  "name": "Ivrit Sheli Ultimate",
+  "name": "Ivrit Sheli Cloud",
   "short_name": "Ivrit Sheli",
-  "description": "Private adaptive Hebrew learning from your real life.",
+  "description": "Secure, account-isolated, adaptive Hebrew learning in English, Spanish, and Hebrew.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#07111f",

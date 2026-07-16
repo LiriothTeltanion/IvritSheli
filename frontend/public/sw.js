@@ -4,8 +4,14 @@
 // Date: 2026-07-15 | TZ: Asia/Jerusalem
 // Notes: API responses and user data are deliberately never cached by the service worker.
 
-const CACHE_NAME = 'ivrit-sheli-shell-v1';
+const CACHE_NAME = 'ivrit-sheli-shell-v2';
 const CORE_ASSETS = ['/', '/manifest.webmanifest', '/icons/app-icon.svg', '/icons/app-icon-192.png', '/icons/app-icon-512.png'];
+const NETWORK_ONLY_PATHS = new Set(['/health/live', '/health/ready', '/version']);
+
+function canCache(response) {
+  const cacheControl = response.headers.get('Cache-Control') || '';
+  return response.ok && !cacheControl.toLowerCase().includes('no-store');
+}
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_ASSETS)));
@@ -22,14 +28,21 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const request = event.request;
   const url = new URL(request.url);
-  if (request.method !== 'GET' || url.origin !== self.location.origin || url.pathname.startsWith('/api/')) return;
+  if (
+    request.method !== 'GET'
+    || url.origin !== self.location.origin
+    || url.pathname.startsWith('/api/')
+    || NETWORK_ONLY_PATHS.has(url.pathname)
+  ) return;
 
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put('/', copy));
+          if (canCache(response)) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put('/', copy));
+          }
           return response;
         })
         .catch(() => caches.match('/')),
@@ -39,7 +52,7 @@ self.addEventListener('fetch', (event) => {
 
   event.respondWith(
     caches.match(request).then((cached) => cached || fetch(request).then((response) => {
-      if (response.ok) {
+      if (canCache(response)) {
         const copy = response.clone();
         caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
       }

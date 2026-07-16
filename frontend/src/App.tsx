@@ -5,10 +5,12 @@
 // Notes: Comments in ENGLISH; emojis sparingly.
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { api } from './api';
+import { api, AUTH_REQUIRED_EVENT, configureApiSession } from './api';
 import { useI18n } from './i18n';
-import type { Dashboard, GamificationStatus, Locale, Profile, ProgressData, ViewKey } from './types';
+import { SessionAccessProvider } from './session';
+import type { AuthState, Dashboard, GamificationStatus, Locale, Profile, ProgressData, ViewKey } from './types';
 import { AICoach } from './components/AICoach';
+import { AuthGate } from './components/AuthGate';
 import { ConnectorPanel } from './components/ConnectorPanel';
 import { DictionaryDrawer } from './components/DictionaryDrawer';
 import { Icon, type IconName } from './components/Icon';
@@ -40,6 +42,11 @@ export default function App(): React.JSX.Element {
   const [gamification, setGamification] = useState<GamificationStatus | null>(null);
   const [dictionaryWord, setDictionaryWord] = useState<string | null>(null);
   const [captureOpen, setCaptureOpen] = useState(false);
+  const [auth, setAuth] = useState<AuthState | null>(null);
+  const [authChecking, setAuthChecking] = useState(true);
+  const [authError, setAuthError] = useState('');
+  const [demoBusy, setDemoBusy] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [toast, setToast] = useState('');
@@ -65,7 +72,35 @@ export default function App(): React.JSX.Element {
     }
   }, [setLocale]);
 
-  useEffect(() => { void refreshCore(); }, [refreshCore]);
+  const checkAuth = useCallback(async (): Promise<void> => {
+    setAuthChecking(true);
+    setAuthError('');
+    try {
+      const nextAuth = await api.authMe();
+      configureApiSession(nextAuth);
+      setAuth(nextAuth);
+    } catch (reason) {
+      configureApiSession(null);
+      setAuth(null);
+      setAuthError(reason instanceof Error ? reason.message : String(reason));
+    } finally {
+      setAuthChecking(false);
+    }
+  }, []);
+
+  useEffect(() => { void checkAuth(); }, [checkAuth]);
+  useEffect(() => {
+    if (!auth?.authenticated) {
+      setDashboard(null);
+      setProfile(null);
+      setProgress(null);
+      setGamification(null);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    void refreshCore();
+  }, [auth?.authenticated, refreshCore]);
   useEffect(() => {
     const onOnline = (): void => setOnline(true);
     const onOffline = (): void => setOnline(false);
@@ -76,6 +111,30 @@ export default function App(): React.JSX.Element {
       window.removeEventListener('offline', onOffline);
     };
   }, []);
+  useEffect(() => {
+    const onAuthenticationRequired = (): void => {
+      configureApiSession(null);
+      setAuth({
+        authenticated: false,
+        demo: false,
+        read_only: false,
+        user: null,
+        mode: 'cloud',
+        capabilities: {
+          cloud_learning: true,
+          ai: true,
+          audio_scoring: true,
+          connectors: true,
+          local_first: false,
+        },
+      });
+      setAuthError(t('sessionExpired'));
+      setCaptureOpen(false);
+      setDictionaryWord(null);
+    };
+    window.addEventListener(AUTH_REQUIRED_EVENT, onAuthenticationRequired);
+    return () => window.removeEventListener(AUTH_REQUIRED_EVENT, onAuthenticationRequired);
+  }, [t]);
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     localStorage.setItem('ivrit-sheli-theme', theme);
@@ -103,12 +162,58 @@ export default function App(): React.JSX.Element {
 
   const pageTitle = useMemo(() => navigation.find((item) => item.key === view)?.labelKey ?? 'today', [view]);
 
+  const startDemo = async (): Promise<void> => {
+    setDemoBusy(true);
+    setAuthError('');
+    try {
+      const nextAuth = await api.startDemo();
+      configureApiSession(nextAuth);
+      setAuth(nextAuth);
+    } catch (reason) {
+      setAuthError(reason instanceof Error ? reason.message : String(reason));
+    } finally {
+      setDemoBusy(false);
+    }
+  };
+
+  const logout = async (): Promise<void> => {
+    setLoggingOut(true);
+    try {
+      const nextAuth = await api.logout();
+      configureApiSession(nextAuth);
+      setAuth(nextAuth);
+      setView('today');
+      setCaptureOpen(false);
+      setDictionaryWord(null);
+      setError('');
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : String(reason));
+    } finally {
+      setLoggingOut(false);
+    }
+  };
+
+  if (authChecking) {
+    return (
+      <main className="app-loading" aria-live="polite">
+        <div className="loading-mark"><span>ע</span><i /><i /></div>
+        <h1>{t('appName')}</h1>
+        <p>{t('loadingWorkspace')}</p>
+        <div className="loading-track"><i /></div>
+      </main>
+    );
+  }
+
+  if (!auth?.authenticated) {
+    return <AuthGate busy={demoBusy} error={authError} onDemo={() => { void startDemo(); }} onRetry={() => { void checkAuth(); }} />;
+  }
+
   if (loading) {
     return (
       <main className="app-loading">
         <div className="loading-mark"><span>ע</span><i /><i /></div>
-        <h1>Ivrit Sheli</h1>
-        <p>{t('loading')}</p>
+        <h1>{t('appName')}</h1>
+        <p>{t('loadingWorkspace')}</p>
         <div className="loading-track"><i /></div>
       </main>
     );
@@ -118,18 +223,24 @@ export default function App(): React.JSX.Element {
     return (
       <main className="fatal-error">
         <div className="fatal-error__icon"><Icon name="offline" size={38} /></div>
-        <h1>The local API is not reachable.</h1>
+        <h1>{t('authFailed')}</h1>
         <p>{error}</p>
-        <code>PYTHONPATH=backend/src uvicorn ivrit_sheli.api:app --app-dir backend/src --reload</code>
-        <button type="button" className="primary-button" onClick={() => { setLoading(true); void refreshCore(); }}>{t('retry')}</button>
+        <div className="fatal-error__actions">
+          <button type="button" className="primary-button" onClick={() => { setLoading(true); void refreshCore(); }}>{t('retry')}</button>
+          <button type="button" className="secondary-button" onClick={() => { void logout(); }} disabled={loggingOut}>{t('logout')}</button>
+        </div>
       </main>
     );
   }
 
   if (!dashboard || !profile || !gamification) return <></>;
 
+  const localMode = auth.mode === 'local';
+  const identityName = localMode ? profile.display_name : auth.user?.display_name ?? profile.display_name;
+
   return (
-    <div className="app-shell">
+    <SessionAccessProvider readOnly={auth.read_only} readOnlyReason={t('readOnlyExplanation')} localMode={localMode}>
+    <div className={`app-shell ${auth.demo ? 'is-demo' : ''}`}>
       <div className="ambient ambient--one" aria-hidden="true" />
       <div className="ambient ambient--two" aria-hidden="true" />
       <div className="grid-noise" aria-hidden="true" />
@@ -137,9 +248,9 @@ export default function App(): React.JSX.Element {
       <aside className="sidebar">
         <div className="brand-lockup">
           <img src="/icons/app-icon.svg" alt="" />
-          <div><strong>{t('appName')}</strong><span>ULTIMATE</span></div>
+          <div><strong>{t('appName')}</strong><span>CLOUD 2.0</span></div>
         </div>
-        <nav className="side-nav" aria-label="Primary navigation">
+        <nav className="side-nav" aria-label={t('primaryNavigation')}>
           {navigation.map((item) => (
             <button
               key={item.key}
@@ -159,8 +270,8 @@ export default function App(): React.JSX.Element {
           <div className="sidebar-streak"><Icon name="flame" size={18} /><span><strong>{dashboard.stats.streak_days}</strong>{t('streak')}</span></div>
         </div>
         <div className="sidebar-footer">
-          <div className="privacy-mini"><Icon name="shield" size={17} /><span><strong>{t('privateMode')}</strong><small>SQLite · local-first</small></span></div>
-          <span className="version-label">v1.0.0</span>
+          <div className="privacy-mini"><Icon name="shield" size={17} /><span><strong>{auth.demo ? t('demoWorkspace') : localMode ? t('localWorkspace') : t('privateMode')}</strong><small>{auth.demo ? t('readOnlyDemo') : localMode ? t('localFirstStorage') : t('accountStorage')}</small></span></div>
+          <span className="version-label">v2.0.0</span>
         </div>
       </aside>
 
@@ -169,17 +280,36 @@ export default function App(): React.JSX.Element {
           <div className="mobile-brand"><img src="/icons/app-icon.svg" alt="" /><strong>{t('appName')}</strong></div>
           <div className="topbar-context"><span>{t(pageTitle)}</span><i /> <strong>{t('appTagline')}</strong></div>
           <div className="topbar-actions">
-            <span className={`network-chip ${online ? '' : 'is-offline'}`}><Icon name={online ? 'cloud' : 'offline'} size={15} />{online ? 'online' : 'offline'}</span>
+            <span className={`network-chip ${online ? '' : 'is-offline'}`}><Icon name={online ? 'cloud' : 'offline'} size={15} />{online ? t('online') : t('offline')}</span>
             <div className="locale-switch" aria-label={t('interfaceLanguage')}>
               {(['en', 'es', 'he'] as Locale[]).map((code) => <button key={code} type="button" className={locale === code ? 'active' : ''} onClick={() => setLocale(code)}>{code.toUpperCase()}</button>)}
             </div>
-            <button type="button" className="icon-button" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} aria-label="Toggle theme">{theme === 'dark' ? '☀' : '☾'}</button>
-            <button type="button" className="capture-button" onClick={() => setCaptureOpen(true)}><Icon name="plus" size={18} /><span>{t('capturePhrase')}</span></button>
-            <button type="button" className="profile-button" onClick={() => setView('settings')} aria-label={t('settings')}><span>{profile.display_name.slice(0, 1).toUpperCase()}</span><i /></button>
+            <button type="button" className="icon-button" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} aria-label={t('toggleTheme')}>{theme === 'dark' ? '☀' : '☾'}</button>
+            <button type="button" className="capture-button" onClick={() => setCaptureOpen(true)} disabled={auth.read_only} title={auth.read_only ? t('readOnlyExplanation') : undefined}><Icon name="plus" size={18} /><span>{t('capturePhrase')}</span></button>
+            <div className="session-identity">
+              <button type="button" className="profile-button" onClick={() => setView('settings')} aria-label={`${t('signedInAs')} ${identityName}`}>
+                {auth.user?.avatar_url ? <img src={auth.user.avatar_url} alt="" referrerPolicy="no-referrer" /> : <span>{identityName.slice(0, 1).toUpperCase()}</span>}
+                <i />
+              </button>
+              <span className={`session-mode ${auth.demo ? 'session-mode--demo' : ''}`}><strong>{identityName}</strong><small>{auth.demo ? t('demoWorkspace') : localMode ? t('localWorkspace') : t('personalWorkspace')}</small></span>
+              {!localMode && (
+                <button type="button" className="session-logout" onClick={() => { void logout(); }} disabled={loggingOut} aria-label={t('logout')} title={t('logout')}>
+                  {loggingOut ? <span className="spinner" /> : <Icon name="logout" size={17} />}
+                </button>
+              )}
+            </div>
           </div>
         </header>
 
-        {error && <div className="global-error"><Icon name="bug" size={17} /> {error}<button type="button" onClick={() => setError('')}><Icon name="close" size={15} /></button></div>}
+        {auth.read_only && (
+          <div className="demo-banner" role="status">
+            <Icon name="shield" size={17} />
+            <span><strong>{t('readOnlyDemo')}</strong><small>{t('readOnlyExplanation')}</small></span>
+            <a href="/api/v1/auth/github/start"><Icon name="github" size={16} /> {t('continueGithub')}</a>
+          </div>
+        )}
+
+        {error && <div className="global-error"><Icon name="bug" size={17} /> {error}<button type="button" onClick={() => setError('')} aria-label={t('dismissError')}><Icon name="close" size={15} /></button></div>}
 
         <main className="content" id="main-content">
           {view === 'today' && (
@@ -210,7 +340,7 @@ export default function App(): React.JSX.Element {
         </main>
       </div>
 
-      <nav className="bottom-nav" aria-label="Mobile navigation">
+      <nav className="bottom-nav" aria-label={t('mobileNavigation')}>
         {navigation.slice(0, 5).map((item) => (
           <button key={item.key} type="button" className={view === item.key ? 'active' : ''} onClick={() => setView(item.key)}>
             <Icon name={item.icon} size={21} /><span>{t(item.labelKey)}</span>
@@ -237,5 +367,6 @@ export default function App(): React.JSX.Element {
       />
       {toast && <div className="toast" role="status"><Icon name="check" size={17} /> {toast}</div>}
     </div>
+    </SessionAccessProvider>
   );
 }

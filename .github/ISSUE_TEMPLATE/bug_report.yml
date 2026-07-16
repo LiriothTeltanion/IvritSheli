@@ -1,0 +1,64 @@
+name: 🐛 Bug report
+description: Report a reproducible problem using synthetic or anonymized data.
+title: "bug: "
+labels: [bug, triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping improve Ivrit Sheli. Do not include credentials, cookies, recordings, real emails/calendar items, database exports, or private learner phrases.
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Runtime mode
+      options:
+        - Local SQLite
+        - Docker Compose + PostgreSQL
+        - Public read-only demo
+        - Authenticated cloud account
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      placeholder: 2.0.0 or a commit SHA
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+      description: Use synthetic data and list the smallest deterministic sequence.
+      placeholder: "1. Open…\n2. Select…\n3. Observe…"
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed behavior
+      description: Include a request ID when available, but no bearer values or personal content.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: Windows 11, Chrome 140, Docker Desktop 4.x, EN/ES/HE
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Data-safety confirmation
+      options:
+        - label: I removed secrets and personal learning/provider data from this report.
+          required: true
+        - label: This is not a vulnerability report; security issues use the private advisory link.
+          required: true

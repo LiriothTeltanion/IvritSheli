@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "If Ivrit Sheli supports your learning or research, please cite this software release."
+type: software
+title: "Ivrit Sheli — העברית שלי"
+version: 2.0.0
+date-released: 2026-07-16
+authors:
+  - given-names: Kevin
+    family-names: Cusnir
+    alias: Lirioth Teltanion
+repository-code: "https://github.com/LiriothTeltanion/IvritSheli"
+url: "https://github.com/LiriothTeltanion/IvritSheli"
+license: MIT
+keywords:
+  - Hebrew learning
+  - trilingual PWA
+  - local-first
+  - FastAPI
+  - React
+  - PostgreSQL
+  - accessibility
+  - RTL

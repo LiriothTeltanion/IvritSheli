@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🔐 Private security report
+    url: https://github.com/LiriothTeltanion/IvritSheli/security/advisories/new
+    about: Report vulnerabilities privately; never place secrets or personal learning data in an issue.
+  - name: 📚 Documentation
+    url: https://github.com/LiriothTeltanion/IvritSheli#documentation
+    about: Review setup, privacy, API, architecture, and deployment guidance first.

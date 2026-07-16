@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "disable_existing_loggers": false,
+  "formatters": {
+    "json": {
+      "()": "ivrit_sheli.structured_logging.JsonFormatter"
+    }
+  },
+  "handlers": {
+    "stderr": {
+      "class": "logging.StreamHandler",
+      "formatter": "json",
+      "stream": "ext://sys.stderr"
+    },
+    "stdout": {
+      "class": "logging.StreamHandler",
+      "formatter": "json",
+      "stream": "ext://sys.stdout"
+    }
+  },
+  "root": {
+    "level": "INFO",
+    "handlers": ["stderr"]
+  },
+  "loggers": {
+    "uvicorn": {
+      "level": "INFO",
+      "handlers": ["stderr"],
+      "propagate": false
+    },
+    "uvicorn.error": {
+      "level": "INFO",
+      "handlers": ["stderr"],
+      "propagate": false
+    },
+    "uvicorn.access": {
+      "level": "WARNING",
+      "handlers": ["stdout"],
+      "propagate": false
+    }
+  }
+}

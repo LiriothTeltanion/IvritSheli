@@ -1,21 +1,91 @@
+name: ivrit-sheli
+
+x-runtime-environment: &runtime-environment
+  # Loopback HTTP intentionally uses development policy; production requires HTTPS + Secure cookies.
+  APP_ENV: development
+  APP_HOST: 0.0.0.0
+  APP_PORT: 8000
+  APP_DATA_DIR: /app/data
+  DICTIONARY_DB_PATH: /app/data/hebrew_dictionary.db
+  DATABASE_URL: postgresql://ivrit_sheli_runtime:local-runtime-only@postgres:5432/ivrit_sheli
+  AUTH_REQUIRED: "true"
+  SESSION_SECRET: local-development-session-secret-change-before-deploy
+  SESSION_COOKIE_SECURE: "false"
+  SESSION_COOKIE_NAME: ivrit_session
+  SESSION_TTL_SECONDS: 604800
+  PUBLIC_BASE_URL: http://localhost:8000
+  ALLOWED_ORIGINS: http://localhost:8000
+  AI_PROVIDER: ${AI_PROVIDER:-offline}
+  OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+  ALLOW_CLOUD_PROCESSING: ${ALLOW_CLOUD_PROCESSING:-false}
+  LOG_LEVEL: ${LOG_LEVEL:-INFO}
+  GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
+  GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
+  GITHUB_REDIRECT_URI: ${GITHUB_REDIRECT_URI:-http://localhost:8000/api/v1/auth/github/callback}
+
+x-migration-environment: &migration-environment
+  <<: *runtime-environment
+  MIGRATION_DATABASE_URL: postgresql://ivrit:local-development-only@postgres:5432/ivrit_sheli
+
 services:
-  ivrit-sheli:
+  volume-init:
+    build: .
+    user: "0:0"
+    command: ["sh", "-c", "chown -R 10001:10001 /app/data"]
+    volumes:
+      - ivrit_data:/app/data
+    restart: "no"
+
+  postgres:
+    image: postgres:17-alpine@sha256:742f40ea20b9ff2ff31db5458d127452988a2164df9e17441e191f3b72252193
+    environment:
+      POSTGRES_DB: ivrit_sheli
+      POSTGRES_USER: ivrit
+      POSTGRES_PASSWORD: local-development-only
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ivrit -d ivrit_sheli"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  migrate:
+    build: .
+    environment: *migration-environment
+    command: ["python", "-m", "ivrit_sheli.db_admin", "migrate"]
+    depends_on:
+      volume-init:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  app:
     build: .
     ports:
       - "127.0.0.1:8000:8000"
-    environment:
-      APP_ENV: production
-      APP_HOST: 0.0.0.0
-      APP_PORT: 8000
-      APP_DATA_DIR: /app/data
-      APP_DB_PATH: /app/data/ivrit_sheli.db
-      DICTIONARY_DB_PATH: /app/data/hebrew_dictionary.db
-      AI_PROVIDER: ${AI_PROVIDER:-offline}
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      ALLOW_CLOUD_PROCESSING: ${ALLOW_CLOUD_PROCESSING:-false}
+    environment: *runtime-environment
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=3)
+      interval: 15s
+      timeout: 5s
+      start_period: 15s
+      retries: 5
     volumes:
       - ivrit_data:/app/data
     restart: unless-stopped
 
 volumes:
+  postgres_data:
   ivrit_data:

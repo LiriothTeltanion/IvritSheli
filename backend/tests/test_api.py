@@ -8,15 +8,132 @@ Notes: Minimal deps; comments in ENGLISH; emojis sparingly.
 
 from __future__ import annotations
 
+from dataclasses import replace
+from pathlib import Path
+
 from fastapi.testclient import TestClient
 
+from ivrit_sheli.api import create_app
+from ivrit_sheli.cloud_store import MemoryCloudStore
+from ivrit_sheli.config import Settings
 
-def test_health_and_security_headers(client: TestClient) -> None:
+
+def _parse_csp(policy: str) -> dict[str, set[str]]:
+    """Parse a CSP into exact directive tokens for allow-list assertions."""
+    directives: dict[str, set[str]] = {}
+    for raw_directive in policy.split(";"):
+        tokens = raw_directive.strip().split()
+        if tokens:
+            directives[tokens[0]] = set(tokens[1:])
+    return directives
+
+
+def test_health_and_security_headers(
+    client: TestClient, settings: Settings, tmp_path: Path
+) -> None:
     response = client.get("/api/v1/health", headers={"X-Request-ID": "test-request"})
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
     assert response.headers["X-Request-ID"] == "test-request"
     assert response.headers["X-Content-Type-Options"] == "nosniff"
+    assert response.headers["Referrer-Policy"] == "no-referrer"
+    assert response.headers["X-Frame-Options"] == "DENY"
+    assert response.headers["Permissions-Policy"] == (
+        "camera=(), geolocation=(), microphone=(self)"
+    )
+    assert response.headers["Cross-Origin-Opener-Policy"] == "same-origin"
+    assert response.headers["Cross-Origin-Resource-Policy"] == "same-origin"
+    assert response.headers["X-Permitted-Cross-Domain-Policies"] == "none"
+    assert response.headers["Cache-Control"] == "no-store"
+    assert "Strict-Transport-Security" not in response.headers
+
+    content_security_policy = _parse_csp(
+        response.headers["Content-Security-Policy"]
+    )
+    assert content_security_policy["script-src"] == {"'self'"}
+    assert content_security_policy["img-src"] == {
+        "'self'",
+        "data:",
+        "blob:",
+        "https://avatars.githubusercontent.com",
+    }
+    assert content_security_policy["media-src"] == {
+        "'self'",
+        "data:",
+        "blob:",
+        "https:",
+    }
+    assert content_security_policy["worker-src"] == {"'self'", "blob:"}
+
+    operational = client.get("/health/live")
+    assert operational.headers["Cache-Control"] == "no-store"
+    assert client.get("/").headers.get("Cache-Control") != "no-store"
+
+    service_worker_source = (
+        Path(__file__).resolve().parents[2] / "frontend" / "public" / "sw.js"
+    ).read_text(encoding="utf-8")
+    for network_only_path in ("/health/live", "/health/ready", "/version"):
+        assert network_only_path in service_worker_source
+    assert "url.pathname.startsWith('/api/')" in service_worker_source
+    assert "cacheControl.toLowerCase().includes('no-store')" in service_worker_source
+
+    frontend_dist = tmp_path / "frontend-dist"
+    (frontend_dist / "assets").mkdir(parents=True)
+    (frontend_dist / "index.html").write_text("<!doctype html>", encoding="utf-8")
+    (frontend_dist / "sw.js").write_text("// service worker", encoding="utf-8")
+    (frontend_dist / "assets" / "app-v2.abc123.js").write_text("export {};", encoding="utf-8")
+    static_settings = replace(
+        settings,
+        data_dir=tmp_path / "static-data",
+        db_path=tmp_path / "static-learning.db",
+        dictionary_db_path=tmp_path / "static-dictionary.db",
+        frontend_dist=frontend_dist,
+    )
+    with TestClient(create_app(static_settings)) as static_client:
+        service_worker = static_client.get("/sw.js")
+        versioned_asset = static_client.get("/assets/app-v2.abc123.js")
+
+    assert service_worker.status_code == versioned_asset.status_code == 200
+    assert service_worker.headers.get("Cache-Control") != "no-store"
+    assert versioned_asset.headers.get("Cache-Control") != "no-store"
+
+    docs = client.get("/api/v1/docs")
+    docs_content_security_policy = _parse_csp(
+        docs.headers["Content-Security-Policy"]
+    )
+    assert docs_content_security_policy["script-src"] == {
+        "'self'",
+        "'unsafe-inline'",
+        "https://cdn.jsdelivr.net",
+    }
+
+    production_settings = Settings.from_env(
+        {
+            "APP_ENV": "production",
+            "APP_DATA_DIR": str(tmp_path / "production-data"),
+            "APP_DB_PATH": ":memory:",
+            "DICTIONARY_DB_PATH": ":memory:",
+            "DATABASE_URL": "postgresql://ivrit_sheli_runtime:password@db/ivrit",
+            "AUTH_REQUIRED": "true",
+            "SESSION_SECRET": "production-test-secret-with-more-than-32-chars",
+            "SESSION_COOKIE_SECURE": "true",
+            "PUBLIC_BASE_URL": "https://ivrit.example",
+            "GITHUB_CLIENT_ID": "client-id",
+            "GITHUB_CLIENT_SECRET": "client-secret",
+            "GITHUB_REDIRECT_URI": "https://ivrit.example/api/v1/auth/github/callback",
+            "ALLOWED_ORIGINS": "",
+            "DEBUG": "false",
+        }
+    )
+    with TestClient(
+        create_app(production_settings, cloud_store=MemoryCloudStore()),
+        base_url="https://ivrit.example",
+    ) as production_client:
+        production_response = production_client.get("/health/live")
+
+    assert production_response.headers["Strict-Transport-Security"] == (
+        "max-age=31536000; includeSubDomains"
+    )
 
 
 def test_dashboard_profile_and_gamification_boot_cleanly(client: TestClient) -> None:

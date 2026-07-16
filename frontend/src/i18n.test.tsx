@@ -10,10 +10,10 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { I18nProvider, useI18n } from './i18n';
 
 function LocaleHarness(): React.JSX.Element {
-  const { locale, direction, setLocale, t } = useI18n();
+  const { locale, direction, label, setLocale, t } = useI18n();
   return (
     <div>
-      <output>{locale}:{direction}:{t('appTagline')}</output>
+      <output>{locale}:{direction}:{t('appTagline')}:{t('wordCount', { count: 42 })}:{label('speaking')}</output>
       <button type="button" onClick={() => setLocale('es')}>Spanish</button>
       <button type="button" onClick={() => setLocale('he')}>Hebrew</button>
     </div>
@@ -27,13 +27,14 @@ describe('I18nProvider', () => {
     const user = userEvent.setup();
     render(<I18nProvider><LocaleHarness /></I18nProvider>);
 
-    expect(screen.getByText(/en:ltr:Hebrew built/)).toBeInTheDocument();
+    expect(screen.getByText(/en:ltr:Hebrew built.*42 words:Speaking/)).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Spanish' }));
-    expect(screen.getByText(/es:ltr:Hebreo construido/)).toBeInTheDocument();
+    expect(screen.getByText(/es:ltr:Hebreo construido.*42 palabras:Expresión oral/)).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Hebrew' }));
-    expect(screen.getByText(/he:rtl:עברית/)).toBeInTheDocument();
+    expect(screen.getByText(/he:rtl:עברית.*42 מילים:דיבור/)).toBeInTheDocument();
     expect(document.documentElement).toHaveAttribute('dir', 'rtl');
+    expect(document.documentElement).toHaveAttribute('lang', 'he');
     expect(localStorage.getItem('ivrit-sheli-locale')).toBe('he');
   });
 });

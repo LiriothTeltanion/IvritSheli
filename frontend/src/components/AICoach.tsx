@@ -7,6 +7,7 @@
 import { useState } from 'react';
 import { api } from '../api';
 import { useI18n } from '../i18n';
+import { useSessionAccess } from '../session';
 import type { AIResponse } from '../types';
 import { HebrewText } from './HebrewText';
 import { Icon } from './Icon';
@@ -15,6 +16,7 @@ type CoachTask = 'analyze' | 'correct' | 'exercises' | 'dialogue';
 
 export function AICoach({ onWordClick }: { onWordClick: (word: string) => void }): React.JSX.Element {
   const { t } = useI18n();
+  const { readOnly, readOnlyReason } = useSessionAccess();
   const [task, setTask] = useState<CoachTask>('correct');
   const [text, setText] = useState('אני עדיין לומד עברית');
   const [cloud, setCloud] = useState(false);
@@ -50,15 +52,16 @@ export function AICoach({ onWordClick }: { onWordClick: (word: string) => void }
       <article className="coach-input card">
         <header className="section-heading">
           <div>
-            <span className="eyebrow"><Icon name="sparkles" size={16} /> Adaptive engine</span>
+            <span className="eyebrow"><Icon name="sparkles" size={16} /> {t('adaptiveEngine')}</span>
             <h2>{t('coach')}</h2>
           </div>
           <span className={`status-chip ${result?.provider === 'openai' ? 'status-chip--cloud' : ''}`}>
             <Icon name={result?.provider === 'openai' ? 'cloud' : 'offline'} size={15} />
-            {result?.provider ?? 'offline-first'}
+            {result?.provider ?? t('offlineFirst')}
           </span>
         </header>
-        <div className="segmented-control" role="tablist" aria-label="AI task">
+        {readOnly && <div className="demo-inline-notice" role="note"><Icon name="shield" size={16} /> {readOnlyReason}</div>}
+        <div className="segmented-control" role="tablist" aria-label={t('aiTask')}>
           {tabs.map((tab) => (
             <button
               type="button"
@@ -78,7 +81,7 @@ export function AICoach({ onWordClick }: { onWordClick: (word: string) => void }
         </label>
         <label className="cloud-consent">
           <span className="toggle">
-            <input type="checkbox" checked={cloud} onChange={(event) => setCloud(event.target.checked)} />
+            <input type="checkbox" checked={cloud} onChange={(event) => setCloud(event.target.checked)} disabled={readOnly} />
             <span />
           </span>
           <span>
@@ -87,7 +90,7 @@ export function AICoach({ onWordClick }: { onWordClick: (word: string) => void }
           </span>
         </label>
         {error && <div className="inline-error">{error}</div>}
-        <button type="button" className="primary-button coach-run" onClick={() => { void run(); }} disabled={loading || !text.trim()}>
+        <button type="button" className="primary-button coach-run" onClick={() => { void run(); }} disabled={readOnly || loading || !text.trim()} title={readOnly ? readOnlyReason : undefined}>
           {loading ? <span className="spinner" /> : <Icon name="sparkles" size={18} />}
           {t('runCoach')}
         </button>
@@ -97,11 +100,11 @@ export function AICoach({ onWordClick }: { onWordClick: (word: string) => void }
         {!result && !loading && (
           <div className="coach-empty">
             <div className="ai-orbit" aria-hidden="true"><Icon name="brain" size={42} /></div>
-            <h3>Your private coach is ready</h3>
-            <p>Choose a task. Offline mode always works; cloud mode enriches only the selected text.</p>
+            <h3>{t('coachReadyTitle')}</h3>
+            <p>{t('coachReadyBody')}</p>
           </div>
         )}
-        {loading && <div className="coach-empty"><span className="spinner spinner--large" /><p>Analyzing Hebrew patterns…</p></div>}
+        {loading && <div className="coach-empty"><span className="spinner spinner--large" /><p>{t('analyzingHebrew')}</p></div>}
         {result && !loading && <CoachResult result={result} onWordClick={onWordClick} />}
       </article>
     </section>
@@ -109,23 +112,30 @@ export function AICoach({ onWordClick }: { onWordClick: (word: string) => void }
 }
 
 function CoachResult({ result, onWordClick }: { result: AIResponse; onWordClick: (word: string) => void }): React.JSX.Element {
+  const { label, t } = useI18n();
   const data = result.data as Record<string, unknown>;
   const prominent = String(data.corrected ?? data.hebrew ?? data.hebrew_text ?? data.reply_hebrew ?? '');
+  const taskLabel = ({
+    correct: t('correction'),
+    analyze: t('analysis'),
+    exercises: t('exercises'),
+    dialogue: t('dialogue'),
+  } as Record<string, string>)[result.task] ?? label(result.task);
   return (
     <div className="coach-result stagger-in">
       <header>
         <div>
-          <span className="eyebrow">Structured result</span>
-          <h3>{result.task.replace('_', ' ')}</h3>
+          <span className="eyebrow">{t('structuredResult')}</span>
+          <h3>{taskLabel}</h3>
         </div>
         <span className={`status-chip ${result.degraded_mode ? 'status-chip--warning' : 'status-chip--success'}`}>
-          {result.degraded_mode ? 'Fallback active' : `${result.provider} · ${result.latency_ms}ms`}
+          {result.degraded_mode ? t('fallbackActive') : `${result.provider} · ${result.latency_ms}ms`}
         </span>
       </header>
       {prominent && <HebrewText text={prominent} onWordClick={onWordClick} className="coach-prominent" as="p" />}
       {'naturalness_score' in data && (
         <div className="score-strip">
-          <span>Naturalness</span>
+          <span>{t('naturalness')}</span>
           <div><i style={{ width: `${Number(data.naturalness_score)}%` }} /></div>
           <strong>{String(data.naturalness_score)}%</strong>
         </div>
@@ -133,13 +143,14 @@ function CoachResult({ result, onWordClick }: { result: AIResponse; onWordClick:
       <StructuredValue value={data} onWordClick={onWordClick} depth={0} />
       <footer className="provider-footnote">
         <Icon name="shield" size={15} />
-        Provider: {result.provider} · Model: {result.model} · Redactions: {result.redactions}
+        {t('provider')}: {result.provider} · {t('model')}: {result.model} · {t('redactions')}: {result.redactions}
       </footer>
     </div>
   );
 }
 
 function StructuredValue({ value, onWordClick, depth }: { value: unknown; onWordClick: (word: string) => void; depth: number }): React.JSX.Element | null {
+  const { label } = useI18n();
   if (depth > 3 || value === null || value === undefined) return null;
   if (typeof value === 'string') {
     const hasHebrew = /[\u0590-\u05FF]/u.test(value);
@@ -162,7 +173,7 @@ function StructuredValue({ value, onWordClick, depth }: { value: unknown; onWord
           .filter(([key]) => !['corrected', 'hebrew', 'hebrew_text', 'reply_hebrew', 'naturalness_score'].includes(key))
           .map(([key, child]) => (
             <div key={key}>
-              <dt>{key.replaceAll('_', ' ')}</dt>
+              <dt>{label(key)}</dt>
               <dd><StructuredValue value={child} onWordClick={onWordClick} depth={depth + 1} /></dd>
             </div>
           ))}

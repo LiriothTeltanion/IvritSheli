@@ -5,9 +5,22 @@
 // Notes: Comments in ENGLISH; emojis sparingly.
 
 import { Component, type ErrorInfo, type ReactNode } from 'react';
+import { useI18n } from '../i18n';
 import { Icon } from './Icon';
 
 interface ErrorBoundaryState { failed: boolean; message: string; }
+
+function LocalizedErrorFallback({ message }: { message: string }): React.JSX.Element {
+  const { t } = useI18n();
+  return (
+    <main className="fatal-error">
+      <div className="fatal-error__icon"><Icon name="bug" size={38} /></div>
+      <h1>{t('unexpectedProblem')}</h1>
+      <p>{message}</p>
+      <button type="button" className="primary-button" onClick={() => window.location.reload()}>{t('reloadSafely')}</button>
+    </main>
+  );
+}
 
 export class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryState> {
   state: ErrorBoundaryState = { failed: false, message: '' };
@@ -23,13 +36,6 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBound
 
   render(): ReactNode {
     if (!this.state.failed) return this.props.children;
-    return (
-      <main className="fatal-error">
-        <div className="fatal-error__icon"><Icon name="bug" size={38} /></div>
-        <h1>The interface hit an unexpected problem.</h1>
-        <p>{this.state.message}</p>
-        <button type="button" className="primary-button" onClick={() => window.location.reload()}>Reload safely</button>
-      </main>
-    );
+    return <LocalizedErrorFallback message={this.state.message} />;
   }
 }
