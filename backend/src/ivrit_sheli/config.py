@@ -122,6 +122,8 @@ class Settings:
         openai_transcribe_model: Speech-to-text model.
         openai_tts_model: Text-to-speech model.
         openai_tts_voice: Voice identifier.
+        openai_tts_voice_masculine: Provider voice mapped to the masculine style profile.
+        openai_tts_voice_feminine: Provider voice mapped to the feminine style profile.
         dicta_nakdan_url: Optional Dicta-compatible endpoint.
         google_client_id: Optional OAuth client ID.
         google_client_secret: Optional OAuth client secret.
@@ -152,6 +154,8 @@ class Settings:
     openai_transcribe_model: str = "gpt-4o-transcribe"
     openai_tts_model: str = "gpt-4o-mini-tts"
     openai_tts_voice: str = "coral"
+    openai_tts_voice_masculine: str = "onyx"
+    openai_tts_voice_feminine: str = "coral"
     dicta_nakdan_url: str = ""
     google_client_id: str = ""
     google_client_secret: str = ""
@@ -288,6 +292,12 @@ class Settings:
             ),
             openai_tts_model=value("OPENAI_TTS_MODEL", "gpt-4o-mini-tts"),
             openai_tts_voice=value("OPENAI_TTS_VOICE", "coral"),
+            openai_tts_voice_masculine=value(
+                "OPENAI_TTS_VOICE_MASCULINE", "onyx"
+            ),
+            openai_tts_voice_feminine=value(
+                "OPENAI_TTS_VOICE_FEMININE", "coral"
+            ),
             dicta_nakdan_url=value("DICTA_NAKDAN_URL", ""),
             google_client_id=value("GOOGLE_CLIENT_ID", ""),
             google_client_secret=value("GOOGLE_CLIENT_SECRET", ""),

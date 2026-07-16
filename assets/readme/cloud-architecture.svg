@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="500" viewBox="0 0 1200 500" role="img" aria-labelledby="title desc">
-  <title id="title">Ivrit Sheli 2.1 production architecture</title>
+  <title id="title">Ivrit Sheli 2.2 production architecture</title>
   <desc id="desc">An animated accessible diagram connecting the trilingual React interface through secure authentication and FastAPI to PostgreSQL, the Hebrew dictionary, tests and structured logs.</desc>
   <defs>
     <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
@@ -42,7 +42,7 @@
   <rect width="1200" height="500" rx="30" fill="url(#grid)"/>
   <rect x="1.5" y="1.5" width="1197" height="497" rx="28.5" fill="none" stroke="#6783c7" stroke-opacity=".28" stroke-width="3"/>
 
-  <text x="58" y="58" class="tiny">IVRIT SHELI 2.1 · TWO MODES, ONE LEARNING ENGINE</text>
+  <text x="58" y="58" class="tiny">IVRIT SHELI 2.2 · TWO MODES, ONE LEARNING ENGINE</text>
   <text x="58" y="91" class="label" font-size="28">Private locally. Authenticated in the cloud.</text>
 
   <path class="route cyan" d="M292 250H419"/>

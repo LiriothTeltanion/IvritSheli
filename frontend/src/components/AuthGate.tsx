@@ -27,7 +27,7 @@ export function AuthGate({ busy, error, onDemo, onRetry }: AuthGateProps): React
       <header className="auth-header">
         <a className="auth-brand" href="/" aria-label={`${t('appName')} — ${t('home')}`}>
           <img src="/icons/app-icon.svg" alt="" />
-          <span><strong>{t('appName')}</strong><small>CLOUD 2.1</small></span>
+          <span><strong>{t('appName')}</strong><small>CLOUD 2.2</small></span>
         </a>
         <div className="auth-header__actions">
           <div className="locale-switch auth-locale" aria-label={t('interfaceLanguage')}>
@@ -37,7 +37,7 @@ export function AuthGate({ busy, error, onDemo, onRetry }: AuthGateProps): React
               </button>
             ))}
           </div>
-          <span className="auth-version">v2.1.1</span>
+          <span className="auth-version">v2.2.0</span>
         </div>
       </header>
 

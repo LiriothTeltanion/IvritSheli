@@ -87,4 +87,67 @@ describe('read-only API guard', () => {
       provider: 'openai',
     });
   });
+
+  it('sends only a voice style and a provenance-aware word analysis request', async () => {
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response(JSON.stringify({}), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    })));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await api.tts('שלום', true, 'masculine');
+    const ttsInit = fetchMock.mock.calls[0]?.[1] as RequestInit;
+    expect(JSON.parse(String(ttsInit.body))).toEqual({
+      text: 'שלום',
+      cloud_requested: true,
+      voice_style: 'masculine',
+      retain: false,
+    });
+
+    await api.analyzeSpokenWord('שלום', 'browser', false);
+    const analysisInit = fetchMock.mock.calls[1]?.[1] as RequestInit;
+    expect(JSON.parse(String(analysisInit.body))).toEqual({
+      transcript: 'שלום',
+      transcript_provider: 'browser',
+      cloud_requested: false,
+    });
+  });
+
+  it('allows non-mutating local word analysis in a read-only demo', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({}), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+    configureApiSession({ read_only: true });
+
+    await api.analyzeSpokenWord('שלום', 'browser', false);
+
+    expect(fetchMock).toHaveBeenCalledWith('/api/v1/audio/word-analysis', expect.objectContaining({
+      method: 'POST',
+    }));
+  });
+
+  it('sends bounded registry page offsets beyond 500 items', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      items: [],
+      total: 721,
+      summary: { active: 721, mastered: 0, needs_review: 0 },
+      offset: 540,
+      limit: 60,
+      has_more: true,
+      next_offset: 600,
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await api.registryItems({ limit: 60, offset: 540 });
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/v1/registry?q=&status=all&due=all&sort=last_activity_desc&limit=60&offset=540',
+      expect.objectContaining({ credentials: 'include' }),
+    );
+  });
 });

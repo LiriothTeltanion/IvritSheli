@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from 'react';
 import { api } from '../api';
 import { useI18n } from '../i18n';
 import { useSessionAccess } from '../session';
+import type { VoiceStyle } from '../types';
 import { HebrewText } from './HebrewText';
 import { Icon } from './Icon';
 
@@ -29,21 +30,62 @@ type SpeechWindow = Window & {
   SpeechRecognition?: RecognitionConstructor;
   webkitSpeechRecognition?: RecognitionConstructor;
 };
+const VOICE_STYLE_STORAGE_KEY = 'ivrit-sheli:voice-style';
+const PRONUNCIATION_CAPTURE_MAX_MS = 15_000;
+
+function stopTracks(stream: MediaStream | null): void {
+  stream?.getTracks().forEach((track) => track.stop());
+}
+
+function stopRecognition(recognition: RecognitionLike | null): void {
+  if (!recognition) return;
+  try {
+    recognition.stop();
+  } catch {
+    // Recognition can already be stopped by the browser.
+  }
+}
+
+function storedVoiceStyle(): VoiceStyle {
+  try {
+    return window.localStorage.getItem(VOICE_STYLE_STORAGE_KEY) === 'masculine'
+      ? 'masculine'
+      : 'feminine';
+  } catch {
+    return 'feminine';
+  }
+}
+
+export function selectBrowserVoice(
+  voices: SpeechSynthesisVoice[],
+  voiceStyle: VoiceStyle,
+): SpeechSynthesisVoice | undefined {
+  const hebrewVoices = voices
+    .filter((voice) => voice.lang.toLowerCase().startsWith('he'))
+    .sort((left, right) => `${left.lang}|${left.name}|${left.voiceURI}`.localeCompare(`${right.lang}|${right.name}|${right.voiceURI}`));
+  if (hebrewVoices.length === 0) return undefined;
+  return voiceStyle === 'masculine' ? hebrewVoices[hebrewVoices.length - 1] : hebrewVoices[0];
+}
 
 export function AudioPractice({
   initialText = 'אני עדיין לומד עברית',
   itemId,
   onWordClick,
+  cloudAvailable = true,
 }: {
   initialText?: string;
   itemId?: number;
   onWordClick: (word: string) => void;
+  cloudAvailable?: boolean;
 }): React.JSX.Element {
   const { label, t } = useI18n();
   const { readOnly, readOnlyReason } = useSessionAccess();
   const [target, setTarget] = useState(initialText);
   const [transcript, setTranscript] = useState('');
   const [cloud, setCloud] = useState(false);
+  const [voiceStyle, setVoiceStyle] = useState<VoiceStyle>(storedVoiceStyle);
+  const [acquiring, setAcquiring] = useState(false);
+  const [transcribing, setTranscribing] = useState(false);
   const [recording, setRecording] = useState(false);
   const [loadingVoice, setLoadingVoice] = useState(false);
   const [score, setScore] = useState<Record<string, unknown> | null>(null);
@@ -54,23 +96,89 @@ export function AudioPractice({
   const chunksRef = useRef<BlobPart[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const transcriptProviderRef = useRef('manual');
+  const captureTimerRef = useRef<number | null>(null);
+  const captureGenerationRef = useRef(0);
+  const playGenerationRef = useRef(0);
+  const scoreGenerationRef = useRef(0);
+  const mountedRef = useRef(true);
+  const startLockRef = useRef(false);
+  const activeCaptureRef = useRef(false);
 
-  useEffect(() => () => {
-    recognitionRef.current?.stop();
-    recognitionRef.current = null;
-    const recorder = recorderRef.current;
-    if (recorder) {
-      recorder.ondataavailable = null;
-      recorder.onstop = null;
-      if (recorder.state === 'recording') recorder.stop();
+  const clearCaptureTimer = (): void => {
+    if (captureTimerRef.current !== null) {
+      window.clearTimeout(captureTimerRef.current);
+      captureTimerRef.current = null;
     }
-    recorderRef.current = null;
-    streamRef.current?.getTracks().forEach((track) => track.stop());
-    streamRef.current = null;
-    audioRef.current?.pause();
-    audioRef.current = null;
-    window.speechSynthesis?.cancel();
+  };
+
+  const releaseStream = (stream = streamRef.current): void => {
+    stopTracks(stream);
+    if (streamRef.current === stream) streamRef.current = null;
+  };
+
+  const isCurrentCapture = (generation: number): boolean => (
+    mountedRef.current && captureGenerationRef.current === generation
+  );
+
+  const detachRecognition = (recognition: RecognitionLike | null, shouldStop: boolean): void => {
+    if (!recognition) return;
+    recognition.onresult = null;
+    recognition.onerror = null;
+    recognition.onend = null;
+    if (recognitionRef.current === recognition) recognitionRef.current = null;
+    if (shouldStop) stopRecognition(recognition);
+  };
+
+  const detachRecorder = (recorder: MediaRecorder | null, shouldStop: boolean): void => {
+    if (!recorder) return;
+    recorder.ondataavailable = null;
+    recorder.onerror = null;
+    recorder.onstop = null;
+    if (recorderRef.current === recorder) recorderRef.current = null;
+    if (shouldStop && recorder.state === 'recording') {
+      try {
+        recorder.stop();
+      } catch {
+        // The recorder may have transitioned to inactive between checks.
+      }
+    }
+  };
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      captureGenerationRef.current += 1;
+      playGenerationRef.current += 1;
+      scoreGenerationRef.current += 1;
+      startLockRef.current = false;
+      activeCaptureRef.current = false;
+      clearCaptureTimer();
+      detachRecognition(recognitionRef.current, true);
+      detachRecorder(recorderRef.current, true);
+      chunksRef.current = [];
+      releaseStream();
+      const audio = audioRef.current;
+      if (audio) {
+        audio.onended = null;
+        audio.pause();
+      }
+      audioRef.current = null;
+      window.speechSynthesis?.cancel();
+    };
   }, []);
+
+  useEffect(() => {
+    if (!cloudAvailable) setCloud(false);
+  }, [cloudAvailable]);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(VOICE_STYLE_STORAGE_KEY, voiceStyle);
+    } catch {
+      // Device storage can be unavailable in privacy-restricted browser contexts.
+    }
+  }, [voiceStyle]);
 
   const speakBrowser = (text: string): void => {
     if (!('speechSynthesis' in window)) {
@@ -81,48 +189,113 @@ export function AudioPractice({
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'he-IL';
     utterance.rate = 0.78;
-    utterance.pitch = 1;
+    utterance.pitch = voiceStyle === 'masculine' ? 0.82 : 1.08;
+    const selectedVoice = selectBrowserVoice(window.speechSynthesis.getVoices(), voiceStyle);
+    if (selectedVoice) utterance.voice = selectedVoice;
     window.speechSynthesis.speak(utterance);
   };
 
   const play = async (): Promise<void> => {
+    const playGeneration = ++playGenerationRef.current;
     if (readOnly) {
-      speakBrowser(target);
+      if (mountedRef.current && playGenerationRef.current === playGeneration) speakBrowser(target);
       return;
     }
     setLoadingVoice(true);
     setError('');
     try {
-      const response = await api.tts(target, cloud);
+      const response = await api.tts(target, cloudAvailable && cloud, voiceStyle);
+      if (!mountedRef.current || playGenerationRef.current !== playGeneration) return;
       if (response.audio_base64) {
-        audioRef.current?.pause();
+        const previousAudio = audioRef.current;
+        if (previousAudio) {
+          previousAudio.onended = null;
+          previousAudio.pause();
+        }
         const audio = new Audio(`data:${response.mime_type ?? 'audio/mpeg'};base64,${response.audio_base64}`);
         audioRef.current = audio;
         audio.onended = () => {
-          if (audioRef.current === audio) audioRef.current = null;
+          if (
+            mountedRef.current
+            && playGenerationRef.current === playGeneration
+            && audioRef.current === audio
+          ) {
+            audio.onended = null;
+            audioRef.current = null;
+          }
         };
         await audio.play();
       } else {
         speakBrowser(target);
       }
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : String(reason));
-      speakBrowser(target);
+      if (mountedRef.current && playGenerationRef.current === playGeneration) {
+        setError(reason instanceof Error ? reason.message : String(reason));
+        speakBrowser(target);
+      }
     } finally {
-      setLoadingVoice(false);
+      if (mountedRef.current && playGenerationRef.current === playGeneration) {
+        setLoadingVoice(false);
+      }
     }
   };
 
-  const stopMediaStream = (): void => {
-    streamRef.current?.getTracks().forEach((track) => track.stop());
-    streamRef.current = null;
+  const failCapture = (generation: number, message: string): void => {
+    if (!isCurrentCapture(generation)) return;
+    captureGenerationRef.current += 1;
+    clearCaptureTimer();
+    detachRecognition(recognitionRef.current, true);
+    detachRecorder(recorderRef.current, true);
+    chunksRef.current = [];
+    releaseStream();
+    startLockRef.current = false;
+    activeCaptureRef.current = false;
+    setAcquiring(false);
+    setTranscribing(false);
+    setRecording(false);
+    setError(message);
   };
 
-  const startCloudRecording = async (): Promise<void> => {
+  const finishCloudRecording = (recorder: MediaRecorder, generation: number): void => {
+    clearCaptureTimer();
+    const blob = new Blob(chunksRef.current, { type: recorder.mimeType || 'audio/webm' });
+    chunksRef.current = [];
+    detachRecorder(recorder, false);
+    releaseStream();
+    activeCaptureRef.current = false;
+    if (!isCurrentCapture(generation)) return;
+    setAcquiring(false);
+    setRecording(false);
+    setTranscribing(true);
+
+    void api.transcribeAudio(blob, true)
+      .then((response) => {
+        if (!isCurrentCapture(generation)) return;
+        transcriptProviderRef.current = response.provider;
+        setTranscript(response.transcript);
+      })
+      .catch((reason: unknown) => {
+        if (isCurrentCapture(generation)) {
+          setError(reason instanceof Error ? reason.message : String(reason));
+        }
+      })
+      .finally(() => {
+        if (isCurrentCapture(generation)) {
+          startLockRef.current = false;
+          setTranscribing(false);
+        }
+      });
+  };
+
+  const requestCloudRecording = async (generation: number): Promise<void> => {
     if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') {
       throw new Error(t('microphoneUnsupported'));
     }
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    if (!isCurrentCapture(generation)) {
+      stopTracks(stream);
+      return;
+    }
     streamRef.current = stream;
     chunksRef.current = [];
     const recorderOptions: MediaRecorderOptions = MediaRecorder.isTypeSupported('audio/webm')
@@ -131,24 +304,36 @@ export function AudioPractice({
     const recorder = new MediaRecorder(stream, recorderOptions);
     recorderRef.current = recorder;
     recorder.ondataavailable = (event) => {
-      if (event.data.size > 0) chunksRef.current.push(event.data);
+      if (isCurrentCapture(generation) && event.data.size > 0) chunksRef.current.push(event.data);
     };
-    recorder.onstop = () => {
-      const blob = new Blob(chunksRef.current, { type: recorder.mimeType || 'audio/webm' });
-      stopMediaStream();
-      setRecording(false);
-      void api.transcribeAudio(blob, true)
-        .then((response) => {
-          transcriptProviderRef.current = response.provider;
-          setTranscript(response.transcript);
-        })
-        .catch((reason: unknown) => setError(reason instanceof Error ? reason.message : String(reason)));
+    recorder.onerror = (event) => {
+      const recorderError = (event as Event & { error?: DOMException }).error;
+      failCapture(
+        generation,
+        t('microphoneRecordingFailed', { error: recorderError?.message ?? t('unknownError') }),
+      );
     };
+    recorder.onstop = () => finishCloudRecording(recorder, generation);
     recorder.start(250);
+    activeCaptureRef.current = true;
+    setAcquiring(false);
     setRecording(true);
+    captureTimerRef.current = window.setTimeout(() => {
+      captureTimerRef.current = null;
+      if (!isCurrentCapture(generation) || recorder.state !== 'recording') return;
+      try {
+        recorder.stop();
+      } catch (reason) {
+        failCapture(generation, reason instanceof Error ? reason.message : String(reason));
+        return;
+      }
+      releaseStream();
+      activeCaptureRef.current = false;
+      if (isCurrentCapture(generation)) setRecording(false);
+    }, PRONUNCIATION_CAPTURE_MAX_MS);
   };
 
-  const startBrowserRecognition = (): void => {
+  const startBrowserRecognition = (generation: number): void => {
     const speechWindow = window as SpeechWindow;
     const Recognition = speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition;
     if (!Recognition) {
@@ -159,6 +344,7 @@ export function AudioPractice({
     recognition.interimResults = true;
     recognition.continuous = false;
     recognition.onresult = (event) => {
+      if (!isCurrentCapture(generation)) return;
       let next = '';
       for (let index = 0; index < event.results.length; index += 1) {
         next += event.results[index]?.[0]?.transcript ?? '';
@@ -167,37 +353,99 @@ export function AudioPractice({
       transcriptProviderRef.current = 'browser';
     };
     recognition.onerror = (event) => {
+      if (!isCurrentCapture(generation)) return;
+      clearCaptureTimer();
+      detachRecognition(recognition, false);
+      activeCaptureRef.current = false;
+      startLockRef.current = false;
+      setRecording(false);
       setError(t('speechRecognitionFailed', { error: event.error ?? t('unknownError') }));
+    };
+    recognition.onend = () => {
+      if (!isCurrentCapture(generation)) return;
+      clearCaptureTimer();
+      detachRecognition(recognition, false);
+      activeCaptureRef.current = false;
+      startLockRef.current = false;
       setRecording(false);
     };
-    recognition.onend = () => setRecording(false);
     recognitionRef.current = recognition;
-    recognition.start();
+    activeCaptureRef.current = true;
     setRecording(true);
+    captureTimerRef.current = window.setTimeout(() => {
+      captureTimerRef.current = null;
+      if (!isCurrentCapture(generation)) return;
+      detachRecognition(recognition, true);
+      activeCaptureRef.current = false;
+      startLockRef.current = false;
+      setRecording(false);
+    }, PRONUNCIATION_CAPTURE_MAX_MS);
+    try {
+      recognition.start();
+    } catch (reason) {
+      detachRecognition(recognition, false);
+      throw reason;
+    }
   };
 
   const start = async (): Promise<void> => {
+    if (startLockRef.current || activeCaptureRef.current || transcribing) return;
+    startLockRef.current = true;
+    const generation = ++captureGenerationRef.current;
+    scoreGenerationRef.current += 1;
     setError('');
     setScore(null);
     try {
-      if (cloud) await startCloudRecording();
-      else startBrowserRecognition();
+      if (cloudAvailable && cloud && !readOnly) {
+        setAcquiring(true);
+        await requestCloudRecording(generation);
+      } else {
+        startBrowserRecognition(generation);
+      }
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : String(reason));
-      setRecording(false);
-      stopMediaStream();
+      failCapture(generation, reason instanceof Error ? reason.message : String(reason));
     }
   };
 
   const stop = (): void => {
-    recognitionRef.current?.stop();
-    recognitionRef.current = null;
-    if (recorderRef.current?.state === 'recording') recorderRef.current.stop();
-    else stopMediaStream();
+    if (acquiring) {
+      captureGenerationRef.current += 1;
+      startLockRef.current = false;
+      activeCaptureRef.current = false;
+      clearCaptureTimer();
+      setAcquiring(false);
+      setRecording(false);
+      return;
+    }
+    const recognition = recognitionRef.current;
+    if (recognition) {
+      captureGenerationRef.current += 1;
+      clearCaptureTimer();
+      detachRecognition(recognition, true);
+      startLockRef.current = false;
+      activeCaptureRef.current = false;
+    }
+    const recorder = recorderRef.current;
+    if (recorder?.state === 'recording') {
+      clearCaptureTimer();
+      try {
+        recorder.stop();
+      } catch (reason) {
+        failCapture(
+          captureGenerationRef.current,
+          reason instanceof Error ? reason.message : String(reason),
+        );
+      }
+      releaseStream();
+      activeCaptureRef.current = false;
+    } else if (!recorder) {
+      releaseStream();
+    }
     setRecording(false);
   };
 
   const scoreAttempt = async (): Promise<void> => {
+    const scoreGeneration = ++scoreGenerationRef.current;
     setError('');
     try {
       const result = await api.pronunciationScore(
@@ -206,9 +454,13 @@ export function AudioPractice({
         itemId,
         transcriptProviderRef.current,
       );
-      setScore(result);
+      if (mountedRef.current && scoreGenerationRef.current === scoreGeneration) {
+        setScore(result);
+      }
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : String(reason));
+      if (mountedRef.current && scoreGenerationRef.current === scoreGeneration) {
+        setError(reason instanceof Error ? reason.message : String(reason));
+      }
     }
   };
 
@@ -231,12 +483,38 @@ export function AudioPractice({
           <span className="eyebrow"><Icon name="mic" size={16} /> {t('listeningSpeaking')}</span>
           <h2>{t('pronunciation')}</h2>
         </div>
-        <label className="mini-cloud-toggle">
-          <input type="checkbox" checked={cloud} onChange={(event) => setCloud(event.target.checked)} disabled={readOnly} />
+        <label
+          className="mini-cloud-toggle"
+          title={!cloudAvailable ? t('cloudUnavailable') : undefined}
+        >
+          <input
+            type="checkbox"
+            checked={cloud}
+            onChange={(event) => setCloud(event.target.checked)}
+            disabled={!cloudAvailable || readOnly || acquiring || recording || transcribing}
+          />
           <Icon name={cloud ? 'cloud' : 'offline'} size={16} /> {cloud ? t('cloudSpeech') : t('browserVoice')}
         </label>
       </header>
       {readOnly && <div className="demo-inline-notice" role="note"><Icon name="shield" size={16} /> {t('demoAudioNotice')} {readOnlyReason}</div>}
+
+      <fieldset className="voice-style-picker">
+        <legend>{t('voiceStyle')}</legend>
+        {(['masculine', 'feminine'] as const).map((style) => (
+          <label key={style} className={`voice-style-option ${voiceStyle === style ? 'is-selected' : ''}`}>
+            <input
+              type="radio"
+              name="voice-style"
+              value={style}
+              checked={voiceStyle === style}
+              onChange={() => setVoiceStyle(style)}
+            />
+            <span aria-hidden="true">{style === 'masculine' ? '🎙️' : '✨'}</span>
+            <strong>{t(style === 'masculine' ? 'masculineVoiceStyle' : 'feminineVoiceStyle')}</strong>
+          </label>
+        ))}
+      </fieldset>
+      <p className="voice-style-note"><Icon name="shield" size={15} /> {t('voiceStyleDisclosure')}</p>
 
       <div className="audio-target">
         <label className="field">
@@ -254,15 +532,34 @@ export function AudioPractice({
           {loadingVoice ? <span className="spinner" /> : <Icon name="volume" size={24} />}
           <span>{t('play')}</span>
         </button>
-        <button type="button" className={`record-action ${recording ? 'is-recording' : ''}`} onClick={() => { if (recording) stop(); else void start(); }}>
+        <button
+          type="button"
+          className={`record-action ${recording ? 'is-recording' : ''}`}
+          onClick={() => { if (recording || acquiring) stop(); else void start(); }}
+          disabled={transcribing}
+          aria-busy={acquiring || transcribing}
+        >
           <span className="record-pulse" />
-          <Icon name={recording ? 'stop' : 'mic'} size={30} />
-          <span>{recording ? t('stop') : t('record')}</span>
+          {acquiring || transcribing
+            ? <span className="spinner" />
+            : <Icon name={recording ? 'stop' : 'mic'} size={30} />}
+          <span>
+            {acquiring
+              ? t('requestingMicrophone')
+              : transcribing
+                ? t('transcribingAudio')
+                : recording ? t('stop') : t('record')}
+          </span>
         </button>
         <button type="button" className="round-action" onClick={() => { void scoreAttempt(); }} disabled={readOnly || !transcript.trim()} title={readOnly ? readOnlyReason : undefined}>
           <Icon name="target" size={24} />
           <span>{t('score')}</span>
         </button>
+      </div>
+
+      <div className="mic-word-analyzer__status" aria-live="polite">
+        {acquiring && <p>{t('requestingMicrophone')}</p>}
+        {transcribing && <p>{t('transcribingAudio')}</p>}
       </div>
 
       <label className="field transcript-field">

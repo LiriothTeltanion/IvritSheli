@@ -15,13 +15,25 @@ import type {
   LearningItem,
   Profile,
   ProgressData,
+  RegistryDueFilter,
+  RegistryResponse,
+  RegistrySort,
+  RegistryStatusFilter,
+  TranscriptProvider,
+  VoiceStyle,
+  WordAnalysisResult,
 } from './types';
 
 const API_PREFIX = '/api/v1';
 export const AUTH_REQUIRED_EVENT = 'ivrit-sheli:authentication-required';
 let readOnlySession = false;
 
-const allowedReadOnlyWrites = new Set(['/auth/demo', '/auth/logout']);
+const allowedReadOnlyWrites = new Set([
+  '/auth/demo',
+  '/auth/logout',
+  // This POST is a bounded, non-mutating dictionary lookup. Cloud use still requires consent.
+  '/audio/word-analysis',
+]);
 
 export function configureApiSession(session: Pick<AuthState, 'read_only'> | null): void {
   readOnlySession = Boolean(session?.read_only);
@@ -106,6 +118,24 @@ export const api = {
     const response = await request<{ items: LearningItem[] }>(`/items?${params}`);
     return response.items;
   },
+  registryItems: (options: {
+    query?: string;
+    status?: RegistryStatusFilter;
+    due?: RegistryDueFilter;
+    sort?: RegistrySort;
+    limit?: number;
+    offset?: number;
+  } = {}): Promise<RegistryResponse> => {
+    const params = new URLSearchParams({
+      q: options.query ?? '',
+      status: options.status ?? 'all',
+      due: options.due ?? 'all',
+      sort: options.sort ?? 'last_activity_desc',
+      limit: String(options.limit ?? 200),
+      offset: String(options.offset ?? 0),
+    });
+    return request(`/registry?${params}`);
+  },
   createItem: (payload: Partial<LearningItem> & { hebrew_text: string }): Promise<LearningItem> =>
     request('/items', { method: 'POST', body: JSON.stringify(payload) }),
   nextReviews: async (limit = 10): Promise<LearningItem[]> => {
@@ -154,6 +184,7 @@ export const api = {
   tts: (
     text: string,
     cloudRequested: boolean,
+    voiceStyle: VoiceStyle,
   ): Promise<{
     provider: string;
     audio_base64?: string;
@@ -163,7 +194,12 @@ export const api = {
   }> =>
     request('/audio/tts', {
       method: 'POST',
-      body: JSON.stringify({ text, cloud_requested: cloudRequested, retain: false }),
+      body: JSON.stringify({
+        text,
+        cloud_requested: cloudRequested,
+        voice_style: voiceStyle,
+        retain: false,
+      }),
     }),
   transcribeAudio: async (blob: Blob, cloudRequested = true): Promise<{ transcript: string; provider: string }> => {
     const extensionByMime: Record<string, string> = {
@@ -184,6 +220,19 @@ export const api = {
       body: form,
     });
   },
+  analyzeSpokenWord: (
+    transcript: string,
+    transcriptProvider: TranscriptProvider,
+    cloudRequested: boolean,
+  ): Promise<WordAnalysisResult> =>
+    request('/audio/word-analysis', {
+      method: 'POST',
+      body: JSON.stringify({
+        transcript,
+        transcript_provider: transcriptProvider,
+        cloud_requested: cloudRequested,
+      }),
+    }),
   pronunciationScore: (
     targetText: string,
     transcript: string,

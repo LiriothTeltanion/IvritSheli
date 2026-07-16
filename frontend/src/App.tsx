@@ -22,6 +22,10 @@ import { TodayDashboard } from './components/TodayDashboard';
 import { XPBar } from './components/XPBar';
 
 type LearnTab = 'review' | 'dictionary' | 'audio' | 'collection';
+interface DictionaryTarget {
+  word: string;
+  entryId?: number;
+}
 
 const navigation: Array<{ key: ViewKey; icon: IconName; labelKey: 'today' | 'learn' | 'coach' | 'progress' | 'connectors' | 'settings' }> = [
   { key: 'today', icon: 'home', labelKey: 'today' },
@@ -40,7 +44,7 @@ export default function App(): React.JSX.Element {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [progress, setProgress] = useState<ProgressData | null>(null);
   const [gamification, setGamification] = useState<GamificationStatus | null>(null);
-  const [dictionaryWord, setDictionaryWord] = useState<string | null>(null);
+  const [dictionaryTarget, setDictionaryTarget] = useState<DictionaryTarget | null>(null);
   const [captureOpen, setCaptureOpen] = useState(false);
   const [auth, setAuth] = useState<AuthState | null>(null);
   const [authChecking, setAuthChecking] = useState(true);
@@ -130,7 +134,7 @@ export default function App(): React.JSX.Element {
       });
       setAuthError(t('sessionExpired'));
       setCaptureOpen(false);
-      setDictionaryWord(null);
+      setDictionaryTarget(null);
     };
     window.addEventListener(AUTH_REQUIRED_EVENT, onAuthenticationRequired);
     return () => window.removeEventListener(AUTH_REQUIRED_EVENT, onAuthenticationRequired);
@@ -160,6 +164,10 @@ export default function App(): React.JSX.Element {
     setView('learn');
   };
 
+  const openDictionary = useCallback((word: string, entryId?: number): void => {
+    setDictionaryTarget(entryId === undefined ? { word } : { word, entryId });
+  }, []);
+
   const pageTitle = useMemo(() => navigation.find((item) => item.key === view)?.labelKey ?? 'today', [view]);
 
   const startDemo = async (): Promise<void> => {
@@ -184,7 +192,7 @@ export default function App(): React.JSX.Element {
       setAuth(nextAuth);
       setView('today');
       setCaptureOpen(false);
-      setDictionaryWord(null);
+      setDictionaryTarget(null);
       setError('');
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : String(reason));
@@ -248,7 +256,7 @@ export default function App(): React.JSX.Element {
       <aside className="sidebar">
         <div className="brand-lockup">
           <img src="/icons/app-icon.svg" alt="" />
-          <div><strong>{t('appName')}</strong><span>CLOUD 2.1</span></div>
+          <div><strong>{t('appName')}</strong><span>CLOUD 2.2</span></div>
         </div>
         <nav className="side-nav" aria-label={t('primaryNavigation')}>
           {navigation.map((item) => (
@@ -271,7 +279,7 @@ export default function App(): React.JSX.Element {
         </div>
         <div className="sidebar-footer">
           <div className="privacy-mini"><Icon name="shield" size={17} /><span><strong>{auth.demo ? t('demoWorkspace') : localMode ? t('localWorkspace') : t('privateMode')}</strong><small>{auth.demo ? t('readOnlyDemo') : localMode ? t('localFirstStorage') : t('accountStorage')}</small></span></div>
-          <span className="version-label">v2.1.1</span>
+          <span className="version-label">v2.2.0</span>
         </div>
       </aside>
 
@@ -315,14 +323,14 @@ export default function App(): React.JSX.Element {
           {view === 'today' && (
             <TodayDashboard
               dashboard={dashboard}
-              onWordClick={setDictionaryWord}
+              onWordClick={openDictionary}
               onCapture={() => setCaptureOpen(true)}
               onStart={() => goToLearn('review')}
               onOpenCoach={() => setView('coach')}
             />
           )}
-          {view === 'learn' && <LearnPanel initialTab={learnTab} onWordClick={setDictionaryWord} onRefresh={() => { void refreshCore(); }} />}
-          {view === 'coach' && <AICoach onWordClick={setDictionaryWord} />}
+          {view === 'learn' && <LearnPanel initialTab={learnTab} cloudAvailable={dashboard.system.cloud_available} onWordClick={openDictionary} onRefresh={() => { void refreshCore(); }} />}
+          {view === 'coach' && <AICoach cloudAvailable={dashboard.system.cloud_available} onWordClick={openDictionary} />}
           {view === 'progress' && progress && <ProgressPanel progress={progress} gamification={gamification} />}
           {view === 'progress' && !progress && <section className="card skeleton-page"><div className="skeleton" /><div className="skeleton" /></section>}
           {view === 'connectors' && <ConnectorPanel onImported={() => { setToast(t('captured')); void refreshCore(); }} />}
@@ -357,9 +365,10 @@ export default function App(): React.JSX.Element {
         }}
       />
       <DictionaryDrawer
-        word={dictionaryWord}
-        onClose={() => setDictionaryWord(null)}
-        onOpenWord={setDictionaryWord}
+        word={dictionaryTarget?.word ?? null}
+        initialEntryId={dictionaryTarget?.entryId}
+        onClose={() => setDictionaryTarget(null)}
+        onOpenWord={openDictionary}
         onLearned={() => {
           setToast(t('captured'));
           void refreshCore();

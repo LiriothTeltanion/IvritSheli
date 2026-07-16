@@ -89,6 +89,8 @@ Every Hebrew token rendered through the shared `HebrewText` component opens the 
 
 Click a form to open it. Click the root chip to explore its word family. Click **Add to learning** to turn a dictionary entry into a personal review item.
 
+Open **My words** in the learning workspace to search your saved vocabulary. Filter by learning status or review timing, sort by mastery or dates, and inspect recognition, production, listening and speaking progress for every saved word. Saving the same dictionary entry twice reuses the existing active item; distinct homographs remain distinct entries.
+
 The bundled demo lexicon makes this flow work immediately. Install the complete Kaikki/Wiktionary Hebrew dataset with:
 
 ```bash
@@ -122,7 +124,7 @@ Offline mode is always available and deterministic. To use OpenAI enrichment:
 
 Text is redacted before a cloud call, only selected content is sent, and a failed provider automatically falls back to offline output.
 
-## 6. Audio studio
+## 6. Audio studio and microphone word intelligence
 
 The audio studio supports:
 
@@ -132,8 +134,14 @@ The audio studio supports:
 - Optional OpenAI text-to-speech.
 - Optional OpenAI speech-to-text.
 - Transparent pronunciation scoring.
+- Persistent masculine-style or feminine-style synthetic voice selection.
+- One-word microphone analysis with dictionary facts, translations, grammar, forms, uses and examples.
 
 The score combines normalized transcript similarity, target-word coverage, missing words, and extra words. It is a learning signal, not a clinical phoneme assessment. When live browser recognition is unavailable, type the transcript manually and score it normally.
+
+The voice labels are style choices, not claims about a real speaker's identity. Browser voices depend on the device; configured cloud profiles use server-controlled provider IDs.
+
+For word analysis, press **Record word**, say exactly one Hebrew word, and review the local dictionary result. You can type the word manually if browser recognition is unavailable. Optional cloud transcription/enrichment requires server configuration, your stored consent, and an explicit cloud selection. Ivrit Sheli does not receive or store browser-recognition audio, though the browser or operating-system speech service's policy may apply. App-managed cloud uploads are deleted after processing, while the configured provider's policy remains separate. Sources are labeled, and the result cannot change XP or mastery. The public demo permits browser/manual local analysis but keeps cloud processing disabled.
 
 ## 7. XP, levels, streaks, and achievements
 

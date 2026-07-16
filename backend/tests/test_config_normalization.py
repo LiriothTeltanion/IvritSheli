@@ -54,6 +54,21 @@ def test_settings_create_private_data_directories(tmp_path: Path) -> None:
     assert (settings.data_dir / "backups").is_dir()
 
 
+def test_voice_style_provider_ids_are_server_configurable(tmp_path: Path) -> None:
+    settings = Settings.from_env(
+        {
+            "APP_DATA_DIR": str(tmp_path / "state"),
+            "APP_DB_PATH": str(tmp_path / "state" / "app.db"),
+            "DICTIONARY_DB_PATH": str(tmp_path / "state" / "dict.db"),
+            "OPENAI_TTS_VOICE_MASCULINE": "voice-low-test",
+            "OPENAI_TTS_VOICE_FEMININE": "voice-bright-test",
+        }
+    )
+
+    assert settings.openai_tts_voice_masculine == "voice-low-test"
+    assert settings.openai_tts_voice_feminine == "voice-bright-test"
+
+
 def test_hebrew_normalization_is_niqqud_and_punctuation_insensitive() -> None:
     assert strip_niqqud("שָׁלוֹם") == "שלום"
     assert normalize_hebrew("  שָׁלוֹם!  ") == "שלום"

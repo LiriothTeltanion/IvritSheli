@@ -14,7 +14,7 @@ import mimetypes
 import time
 from dataclasses import asdict
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 from uuid import uuid4
 
 import requests
@@ -29,6 +29,7 @@ OPENAI_TRANSCRIPTIONS_URL = "https://api.openai.com/v1/audio/transcriptions"
 OPENAI_SPEECH_URL = "https://api.openai.com/v1/audio/speech"
 SUPPORTED_AUDIO_SUFFIXES = {".flac", ".mp3", ".mp4", ".mpeg", ".mpga", ".m4a", ".ogg", ".wav", ".webm"}
 MAX_AUDIO_BYTES = 25 * 1024 * 1024
+VoiceStyle = Literal["masculine", "feminine"]
 
 
 class AudioProviderError(RuntimeError):
@@ -197,7 +198,7 @@ class AudioService:
         text: str,
         *,
         cloud_requested: bool = False,
-        voice: str | None = None,
+        voice_style: VoiceStyle = "feminine",
         retain: bool = False,
     ) -> dict[str, Any]:
         """Return cloud-generated audio or browser speech instructions.
@@ -205,7 +206,7 @@ class AudioService:
         Args:
             text: Hebrew text.
             cloud_requested: Explicit cloud action from the user.
-            voice: Optional provider voice.
+            voice_style: Learner-facing synthetic voice profile.
             retain: Whether to save generated audio locally.
 
         Returns:
@@ -223,6 +224,7 @@ class AudioService:
         clean_text = text.strip()
         if not clean_text:
             raise ValueError("text is required")
+        voice_id = self._voice_id(voice_style)
         may_use_cloud = (
             cloud_requested
             and self.settings.allow_cloud_processing
@@ -235,13 +237,26 @@ class AudioService:
                 "model": "Web Speech API",
                 "text": clean_text,
                 "language": "he-IL",
+                "voice_style": voice_style,
+                "voice_profile": {
+                    "language": "he-IL",
+                    "pitch": 0.82 if voice_style == "masculine" else 1.08,
+                },
                 "degraded_mode": cloud_requested,
                 "message": "Use speechSynthesis in the browser; installed voices vary by device.",
             }
 
         started = time.perf_counter()
         try:
-            content = self.provider.synthesize(clean_text, voice=voice)
+            content = self.provider.synthesize(
+                clean_text,
+                voice=voice_id,
+                instructions=(
+                    "Speak clear, natural modern Israeli Hebrew at a learner-friendly pace "
+                    f"with a {voice_style} vocal style. This is a synthetic style direction, "
+                    "not a claim about the speaker's identity."
+                ),
+            )
         except Exception as error:
             LOGGER.warning("Cloud TTS failed; returning browser fallback: %s", error)
             return {
@@ -249,6 +264,11 @@ class AudioService:
                 "model": "Web Speech API",
                 "text": clean_text,
                 "language": "he-IL",
+                "voice_style": voice_style,
+                "voice_profile": {
+                    "language": "he-IL",
+                    "pitch": 0.82 if voice_style == "masculine" else 1.08,
+                },
                 "degraded_mode": True,
                 "message": "Cloud voice failed; browser speech remains available.",
             }
@@ -261,13 +281,22 @@ class AudioService:
         return {
             "provider": "openai",
             "model": self.settings.openai_tts_model,
-            "voice": voice or self.settings.openai_tts_voice,
+            "voice": voice_id,
+            "voice_style": voice_style,
             "mime_type": "audio/mpeg",
             "audio_base64": base64.b64encode(content).decode("ascii"),
             "retained_path": retained_path,
             "degraded_mode": False,
             "latency_ms": round((time.perf_counter() - started) * 1000),
         }
+
+    def _voice_id(self, voice_style: VoiceStyle) -> str:
+        """Resolve a learner-facing style to one server-controlled provider voice ID."""
+        if voice_style == "masculine":
+            return self.settings.openai_tts_voice_masculine
+        if voice_style == "feminine":
+            return self.settings.openai_tts_voice_feminine
+        raise ValueError("Unsupported voice style")
 
     def transcribe(
         self,

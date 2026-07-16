@@ -1,4 +1,4 @@
-# API catalog — Ivrit Sheli 2.1
+# API catalog — Ivrit Sheli 2.2
 
 Application base path: `/api/v1`
 
@@ -58,6 +58,7 @@ The hosting platform should route traffic only when `/health/ready` returns `200
 | `GET` | `/api/v1/items` |
 | `GET` | `/api/v1/items/{item_id}` |
 | `POST` | `/api/v1/items` |
+| `GET` | `/api/v1/registry?q=...&status=...&due=...&sort=...` |
 | `GET` | `/api/v1/reviews/next` |
 | `POST` | `/api/v1/reviews/{item_id}` |
 | `GET` | `/api/v1/recommendations` |
@@ -66,6 +67,10 @@ The hosting platform should route traffic only when `/health/ready` returns `200
 | `POST` | `/api/v1/bug-reports` |
 
 In cloud mode every operation resolves the authenticated tenant before accessing learner data. No client-provided user ID selects ownership. Authenticated mutations use a process-local per-user rate limit, and a serialized UTF-8 learner snapshot that would exceed the configured durable ceiling is rejected before persistence.
+
+Generic `POST /items` accepts learner-facing provenance labels such as `manual` and `quick_capture`, but rejects the server-owned `dictionary:`, `connector:`, `system:`, `seed:` and `starter_pack` namespaces. Trusted source identity is assigned only by the dedicated server workflow.
+
+The registry returns persisted learner items with transparent `active`, `mastered`, or `needs_review` status; due/upcoming state; review count; learned and latest-activity dates; and recognition, production, listening, and speaking mastery. Search, filters, and sorting run inside the resolved tenant only.
 
 ## Dictionary
 
@@ -79,11 +84,14 @@ In cloud mode every operation resolves the authenticated tenant before accessing
 
 Dictionary reference data remains local/rebuildable SQLite data in both runtime modes. Adding an entry to a learner plan is tenant-owned and therefore authenticated.
 
+Dictionary results are decorated with the current learner's saved-item ID, learning status, and due state. Search, lookup and entry GETs are read-only: exploration does not append events, award XP or change mastery. Repeated **Add to learning** requests return the existing active item instead of creating new duplicate vocabulary records.
+
 ## AI
 
 | Method | Route |
 |---|---|
 | `POST` | `/api/v1/ai/analyze` |
+| `POST` | `/api/v1/ai/word_insight` |
 | `POST` | `/api/v1/ai/correct` |
 | `POST` | `/api/v1/ai/exercises` |
 | `POST` | `/api/v1/ai/dialogue` |
@@ -102,9 +110,12 @@ Offline deterministic results require no external service. Online processing req
 |---|---|
 | `POST` | `/api/v1/audio/tts` |
 | `POST` | `/api/v1/audio/stt` |
+| `POST` | `/api/v1/audio/word-analysis` |
 | `POST` | `/api/v1/audio/pronunciation-score` |
 
-Uploads are bounded by the request envelope, decoded file size and filename-extension allowlist. MIME and magic-byte validation are not claimed in 2.1. Audio and transcripts are excluded from structured request logs.
+Uploads are bounded by the request envelope, decoded file size and filename-extension allowlist. MIME and magic-byte validation are not claimed in 2.2. App-managed audio and transcripts are excluded from structured request logs.
+
+`POST /audio/tts` accepts `voice_style: "masculine" | "feminine"`; clients cannot inject arbitrary provider voice IDs. `POST /audio/word-analysis` accepts exactly one Hebrew transcript plus client-reported `browser`, `openai`, or `manual` provenance. The server does not present the client report as independently verified. Its local path is a non-mutating dictionary analysis and is available to the read-only demo. Cloud enrichment still requires an authenticated non-demo identity, production allowlisting, stored learner consent, and an explicit `cloud_requested: true` action. Word analysis never updates XP or mastery.
 
 ## Gamification and missions
 

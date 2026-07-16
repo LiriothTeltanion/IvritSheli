@@ -92,7 +92,7 @@ ACHIEVEMENTS: tuple[AchievementDefinition, ...] = (
         "speaker_25", "speaking_attempts", 25, 120, "Voice Builder", "Constructor de voz", "בונה קול", "assets/badges/speaker.svg"
     ),
     AchievementDefinition(
-        "dictionary_100", "dictionary_lookups", 100, 100, "Word Explorer", "Explorador de palabras", "חוקר מילים", "assets/badges/explorer.svg"
+        "dictionary_100", "dictionary_items_saved", 100, 100, "Word Explorer", "Explorador de palabras", "חוקר מילים", "assets/badges/explorer.svg"
     ),
     AchievementDefinition(
         "real_world_10", "real_life_successes", 10, 180, "Israel in Action", "Israel en acción", "עברית בפעולה", "assets/badges/real-world.svg"

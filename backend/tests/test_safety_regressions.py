@@ -43,6 +43,14 @@ def test_cloud_provider_routes_require_stored_consent(
             "/api/v1/audio/stt?cloud_requested=true",
             files={"file": ("sample.webm", b"synthetic", "audio/webm")},
         ),
+        client.post(
+            "/api/v1/audio/word-analysis",
+            json={
+                "transcript": "שלום",
+                "transcript_provider": "browser",
+                "cloud_requested": True,
+            },
+        ),
     )
     for response in guarded_responses:
         assert response.status_code == 403

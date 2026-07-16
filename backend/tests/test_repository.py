@@ -16,7 +16,7 @@ import pytest
 from ivrit_sheli.repository import LearningRepository
 
 
-def test_capture_creates_review_state_and_first_word_achievement(
+def test_capture_creates_review_state_and_meaningful_achievements(
     repository: LearningRepository,
 ) -> None:
     item = repository.create_item(
@@ -34,6 +34,24 @@ def test_capture_creates_review_state_and_first_word_achievement(
     status = repository.gamification_status()
     assert status["xp"]["total"] >= 33  # capture XP plus first achievement reward
     assert next(row for row in status["achievements"] if row["key"] == "first_word")["unlocked"] is True
+
+    for entry_id in range(1, 100):
+        repository.get_or_create_dictionary_item(
+            entry_id,
+            {"hebrew_text": f"מילה {entry_id}"},
+        )
+    # Simulate a duplicate created before the 2.2 atomic dictionary-link path.
+    repository.create_item(
+        {"hebrew_text": "מילה ישנה", "source_label": "dictionary:1"}
+    )
+    status = repository.gamification_status()
+    explorer = next(row for row in status["achievements"] if row["key"] == "dictionary_100")
+    assert explorer["unlocked"] is False
+
+    repository.get_or_create_dictionary_item(100, {"hebrew_text": "מילה 100"})
+    status = repository.gamification_status()
+    explorer = next(row for row in status["achievements"] if row["key"] == "dictionary_100")
+    assert explorer["unlocked"] is True
 
 
 def test_review_updates_schedule_mastery_and_xp(repository: LearningRepository) -> None:

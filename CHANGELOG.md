@@ -6,6 +6,36 @@ All notable changes are documented here. Versions follow Semantic Versioning.
 
 No unreleased changes.
 
+## 2.2.0 — 2026-07-16
+
+### Added
+
+- Persistent learner-facing masculine-style and feminine-style synthetic pronunciation profiles, with deterministic browser Hebrew-voice selection, pitch fallback, and server-controlled cloud voice mappings.
+- A user-triggered one-word microphone analyzer that combines browser or optional cloud transcription with local dictionary facts, English/Spanish meanings, grammar, forms, examples, optional cloud enrichment, and explicit provenance.
+- A tenant-scoped saved-vocabulary registry with Hebrew/translation/transliteration/root search, status and due filters, six sort modes, review counts, saved/activity dates, and recognition/production/listening/speaking mastery.
+- Dictionary learning-state decoration, exact homograph identity, atomic prevention of new duplicate adds and bounded pagination; pre-existing duplicate histories are not auto-merged.
+- EN/ES/HE interface copy and automated coverage for every new voice, microphone, registry, and dictionary contract.
+
+### Changed
+
+- Dictionary presentation now separates bilingual senses, grammar, forms, examples, pronunciation sources, learning state, provenance and licensing.
+- The visual system now includes vector Hebrew letter constellations, deeper light/dark surfaces, refined desktop/mobile navigation, integrated feature states, high-contrast fallbacks, and restrained motion with a complete stationary reduced-motion presentation.
+- Version metadata advanced from `2.1.1` to `2.2.0` across Python, npm, the visible interface, diagnostics, citation metadata, issue templates, documentation and the PWA shell cache.
+- The automated baseline is now 139 unique backend tests plus 48 frontend tests, for 187 unique passing tests when the credential-gated PostgreSQL test runs in its dedicated database gate.
+
+### Privacy and safety
+
+- Microphone permission begins only after a learner action. Ivrit Sheli does not receive browser-recognition audio; browser/OS provider policy may apply. App-managed word-analysis uploads are removed after processing, while the configured cloud provider's policy remains separate.
+- Browser/manual local word analysis is available in the seeded read-only demo, while cloud transcription and enrichment remain blocked.
+- Recognized or manually typed words are explicitly unverified evidence and cannot award XP or change mastery.
+- Cloud TTS/STT/word enrichment remains identity-allowlisted, stored-consent-gated, user-triggered, and source-labeled.
+- Dictionary GETs are now strictly read-only. The Word Explorer achievement counts dictionary words explicitly saved instead of mutable lookups, and generic item creation cannot spoof server-owned provenance namespaces.
+
+### Verification
+
+- Backend lint, strict typing, local suite, real PostgreSQL 17 boundary, frontend type-check/tests/build and package diff checks pass for the 2.2.0 candidate.
+- The public Railway service is separately verified on merged release `2.1.1`; no 2.2.0 deployment or tag is claimed.
+
 ## 2.1.1 — 2026-07-16
 
 ### Fixed
@@ -29,7 +59,7 @@ No unreleased changes.
 ### Verification
 
 - Local backend quality gates, frontend type-check/tests/build, offline diagnostics, dependency audits, package checks, visible dialog/review/RTL/reduced-motion QA, real PostgreSQL integration, and the production-image Compose smoke pass for the 2.1.1 candidate.
-- The public Railway service remains the previously verified `2.1.0` deployment until this branch is reviewed, merged, and deployed; no 2.1.1 tag or live release is claimed here.
+- Release `2.1.1` was subsequently merged through pull request #11 and deployed successfully to the public Railway service; HTTPS version, liveness, PostgreSQL readiness, seeded demo data and browser responsiveness were verified on 2026-07-16.
 
 ## 2.1.0 — 2026-07-16
 

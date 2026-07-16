@@ -29,6 +29,16 @@ from ivrit_sheli.recommendation import RecommendationCandidate, rank_candidates
 from ivrit_sheli.scheduler import ReviewState, review_urgency, schedule_review
 
 PRONUNCIATION_MASTERY_THRESHOLD = 70
+REGISTRY_STATUSES = {"all", "active", "mastered", "needs_review"}
+REGISTRY_DUE_FILTERS = {"all", "due", "upcoming"}
+REGISTRY_SORTS = {
+    "alphabetical",
+    "due_asc",
+    "last_activity_desc",
+    "saved_asc",
+    "saved_desc",
+    "mastery_desc",
+}
 
 
 def utc_now() -> datetime:
@@ -129,68 +139,128 @@ class LearningRepository:
             >>> repo.create_item({"hebrew_text": "שלום"})["hebrew_text"]
             'שלום'
         """
+        hebrew_text, normalized = self._validate_item_identity(payload)
+        with self.database.transaction() as connection:
+            item_id = self._create_item_in_transaction(
+                connection,
+                payload,
+                hebrew_text=hebrew_text,
+                normalized=normalized,
+            )
+
+        return self.get_item(item_id)
+
+    def get_or_create_dictionary_item(
+        self,
+        entry_id: int,
+        payload: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Atomically link one exact dictionary entry to the learner collection."""
+        if entry_id < 1:
+            raise ValueError("entry_id must be positive")
+        source_label = f"dictionary:{entry_id}"
+        dictionary_payload = {
+            **payload,
+            "context_label": "dictionary",
+            "source_label": source_label,
+        }
+        hebrew_text, normalized = self._validate_item_identity(dictionary_payload)
+        with self.database.transaction() as connection:
+            existing = connection.execute(
+                """
+                SELECT id
+                FROM learning_items
+                WHERE source_label = ? AND archived_at IS NULL
+                ORDER BY id
+                LIMIT 1
+                """,
+                (source_label,),
+            ).fetchone()
+            if existing is not None:
+                item_id = int(existing["id"])
+            else:
+                item_id = self._create_item_in_transaction(
+                    connection,
+                    dictionary_payload,
+                    hebrew_text=hebrew_text,
+                    normalized=normalized,
+                )
+        return self.get_item(item_id)
+
+    @staticmethod
+    def _validate_item_identity(payload: dict[str, Any]) -> tuple[str, str]:
+        """Validate and normalize the identity fields shared by item creation paths."""
         hebrew_text = str(payload.get("hebrew_text", "")).strip()
         if not hebrew_text:
             raise ValueError("hebrew_text is required")
-        now = iso_now()
         normalized = normalize_hebrew(hebrew_text)
         if not normalized:
             raise ValueError("hebrew_text must contain searchable text")
+        return hebrew_text, normalized
 
-        with self.database.transaction() as connection:
-            cursor = connection.execute(
-                """
-                INSERT INTO learning_items(
-                    hebrew_text, normalized_text, hebrew_with_niqqud,
-                    transliteration, translation_en, translation_es, item_type,
-                    root, binyan, grammatical_gender, register_label,
-                    context_label, source_label, personal_note, priority,
-                    created_at, updated_at
-                ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                (
-                    hebrew_text,
-                    normalized,
-                    payload.get("hebrew_with_niqqud"),
-                    payload.get("transliteration"),
-                    payload.get("translation_en"),
-                    payload.get("translation_es"),
-                    payload.get("item_type", "phrase"),
-                    payload.get("root"),
-                    payload.get("binyan"),
-                    payload.get("grammatical_gender"),
-                    payload.get("register_label"),
-                    payload.get("context_label", "daily_life"),
-                    payload.get("source_label", "manual"),
-                    payload.get("personal_note"),
-                    max(0.0, min(1.0, float(payload.get("priority", 0.5)))),
-                    now,
-                    now,
-                ),
-            )
-            item_id_raw = cursor.lastrowid
-            if item_id_raw is None:
-                raise sqlite3.DatabaseError("SQLite did not return a learning item ID")
-            item_id = int(item_id_raw)
-            connection.execute(
-                """
-                INSERT INTO review_state(item_id, due_at)
-                VALUES(?, ?)
-                """,
-                (item_id, now),
-            )
-            connection.execute(
-                """
-                INSERT INTO user_events(event_type, entity_type, entity_id, payload_json, created_at)
-                VALUES('item_created', 'learning_item', ?, ?, ?)
-                """,
-                (str(item_id), json.dumps({"context": payload.get("context_label", "daily_life")}), now),
-            )
-            self._award_xp(connection, XPAction.NEW_CAPTURE, "learning_item", str(item_id))
-            # Achievements should react to the behavior that satisfies them, not a later review.
-            self._unlock_achievements(connection, now)
-
-        return self.get_item(item_id)
+    def _create_item_in_transaction(
+        self,
+        connection: sqlite3.Connection,
+        payload: dict[str, Any],
+        *,
+        hebrew_text: str,
+        normalized: str,
+    ) -> int:
+        """Insert one item and its coupled review/event/XP state in the active transaction."""
+        now = iso_now()
+        cursor = connection.execute(
+            """
+            INSERT INTO learning_items(
+                hebrew_text, normalized_text, hebrew_with_niqqud,
+                transliteration, translation_en, translation_es, item_type,
+                root, binyan, grammatical_gender, register_label,
+                context_label, source_label, personal_note, priority,
+                created_at, updated_at
+            ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                hebrew_text,
+                normalized,
+                payload.get("hebrew_with_niqqud"),
+                payload.get("transliteration"),
+                payload.get("translation_en"),
+                payload.get("translation_es"),
+                payload.get("item_type", "phrase"),
+                payload.get("root"),
+                payload.get("binyan"),
+                payload.get("grammatical_gender"),
+                payload.get("register_label"),
+                payload.get("context_label", "daily_life"),
+                payload.get("source_label", "manual"),
+                payload.get("personal_note"),
+                max(0.0, min(1.0, float(payload.get("priority", 0.5)))),
+                now,
+                now,
+            ),
+        )
+        item_id_raw = cursor.lastrowid
+        if item_id_raw is None:
+            raise sqlite3.DatabaseError("SQLite did not return a learning item ID")
+        item_id = int(item_id_raw)
+        connection.execute(
+            "INSERT INTO review_state(item_id, due_at) VALUES(?, ?)",
+            (item_id, now),
+        )
+        connection.execute(
+            """
+            INSERT INTO user_events(event_type, entity_type, entity_id, payload_json, created_at)
+            VALUES('item_created', 'learning_item', ?, ?, ?)
+            """,
+            (
+                str(item_id),
+                json.dumps({"context": payload.get("context_label", "daily_life")}),
+                now,
+            ),
+        )
+        self._award_xp(connection, XPAction.NEW_CAPTURE, "learning_item", str(item_id))
+        # Achievements should react to the behavior that satisfies them, not a later review.
+        self._unlock_achievements(connection, now)
+        return item_id
 
     def get_item(self, item_id: int) -> dict[str, Any]:
         """Retrieve one learning item.
@@ -273,6 +343,299 @@ class LearningRepository:
         finally:
             if should_close:
                 connection.close()
+
+    def registry_items(
+        self,
+        *,
+        limit: int = 200,
+        offset: int = 0,
+        query: str = "",
+        status: str = "all",
+        due: str = "all",
+        sort: str = "last_activity_desc",
+    ) -> dict[str, Any]:
+        """Return the learner's active vocabulary with review and mastery context.
+
+        Registry labels are derived only from stored learning signals. An item that is due is
+        ``needs_review``. A non-due item is ``mastered`` after five successful repetitions, a
+        two-week interval, and at least 65% mastery in two modalities; all others stay ``active``.
+        """
+        if not 1 <= limit <= 500:
+            raise ValueError("limit must be between 1 and 500")
+        if offset < 0:
+            raise ValueError("offset must be zero or greater")
+        if status not in REGISTRY_STATUSES:
+            raise ValueError("status must be all, active, mastered, or needs_review")
+        if due not in REGISTRY_DUE_FILTERS:
+            raise ValueError("due must be all, due, or upcoming")
+        if sort not in REGISTRY_SORTS:
+            raise ValueError(
+                "sort must be alphabetical, due_asc, last_activity_desc, saved_asc, "
+                "saved_desc, or mastery_desc"
+            )
+
+        now = iso_now()
+        connection = self.database.connect()
+        should_close = str(self.database.path) != ":memory:"
+        try:
+            parameters: dict[str, Any] = {"now": now}
+            search_clause = ""
+            if query.strip():
+                parameters.update(
+                    {
+                        "normalized_query": f"%{normalize_hebrew(query)}%",
+                        "raw_query": f"%{query.strip().lower()}%",
+                    }
+                )
+                search_clause = """
+                    AND (
+                        i.normalized_text LIKE :normalized_query
+                        OR lower(COALESCE(i.translation_en, '')) LIKE :raw_query
+                        OR lower(COALESCE(i.translation_es, '')) LIKE :raw_query
+                        OR lower(COALESCE(i.transliteration, '')) LIKE :raw_query
+                        OR lower(COALESCE(i.root, '')) LIKE :raw_query
+                    )
+                """
+
+            registry_cte = f"""
+                WITH attempt_stats AS (
+                    SELECT item_id, COUNT(*) AS review_count, MAX(created_at) AS last_attempt_at
+                    FROM attempts
+                    GROUP BY item_id
+                ),
+                registry_rows AS (
+                    SELECT i.*, r.interval_days, r.ease_factor, r.repetitions, r.lapses,
+                           r.due_at, r.last_reviewed_at,
+                           COALESCE(a.review_count, 0) AS review_count,
+                           a.last_attempt_at,
+                           COALESCE(m.recognition, 0) AS mastery_recognition,
+                           COALESCE(m.production, 0) AS mastery_production,
+                           COALESCE(m.listening, 0) AS mastery_listening,
+                           COALESCE(m.speaking, 0) AS mastery_speaking,
+                           COALESCE(m.observations, 0) AS mastery_observations,
+                           m.updated_at AS mastery_updated_at,
+                           CASE
+                               WHEN r.due_at <= :now THEN 'needs_review'
+                               WHEN r.repetitions >= 5
+                                    AND r.interval_days >= 14
+                                    AND (
+                                        CASE WHEN COALESCE(m.recognition, 0) >= 0.65 THEN 1 ELSE 0 END
+                                        + CASE WHEN COALESCE(m.production, 0) >= 0.65 THEN 1 ELSE 0 END
+                                        + CASE WHEN COALESCE(m.listening, 0) >= 0.65 THEN 1 ELSE 0 END
+                                        + CASE WHEN COALESCE(m.speaking, 0) >= 0.65 THEN 1 ELSE 0 END
+                                    ) >= 2
+                               THEN 'mastered'
+                               ELSE 'active'
+                           END AS _registry_status,
+                           CASE WHEN r.due_at <= :now THEN 'due' ELSE 'upcoming' END
+                               AS _registry_due_state,
+                           MAX(
+                               COALESCE(a.last_attempt_at, ''),
+                               COALESCE(r.last_reviewed_at, ''),
+                               COALESCE(m.updated_at, ''),
+                               i.created_at
+                           ) AS _registry_last_activity,
+                           MAX(
+                               COALESCE(m.recognition, 0),
+                               COALESCE(m.production, 0),
+                               COALESCE(m.listening, 0),
+                               COALESCE(m.speaking, 0)
+                           ) AS _registry_mastery_score
+                    FROM learning_items i
+                    JOIN review_state r ON r.item_id = i.id
+                    LEFT JOIN attempt_stats a ON a.item_id = i.id
+                    LEFT JOIN skill_mastery m ON m.concept_key = 'item:' || i.id
+                    WHERE i.archived_at IS NULL
+                    {search_clause}
+                )
+            """
+            filters: list[str] = []
+            if status != "all":
+                filters.append("_registry_status = :status")
+                parameters["status"] = status
+            if due != "all":
+                filters.append("_registry_due_state = :due")
+                parameters["due"] = due
+            where_clause = f"WHERE {' AND '.join(filters)}" if filters else ""
+            summary_where_clause = (
+                "WHERE _registry_due_state = :due" if due != "all" else ""
+            )
+            order_clause = {
+                "alphabetical": "normalized_text ASC, id ASC",
+                "due_asc": "due_at ASC, id ASC",
+                "saved_asc": "created_at ASC, id ASC",
+                "saved_desc": "created_at DESC, id DESC",
+                "mastery_desc": (
+                    "_registry_mastery_score DESC, _registry_last_activity DESC, id DESC"
+                ),
+                "last_activity_desc": "_registry_last_activity DESC, id DESC",
+            }[sort]
+
+            summary_rows = connection.execute(
+                f"""
+                {registry_cte}
+                SELECT _registry_status AS status, COUNT(*) AS count
+                FROM registry_rows
+                {summary_where_clause}
+                GROUP BY _registry_status
+                """,
+                parameters,
+            ).fetchall()
+            summary = {"active": 0, "mastered": 0, "needs_review": 0}
+            summary.update({str(row["status"]): int(row["count"]) for row in summary_rows})
+
+            total = int(
+                connection.execute(
+                    f"""
+                    {registry_cte}
+                    SELECT COUNT(*)
+                    FROM registry_rows
+                    {where_clause}
+                    """,
+                    parameters,
+                ).fetchone()[0]
+            )
+            page_parameters = {**parameters, "limit": limit, "offset": offset}
+            rows = connection.execute(
+                f"""
+                {registry_cte}
+                SELECT *
+                FROM registry_rows
+                {where_clause}
+                ORDER BY {order_clause}
+                LIMIT :limit OFFSET :offset
+                """,
+                page_parameters,
+            ).fetchall()
+            records = [self._registry_record(dict(row), now) for row in rows]
+            next_offset = offset + len(records)
+            has_more = next_offset < total
+            return {
+                "items": records,
+                "total": total,
+                "summary": summary,
+                "offset": offset,
+                "limit": limit,
+                "has_more": has_more,
+                "next_offset": next_offset if has_more else None,
+            }
+        finally:
+            if should_close:
+                connection.close()
+
+    def learning_states_for_sources(
+        self,
+        source_labels: list[str],
+    ) -> dict[str, dict[str, Any]]:
+        """Return active item state keyed by exact dictionary source identity."""
+        sources = sorted({source.strip() for source in source_labels if source.strip()})
+        if not sources:
+            return {}
+        placeholders = ", ".join("?" for _ in sources)
+        connection = self.database.connect()
+        should_close = str(self.database.path) != ":memory:"
+        try:
+            rows = connection.execute(
+                f"""
+                SELECT i.*, r.interval_days, r.ease_factor, r.repetitions, r.lapses,
+                       r.due_at, r.last_reviewed_at, 0 AS review_count,
+                       NULL AS last_attempt_at,
+                       COALESCE(m.recognition, 0) AS mastery_recognition,
+                       COALESCE(m.production, 0) AS mastery_production,
+                       COALESCE(m.listening, 0) AS mastery_listening,
+                       COALESCE(m.speaking, 0) AS mastery_speaking,
+                       COALESCE(m.observations, 0) AS mastery_observations,
+                       m.updated_at AS mastery_updated_at
+                FROM learning_items i
+                JOIN review_state r ON r.item_id = i.id
+                LEFT JOIN skill_mastery m ON m.concept_key = 'item:' || i.id
+                WHERE i.archived_at IS NULL AND i.source_label IN ({placeholders})
+                ORDER BY i.created_at
+                """,
+                sources,
+            ).fetchall()
+            now = iso_now()
+            states: dict[str, dict[str, Any]] = {}
+            for row in rows:
+                record = self._registry_record(dict(row), now)
+                states.setdefault(
+                    str(row["source_label"]),
+                    {
+                        "item_id": record["id"],
+                        "status": record["status"],
+                        "due_state": record["due_state"],
+                    },
+                )
+            return states
+        finally:
+            if should_close:
+                connection.close()
+
+    @staticmethod
+    def _registry_record(row: dict[str, Any], now: str) -> dict[str, Any]:
+        """Convert one joined database row into a stable registry contract."""
+        computed_status = row.pop("_registry_status", None)
+        computed_due_state = row.pop("_registry_due_state", None)
+        computed_last_activity = row.pop("_registry_last_activity", None)
+        row.pop("_registry_mastery_score", None)
+        modalities = {
+            "recognition": round(float(row.pop("mastery_recognition", 0)), 4),
+            "production": round(float(row.pop("mastery_production", 0)), 4),
+            "listening": round(float(row.pop("mastery_listening", 0)), 4),
+            "speaking": round(float(row.pop("mastery_speaking", 0)), 4),
+        }
+        observations = int(row.pop("mastery_observations", 0))
+        mastery_updated_at = row.pop("mastery_updated_at", None)
+        last_attempt_at = row.pop("last_attempt_at", None)
+        is_due = str(row["due_at"]) <= now
+        strong_modalities = sum(value >= 0.65 for value in modalities.values())
+        mastered = (
+            not is_due
+            and int(row["repetitions"]) >= 5
+            and float(row["interval_days"]) >= 14
+            and strong_modalities >= 2
+        )
+        if computed_status is not None:
+            registry_status = str(computed_status)
+        elif is_due:
+            registry_status = "needs_review"
+        elif mastered:
+            registry_status = "mastered"
+        else:
+            registry_status = "active"
+        due_state = (
+            str(computed_due_state)
+            if computed_due_state is not None
+            else "due"
+            if is_due
+            else "upcoming"
+        )
+        # Application timestamps use canonical ISO-8601 UTC, so lexical max is chronological.
+        last_activity_at = (
+            str(computed_last_activity)
+            if computed_last_activity
+            else max(
+                str(value)
+                for value in (
+                    last_attempt_at,
+                    row.get("last_reviewed_at"),
+                    mastery_updated_at,
+                    row["created_at"],
+                )
+                if value
+            )
+        )
+        row.update(
+            {
+                "status": registry_status,
+                "due_state": due_state,
+                "review_count": int(row["review_count"]),
+                "saved_at": row["created_at"],
+                "last_activity_at": last_activity_at,
+                "mastery": {**modalities, "observations": observations},
+            }
+        )
+        return row
 
     def next_reviews(self, limit: int = 10) -> list[dict[str, Any]]:
         """Return reviews that are due now in priority order.
@@ -420,14 +783,8 @@ class LearningRepository:
             xp_awarded = 0
             if is_correct:
                 multiplier = 1.8 if previous.lapses >= 3 and decision.was_successful else 1.0
-                action = (
-                    XPAction.DIFFICULT_MASTERY
-                    if multiplier > 1
-                    else XPAction.CORRECT_REVIEW
-                )
-                xp_awarded = self._award_xp(
-                    connection, action, "attempt", str(item_id), multiplier
-                )
+                action = XPAction.DIFFICULT_MASTERY if multiplier > 1 else XPAction.CORRECT_REVIEW
+                xp_awarded = self._award_xp(connection, action, "attempt", str(item_id), multiplier)
             if modality == "speaking":
                 xp_awarded += self._award_xp(
                     connection, XPAction.SPEAKING_ATTEMPT, "attempt", str(item_id)
@@ -705,9 +1062,12 @@ class LearningRepository:
             ).fetchall()
             error_counts = {row["mistake_category"]: int(row["count"]) for row in error_rows}
             total_xp = self._total_xp(connection)
-            achievements = [dict(row) for row in connection.execute(
-                "SELECT * FROM unlocked_achievements ORDER BY unlocked_at DESC"
-            ).fetchall()]
+            achievements = [
+                dict(row)
+                for row in connection.execute(
+                    "SELECT * FROM unlocked_achievements ORDER BY unlocked_at DESC"
+                ).fetchall()
+            ]
             recent_accuracy_row = connection.execute(
                 """
                 SELECT AVG(is_correct) AS accuracy
@@ -782,7 +1142,9 @@ class LearningRepository:
                 "format": "ivrit-sheli-export-v1",
                 "exported_at": iso_now(),
                 "tables": {
-                    table: [dict(row) for row in connection.execute(f"SELECT * FROM {table}").fetchall()]
+                    table: [
+                        dict(row) for row in connection.execute(f"SELECT * FROM {table}").fetchall()
+                    ]
                     for table in tables
                 },
             }
@@ -790,9 +1152,7 @@ class LearningRepository:
             if should_close:
                 connection.close()
         destination.parent.mkdir(parents=True, exist_ok=True)
-        destination.write_text(
-            json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8"
-        )
+        destination.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
         return destination.resolve()
 
     def create_bug_report(self, payload: dict[str, Any]) -> dict[str, Any]:
@@ -1033,9 +1393,7 @@ class LearningRepository:
             total_xp = self._total_xp(connection)
             unlocked = {
                 row["achievement_key"]: dict(row)
-                for row in connection.execute(
-                    "SELECT * FROM unlocked_achievements"
-                ).fetchall()
+                for row in connection.execute("SELECT * FROM unlocked_achievements").fetchall()
             }
             ledger = [
                 dict(row)
@@ -1226,17 +1584,13 @@ class LearningRepository:
                     mission_id,
                 ),
             )
-            xp = self._award_xp(
-                connection, XPAction.REAL_LIFE_MISSION, "mission", str(mission_id)
-            )
+            xp = self._award_xp(connection, XPAction.REAL_LIFE_MISSION, "mission", str(mission_id))
             if success:
                 xp += self._award_xp(
                     connection, XPAction.REAL_LIFE_SUCCESS, "mission", str(mission_id)
                 )
             if str(payload.get("reflection", "")).strip():
-                xp += self._award_xp(
-                    connection, XPAction.REFLECTION, "mission", str(mission_id)
-                )
+                xp += self._award_xp(connection, XPAction.REFLECTION, "mission", str(mission_id))
             connection.execute(
                 """
                 INSERT INTO user_events(
@@ -1272,9 +1626,7 @@ class LearningRepository:
             if row is None:
                 raise KeyError(f"Learning item {requested_item_id} not found")
             if row["normalized_text"] != normalized_target:
-                raise ValueError(
-                    "Pronunciation target does not match the selected learning item"
-                )
+                raise ValueError("Pronunciation target does not match the selected learning item")
             return int(row["id"])
 
         matches = connection.execute(
@@ -1347,9 +1699,7 @@ class LearningRepository:
         )
         return mastery
 
-    def _unlock_achievements(
-        self, connection: Any, unlocked_at: str
-    ) -> list[Any]:
+    def _unlock_achievements(self, connection: Any, unlocked_at: str) -> list[Any]:
         """Persist newly satisfied achievements inside an active transaction.
 
         Args:
@@ -1454,7 +1804,9 @@ class LearningRepository:
         Example:
             Used internally by dashboard and review transactions.
         """
-        return int(connection.execute("SELECT COALESCE(SUM(amount), 0) FROM xp_ledger").fetchone()[0])
+        return int(
+            connection.execute("SELECT COALESCE(SUM(amount), 0) FROM xp_ledger").fetchone()[0]
+        )
 
     def _metrics(self, connection: Any) -> dict[str, int]:
         """Build achievement metrics inside an active transaction.
@@ -1469,11 +1821,31 @@ class LearningRepository:
             Used internally after review submission.
         """
         return {
-            "captured_items": int(connection.execute("SELECT COUNT(*) FROM learning_items").fetchone()[0]),
-            "speaking_attempts": int(connection.execute("SELECT COUNT(*) FROM attempts WHERE modality = 'speaking'").fetchone()[0]),
-            "dictionary_lookups": int(connection.execute("SELECT COUNT(*) FROM user_events WHERE event_type = 'dictionary_lookup'").fetchone()[0]),
-            "real_life_successes": int(connection.execute("SELECT COUNT(*) FROM missions WHERE success = 1").fetchone()[0]),
-            "locales_used": int(connection.execute("SELECT COUNT(DISTINCT json_extract(payload_json, '$.locale')) FROM user_events WHERE event_type = 'locale_used'").fetchone()[0]),
+            "captured_items": int(
+                connection.execute("SELECT COUNT(*) FROM learning_items").fetchone()[0]
+            ),
+            "speaking_attempts": int(
+                connection.execute(
+                    "SELECT COUNT(*) FROM attempts WHERE modality = 'speaking'"
+                ).fetchone()[0]
+            ),
+            "dictionary_items_saved": int(
+                connection.execute(
+                    """
+                    SELECT COUNT(DISTINCT source_label)
+                    FROM learning_items
+                    WHERE archived_at IS NULL AND source_label LIKE 'dictionary:%'
+                    """
+                ).fetchone()[0]
+            ),
+            "real_life_successes": int(
+                connection.execute("SELECT COUNT(*) FROM missions WHERE success = 1").fetchone()[0]
+            ),
+            "locales_used": int(
+                connection.execute(
+                    "SELECT COUNT(DISTINCT json_extract(payload_json, '$.locale')) FROM user_events WHERE event_type = 'locale_used'"
+                ).fetchone()[0]
+            ),
             "streak_days": self._calculate_streak(connection),
         }
 
@@ -1494,7 +1866,9 @@ class LearningRepository:
         connection = existing_connection or self.database.connect()
         should_close = existing_connection is None and str(self.database.path) != ":memory:"
         try:
-            profile = connection.execute("SELECT weekly_rest_day FROM profiles WHERE id = 1").fetchone()
+            profile = connection.execute(
+                "SELECT weekly_rest_day FROM profiles WHERE id = 1"
+            ).fetchone()
             rest_day = int(profile["weekly_rest_day"]) if profile else 5
             rows = connection.execute(
                 """

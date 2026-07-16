@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="title desc">
-  <title id="title">Ivrit Sheli 2.1 social preview</title>
-  <desc id="desc">A dark blue production product card for Kevin Cusnir's trilingual Hebrew learning application, with authentication, PostgreSQL, Docker, tests and structured logs.</desc>
+  <title id="title">Ivrit Sheli 2.2 social preview</title>
+  <desc id="desc">A dark blue product card for Kevin Cusnir's trilingual Hebrew learning application, featuring synthetic voice profiles, microphone word intelligence and saved vocabulary.</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop stop-color="#06101f"/>
@@ -33,31 +33,31 @@
 
   <image href="../brand/logo.svg" x="56" y="42" width="520" height="145" preserveAspectRatio="xMinYMid meet"/>
   <rect x="62" y="194" width="134" height="32" rx="16" fill="#17264b" stroke="#5f84ff"/>
-  <text x="129" y="216" text-anchor="middle" fill="#dce7ff" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="800">VERSION 2.1</text>
+  <text x="129" y="216" text-anchor="middle" fill="#dce7ff" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="800">VERSION 2.2</text>
 
   <text x="62" y="288" fill="#f1f7ff" font-family="Inter,Arial,sans-serif" font-size="46" font-weight="850">Learn Hebrew from real life.</text>
-  <text x="62" y="336" fill="#aabbdc" font-family="Inter,Arial,sans-serif" font-size="22" font-weight="550">Private-first locally · authenticated and isolated in the cloud</text>
+  <text x="62" y="336" fill="#aabbdc" font-family="Inter,Arial,sans-serif" font-size="22" font-weight="550">Speak it · understand it · remember it privately</text>
 
   <g transform="translate(62 386)">
     <g>
       <rect width="218" height="66" rx="18" fill="#112441" stroke="#43ddd5" stroke-opacity=".7"/>
       <circle cx="30" cy="33" r="11" fill="#43ddd5"/>
       <path d="m24 33 5 5 10-13" fill="none" stroke="#06111f" stroke-width="4" stroke-linecap="round"/>
-      <text x="54" y="28" fill="#edf7ff" font-family="Inter,Arial,sans-serif" font-size="17" font-weight="800">GitHub OAuth</text>
-      <text x="54" y="48" fill="#91a8cb" font-family="Inter,Arial,sans-serif" font-size="13">PKCE · secure sessions</text>
+      <text x="54" y="28" fill="#edf7ff" font-family="Inter,Arial,sans-serif" font-size="17" font-weight="800">Voice profiles</text>
+      <text x="54" y="48" fill="#91a8cb" font-family="Inter,Arial,sans-serif" font-size="13">Hebrew · browser + cloud</text>
     </g>
     <g transform="translate(236)">
       <rect width="218" height="66" rx="18" fill="#141f45" stroke="#7188ff" stroke-opacity=".75"/>
       <ellipse cx="30" cy="27" rx="12" ry="5" fill="#7188ff"/>
       <path d="M18 27v17c0 3 5 6 12 6s12-3 12-6V27" fill="#7188ff" opacity=".35" stroke="#9facff"/>
-      <text x="54" y="28" fill="#edf7ff" font-family="Inter,Arial,sans-serif" font-size="17" font-weight="800">PostgreSQL</text>
-      <text x="54" y="48" fill="#91a8cb" font-family="Inter,Arial,sans-serif" font-size="13">Alembic · tenant RLS</text>
+      <text x="54" y="28" fill="#edf7ff" font-family="Inter,Arial,sans-serif" font-size="17" font-weight="800">Word intelligence</text>
+      <text x="54" y="48" fill="#91a8cb" font-family="Inter,Arial,sans-serif" font-size="13">Mic · EN/ES · grammar</text>
     </g>
     <g transform="translate(472)">
       <rect width="218" height="66" rx="18" fill="#171d43" stroke="#a36cff" stroke-opacity=".75"/>
       <path d="M20 23h22v22H20zM24 18h14M24 50h14" fill="none" stroke="#bd8aff" stroke-width="3"/>
-      <text x="54" y="28" fill="#edf7ff" font-family="Inter,Arial,sans-serif" font-size="17" font-weight="800">Docker + CI</text>
-      <text x="54" y="48" fill="#91a8cb" font-family="Inter,Arial,sans-serif" font-size="13">149 tests · non-root image</text>
+      <text x="54" y="28" fill="#edf7ff" font-family="Inter,Arial,sans-serif" font-size="17" font-weight="800">Saved vocabulary</text>
+      <text x="54" y="48" fill="#91a8cb" font-family="Inter,Arial,sans-serif" font-size="13">Review timing · 4 skills</text>
     </g>
   </g>
 
@@ -85,8 +85,8 @@
     <rect x="25" y="238" width="352" height="63" rx="18" fill="#10263d"/>
     <circle cx="54" cy="269" r="12" fill="#43ddd5" opacity=".25" stroke="#43ddd5"/>
     <path d="m48 269 5 5 9-11" fill="none" stroke="#c9fffb" stroke-width="3" stroke-linecap="round"/>
-    <text x="80" y="266" fill="#edf7ff" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="750">Read-only demo ready</text>
-    <text x="80" y="286" fill="#8fa8cc" font-family="Inter,Arial,sans-serif" font-size="12">Synthetic data · zero private history</text>
+    <text x="80" y="266" fill="#edf7ff" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="750">Source-labeled word analysis</text>
+    <text x="80" y="286" fill="#8fa8cc" font-family="Inter,Arial,sans-serif" font-size="12">Niqqud · forms · examples · provenance</text>
     <image href="../brand/kc-lt-signature.svg" x="92" y="316" width="218" height="58" preserveAspectRatio="xMidYMid meet"/>
   </g>
 

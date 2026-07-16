@@ -53,7 +53,19 @@ class FakeCloudProvider:
 class FakeAudioProvider:
     """Small speech provider double used without network access."""
 
-    def synthesize(self, text: str, *, voice: str | None = None) -> bytes:
+    def __init__(self) -> None:
+        self.last_voice: str | None = None
+        self.last_instructions = ""
+
+    def synthesize(
+        self,
+        text: str,
+        *,
+        voice: str | None = None,
+        instructions: str = "",
+    ) -> bytes:
+        self.last_voice = voice
+        self.last_instructions = instructions
         return f"audio:{voice}:{text}".encode()
 
     def transcribe(self, audio_path: Path, language: str = "he") -> dict[str, Any]:
@@ -219,7 +231,10 @@ def test_cloud_failure_falls_back_to_offline_without_breaking_session(tmp_path: 
 
 def test_audio_browser_fallback_and_scoring(settings: Settings, database: Database) -> None:
     service = AudioService(settings, database)
-    assert service.tts("שלום")["provider"] == "browser"
+    masculine = service.tts("שלום", voice_style="masculine")
+    feminine = service.tts("שלום", voice_style="feminine")
+    assert masculine["provider"] == "browser"
+    assert masculine["voice_profile"]["pitch"] < feminine["voice_profile"]["pitch"]
     scored = service.score("תודה רבה", "תודה")
     assert scored["score"] < 100
     assert scored["method"] == "transcript_similarity"
@@ -292,12 +307,16 @@ def test_fake_cloud_audio_can_synthesize_and_transcribe(tmp_path: Path) -> None:
     settings = cloud_settings(tmp_path)
     database = Database(settings.db_path)
     database.initialize()
-    service = AudioService(settings, database, provider=FakeAudioProvider())  # type: ignore[arg-type]
+    provider = FakeAudioProvider()
+    service = AudioService(settings, database, provider=provider)  # type: ignore[arg-type]
     recording = tmp_path / "voice.webm"
     recording.write_bytes(b"valid audio placeholder")
     try:
-        tts = service.tts("שלום", cloud_requested=True, voice="demo")
+        tts = service.tts("שלום", cloud_requested=True, voice_style="masculine")
         assert tts["provider"] == "openai"
+        assert tts["voice_style"] == "masculine"
+        assert provider.last_voice == settings.openai_tts_voice_masculine
+        assert "synthetic style" in provider.last_instructions
         transcript = service.transcribe(recording, cloud_requested=True, delete_after=True)
         assert transcript["transcript"] == "שלום"
         assert not recording.exists()

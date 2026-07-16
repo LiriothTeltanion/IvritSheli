@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hmac
 import logging
+import re
 import sqlite3
 import time
 from collections.abc import AsyncIterator
@@ -25,7 +26,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from psycopg import Error as PostgresError
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from starlette.background import BackgroundTask
 from starlette.concurrency import run_in_threadpool
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -53,7 +54,7 @@ from ivrit_sheli.config import Settings
 from ivrit_sheli.connectors import ConnectorError, ConnectorService, ContextPreview
 from ivrit_sheli.database import Database
 from ivrit_sheli.dictionary import DICTIONARY_SCHEMA_VERSION, DictionaryStore
-from ivrit_sheli.gamification import XPAction
+from ivrit_sheli.normalization import hebrew_tokens, normalize_hebrew
 from ivrit_sheli.repository import LearningRepository
 from ivrit_sheli.request_limits import (
     AuthRateLimitMiddleware,
@@ -100,6 +101,7 @@ DOCS_CONTENT_SECURITY_POLICY = (
     )
 )
 NO_STORE_OPERATIONAL_PATHS = frozenset({"/health/live", "/health/ready", "/version"})
+DEMO_SAFE_POST_PATHS = frozenset({f"{API_PREFIX}/audio/word-analysis"})
 
 
 class CloudFeatureForbiddenError(RuntimeError):
@@ -137,6 +139,19 @@ class LearningItemPayload(StrictModel):
     source_label: str = Field(default="manual", max_length=100)
     personal_note: str | None = Field(default=None, max_length=10_000)
     priority: float = Field(default=0.5, ge=0, le=1)
+
+    @field_validator("source_label")
+    @classmethod
+    def reserve_server_source_labels(cls, value: str) -> str:
+        """Keep trusted provenance namespaces under server control."""
+        normalized = value.strip()
+        lowered = normalized.casefold()
+        reserved_prefixes = ("dictionary:", "connector:", "system:", "seed:")
+        if not normalized:
+            raise ValueError("source_label must not be blank")
+        if lowered == "starter_pack" or lowered.startswith(reserved_prefixes):
+            raise ValueError("source_label uses a server-reserved provenance namespace")
+        return normalized
 
 
 class ReviewPayload(StrictModel):
@@ -179,7 +194,7 @@ class TTSPayload(StrictModel):
 
     text: str = Field(min_length=1, max_length=4000)
     cloud_requested: bool = False
-    voice: str | None = Field(default=None, max_length=80)
+    voice_style: Literal["masculine", "feminine"] = "feminine"
     retain: bool = False
 
 
@@ -190,6 +205,14 @@ class PronunciationPayload(StrictModel):
     transcript: str = Field(min_length=1, max_length=4000)
     item_id: int | None = Field(default=None, ge=1)
     provider: str = Field(default="browser", max_length=80)
+
+
+class WordAnalysisPayload(StrictModel):
+    """One transcript selected for dictionary and optional cloud enrichment."""
+
+    transcript: str = Field(min_length=1, max_length=200)
+    transcript_provider: Literal["browser", "openai", "manual"] = "manual"
+    cloud_requested: bool = False
 
 
 class GooglePreviewPayload(StrictModel):
@@ -411,6 +434,7 @@ def create_app(
             and identity.user.is_demo
             and _is_private_api_path(request.url.path)
             and request.method not in {"GET", "HEAD", "OPTIONS"}
+            and request.url.path not in DEMO_SAFE_POST_PATHS
         ):
             return error_response(
                 request,
@@ -620,6 +644,28 @@ def _require_cloud_processing_consent(
     )
 
 
+def _with_dictionary_learning_state(
+    repository: LearningRepository | CloudLearningRepository,
+    entries: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Decorate shared dictionary cards with only the current learner's item state."""
+    states = repository.learning_states_for_sources(
+        [f"dictionary:{int(entry['id'])}" for entry in entries if entry.get("id")]
+    )
+    decorated: list[dict[str, Any]] = []
+    for entry in entries:
+        state = states.get(f"dictionary:{int(entry['id'])}") if entry.get("id") else None
+        decorated.append(
+            {
+                **entry,
+                "learning_item_id": state["item_id"] if state else None,
+                "learning_status": state["status"] if state else None,
+                "learning_due_state": state["due_state"] if state else None,
+            }
+        )
+    return decorated
+
+
 def _dictionary_readiness(container: Services) -> dict[str, Any]:
     """Validate that the dictionary schema and learner-facing data are usable."""
     mode = "shared_cloud" if container.settings.cloud_mode else "device_local"
@@ -644,9 +690,7 @@ def _dictionary_readiness(container: Services) -> dict[str, Any]:
                 "senses": senses,
                 "schema_version": schema_version,
                 "ready": (
-                    schema_version == DICTIONARY_SCHEMA_VERSION
-                    and entries >= 1
-                    and senses >= 1
+                    schema_version == DICTIONARY_SCHEMA_VERSION and entries >= 1 and senses >= 1
                 ),
             }
         )
@@ -976,6 +1020,33 @@ def register_routes(app: FastAPI) -> None:
     def create_item(request: Request, payload: LearningItemPayload) -> dict[str, Any]:
         return repository_for(request).create_item(payload.model_dump())
 
+    @app.get(f"{API_PREFIX}/registry")
+    def registry_items(
+        request: Request,
+        q: str = Query(default="", max_length=500),
+        status: Literal["all", "active", "mastered", "needs_review"] = "all",
+        due: Literal["all", "due", "upcoming"] = "all",
+        sort: Literal[
+            "alphabetical",
+            "due_asc",
+            "last_activity_desc",
+            "saved_asc",
+            "saved_desc",
+            "mastery_desc",
+        ] = "last_activity_desc",
+        limit: int = Query(default=200, ge=1, le=500),
+        offset: int = Query(default=0, ge=0),
+    ) -> dict[str, Any]:
+        """Return one bounded page from the tenant-scoped saved-word registry."""
+        return repository_for(request).registry_items(
+            limit=limit,
+            offset=offset,
+            query=q,
+            status=status,
+            due=due,
+            sort=sort,
+        )
+
     @app.get(f"{API_PREFIX}/reviews/next")
     def next_reviews(
         request: Request, limit: int = Query(default=10, ge=1, le=100)
@@ -1002,16 +1073,11 @@ def register_routes(app: FastAPI) -> None:
         q: str = Query(min_length=1, max_length=500),
         limit: int = Query(default=20, ge=1, le=100),
     ) -> dict[str, Any]:
-        results = services(request).dictionary.search(q, limit)
         repository = repository_for(request)
-        if not isinstance(repository, CloudLearningRepository) or not repository.seed_demo:
-            repository.log_event(
-                "dictionary_lookup",
-                entity_type="dictionary_query",
-                entity_id=q[:100],
-                payload={"result_count": len(results)},
-                xp_action=XPAction.DICTIONARY_EXPLORE,
-            )
+        results = _with_dictionary_learning_state(
+            repository,
+            services(request).dictionary.search(q, limit),
+        )
         return {"query": q, "results": results}
 
     @app.get(f"{API_PREFIX}/dictionary/lookup")
@@ -1019,21 +1085,17 @@ def register_routes(app: FastAPI) -> None:
         request: Request,
         word: str = Query(min_length=1, max_length=500),
     ) -> dict[str, Any]:
-        results = services(request).dictionary.lookup(word)
         repository = repository_for(request)
-        if not isinstance(repository, CloudLearningRepository) or not repository.seed_demo:
-            repository.log_event(
-                "dictionary_lookup",
-                entity_type="dictionary_word",
-                entity_id=word[:100],
-                payload={"result_count": len(results)},
-                xp_action=XPAction.DICTIONARY_EXPLORE,
-            )
+        results = _with_dictionary_learning_state(
+            repository,
+            services(request).dictionary.lookup(word),
+        )
         return {"word": word, "results": results}
 
     @app.get(f"{API_PREFIX}/dictionary/entries/{{entry_id}}")
     def dictionary_entry(request: Request, entry_id: int) -> dict[str, Any]:
-        return services(request).dictionary.get(entry_id)
+        entry = services(request).dictionary.get(entry_id)
+        return _with_dictionary_learning_state(repository_for(request), [entry])[0]
 
     @app.get(f"{API_PREFIX}/dictionary/stats")
     def dictionary_stats(request: Request) -> dict[str, Any]:
@@ -1042,8 +1104,10 @@ def register_routes(app: FastAPI) -> None:
     @app.post(f"{API_PREFIX}/dictionary/{{entry_id}}/learn", status_code=201)
     def learn_dictionary_entry(request: Request, entry_id: int) -> dict[str, Any]:
         card = services(request).dictionary.get(entry_id)
+        repository = repository_for(request)
         first_sense = card["senses"][0] if card["senses"] else {}
-        return repository_for(request).create_item(
+        return repository.get_or_create_dictionary_item(
+            entry_id,
             {
                 "hebrew_text": card["word"],
                 "hebrew_with_niqqud": card["display_niqqud"],
@@ -1054,9 +1118,8 @@ def register_routes(app: FastAPI) -> None:
                 "root": card.get("root"),
                 "binyan": card.get("binyan"),
                 "grammatical_gender": card.get("gender"),
-                "source_label": f"dictionary:{entry_id}",
                 "priority": 0.65,
-            }
+            },
         )
 
     ai_routes = {
@@ -1120,7 +1183,7 @@ def register_routes(app: FastAPI) -> None:
                 lambda database: AudioService(services(request).settings, database).tts(
                     payload.text,
                     cloud_requested=payload.cloud_requested,
-                    voice=payload.voice,
+                    voice_style=payload.voice_style,
                     retain=False,
                 ),
                 write=False,
@@ -1128,7 +1191,7 @@ def register_routes(app: FastAPI) -> None:
         return services(request).audio.tts(
             payload.text,
             cloud_requested=payload.cloud_requested,
-            voice=payload.voice,
+            voice_style=payload.voice_style,
             retain=payload.retain,
         )
 
@@ -1171,6 +1234,81 @@ def register_routes(app: FastAPI) -> None:
         finally:
             temporary.unlink(missing_ok=True)
             file.file.close()
+
+    @app.post(f"{API_PREFIX}/audio/word-analysis")
+    def word_analysis(request: Request, payload: WordAnalysisPayload) -> dict[str, Any]:
+        """Resolve one recognized Hebrew word without trusting it as learning evidence."""
+        repository = repository_for(request)
+        identity = getattr(request.state, "session_identity", None)
+        if identity is not None and identity.user.is_demo and payload.cloud_requested:
+            raise CloudFeatureForbiddenError(
+                "Cloud word analysis is disabled in the read-only demonstration."
+            )
+        if payload.cloud_requested:
+            _require_production_cloud_feature(request, "cloud_ai")
+            _require_cloud_processing_consent(repository, "cloud word enrichment")
+
+        tokens = hebrew_tokens(payload.transcript)
+        if len(tokens) != 1:
+            raise ValueError("Record or enter exactly one Hebrew word")
+        word = tokens[0]
+        normalized_word = normalize_hebrew(word)
+        if (
+            not normalized_word
+            or re.search(r"[\u05D0-\u05EA]", word) is None
+            or normalize_hebrew(payload.transcript) != normalized_word
+        ):
+            raise ValueError("Record or enter exactly one Hebrew word without extra text")
+
+        matches = services(request).dictionary.lookup(word)
+        first_entry = matches[0] if matches else None
+        context = profile_ai_context(repository)
+
+        def build_result(database: Database) -> dict[str, Any]:
+            enrichment: dict[str, Any] | None = None
+            enrichment_source: str | None = None
+            if payload.cloud_requested:
+                enrichment = AIEngine(services(request).settings, database).run(
+                    "word_insight",
+                    {
+                        "text": word,
+                        "dictionary_entry": first_entry or {},
+                    },
+                    context,
+                    cloud_requested=True,
+                )
+                enrichment_source = (
+                    "cloud_ai" if enrichment["provider"] != "offline" else "offline_fallback"
+                )
+                enrichment = {**enrichment, "source": enrichment_source}
+            return {
+                "word": normalized_word,
+                "display_word": (
+                    str(first_entry.get("display_niqqud") or word) if first_entry else word
+                ),
+                "transcript": payload.transcript.strip(),
+                "transcript_provider": payload.transcript_provider,
+                "dictionary_matches": matches,
+                "enrichment": enrichment,
+                "provenance": {
+                    "transcript": {
+                        "browser": "client_reported_browser_recognition",
+                        "openai": "client_reported_cloud_transcription",
+                        "manual": "client_reported_manual_entry",
+                    }[payload.transcript_provider],
+                    "dictionary": "local_dictionary",
+                    "enrichment": enrichment_source,
+                    "audio_retained": False,
+                    "learning_progress_updated": False,
+                },
+            }
+
+        if isinstance(repository, CloudLearningRepository):
+            return repository.run_with_database(
+                build_result,
+                write=payload.cloud_requested,
+            )
+        return build_result(services(request).database)
 
     @app.post(f"{API_PREFIX}/audio/pronunciation-score")
     def pronunciation_score(request: Request, payload: PronunciationPayload) -> dict[str, Any]:

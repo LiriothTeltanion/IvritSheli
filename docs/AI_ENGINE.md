@@ -15,6 +15,7 @@ Always available. It can:
 - Produce template-based examples and exercises.
 - Build a deterministic weekly plan from learner signals.
 - Return a safe role-play turn from context templates.
+- Build a source-bounded one-word explanation from a local dictionary entry.
 
 It is deliberately modest and labels results as offline.
 
@@ -28,6 +29,8 @@ Optional. It uses:
 - Speech generation for configurable pronunciation audio.
 
 Provider calls are server-side, use timeouts, and return normalized project schemas.
+
+The `word_insight` schema separates bilingual meanings, grammar, forms, usage notes, examples and confidence notes. The UI never presents cloud enrichment as dictionary provenance; each layer is labeled independently, and a provider failure falls back without fabricating a local source.
 
 ## Personal context sent to AI
 
