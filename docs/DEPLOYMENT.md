@@ -162,6 +162,8 @@ Create the OAuth application only after the final public domain exists:
 
 After configuration, verify successful login, cancelled login, invalid/replayed state, logout and expired-session behavior.
 
+For the 2.1 production check, the OAuth start flow reached GitHub's identity-only consent screen and the cancelled-login callback was verified. GitHub's anti-fraud protection disabled approval in the embedded test browser, so the final code exchange, authenticated session and logout must still be completed in a normal browser before OAuth is called fully verified.
+
 ### Cost and data-retention guardrails
 
 Railway's Free/Trial resources and retention can change. Before making the site a long-term public dependency:
@@ -217,6 +219,16 @@ Verify against the public URL:
 9. Application logs are JSON and contain no cookie, token, OAuth code or request body.
 10. A non-allowlisted GitHub user cannot invoke cloud AI, cloud audio or Google previews.
 11. Desktop, 390 px mobile, Hebrew RTL and reduced-motion modes remain usable.
+
+### 2.1.0 production verification record — 2026-07-16
+
+- URL: https://ivritsheli-production.up.railway.app
+- Runtime identity: release `2.1.0`, environment `production`, storage `postgresql`.
+- `/health/live` and `/health/ready`: HTTPS `200`; dictionary and PostgreSQL readiness passed.
+- Pre-deploy: Alembic migrated successfully and the restricted `ivrit_sheli_runtime` role passed provisioning checks.
+- Browser smoke: the authentication gateway and seeded read-only demo loaded successfully.
+- OAuth: GitHub consent handoff and safe cancellation passed; final code exchange/session/logout remain pending in a normal browser.
+- Logs: structured startup and health-request fields were present without visible credentials or request bodies.
 
 ## 7. Backups and restore drills
 

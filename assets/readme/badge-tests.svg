@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="166" height="30" role="img" aria-label="126 automated tests passing">
+<svg xmlns="http://www.w3.org/2000/svg" width="166" height="30" role="img" aria-label="127 automated tests passing">
   <defs><linearGradient id="g" x1="0" x2="1"><stop stop-color="#13b8a6"/><stop offset="1" stop-color="#5c83ff"/></linearGradient></defs>
   <rect width="166" height="30" rx="15" fill="#111d38"/><circle cx="17" cy="15" r="8" fill="url(#g)"/><path d="m13 15 3 3 6-7" fill="none" stroke="#06111f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-  <text x="32" y="20" fill="#eaf2ff" font-family="Arial, sans-serif" font-size="12" font-weight="700">126 tests passing</text>
+  <text x="32" y="20" fill="#eaf2ff" font-family="Arial, sans-serif" font-size="12" font-weight="700">127 tests passing</text>
 </svg>
