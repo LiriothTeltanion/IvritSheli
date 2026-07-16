@@ -8,7 +8,7 @@
 
 ## Result
 
-The local-first application and the production-shaped PostgreSQL/Compose path are green in local verification. The 2.1 Railway deploy timing values also parse as numeric TOML values rather than the rejected string form. The repository is deployment-ready; this report does not claim a public Railway deployment or live OAuth/provider verification.
+The local-first application and the production-shaped PostgreSQL/Compose path are green in local verification. The 2.1 Railway deploy timing values parse as numeric TOML values, and every Docker cache mount carries the explicit ID required by Railway's Metal builder. The repository is deployment-ready; this report does not claim a public Railway deployment or live OAuth/provider verification.
 
 | Verification area | Result |
 |---|---:|

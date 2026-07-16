@@ -165,6 +165,23 @@ def verify_railway_config() -> list[str]:
     return failures
 
 
+def verify_docker_cache_mounts() -> list[str]:
+    """Require stable cache IDs for Railway's Metal Docker builder."""
+    path = ROOT / "Dockerfile"
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except OSError as error:
+        return [f"Dockerfile: {error}"]
+
+    failures: list[str] = []
+    for line_number, line in enumerate(lines, start=1):
+        if "--mount=type=cache" in line and "id=" not in line:
+            failures.append(
+                f"Dockerfile:{line_number}: cache mounts require an explicit id for Railway"
+            )
+    return failures
+
+
 def verify_secret_hygiene() -> list[str]:
     """Scan source/config text for common committed credential shapes.
 
@@ -234,6 +251,7 @@ def main() -> int:
         "invalid_json": verify_json_files(),
         "invalid_svg": verify_svg_assets(),
         "invalid_railway_config": verify_railway_config(),
+        "invalid_docker_cache_mounts": verify_docker_cache_mounts(),
         "possible_secrets": verify_secret_hygiene(),
         "broken_readme_links": verify_documentation_links(),
     }

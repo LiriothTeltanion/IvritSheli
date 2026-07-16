@@ -53,7 +53,7 @@
 - Windows one-click daily launcher plus PowerShell setup and development scripts.
 - Multi-stage non-root Dockerfile and a PostgreSQL Docker Compose integration stack with digest-pinned base images.
 - GitHub Actions CI with local-first, real-PostgreSQL, production-image, CodeQL, and dependency-update gates.
-- Railway deployment-ready configuration with a separate pre-deploy provisioner, readiness probe, and schema-compatible numeric deploy timing controls.
+- Railway deployment-ready configuration with a separate pre-deploy provisioner, readiness probe, schema-compatible numeric deploy timing controls, and Metal-builder-compatible Docker cache IDs.
 - Environment template.
 - Security, contribution, deployment, third-party, and test documentation.
 
