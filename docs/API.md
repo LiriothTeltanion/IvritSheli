@@ -1,4 +1,4 @@
-# API catalog — Ivrit Sheli 2.0
+# API catalog — Ivrit Sheli 2.1
 
 Application base path: `/api/v1`
 
@@ -104,7 +104,7 @@ Offline deterministic results require no external service. Online processing req
 | `POST` | `/api/v1/audio/stt` |
 | `POST` | `/api/v1/audio/pronunciation-score` |
 
-Uploads are bounded by the request envelope, decoded file size and filename-extension allowlist. MIME and magic-byte validation are not claimed in 2.0. Audio and transcripts are excluded from structured request logs.
+Uploads are bounded by the request envelope, decoded file size and filename-extension allowlist. MIME and magic-byte validation are not claimed in 2.1. Audio and transcripts are excluded from structured request logs.
 
 ## Gamification and missions
 

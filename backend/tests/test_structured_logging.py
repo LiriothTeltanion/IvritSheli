@@ -30,7 +30,7 @@ def test_json_formatter_has_operational_schema_and_scrubs_literal_secrets() -> N
     record.route = "/api/v1/items"
     record.status = 201
     record.duration_ms = 4.2
-    record.version = "2.0.0"
+    record.version = "2.1.0"
 
     rendered = JsonFormatter().format(record)
     payload = json.loads(rendered)

@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="title desc">
-  <title id="title">Ivrit Sheli 2.0 social preview</title>
+  <title id="title">Ivrit Sheli 2.1 social preview</title>
   <desc id="desc">A dark blue production product card for Kevin Cusnir's trilingual Hebrew learning application, with authentication, PostgreSQL, Docker, tests and structured logs.</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
@@ -33,7 +33,7 @@
 
   <image href="../brand/logo.svg" x="56" y="42" width="520" height="145" preserveAspectRatio="xMinYMid meet"/>
   <rect x="62" y="194" width="134" height="32" rx="16" fill="#17264b" stroke="#5f84ff"/>
-  <text x="129" y="216" text-anchor="middle" fill="#dce7ff" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="800">VERSION 2.0</text>
+  <text x="129" y="216" text-anchor="middle" fill="#dce7ff" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="800">VERSION 2.1</text>
 
   <text x="62" y="288" fill="#f1f7ff" font-family="Inter,Arial,sans-serif" font-size="46" font-weight="850">Learn Hebrew from real life.</text>
   <text x="62" y="336" fill="#aabbdc" font-family="Inter,Arial,sans-serif" font-size="22" font-weight="550">Private-first locally · authenticated and isolated in the cloud</text>

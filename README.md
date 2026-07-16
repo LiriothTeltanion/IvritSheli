@@ -1,7 +1,7 @@
 <div align="center">
   <img src="assets/brand/logo.svg" alt="Ivrit Sheli Ultimate" width="680" />
 
-  <h1>Ivrit Sheli 2.0 Ultimate — העברית שלי</h1>
+  <h1>Ivrit Sheli 2.1 Ultimate — העברית שלי</h1>
   <p><strong>A private-first, authenticated, trilingual Hebrew-learning operating system built from real life.</strong></p>
 
   <p>
@@ -48,11 +48,15 @@ Most language products make every learner follow the same path. Ivrit Sheli does
 
 The system tracks what you recognize, what you can produce, where you hesitate, which grammar errors repeat, which situations matter, and which learning mode works best. Recommendations are explainable: the app tells you *why* it selected a word, exercise, mission, or speaking drill.
 
+## What changed in 2.1 🚆
+
+Version 2.1 is the deployment-compatibility release. It corrects Railway's deploy timing fields to their required numeric TOML types, synchronizes runtime and visible release metadata, rotates the PWA shell cache, and keeps the production boundary ready for managed PostgreSQL and GitHub OAuth. A public URL is still not claimed until TLS, readiness, version, OAuth, persistence, and redacted logs are verified on the live service.
+
 ## What changed in 2.0 🚀
 
 Version 2.0 turns the complete local-first learning system into a deployment-ready, production-shaped full-stack product without sacrificing its private offline path.
 
-![Ivrit Sheli 2.0 cloud architecture](assets/readme/cloud-architecture.svg)
+![Ivrit Sheli 2.1 cloud architecture](assets/readme/cloud-architecture.svg)
 
 | Production capability | Verifiable implementation |
 |---|---|
@@ -288,7 +292,7 @@ Included achievement families:
 
 ## Test everything
 
-The 2.0 verification baseline is **109 backend tests + 17 frontend tests = 126 passing automated tests**. The local backend run reports 108 passed with the credential-gated PostgreSQL case skipped; the dedicated PostgreSQL 17 job runs all three database-boundary tests and raises the unique backend total to 109. The integration gate is not replaced by SQLite or an in-memory fake.
+The 2.1 verification baseline is **109 backend tests + 17 frontend tests = 126 passing automated tests**. The local backend run reports 108 passed with the credential-gated PostgreSQL case skipped; the dedicated PostgreSQL 17 job runs all three database-boundary tests and raises the unique backend total to 109. The integration gate is not replaced by SQLite or an in-memory fake.
 
 ```bash
 ./scripts/test-all.sh
@@ -367,7 +371,7 @@ IvritSheli/
 
 ## Project status
 
-Version 2.0 is a deployment-ready, production-shaped dual-mode product: the offline path, authenticated API, PostgreSQL migrations and isolation, Docker image, trilingual UI and provider adapters are reproducibly testable. A public Railway URL is not claimed until its TLS, OAuth callback, readiness, version, and logs are verified. Live OpenAI and Google calls still require the user's own credentials and consent, so they are never silently exercised during CI or packaging.
+Version 2.1 is a deployment-ready, production-shaped dual-mode product: the offline path, authenticated API, PostgreSQL migrations and isolation, Docker image, trilingual UI, provider adapters, and Railway configuration are reproducibly testable. A public Railway URL is not claimed until its TLS, OAuth callback, readiness, version, persistence, and logs are verified. Live OpenAI and Google calls still require the user's own credentials and consent, so they are never silently exercised during CI or packaging.
 
 Passing tests and healthy local production-image checks materially reduce risk but do not prove that software is defect-free. Operational limits, credential-dependent checks and restore requirements are documented explicitly rather than hidden behind a perfect-score claim.
 

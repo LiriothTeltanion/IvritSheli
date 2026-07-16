@@ -4,7 +4,8 @@
 
 | Version | Supported |
 |---|---:|
-| 2.0.x | Yes |
+| 2.1.x | Yes |
+| 2.0.x | Critical fixes only; upgrade recommended |
 | 1.0.x | Critical fixes only; upgrade recommended |
 | Older | No |
 
