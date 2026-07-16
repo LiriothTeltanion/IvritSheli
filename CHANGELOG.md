@@ -6,6 +6,31 @@ All notable changes are documented here. Versions follow Semantic Versioning.
 
 No unreleased changes.
 
+## 2.1.1 — 2026-07-16
+
+### Fixed
+
+- Cloud AI, speech-to-text, and text-to-speech requests now require stored learner consent before any provider call or uploaded-audio processing begins; rejected requests use the stable `cloud_consent_required` code.
+- Review queues now return only active items whose due timestamp has arrived, so future work no longer appears as immediately due in either SQLite or PostgreSQL-backed mode.
+- Readiness now fails closed when the dictionary schema is stale, empty, or lacks usable senses, while preserving mode-aware local/cloud diagnostics.
+- Review-card controls hidden behind the answer face are no longer keyboard-focusable or exposed to assistive technology before reveal.
+- Reduced-motion mode now swaps the review faces directly without leaking the answer or running a flip animation; inactive audio waveforms remain still.
+- Dictionary and quick-capture dialogs now trap focus, close with Escape, restore the opener, lock background scrolling, and expose complete modal semantics.
+- Recorded-audio uploads now use a filename extension derived from their real MIME type, and pronunciation requests retain the selected item and transcription-provider identity.
+- Audio, speech-recognition, media-stream, and speech-synthesis resources are now cleaned up when pronunciation practice closes or unmounts.
+
+### Changed
+
+- Pronunciation scoring now stores history and a privacy-safe event atomically, clearly labels client transcripts as unverified, and prevents typed or spoofed provider claims from changing mastery, XP, or achievements. The repository retains a separately tested atomic path for future server-attested speech evidence.
+- SQLite startup now uses ordered, atomic, idempotent schema migrations, safely adopts unversioned legacy databases, rolls back failed upgrades, and rejects databases newer than the application.
+- Version metadata advanced from `2.1.0` to `2.1.1` across Python, npm, the visible interface, diagnostics, OAuth identification, citation metadata, issue templates, and the PWA shell cache.
+- The automated baseline is now 128 unique backend tests plus 21 frontend tests, for 149 unique passing tests when the credential-gated PostgreSQL test runs in its dedicated database job.
+
+### Verification
+
+- Local backend quality gates, frontend type-check/tests/build, offline diagnostics, dependency audits, package checks, visible dialog/review/RTL/reduced-motion QA, real PostgreSQL integration, and the production-image Compose smoke pass for the 2.1.1 candidate.
+- The public Railway service remains the previously verified `2.1.0` deployment until this branch is reviewed, merged, and deployed; no 2.1.1 tag or live release is claimed here.
+
 ## 2.1.0 — 2026-07-16
 
 ### Fixed

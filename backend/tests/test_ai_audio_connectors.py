@@ -30,6 +30,7 @@ from ivrit_sheli.connectors import (
     parse_ics,
 )
 from ivrit_sheli.database import Database
+from ivrit_sheli.repository import LearningRepository
 
 
 class FakeCloudProvider:
@@ -222,6 +223,69 @@ def test_audio_browser_fallback_and_scoring(settings: Settings, database: Databa
     scored = service.score("תודה רבה", "תודה")
     assert scored["score"] < 100
     assert scored["method"] == "transcript_similarity"
+
+
+def test_verified_pronunciation_updates_linked_mastery_xp_and_events_atomically(
+    settings: Settings,
+    database: Database,
+) -> None:
+    repository = LearningRepository(database)
+    repository.ensure_default_profile()
+    item = repository.create_item({"hebrew_text": "תודה רבה"})
+
+    scored = AudioService(settings, database).score(
+        "תודה רבה",
+        "תודה רבה",
+        provider="server-test",
+        verified_speech_evidence=True,
+    )
+
+    assert scored["linked_item_id"] == item["id"]
+    assert scored["learning_updated"] is True
+    assert scored["mastery"]["speaking"] > 0
+    assert scored["xp_awarded"] >= 20
+    connection = database.connect()
+    assert connection.execute("SELECT COUNT(*) FROM audio_attempts").fetchone()[0] == 1
+    attempt = connection.execute(
+        "SELECT modality, exercise_type, is_correct FROM attempts"
+    ).fetchone()
+    assert dict(attempt) == {
+        "modality": "speaking",
+        "exercise_type": "pronunciation",
+        "is_correct": 1,
+    }
+    assert connection.execute(
+        "SELECT COUNT(*) FROM xp_ledger WHERE action = 'speaking_attempt'"
+    ).fetchone()[0] == 1
+    event = connection.execute(
+        "SELECT payload_json FROM user_events WHERE event_type = 'pronunciation_scored'"
+    ).fetchone()
+    event_payload = json.loads(event["payload_json"])
+    assert event_payload["audio_attempt_id"] == scored["attempt_id"]
+    assert event_payload["evidence_verified"] is True
+
+
+def test_pronunciation_item_mismatch_rolls_back_without_partial_evidence(
+    settings: Settings,
+    database: Database,
+) -> None:
+    repository = LearningRepository(database)
+    repository.ensure_default_profile()
+    item = repository.create_item({"hebrew_text": "שלום"})
+
+    with pytest.raises(ValueError, match="does not match"):
+        AudioService(settings, database).score(
+            "תודה",
+            "תודה",
+            item_id=item["id"],
+        )
+
+    connection = database.connect()
+    assert connection.execute("SELECT COUNT(*) FROM audio_attempts").fetchone()[0] == 0
+    assert connection.execute("SELECT COUNT(*) FROM attempts").fetchone()[0] == 0
+    assert connection.execute(
+        "SELECT COUNT(*) FROM user_events WHERE event_type = 'pronunciation_scored'"
+    ).fetchone()[0] == 0
 
 
 def test_fake_cloud_audio_can_synthesize_and_transcribe(tmp_path: Path) -> None:

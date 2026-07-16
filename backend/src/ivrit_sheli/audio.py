@@ -9,10 +9,8 @@ Notes: Minimal deps; comments in ENGLISH; emojis sparingly.
 from __future__ import annotations
 
 import base64
-import json
 import logging
 import mimetypes
-import sqlite3
 import time
 from dataclasses import asdict
 from pathlib import Path
@@ -24,7 +22,7 @@ import requests
 from ivrit_sheli.config import Settings
 from ivrit_sheli.database import Database
 from ivrit_sheli.normalization import pronunciation_breakdown
-from ivrit_sheli.repository import iso_now
+from ivrit_sheli.repository import LearningRepository
 
 LOGGER = logging.getLogger(__name__)
 OPENAI_TRANSCRIPTIONS_URL = "https://api.openai.com/v1/audio/transcriptions"
@@ -316,8 +314,9 @@ class AudioService:
         item_id: int | None = None,
         provider: str = "browser",
         retained_path: str | None = None,
+        verified_speech_evidence: bool = False,
     ) -> dict[str, Any]:
-        """Score and store a transcript-based speaking attempt.
+        """Score and store transparent transcript-similarity practice.
 
         Args:
             target_text: Expected phrase.
@@ -325,6 +324,7 @@ class AudioService:
             item_id: Optional learning-item link.
             provider: Speech recognition provider.
             retained_path: Optional local audio path retained by explicit choice.
+            verified_speech_evidence: Whether the server attested the speech evidence.
 
         Returns:
             Transparent score breakdown and coaching feedback.
@@ -341,31 +341,18 @@ class AudioService:
         """
         breakdown = pronunciation_breakdown(target_text, transcript)
         feedback = pronunciation_feedback(breakdown.score, breakdown.missing_words, breakdown.extra_words)
-        with self.database.transaction() as connection:
-            cursor = connection.execute(
-                """
-                INSERT INTO audio_attempts(
-                    item_id, target_text, transcript, score, breakdown_json,
-                    provider, retained_path, created_at
-                ) VALUES(?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                (
-                    item_id,
-                    target_text,
-                    transcript,
-                    breakdown.score,
-                    json.dumps(asdict(breakdown), ensure_ascii=False),
-                    provider,
-                    retained_path,
-                    iso_now(),
-                ),
-            )
-            attempt_id_raw = cursor.lastrowid
-            if attempt_id_raw is None:
-                raise sqlite3.DatabaseError("SQLite did not return an audio attempt ID")
-            attempt_id = int(attempt_id_raw)
+        learning_update = LearningRepository(self.database).record_pronunciation_attempt(
+            target_text=target_text,
+            transcript=transcript,
+            score=breakdown.score,
+            breakdown=asdict(breakdown),
+            provider=provider,
+            item_id=item_id,
+            retained_path=retained_path,
+            verified_speech_evidence=verified_speech_evidence,
+        )
         return {
-            "attempt_id": attempt_id,
+            **learning_update,
             **asdict(breakdown),
             "feedback": feedback,
             "method": "transcript_similarity",

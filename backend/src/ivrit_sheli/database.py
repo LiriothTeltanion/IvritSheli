@@ -11,9 +11,21 @@ from __future__ import annotations
 import sqlite3
 from collections.abc import Iterator
 from contextlib import contextmanager
+from dataclasses import dataclass
 from pathlib import Path
 
-SCHEMA_VERSION = 1
+
+class SchemaMigrationError(RuntimeError):
+    """Raised when the stored schema cannot be migrated safely."""
+
+
+@dataclass(frozen=True, slots=True)
+class Migration:
+    """One ordered SQLite schema migration."""
+
+    version: int
+    name: str
+    sql: str
 
 SCHEMA_SQL = """
 CREATE TABLE IF NOT EXISTS app_meta (
@@ -199,6 +211,14 @@ CREATE TABLE IF NOT EXISTS bug_reports (
 """
 
 
+# Migration numbers are permanent and contiguous. Future schema changes append a
+# new migration; existing entries must never be edited after release.
+MIGRATIONS = (
+    Migration(version=1, name="initial_schema", sql=SCHEMA_SQL),
+)
+SCHEMA_VERSION = MIGRATIONS[-1].version
+
+
 class Database:
     """SQLite connection factory and schema manager.
 
@@ -209,6 +229,8 @@ class Database:
         >>> db = Database(Path(":memory:"))
         >>> db.initialize()
     """
+
+    migrations = MIGRATIONS
 
     def __init__(self, path: Path) -> None:
         self.path = path
@@ -267,7 +289,8 @@ class Database:
             None.
 
         Raises:
-            sqlite3.Error: If schema creation fails.
+            SchemaMigrationError: If the stored version is invalid or newer than this app.
+            sqlite3.Error: If a migration fails.
 
         Example:
             >>> db = Database(Path(":memory:"))
@@ -276,16 +299,99 @@ class Database:
         connection = self.connect()
         should_close = str(self.path) != ":memory:"
         try:
-            connection.executescript(SCHEMA_SQL)
-            connection.execute(
-                "INSERT INTO app_meta(key, value) VALUES('schema_version', ?) "
-                "ON CONFLICT(key) DO UPDATE SET value = excluded.value",
-                (str(SCHEMA_VERSION),),
-            )
+            target_version = self._validate_migrations(self.migrations)
+            connection.execute("BEGIN IMMEDIATE")
+            current_version = self._read_schema_version(connection)
+
+            if current_version > target_version:
+                raise SchemaMigrationError(
+                    "Database schema version "
+                    f"{current_version} is newer than supported version {target_version}; "
+                    "upgrade the application before opening this database."
+                )
+
+            for migration in self.migrations:
+                if migration.version <= current_version:
+                    continue
+                self._execute_migration_sql(connection, migration.sql)
+                self._write_schema_version(connection, migration.version)
+                current_version = migration.version
+
             connection.commit()
+        except Exception:
+            connection.rollback()
+            raise
         finally:
             if should_close:
                 connection.close()
+
+    @staticmethod
+    def _validate_migrations(migrations: tuple[Migration, ...]) -> int:
+        """Validate ordering and return the application schema version."""
+        versions = tuple(migration.version for migration in migrations)
+        expected = tuple(range(1, len(migrations) + 1))
+        if not migrations or versions != expected:
+            raise SchemaMigrationError(
+                "Schema migrations must be non-empty, ordered, and contiguous from version 1; "
+                f"found versions {versions}."
+            )
+        return versions[-1]
+
+    @staticmethod
+    def _read_schema_version(connection: sqlite3.Connection) -> int:
+        """Read the stored schema version, treating an unversioned database as version 0."""
+        meta_exists = connection.execute(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'app_meta'"
+        ).fetchone()
+        if meta_exists is None:
+            return 0
+
+        row = connection.execute(
+            "SELECT value FROM app_meta WHERE key = 'schema_version'"
+        ).fetchone()
+        if row is None:
+            return 0
+
+        raw_version = row["value"]
+        try:
+            version = int(raw_version)
+        except (TypeError, ValueError) as exc:
+            raise SchemaMigrationError(
+                f"Invalid database schema version {raw_version!r}; expected a non-negative integer."
+            ) from exc
+        if version < 0:
+            raise SchemaMigrationError(
+                f"Invalid database schema version {raw_version!r}; expected a non-negative integer."
+            )
+        return version
+
+    @staticmethod
+    def _write_schema_version(connection: sqlite3.Connection, version: int) -> None:
+        """Persist a successfully applied migration version inside its transaction."""
+        connection.execute(
+            "INSERT INTO app_meta(key, value) VALUES('schema_version', ?) "
+            "ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+            (str(version),),
+        )
+
+    @staticmethod
+    def _execute_migration_sql(connection: sqlite3.Connection, script: str) -> None:
+        """Execute a SQL script without sqlite3.executescript's implicit commit."""
+        buffer: list[str] = []
+        for character in script:
+            buffer.append(character)
+            if character != ";":
+                continue
+            statement = "".join(buffer)
+            if not sqlite3.complete_statement(statement):
+                continue
+            if statement.strip():
+                connection.execute(statement)
+            buffer.clear()
+
+        trailing_statement = "".join(buffer).strip()
+        if trailing_statement:
+            connection.execute(trailing_statement)
 
     @contextmanager
     def transaction(self) -> Iterator[sqlite3.Connection]:

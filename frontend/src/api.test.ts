@@ -62,4 +62,29 @@ describe('read-only API guard', () => {
       requestId: 'request-403',
     });
   });
+
+  it('uses the recorded MIME type for uploads and preserves pronunciation context', async () => {
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response(JSON.stringify({
+      transcript: 'שלום',
+      provider: 'openai',
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    })));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await api.transcribeAudio(new Blob(['audio'], { type: 'audio/mp4' }));
+    const uploadInit = fetchMock.mock.calls[0]?.[1] as RequestInit;
+    const uploadedFile = (uploadInit.body as FormData).get('file') as File;
+    expect(uploadedFile.name).toBe('hebrew-recording.mp4');
+
+    await api.pronunciationScore('שלום', 'שלום', 7, 'openai');
+    const scoreInit = fetchMock.mock.calls[1]?.[1] as RequestInit;
+    expect(JSON.parse(String(scoreInit.body))).toEqual({
+      target_text: 'שלום',
+      transcript: 'שלום',
+      item_id: 7,
+      provider: 'openai',
+    });
+  });
 });

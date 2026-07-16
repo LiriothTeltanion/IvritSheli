@@ -4,8 +4,9 @@
 // Date: 2026-07-15 | TZ: Asia/Jerusalem
 // Notes: Comments in ENGLISH; emojis sparingly.
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { api } from '../api';
+import { useModalDialog } from '../hooks/useModalDialog';
 import { useI18n } from '../i18n';
 import { useSessionAccess } from '../session';
 import type { LearningItem } from '../types';
@@ -26,6 +27,8 @@ export function QuickCapture({ open, onClose, onCreated }: QuickCaptureProps): R
   const [context, setContext] = useState('daily_life');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const hebrewInputRef = useRef<HTMLTextAreaElement>(null);
+  const dialogRef = useModalDialog<HTMLElement>({ open, onClose, initialFocusRef: hebrewInputRef });
 
   if (!open) return null;
 
@@ -59,7 +62,7 @@ export function QuickCapture({ open, onClose, onCreated }: QuickCaptureProps): R
     <div className="modal-backdrop" role="presentation" onMouseDown={(event) => {
       if (event.target === event.currentTarget) onClose();
     }}>
-      <section className="capture-modal" role="dialog" aria-modal="true" aria-labelledby="capture-title">
+      <section ref={dialogRef} className="capture-modal" role="dialog" aria-modal="true" aria-labelledby="capture-title" tabIndex={-1}>
         <header>
           <div>
             <span className="eyebrow"><Icon name="plus" size={16} /> {t('realLifeCapture')}</span>
@@ -74,7 +77,7 @@ export function QuickCapture({ open, onClose, onCreated }: QuickCaptureProps): R
           <label className="field field--hero">
             <span>{t('hebrewText')}</span>
             <textarea
-              autoFocus
+              ref={hebrewInputRef}
               dir="rtl"
               lang="he"
               value={hebrew}

@@ -4,6 +4,7 @@
 // Date: 2026-07-15 | TZ: Asia/Jerusalem
 // Notes: Comments in ENGLISH; emojis sparingly.
 
+import { useState } from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -48,8 +49,28 @@ const LEARNED_ITEM: LearningItem = {
   priority: 0.7,
 };
 
+function DictionaryHarness({ onClose }: { onClose: () => void }): React.JSX.Element {
+  const [word, setWord] = useState<string | null>(null);
+  return (
+    <>
+      <button type="button" onClick={() => setWord('שלום')}>Open dictionary</button>
+      <DictionaryDrawer
+        word={word}
+        onClose={() => {
+          onClose();
+          setWord(null);
+        }}
+        onOpenWord={setWord}
+      />
+    </>
+  );
+}
+
 describe('DictionaryDrawer', () => {
-  afterEach(() => vi.restoreAllMocks());
+  afterEach(() => {
+    vi.restoreAllMocks();
+    localStorage.clear();
+  });
 
   it('loads a word and adds it to the personal learning collection', async () => {
     const lookup = vi.spyOn(api, 'dictionaryLookup').mockResolvedValue([ENTRY]);
@@ -77,5 +98,42 @@ describe('DictionaryDrawer', () => {
     await waitFor(() => expect(learn).toHaveBeenCalledWith(7));
     expect(onLearned).toHaveBeenCalledOnce();
     expect(screen.getByRole('button', { name: /Phrase captured/i })).toBeDisabled();
+  });
+
+  it('traps focus, closes with Escape, restores the opener, and unlocks scrolling', async () => {
+    vi.spyOn(api, 'dictionaryLookup').mockResolvedValue([ENTRY]);
+    const onClose = vi.fn();
+    const user = userEvent.setup();
+
+    render(
+      <I18nProvider>
+        <DictionaryHarness onClose={onClose} />
+      </I18nProvider>,
+    );
+
+    const opener = screen.getByRole('button', { name: 'Open dictionary' });
+    await user.click(opener);
+
+    const dialog = screen.getByRole('dialog', { name: 'שלום' });
+    const close = screen.getByRole('button', { name: 'Close' });
+    const addToLearning = await screen.findByRole('button', { name: /Add to learning/i });
+
+    expect(dialog).toBeInTheDocument();
+    await waitFor(() => expect(close).toHaveFocus());
+    expect(document.body.style.overflow).toBe('hidden');
+
+    addToLearning.focus();
+    await user.tab();
+    expect(close).toHaveFocus();
+
+    close.focus();
+    await user.tab({ shift: true });
+    expect(addToLearning).toHaveFocus();
+
+    await user.keyboard('{Escape}');
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(onClose).toHaveBeenCalledOnce();
+    expect(document.body.style.overflow).toBe('');
+    expect(opener).toHaveFocus();
   });
 });

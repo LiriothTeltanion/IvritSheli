@@ -166,8 +166,19 @@ export const api = {
       body: JSON.stringify({ text, cloud_requested: cloudRequested, retain: false }),
     }),
   transcribeAudio: async (blob: Blob, cloudRequested = true): Promise<{ transcript: string; provider: string }> => {
+    const extensionByMime: Record<string, string> = {
+      'audio/flac': 'flac',
+      'audio/m4a': 'm4a',
+      'audio/mp4': 'mp4',
+      'audio/mpeg': 'mp3',
+      'audio/ogg': 'ogg',
+      'audio/wav': 'wav',
+      'audio/webm': 'webm',
+    };
+    const mime = blob.type.split(';', 1)[0]?.toLowerCase() ?? '';
+    const extension = extensionByMime[mime] ?? 'webm';
     const form = new FormData();
-    form.append('file', blob, 'hebrew-recording.webm');
+    form.append('file', blob, `hebrew-recording.${extension}`);
     return request(`/audio/stt?cloud_requested=${String(cloudRequested)}&language=he`, {
       method: 'POST',
       body: form,
@@ -177,6 +188,7 @@ export const api = {
     targetText: string,
     transcript: string,
     itemId?: number,
+    provider = 'browser',
   ): Promise<Record<string, unknown>> =>
     request('/audio/pronunciation-score', {
       method: 'POST',
@@ -184,7 +196,7 @@ export const api = {
         target_text: targetText,
         transcript,
         ...(itemId === undefined ? {} : { item_id: itemId }),
-        provider: 'browser',
+        provider,
       }),
     }),
   connectors: async (): Promise<ConnectorState[]> => {

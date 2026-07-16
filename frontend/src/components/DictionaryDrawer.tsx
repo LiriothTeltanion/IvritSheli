@@ -6,6 +6,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { api } from '../api';
+import { useModalDialog } from '../hooks/useModalDialog';
 import { useI18n } from '../i18n';
 import { useSessionAccess } from '../session';
 import type { DictionaryEntry } from '../types';
@@ -28,6 +29,7 @@ export function DictionaryDrawer({ word, onClose, onOpenWord, onLearned }: Dicti
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [learned, setLearned] = useState(false);
+  const dialogRef = useModalDialog<HTMLElement>({ open: Boolean(word), onClose });
 
   useEffect(() => {
     if (!word) return;
@@ -120,11 +122,18 @@ export function DictionaryDrawer({ word, onClose, onOpenWord, onLearned }: Dicti
     <div className="drawer-backdrop" role="presentation" onMouseDown={(event) => {
       if (event.target === event.currentTarget) onClose();
     }}>
-      <aside className="dictionary-drawer" role="dialog" aria-modal="true" aria-label={t('dictionary')}>
+      <aside
+        ref={dialogRef}
+        className="dictionary-drawer"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="dictionary-drawer-title"
+        tabIndex={-1}
+      >
         <header className="drawer-header">
           <div>
             <span className="eyebrow"><Icon name="book" size={16} /> {t('dictionary')}</span>
-            <h2>{word}</h2>
+            <h2 id="dictionary-drawer-title">{word}</h2>
           </div>
           <button type="button" className="icon-button" onClick={onClose} aria-label={t('close')}>
             <Icon name="close" />

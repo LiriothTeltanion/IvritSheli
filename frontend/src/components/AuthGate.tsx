@@ -37,7 +37,7 @@ export function AuthGate({ busy, error, onDemo, onRetry }: AuthGateProps): React
               </button>
             ))}
           </div>
-          <span className="auth-version">v2.1.0</span>
+          <span className="auth-version">v2.1.1</span>
         </div>
       </header>
 
