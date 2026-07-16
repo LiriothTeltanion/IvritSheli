@@ -20,14 +20,30 @@ REQUIRED_FILES = (
     "README.md",
     "PACKAGE_MANIFEST.md",
     "TEST_REPORT.md",
+    "CITATION.cff",
     "LICENSE",
     "THIRD_PARTY_NOTICES.md",
     "SECURITY.md",
     ".env.example",
+    ".github/dependabot.yml",
+    ".github/workflows/ci.yml",
+    ".github/workflows/codeql.yml",
+    "Dockerfile",
+    "docker-compose.yml",
+    "railway.toml",
     "backend/pyproject.toml",
+    "backend/alembic.ini",
+    "backend/migrations/versions/20260716_0001_cloud_identity_and_state.py",
     "backend/src/ivrit_sheli/api.py",
+    "backend/src/ivrit_sheli/auth.py",
+    "backend/src/ivrit_sheli/cloud_repository.py",
+    "backend/src/ivrit_sheli/cloud_store.py",
+    "backend/src/ivrit_sheli/db_admin.py",
+    "backend/src/ivrit_sheli/request_limits.py",
+    "backend/src/ivrit_sheli/structured_logging.py",
     "frontend/package-lock.json",
     "frontend/src/App.tsx",
+    "frontend/src/components/AuthGate.tsx",
     "frontend/public/manifest.webmanifest",
     "docs/ULTIMATE_BUILD_SPEC.md",
     "docs/ARCHITECTURE.md",
@@ -44,6 +60,15 @@ REQUIRED_FILES = (
     "docs/DEMO_DAY.md",
     "assets/brand/logo.svg",
     "assets/brand/app-icon.svg",
+    "assets/brand/kc-lt-signature.svg",
+    "assets/readme/cloud-architecture.svg",
+    "assets/readme/ivrit-sheli-2-dashboard.png",
+    "assets/readme/ivrit-sheli-2-mobile.png",
+    "assets/readme/ivrit-sheli-2-hebrew-rtl.png",
+    "assets/social/ivrit-sheli-social-preview.svg",
+    "assets/social/ivrit-sheli-social-preview.png",
+    "scripts/docker-entrypoint.sh",
+    "scripts/verify_container_logs.py",
 )
 
 SECRET_PATTERNS = (
@@ -149,6 +174,13 @@ def verify_documentation_links() -> list[str]:
         path_part = target.split("#", 1)[0]
         if path_part and not (ROOT / path_part).exists():
             failures.append(target)
+    for target in re.findall(r'(?:src|srcset)="([^"]+)"', readme):
+        for candidate in target.split(","):
+            path_part = candidate.strip().split()[0].split("#", 1)[0]
+            if path_part.startswith(("http://", "https://", "data:")):
+                continue
+            if path_part and not (ROOT / path_part).exists():
+                failures.append(path_part)
     return failures
 
 
@@ -172,7 +204,7 @@ def main() -> int:
     if failures:
         print(json.dumps(failures, indent=2, ensure_ascii=False), file=sys.stderr)
         return 1
-    print(f"Verified {len(REQUIRED_FILES)} required files and all packaged assets ✅")
+    print(f"[OK] Verified {len(REQUIRED_FILES)} required files and all packaged assets.")
     return 0
 
 

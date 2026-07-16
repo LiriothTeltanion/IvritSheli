@@ -4,9 +4,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ivrit-sheli-ultimate"
-version = "1.0.0"
+version = "2.0.0"
 description = "Private, adaptive, trilingual Hebrew-learning operating system"
-readme = "../README.md"
+readme = {text = "Ivrit Sheli 2.0 backend: local-first SQLite plus authenticated PostgreSQL cloud mode.", content-type = "text/markdown"}
 requires-python = ">=3.10"
 license = {text = "MIT"}
 authors = [{name = "Kevin Lirioth Cusnir"}]
@@ -16,6 +16,9 @@ dependencies = [
   "pydantic==2.13.4",
   "requests==2.34.2",
   "python-multipart==0.0.32",
+  "psycopg[binary]==3.3.4",
+  "SQLAlchemy==2.0.51",
+  "alembic==1.18.5",
 ]
 
 [project.scripts]
@@ -30,6 +33,9 @@ where = ["src"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra"
+markers = [
+  "postgres: requires explicit MIGRATION_DATABASE_URL and DATABASE_URL PostgreSQL instances",
+]
 
 [tool.ruff]
 target-version = "py310"

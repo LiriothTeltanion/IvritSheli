@@ -7,6 +7,7 @@
 import { useRef, useState } from 'react';
 import { api } from '../api';
 import { useI18n } from '../i18n';
+import { useSessionAccess } from '../session';
 import { HebrewText } from './HebrewText';
 import { Icon } from './Icon';
 
@@ -36,7 +37,8 @@ export function AudioPractice({
   initialText?: string;
   onWordClick: (word: string) => void;
 }): React.JSX.Element {
-  const { t } = useI18n();
+  const { label, t } = useI18n();
+  const { readOnly, readOnlyReason } = useSessionAccess();
   const [target, setTarget] = useState(initialText);
   const [transcript, setTranscript] = useState('');
   const [cloud, setCloud] = useState(false);
@@ -51,7 +53,7 @@ export function AudioPractice({
 
   const speakBrowser = (text: string): void => {
     if (!('speechSynthesis' in window)) {
-      setError('Speech synthesis is unavailable in this browser.');
+      setError(t('speechSynthesisUnavailable'));
       return;
     }
     window.speechSynthesis.cancel();
@@ -63,6 +65,10 @@ export function AudioPractice({
   };
 
   const play = async (): Promise<void> => {
+    if (readOnly) {
+      speakBrowser(target);
+      return;
+    }
     setLoadingVoice(true);
     setError('');
     try {
@@ -131,7 +137,7 @@ export function AudioPractice({
       setTranscript(next.trim());
     };
     recognition.onerror = (event) => {
-      setError(`Speech recognition failed: ${event.error ?? 'unknown error'}`);
+      setError(t('speechRecognitionFailed', { error: event.error ?? t('unknownError') }));
       setRecording(false);
     };
     recognition.onend = () => setRecording(false);
@@ -175,23 +181,31 @@ export function AudioPractice({
   const feedback = score?.feedback && typeof score.feedback === 'object'
     ? score.feedback as Record<string, unknown>
     : null;
+  const feedbackBand = typeof feedback?.band === 'string' ? feedback.band : '';
+  const feedbackMessage = ({
+    excellent: t('feedbackExcellent'),
+    good: t('feedbackGood'),
+    developing: t('feedbackDeveloping'),
+    retry: t('feedbackRetry'),
+  } as Record<string, string>)[feedbackBand] ?? '';
 
   return (
     <section className="audio-studio card">
       <header className="section-heading">
         <div>
-          <span className="eyebrow"><Icon name="mic" size={16} /> Listening + speaking</span>
+          <span className="eyebrow"><Icon name="mic" size={16} /> {t('listeningSpeaking')}</span>
           <h2>{t('pronunciation')}</h2>
         </div>
         <label className="mini-cloud-toggle">
-          <input type="checkbox" checked={cloud} onChange={(event) => setCloud(event.target.checked)} />
-          <Icon name={cloud ? 'cloud' : 'offline'} size={16} /> {cloud ? 'Cloud STT/TTS' : t('browserVoice')}
+          <input type="checkbox" checked={cloud} onChange={(event) => setCloud(event.target.checked)} disabled={readOnly} />
+          <Icon name={cloud ? 'cloud' : 'offline'} size={16} /> {cloud ? t('cloudSpeech') : t('browserVoice')}
         </label>
       </header>
+      {readOnly && <div className="demo-inline-notice" role="note"><Icon name="shield" size={16} /> {t('demoAudioNotice')} {readOnlyReason}</div>}
 
       <div className="audio-target">
         <label className="field">
-          <span>Target phrase</span>
+          <span>{t('targetPhrase')}</span>
           <input dir="rtl" lang="he" value={target} onChange={(event) => setTarget(event.target.value)} />
         </label>
         <HebrewText text={target} onWordClick={onWordClick} className="audio-hebrew" as="p" />
@@ -210,7 +224,7 @@ export function AudioPractice({
           <Icon name={recording ? 'stop' : 'mic'} size={30} />
           <span>{recording ? t('stop') : t('record')}</span>
         </button>
-        <button type="button" className="round-action" onClick={() => { void scoreAttempt(); }} disabled={!transcript.trim()}>
+        <button type="button" className="round-action" onClick={() => { void scoreAttempt(); }} disabled={readOnly || !transcript.trim()} title={readOnly ? readOnlyReason : undefined}>
           <Icon name="target" size={24} />
           <span>{t('score')}</span>
         </button>
@@ -228,9 +242,9 @@ export function AudioPractice({
             <strong>{numericScore}</strong><span>/100</span>
           </div>
           <div>
-            <h3>{String(feedback?.band ?? 'result')}</h3>
-            <p>{String(feedback?.message_en ?? '')}</p>
-            <small>Transparent transcript similarity—not a clinical phoneme score.</small>
+            <h3>{feedbackBand ? label(feedbackBand) : t('result')}</h3>
+            <p>{feedbackMessage}</p>
+            <small>{t('scoreDisclaimer')}</small>
           </div>
         </div>
       )}

@@ -1,2 +1,10 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Linux container entrypoints must survive Windows checkouts without CRLF shebang failures.
+*.sh text eol=lf
+Dockerfile text eol=lf
+
+# Native Windows launchers keep their platform-standard line endings.
+*.bat text eol=crlf
+*.ps1 text eol=crlf

@@ -1,0 +1,13 @@
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+preDeployCommand = ["python -m ivrit_sheli.db_admin migrate"]
+startCommand = "/app/scripts/docker-entrypoint.sh serve"
+healthcheckPath = "/health/ready"
+healthcheckTimeout = 300
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 5
+overlapSeconds = "10"
+drainingSeconds = "15"

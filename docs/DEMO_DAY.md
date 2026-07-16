@@ -32,17 +32,18 @@ Show a mission, achievement unlock, streak with rest-day logic, and progress das
 
 ### 1:50–2:00 — Engineering close
 
-Show the repository map and state: React + TypeScript, Python + FastAPI, SQLite, provider adapters, trilingual RTL UI, automated tests, Docker, CI, and local-first privacy.
+Show the repository map and state: React + TypeScript, Python + FastAPI, private SQLite mode, authenticated PostgreSQL mode, provider adapters, trilingual RTL UI, automated tests, Docker, CI, and local-first privacy.
 
 ## Five-minute live presentation
 
 1. **Need:** personal Hebrew is situational, not generic.
 2. **Solution:** capture → understand → practice → use → reflect.
-3. **Technical architecture:** React, FastAPI, SQLite, separate lexicon database, deterministic offline AI, optional cloud adapters.
+3. **Technical architecture:** React, FastAPI, private SQLite mode, GitHub-authenticated PostgreSQL tenants, a separate lexicon database, deterministic offline AI, and optional cloud adapters.
 4. **Differentiator:** every Hebrew word is clickable and every recommendation is explainable.
-5. **Reliability:** request IDs, strict validation, graceful fallbacks, diagnostics, local bug reports, 66 automated tests.
-6. **Privacy:** no account, no analytics, no background email harvesting, explicit per-request cloud action.
-7. **Roadmap:** packaged desktop/mobile shell, encrypted secrets, richer phoneme scoring, and licensed dictionary enrichment.
+5. **Reliability:** request IDs, redacted JSON logs, diagnostics, real PostgreSQL isolation tests, and 126 unique automated tests.
+6. **Privacy:** no account in private local mode; minimal GitHub identity in cloud mode; no analytics or background mailbox harvesting; explicit provider actions.
+7. **Deployment status:** the Docker/Railway package is deployment-ready; show only the local Compose demo until a public URL and OAuth callback have been verified.
+8. **Roadmap:** public deployment verification, self-service cloud-account deletion, packaged desktop/mobile shell, richer phoneme scoring, and licensed dictionary enrichment.
 
 ## Suggested live-demo safety plan
 
@@ -51,6 +52,8 @@ Show the repository map and state: React + TypeScript, Python + FastAPI, SQLite,
 - Keep one pre-recorded audio attempt available.
 - Build the frontend before presentation.
 - Run `--doctor` immediately before the demo.
+- Run `docker compose up --build --wait` before demonstrating the authenticated PostgreSQL path.
+- Do not call the experience a live public deployment until its URL, TLS, OAuth callback, readiness, and version endpoint have been checked.
 - Keep a screenshot of the dashboard as a fallback.
 
 ## Portfolio highlights
@@ -60,9 +63,9 @@ This project demonstrates:
 - Full-stack product architecture.
 - Python service design and typed APIs.
 - React/TypeScript state and accessible components.
-- SQLite schemas and transactional domain updates.
+- SQLite domain execution plus PostgreSQL migrations, sessions, tenant isolation, and forced RLS.
 - NLP-oriented normalization and dictionary ingestion.
 - Adaptive algorithms and recommendation scoring.
-- Audio upload safety and privacy controls.
+- Bounded audio uploads, extension allow-listing, temporary-file cleanup, and privacy controls.
 - External API integration through testable adapters.
-- Automated tests, CI, Docker, documentation, and deployment thinking.
+- 126 unique automated tests, CI, Docker, documentation, and deployment-ready Railway operations.

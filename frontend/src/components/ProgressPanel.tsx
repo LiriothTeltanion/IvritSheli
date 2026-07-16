@@ -18,7 +18,7 @@ export function ProgressPanel({
   progress: ProgressData;
   gamification: GamificationStatus;
 }): React.JSX.Element {
-  const { t } = useI18n();
+  const { label, t } = useI18n();
   const averageAccuracy = progress.modalities.length
     ? progress.modalities.reduce((sum, item) => sum + item.accuracy, 0) / progress.modalities.length * 100
     : 0;
@@ -32,29 +32,29 @@ export function ProgressPanel({
     <div className="progress-page stagger-in">
       <section className="progress-hero card">
         <div>
-          <span className="eyebrow"><Icon name="chart" size={16} /> 30-day learning signal</span>
-          <h1>Progress that reflects usable Hebrew</h1>
-          <p>Recognition and speaking are tracked separately so a familiar word never masquerades as confident production.</p>
+          <span className="eyebrow"><Icon name="chart" size={16} /> {t('thirtyDaySignal')}</span>
+          <h1>{t('progressTitle')}</h1>
+          <p>{t('progressDescription')}</p>
           <XPBar xp={gamification.xp} />
         </div>
         <div className="ring-group">
           <MetricRing value={averageAccuracy} label={t('accuracy')} />
-          <MetricRing value={averageConfidence} label="Confidence" />
+          <MetricRing value={averageConfidence} label={t('confidence')} />
         </div>
       </section>
 
       <div className="progress-grid">
         <section className="card analytics-card">
           <header className="section-heading">
-            <div><span className="eyebrow">Skill model</span><h2>Modalities</h2></div>
+            <div><span className="eyebrow">{t('skillModel')}</span><h2>{t('modalities')}</h2></div>
           </header>
           {progress.modalities.length === 0 ? (
-            <p className="muted-copy">Complete your first review to build the skill model.</p>
+            <p className="muted-copy">{t('completeReviewPrompt')}</p>
           ) : (
             <div className="modality-stack">
               {progress.modalities.map((item) => (
                 <article key={item.modality}>
-                  <div><strong>{item.modality}</strong><span>{Math.round(item.accuracy * 100)}% · {item.attempts} attempts</span></div>
+                  <div><strong>{label(item.modality)}</strong><span>{Math.round(item.accuracy * 100)}% · {t('attempts', { count: item.attempts })}</span></div>
                   <div className="analytic-track"><i style={{ width: `${item.accuracy * 100}%` }} /></div>
                 </article>
               ))}
@@ -64,15 +64,15 @@ export function ProgressPanel({
 
         <section className="card analytics-card">
           <header className="section-heading">
-            <div><span className="eyebrow">Diagnostic engine</span><h2>Recurring mistakes</h2></div>
+            <div><span className="eyebrow">{t('diagnosticEngine')}</span><h2>{t('recurringMistakes')}</h2></div>
           </header>
           {progress.mistakes.length === 0 ? (
-            <p className="muted-copy">No mistake pattern is strong enough yet. That is good data—not an empty score.</p>
+            <p className="muted-copy">{t('noMistakePattern')}</p>
           ) : (
             <div className="mistake-stack">
               {progress.mistakes.map((item) => (
                 <article key={item.mistake_category}>
-                  <span>{item.mistake_category.replaceAll('_', ' ')}</span>
+                  <span>{label(item.mistake_category)}</span>
                   <div><i style={{ width: `${item.count / maxMistakes * 100}%` }} /></div>
                   <strong>{item.count}</strong>
                 </article>
@@ -84,12 +84,12 @@ export function ProgressPanel({
 
       <section className="card activity-card">
         <header className="section-heading">
-          <div><span className="eyebrow"><Icon name="flame" size={16} /> Consistency without guilt</span><h2>Practice activity</h2></div>
+          <div><span className="eyebrow"><Icon name="flame" size={16} /> {t('consistencyWithoutGuilt')}</span><h2>{t('practiceActivity')}</h2></div>
           <span className="count-chip">{progress.streak_days} {t('streak')}</span>
         </header>
-        <div className="activity-chart" aria-label="Practice attempts by day">
+        <div className="activity-chart" aria-label={t('practiceAttemptsByDay')}>
           {progress.activity.length === 0 ? (
-            <p className="muted-copy">Your first practice session will appear here.</p>
+            <p className="muted-copy">{t('firstPracticePrompt')}</p>
           ) : progress.activity.map((item) => (
             <div className="activity-column" key={item.day}>
               <span className="activity-value">{item.attempts}</span>

@@ -7,6 +7,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api } from '../api';
 import { useI18n } from '../i18n';
+import { useSessionAccess } from '../session';
 import type { DictionaryEntry } from '../types';
 import { HebrewText } from './HebrewText';
 import { Icon } from './Icon';
@@ -19,7 +20,8 @@ interface DictionaryDrawerProps {
 }
 
 export function DictionaryDrawer({ word, onClose, onOpenWord, onLearned }: DictionaryDrawerProps): React.JSX.Element | null {
-  const { locale, t } = useI18n();
+  const { locale, label, t } = useI18n();
+  const { readOnly, readOnlyReason } = useSessionAccess();
   const [entries, setEntries] = useState<DictionaryEntry[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -139,7 +141,7 @@ export function DictionaryDrawer({ word, onClose, onOpenWord, onLearned }: Dicti
         {!loading && !error && entries.length === 0 && <div className="drawer-state">{t('noDefinition')}</div>}
 
         {entries.length > 1 && (
-          <div className="entry-tabs" role="tablist" aria-label="Dictionary entries">
+          <div className="entry-tabs" role="tablist" aria-label={t('dictionaryEntries')}>
             {entries.map((item, index) => (
               <button
                 type="button"
@@ -149,7 +151,7 @@ export function DictionaryDrawer({ word, onClose, onOpenWord, onLearned }: Dicti
                 key={item.id}
                 onClick={() => setSelectedIndex(index)}
               >
-                {item.pos ?? 'entry'}
+                {item.pos ? label(item.pos) : t('dictionaryEntry')}
               </button>
             ))}
           </div>
@@ -165,15 +167,15 @@ export function DictionaryDrawer({ word, onClose, onOpenWord, onLearned }: Dicti
               <p className="dictionary-romanization" dir="ltr">{entry.romanization || entry.sounds.find((item) => item.romanization)?.romanization || '—'}</p>
               <p className="dictionary-gloss">{gloss}</p>
               <div className="tag-row">
-                {entry.pos && <span>{entry.pos}</span>}
-                {entry.gender && <span>{entry.gender}</span>}
-                {entry.binyan && <span>{entry.binyan}</span>}
+                {entry.pos && <span>{label(entry.pos)}</span>}
+                {entry.gender && <span>{label(entry.gender)}</span>}
+                {entry.binyan && <span>{label(entry.binyan)}</span>}
                 {entry.root && (
                   <button
                     type="button"
                     className="root-tag root-tag--button"
                     onClick={() => { void exploreRoot(entry.root ?? ''); }}
-                    aria-label={`Explore Hebrew root ${entry.root}`}
+                    aria-label={t('exploreRoot', { root: entry.root })}
                   >
                     שורש · {entry.root}
                   </button>
@@ -188,7 +190,7 @@ export function DictionaryDrawer({ word, onClose, onOpenWord, onLearned }: Dicti
                   {entry.forms.slice(0, 16).map((form) => (
                     <button key={form.id} type="button" onClick={() => onOpenWord(form.form)}>
                       <HebrewText text={form.form} />
-                      <small>{form.tags.join(' · ')}</small>
+                      <small>{form.tags.map(label).join(' · ')}</small>
                     </button>
                   ))}
                 </div>
@@ -215,7 +217,7 @@ export function DictionaryDrawer({ word, onClose, onOpenWord, onLearned }: Dicti
                 <p>{entry.source_name}</p>
                 {entry.license_name && <small>{entry.license_name}</small>}
               </div>
-              <button type="button" className="primary-button" onClick={() => { void learn(); }} disabled={learned}>
+              <button type="button" className="primary-button" onClick={() => { void learn(); }} disabled={readOnly || learned} title={readOnly ? readOnlyReason : undefined}>
                 <Icon name={learned ? 'check' : 'plus'} size={18} />
                 {learned ? t('captured') : t('addToLearning')}
               </button>

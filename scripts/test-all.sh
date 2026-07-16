@@ -23,10 +23,11 @@ export DICTIONARY_DB_PATH="${TEMP_DIR}/data/dictionary.db"
 export AI_PROVIDER=offline
 export ALLOW_CLOUD_PROCESSING=false
 
-"${VENV_DIR}/bin/ruff" check backend/src backend/tests scripts/verify_package.py
+"${VENV_DIR}/bin/ruff" check backend/src backend/tests scripts/verify_package.py scripts/verify_container_logs.py
 "${VENV_DIR}/bin/mypy" --config-file backend/pyproject.toml backend/src
 "${VENV_DIR}/bin/pytest" backend/tests -q
-"${VENV_DIR}/bin/python" -m compileall -q backend/src scripts/verify_package.py
+"${VENV_DIR}/bin/python" -m compileall -q backend/src scripts/verify_package.py scripts/verify_container_logs.py
+"${VENV_DIR}/bin/python" -m pip_audit -r backend/requirements.txt
 "${VENV_DIR}/bin/python" -m ivrit_sheli --doctor
 
 (
@@ -38,4 +39,4 @@ export ALLOW_CLOUD_PROCESSING=false
 
 "${VENV_DIR}/bin/python" scripts/verify_package.py
 
-echo "All local verification checks passed ✅"
+echo "[OK] All local verification checks passed."

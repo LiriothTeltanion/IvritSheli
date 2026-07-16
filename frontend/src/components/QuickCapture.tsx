@@ -7,6 +7,7 @@
 import { useState } from 'react';
 import { api } from '../api';
 import { useI18n } from '../i18n';
+import { useSessionAccess } from '../session';
 import type { LearningItem } from '../types';
 import { Icon } from './Icon';
 
@@ -18,6 +19,7 @@ interface QuickCaptureProps {
 
 export function QuickCapture({ open, onClose, onCreated }: QuickCaptureProps): React.JSX.Element | null {
   const { t } = useI18n();
+  const { readOnly, readOnlyReason } = useSessionAccess();
   const [hebrew, setHebrew] = useState('');
   const [english, setEnglish] = useState('');
   const [spanish, setSpanish] = useState('');
@@ -29,7 +31,7 @@ export function QuickCapture({ open, onClose, onCreated }: QuickCaptureProps): R
 
   const save = async (event: React.FormEvent): Promise<void> => {
     event.preventDefault();
-    if (!hebrew.trim()) return;
+    if (readOnly || !hebrew.trim()) return;
     setSaving(true);
     setError('');
     try {
@@ -60,7 +62,7 @@ export function QuickCapture({ open, onClose, onCreated }: QuickCaptureProps): R
       <section className="capture-modal" role="dialog" aria-modal="true" aria-labelledby="capture-title">
         <header>
           <div>
-            <span className="eyebrow"><Icon name="plus" size={16} /> Real-life capture</span>
+            <span className="eyebrow"><Icon name="plus" size={16} /> {t('realLifeCapture')}</span>
             <h2 id="capture-title">{t('capturePhrase')}</h2>
           </div>
           <button type="button" className="icon-button" onClick={onClose} aria-label={t('close')}>
@@ -68,6 +70,7 @@ export function QuickCapture({ open, onClose, onCreated }: QuickCaptureProps): R
           </button>
         </header>
         <form onSubmit={(event) => { void save(event); }}>
+          {readOnly && <div className="demo-inline-notice" role="note"><Icon name="shield" size={16} /> {readOnlyReason}</div>}
           <label className="field field--hero">
             <span>{t('hebrewText')}</span>
             <textarea
@@ -78,33 +81,34 @@ export function QuickCapture({ open, onClose, onCreated }: QuickCaptureProps): R
               onChange={(event) => setHebrew(event.target.value)}
               placeholder="אני אטפל בזה"
               required
+              disabled={readOnly}
             />
           </label>
           <div className="field-grid">
             <label className="field">
               <span>{t('meaningEnglish')}</span>
-              <input value={english} onChange={(event) => setEnglish(event.target.value)} placeholder="I'll take care of it" />
+              <input value={english} onChange={(event) => setEnglish(event.target.value)} placeholder="I'll take care of it" disabled={readOnly} />
             </label>
             <label className="field">
               <span>{t('meaningSpanish')}</span>
-              <input value={spanish} onChange={(event) => setSpanish(event.target.value)} placeholder="Me encargaré de eso" />
+              <input value={spanish} onChange={(event) => setSpanish(event.target.value)} placeholder="Me encargaré de eso" disabled={readOnly} />
             </label>
           </div>
           <label className="field">
             <span>{t('context')}</span>
-            <select value={context} onChange={(event) => setContext(event.target.value)}>
+            <select value={context} onChange={(event) => setContext(event.target.value)} disabled={readOnly}>
               <option value="daily_life">{t('dailyLife')}</option>
               <option value="workplace">{t('workplace')}</option>
               <option value="medical">{t('medical')}</option>
               <option value="bureaucracy">{t('bureaucracy')}</option>
-              <option value="social">Social</option>
-              <option value="travel">Travel</option>
+              <option value="social">{t('social')}</option>
+              <option value="travel">{t('travel')}</option>
             </select>
           </label>
           {error && <div className="inline-error">{error}</div>}
           <footer className="modal-actions">
             <button type="button" className="secondary-button" onClick={onClose}>{t('cancel')}</button>
-            <button type="submit" className="primary-button" disabled={saving || !hebrew.trim()}>
+            <button type="submit" className="primary-button" disabled={readOnly || saving || !hebrew.trim()} title={readOnly ? readOnlyReason : undefined}>
               {saving ? <span className="spinner" /> : <Icon name="plus" size={18} />}
               {t('save')}
             </button>

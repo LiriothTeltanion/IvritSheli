@@ -1,0 +1,47 @@
+name: ✨ Feature request
+description: Propose a focused, privacy-aware improvement.
+title: "feat: "
+labels: [enhancement, triage]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Learning problem
+      description: What learner or maintainer problem should this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed experience
+      description: Describe the smallest useful behavior in EN, ES, or HE.
+    validations:
+      required: true
+  - type: dropdown
+    id: boundary
+    attributes:
+      label: Primary area
+      options:
+        - Learning and review
+        - Dictionary and language data
+        - Audio and pronunciation
+        - UI, accessibility, RTL, or motion
+        - Authentication and cloud storage
+        - Local-first privacy
+        - Operations, tests, or documentation
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance evidence
+      description: What automated test or visible behavior would prove completion?
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy boundary
+      options:
+        - label: The proposal can be demonstrated without publishing personal data or provider credentials.
+          required: true

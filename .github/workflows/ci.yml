@@ -1,5 +1,5 @@
 # Module: continuous integration
-# Purpose: Verify Python 3.10 compatibility, TypeScript correctness, tests, production assets, and package integrity.
+# Purpose: Verify local-first behavior, cloud PostgreSQL isolation, the frontend, and the production container.
 # Author: Kevin "Lirioth" Cusnir
 # Date: 2026-07-15 | TZ: Asia/Jerusalem
 
@@ -15,7 +15,8 @@ permissions:
   contents: read
 
 jobs:
-  verify:
+  local-first:
+    name: Local-first quality gates
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
@@ -28,17 +29,19 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
 
       - name: Set up Python 3.10
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: "3.10"
           cache: pip
           cache-dependency-path: backend/requirements-dev.txt
 
       - name: Set up Node.js 22
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: "22"
           cache: npm
@@ -52,7 +55,7 @@ jobs:
         run: npm ci
 
       - name: Lint Python
-        run: ruff check backend/src backend/tests scripts/verify_package.py
+        run: ruff check backend/src backend/tests scripts/verify_package.py scripts/verify_container_logs.py
 
       - name: Type-check Python
         run: mypy --config-file backend/pyproject.toml backend/src
@@ -61,7 +64,10 @@ jobs:
         run: pytest backend/tests -q
 
       - name: Compile Python
-        run: python -m compileall -q backend/src scripts/verify_package.py
+        run: python -m compileall -q backend/src scripts/verify_package.py scripts/verify_container_logs.py
+
+      - name: Audit Python runtime dependencies
+        run: python -m pip_audit -r backend/requirements.txt
 
       - name: Run offline diagnostics
         run: python -m ivrit_sheli --doctor
@@ -80,3 +86,124 @@ jobs:
 
       - name: Verify distributable package
         run: python scripts/verify_package.py
+
+  postgres-integration:
+    name: PostgreSQL integration tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17-alpine@sha256:742f40ea20b9ff2ff31db5458d127452988a2164df9e17441e191f3b72252193
+        env:
+          POSTGRES_DB: ivrit_sheli_test
+          POSTGRES_USER: ivrit
+          POSTGRES_PASSWORD: integration-only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ivrit -d ivrit_sheli_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      PYTHONPATH: backend/src
+      APP_ENV: test
+      MIGRATION_DATABASE_URL: postgresql://ivrit:integration-only@127.0.0.1:5432/ivrit_sheli_test
+      DATABASE_URL: postgresql://ivrit_sheli_runtime:integration-runtime-only@127.0.0.1:5432/ivrit_sheli_test
+      AUTH_REQUIRED: "true"
+      SESSION_SECRET: integration-test-session-secret-at-least-32-chars
+      SESSION_COOKIE_SECURE: "false"
+      PUBLIC_BASE_URL: http://testserver
+      ALLOWED_ORIGINS: http://testserver
+      AI_PROVIDER: offline
+      ALLOW_CLOUD_PROCESSING: "false"
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: "3.10"
+          cache: pip
+          cache-dependency-path: backend/requirements-dev.txt
+
+      - name: Install backend dependencies
+        run: python -m pip install -r backend/requirements-dev.txt
+
+      - name: Migrate and provision the restricted runtime login
+        run: python -m ivrit_sheli.db_admin migrate
+
+      - name: Verify real PostgreSQL authentication and tenant isolation
+        run: pytest backend/tests/test_postgres_integration.py -q
+
+  production-image:
+    name: Production Docker image
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: [local-first, postgres-integration]
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Validate Compose model
+        run: docker compose config --quiet
+
+      - name: Build production image
+        run: docker build --tag ivrit-sheli:${{ github.sha }} .
+
+      - name: Verify non-root runtime
+        run: test "$(docker image inspect --format '{{.Config.User}}' ivrit-sheli:${{ github.sha }})" = "ivrit"
+
+      - name: Verify entrypoint removes migration credentials from non-migration commands
+        run: >-
+          docker run --rm
+          -e MIGRATION_DATABASE_URL=postgresql://admin:entrypoint-sentinel@db/ivrit
+          ivrit-sheli:${{ github.sha }}
+          python -c "import os; assert 'MIGRATION_DATABASE_URL' not in os.environ"
+
+      - name: Boot production-shaped PostgreSQL stack
+        run: docker compose up --build --wait
+
+      - name: Smoke health, runtime identity, and OAuth-log redaction
+        run: |
+          curl --fail --silent --show-error http://127.0.0.1:8000/health/live
+          curl --fail --silent --show-error http://127.0.0.1:8000/health/ready
+          curl --fail --silent --show-error http://127.0.0.1:8000/version
+          test "$(docker compose exec -T app id -u)" = "10001"
+          docker compose exec -T app python -c \
+            "import os; assert 'MIGRATION_DATABASE_URL' not in os.environ"
+          for attempt in $(seq 1 20); do
+            status=$(curl --silent --output /dev/null --write-out '%{http_code}' \
+              -H "X-Forwarded-For: 198.51.100.${attempt}" \
+              http://127.0.0.1:8000/api/v1/auth/github/start)
+            test "$status" = "503"
+          done
+          status=$(curl --silent --output /dev/null --write-out '%{http_code}' \
+            -H 'X-Forwarded-For: 203.0.113.250' \
+            http://127.0.0.1:8000/api/v1/auth/github/start)
+          test "$status" = "429"
+          curl --silent --show-error \
+            'http://127.0.0.1:8000/api/v1/auth/github/callback?code=ci-oauth-code-secret&state=ci-oauth-state-secret' \
+            >/tmp/ivrit-oauth-response.json
+          docker compose logs --no-log-prefix app >/tmp/ivrit-app.log
+          python scripts/verify_container_logs.py \
+            --file /tmp/ivrit-app.log \
+            --forbid ci-oauth-code-secret \
+            --forbid ci-oauth-state-secret \
+            --forbid local-development-only \
+            --forbid local-development-session-secret-change-before-deploy
+
+      - name: Show Compose diagnostics on failure
+        if: failure()
+        run: docker compose ps --all && docker compose logs
+
+      - name: Stop production-shaped stack
+        if: always()
+        run: docker compose down

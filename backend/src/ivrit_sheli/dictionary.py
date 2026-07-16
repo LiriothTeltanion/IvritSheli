@@ -19,6 +19,7 @@ from urllib.parse import urlparse
 
 import requests
 
+from ivrit_sheli import __version__
 from ivrit_sheli.normalization import normalize_hebrew
 
 LOGGER = logging.getLogger(__name__)
@@ -1209,7 +1210,7 @@ def download_dictionary(
             url,
             stream=True,
             timeout=(10, timeout_seconds),
-            headers={"User-Agent": "Ivrit-Sheli-Ultimate/1.0"},
+            headers={"User-Agent": f"Ivrit-Sheli-Ultimate/{__version__}"},
         ) as response:
             response.raise_for_status()
             declared_size = int(response.headers.get("content-length", "0") or 0)

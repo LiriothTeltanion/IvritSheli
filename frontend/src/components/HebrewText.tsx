@@ -20,6 +20,7 @@ export function HebrewText({
   className,
   as: Tag = 'span',
 }: HebrewTextProps): React.JSX.Element {
+  const { t } = useI18n();
   const parts = text.split(TOKENIZER);
   return (
     <Tag className={className} dir="rtl" lang="he">
@@ -33,7 +34,7 @@ export function HebrewText({
             type="button"
             className="hebrew-token"
             onClick={() => onWordClick(part)}
-            aria-label={`Open dictionary for ${part}`}
+            aria-label={t('openDictionaryFor', { word: part })}
           >
             {part}
           </button>
@@ -42,3 +43,4 @@ export function HebrewText({
     </Tag>
   );
 }
+import { useI18n } from '../i18n';

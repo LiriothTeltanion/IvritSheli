@@ -6,13 +6,14 @@
 
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+import { I18nProvider } from '../i18n';
 import { HebrewText } from './HebrewText';
 
 describe('HebrewText', () => {
   it('preserves punctuation and exposes each Hebrew token as a button', () => {
     const onWordClick = vi.fn();
     const { container } = render(
-      <HebrewText text="שלום, Kevin — מה נשמע?" onWordClick={onWordClick} as="p" />,
+      <I18nProvider><HebrewText text="שלום, Kevin — מה נשמע?" onWordClick={onWordClick} as="p" /></I18nProvider>,
     );
 
     expect(container.firstElementChild).toHaveAttribute('dir', 'rtl');
@@ -24,7 +25,7 @@ describe('HebrewText', () => {
   });
 
   it('renders plain text when dictionary navigation is not supplied', () => {
-    render(<HebrewText text="עברית שלי" />);
+    render(<I18nProvider><HebrewText text="עברית שלי" /></I18nProvider>);
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
     expect(screen.getByText('עברית')).toBeInTheDocument();
   });

@@ -7,6 +7,7 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api';
 import { useI18n } from '../i18n';
+import { useSessionAccess } from '../session';
 import type { DictionaryEntry, LearningItem } from '../types';
 import { AudioPractice } from './AudioPractice';
 import { HebrewText } from './HebrewText';
@@ -24,7 +25,8 @@ export function LearnPanel({
   onWordClick: (word: string) => void;
   onRefresh: () => void;
 }): React.JSX.Element {
-  const { locale, t } = useI18n();
+  const { locale, label, t } = useI18n();
+  const { readOnly, readOnlyReason } = useSessionAccess();
   const [tab, setTab] = useState<LearnTab>(initialTab);
   const [query, setQuery] = useState('');
   const [dictionaryResults, setDictionaryResults] = useState<DictionaryEntry[]>([]);
@@ -73,23 +75,24 @@ export function LearnPanel({
   return (
     <div className="learn-page stagger-in">
       <header className="page-title-row">
-        <div><span className="eyebrow"><Icon name="book" size={16} /> Personal curriculum</span><h1>{t('learn')}</h1><p>Recognition, production, listening, and speaking are trained as different skills.</p></div>
+        <div><span className="eyebrow"><Icon name="book" size={16} /> {t('personalCurriculum')}</span><h1>{t('learn')}</h1><p>{t('skillsTrained')}</p></div>
       </header>
-      <nav className="workspace-tabs" aria-label="Learning workspace">
+      <nav className="workspace-tabs" aria-label={t('learningWorkspace')}>
         {tabs.map((item) => (
-          <button key={item.key} type="button" className={tab === item.key ? 'active' : ''} onClick={() => setTab(item.key)}>
+          <button key={item.key} type="button" className={tab === item.key ? 'active' : ''} onClick={() => setTab(item.key)} aria-current={tab === item.key ? 'page' : undefined}>
             <Icon name={item.icon} size={18} /> {item.label}
           </button>
         ))}
       </nav>
 
+      {readOnly && tab === 'dictionary' && <div className="demo-inline-notice" role="note"><Icon name="shield" size={16} /> {t('demoDictionaryNotice')} {readOnlyReason}</div>}
       {message && <div className="info-banner"><Icon name="sparkles" size={16} /> {message}</div>}
       {tab === 'review' && <ReviewCard active={tab === 'review'} onWordClick={onWordClick} onReviewed={onRefresh} />}
       {tab === 'audio' && <AudioPractice onWordClick={onWordClick} />}
       {tab === 'dictionary' && (
         <section className="dictionary-workspace card">
           <header className="dictionary-workspace__hero">
-            <div><span className="eyebrow"><Icon name="search" size={16} /> Full linked lexicon</span><h2>{t('searchDictionary')}</h2><p>Search ignores niqqud and resolves inflected forms back to the linked entry.</p></div>
+            <div><span className="eyebrow"><Icon name="search" size={16} /> {t('fullLinkedLexicon')}</span><h2>{t('searchDictionary')}</h2><p>{t('dictionarySearchDetail')}</p></div>
             <div className="dictionary-letter" aria-hidden="true">א</div>
           </header>
           <form className="large-search" onSubmit={(event) => { void search(event); }}>
@@ -109,7 +112,7 @@ export function LearnPanel({
                     <p>{meaning || t('noDefinition')}</p>
                     <div className="tag-row">{entry.pos && <span>{entry.pos}</span>}{entry.root && <span>שורש · {entry.root}</span>}</div>
                   </button>
-                  <button type="button" className="icon-button" onClick={() => { void addEntry(entry); }} aria-label={t('addToLearning')}><Icon name="plus" /></button>
+                  <button type="button" className="icon-button" onClick={() => { void addEntry(entry); }} aria-label={t('addToLearning')} disabled={readOnly} title={readOnly ? readOnlyReason : undefined}><Icon name="plus" /></button>
                 </article>
               );
             })}
@@ -119,11 +122,11 @@ export function LearnPanel({
       )}
       {tab === 'collection' && (
         <section className="collection-section card">
-          <header className="section-heading"><div><span className="eyebrow">Your source material</span><h2>{t('vocabulary')}</h2></div><span className="count-chip">{items.length}</span></header>
+          <header className="section-heading"><div><span className="eyebrow">{t('yourSourceMaterial')}</span><h2>{t('vocabulary')}</h2></div><span className="count-chip">{items.length}</span></header>
           <div className="collection-grid">
             {items.map((item) => (
               <article key={item.id} className="collection-card">
-                <div className="collection-card__top"><span className="context-pill">{item.context_label.replaceAll('_', ' ')}</span><span>{Math.round(item.priority * 100)}%</span></div>
+                <div className="collection-card__top"><span className="context-pill">{label(item.context_label)}</span><span>{Math.round(item.priority * 100)}%</span></div>
                 <HebrewText text={item.hebrew_with_niqqud || item.hebrew_text} onWordClick={onWordClick} className="collection-hebrew" as="h3" />
                 {item.transliteration && <p className="collection-transliteration" dir="ltr">{item.transliteration}</p>}
                 <p>{locale === 'es' ? item.translation_es ?? item.translation_en : item.translation_en ?? item.translation_es}</p>

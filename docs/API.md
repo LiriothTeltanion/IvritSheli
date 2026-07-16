@@ -1,54 +1,156 @@
-# API catalog
+# API catalog — Ivrit Sheli 2.0
 
-Base path: `/api/v1`
+Application base path: `/api/v1`
 
-## System
+The production frontend and API share one HTTPS origin. JSON responses include an `X-Request-ID` header; validation and application errors return the same correlation ID in their error envelope.
 
-- `GET /health`
-- `GET /dashboard`
-- `POST /bug-reports`
+## Authentication contract
 
-## Profile and learning
+| Method | Route | Purpose | Access |
+|---|---|---|---|
+| `GET` | `/api/v1/auth/me` | Return the current session, demo/read-only flag and public user fields | Public |
+| `GET` | `/api/v1/auth/github/start?next=/` | Create OAuth state + PKCE and redirect to GitHub | Public |
+| `GET` | `/api/v1/auth/github/callback` | Validate and consume OAuth state, create a session, redirect safely | Public callback |
+| `POST` | `/api/v1/auth/demo` | Start the deterministic read-only demo session | Public |
+| `POST` | `/api/v1/auth/logout` | Revoke the server-side session and clear cookies | Session-aware |
 
-- `GET /profile`
-- `PUT /profile`
-- `GET /items`
-- `POST /items`
-- `GET /reviews/next`
-- `POST /reviews/{item_id}`
-- `GET /recommendations`
-- `GET /progress`
+`GET /auth/me` returns:
+
+```json
+{
+  "authenticated": true,
+  "demo": false,
+  "read_only": false,
+  "user": {
+    "id": "uuid",
+    "display_name": "Learner",
+    "login": "github-login",
+    "avatar_url": "https://avatars.githubusercontent.com/..."
+  }
+}
+```
+
+The session bearer is an `HttpOnly` cookie. A separate readable CSRF cookie is echoed as `X-CSRF-Token` by the same-origin frontend for authenticated mutations. Demo sessions can read seeded learner data but receive `403 demo_read_only` on private mutations. Demo and logout POSTs require `application/json` and reject cross-site Origin/Fetch Metadata. Logout accepts an exact allow-listed Origin or, when Origin is absent, the active session's double-submit CSRF proof.
+
+OAuth start/callback and demo entry use a process-local per-client window plus a higher per-endpoint circuit breaker. Direct mode uses the raw ASGI peer; explicit Railway mode uses one valid Railway-overwritten `X-Real-IP`. `X-Forwarded-For` is never read. A limited response is `429` with `Retry-After`. Live OAuth states are also capped transactionally in PostgreSQL across all replicas.
+
+## Operations
+
+| Method | Route | Purpose |
+|---|---|---|
+| `GET` | `/health/live` | Process liveness; independent of PostgreSQL |
+| `GET` | `/health/ready` | Dictionary plus PostgreSQL/migration readiness |
+| `GET` | `/version` | Version, environment, storage mode and build commit |
+| `GET` | `/api/v1/health/live` | API-prefixed liveness alias |
+| `GET` | `/api/v1/health/ready` | API-prefixed readiness alias |
+| `GET` | `/api/v1/version` | API-prefixed version alias |
+| `GET` | `/api/v1/health` | Backward-compatible detailed application health |
+
+The hosting platform should route traffic only when `/health/ready` returns `200`. Monitoring should use `/health/live` to distinguish an unavailable dependency from a dead process.
+
+## Dashboard, profile and learning
+
+| Method | Route |
+|---|---|
+| `GET` | `/api/v1/dashboard` |
+| `GET` | `/api/v1/profile` |
+| `PUT` | `/api/v1/profile` |
+| `GET` | `/api/v1/items` |
+| `GET` | `/api/v1/items/{item_id}` |
+| `POST` | `/api/v1/items` |
+| `GET` | `/api/v1/reviews/next` |
+| `POST` | `/api/v1/reviews/{item_id}` |
+| `GET` | `/api/v1/recommendations` |
+| `GET` | `/api/v1/progress` |
+| `GET` | `/api/v1/export` |
+| `POST` | `/api/v1/bug-reports` |
+
+In cloud mode every operation resolves the authenticated tenant before accessing learner data. No client-provided user ID selects ownership. Authenticated mutations use a process-local per-user rate limit, and a serialized UTF-8 learner snapshot that would exceed the configured durable ceiling is rejected before persistence.
 
 ## Dictionary
 
-- `GET /dictionary/search?q=...`
-- `GET /dictionary/lookup?word=...`
-- `POST /dictionary/{entry_id}/learn`
+| Method | Route |
+|---|---|
+| `GET` | `/api/v1/dictionary/search?q=...` |
+| `GET` | `/api/v1/dictionary/lookup?word=...` |
+| `GET` | `/api/v1/dictionary/entries/{entry_id}` |
+| `GET` | `/api/v1/dictionary/stats` |
+| `POST` | `/api/v1/dictionary/{entry_id}/learn` |
+
+Dictionary reference data remains local/rebuildable SQLite data in both runtime modes. Adding an entry to a learner plan is tenant-owned and therefore authenticated.
 
 ## AI
 
-- `POST /ai/analyze`
-- `POST /ai/correct`
-- `POST /ai/exercises`
-- `POST /ai/dialogue`
-- `POST /ai/roleplay`
-- `POST /ai/weekly-plan`
-- `POST /ai/enrich-item`
+| Method | Route |
+|---|---|
+| `POST` | `/api/v1/ai/analyze` |
+| `POST` | `/api/v1/ai/correct` |
+| `POST` | `/api/v1/ai/exercises` |
+| `POST` | `/api/v1/ai/dialogue` |
+| `POST` | `/api/v1/ai/roleplay` |
+| `POST` | `/api/v1/ai/mission` |
+| `POST` | `/api/v1/ai/niqqud` |
+| `POST` | `/api/v1/ai/transliteration` |
+| `POST` | `/api/v1/ai/weekly-plan` |
+| `POST` | `/api/v1/ai/enrich-item` |
+
+Offline deterministic results require no external service. Online processing requires server configuration, `ALLOW_CLOUD_PROCESSING=true`, an explicit request with cloud consent and—in production cloud mode—a matching GitHub login or provider-ID allowlist entry. Cloud TTS/STT uses the same paid-provider gate.
 
 ## Audio
 
-- `POST /audio/tts`
-- `POST /audio/stt`
-- `POST /audio/pronunciation-score`
+| Method | Route |
+|---|---|
+| `POST` | `/api/v1/audio/tts` |
+| `POST` | `/api/v1/audio/stt` |
+| `POST` | `/api/v1/audio/pronunciation-score` |
 
-## Gamification
+Uploads are bounded by the request envelope, decoded file size and filename-extension allowlist. MIME and magic-byte validation are not claimed in 2.0. Audio and transcripts are excluded from structured request logs.
 
-- `GET /gamification/status`
-- `GET /achievements`
+## Gamification and missions
+
+| Method | Route |
+|---|---|
+| `GET` | `/api/v1/gamification/status` |
+| `GET` | `/api/v1/achievements` |
+| `POST` | `/api/v1/missions` |
+| `POST` | `/api/v1/missions/{mission_id}/complete` |
 
 ## Connectors
 
-- `GET /connectors`
-- `POST /connectors/ics/preview`
-- `POST /connectors/google/preview`
-- `POST /connectors/import`
+| Method | Route |
+|---|---|
+| `GET` | `/api/v1/connectors` |
+| `POST` | `/api/v1/connectors/ics/preview` |
+| `POST` | `/api/v1/connectors/google/preview` |
+| `POST` | `/api/v1/connectors/import` |
+
+Connector previews are read-only. Production Google previews require their own GitHub identity allowlist; local ICS preview does not. Import occurs only for explicitly selected phrases and remains blocked for the public demo.
+
+One import accepts at most 50 phrases and, in cloud mode, applies the selected batch in one locked tenant hydrate/mutate/snapshot transaction.
+
+## Error envelope
+
+```json
+{
+  "error": {
+    "code": "authentication_required",
+    "message": "Sign in with GitHub or enter the seeded demonstration.",
+    "request_id": "a-safe-correlation-id"
+  }
+}
+```
+
+Common status codes:
+
+| Status | Meaning |
+|---:|---|
+| `400` | Invalid operation or provider response |
+| `401` | Missing, expired or revoked session |
+| `403` | Demo mutation, CSRF/origin validation or production provider allowlist failed |
+| `404` | Tenant-owned entity does not exist for this user |
+| `413` | Declared or streamed request body exceeded the route ceiling |
+| `429` | Authentication window or global OAuth-state capacity was reached; honor `Retry-After` |
+| `422` | Strict request validation failed |
+| `503` | Required dependency is not ready |
+
+OpenAPI is generated from the running FastAPI application. It must not be treated as an authorization boundary; middleware applies the session, demo and CSRF rules before private route handlers run.

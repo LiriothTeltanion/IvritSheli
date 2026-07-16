@@ -7,6 +7,7 @@
 import type {
   AIResponse,
   ApiErrorShape,
+  AuthState,
   ConnectorState,
   Dashboard,
   DictionaryEntry,
@@ -17,6 +18,21 @@ import type {
 } from './types';
 
 const API_PREFIX = '/api/v1';
+export const AUTH_REQUIRED_EVENT = 'ivrit-sheli:authentication-required';
+let readOnlySession = false;
+
+const allowedReadOnlyWrites = new Set(['/auth/demo', '/auth/logout']);
+
+export function configureApiSession(session: Pick<AuthState, 'read_only'> | null): void {
+  readOnlySession = Boolean(session?.read_only);
+}
+
+function readCsrfCookie(): string {
+  if (typeof document === 'undefined') return '';
+  const prefix = 'ivrit_csrf=';
+  const cookie = document.cookie.split(';').map((entry) => entry.trim()).find((entry) => entry.startsWith(prefix));
+  return cookie ? decodeURIComponent(cookie.slice(prefix.length)) : '';
+}
 
 export class ApiError extends Error {
   readonly status: number;
@@ -35,23 +51,38 @@ export class ApiError extends Error {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const method = (init?.method ?? 'GET').toUpperCase();
+  const csrfToken = ['GET', 'HEAD', 'OPTIONS'].includes(method) ? '' : readCsrfCookie();
+  if (readOnlySession && !['GET', 'HEAD', 'OPTIONS'].includes(method) && !allowedReadOnlyWrites.has(path)) {
+    throw new ApiError(
+      'This seeded demonstration is read-only. Sign in with GitHub to save your own progress.',
+      403,
+      'demo_read_only',
+    );
+  }
+
   const response = await fetch(`${API_PREFIX}${path}`, {
     ...init,
+    credentials: 'include',
     headers: {
       Accept: 'application/json',
       ...(init?.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
+      ...(csrfToken ? { 'X-CSRF-Token': csrfToken } : {}),
       ...init?.headers,
     },
   });
 
   const contentType = response.headers.get('content-type') ?? '';
-  const payload = contentType.includes('application/json')
+  const payload = response.status !== 204 && contentType.includes('application/json')
     ? ((await response.json()) as T | ApiErrorShape)
     : undefined;
 
   if (!response.ok) {
     const errorPayload = payload as ApiErrorShape | undefined;
     const message = errorPayload?.error?.message ?? errorPayload?.detail ?? `Request failed (${response.status})`;
+    if (response.status === 401 && path !== '/auth/me' && typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent(AUTH_REQUIRED_EVENT, { detail: { message } }));
+    }
     throw new ApiError(
       message,
       response.status,
@@ -63,6 +94,9 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
+  authMe: (): Promise<AuthState> => request('/auth/me'),
+  startDemo: (): Promise<AuthState> => request('/auth/demo', { method: 'POST' }),
+  logout: (): Promise<AuthState> => request('/auth/logout', { method: 'POST' }),
   dashboard: (): Promise<Dashboard> => request('/dashboard'),
   profile: (): Promise<Profile> => request('/profile'),
   updateProfile: (profile: Partial<Profile>): Promise<Profile> =>
