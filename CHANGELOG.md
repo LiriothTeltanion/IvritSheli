@@ -11,7 +11,7 @@ No unreleased changes.
 ### Fixed
 
 - Railway deploy overlap and draining values now use the numeric TOML types required by Railway instead of rejected string values.
-- Docker cache mounts now carry stable explicit IDs required by Railway's Metal builder for the npm and pip layers.
+- Provider-bound Docker cache mounts were removed after live Railway Metal validation showed that cache IDs must embed a specific service identifier; normal Docker layers now preserve portable build caching.
 
 ### Changed
 
@@ -19,12 +19,12 @@ No unreleased changes.
 - The service-worker shell cache advanced to `ivrit-sheli-shell-v2.1.0`, ensuring installed clients retire the 2.0 shell after the release update.
 - The personal `KC ✦ LT` signature now uses a larger, lower punctuation-like star with a stronger blue glow; its canonical PNG and the social card were regenerated at their original dimensions.
 - Public architecture and social-preview artwork now present the current 2.1 release identity.
-- Package verification now guards both Railway TOML types and provider-compatible Docker cache mount IDs.
+- Package verification now guards both Railway TOML types and the portable no-service-bound-cache policy.
 
 ### Operations
 
 - The package remains deployment-ready for managed PostgreSQL and GitHub OAuth. A public URL is not claimed until TLS, readiness, version, persistence, OAuth, and structured-log checks pass against the live Railway service.
-- Package verification now parses `railway.toml` and rejects non-integer or unexpected deploy timing values, preventing the original initialization failure from recurring.
+- Package verification now parses `railway.toml`, rejects non-integer or unexpected deploy timing values, and prevents provider-bound cache mounts from re-entering the production Dockerfile.
 
 ## 2.0.0 — 2026-07-16
 
