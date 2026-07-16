@@ -187,6 +187,9 @@ def test_dictionary_is_linked_to_learning_collection(client: TestClient) -> None
 
 
 def test_ai_audio_and_connector_fallbacks_work_without_credentials(client: TestClient) -> None:
+    consent = client.put("/api/v1/profile", json={"cloud_consent": True})
+    assert consent.status_code == 200
+
     ai = client.post(
         "/api/v1/ai/correct",
         json={"payload": {"text": "אני  לומד"}, "cloud_requested": True},
@@ -201,6 +204,33 @@ def test_ai_audio_and_connector_fallbacks_work_without_credentials(client: TestC
 
     connectors = client.get("/api/v1/connectors")
     assert len(connectors.json()["connectors"]) == 4
+
+
+def test_client_pronunciation_claim_cannot_award_mastery_or_xp(client: TestClient) -> None:
+    created = client.post("/api/v1/items", json={"hebrew_text": "שלום"})
+    assert created.status_code == 201
+    item_id = created.json()["id"]
+    xp_before = client.get("/api/v1/gamification/status").json()["xp"]["total"]
+
+    scored = client.post(
+        "/api/v1/audio/pronunciation-score",
+        json={
+            "target_text": "שלום",
+            "transcript": "שלום",
+            "item_id": item_id,
+            "provider": "openai",
+        },
+    )
+
+    assert scored.status_code == 200
+    assert scored.json()["score"] == 100
+    assert scored.json()["linked_item_id"] == item_id
+    assert scored.json()["evidence_verified"] is False
+    assert scored.json()["learning_updated"] is False
+    assert scored.json()["mastery"] is None
+    assert scored.json()["xp_awarded"] == 0
+    assert client.get("/api/v1/gamification/status").json()["xp"]["total"] == xp_before
+    assert client.get("/api/v1/progress").json()["modalities"] == []
 
 
 def test_mission_bug_report_and_export(client: TestClient) -> None:

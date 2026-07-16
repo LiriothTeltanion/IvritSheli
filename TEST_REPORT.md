@@ -1,20 +1,20 @@
-# Ivrit Sheli Ultimate 2.1.0 — Verification Report
+# Ivrit Sheli Ultimate 2.1.1 — Verification Report
 
 **Verification date:** 2026-07-16
 
 **Time zone:** Asia/Jerusalem
 
-**Release:** 2.1.0
+**Release:** 2.1.1 release candidate
 
 ## Result
 
-The local-first application, production-shaped PostgreSQL/Compose path, and public Railway service are green within the evidence boundaries below. The live 2.1 service exposes HTTPS health and immutable version endpoints, reports PostgreSQL readiness, serves the seeded read-only demo, and emits structured startup/health logs. GitHub OAuth reaches consent and safely handles cancellation; final authorization-code exchange remains pending in a normal browser.
+The 2.1.1 local-first application, real PostgreSQL integration path, and production-shaped Compose image are green within the evidence boundaries below. Visible browser QA also passes for the corrected review, modal, reduced-motion, and Hebrew RTL behavior. The public Railway service remains the separately verified 2.1.0 deployment; no 2.1.1 tag or live deployment is claimed by this report.
 
 | Verification area | Result |
 |---|---:|
-| Unique backend automated tests | **110 passed** |
-| Frontend automated tests | **17 passed** |
-| Total unique automated tests | **127 passed** |
+| Unique backend automated tests | **127 passed** |
+| Frontend automated tests | **21 passed** |
+| Total unique automated tests | **149 passed** |
 | Ruff Python lint | Passed |
 | MyPy strict type check | Passed across 24 source files |
 | Python bytecode compilation | Passed |
@@ -26,15 +26,16 @@ The local-first application, production-shaped PostgreSQL/Compose path, and publ
 | Python runtime dependency audit | 0 known vulnerabilities |
 | npm production dependency audit | 0 known vulnerabilities |
 | Package structure/asset verifier | 52 required files passed |
+| Local candidate identity | `2.1.1` / `development` |
 | Railway HTTPS application | Passed |
-| Live release identity | `2.1.0` / `production` |
+| Current live release identity | `2.1.0` / `production` |
 | Live PostgreSQL readiness | Passed |
 | Live seeded demo workspace | Passed |
 | Production GitHub OAuth | Partial — consent and cancellation verified; code exchange pending |
 
 ### How the backend total is counted
 
-The ordinary backend command reports `109 passed, 1 skipped`. The skipped case is the credential-gated real PostgreSQL test. The dedicated PostgreSQL job runs the three tests in `test_postgres_integration.py`: two are already included in the ordinary 109, and the real database case replaces the one skip. Therefore the unique backend baseline is **110**, not 109, 112, or a sum that double-counts the two shared tests.
+The ordinary backend command reports `127 passed, 1 skipped`. The skipped case is the credential-gated real PostgreSQL test. The dedicated PostgreSQL job runs the three tests in `test_postgres_integration.py`: two are already included in the ordinary 127, and the real database case replaces the one skip. Therefore the unique backend baseline is **128**, without double-counting the two shared tests.
 
 ## Verified environment
 
@@ -66,7 +67,7 @@ Result:
 ```text
 All checks passed!
 Success: no issues found in 24 source files
-109 passed, 1 PostgreSQL-environment skip
+127 passed, 1 PostgreSQL-environment skip
 ```
 
 The run emitted one non-failing upstream Starlette deprecation warning about its current TestClient/httpx integration. It did not affect behavior or results.
@@ -119,16 +120,16 @@ npm run build
 Result:
 
 ```text
-7 test files passed
-17 tests passed
+9 test files passed
+21 tests passed
 Production build succeeded
-JavaScript: 310.99 kB before gzip / 92.79 kB gzip
-CSS: 66.07 kB before gzip / 13.53 kB gzip
+JavaScript: 313.32 kB before gzip / 93.68 kB gzip
+CSS: 66.27 kB before gzip / 13.57 kB gzip
 ```
 
-Covered UI behavior includes authentication and read-only-demo gates, CSRF-aware API requests, clickable Hebrew, direction switching, offline AI rendering, dictionary navigation, audio fallback, responsive application flows, and error/session handling.
+Covered UI behavior includes authentication and read-only-demo gates, CSRF-aware API requests, clickable Hebrew, direction switching, offline AI rendering, dictionary navigation, audio MIME/provider/item propagation, accessible modal lifecycle, review-face isolation, responsive application flows, and error/session handling.
 
-Rendered browser QA also passed at 1270×714 desktop, 390×700 mobile, English, Spanish, and Hebrew RTL. Every main dashboard view loaded without console errors or horizontal overflow; the read-only controls remained disabled; and emulated `prefers-reduced-motion: reduce` left zero non-trivial CSS animation or transition durations.
+Rendered 2.1.1 browser QA confirmed that quick capture initially focuses its Hebrew field, Escape closes it, body scrolling is restored, and focus returns to the opener. The dictionary dialog exposes its labelled modal content and the same close/restore behavior. Review grading buttons have a count of zero before answer reveal and appear only afterward. Emulated `prefers-reduced-motion: reduce` displays only the active face with no transform, and Hebrew mode sets `lang="he"`, `dir="rtl"`, and produces zero horizontal overflow. The browser console contained no errors.
 
 ### Dependency audits
 
@@ -151,15 +152,15 @@ The package verifier confirmed 52 required files and packaged assets. The rebuil
 
 - `/health/live` reports `alive`.
 - `/health/ready` reports `ready` with PostgreSQL `true`.
-- `/version` reports `2.1.0` and PostgreSQL storage.
+- `/version` reports `2.1.1` and PostgreSQL storage.
 - The application runs as UID `10001`.
 - `MIGRATION_DATABASE_URL` is absent from the Uvicorn process.
 - Re-running the provisioner succeeds idempotently.
 - Container logs are structured JSON and the secret-sentinel verifier passes.
 
-These checks exercise a local production-shaped image and PostgreSQL stack at `127.0.0.1`; the separate live-production record below verifies only the explicitly listed Railway behaviors.
+These checks exercise the 2.1.1 local production-shaped image and PostgreSQL stack at `127.0.0.1`; the separate live-production record below verifies only the explicitly listed 2.1.0 Railway behaviors.
 
-## Live Railway verification
+## Current public Railway verification — 2.1.0
 
 - Public URL: https://ivritsheli-production.up.railway.app
 - `/health/live`: HTTPS `200`, status `alive`, release `2.1.0`.
@@ -172,7 +173,7 @@ These checks exercise a local production-shaped image and PostgreSQL stack at `1
 
 ## AI and dictionary contract coverage
 
-All exposed offline AI tasks are parameterized and schema-contract tested. The OpenAI adapter uses deterministic HTTP fakes to verify the Responses API payload, configured model, strict JSON Schema output, redaction, fallback behavior, and provider metadata.
+All exposed offline AI tasks are parameterized and schema-contract tested. The OpenAI adapter uses deterministic HTTP fakes to verify the Responses API payload, configured model, strict JSON Schema output, redaction, fallback behavior, provider metadata, and stored-consent enforcement before provider work. Audio tests cover MIME-derived upload names, provider/item propagation, history-only client transcript scoring, the separately trusted atomic speaking-progress path, and rollback when explicit linking is invalid.
 
 Dictionary tests cover demo seeding, niqqud-insensitive and inflected-form lookup, English/Spanish search, root families, streaming JSONL import, malformed-record tolerance, and source/license attribution. The package includes the attributed demo lexicon plus the importer; it does not falsely embed or label a complete external Kaikki/Wiktionary dataset.
 

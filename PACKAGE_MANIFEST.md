@@ -1,9 +1,9 @@
-# Ivrit Sheli Ultimate 2.1.0 — Package Manifest
+# Ivrit Sheli Ultimate 2.1.1 — Package Manifest
 
 ## Release identity
 
 - Product: Ivrit Sheli Ultimate — העברית שלי
-- Release: 2.1.0
+- Release: 2.1.1 release candidate
 - Date: 2026-07-16
 - Time zone: Asia/Jerusalem
 - Author: Kevin “Lirioth” Cusnir
@@ -22,6 +22,7 @@
 - GitHub OAuth with state, PKCE, hashed server-side sessions, CSRF protection, and a read-only demo.
 - Alembic migrations, forced tenant RLS, and separate administrator/runtime database identities.
 - Learning repository and JSON export.
+- Ordered, atomic, idempotent SQLite migrations with legacy adoption, rollback, and newer-schema rejection.
 - Adaptive scheduler.
 - Mastery and personalization engine.
 - Explainable recommendation engine.
@@ -30,6 +31,7 @@
 - Offline structured AI coach.
 - OpenAI Responses/Embeddings adapter.
 - Browser/OpenAI audio service contracts.
+- Stored-consent enforcement before cloud AI/TTS/STT processing, unverified transcript isolation, and an atomic server-verified pronunciation-progress path.
 - ICS and read-only Google connector adapters.
 - Redacted structured JSON logs, request IDs, structured errors, local bug reports, and doctor command.
 - Bounded request bodies, layered per-client/global authentication throttling, per-user write/session caps, a 4 MiB cloud-snapshot ceiling, a durable OAuth-state cap, and batched connector imports.
@@ -47,6 +49,7 @@
 - Custom SVG icon system and achievement badges.
 - Animated dashboard, review, AI, dictionary, audio, progress, connector, and settings experiences.
 - Reduced-motion support.
+- Keyboard- and screen-reader-safe review faces plus focus-trapped, Escape-closeable, opener-restoring dialogs.
 - Installable PWA manifest, 192/512 icons, and privacy-safe shell service worker.
 
 ### Operations
@@ -55,7 +58,7 @@
 - Windows one-click daily launcher plus PowerShell setup and development scripts.
 - Multi-stage non-root Dockerfile and a PostgreSQL Docker Compose integration stack with digest-pinned base images.
 - GitHub Actions CI with local-first, real-PostgreSQL, production-image, CodeQL, and dependency-update gates.
-- Railway deployment configuration verified against the live 2.1 production service, with a separate pre-deploy provisioner, readiness probe, schema-compatible numeric deploy timing controls, and a portable Docker layer-cache policy.
+- Railway deployment configuration retained from the verified live 2.1.0 production service, with a separate pre-deploy provisioner, readiness probe, schema-compatible numeric deploy timing controls, and a portable Docker layer-cache policy.
 - Environment template.
 - Security, contribution, deployment, third-party, and test documentation.
 
@@ -79,19 +82,20 @@ No live, personal, or provider credentials are included. The repository contains
 
 ## Verification summary
 
-- Unique backend tests: 110 passed. The local suite reports 109 passed plus one credential-gated skip; the dedicated PostgreSQL job runs three tests, two already counted locally, and supplies the one additional unique pass.
-- Frontend tests: 17 passed across 7 files.
-- Total unique automated tests: 127 passed.
+- Unique backend tests: 128 passed. The local suite reports 127 passed plus one credential-gated skip; the dedicated PostgreSQL job runs three tests, two already counted locally, and supplies the one additional unique pass.
+- Frontend tests: 21 passed across 9 files.
+- Total unique automated tests: 149 passed.
 - Python Ruff: passed.
 - Python MyPy strict: passed across 24 source files.
 - TypeScript type check: passed.
 - Production frontend build: passed.
+- Visible review, dialog, reduced-motion, Hebrew RTL, focus-restoration, and console-error QA: passed.
 - Offline doctor: passed.
 - Real PostgreSQL 17 migration, restricted-role, session, RLS, and tenant-isolation gate: passed.
 - Local production-image Compose health and structured-log smoke: passed.
 - pip-audit and npm production audit: 0 known vulnerabilities on 2026-07-16.
 - Package asset/link verifier: 52 required files passed.
 
-The public Railway URL, HTTPS application, production identity, PostgreSQL readiness, seeded demo workspace, OAuth consent handoff/cancellation, and structured startup/health logs are verified for release `2.1.0`. The final GitHub authorization-code exchange and authenticated session were not completed because GitHub's anti-fraud protection disabled approval in the embedded test browser. No live OpenAI/Google provider calls or managed backup/restore drill is claimed.
+The local 2.1.1 candidate passes the reproducible verification listed above. The public Railway URL, HTTPS application, production identity, PostgreSQL readiness, seeded demo workspace, OAuth consent handoff/cancellation, and structured startup/health logs remain verified for the currently deployed release `2.1.0`; 2.1.1 is not claimed as deployed or tagged. The final GitHub authorization-code exchange and authenticated session were not completed because GitHub's anti-fraud protection disabled approval in the embedded test browser. No live OpenAI/Google provider calls or managed backup/restore drill is claimed.
 
 See `TEST_REPORT.md` for exact commands and limitations.

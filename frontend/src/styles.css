@@ -407,7 +407,8 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .audio-target { margin: 28px auto; max-width: 780px; text-align: center; }
 .audio-hebrew { margin: 24px 0 10px; font: 700 clamp(38px, 6vw, 70px)/1.35 var(--font-hebrew); }
 .waveform { height: 52px; display: flex; align-items: center; justify-content: center; gap: 4px; }
-.waveform i { width: 3px; height: 18%; border-radius: 99px; background: linear-gradient(var(--teal), var(--blue)); animation: waveBar 1.4s ease-in-out infinite alternate; }
+.waveform i { width: 3px; height: 18%; border-radius: 99px; background: linear-gradient(var(--teal), var(--blue)); animation: waveBar 1.4s ease-in-out infinite alternate; animation-play-state: paused; }
+.waveform.is-active i { animation-play-state: running; }
 .waveform i:nth-child(3n) { height: 48%; }
 .waveform i:nth-child(4n) { height: 78%; }
 .audio-controls { margin: 20px auto 30px; display: flex; justify-content: center; align-items: center; gap: clamp(18px, 5vw, 52px); }
@@ -651,9 +652,10 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
-  .review-card-inner.is-revealed { transform: none; }
-  .review-front { display: none; }
-  .review-back { transform: none; }
+  .review-card-inner, .review-card-inner.is-revealed { transform: none; }
+  .review-card-inner .review-back { display: none; transform: none; }
+  .review-card-inner.is-revealed .review-front { display: none; }
+  .review-card-inner.is-revealed .review-back { display: flex; }
 }
 
 /* Root chips are interactive dictionary-family links, not decorative labels. */

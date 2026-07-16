@@ -103,29 +103,33 @@ export function ReviewCard({ active, onWordClick, onReviewed }: ReviewCardProps)
       </header>
       {readOnly && <div className="demo-inline-notice" role="note"><Icon name="shield" size={16} /> {t('demoReviewNotice')}</div>}
       <div className={`review-card-inner ${revealed ? 'is-revealed' : ''}`}>
-        <div className="review-face review-front">
+        <div className="review-face review-front" aria-hidden={revealed}>
           <span className="context-pill">{label(item.context_label)}</span>
           <HebrewText
             text={item.hebrew_with_niqqud || item.hebrew_text}
-            onWordClick={onWordClick}
+            {...(!revealed ? { onWordClick } : {})}
             className="review-hebrew"
             as="h2"
           />
           {item.transliteration && <p className="review-transliteration" dir="ltr">{item.transliteration}</p>}
-          <button type="button" className="primary-button review-reveal" onClick={() => setRevealed(true)}>
-            <Icon name="play" size={18} /> {t('showAnswer')}
-          </button>
+          {!revealed && (
+            <button type="button" className="primary-button review-reveal" onClick={() => setRevealed(true)}>
+              <Icon name="play" size={18} /> {t('showAnswer')}
+            </button>
+          )}
         </div>
         <div className="review-face review-back" aria-hidden={!revealed}>
           <span className="context-pill">{t('meaning')}</span>
           <p className="review-meaning">{translation || t('missingMeaning')}</p>
-          <HebrewText text={item.hebrew_text} onWordClick={onWordClick} className="review-answer" as="p" />
-          <div className="grade-buttons">
-            <button type="button" className="grade grade--again" disabled={readOnly || submitting} title={readOnly ? readOnlyReason : undefined} onClick={() => { void grade('again'); }}>{t('again')}</button>
-            <button type="button" className="grade grade--hard" disabled={readOnly || submitting} title={readOnly ? readOnlyReason : undefined} onClick={() => { void grade('difficult'); }}>{t('difficult')}</button>
-            <button type="button" className="grade grade--good" disabled={readOnly || submitting} title={readOnly ? readOnlyReason : undefined} onClick={() => { void grade('good'); }}>{t('good')}</button>
-            <button type="button" className="grade grade--easy" disabled={readOnly || submitting} title={readOnly ? readOnlyReason : undefined} onClick={() => { void grade('easy'); }}>{t('easy')}</button>
-          </div>
+          <HebrewText text={item.hebrew_text} {...(revealed ? { onWordClick } : {})} className="review-answer" as="p" />
+          {revealed && (
+            <div className="grade-buttons">
+              <button type="button" className="grade grade--again" disabled={readOnly || submitting} title={readOnly ? readOnlyReason : undefined} onClick={() => { void grade('again'); }}>{t('again')}</button>
+              <button type="button" className="grade grade--hard" disabled={readOnly || submitting} title={readOnly ? readOnlyReason : undefined} onClick={() => { void grade('difficult'); }}>{t('difficult')}</button>
+              <button type="button" className="grade grade--good" disabled={readOnly || submitting} title={readOnly ? readOnlyReason : undefined} onClick={() => { void grade('good'); }}>{t('good')}</button>
+              <button type="button" className="grade grade--easy" disabled={readOnly || submitting} title={readOnly ? readOnlyReason : undefined} onClick={() => { void grade('easy'); }}>{t('easy')}</button>
+            </div>
+          )}
         </div>
       </div>
       {message && <div className="floating-feedback">{message}</div>}

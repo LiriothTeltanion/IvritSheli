@@ -52,7 +52,7 @@ from ivrit_sheli.cloud_store import (
 from ivrit_sheli.config import Settings
 from ivrit_sheli.connectors import ConnectorError, ConnectorService, ContextPreview
 from ivrit_sheli.database import Database
-from ivrit_sheli.dictionary import DictionaryStore
+from ivrit_sheli.dictionary import DICTIONARY_SCHEMA_VERSION, DictionaryStore
 from ivrit_sheli.gamification import XPAction
 from ivrit_sheli.repository import LearningRepository
 from ivrit_sheli.request_limits import (
@@ -104,6 +104,10 @@ NO_STORE_OPERATIONAL_PATHS = frozenset({"/health/live", "/health/ready", "/versi
 
 class CloudFeatureForbiddenError(RuntimeError):
     """Raised when a production-cloud identity is outside a provider allowlist."""
+
+
+class CloudConsentRequiredError(RuntimeError):
+    """Raised when a learner requests cloud processing without stored consent."""
 
 
 class AuthRequestSafetyError(RuntimeError):
@@ -602,6 +606,56 @@ def _require_production_cloud_feature(
     raise CloudFeatureForbiddenError(f"{label} access is disabled for this production identity.")
 
 
+def _require_cloud_processing_consent(
+    repository: LearningRepository | CloudLearningRepository,
+    operation: str,
+) -> None:
+    """Fail closed before learner content can leave the local application boundary."""
+    profile = repository.get_profile()
+    if bool(profile.get("cloud_consent", 0)):
+        return
+    raise CloudConsentRequiredError(
+        f"Cloud processing consent is required before using {operation}. "
+        "Enable it in Settings, or choose the local option."
+    )
+
+
+def _dictionary_readiness(container: Services) -> dict[str, Any]:
+    """Validate that the dictionary schema and learner-facing data are usable."""
+    mode = "shared_cloud" if container.settings.cloud_mode else "device_local"
+    details: dict[str, Any] = {
+        "ready": False,
+        "mode": mode,
+        "required": True,
+        "entries": 0,
+        "senses": 0,
+        "schema_version": None,
+        "expected_schema_version": DICTIONARY_SCHEMA_VERSION,
+    }
+    try:
+        stats = container.dictionary.stats()
+        metadata = stats.get("metadata", {})
+        schema_version = int(metadata.get("schema_version", -1))
+        entries = int(stats.get("entries", 0))
+        senses = int(stats.get("senses", 0))
+        details.update(
+            {
+                "entries": entries,
+                "senses": senses,
+                "schema_version": schema_version,
+                "ready": (
+                    schema_version == DICTIONARY_SCHEMA_VERSION
+                    and entries >= 1
+                    and senses >= 1
+                ),
+            }
+        )
+    except (KeyError, TypeError, ValueError, sqlite3.Error):
+        # Readiness is intentionally fail-closed and contains no database error details.
+        pass
+    return details
+
+
 def _is_private_api_path(path: str) -> bool:
     """Identify learner API routes while leaving auth and operational probes public."""
     if not path.startswith(f"{API_PREFIX}/"):
@@ -828,10 +882,8 @@ def register_routes(app: FastAPI) -> None:
 
     def ready_payload(request: Request) -> Any:
         container = services(request)
-        try:
-            dictionary_ready = container.dictionary.stats()["entries"] >= 0
-        except sqlite3.Error:
-            dictionary_ready = False
+        dictionary_check = _dictionary_readiness(container)
+        dictionary_ready = bool(dictionary_check["ready"])
         database_ready = container.cloud_store.ready() if container.settings.cloud_mode else True
         ready = dictionary_ready and database_ready
         return JSONResponse(
@@ -841,6 +893,7 @@ def register_routes(app: FastAPI) -> None:
                 "version": __version__,
                 "checks": {
                     "dictionary": dictionary_ready,
+                    "dictionary_details": dictionary_check,
                     "postgresql": database_ready
                     if container.settings.cloud_mode
                     else "not_configured",
@@ -1023,9 +1076,10 @@ def register_routes(app: FastAPI) -> None:
         """Create an endpoint closure for one structured AI task."""
 
         def handler(request: Request, body: AITaskPayload) -> dict[str, Any]:
+            repository = repository_for(request)
             if body.cloud_requested:
                 _require_production_cloud_feature(request, "cloud_ai")
-            repository = repository_for(request)
+                _require_cloud_processing_consent(repository, "cloud AI text")
             context = {**profile_ai_context(repository), **body.learner_context}
             if isinstance(repository, CloudLearningRepository):
                 return repository.run_with_database(
@@ -1053,9 +1107,10 @@ def register_routes(app: FastAPI) -> None:
 
     @app.post(f"{API_PREFIX}/audio/tts")
     def tts(request: Request, payload: TTSPayload) -> dict[str, Any]:
+        repository = repository_for(request)
         if payload.cloud_requested:
             _require_production_cloud_feature(request, "cloud_ai")
-        repository = repository_for(request)
+            _require_cloud_processing_consent(repository, "cloud text-to-speech")
         if isinstance(repository, CloudLearningRepository):
             if payload.retain:
                 raise ValueError(
@@ -1084,8 +1139,10 @@ def register_routes(app: FastAPI) -> None:
         cloud_requested: Annotated[bool, Query()] = False,
         language: Annotated[str, Query(max_length=10)] = "he",
     ) -> dict[str, Any]:
+        repository = repository_for(request)
         if cloud_requested:
             _require_production_cloud_feature(request, "cloud_ai")
+            _require_cloud_processing_consent(repository, "cloud speech-to-text")
         suffix = Path(file.filename or "recording.webm").suffix.lower() or ".webm"
         temporary = (
             services(request).settings.data_dir / "private" / f"upload-{uuid4().hex}{suffix}"
@@ -1098,7 +1155,6 @@ def register_routes(app: FastAPI) -> None:
                     if written > MAX_AUDIO_BYTES:
                         raise ValueError("Audio upload exceeds 25 MB")
                     handle.write(chunk)
-            repository = repository_for(request)
             if isinstance(repository, CloudLearningRepository):
                 return repository.run_with_database(
                     lambda database: AudioService(services(request).settings, database).transcribe(
@@ -1126,6 +1182,7 @@ def register_routes(app: FastAPI) -> None:
                     payload.transcript,
                     item_id=payload.item_id,
                     provider=payload.provider,
+                    verified_speech_evidence=False,
                 ),
                 write=True,
             )
@@ -1134,6 +1191,7 @@ def register_routes(app: FastAPI) -> None:
             payload.transcript,
             item_id=payload.item_id,
             provider=payload.provider,
+            verified_speech_evidence=False,
         )
 
     @app.get(f"{API_PREFIX}/gamification/status")
@@ -1356,6 +1414,17 @@ def register_error_handlers(app: FastAPI, settings: Settings) -> None:
             request,
             403,
             "cloud_feature_not_allowed",
+            str(error),
+        )
+
+    @app.exception_handler(CloudConsentRequiredError)
+    async def cloud_consent_required(
+        request: Request, error: CloudConsentRequiredError
+    ) -> JSONResponse:
+        return error_response(
+            request,
+            403,
+            "cloud_consent_required",
             str(error),
         )
 

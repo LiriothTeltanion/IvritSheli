@@ -57,7 +57,7 @@
       <rect width="218" height="66" rx="18" fill="#171d43" stroke="#a36cff" stroke-opacity=".75"/>
       <path d="M20 23h22v22H20zM24 18h14M24 50h14" fill="none" stroke="#bd8aff" stroke-width="3"/>
       <text x="54" y="28" fill="#edf7ff" font-family="Inter,Arial,sans-serif" font-size="17" font-weight="800">Docker + CI</text>
-      <text x="54" y="48" fill="#91a8cb" font-family="Inter,Arial,sans-serif" font-size="13">127 tests · non-root image</text>
+      <text x="54" y="48" fill="#91a8cb" font-family="Inter,Arial,sans-serif" font-size="13">149 tests · non-root image</text>
     </g>
   </g>
 

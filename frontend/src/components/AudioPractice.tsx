@@ -4,7 +4,7 @@
 // Date: 2026-07-15 | TZ: Asia/Jerusalem
 // Notes: Comments in ENGLISH; emojis sparingly.
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { api } from '../api';
 import { useI18n } from '../i18n';
 import { useSessionAccess } from '../session';
@@ -32,9 +32,11 @@ type SpeechWindow = Window & {
 
 export function AudioPractice({
   initialText = 'אני עדיין לומד עברית',
+  itemId,
   onWordClick,
 }: {
   initialText?: string;
+  itemId?: number;
   onWordClick: (word: string) => void;
 }): React.JSX.Element {
   const { label, t } = useI18n();
@@ -50,6 +52,25 @@ export function AudioPractice({
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<BlobPart[]>([]);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const transcriptProviderRef = useRef('manual');
+
+  useEffect(() => () => {
+    recognitionRef.current?.stop();
+    recognitionRef.current = null;
+    const recorder = recorderRef.current;
+    if (recorder) {
+      recorder.ondataavailable = null;
+      recorder.onstop = null;
+      if (recorder.state === 'recording') recorder.stop();
+    }
+    recorderRef.current = null;
+    streamRef.current?.getTracks().forEach((track) => track.stop());
+    streamRef.current = null;
+    audioRef.current?.pause();
+    audioRef.current = null;
+    window.speechSynthesis?.cancel();
+  }, []);
 
   const speakBrowser = (text: string): void => {
     if (!('speechSynthesis' in window)) {
@@ -74,7 +95,12 @@ export function AudioPractice({
     try {
       const response = await api.tts(target, cloud);
       if (response.audio_base64) {
+        audioRef.current?.pause();
         const audio = new Audio(`data:${response.mime_type ?? 'audio/mpeg'};base64,${response.audio_base64}`);
+        audioRef.current = audio;
+        audio.onended = () => {
+          if (audioRef.current === audio) audioRef.current = null;
+        };
         await audio.play();
       } else {
         speakBrowser(target);
@@ -112,7 +138,10 @@ export function AudioPractice({
       stopMediaStream();
       setRecording(false);
       void api.transcribeAudio(blob, true)
-        .then((response) => setTranscript(response.transcript))
+        .then((response) => {
+          transcriptProviderRef.current = response.provider;
+          setTranscript(response.transcript);
+        })
         .catch((reason: unknown) => setError(reason instanceof Error ? reason.message : String(reason)));
     };
     recorder.start(250);
@@ -135,6 +164,7 @@ export function AudioPractice({
         next += event.results[index]?.[0]?.transcript ?? '';
       }
       setTranscript(next.trim());
+      transcriptProviderRef.current = 'browser';
     };
     recognition.onerror = (event) => {
       setError(t('speechRecognitionFailed', { error: event.error ?? t('unknownError') }));
@@ -170,7 +200,12 @@ export function AudioPractice({
   const scoreAttempt = async (): Promise<void> => {
     setError('');
     try {
-      const result = await api.pronunciationScore(target, transcript);
+      const result = await api.pronunciationScore(
+        target,
+        transcript,
+        itemId,
+        transcriptProviderRef.current,
+      );
       setScore(result);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : String(reason));
@@ -209,7 +244,7 @@ export function AudioPractice({
           <input dir="rtl" lang="he" value={target} onChange={(event) => setTarget(event.target.value)} />
         </label>
         <HebrewText text={target} onWordClick={onWordClick} className="audio-hebrew" as="p" />
-        <div className="waveform" aria-hidden="true">
+        <div className={`waveform ${recording || loadingVoice ? 'is-active' : ''}`} aria-hidden="true">
           {Array.from({ length: 22 }, (_, index) => <i key={index} style={{ animationDelay: `${index * 45}ms` }} />)}
         </div>
       </div>
@@ -232,7 +267,16 @@ export function AudioPractice({
 
       <label className="field transcript-field">
         <span>{t('transcript')}</span>
-        <textarea dir="rtl" lang="he" value={transcript} onChange={(event) => setTranscript(event.target.value)} placeholder="התמלול יופיע כאן…" />
+        <textarea
+          dir="rtl"
+          lang="he"
+          value={transcript}
+          onChange={(event) => {
+            transcriptProviderRef.current = 'manual';
+            setTranscript(event.target.value);
+          }}
+          placeholder="התמלול יופיע כאן…"
+        />
       </label>
       {error && <div className="inline-error">{error}</div>}
 

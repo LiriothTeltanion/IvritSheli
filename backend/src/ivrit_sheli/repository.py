@@ -28,6 +28,8 @@ from ivrit_sheli.personalization import MasteryState, focus_summary, update_mast
 from ivrit_sheli.recommendation import RecommendationCandidate, rank_candidates
 from ivrit_sheli.scheduler import ReviewState, review_urgency, schedule_review
 
+PRONUNCIATION_MASTERY_THRESHOLD = 70
+
 
 def utc_now() -> datetime:
     """Return the current UTC timestamp.
@@ -273,7 +275,7 @@ class LearningRepository:
                 connection.close()
 
     def next_reviews(self, limit: int = 10) -> list[dict[str, Any]]:
-        """Return due and near-due reviews in priority order.
+        """Return reviews that are due now in priority order.
 
         Args:
             limit: Maximum review count.
@@ -297,10 +299,11 @@ class LearningRepository:
                 FROM review_state r
                 JOIN learning_items i ON i.id = r.item_id
                 WHERE i.archived_at IS NULL
+                  AND r.due_at <= ?
                 ORDER BY r.due_at ASC, i.priority DESC
                 LIMIT ?
                 """,
-                (limit,),
+                (iso_now(), limit),
             ).fetchall()
             return [dict(row) for row in rows]
         finally:
@@ -402,48 +405,15 @@ class LearningRepository:
                 ),
             )
 
-            concept_key = f"item:{item_id}"
-            mastery_row = connection.execute(
-                "SELECT * FROM skill_mastery WHERE concept_key = ?", (concept_key,)
-            ).fetchone()
-            previous_mastery = MasteryState(
-                recognition=float(mastery_row["recognition"]) if mastery_row else 0.0,
-                production=float(mastery_row["production"]) if mastery_row else 0.0,
-                listening=float(mastery_row["listening"]) if mastery_row else 0.0,
-                speaking=float(mastery_row["speaking"]) if mastery_row else 0.0,
-                observations=int(mastery_row["observations"]) if mastery_row else 0,
-            )
-            mastery = update_mastery(
-                previous_mastery,
+            mastery = self._update_item_mastery(
+                connection,
+                item_id=item_id,
                 modality=modality,
                 is_correct=is_correct,
                 confidence=confidence,
                 response_ms=response_ms,
                 hints_used=hints_used,
-            )
-            connection.execute(
-                """
-                INSERT INTO skill_mastery(
-                    concept_key, concept_type, recognition, production,
-                    listening, speaking, observations, updated_at
-                ) VALUES(?, 'learning_item', ?, ?, ?, ?, ?, ?)
-                ON CONFLICT(concept_key) DO UPDATE SET
-                    recognition = excluded.recognition,
-                    production = excluded.production,
-                    listening = excluded.listening,
-                    speaking = excluded.speaking,
-                    observations = excluded.observations,
-                    updated_at = excluded.updated_at
-                """,
-                (
-                    concept_key,
-                    mastery.recognition,
-                    mastery.production,
-                    mastery.listening,
-                    mastery.speaking,
-                    mastery.observations,
-                    now,
-                ),
+                updated_at=now,
             )
 
             xp_before = self._total_xp(connection)
@@ -498,6 +468,147 @@ class LearningRepository:
             "xp_awarded": xp_after - xp_before,
             "xp": level_progress(xp_after),
             "new_achievements": [asdict(item) for item in newly_unlocked],
+        }
+
+    def record_pronunciation_attempt(
+        self,
+        *,
+        target_text: str,
+        transcript: str,
+        score: int,
+        breakdown: dict[str, Any],
+        provider: str,
+        item_id: int | None = None,
+        retained_path: str | None = None,
+        verified_speech_evidence: bool = False,
+    ) -> dict[str, Any]:
+        """Atomically store pronunciation history and trusted learning signals.
+
+        An explicit item link must match the target text. Without an explicit link,
+        exactly one active item with the same normalized Hebrew text is linked
+        automatically. Client-supplied transcripts remain history-only; only
+        server-verified speech evidence may change mastery or XP.
+        """
+        if not 0 <= score <= 100:
+            raise ValueError("Pronunciation score must be between 0 and 100")
+        normalized_target = normalize_hebrew(target_text)
+        if not normalized_target:
+            raise ValueError("Pronunciation target must contain Hebrew text")
+
+        now = iso_now()
+        provider_name = provider.strip() or "unknown"
+        stored_provider = (
+            provider_name
+            if verified_speech_evidence
+            else f"unverified:{provider_name.removeprefix('unverified:')}"
+        )
+        with self.database.transaction() as connection:
+            linked_item_id = self._resolve_pronunciation_item(
+                connection,
+                normalized_target=normalized_target,
+                requested_item_id=item_id,
+            )
+            learning_eligible = linked_item_id is not None and verified_speech_evidence
+            cursor = connection.execute(
+                """
+                INSERT INTO audio_attempts(
+                    item_id, target_text, transcript, score, breakdown_json,
+                    provider, retained_path, created_at
+                ) VALUES(?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    linked_item_id,
+                    target_text,
+                    transcript,
+                    score,
+                    json.dumps(breakdown, ensure_ascii=False),
+                    stored_provider,
+                    retained_path,
+                    now,
+                ),
+            )
+            attempt_id_raw = cursor.lastrowid
+            if attempt_id_raw is None:
+                raise sqlite3.DatabaseError("SQLite did not return an audio attempt ID")
+            attempt_id = int(attempt_id_raw)
+
+            xp_before = self._total_xp(connection)
+            mastery: MasteryState | None = None
+            newly_unlocked: list[Any] = []
+            is_correct: bool | None = None
+            if learning_eligible:
+                assert linked_item_id is not None
+                is_correct = score >= PRONUNCIATION_MASTERY_THRESHOLD
+                assessment_confidence = max(1, min(5, (score + 19) // 20))
+                connection.execute(
+                    """
+                    INSERT INTO attempts(
+                        item_id, exercise_type, modality, is_correct, response_ms,
+                        confidence, hints_used, mistake_category, answer_text, created_at
+                    ) VALUES(?, 'pronunciation', 'speaking', ?, 0, ?, 0, ?, ?, ?)
+                    """,
+                    (
+                        linked_item_id,
+                        int(is_correct),
+                        assessment_confidence,
+                        None if is_correct else "pronunciation_transcript_mismatch",
+                        transcript,
+                        now,
+                    ),
+                )
+                mastery = self._update_item_mastery(
+                    connection,
+                    item_id=linked_item_id,
+                    modality="speaking",
+                    is_correct=is_correct,
+                    confidence=assessment_confidence,
+                    response_ms=0,
+                    hints_used=0,
+                    updated_at=now,
+                )
+                self._award_xp(
+                    connection,
+                    XPAction.SPEAKING_ATTEMPT,
+                    "audio_attempt",
+                    str(attempt_id),
+                )
+                newly_unlocked = self._unlock_achievements(connection, now)
+
+            xp_after = self._total_xp(connection)
+            connection.execute(
+                """
+                INSERT INTO user_events(event_type, entity_type, entity_id, payload_json, created_at)
+                VALUES('pronunciation_scored', ?, ?, ?, ?)
+                """,
+                (
+                    "learning_item" if learning_eligible else "audio_attempt",
+                    str(linked_item_id if learning_eligible else attempt_id),
+                    json.dumps(
+                        {
+                            "audio_attempt_id": attempt_id,
+                            "score": score,
+                            "method": "transcript_similarity",
+                            "provider": stored_provider,
+                            "evidence_verified": verified_speech_evidence,
+                            "is_correct": is_correct,
+                            "xp_awarded": xp_after - xp_before,
+                        }
+                    ),
+                    now,
+                ),
+            )
+
+        return {
+            "attempt_id": attempt_id,
+            "linked_item_id": linked_item_id,
+            "learning_updated": learning_eligible,
+            "evidence_verified": verified_speech_evidence,
+            "is_correct": is_correct,
+            "mastery": asdict(mastery) if mastery is not None else None,
+            "xp_awarded": xp_after - xp_before,
+            "xp": level_progress(xp_after),
+            "new_achievements": [asdict(item) for item in newly_unlocked],
+            "mastery_threshold": PRONUNCIATION_MASTERY_THRESHOLD,
         }
 
     def recommendations(self, limit: int = 8) -> list[dict[str, Any]]:
@@ -1140,6 +1251,101 @@ class LearningRepository:
             "xp_awarded": xp,
             "xp": {"total": total_xp, **level_progress(total_xp)},
         }
+
+    @staticmethod
+    def _resolve_pronunciation_item(
+        connection: Any,
+        *,
+        normalized_target: str,
+        requested_item_id: int | None,
+    ) -> int | None:
+        """Resolve a safe learning-item link for pronunciation evidence."""
+        if requested_item_id is not None:
+            row = connection.execute(
+                """
+                SELECT id, normalized_text
+                FROM learning_items
+                WHERE id = ? AND archived_at IS NULL
+                """,
+                (requested_item_id,),
+            ).fetchone()
+            if row is None:
+                raise KeyError(f"Learning item {requested_item_id} not found")
+            if row["normalized_text"] != normalized_target:
+                raise ValueError(
+                    "Pronunciation target does not match the selected learning item"
+                )
+            return int(row["id"])
+
+        matches = connection.execute(
+            """
+            SELECT id
+            FROM learning_items
+            WHERE normalized_text = ? AND archived_at IS NULL
+            ORDER BY id
+            LIMIT 2
+            """,
+            (normalized_target,),
+        ).fetchall()
+        return int(matches[0]["id"]) if len(matches) == 1 else None
+
+    @staticmethod
+    def _update_item_mastery(
+        connection: Any,
+        *,
+        item_id: int,
+        modality: str,
+        is_correct: bool,
+        confidence: int,
+        response_ms: int,
+        hints_used: int,
+        updated_at: str,
+    ) -> MasteryState:
+        """Update one learning item's mastery inside an existing transaction."""
+        concept_key = f"item:{item_id}"
+        mastery_row = connection.execute(
+            "SELECT * FROM skill_mastery WHERE concept_key = ?", (concept_key,)
+        ).fetchone()
+        previous_mastery = MasteryState(
+            recognition=float(mastery_row["recognition"]) if mastery_row else 0.0,
+            production=float(mastery_row["production"]) if mastery_row else 0.0,
+            listening=float(mastery_row["listening"]) if mastery_row else 0.0,
+            speaking=float(mastery_row["speaking"]) if mastery_row else 0.0,
+            observations=int(mastery_row["observations"]) if mastery_row else 0,
+        )
+        mastery = update_mastery(
+            previous_mastery,
+            modality=modality,
+            is_correct=is_correct,
+            confidence=confidence,
+            response_ms=response_ms,
+            hints_used=hints_used,
+        )
+        connection.execute(
+            """
+            INSERT INTO skill_mastery(
+                concept_key, concept_type, recognition, production,
+                listening, speaking, observations, updated_at
+            ) VALUES(?, 'learning_item', ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(concept_key) DO UPDATE SET
+                recognition = excluded.recognition,
+                production = excluded.production,
+                listening = excluded.listening,
+                speaking = excluded.speaking,
+                observations = excluded.observations,
+                updated_at = excluded.updated_at
+            """,
+            (
+                concept_key,
+                mastery.recognition,
+                mastery.production,
+                mastery.listening,
+                mastery.speaking,
+                mastery.observations,
+                updated_at,
+            ),
+        )
+        return mastery
 
     def _unlock_achievements(
         self, connection: Any, unlocked_at: str

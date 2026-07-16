@@ -210,7 +210,7 @@ Verify against the public URL:
 
 1. `/health/live` is `200` without database details.
 2. `/health/ready` is `200` and confirms the expected mode.
-3. `/version` shows `2.1.0` and the deployed commit.
+3. `/version` shows `2.1.1` and the deployed commit.
 4. Demo login works and is read-only.
 5. GitHub login works and logout revokes the session.
 6. Two distinct users cannot read or modify each other's data.

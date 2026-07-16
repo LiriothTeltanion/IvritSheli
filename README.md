@@ -1,7 +1,7 @@
 <div align="center">
   <img src="assets/brand/logo.svg" alt="Ivrit Sheli Ultimate" width="680" />
 
-  <h1>Ivrit Sheli 2.1 Ultimate — העברית שלי</h1>
+  <h1>Ivrit Sheli 2.1.1 Ultimate — העברית שלי</h1>
   <p><strong>A private-first, authenticated, trilingual Hebrew-learning operating system built from real life.</strong></p>
 
   <p>
@@ -15,7 +15,7 @@
   </p>
 
   <p>
-    <img src="assets/readme/badge-tests.svg" alt="127 automated tests passing" />
+    <img src="assets/readme/badge-tests.svg" alt="149 automated tests passing" />
     <img src="assets/readme/badge-private.svg" alt="Local-first private" />
     <img src="assets/readme/badge-trilingual.svg" alt="Hebrew English Spanish" />
     <img src="assets/readme/badge-pwa.svg" alt="Installable PWA" />
@@ -52,6 +52,12 @@ Most language products make every learner follow the same path. Ivrit Sheli does
 
 The system tracks what you recognize, what you can produce, where you hesitate, which grammar errors repeat, which situations matter, and which learning mode works best. Recommendations are explainable: the app tells you *why* it selected a word, exercise, mission, or speaking drill.
 
+## What changed in 2.1.1 🔐
+
+The 2.1.1 candidate is a focused safety, correctness, and accessibility release. Cloud AI and audio now require stored learner consent before provider work begins; future reviews stay out of the due queue; dictionary readiness fails closed; SQLite upgrades run as atomic ordered migrations; and pronunciation history is recorded without letting an unverified client transcript change speaking mastery or XP.
+
+The review experience also behaves correctly with keyboards, screen readers, and reduced-motion preferences. Quick capture and dictionary dialogs trap and restore focus, hidden answer controls cannot be reached early, and recorded audio preserves its real MIME type and transcription-provider context. This candidate is implemented and verified on its release branch; the public Railway URL remains the previously verified 2.1.0 deployment until 2.1.1 is merged and deployed.
+
 ## What changed in 2.1 🚆
 
 Version 2.1 is live on Railway at [ivritsheli-production.up.railway.app](https://ivritsheli-production.up.railway.app). The HTTPS application, liveness, PostgreSQL-backed readiness, immutable release identity, structured startup/health logs, and seeded read-only demo are verified in production. GitHub OAuth reaches GitHub's consent screen and cancellation returns safely to the app; the final authorization-code exchange and authenticated-session flow remain explicitly unclaimed until completed in a normal browser.
@@ -86,7 +92,7 @@ The public-demo design does not contain Kevin's private learning history: it use
 | AI | Offline deterministic coach plus OpenAI Responses adapter with structured outputs and fallback |
 | Dictionary | Clickable Hebrew everywhere, SQLite search, niqqud-insensitive lookup, forms, roots, senses, audio URLs |
 | Full lexicon | One-command importer for the current Kaikki/Wiktionary Hebrew JSONL dataset |
-| Audio | Browser TTS, microphone recording, OpenAI TTS/STT adapters, transcription-based pronunciation scoring |
+| Audio | Browser TTS, microphone recording, OpenAI TTS/STT adapters, consent-gated cloud processing, transparent transcript scoring, and history-only handling for unverified evidence |
 | Gamification | XP ledger, levels, streaks, achievements, badges, mission bonuses, anti-grind limits |
 | Integrations | Read-only Google Calendar, Gmail, and Drive adapters; ICS import; explicit consent gates |
 | Languages | Trilingual interface and content layers: Hebrew, English, Spanish |
@@ -296,7 +302,7 @@ Included achievement families:
 
 ## Test everything
 
-The 2.1 verification baseline is **110 backend tests + 17 frontend tests = 127 passing automated tests**. The local backend run reports 109 passed with the credential-gated PostgreSQL case skipped; the dedicated PostgreSQL 17 job runs all three database-boundary tests and raises the unique backend total to 110. The integration gate is not replaced by SQLite or an in-memory fake.
+The 2.1.1 verification baseline is **128 backend tests + 21 frontend tests = 149 passing automated tests**. The local backend run reports 127 passed with the credential-gated PostgreSQL case skipped; the dedicated PostgreSQL 17 job runs all three database-boundary tests and raises the unique backend total to 128. The integration gate is not replaced by SQLite or an in-memory fake.
 
 ```bash
 ./scripts/test-all.sh
@@ -375,7 +381,7 @@ IvritSheli/
 
 ## Project status
 
-Version 2.1 is a live dual-mode product: the private offline path remains available, while the public Railway service runs the authenticated API, managed PostgreSQL migrations, restricted runtime role, trilingual UI, and seeded read-only demo at [ivritsheli-production.up.railway.app](https://ivritsheli-production.up.railway.app). HTTPS health, release metadata, PostgreSQL readiness, demo safety, OAuth consent handoff/cancellation, and structured startup logs are verified. Successful GitHub code exchange, authenticated persistence across refreshes, cross-user production isolation, live OpenAI/Google calls, and backup restoration remain honest operator checks rather than inflated claims.
+Version 2.1.1 is implemented as a release candidate on `codex/ivrit-sheli-v2.1.1`: the private offline path, authenticated cloud path, migration safety, consent gates, pronunciation integration, and accessible review/dialog behavior are locally verified. The public Railway service still runs the previously verified 2.1.0 build at [ivritsheli-production.up.railway.app](https://ivritsheli-production.up.railway.app) until this branch is merged and deployed. Successful GitHub code exchange, authenticated persistence across refreshes, cross-user production isolation, live OpenAI/Google calls, and backup restoration remain honest operator checks rather than inflated claims.
 
 Passing tests and healthy local production-image checks materially reduce risk but do not prove that software is defect-free. Operational limits, credential-dependent checks and restore requirements are documented explicitly rather than hidden behind a perfect-score claim.
 

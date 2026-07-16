@@ -349,12 +349,13 @@ def test_operational_endpoints_report_version_storage_and_readiness(tmp_path: Pa
             oauth_client=FakeGitHubOAuth(),
         )
     ) as client:
-        assert client.get("/health/live").json()["version"] == "2.1.0"
+        assert client.get("/health/live").json()["version"] == "2.1.1"
         ready = client.get("/health/ready")
         assert ready.status_code == 200
         assert ready.json()["checks"]["postgresql"] is True
+        assert ready.json()["checks"]["dictionary_details"]["mode"] == "shared_cloud"
         version = client.get("/version").json()
-        assert version["version"] == "2.1.0"
+        assert version["version"] == "2.1.1"
         assert version["storage"] == "postgresql"
 
 
@@ -571,10 +572,25 @@ def test_production_cloud_ai_allows_only_the_matching_github_identity(
         base_url="https://ivrit.example",
     ) as client:
         login_github(client, "primary")
+        headers = {"Origin": "https://ivrit.example"}
+        denied_without_consent = client.post(
+            "/api/v1/ai/correct",
+            json={"payload": {"text": "אני לומד"}, "cloud_requested": True},
+            headers=headers,
+        )
+        assert denied_without_consent.status_code == 403
+        assert denied_without_consent.json()["error"]["code"] == "cloud_consent_required"
+
+        consent = client.put(
+            "/api/v1/profile",
+            json={"cloud_consent": True},
+            headers=headers,
+        )
+        assert consent.status_code == 200
         response = client.post(
             "/api/v1/ai/correct",
             json={"payload": {"text": "אני לומד"}, "cloud_requested": True},
-            headers={"Origin": "https://ivrit.example"},
+            headers=headers,
         )
         assert response.status_code == 200
         assert response.json()["provider"] == "offline"
