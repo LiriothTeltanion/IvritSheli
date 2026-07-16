@@ -695,6 +695,17 @@ def _clear_session_cookies(response: Any, settings: Settings) -> None:
     )
 
 
+def _clear_oauth_state_cookie(response: Any, settings: Settings) -> None:
+    """Remove the short-lived browser OAuth binding after success or cancellation."""
+    response.delete_cookie(
+        "ivrit_oauth_state",
+        secure=settings.session_cookie_secure,
+        httponly=True,
+        samesite="lax",
+        path=f"{API_PREFIX}/auth/github/callback",
+    )
+
+
 def _local_auth_payload() -> dict[str, Any]:
     """Represent legacy local-first mode as a writable device-local identity."""
     return {
@@ -762,24 +773,27 @@ def register_routes(app: FastAPI) -> None:
     @app.get(f"{API_PREFIX}/auth/github/callback")
     def auth_github_callback(
         request: Request,
-        code: str = Query(min_length=1, max_length=500),
         state: str = Query(min_length=1, max_length=500),
+        code: str | None = Query(default=None, min_length=1, max_length=500),
+        error: str | None = Query(default=None, min_length=1, max_length=100),
     ) -> Any:
         container = services(request)
+        browser_state = request.cookies.get("ivrit_oauth_state")
+        if error is not None:
+            redirect_path = container.auth.cancel_github(state, browser_state)
+            response = RedirectResponse(redirect_path, status_code=303)
+            _clear_oauth_state_cookie(response, container.settings)
+            return response
+        if code is None:
+            raise AuthenticationError("GitHub did not return an authorization code")
         grant, redirect_path = container.auth.finish_github(
             code,
             state,
-            request.cookies.get("ivrit_oauth_state"),
+            browser_state,
         )
         container.auth.logout(request.cookies.get(container.settings.session_cookie_name))
         response = RedirectResponse(redirect_path, status_code=303)
-        response.delete_cookie(
-            "ivrit_oauth_state",
-            secure=container.settings.session_cookie_secure,
-            httponly=True,
-            samesite="lax",
-            path=f"{API_PREFIX}/auth/github/callback",
-        )
+        _clear_oauth_state_cookie(response, container.settings)
         _set_session_cookies(response, grant, container.settings)
         return response
 

@@ -8,13 +8,13 @@
 
 ## Result
 
-The local-first application and the production-shaped PostgreSQL/Compose path are green in local verification. The 2.1 Railway deploy timing values parse as numeric TOML values, and the production Dockerfile avoids service-bound cache mounts while retaining normal Docker layer caching. The repository is deployment-ready; this report does not claim a public Railway deployment or live OAuth/provider verification.
+The local-first application, production-shaped PostgreSQL/Compose path, and public Railway service are green within the evidence boundaries below. The live 2.1 service exposes HTTPS health and immutable version endpoints, reports PostgreSQL readiness, serves the seeded read-only demo, and emits structured startup/health logs. GitHub OAuth reaches consent and safely handles cancellation; final authorization-code exchange remains pending in a normal browser.
 
 | Verification area | Result |
 |---|---:|
-| Unique backend automated tests | **109 passed** |
+| Unique backend automated tests | **110 passed** |
 | Frontend automated tests | **17 passed** |
-| Total unique automated tests | **126 passed** |
+| Total unique automated tests | **127 passed** |
 | Ruff Python lint | Passed |
 | MyPy strict type check | Passed across 24 source files |
 | Python bytecode compilation | Passed |
@@ -26,10 +26,15 @@ The local-first application and the production-shaped PostgreSQL/Compose path ar
 | Python runtime dependency audit | 0 known vulnerabilities |
 | npm production dependency audit | 0 known vulnerabilities |
 | Package structure/asset verifier | 52 required files passed |
+| Railway HTTPS application | Passed |
+| Live release identity | `2.1.0` / `production` |
+| Live PostgreSQL readiness | Passed |
+| Live seeded demo workspace | Passed |
+| Production GitHub OAuth | Partial — consent and cancellation verified; code exchange pending |
 
 ### How the backend total is counted
 
-The ordinary backend command reports `108 passed, 1 skipped`. The skipped case is the credential-gated real PostgreSQL test. The dedicated PostgreSQL job runs the three tests in `test_postgres_integration.py`: two are already included in the ordinary 108, and the real database case replaces the one skip. Therefore the unique backend baseline is **109**, not 108, 111, or a sum that double-counts the two shared tests.
+The ordinary backend command reports `109 passed, 1 skipped`. The skipped case is the credential-gated real PostgreSQL test. The dedicated PostgreSQL job runs the three tests in `test_postgres_integration.py`: two are already included in the ordinary 109, and the real database case replaces the one skip. Therefore the unique backend baseline is **110**, not 109, 112, or a sum that double-counts the two shared tests.
 
 ## Verified environment
 
@@ -61,7 +66,7 @@ Result:
 ```text
 All checks passed!
 Success: no issues found in 24 source files
-108 passed, 1 PostgreSQL-environment skip
+109 passed, 1 PostgreSQL-environment skip
 ```
 
 The run emitted one non-failing upstream Starlette deprecation warning about its current TestClient/httpx integration. It did not affect behavior or results.
@@ -152,7 +157,18 @@ The package verifier confirmed 52 required files and packaged assets. The rebuil
 - Re-running the provisioner succeeds idempotently.
 - Container logs are structured JSON and the secret-sentinel verifier passes.
 
-These checks exercise a local production-shaped image and PostgreSQL stack at `127.0.0.1`; they do not substitute for live-domain, TLS, Railway, GitHub OAuth, backup/restore, or external-provider checks.
+These checks exercise a local production-shaped image and PostgreSQL stack at `127.0.0.1`; the separate live-production record below verifies only the explicitly listed Railway behaviors.
+
+## Live Railway verification
+
+- Public URL: https://ivritsheli-production.up.railway.app
+- `/health/live`: HTTPS `200`, status `alive`, release `2.1.0`.
+- `/health/ready`: HTTPS `200`, dictionary ready and PostgreSQL `true`.
+- `/version`: release `2.1.0`, environment `production`, storage `postgresql`.
+- Railway pre-deploy logs: Alembic migration completed and `database.provision.ready` reported the restricted `ivrit_sheli_runtime` role.
+- Runtime logs: structured startup and health-request fields include environment, request ID, route, status, duration, version and commit without exposed credentials.
+- Browser smoke: the trilingual authentication gateway and complete seeded read-only demo loaded successfully; mutation controls are disabled in demo mode.
+- GitHub OAuth: the production application reached GitHub's identity-only consent screen. Cancellation validates and consumes OAuth state, clears its browser cookie, and returns to the app. GitHub disabled approval in the embedded test browser, so final authorization-code exchange and an authenticated user session are not claimed.
 
 ## AI and dictionary contract coverage
 
@@ -160,12 +176,12 @@ All exposed offline AI tasks are parameterized and schema-contract tested. The O
 
 Dictionary tests cover demo seeding, niqqud-insensitive and inflected-form lookup, English/Spanish search, root families, streaming JSONL import, malformed-record tolerance, and source/license attribution. The package includes the attributed demo lexicon plus the importer; it does not falsely embed or label a complete external Kaikki/Wiktionary dataset.
 
-## Credential- and environment-dependent checks not executed live
+## Remaining credential- and environment-dependent checks
 
 No personal credentials were used. The following remain contract-tested with fakes or documented as operator checks rather than claimed live evidence:
 
-- Public Railway deployment, custom domain, TLS, and external health routing.
-- GitHub OAuth against a production callback.
+- Final GitHub authorization-code exchange, authenticated session, persistence across refresh, and logout.
+- Live cross-user PostgreSQL isolation with two real GitHub identities.
 - OpenAI coaching, embeddings, speech-to-text, and text-to-speech.
 - Google Calendar, Gmail, and Drive previews.
 - Provider cost ceilings and allowlist operations.

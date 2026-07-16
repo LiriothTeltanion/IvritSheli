@@ -222,6 +222,44 @@ def test_github_oauth_login_csrf_logout_and_replay_protection(tmp_path: Path) ->
         assert client.get("/api/v1/dashboard").status_code == 401
 
 
+def test_github_oauth_cancel_returns_safely_and_consumes_state(tmp_path: Path) -> None:
+    store = MemoryCloudStore()
+    with TestClient(
+        create_app(
+            cloud_settings(tmp_path),
+            cloud_store=store,
+            oauth_client=FakeGitHubOAuth(),
+        )
+    ) as client:
+        started = client.get(
+            "/api/v1/auth/github/start",
+            params={"next": "/settings"},
+            headers={"Accept": "application/json"},
+        )
+        state = parse_qs(urlparse(started.json()["authorize_url"]).query)["state"][0]
+
+        cancelled = client.get(
+            "/api/v1/auth/github/callback",
+            params={"error": "access_denied", "state": state},
+            follow_redirects=False,
+        )
+
+        assert cancelled.status_code == 303
+        assert cancelled.headers["location"] == "/settings"
+        assert "ivrit_oauth_state=" in cancelled.headers["set-cookie"]
+        assert "Max-Age=0" in cancelled.headers["set-cookie"]
+        assert store.consume_oauth_state(state) is None
+        assert client.get("/api/v1/auth/me").json()["authenticated"] is False
+
+        replay = client.get(
+            "/api/v1/auth/github/callback",
+            params={"error": "access_denied", "state": state},
+            follow_redirects=False,
+        )
+        assert replay.status_code == 400
+        assert replay.json()["error"]["code"] == "authentication_failed"
+
+
 def test_cloud_repository_isolates_users_with_colliding_item_ids() -> None:
     store = MemoryCloudStore()
     first = store.create_test_user("Alpha")

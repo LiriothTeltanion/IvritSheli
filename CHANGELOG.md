@@ -12,6 +12,7 @@ No unreleased changes.
 
 - Railway deploy overlap and draining values now use the numeric TOML types required by Railway instead of rejected string values.
 - Provider-bound Docker cache mounts were removed after live Railway Metal validation showed that cache IDs must embed a specific service identifier; normal Docker layers now preserve portable build caching.
+- GitHub OAuth cancellation now validates and consumes the browser-bound state, clears its cookie, and returns to the application instead of exposing a raw missing-code validation response.
 
 ### Changed
 
@@ -20,10 +21,13 @@ No unreleased changes.
 - The personal `KC ✦ LT` signature now uses a larger, lower punctuation-like star with a stronger blue glow; its canonical PNG and the social card were regenerated at their original dimensions.
 - Public architecture and social-preview artwork now present the current 2.1 release identity.
 - Package verification now guards both Railway TOML types and the portable no-service-bound-cache policy.
+- The automated baseline is now 110 unique backend tests plus 17 frontend tests, including the production-discovered OAuth cancellation regression.
 
 ### Operations
 
-- The package remains deployment-ready for managed PostgreSQL and GitHub OAuth. A public URL is not claimed until TLS, readiness, version, persistence, OAuth, and structured-log checks pass against the live Railway service.
+- Release `2.1.0` is deployed publicly at https://ivritsheli-production.up.railway.app with managed PostgreSQL.
+- HTTPS liveness, PostgreSQL-backed readiness, release identity, seeded demo safety, OAuth consent handoff/cancellation, and structured startup/health logs were verified against Railway production.
+- The final GitHub authorization-code exchange and authenticated session/logout flow remain pending in a normal browser; live OpenAI/Google calls and managed backup restoration are not claimed.
 - Package verification now parses `railway.toml`, rejects non-integer or unexpected deploy timing values, and prevents provider-bound cache mounts from re-entering the production Dockerfile.
 
 ## 2.0.0 — 2026-07-16

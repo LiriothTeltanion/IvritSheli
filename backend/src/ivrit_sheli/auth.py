@@ -153,15 +153,17 @@ class AuthService:
         self, code: str, state: str, browser_state: str | None
     ) -> tuple[SessionGrant, str]:
         """Validate browser state, consume it once, and issue a fresh session."""
-        if not code or not state or not browser_state or not hmac.compare_digest(state, browser_state):
-            raise AuthenticationError("OAuth state validation failed")
-        consumed = self.store.consume_oauth_state(state)
-        if consumed is None:
-            raise AuthenticationError("OAuth state is expired or already used")
-        verifier, redirect_path = consumed
+        if not code:
+            raise AuthenticationError("GitHub did not return an authorization code")
+        verifier, redirect_path = self._consume_github_state(state, browser_state)
         profile = self.oauth_client.exchange_code(code, verifier, self.settings)
         user = self.store.upsert_github_user(profile)
         return self._grant(user), redirect_path
+
+    def cancel_github(self, state: str, browser_state: str | None) -> str:
+        """Safely finish a denied OAuth attempt without creating a session."""
+        _, redirect_path = self._consume_github_state(state, browser_state)
+        return redirect_path
 
     def start_demo(self) -> SessionGrant:
         """Issue a session for the deterministic non-admin read-only demo user."""
@@ -171,6 +173,17 @@ class AuthService:
         """Revoke the current session when present; the operation is idempotent."""
         if token:
             self.store.revoke_session(token)
+
+    def _consume_github_state(
+        self, state: str, browser_state: str | None
+    ) -> tuple[str, str]:
+        """Validate and consume one browser-bound OAuth attempt exactly once."""
+        if not state or not browser_state or not hmac.compare_digest(state, browser_state):
+            raise AuthenticationError("OAuth state validation failed")
+        consumed = self.store.consume_oauth_state(state)
+        if consumed is None:
+            raise AuthenticationError("OAuth state is expired or already used")
+        return consumed
 
     def _grant(self, user: AuthUser) -> SessionGrant:
         token = secrets.token_urlsafe(48)

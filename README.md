@@ -15,16 +15,20 @@
   </p>
 
   <p>
-    <img src="assets/readme/badge-tests.svg" alt="126 automated tests passing" />
+    <img src="assets/readme/badge-tests.svg" alt="127 automated tests passing" />
     <img src="assets/readme/badge-private.svg" alt="Local-first private" />
     <img src="assets/readme/badge-trilingual.svg" alt="Hebrew English Spanish" />
     <img src="assets/readme/badge-pwa.svg" alt="Installable PWA" />
   </p>
 </div>
 
+<p align="center">
+  <a href="https://ivritsheli-production.up.railway.app"><strong>🌐 Open the live Ivrit Sheli 2.1 demo</strong></a>
+</p>
+
 <picture>
   <source media="(max-width: 640px)" srcset="assets/readme/ivrit-sheli-2-mobile.png" />
-  <img src="assets/readme/ivrit-sheli-2-dashboard.png" width="100%" alt="Ivrit Sheli 2.0 read-only demo dashboard with adaptive Hebrew learning, focused practice and authenticated cloud controls" />
+  <img src="assets/readme/ivrit-sheli-2-dashboard.png" width="100%" alt="Ivrit Sheli 2.1 read-only demo dashboard with adaptive Hebrew learning, focused practice and authenticated cloud controls" />
 </picture>
 
 <details>
@@ -36,8 +40,8 @@
     <td width="66%" align="center"><strong>Hebrew right-to-left workspace</strong></td>
   </tr>
   <tr>
-    <td><img src="assets/readme/ivrit-sheli-2-mobile.png" width="100%" alt="Ivrit Sheli 2.0 mobile demo with the compact navigation and focused-session hero" /></td>
-    <td><img src="assets/readme/ivrit-sheli-2-hebrew-rtl.png" width="100%" alt="Ivrit Sheli 2.0 Hebrew interface rendered right to left with the demo learner workspace" /></td>
+    <td><img src="assets/readme/ivrit-sheli-2-mobile.png" width="100%" alt="Ivrit Sheli 2.1 mobile demo with the compact navigation and focused-session hero" /></td>
+    <td><img src="assets/readme/ivrit-sheli-2-hebrew-rtl.png" width="100%" alt="Ivrit Sheli 2.1 Hebrew interface rendered right to left with the demo learner workspace" /></td>
   </tr>
 </table>
 </details>
@@ -50,7 +54,7 @@ The system tracks what you recognize, what you can produce, where you hesitate, 
 
 ## What changed in 2.1 🚆
 
-Version 2.1 is the deployment-compatibility release. It corrects Railway's deploy timing fields to their required numeric TOML types, synchronizes runtime and visible release metadata, rotates the PWA shell cache, and keeps the production boundary ready for managed PostgreSQL and GitHub OAuth. A public URL is still not claimed until TLS, readiness, version, OAuth, persistence, and redacted logs are verified on the live service.
+Version 2.1 is live on Railway at [ivritsheli-production.up.railway.app](https://ivritsheli-production.up.railway.app). The HTTPS application, liveness, PostgreSQL-backed readiness, immutable release identity, structured startup/health logs, and seeded read-only demo are verified in production. GitHub OAuth reaches GitHub's consent screen and cancellation returns safely to the app; the final authorization-code exchange and authenticated-session flow remain explicitly unclaimed until completed in a normal browser.
 
 ## What changed in 2.0 🚀
 
@@ -292,7 +296,7 @@ Included achievement families:
 
 ## Test everything
 
-The 2.1 verification baseline is **109 backend tests + 17 frontend tests = 126 passing automated tests**. The local backend run reports 108 passed with the credential-gated PostgreSQL case skipped; the dedicated PostgreSQL 17 job runs all three database-boundary tests and raises the unique backend total to 109. The integration gate is not replaced by SQLite or an in-memory fake.
+The 2.1 verification baseline is **110 backend tests + 17 frontend tests = 127 passing automated tests**. The local backend run reports 109 passed with the credential-gated PostgreSQL case skipped; the dedicated PostgreSQL 17 job runs all three database-boundary tests and raises the unique backend total to 110. The integration gate is not replaced by SQLite or an in-memory fake.
 
 ```bash
 ./scripts/test-all.sh
@@ -371,13 +375,13 @@ IvritSheli/
 
 ## Project status
 
-Version 2.1 is a deployment-ready, production-shaped dual-mode product: the offline path, authenticated API, PostgreSQL migrations and isolation, Docker image, trilingual UI, provider adapters, and Railway configuration are reproducibly testable. A public Railway URL is not claimed until its TLS, OAuth callback, readiness, version, persistence, and logs are verified. Live OpenAI and Google calls still require the user's own credentials and consent, so they are never silently exercised during CI or packaging.
+Version 2.1 is a live dual-mode product: the private offline path remains available, while the public Railway service runs the authenticated API, managed PostgreSQL migrations, restricted runtime role, trilingual UI, and seeded read-only demo at [ivritsheli-production.up.railway.app](https://ivritsheli-production.up.railway.app). HTTPS health, release metadata, PostgreSQL readiness, demo safety, OAuth consent handoff/cancellation, and structured startup logs are verified. Successful GitHub code exchange, authenticated persistence across refreshes, cross-user production isolation, live OpenAI/Google calls, and backup restoration remain honest operator checks rather than inflated claims.
 
 Passing tests and healthy local production-image checks materially reduce risk but do not prove that software is defect-free. Operational limits, credential-dependent checks and restore requirements are documented explicitly rather than hidden behind a perfect-score claim.
 
 ## License
 
-Application source code and Ivrit Sheli UI graphics: MIT. Dictionary-derived data uses separate Wiktionary/Kaikki terms. The personal `KC ★ LT` identity mark is reserved and excluded from the MIT asset grant. See [`LICENSE`](LICENSE) and [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
+Application source code and Ivrit Sheli UI graphics: MIT. Dictionary-derived data uses separate Wiktionary/Kaikki terms. The personal `KC ✦ LT` identity mark is reserved and excluded from the MIT asset grant. See [`LICENSE`](LICENSE) and [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
 
 <div align="center">
   <img src="assets/brand/kc-lt-signature.svg" alt="KC star LT — Kevin Cusnir and Lirioth Teltanion signature" width="230" />
