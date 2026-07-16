@@ -18,6 +18,16 @@ from ivrit_sheli.cloud_store import MemoryCloudStore
 from ivrit_sheli.config import Settings
 
 
+def _parse_csp(policy: str) -> dict[str, set[str]]:
+    """Parse a CSP into exact directive tokens for allow-list assertions."""
+    directives: dict[str, set[str]] = {}
+    for raw_directive in policy.split(";"):
+        tokens = raw_directive.strip().split()
+        if tokens:
+            directives[tokens[0]] = set(tokens[1:])
+    return directives
+
+
 def test_health_and_security_headers(
     client: TestClient, settings: Settings, tmp_path: Path
 ) -> None:
@@ -37,11 +47,23 @@ def test_health_and_security_headers(
     assert response.headers["Cache-Control"] == "no-store"
     assert "Strict-Transport-Security" not in response.headers
 
-    content_security_policy = response.headers["Content-Security-Policy"]
-    assert "script-src 'self'" in content_security_policy
-    assert "https://avatars.githubusercontent.com" in content_security_policy
-    assert "media-src 'self' data: blob: https:" in content_security_policy
-    assert "worker-src 'self' blob:" in content_security_policy
+    content_security_policy = _parse_csp(
+        response.headers["Content-Security-Policy"]
+    )
+    assert content_security_policy["script-src"] == {"'self'"}
+    assert content_security_policy["img-src"] == {
+        "'self'",
+        "data:",
+        "blob:",
+        "https://avatars.githubusercontent.com",
+    }
+    assert content_security_policy["media-src"] == {
+        "'self'",
+        "data:",
+        "blob:",
+        "https:",
+    }
+    assert content_security_policy["worker-src"] == {"'self'", "blob:"}
 
     operational = client.get("/health/live")
     assert operational.headers["Cache-Control"] == "no-store"
@@ -76,8 +98,14 @@ def test_health_and_security_headers(
     assert versioned_asset.headers.get("Cache-Control") != "no-store"
 
     docs = client.get("/api/v1/docs")
-    assert "https://cdn.jsdelivr.net" in docs.headers["Content-Security-Policy"]
-    assert "script-src 'self' 'unsafe-inline'" in docs.headers["Content-Security-Policy"]
+    docs_content_security_policy = _parse_csp(
+        docs.headers["Content-Security-Policy"]
+    )
+    assert docs_content_security_policy["script-src"] == {
+        "'self'",
+        "'unsafe-inline'",
+        "https://cdn.jsdelivr.net",
+    }
 
     production_settings = Settings.from_env(
         {
