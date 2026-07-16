@@ -311,12 +311,12 @@ def test_operational_endpoints_report_version_storage_and_readiness(tmp_path: Pa
             oauth_client=FakeGitHubOAuth(),
         )
     ) as client:
-        assert client.get("/health/live").json()["version"] == "2.0.0"
+        assert client.get("/health/live").json()["version"] == "2.1.0"
         ready = client.get("/health/ready")
         assert ready.status_code == 200
         assert ready.json()["checks"]["postgresql"] is True
         version = client.get("/version").json()
-        assert version["version"] == "2.0.0"
+        assert version["version"] == "2.1.0"
         assert version["storage"] == "postgresql"
 
 

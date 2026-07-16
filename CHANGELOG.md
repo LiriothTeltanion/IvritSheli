@@ -6,6 +6,24 @@ All notable changes are documented here. Versions follow Semantic Versioning.
 
 No unreleased changes.
 
+## 2.1.0 — 2026-07-16
+
+### Fixed
+
+- Railway deploy overlap and draining values now use the numeric TOML types required by Railway instead of rejected string values.
+
+### Changed
+
+- Runtime, Python package, frontend package, visible interface, bug diagnostics, OAuth user agent, citation, documentation, and verification metadata now identify release `2.1.0` consistently.
+- The service-worker shell cache advanced to `ivrit-sheli-shell-v2.1.0`, ensuring installed clients retire the 2.0 shell after the release update.
+- The personal `KC ✦ LT` signature now uses a larger, lower punctuation-like star with a stronger blue glow; its canonical PNG and the social card were regenerated at their original dimensions.
+- Public architecture and social-preview artwork now present the current 2.1 release identity.
+
+### Operations
+
+- The package remains deployment-ready for managed PostgreSQL and GitHub OAuth. A public URL is not claimed until TLS, readiness, version, persistence, OAuth, and structured-log checks pass against the live Railway service.
+- Package verification now parses `railway.toml` and rejects non-integer or unexpected deploy timing values, preventing the original initialization failure from recurring.
+
 ## 2.0.0 — 2026-07-16
 
 ### Added

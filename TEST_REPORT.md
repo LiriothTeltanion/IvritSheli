@@ -1,14 +1,14 @@
-# Ivrit Sheli Ultimate 2.0.0 — Verification Report
+# Ivrit Sheli Ultimate 2.1.0 — Verification Report
 
 **Verification date:** 2026-07-16
 
 **Time zone:** Asia/Jerusalem
 
-**Release:** 2.0.0
+**Release:** 2.1.0
 
 ## Result
 
-The local-first application and the production-shaped PostgreSQL/Compose path are green in local verification. The repository is deployment-ready; this report does not claim a public Railway deployment or live OAuth/provider verification.
+The local-first application and the production-shaped PostgreSQL/Compose path are green in local verification. The 2.1 Railway deploy timing values also parse as numeric TOML values rather than the rejected string form. The repository is deployment-ready; this report does not claim a public Railway deployment or live OAuth/provider verification.
 
 | Verification area | Result |
 |---|---:|
@@ -146,7 +146,7 @@ The package verifier confirmed 52 required files and packaged assets. The rebuil
 
 - `/health/live` reports `alive`.
 - `/health/ready` reports `ready` with PostgreSQL `true`.
-- `/version` reports `2.0.0` and PostgreSQL storage.
+- `/version` reports `2.1.0` and PostgreSQL storage.
 - The application runs as UID `10001`.
 - `MIGRATION_DATABASE_URL` is absent from the Uvicorn process.
 - Re-running the provisioner succeeds idempotently.

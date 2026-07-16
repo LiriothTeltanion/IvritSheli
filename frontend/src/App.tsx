@@ -248,7 +248,7 @@ export default function App(): React.JSX.Element {
       <aside className="sidebar">
         <div className="brand-lockup">
           <img src="/icons/app-icon.svg" alt="" />
-          <div><strong>{t('appName')}</strong><span>CLOUD 2.0</span></div>
+          <div><strong>{t('appName')}</strong><span>CLOUD 2.1</span></div>
         </div>
         <nav className="side-nav" aria-label={t('primaryNavigation')}>
           {navigation.map((item) => (
@@ -271,7 +271,7 @@ export default function App(): React.JSX.Element {
         </div>
         <div className="sidebar-footer">
           <div className="privacy-mini"><Icon name="shield" size={17} /><span><strong>{auth.demo ? t('demoWorkspace') : localMode ? t('localWorkspace') : t('privateMode')}</strong><small>{auth.demo ? t('readOnlyDemo') : localMode ? t('localFirstStorage') : t('accountStorage')}</small></span></div>
-          <span className="version-label">v2.0.0</span>
+          <span className="version-label">v2.1.0</span>
         </div>
       </aside>
 

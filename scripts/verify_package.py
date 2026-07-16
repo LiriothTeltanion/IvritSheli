@@ -14,6 +14,11 @@ import sys
 from pathlib import Path
 from xml.etree import ElementTree
 
+try:
+    import tomllib
+except ModuleNotFoundError:  # pragma: no cover - Python 3.10 CI uses the pinned backport.
+    import tomli as tomllib
+
 ROOT = Path(__file__).resolve().parents[1]
 
 REQUIRED_FILES = (
@@ -129,6 +134,37 @@ def verify_svg_assets() -> list[str]:
     return failures
 
 
+def verify_railway_config() -> list[str]:
+    """Validate deploy timing values with a real TOML parser.
+
+    Returns:
+        Human-readable Railway configuration failures.
+
+    Example:
+        >>> isinstance(verify_railway_config(), list)
+        True
+    """
+    path = ROOT / "railway.toml"
+    try:
+        config = tomllib.loads(path.read_text(encoding="utf-8"))
+    except (OSError, tomllib.TOMLDecodeError) as error:
+        return [f"railway.toml: {error}"]
+
+    deploy = config.get("deploy")
+    if not isinstance(deploy, dict):
+        return ["railway.toml: missing [deploy] table"]
+
+    failures: list[str] = []
+    expected = {"overlapSeconds": 10, "drainingSeconds": 15}
+    for key, expected_value in expected.items():
+        value = deploy.get(key)
+        if type(value) is not int:  # bool is also invalid even though it subclasses int.
+            failures.append(f"railway.toml: deploy.{key} must be an integer, got {type(value).__name__}")
+        elif value != expected_value:
+            failures.append(f"railway.toml: deploy.{key} must be {expected_value}, got {value}")
+    return failures
+
+
 def verify_secret_hygiene() -> list[str]:
     """Scan source/config text for common committed credential shapes.
 
@@ -197,6 +233,7 @@ def main() -> int:
         "missing_files": verify_required_files(),
         "invalid_json": verify_json_files(),
         "invalid_svg": verify_svg_assets(),
+        "invalid_railway_config": verify_railway_config(),
         "possible_secrets": verify_secret_hygiene(),
         "broken_readme_links": verify_documentation_links(),
     }

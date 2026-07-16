@@ -65,7 +65,7 @@ class GitHubOAuthClient:
         """Exchange a one-use code and return only safe profile fields."""
         token_response = requests.post(
             self.TOKEN_URL,
-            headers={"Accept": "application/json", "User-Agent": "Ivrit-Sheli/2.0"},
+            headers={"Accept": "application/json", "User-Agent": "Ivrit-Sheli/2.1.0"},
             data={
                 "client_id": settings.github_client_id,
                 "client_secret": settings.github_client_secret,
@@ -85,7 +85,7 @@ class GitHubOAuthClient:
             headers={
                 "Accept": "application/vnd.github+json",
                 "Authorization": f"Bearer {access_token}",
-                "User-Agent": "Ivrit-Sheli/2.0",
+                "User-Agent": "Ivrit-Sheli/2.1.0",
                 "X-GitHub-Api-Version": "2022-11-28",
             },
             timeout=12,
