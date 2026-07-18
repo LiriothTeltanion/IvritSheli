@@ -49,11 +49,11 @@
     "dictionary_ready": true
   },
   "publication": {
-    "latest_git_tag": "v2.1.0",
-    "latest_github_release": "v2.1.0",
-    "source_version_tagged": false,
-    "source_version_github_release_published": false,
-    "release_state": "deployment-ahead-of-github-release"
+    "latest_git_tag": "v2.2.0",
+    "latest_github_release": "v2.2.0",
+    "source_version_tagged": true,
+    "source_version_github_release_published": true,
+    "release_state": "published-and-deployed"
   },
   "visual_proof": {
     "state": "partial",

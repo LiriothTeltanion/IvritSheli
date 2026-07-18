@@ -42,7 +42,7 @@ Show the repository map and state: React + TypeScript, Python + FastAPI, private
 4. **Differentiator:** every Hebrew word is clickable and every recommendation is explainable.
 5. **Reliability:** request IDs, redacted JSON logs, diagnostics, real PostgreSQL isolation tests, and 187 unique automated tests (139 backend + 48 frontend).
 6. **Privacy:** no account in private local mode; minimal GitHub identity in cloud mode; no analytics or background mailbox harvesting; explicit provider actions.
-7. **Deployment status:** Ivrit Sheli 2.2.0 is live on Railway with managed PostgreSQL at [ivritsheli-production.up.railway.app](https://ivritsheli-production.up.railway.app) from commit `c8c928661bdcf179ed1d9df88b9f2e4d730ffea3`; HTTPS identity and readiness are verified, while the latest tag/release remains `v2.1.0`.
+7. **Deployment status:** Ivrit Sheli 2.2.0 is live on Railway with managed PostgreSQL at [ivritsheli-production.up.railway.app](https://ivritsheli-production.up.railway.app) from commit `c8c928661bdcf179ed1d9df88b9f2e4d730ffea3`; HTTPS identity and readiness are verified, and tag/GitHub Release `v2.2.0` are published.
 8. **Roadmap:** complete the GitHub OAuth exchange/session check in a normal browser, then add self-service cloud-account deletion, a packaged desktop/mobile shell, richer phoneme scoring, and licensed dictionary enrichment.
 
 ## Suggested live-demo safety plan

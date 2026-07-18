@@ -7,7 +7,7 @@
 
 ## Result
 
-The 2.2.0 local-first application, real PostgreSQL boundary and production-shaped image pass the reproducible gates below. The public Railway service now independently reports the same `2.2.0` source version and merged commit with PostgreSQL readiness. Deployment truth and GitHub publication truth remain separate: 2.2.0 is live, while the latest tag and release are still 2.1.0.
+The 2.2.0 local-first application, real PostgreSQL boundary and production-shaped image pass the reproducible gates below. The public Railway service independently reports the same `2.2.0` source version and merged commit with PostgreSQL readiness, and Git tag/GitHub Release `v2.2.0` now match the deployed source version.
 
 The 2026-07-18 release-truth pass reran Ruff, strict MyPy, the ordinary backend suite (`138 passed, 1 skipped`), the disposable PostgreSQL 17 gate (`3 passed`), frontend type-check/tests/build (`48 passed`), diagnostics, Python compilation, dependency audits, Compose parsing and package verification. The unique count remains 139 backend + 48 frontend = 187; the shared PostgreSQL tests are not counted twice.
 
@@ -29,7 +29,7 @@ The 2026-07-18 release-truth pass reran Ruff, strict MyPy, the ordinary backend 
 | Package verifier | 58 required files plus strict portfolio/release drift checks passed |
 | Current live release | `2.2.0` / production / PostgreSQL |
 | Production commit | `c8c928661bdcf179ed1d9df88b9f2e4d730ffea3` |
-| Latest Git tag / GitHub Release | `v2.1.0` / `v2.1.0` |
+| Latest Git tag / GitHub Release | `v2.2.0` / `v2.2.0` |
 
 ### Counting the backend total
 
@@ -132,7 +132,7 @@ The rebuilt stack passed PostgreSQL and application health checks. Verification 
 - `/version`: release `2.2.0`, commit `c8c928661bdcf179ed1d9df88b9f2e4d730ffea3`, environment `production`, storage `postgresql`.
 - `/health/live`: HTTPS 200 with release `2.2.0` and the same immutable commit.
 - `/health/ready`: HTTPS 200; PostgreSQL and the shared-cloud dictionary are ready with 12 entries and 12 senses.
-- Git publication remains behind deployment: remote tags and GitHub Releases currently end at `v2.1.0`.
+- Git publication matches deployment: remote tag and GitHub Release `v2.2.0` are published.
 - GitHub OAuth consent handoff and cancellation have verified evidence; final live authorization-code exchange, authenticated refresh persistence and logout remain unclaimed.
 
 The operational endpoints were refreshed directly on 2026-07-18. This proves deployed identity and readiness, not 2.2 desktop/mobile/RTL/reduced-motion interactive browser behavior; the current README screenshots remain explicitly labeled 2.1.x evidence.
