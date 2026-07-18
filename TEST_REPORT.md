@@ -1,12 +1,15 @@
 # Ivrit Sheli Ultimate 2.2.0 — Verification Report
 
 **Verification date:** 2026-07-16
+**Production truth refreshed:** 2026-07-18
 **Time zone:** Asia/Jerusalem
-**Candidate:** 2.2.0 on `codex/ivrit-sheli-v2.2.0`
+**Released source:** 2.2.0 merged to `main` at `c8c928661bdcf179ed1d9df88b9f2e4d730ffea3`
 
 ## Result
 
-The 2.2.0 local-first application, real PostgreSQL boundary and production-shaped image pass the reproducible gates below. The public Railway service is separately verified on merged release 2.1.1; this report does not claim that 2.2.0 is tagged or deployed.
+The 2.2.0 local-first application, real PostgreSQL boundary and production-shaped image pass the reproducible gates below. The public Railway service now independently reports the same `2.2.0` source version and merged commit with PostgreSQL readiness. Deployment truth and GitHub publication truth remain separate: 2.2.0 is live, while the latest tag and release are still 2.1.0.
+
+The 2026-07-18 release-truth pass reran Ruff, strict MyPy, the ordinary backend suite (`138 passed, 1 skipped`), the disposable PostgreSQL 17 gate (`3 passed`), frontend type-check/tests/build (`48 passed`), diagnostics, Python compilation, dependency audits, Compose parsing and package verification. The unique count remains 139 backend + 48 frontend = 187; the shared PostgreSQL tests are not counted twice.
 
 | Verification area | Result |
 |---|---:|
@@ -23,8 +26,10 @@ The 2.2.0 local-first application, real PostgreSQL boundary and production-shape
 | Production-image Compose smoke | Passed |
 | Python dependency audit | 0 known vulnerabilities |
 | npm production dependency audit | 0 known vulnerabilities |
-| Package verifier | 57 required files passed |
-| Current live release | `2.1.1` / production / PostgreSQL |
+| Package verifier | 58 required files plus strict portfolio/release drift checks passed |
+| Current live release | `2.2.0` / production / PostgreSQL |
+| Production commit | `c8c928661bdcf179ed1d9df88b9f2e4d730ffea3` |
+| Latest Git tag / GitHub Release | `v2.1.0` / `v2.1.0` |
 
 ### Counting the backend total
 
@@ -108,9 +113,9 @@ cd frontend; npm audit --omit=dev
 docker compose config --quiet
 ```
 
-The doctor reported release 2.2.0 and passed learning database, 12-entry/12-sense demo dictionary, offline AI, pronunciation scoring, connector registry and dashboard checks. The package verifier passed 57 required files plus JSON/SVG parsing, Railway types, portable Docker-cache policy, secret hygiene and README links. Both dependency audits reported zero known vulnerabilities on 2026-07-16; this is time-sensitive evidence, not a permanent guarantee.
+The doctor reported release 2.2.0 and passed learning database, 12-entry/12-sense demo dictionary, offline AI, pronunciation scoring, connector registry and dashboard checks. The package verifier passed 58 required files plus JSON/SVG parsing, the strict public portfolio manifest, cross-document release-truth drift, Railway types, portable Docker-cache policy, secret hygiene and README links. Both dependency audits reported zero known vulnerabilities on 2026-07-16; this is time-sensitive evidence, not a permanent guarantee.
 
-`SHA256SUMS.txt` covers every candidate file except itself using canonical Git-clean blob bytes after `.gitattributes` normalization. This avoids false cross-platform failures from a Windows CRLF working tree; verification must hash the temporary Git index blobs rather than platform-specific checkout bytes.
+`SHA256SUMS.txt` covers every packaged source file except itself using canonical Git-clean blob bytes after `.gitattributes` normalization. This avoids false cross-platform failures from a Windows CRLF working tree; verification must hash the temporary Git index blobs rather than platform-specific checkout bytes.
 
 ### Production-shaped image
 
@@ -120,18 +125,22 @@ docker compose up --build --wait
 
 The rebuilt stack passed PostgreSQL and application health checks. Verification covers `/health/live`, `/health/ready`, `/version`, UID 10001, absence of `MIGRATION_DATABASE_URL` from the runtime process, idempotent provisioning and structured-log secret scanning.
 
-## Current public Railway verification — 2.1.1
+## Current public Railway verification — 2.2.0
 
 - URL: https://ivritsheli-production.up.railway.app
-- Pull request #11 merged successfully at commit `95d02554d754928483ffc42d42a372b86c6fcb1b`.
-- `/version`: release `2.1.1`, environment `production`, storage `postgresql`.
-- `/health/live` and `/health/ready`: HTTPS 200; dictionary and PostgreSQL ready.
-- Seed dictionary: 12 entries and 12 senses.
-- Seeded demo dictionary lookup/search passed.
-- Desktop, Hebrew RTL and 390 px mobile layouts loaded without console errors.
-- GitHub OAuth consent handoff exists; final authorization-code exchange/session/logout remains unclaimed.
+- Pull request #12 merged successfully at production commit `c8c928661bdcf179ed1d9df88b9f2e4d730ffea3`.
+- `/version`: release `2.2.0`, commit `c8c928661bdcf179ed1d9df88b9f2e4d730ffea3`, environment `production`, storage `postgresql`.
+- `/health/live`: HTTPS 200 with release `2.2.0` and the same immutable commit.
+- `/health/ready`: HTTPS 200; PostgreSQL and the shared-cloud dictionary are ready with 12 entries and 12 senses.
+- Git publication remains behind deployment: remote tags and GitHub Releases currently end at `v2.1.0`.
+- GitHub OAuth consent handoff and cancellation have verified evidence; final live authorization-code exchange, authenticated refresh persistence and logout remain unclaimed.
 
-This live evidence is for 2.1.1. No 2.2.0 interactive browser or deployment result is inferred from it.
+The operational endpoints were refreshed directly on 2026-07-18. This proves deployed identity and readiness, not 2.2 desktop/mobile/RTL/reduced-motion interactive browser behavior; the current README screenshots remain explicitly labeled 2.1.x evidence.
+
+### Historical Railway verification — 2.1.1
+
+- Pull request #11 merged and deployed at commit `95d02554d754928483ffc42d42a372b86c6fcb1b` on 2026-07-16.
+- Release identity, PostgreSQL readiness, seeded demo behavior and desktop/mobile/RTL browser smoke passed before the 2.2 deployment.
 
 ## Remaining credential- and environment-dependent checks
 
@@ -152,4 +161,4 @@ This live evidence is for 2.1.1. No 2.2.0 interactive browser or deployment resu
 
 ## Reliability statement
 
-Passing tests and healthy images materially reduce risk but do not prove that software is defect-free. This report separates reproducible candidate evidence, current live-production evidence and operator-only checks.
+Passing tests and healthy images materially reduce risk but do not prove that software is defect-free. This report separates reproducible source evidence, current live-production evidence, publication state and operator-only checks.

@@ -40,9 +40,9 @@ Show the repository map and state: React + TypeScript, Python + FastAPI, private
 2. **Solution:** capture → understand → practice → use → reflect.
 3. **Technical architecture:** React, FastAPI, private SQLite mode, GitHub-authenticated PostgreSQL tenants, a separate lexicon database, deterministic offline AI, and optional cloud adapters.
 4. **Differentiator:** every Hebrew word is clickable and every recommendation is explainable.
-5. **Reliability:** request IDs, redacted JSON logs, diagnostics, real PostgreSQL isolation tests, and 127 unique automated tests.
+5. **Reliability:** request IDs, redacted JSON logs, diagnostics, real PostgreSQL isolation tests, and 187 unique automated tests (139 backend + 48 frontend).
 6. **Privacy:** no account in private local mode; minimal GitHub identity in cloud mode; no analytics or background mailbox harvesting; explicit provider actions.
-7. **Deployment status:** Ivrit Sheli 2.1 is live on Railway with managed PostgreSQL at [ivritsheli-production.up.railway.app](https://ivritsheli-production.up.railway.app); HTTPS health, release identity, readiness, the seeded demo, and OAuth cancellation are verified.
+7. **Deployment status:** Ivrit Sheli 2.2.0 is live on Railway with managed PostgreSQL at [ivritsheli-production.up.railway.app](https://ivritsheli-production.up.railway.app) from commit `c8c928661bdcf179ed1d9df88b9f2e4d730ffea3`; HTTPS identity and readiness are verified, while the latest tag/release remains `v2.1.0`.
 8. **Roadmap:** complete the GitHub OAuth exchange/session check in a normal browser, then add self-service cloud-account deletion, a packaged desktop/mobile shell, richer phoneme scoring, and licensed dictionary enrichment.
 
 ## Suggested live-demo safety plan
@@ -53,7 +53,8 @@ Show the repository map and state: React + TypeScript, Python + FastAPI, private
 - Build the frontend before presentation.
 - Run `--doctor` immediately before the demo.
 - Run `docker compose up --build --wait` before demonstrating the authenticated PostgreSQL path.
-- Present the Railway demo as live and verified while describing GitHub OAuth precisely: consent handoff and cancellation are verified, but final authorization exchange remains pending.
+- Present the Railway 2.2.0 demo as live and operationally verified while describing GitHub OAuth precisely: consent handoff and cancellation are verified, but final live authorization-code exchange, authenticated refresh persistence and logout remain pending.
+- Use the current 2.1.x screenshots only as clearly labeled fallback evidence; do not present them as refreshed 2.2 visual proof.
 - Keep a screenshot of the dashboard as a fallback.
 
 ## Portfolio highlights
@@ -68,4 +69,4 @@ This project demonstrates:
 - Adaptive algorithms and recommendation scoring.
 - Bounded audio uploads, extension allow-listing, temporary-file cleanup, and privacy controls.
 - External API integration through testable adapters.
-- 127 unique automated tests, CI, Docker, documentation, and verified Railway production with managed PostgreSQL.
+- 187 unique automated tests, CI, Docker, documentation, and verified Railway 2.2.0 production with managed PostgreSQL.

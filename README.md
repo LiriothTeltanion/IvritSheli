@@ -23,8 +23,22 @@
 </div>
 
 <p align="center">
-  <a href="https://ivritsheli-production.up.railway.app"><strong>🌐 Open the verified live Ivrit Sheli 2.1.1 demo</strong></a>
+  <a href="https://ivritsheli-production.up.railway.app"><strong>🌐 Open the verified live Ivrit Sheli 2.2.0 demo</strong></a>
 </p>
+
+### Live release truth
+
+| Surface | Verified state |
+|---|---|
+| Source and live application | `2.2.0` |
+| Railway production commit | `c8c928661bdcf179ed1d9df88b9f2e4d730ffea3` |
+| Production storage/readiness | PostgreSQL · ready |
+| Automated baseline | 139 unique backend tests + 48 frontend tests = 187 |
+| GitHub publication | The latest Git tag and GitHub Release remain `v2.1.0` until 2.2 is published separately |
+| OAuth boundary | Consent handoff and cancellation are verified; final live authorization-code exchange, authenticated refresh persistence and logout are not verified end to end |
+| Visual proof | The 2.2 social preview is current; README screenshots remain verified 2.1.x evidence and 2.2 interactive browser QA is pending |
+
+The same conservative fields are available for portfolio/profile tooling in [`portfolio/project.json`](portfolio/project.json).
 
 <picture>
   <source media="(max-width: 640px)" srcset="assets/readme/ivrit-sheli-2-mobile.png" />
@@ -46,7 +60,7 @@
 </table>
 </details>
 
-> **Screenshot boundary:** these verified images show the deployed 2.1 interface. The 2.2 social preview is current, while refreshed 2.2 desktop/mobile/RTL screenshots remain the first post-deployment visual task.
+> **Screenshot boundary:** these verified images show the deployed 2.1.x interface. The 2.2 social preview is current, while refreshed 2.2 desktop/mobile/RTL screenshots and interactive browser QA remain the next visual-proof task.
 
 ## Why this project exists 💙
 
@@ -62,13 +76,13 @@ The new saved-vocabulary registry makes every saved item searchable and filterab
 
 ## What changed in 2.1.1 🔐
 
-The 2.1.1 candidate is a focused safety, correctness, and accessibility release. Cloud AI and audio now require stored learner consent before provider work begins; future reviews stay out of the due queue; dictionary readiness fails closed; SQLite upgrades run as atomic ordered migrations; and pronunciation history is recorded without letting an unverified client transcript change speaking mastery or XP.
+The 2.1.1 release was a focused safety, correctness, and accessibility update. Cloud AI and audio require stored learner consent before provider work begins; future reviews stay out of the due queue; dictionary readiness fails closed; SQLite upgrades run as atomic ordered migrations; and pronunciation history is recorded without letting an unverified client transcript change speaking mastery or XP.
 
-The review experience also behaves correctly with keyboards, screen readers, and reduced-motion preferences. Quick capture and dictionary dialogs trap and restore focus, hidden answer controls cannot be reached early, and recorded audio preserves its real MIME type and transcription-provider context. This release is merged and deployed: the public Railway service now reports `2.1.1`, PostgreSQL readiness, and the seeded read-only demo successfully.
+The review experience also behaves correctly with keyboards, screen readers, and reduced-motion preferences. Quick capture and dictionary dialogs trap and restore focus, hidden answer controls cannot be reached early, and recorded audio preserves its real MIME type and transcription-provider context. This release was merged and deployed before 2.2.0 and remains historical production evidence.
 
 ## What changed in 2.1 🚆
 
-Version 2.1 is live on Railway at [ivritsheli-production.up.railway.app](https://ivritsheli-production.up.railway.app). The HTTPS application, liveness, PostgreSQL-backed readiness, immutable release identity, structured startup/health logs, and seeded read-only demo are verified in production. GitHub OAuth reaches GitHub's consent screen and cancellation returns safely to the app; the final authorization-code exchange and authenticated-session flow remain explicitly unclaimed until completed in a normal browser.
+Version 2.1 established the Railway production path at [ivritsheli-production.up.railway.app](https://ivritsheli-production.up.railway.app). The HTTPS application, liveness, PostgreSQL-backed readiness, immutable release identity, structured startup/health logs, and seeded read-only demo were verified in production. GitHub OAuth reaches GitHub's consent screen and cancellation returns safely to the app; the final authorization-code exchange and authenticated-session flow remain explicitly unclaimed until completed in a normal browser.
 
 ## What changed in 2.0 🚀
 
@@ -391,7 +405,7 @@ IvritSheli/
 
 ## Project status
 
-Version 2.2.0 is implemented and verified as a release candidate on `codex/ivrit-sheli-v2.2.0`: selectable voice styles, microphone word intelligence, the saved-vocabulary registry, the expanded dictionary and the visual/motion system pass the local automated, real-PostgreSQL and production-image gates documented in [`TEST_REPORT.md`](TEST_REPORT.md). The public Railway service remains the separately verified `2.1.1` deployment at [ivritsheli-production.up.railway.app](https://ivritsheli-production.up.railway.app); 2.2.0 is not claimed as deployed or tagged. Successful GitHub code exchange, authenticated persistence across refreshes, live OpenAI/Google calls, two-identity production isolation, 2.2 interactive browser visual QA and backup restoration remain honest operator checks rather than inflated claims.
+Version 2.2.0 is implemented, merged and live at [ivritsheli-production.up.railway.app](https://ivritsheli-production.up.railway.app) from production commit `c8c928661bdcf179ed1d9df88b9f2e4d730ffea3`. Selectable voice styles, microphone word intelligence, the saved-vocabulary registry, the expanded dictionary and the visual/motion system pass the local automated, real-PostgreSQL and production-image gates documented in [`TEST_REPORT.md`](TEST_REPORT.md); the live service reports release `2.2.0`, environment `production`, PostgreSQL storage and ready health checks. The deployment is ahead of publication: the latest Git tag and GitHub Release remain `v2.1.0` until Kevin publishes 2.2 separately. Successful final GitHub code exchange, authenticated persistence across refreshes, logout, live OpenAI/Google calls, two-identity production isolation, refreshed 2.2 screenshots, 2.2 interactive browser visual QA and backup restoration remain honest operator checks rather than inflated claims.
 
 Passing tests and healthy local production-image checks materially reduce risk but do not prove that software is defect-free. Operational limits, credential-dependent checks and restore requirements are documented explicitly rather than hidden behind a perfect-score claim.
 

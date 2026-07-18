@@ -164,6 +164,8 @@ After configuration, verify successful login, cancelled login, invalid/replayed 
 
 For the 2.1 production check, the OAuth start flow reached GitHub's identity-only consent screen and the cancelled-login callback was verified. GitHub's anti-fraud protection disabled approval in the embedded test browser, so the final code exchange, authenticated session and logout must still be completed in a normal browser before OAuth is called fully verified.
 
+The 2.2.0 deployment preserves that same conservative boundary. Production identity and readiness are verified, but no successful final live authorization-code exchange, authenticated refresh persistence or logout result is inferred from deployment health.
+
 ### Cost and data-retention guardrails
 
 Railway's Free/Trial resources and retention can change. Before making the site a long-term public dependency:
@@ -220,14 +222,24 @@ Verify against the public URL:
 10. A non-allowlisted GitHub user cannot invoke cloud AI, cloud audio or Google previews.
 11. Desktop, 390 px mobile, Hebrew RTL and reduced-motion modes remain usable.
 
-### Current production verification record — 2.1.1 — 2026-07-16
+### Current production verification record — 2.2.0 — 2026-07-18
 
 - URL: https://ivritsheli-production.up.railway.app
+- Runtime identity: release `2.2.0`, environment `production`, storage `postgresql`.
+- Production commit: `c8c928661bdcf179ed1d9df88b9f2e4d730ffea3` from merged pull request #12.
+- `/health/live`: HTTPS `200` with version `2.2.0` and the same immutable commit.
+- `/health/ready`: HTTPS `200`; the 12-entry/12-sense shared-cloud dictionary and PostgreSQL readiness passed.
+- Publication boundary: production is newer than the repository publication record; the latest Git tag and GitHub Release remain `v2.1.0`.
+- Visual boundary: the 2.2 social preview is current, while README screenshots remain 2.1.x proof and 2.2 interactive browser QA is pending.
+- OAuth: GitHub consent handoff and cancellation have verified evidence; final live code exchange, authenticated refresh persistence and logout remain pending in a normal browser.
+
+### Historical production verification record — 2.1.1 — 2026-07-16
+
 - Runtime identity: release `2.1.1`, environment `production`, storage `postgresql`.
 - `/health/live` and `/health/ready`: HTTPS `200`; the 12-entry/12-sense seed dictionary and PostgreSQL readiness passed.
 - GitHub pull request #11 and Railway deployment completed successfully from merge commit `95d02554d754928483ffc42d42a372b86c6fcb1b`.
 - Browser smoke: desktop, Hebrew RTL and 390 px mobile layouts loaded without console errors; the seeded demo remained read-only.
-- OAuth: GitHub consent handoff is present; final code exchange/session/logout remain pending in a normal browser.
+- OAuth: GitHub consent handoff was present; final code exchange/session/logout remained pending in a normal browser.
 
 ### Historical production verification record — 2.1.0 — 2026-07-16
 
