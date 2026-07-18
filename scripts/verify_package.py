@@ -294,14 +294,14 @@ def verify_portfolio_manifest() -> list[str]:
     )
     failures.extend(nested_failures)
     expected_publication = {
-        "latest_git_tag": "v2.1.0",
-        "latest_github_release": "v2.1.0",
-        "source_version_tagged": False,
-        "source_version_github_release_published": False,
-        "release_state": "deployment-ahead-of-github-release",
+        "latest_git_tag": "v2.2.0",
+        "latest_github_release": "v2.2.0",
+        "source_version_tagged": True,
+        "source_version_github_release_published": True,
+        "release_state": "published-and-deployed",
     }
     if publication is not None and publication != expected_publication:
-        failures.append("portfolio/project.json: publication must preserve the v2.1.0 tag/release boundary")
+        failures.append("portfolio/project.json: publication must match the published v2.2.0 tag/release state")
 
     visual_proof, nested_failures = _verify_exact_keys(
         top_level.get("visual_proof"),
@@ -378,21 +378,21 @@ def verify_release_truth_drift() -> list[str]:
         "README.md": (
             "Open the verified live Ivrit Sheli 2.2.0 demo",
             "c8c928661bdcf179ed1d9df88b9f2e4d730ffea3",
-            "latest Git tag and GitHub Release remain `v2.1.0`",
+            "Git tag and GitHub Release `v2.2.0` are published",
             "139 unique backend tests + 48 frontend tests = 187",
         ),
         "TEST_REPORT.md": (
             "Current live release | `2.2.0` / production / PostgreSQL",
             "c8c928661bdcf179ed1d9df88b9f2e4d730ffea3",
-            "Latest Git tag / GitHub Release | `v2.1.0` / `v2.1.0`",
+            "Latest Git tag / GitHub Release | `v2.2.0` / `v2.2.0`",
         ),
         "CHANGELOG.md": (
             "production commit `c8c928661bdcf179ed1d9df88b9f2e4d730ffea3`",
-            "latest Git tag and GitHub Release remain `v2.1.0`",
+            "Git tag and GitHub Release `v2.2.0` are published",
         ),
         "PACKAGE_MANIFEST.md": (
             "Live source version: `2.2.0`",
-            "Latest Git tag and GitHub Release: `v2.1.0`",
+            "Latest Git tag and GitHub Release: `v2.2.0`",
             "187 passed",
         ),
         "docs/DEPLOYMENT.md": (

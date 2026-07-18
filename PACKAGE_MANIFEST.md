@@ -14,8 +14,8 @@
 - Production URL: https://ivritsheli-production.up.railway.app
 - Current verified production release: `2.2.0` on Railway with managed PostgreSQL
 - Production commit: `c8c928661bdcf179ed1d9df88b9f2e4d730ffea3`
-- Latest Git tag and GitHub Release: `v2.1.0`
-- Publication boundary: 2.2.0 is deployed but is not yet represented by a 2.2 tag or GitHub Release
+- Latest Git tag and GitHub Release: `v2.2.0`
+- Publication state: 2.2.0 is tagged, published and deployed
 - Personal signature: `KC ✦ LT` is reserved and excluded from the MIT asset grant
 - Dictionary-derived data: separate Wiktionary/Kaikki attribution and share-alike terms
 - Machine-readable public source: `portfolio/project.json`

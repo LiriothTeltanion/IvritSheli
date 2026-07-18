@@ -34,7 +34,7 @@
 | Railway production commit | `c8c928661bdcf179ed1d9df88b9f2e4d730ffea3` |
 | Production storage/readiness | PostgreSQL · ready |
 | Automated baseline | 139 unique backend tests + 48 frontend tests = 187 |
-| GitHub publication | The latest Git tag and GitHub Release remain `v2.1.0` until 2.2 is published separately |
+| GitHub publication | Git tag and GitHub Release `v2.2.0` are published and match the deployed source version |
 | OAuth boundary | Consent handoff and cancellation are verified; final live authorization-code exchange, authenticated refresh persistence and logout are not verified end to end |
 | Visual proof | The 2.2 social preview is current; README screenshots remain verified 2.1.x evidence and 2.2 interactive browser QA is pending |
 
@@ -405,7 +405,7 @@ IvritSheli/
 
 ## Project status
 
-Version 2.2.0 is implemented, merged and live at [ivritsheli-production.up.railway.app](https://ivritsheli-production.up.railway.app) from production commit `c8c928661bdcf179ed1d9df88b9f2e4d730ffea3`. Selectable voice styles, microphone word intelligence, the saved-vocabulary registry, the expanded dictionary and the visual/motion system pass the local automated, real-PostgreSQL and production-image gates documented in [`TEST_REPORT.md`](TEST_REPORT.md); the live service reports release `2.2.0`, environment `production`, PostgreSQL storage and ready health checks. The deployment is ahead of publication: the latest Git tag and GitHub Release remain `v2.1.0` until Kevin publishes 2.2 separately. Successful final GitHub code exchange, authenticated persistence across refreshes, logout, live OpenAI/Google calls, two-identity production isolation, refreshed 2.2 screenshots, 2.2 interactive browser visual QA and backup restoration remain honest operator checks rather than inflated claims.
+Version 2.2.0 is implemented, merged, tagged, published as a GitHub Release and live at [ivritsheli-production.up.railway.app](https://ivritsheli-production.up.railway.app) from production commit `c8c928661bdcf179ed1d9df88b9f2e4d730ffea3`. Selectable voice styles, microphone word intelligence, the saved-vocabulary registry, the expanded dictionary and the visual/motion system pass the local automated, real-PostgreSQL and production-image gates documented in [`TEST_REPORT.md`](TEST_REPORT.md); the live service reports release `2.2.0`, environment `production`, PostgreSQL storage and ready health checks. Successful final GitHub code exchange, authenticated persistence across refreshes, logout, live OpenAI/Google calls, two-identity production isolation, refreshed 2.2 screenshots, 2.2 interactive browser visual QA and backup restoration remain honest operator checks rather than inflated claims.
 
 Passing tests and healthy local production-image checks materially reduce risk but do not prove that software is defect-free. Operational limits, credential-dependent checks and restore requirements are documented explicitly rather than hidden behind a perfect-score claim.
 

@@ -8,7 +8,7 @@ All notable changes are documented here. Versions follow Semantic Versioning.
 
 - Reconciled recruiter-facing release truth after the existing 2.2.0 source was deployed: Railway production now reports version `2.2.0`, PostgreSQL readiness and production commit `c8c928661bdcf179ed1d9df88b9f2e4d730ffea3`.
 - Added the strict public `portfolio/project.json` manifest and package drift checks without changing the application version; this finishes the 2.2.0 release record rather than starting 2.3.0.
-- Kept publication and evidence boundaries explicit: the latest Git tag and GitHub Release remain `v2.1.0`, README screenshots remain 2.1.x visual proof, and final live OAuth authorization-code exchange remains unverified end to end.
+- Published Git tag and GitHub Release `v2.2.0` while keeping the remaining evidence boundaries explicit: README screenshots remain 2.1.x visual proof, and final live OAuth authorization-code exchange remains unverified end to end.
 
 ## 2.2.0 — 2026-07-16
 
@@ -38,7 +38,7 @@ All notable changes are documented here. Versions follow Semantic Versioning.
 ### Verification
 
 - Backend lint, strict typing, local suite, real PostgreSQL 17 boundary, frontend type-check/tests/build and package diff checks pass for the 2.2.0 release source.
-- The public Railway service is verified on merged 2.2.0 production commit `c8c928661bdcf179ed1d9df88b9f2e4d730ffea3` with PostgreSQL readiness. Deployment is ahead of publication: the latest Git tag and GitHub Release remain `v2.1.0`.
+- The public Railway service is verified on merged 2.2.0 production commit `c8c928661bdcf179ed1d9df88b9f2e4d730ffea3` with PostgreSQL readiness; Git tag and GitHub Release `v2.2.0` are published.
 
 ## 2.1.1 — 2026-07-16
 

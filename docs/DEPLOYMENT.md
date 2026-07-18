@@ -229,7 +229,7 @@ Verify against the public URL:
 - Production commit: `c8c928661bdcf179ed1d9df88b9f2e4d730ffea3` from merged pull request #12.
 - `/health/live`: HTTPS `200` with version `2.2.0` and the same immutable commit.
 - `/health/ready`: HTTPS `200`; the 12-entry/12-sense shared-cloud dictionary and PostgreSQL readiness passed.
-- Publication boundary: production is newer than the repository publication record; the latest Git tag and GitHub Release remain `v2.1.0`.
+- Publication state: Git tag and GitHub Release `v2.2.0` are published and match the deployed source version.
 - Visual boundary: the 2.2 social preview is current, while README screenshots remain 2.1.x proof and 2.2 interactive browser QA is pending.
 - OAuth: GitHub consent handoff and cancellation have verified evidence; final live code exchange, authenticated refresh persistence and logout remain pending in a normal browser.
 
