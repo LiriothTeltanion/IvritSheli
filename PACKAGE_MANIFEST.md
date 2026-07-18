@@ -3,17 +3,22 @@
 ## Release identity
 
 - Product: Ivrit Sheli Ultimate — העברית שלי
-- Candidate: `2.2.0`
+- Source version: `2.2.0`
+- Live source version: `2.2.0`
 - Date: 2026-07-16
+- Production truth refreshed: 2026-07-18
 - Time zone: Asia/Jerusalem
 - Author: Kevin “Lirioth” Cusnir
-- Working branch: `codex/ivrit-sheli-v2.2.0`
+- Default branch: `main`
 - Application license: MIT
 - Production URL: https://ivritsheli-production.up.railway.app
-- Current verified production release: `2.1.1` on Railway with managed PostgreSQL
-- Candidate deployment status: 2.2.0 is not tagged or deployed by this package
+- Current verified production release: `2.2.0` on Railway with managed PostgreSQL
+- Production commit: `c8c928661bdcf179ed1d9df88b9f2e4d730ffea3`
+- Latest Git tag and GitHub Release: `v2.1.0`
+- Publication boundary: 2.2.0 is deployed but is not yet represented by a 2.2 tag or GitHub Release
 - Personal signature: `KC ✦ LT` is reserved and excluded from the MIT asset grant
 - Dictionary-derived data: separate Wiktionary/Kaikki attribution and share-alike terms
+- Machine-readable public source: `portfolio/project.json`
 
 ## 2.2 capabilities
 
@@ -82,9 +87,9 @@ The OpenAI AI/embedding/TTS/STT and Google connector adapters are deterministic-
 - Real PostgreSQL migration, restricted role, RLS and tenant isolation: passed.
 - Production-image Compose build/health smoke: passed.
 - Python and npm production dependency audits: zero known vulnerabilities on 2026-07-16.
-- Package verifier: 57 required files plus JSON, SVG, Railway, secret-hygiene and README-link checks passed.
-- `SHA256SUMS.txt`: canonical Git-clean blob hashes for every candidate file except the manifest itself; checkout-specific CRLF bytes are intentionally not the checksum basis.
+- Package verifier: 58 required files plus strict portfolio/release drift, JSON, SVG, Railway, secret-hygiene and README-link checks passed.
+- `SHA256SUMS.txt`: canonical Git-clean blob hashes for every packaged source file except the checksum manifest itself; checkout-specific CRLF bytes are intentionally not the checksum basis.
 
-Interactive browser QA in this work session verified the currently deployed 2.1.1 release, not the local 2.2.0 candidate. The README screenshots therefore remain explicitly labeled 2.1. Final GitHub OAuth code exchange, two-real-user production isolation, live OpenAI/Google calls, refreshed 2.2 screenshots, 2.2 interactive visual QA and a managed backup restore drill remain explicit operator checks.
+The deployed 2.2.0 identity, immutable commit, liveness, dictionary readiness and PostgreSQL readiness were refreshed directly on 2026-07-18. The README screenshots remain explicitly labeled 2.1.x and 2.2 interactive browser QA remains pending, so visual proof is partial rather than inflated. Final live GitHub OAuth code exchange, authenticated refresh persistence/logout, two-real-user production isolation, live OpenAI/Google calls, refreshed 2.2 screenshots and a managed backup restore drill remain explicit operator checks.
 
 See `TEST_REPORT.md` for commands, build sizes and evidence boundaries.
