@@ -9,7 +9,7 @@ import { useSessionAccess } from '../session';
 import { localizedText, starterWords } from '../starterWords';
 import type { Dashboard } from '../types';
 import { HebrewText } from './HebrewText';
-import { Icon } from './Icon';
+import { Icon, type IconName } from './Icon';
 import { MetricRing } from './MetricRing';
 import { WordIllustration } from './WordIllustration';
 
@@ -19,7 +19,10 @@ interface TodayDashboardProps {
   onWordClick: (word: string) => void;
   onCapture: () => void;
   onStart: () => void;
+  onPreviewFirstSteps: () => void;
   onOpenDictionary: () => void;
+  onOpenAudio: () => void;
+  onOpenProgress: () => void;
   onOpenCoach: () => void;
 }
 
@@ -29,7 +32,10 @@ export function TodayDashboard({
   onWordClick,
   onCapture,
   onStart,
+  onPreviewFirstSteps,
   onOpenDictionary,
+  onOpenAudio,
+  onOpenProgress,
   onOpenCoach,
 }: TodayDashboardProps): React.JSX.Element {
   const { locale, label, t } = useI18n();
@@ -59,6 +65,42 @@ export function TodayDashboard({
     const localized = reasonKeys.filter(([phrase]) => reason.toLowerCase().includes(phrase)).map(([, key]) => t(key));
     return localized.length > 0 ? `${localized.join(' · ')}.` : t('balancedCandidate');
   };
+  const demoTourStops: ReadonlyArray<{
+    key: string;
+    icon: IconName;
+    title: string;
+    detail: string;
+    open: () => void;
+  }> = [
+    {
+      key: 'first-steps',
+      icon: 'sparkles',
+      title: t('demoTourFirstStepsTitle'),
+      detail: t('demoTourFirstStepsDetail'),
+      open: onPreviewFirstSteps,
+    },
+    {
+      key: 'dictionary',
+      icon: 'book',
+      title: t('demoTourDictionaryTitle'),
+      detail: t('demoTourDictionaryDetail'),
+      open: onOpenDictionary,
+    },
+    {
+      key: 'mic',
+      icon: 'mic',
+      title: t('demoTourMicTitle'),
+      detail: t('demoTourMicDetail'),
+      open: onOpenAudio,
+    },
+    {
+      key: 'progress',
+      icon: 'chart',
+      title: t('demoTourProgressTitle'),
+      detail: t('demoTourProgressDetail'),
+      open: onOpenProgress,
+    },
+  ];
   return (
     <div className="today-page stagger-in">
       <section className="hero-dashboard card">
@@ -84,6 +126,28 @@ export function TodayDashboard({
           </div>
         </div>
       </section>
+
+      {readOnly && (
+        <section className="demo-tour card" aria-labelledby="demo-tour-title">
+          <header className="demo-tour__header">
+            <div>
+              <span className="eyebrow"><Icon name="play" size={16} /> {t('demoTourEyebrow')}</span>
+              <h2 id="demo-tour-title">{t('demoTourTitle')}</h2>
+            </div>
+            <p>{t('demoTourDescription')}</p>
+          </header>
+          <div className="demo-tour__grid">
+            {demoTourStops.map((stop, index) => (
+              <button key={stop.key} type="button" className={`demo-tour__stop demo-tour__stop--${index + 1}`} onClick={stop.open}>
+                <span className="demo-tour__number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                <span className="demo-tour__icon" aria-hidden="true"><Icon name={stop.icon} size={22} /></span>
+                <span className="demo-tour__copy"><strong>{stop.title}</strong><small>{stop.detail}</small></span>
+                <Icon name="chevron" size={18} />
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="visual-vocabulary card" aria-labelledby="visual-vocabulary-title">
         <header className="section-heading">

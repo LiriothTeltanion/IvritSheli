@@ -103,7 +103,7 @@ export function SettingsPanel({
         diagnostics: {
           user_agent: navigator.userAgent,
           viewport: `${window.innerWidth}x${window.innerHeight}`,
-          app_version: '2.3.0',
+          app_version: '2.4.0',
           online: navigator.onLine,
           locale,
           route: window.location.pathname,

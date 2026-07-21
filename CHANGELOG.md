@@ -4,6 +4,34 @@ All notable changes are documented here. Versions follow Semantic Versioning.
 
 ## Unreleased
 
+No changes beyond the 2.4.0 Contest Edition candidate are currently queued.
+
+## 2.4.0 — Contest Edition candidate — 2026-07-21
+
+### Added
+
+- A four-stop guided product tour for the synthetic read-only demo, with real navigation to an ephemeral illustrated First Steps lesson, visual dictionary, microphone word intelligence and adaptive-progress surfaces.
+- A deterministic per-visit `?lang=en`, `?lang=es` or `?lang=he` override for judge links, documentation captures and support flows without overwriting the learner's saved language.
+
+### Changed
+
+- Version metadata advances from the unreleased `2.3.0` candidate to `2.4.0` across Python, npm, PWA, browser, diagnostics, citation and release surfaces.
+- The contest tour reuses the existing responsive, RTL-aware, keyboard-accessible and reduced-motion architecture; it does not add a new animation framework or external visual dependency.
+
+### Security
+
+- Session, CSRF and OAuth-state bearer material now uses keyed BLAKE2b-256 rather than HMAC-SHA256. The stored representation remains a 64-character hexadecimal digest; deploying the change intentionally rotates active session hashes without a schema migration.
+- Google sign-in remains identity-only and gains no Gmail, Drive or Calendar scope, schema, provider or dependency in this release.
+
+### Local candidate verification
+
+- The ordinary backend suite passes 150 tests with one credential-gated PostgreSQL skip; the dedicated PostgreSQL 17 gate passes 3/3, with two overlapping the ordinary suite and one replacing that skip, for 151 unique backend passes.
+- The frontend passes 62 tests across 16 files; combined local candidate evidence is 213 unique automated tests.
+- Ruff, strict MyPy across 24 source files, compileall, offline doctor, pip-audit, TypeScript, Vite, npm production audit and the 66-file package verifier pass. The production-shaped Docker/Compose smoke passes with release 2.4.0, PostgreSQL readiness, UID 10001, no migration DSN in the app runtime, OAuth rate limiting and structured-log redaction.
+- Version `2.4.0` remains an unpublished source candidate until CI/CodeQL policy, merge, Railway deployment and live Google/session/browser checks pass. The current independently verified public release and latest GitHub Release remain `2.2.0`.
+
+## 2.3.0 — Superseded source candidate — 2026-07-21
+
 ### Added
 
 - Google sign-in as the beginner-facing account path, with provider-bound OAuth state, S256 PKCE, minimal `openid profile` scope, and no stored provider bearer tokens or email addresses. GitHub sign-in remains available for developers and returning learners.
@@ -28,7 +56,7 @@ All notable changes are documented here. Versions follow Semantic Versioning.
 
 - The ordinary backend suite passes 149 tests with one credential-gated PostgreSQL skip; the dedicated PostgreSQL 17 gate passes all three database-boundary tests and contributes the skipped case for 150 unique backend passes.
 - The frontend type-check, 58 tests across 15 files and production build pass; the verified candidate baseline is 208 unique passing automated tests. The production Compose/image smoke also passes with release 2.3.0, PostgreSQL readiness, 48 shared dictionary entries and the unprivileged runtime identity.
-- Version `2.3.0` remains an unpublished source candidate until final production-image/CI gates, merge, Railway deployment and live Google/session/browser checks pass. The current verified public release and latest GitHub Release remain `2.2.0`.
+- Version `2.3.0` was not published; it was superseded in source by the 2.4.0 Contest Edition candidate. The current verified public release and latest GitHub Release remain `2.2.0`.
 
 ### Previous release record corrected
 

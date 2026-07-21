@@ -4,7 +4,7 @@
 // Date: 2026-07-15 | TZ: Asia/Jerusalem
 // Notes: API responses and user data are deliberately never cached by the service worker.
 
-const CACHE_NAME = 'ivrit-sheli-shell-v2.3.0';
+const CACHE_NAME = 'ivrit-sheli-shell-v2.4.0';
 const CORE_ASSETS = ['/', '/manifest.webmanifest', '/icons/app-icon.svg', '/icons/app-icon-192.png', '/icons/app-icon-512.png'];
 const NETWORK_ONLY_PATHS = new Set(['/health/live', '/health/ready', '/version']);
 

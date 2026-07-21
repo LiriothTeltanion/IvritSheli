@@ -1,6 +1,6 @@
 # Design system
 
-## 2.3 visual direction
+## 2.4 Contest Edition visual direction
 
 The default beginner experience is a warm illustrated journey: cream paper-like backgrounds, navy text, teal actions, gold learning highlights and coral speaking/destructive accents. Dark mode is retained for learner choice and advanced workspaces, but the first-run experience is light-first so content hierarchy is familiar to people with limited technical experience.
 

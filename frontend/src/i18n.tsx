@@ -147,6 +147,18 @@ const messages = {
     accountStorage: 'PostgreSQL · account-isolated',
     readOnlyDemo: 'Seeded read-only demonstration',
     readOnlyExplanation: 'Explore every learning view safely. Saving, grading, importing, AI requests and profile changes are disabled in demo mode.',
+    demoTourEyebrow: 'Guided product tour',
+    demoTourTitle: 'See the complete learning loop',
+    demoTourDescription: 'Choose any stop. Every preview is interactive, and the shared demonstration never changes its saved data.',
+    demoTourFirstStepsTitle: 'Illustrated First Steps',
+    demoTourFirstStepsDetail: 'Learn five useful words through original pictures, sound, recall, and examples.',
+    demoTourDictionaryTitle: 'Visual dictionary',
+    demoTourDictionaryDetail: 'Explore niqqud, pronunciation, meanings, grammar, forms, and connected examples.',
+    demoTourMicTitle: 'Mic word intelligence',
+    demoTourMicDetail: 'Record or type one Hebrew word and open its multilingual language analysis.',
+    demoTourProgressTitle: 'Adaptive progress',
+    demoTourProgressDetail: 'See mastery signals, recurring mistakes, XP, achievements, and practice activity.',
+    demoTourCompleteToast: 'Preview complete — no demonstration data was changed.',
     signedInAs: 'Signed in as',
     logout: 'Sign out',
     authFailed: 'Secure access is temporarily unavailable.',
@@ -580,6 +592,18 @@ const messages = {
     accountStorage: 'PostgreSQL · cuenta aislada',
     readOnlyDemo: 'Demostración de ejemplo y solo lectura',
     readOnlyExplanation: 'Explora todas las vistas con seguridad. Guardar, calificar, importar, usar IA y modificar el perfil están desactivados en la demo.',
+    demoTourEyebrow: 'Recorrido guiado del producto',
+    demoTourTitle: 'Descubre el ciclo completo de aprendizaje',
+    demoTourDescription: 'Elige cualquier parada. Cada vista es interactiva y la demostración compartida nunca modifica sus datos guardados.',
+    demoTourFirstStepsTitle: 'Primeros pasos ilustrados',
+    demoTourFirstStepsDetail: 'Aprende cinco palabras útiles con ilustraciones originales, sonido, recuerdo y ejemplos.',
+    demoTourDictionaryTitle: 'Diccionario visual',
+    demoTourDictionaryDetail: 'Explora niqqud, pronunciación, significados, gramática, formas y ejemplos conectados.',
+    demoTourMicTitle: 'Inteligencia de palabras por micrófono',
+    demoTourMicDetail: 'Graba o escribe una palabra hebrea y abre su análisis lingüístico multilingüe.',
+    demoTourProgressTitle: 'Progreso adaptativo',
+    demoTourProgressDetail: 'Consulta dominio, errores recurrentes, XP, logros y actividad de práctica.',
+    demoTourCompleteToast: 'Vista previa completa: no se modificaron los datos de la demostración.',
     signedInAs: 'Sesión de',
     logout: 'Cerrar sesión',
     authFailed: 'El acceso seguro no está disponible temporalmente.',
@@ -1013,6 +1037,18 @@ const messages = {
     accountStorage: 'PostgreSQL · חשבון מופרד',
     readOnlyDemo: 'הדגמה עם נתוני דוגמה לקריאה בלבד',
     readOnlyExplanation: 'אפשר לסייר בבטחה בכל אזורי הלימוד. שמירה, דירוג, ייבוא, בקשות AI ושינויי פרופיל מושבתים במצב הדגמה.',
+    demoTourEyebrow: 'סיור מוצר מודרך',
+    demoTourTitle: 'הכירו את מעגל הלמידה המלא',
+    demoTourDescription: 'אפשר לבחור כל תחנה. כל תצוגה אינטראקטיבית, ונתוני ההדגמה המשותפת לעולם אינם משתנים.',
+    demoTourFirstStepsTitle: 'צעדים ראשונים מאוירים',
+    demoTourFirstStepsDetail: 'לומדים חמש מילים שימושיות בעזרת איורים מקוריים, צליל, שליפה ודוגמאות.',
+    demoTourDictionaryTitle: 'מילון חזותי',
+    demoTourDictionaryDetail: 'מגלים ניקוד, הגייה, משמעויות, דקדוק, צורות ודוגמאות מקושרות.',
+    demoTourMicTitle: 'ניתוח מילה מהמיקרופון',
+    demoTourMicDetail: 'מקליטים או מקלידים מילה בעברית ופותחים ניתוח לשוני רב־לשוני.',
+    demoTourProgressTitle: 'התקדמות מותאמת',
+    demoTourProgressDetail: 'רואים מדדי שליטה, טעויות חוזרות, XP, הישגים ופעילות תרגול.',
+    demoTourCompleteToast: 'התצוגה המקדימה הושלמה — נתוני ההדגמה לא השתנו.',
     signedInAs: 'מחובר בתור',
     logout: 'יציאה',
     authFailed: 'הגישה המאובטחת אינה זמינה כרגע.',
@@ -1385,8 +1421,15 @@ interface I18nContextValue {
 
 const I18nContext = createContext<I18nContextValue | null>(null);
 
+export function localeOverrideFromSearch(search: string): Locale | null {
+  const requested = new URLSearchParams(search).get('lang')?.toLowerCase();
+  return requested === 'en' || requested === 'es' || requested === 'he' ? requested : null;
+}
+
 export function I18nProvider({ children }: { children: ReactNode }): React.JSX.Element {
   const [locale, setLocaleState] = useState<Locale>(() => {
+    const visitOverride = localeOverrideFromSearch(window.location.search);
+    if (visitOverride) return visitOverride;
     const saved = localStorage.getItem('ivrit-sheli-locale');
     return saved === 'es' || saved === 'he' ? saved : 'en';
   });

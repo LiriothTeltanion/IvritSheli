@@ -1,4 +1,4 @@
-# API catalog — Ivrit Sheli 2.3
+# API catalog — Ivrit Sheli 2.4 Contest Edition
 
 Application base path: `/api/v1`
 
@@ -124,7 +124,7 @@ Offline deterministic results require no external service. Online processing req
 | `POST` | `/api/v1/audio/word-analysis` |
 | `POST` | `/api/v1/audio/pronunciation-score` |
 
-Uploads are bounded by the request envelope, decoded file size and filename-extension allowlist. MIME and magic-byte validation remain an explicit limitation in 2.3. App-managed audio and transcripts are excluded from structured request logs.
+Uploads are bounded by the request envelope, decoded file size and filename-extension allowlist. MIME and magic-byte validation remain an explicit limitation in 2.4. App-managed audio and transcripts are excluded from structured request logs.
 
 `POST /audio/tts` accepts `voice_style: "masculine" | "feminine"`; clients cannot inject arbitrary provider voice IDs. `POST /audio/word-analysis` accepts exactly one Hebrew transcript plus client-reported `browser`, `openai`, or `manual` provenance. The server does not present the client report as independently verified. Its local path is a non-mutating dictionary analysis and is available to the read-only demo. Cloud enrichment still requires an authenticated non-demo identity, production allowlisting, stored learner consent, and an explicit `cloud_requested: true` action. Word analysis never updates XP or mastery.
 

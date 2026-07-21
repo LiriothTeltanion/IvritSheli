@@ -46,10 +46,16 @@ DEFAULT_TEST_SESSION_SECRET = "test-only-cloud-store-secret-at-least-32-characte
 
 def bearer_hash(value: str, session_secret: str) -> str:
     """Key bearer material so rotating SESSION_SECRET invalidates prior hashes."""
-    return hmac.new(
+    secret_key = hashlib.blake2b(
         session_secret.encode("utf-8"),
+        digest_size=32,
+        person=b"ivrit-bearer-v1",
+    ).digest()
+    return hashlib.blake2b(
         value.encode("utf-8"),
-        hashlib.sha256,
+        key=secret_key,
+        digest_size=32,
+        person=b"ivrit-token-v1",
     ).hexdigest()
 
 
@@ -455,7 +461,7 @@ class PostgresCloudStore:
     def configure_security(
         self, session_secret: str, max_snapshot_bytes: int
     ) -> None:
-        """Apply the current HMAC key and tenant document ceiling."""
+        """Apply the current bearer-digest secret and tenant document ceiling."""
         validate_store_security(session_secret, max_snapshot_bytes)
         self.session_secret = session_secret
         self.max_snapshot_bytes = max_snapshot_bytes

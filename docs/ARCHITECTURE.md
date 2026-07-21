@@ -1,6 +1,6 @@
-# Architecture — Ivrit Sheli 2.3
+# Architecture — Ivrit Sheli 2.4 Contest Edition
 
-Ivrit Sheli 2.3 has two deliberate runtime modes. The private SQLite application remains the simplest offline installation; the cloud mode adds authenticated multi-user delivery without duplicating or weakening the learning engine.
+Ivrit Sheli 2.4 has two deliberate runtime modes. The private SQLite application remains the simplest offline installation; the cloud mode adds authenticated multi-user delivery without duplicating or weakening the learning engine.
 
 ## System shape
 
@@ -9,7 +9,7 @@ Browser: React 19 + TypeScript + PWA + EN/ES/HE + RTL
                          │
                          │ same-origin HTTPS + secure session cookie
                          ▼
-Ivrit Sheli 2.3 FastAPI application
+Ivrit Sheli 2.4 FastAPI application
   ├── Google OIDC / GitHub OAuth + provider-bound PKCE state
   ├── signed-in / deterministic demo session boundary
   ├── CSRF verification for authenticated mutations
@@ -59,7 +59,7 @@ AI interactions, pronunciation attempts and connector state use the same locked 
 3. The provider redirects to its own `/api/v1/auth/{provider}/callback` and provider-specific state cookie path.
 4. The backend rejects missing, replayed or provider-swapped state, then exchanges the code over the server channel.
 5. Google persists only `sub`, display name and optional picture. GitHub persists only provider ID, login, display name and optional avatar. Provider tokens and email addresses are not persisted, and identities are never auto-linked by email.
-6. A random session and CSRF token are generated. Only `SESSION_SECRET`-keyed HMAC hashes are stored in PostgreSQL, so rotating that secret invalidates the bearer material.
+6. A random session and CSRF token are generated. Only domain-separated, `SESSION_SECRET`-keyed BLAKE2b-256 digests are stored in PostgreSQL, so rotating that secret invalidates the bearer material.
 7. The browser receives an `HttpOnly`, `Secure`, `SameSite=Lax` session cookie.
 
 Google sign-in requests `openid profile` only. The separate Google Workspace connector client, credentials and user consent do not widen the login scope. `auth_providers` reports only complete server configurations so the browser cannot offer a dead sign-in button.

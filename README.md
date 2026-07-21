@@ -1,7 +1,7 @@
 <div align="center">
   <img src="assets/brand/logo.svg" alt="Ivrit Sheli" width="680" />
 
-  <h1>Ivrit Sheli 2.3.0 — Warm Illustrated Journey · העברית שלי</h1>
+  <h1>Ivrit Sheli 2.4.0 — Contest Edition · העברית שלי</h1>
   <p><strong>A private-first, authenticated, trilingual Hebrew-learning operating system built from real life.</strong></p>
 
   <p>
@@ -15,7 +15,7 @@
   </p>
 
   <p>
-    <img src="assets/readme/badge-tests.svg" alt="208 automated tests passing in the 2.3 candidate" />
+    <img src="assets/readme/badge-tests.svg" alt="213 automated tests passing in the locally verified 2.4 candidate" />
     <img src="assets/readme/badge-private.svg" alt="Local-first private" />
     <img src="assets/readme/badge-trilingual.svg" alt="Hebrew English Spanish" />
     <img src="assets/readme/badge-pwa.svg" alt="Installable PWA" />
@@ -30,14 +30,14 @@
 
 | Surface | Verified state |
 |---|---|
-| Source candidate | `2.3.0` on `codex/ivrit-sheli-v2.3.0`; not yet tagged, released or deployed |
+| Source candidate | `2.4.0` on `codex/ivrit-sheli-v2.3.0`; not yet tagged, released or deployed |
 | Current live application | `2.2.0` |
 | Railway production commit | `66d68a3c44ac2500fb400eef88d5f77da0c1c1e1` |
 | Production storage/readiness | PostgreSQL · ready |
-| Candidate automated baseline | 150 unique backend tests + 58 frontend tests = 208 passed |
-| GitHub publication | `v2.2.0` remains the latest published tag and GitHub Release; no `v2.3.0` release is claimed yet |
-| OAuth boundary | Google/GitHub provider flows are source-tested; live Google sign-in and successful end-to-end account sessions are not yet verified for 2.3 |
-| Visual proof | README screenshots remain verified 2.1.x evidence; refreshed 2.3 desktop/mobile/RTL/reduced-motion proof is pending |
+| Local candidate verification | 151 unique backend tests + 62 frontend tests = 213 passed |
+| GitHub publication | `v2.2.0` remains the latest published tag and GitHub Release; no `v2.4.0` release is claimed yet |
+| OAuth boundary | Google/GitHub provider flows are source-tested; live Google sign-in and successful end-to-end account sessions are not yet verified for 2.4 |
+| Visual proof | README screenshots remain verified 2.1.x evidence; refreshed 2.4 desktop/mobile/RTL/reduced-motion proof is pending |
 
 The same conservative fields are available for portfolio/profile tooling in [`portfolio/project.json`](portfolio/project.json).
 
@@ -61,7 +61,7 @@ The same conservative fields are available for portfolio/profile tooling in [`po
 </table>
 </details>
 
-> **Screenshot boundary:** these verified images show the deployed 2.1.x interface. They do not prove the new 2.3 warm illustrated journey; refreshed desktop/mobile/RTL/reduced-motion screenshots and interactive browser QA remain release-candidate checks.
+> **Screenshot boundary:** these verified images show the deployed 2.1.x interface. They do not prove the new 2.4 Contest Edition; refreshed desktop/mobile/RTL/reduced-motion screenshots and interactive browser QA remain release-candidate checks.
 
 ## Why this project exists 💙
 
@@ -69,13 +69,21 @@ Most language products make every learner follow the same path. Ivrit Sheli does
 
 The system tracks what you recognize, what you can produce, where you hesitate, which grammar errors repeat, which situations matter, and which learning mode works best. Recommendations are explainable: the app tells you *why* it selected a word, exercise, mission, or speaking drill.
 
-## What changed in the 2.3.0 candidate 🌤️
+## What changes in the 2.4.0 Contest Edition 🧭
+
+Version 2.4 adds a four-stop guided tour to the synthetic read-only demo. It navigates through an ephemeral illustrated First Steps lesson, visual dictionary, microphone word intelligence and adaptive progress without mutating shared demo data. A per-visit `?lang=en`, `?lang=es` or `?lang=he` override makes judge links and support captures deterministic without replacing a learner's saved language.
+
+The tour is built from the existing icon, motion, responsive, RTL and reduced-motion systems rather than a new visual dependency. On the security boundary, bearer/session/OAuth-state digests move to keyed BLAKE2b-256 while retaining their 64-character hexadecimal storage contract. Deployment intentionally rotates active session hashes. Google remains identity-only; 2.4 adds no Gmail, Drive or Calendar scope, provider, schema or dependency.
+
+This section describes source candidate `2.4.0`, not the current Railway deployment. Production remains independently verified at 2.2.0 until the candidate is merged, deployed and checked live.
+
+## Foundation inherited from the unreleased 2.3.0 candidate 🌤️
 
 Version 2.3 introduces a warm, light-first beginner journey built for learners who may be new to both Hebrew and technology. A short onboarding flow records level, interface language, learning goal and daily pace, then leads into a five-word first lesson using `שלום`, `תודה`, `בבקשה`, `כן` and `לא`. Onboarding, the current First Steps checkpoint and lesson completion are learner-profile state, so they persist in private SQLite or the authenticated PostgreSQL account instead of relying on browser-only storage. Existing learners bypass beginner onboarding without losing their exact saved level. The guided-mode preference is stored, but a distinct simplified/full-shell behavior remains a candidate follow-up.
 
 The bundled dictionary now contains exactly 48 reviewed A0/A1 visual concepts across greetings, family, home, food, transport, shopping and health. Each concept carries stable code-native visual metadata, accessible Hebrew/English/Spanish alternative text, niqqud, romanization, meanings and a practical trilingual example. Google identity-only sign-in is the beginner-facing option when configured, while GitHub remains available; both use provider-bound single-use state and S256 PKCE, and neither stores provider bearer tokens or email addresses. Settings adds learner-data export and a two-step authenticated account deletion action.
 
-This section describes the source candidate, not the current Railway deployment. Production remains verified at 2.2.0 until the 2.3 branch is merged, deployed and checked live.
+The 2.3 candidate was never tagged or published; its completed beginner journey is incorporated into 2.4.0. Production remains verified at 2.2.0 until the newer candidate is merged, deployed and checked live.
 
 ## What changed in 2.2.0 🎙️
 
@@ -101,7 +109,7 @@ Version 2.0 turns the complete local-first learning system into a deployment-rea
 
 | Production capability | Verifiable implementation |
 |---|---|
-| Authentication | Google OpenID Connect or GitHub OAuth with provider-bound state, S256 PKCE, short-lived single-use attempts and HMAC-hashed server-side sessions |
+| Authentication | Google OpenID Connect or GitHub OAuth with provider-bound state, S256 PKCE, short-lived single-use attempts and keyed BLAKE2b-hashed server-side sessions |
 | Session security | Random bearers stored only as hashes; `HttpOnly`, `Secure`, `SameSite` cookies; logout revocation |
 | Demo boundary | Deterministic non-admin tenant with seeded data and server-enforced read-only mutations |
 | PostgreSQL | Users, sessions, OAuth state and one revisioned JSONB learner snapshot per authenticated user |
@@ -337,7 +345,7 @@ Implemented achievements:
 
 ## Test everything
 
-The verified 2.3.0 source-candidate baseline is **150 unique backend tests + 58 frontend tests = 208 passing automated tests**. The ordinary backend run reports 149 passed and one credential-gated PostgreSQL skip; the dedicated PostgreSQL 17 gate passes all three database-boundary tests, two already represented in the ordinary suite and one replacing that skip. The production Compose/image smoke also passes. Production deployment and live OAuth checks remain separate release gates.
+The locally verified 2.4.0 candidate passes **151 unique backend tests + 62 frontend tests = 213 passing automated tests**. The ordinary backend run reports 150 passed and one credential-gated PostgreSQL skip; the dedicated PostgreSQL 17 gate passes all three database-boundary tests, two already represented in the ordinary suite and one replacing that skip. Ruff, strict MyPy across 24 source files, compileall, offline doctor, pip-audit, TypeScript, Vite, npm production audit, package verification and the production-shaped Docker/Compose smoke all pass locally. CI/CodeQL policy, Railway deployment, live Google sessions and browser release gates remain separate and are not inferred from these results.
 
 ```bash
 ./scripts/test-all.sh
@@ -401,7 +409,7 @@ IvritSheli/
 - [`docs/USER_GUIDE.md`](docs/USER_GUIDE.md) — complete learner and administrator workflow.
 - [`docs/DEMO_DAY.md`](docs/DEMO_DAY.md) — fallback demo flow and live presentation plan.
 - [`docs/VIDEO_SCRIPT.md`](docs/VIDEO_SCRIPT.md) — reviewed under-three-minute Build Week narration, storyboard, and claim boundaries.
-- [`docs/BUILD_WEEK.md`](docs/BUILD_WEEK.md) — pre-existing product foundation, v2.3 sprint work, AI collaboration and evidence boundaries.
+- [`docs/BUILD_WEEK.md`](docs/BUILD_WEEK.md) — pre-existing product foundation, v2.3 sprint, v2.4 contest finish, AI collaboration and evidence boundaries.
 - [`PACKAGE_MANIFEST.md`](PACKAGE_MANIFEST.md) — exact release contents and credential boundaries.
 - [`TEST_REPORT.md`](TEST_REPORT.md) — commands, results, and honest limitations.
 - [`SECURITY.md`](SECURITY.md) — session, tenant, logging, secret-management, reporting, and incident controls.
@@ -417,12 +425,12 @@ IvritSheli/
 - No secret keys in frontend code.
 - No cloud synchronization by default.
 - No automatic email/document ingestion.
-- Learner data can be exported as JSON; the 2.3 candidate includes authenticated two-step self-service cloud-account deletion.
+- Learner data can be exported as JSON; the 2.4 candidate includes authenticated two-step self-service cloud-account deletion.
 - External requests are labeled before content leaves the device.
 
 ## Project status
 
-Version 2.3.0 is an implemented, locally tested release candidate on `codex/ivrit-sheli-v2.3.0`; it is not yet tagged, published as a GitHub Release or verified in production. The current public service remains the verified 2.2.0 release at [ivritsheli-production.up.railway.app](https://ivritsheli-production.up.railway.app) from commit `66d68a3c44ac2500fb400eef88d5f77da0c1c1e1`, refreshed on 2026-07-21. Before 2.3 can be called live, the branch must pass the remaining production-image/CI gates, merge, deploy, report version 2.3.0 with PostgreSQL readiness, and complete browser checks for Google sign-in, persistence, logout, onboarding and visual accessibility. Live OpenAI/Google connector calls, two-real-user isolation, refreshed 2.3 screenshots and backup restoration remain separate operator checks.
+Version 2.4.0 is an implemented source candidate on `codex/ivrit-sheli-v2.3.0`; it is not yet tagged, published as a GitHub Release or verified in production. The current public service remains the independently verified 2.2.0 release at [ivritsheli-production.up.railway.app](https://ivritsheli-production.up.railway.app) from commit `66d68a3c44ac2500fb400eef88d5f77da0c1c1e1`, refreshed on 2026-07-21. Before 2.4 can be called live, the branch must pass its updated tests, package and production-image/CI gates, merge, deploy, report version 2.4.0 with PostgreSQL readiness, and complete browser checks for the guided tour, language override, Google sign-in, persistence, logout, onboarding and visual accessibility. Live OpenAI/Google connector calls, two-real-user isolation, refreshed 2.4 screenshots and backup restoration remain separate operator checks.
 
 Passing tests and healthy local production-image checks materially reduce risk but do not prove that software is defect-free. Operational limits, credential-dependent checks and restore requirements are documented explicitly rather than hidden behind a perfect-score claim.
 

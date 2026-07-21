@@ -1,4 +1,4 @@
-# Deployment — Ivrit Sheli 2.3
+# Deployment — Ivrit Sheli 2.4 Contest Edition
 
 This guide covers the private SQLite installation, the reproducible PostgreSQL Docker stack and the public Railway deployment. Production values belong in a secrets manager or hosting dashboard, never in Git.
 
@@ -66,7 +66,7 @@ The ownership initializer is intentionally idempotent. It changes only the mount
 
 ### Sign-in provider requirement
 
-Production requires at least one complete OAuth provider. For the intended 2.3 learner experience, configure Google as the primary option and keep GitHub as the secondary option:
+Production requires at least one complete OAuth provider. For the intended 2.4 learner experience, configure Google as the primary option and keep GitHub as the secondary option:
 
 | Variable | Exact production value |
 |---|---|
@@ -194,7 +194,7 @@ After configuration, verify successful login, cancelled login, invalid/replayed 
 
 For the 2.1 production check, the OAuth start flow reached GitHub's identity-only consent screen and the cancelled-login callback was verified. GitHub's anti-fraud protection disabled approval in the embedded test browser, so the final code exchange, authenticated session and logout must still be completed in a normal browser before OAuth is called fully verified.
 
-The current 2.2.0 deployment preserves that same conservative boundary. Production identity and readiness are verified, but no successful final live GitHub authorization-code exchange, authenticated refresh persistence or logout result is inferred from deployment health. Google sign-in is a 2.3 source capability and is not claimed for the 2.2 deployment.
+The current 2.2.0 deployment preserves that same conservative boundary. Production identity and readiness are verified, but no successful final live GitHub authorization-code exchange, authenticated refresh persistence or logout result is inferred from deployment health. Google sign-in is a 2.4 source capability inherited from the unreleased 2.3 candidate and is not claimed for the 2.2 deployment.
 
 ### Cost and data-retention guardrails
 
@@ -242,7 +242,7 @@ Verify against the public URL:
 
 1. `/health/live` is `200` without database details.
 2. `/health/ready` is `200` and confirms the expected mode.
-3. `/version` shows `2.3.0` and the deployed commit.
+3. `/version` shows `2.4.0` and the deployed commit.
 4. Demo login works and is read-only.
 5. Google login works when configured; GitHub remains a working secondary path when configured; logout revokes each session.
 6. Two distinct users cannot read or modify each other's data.
@@ -254,9 +254,9 @@ Verify against the public URL:
 12. Export downloads the authenticated learner state; account deletion remains verified with a disposable identity or the real PostgreSQL boundary test, not by deleting the owner's account.
 13. Desktop, 390 px mobile, Hebrew RTL, reduced-motion, keyboard-only and 200% zoom modes remain usable.
 
-### 2.3 candidate deployment checklist
+### 2.4 candidate deployment checklist
 
-Version `2.3.0` is not production-verified until every applicable item above passes against the immutable deployed commit. Before promotion, also confirm the Alembic head is `20260718_0002`, the 48-concept dictionary readiness check passes without changing existing IDs, `auth_providers` exposes only configured methods, and the privacy/terms URLs resolve publicly. Publish tag and GitHub Release `v2.3.0` only after those checks succeed.
+Version `2.4.0` is not production-verified until every applicable item above passes against the immutable deployed commit. Before promotion, also confirm the Alembic head is `20260718_0002`, the 48-concept dictionary readiness check passes without changing existing IDs, `auth_providers` exposes only configured methods, the visit-only language override and read-only guided tour pass browser checks, and the privacy/terms URLs resolve publicly. Publish tag and GitHub Release `v2.4.0` only after those checks succeed.
 
 ### Current production verification record — 2.2.0 — 2026-07-21
 

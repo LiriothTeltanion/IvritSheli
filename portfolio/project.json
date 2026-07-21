@@ -2,13 +2,13 @@
   "schema": "ivrit-sheli-portfolio-project-v2",
   "slug": "ivrit-sheli",
   "name": "Ivrit Sheli — העברית שלי",
-  "source_version": "2.3.0",
+  "source_version": "2.4.0",
   "live_version": "2.2.0",
   "status": "release-candidate",
   "default_branch": "main",
   "repository_url": "https://github.com/LiriothTeltanion/IvritSheli",
   "demo_url": "https://ivritsheli-production.up.railway.app",
-  "summary": "A private-first trilingual Hebrew-learning product with a warm beginner journey, 48 reviewed visual concepts, local SQLite, authenticated PostgreSQL, native RTL and accessible motion.",
+  "summary": "A private-first trilingual Hebrew-learning product with a guided contest tour, 48 reviewed visual concepts, local SQLite, authenticated PostgreSQL, native RTL and accessible motion.",
   "languages": [
     "en",
     "es",
@@ -26,12 +26,12 @@
     "Railway"
   ],
   "tests": {
-    "version": "2.3.0",
-    "backend_unique": 150,
-    "frontend": 58,
-    "frontend_files": 15,
-    "total_unique": 208,
-    "ordinary_backend_passed": 149,
+    "version": "2.4.0",
+    "backend_unique": 151,
+    "frontend": 62,
+    "frontend_files": 16,
+    "total_unique": 213,
+    "ordinary_backend_passed": 150,
     "ordinary_backend_skipped": 1,
     "postgresql_gate_passed": 3,
     "evidence": "TEST_REPORT.md"
@@ -55,14 +55,14 @@
     "latest_github_release": "v2.2.0",
     "source_version_tagged": false,
     "source_version_github_release_published": false,
-    "release_state": "2.3.0-candidate-with-2.2.0-live"
+    "release_state": "2.4.0-candidate-with-2.2.0-live"
   },
   "visual_proof": {
     "state": "candidate-pending",
     "social_preview_version": "2.2.0",
     "readme_screenshot_version": "2.1.x",
     "readme_screenshots_match_source_version": false,
-    "candidate_2_3_interactive_browser_qa": "pending"
+    "candidate_2_4_interactive_browser_qa": "pending"
   },
   "oauth": {
     "providers": [
@@ -75,7 +75,7 @@
     "github_live_successful_session_verified": false,
     "authenticated_session_refresh_verified": false,
     "logout_verified": false,
-    "boundary": "Provider-bound Google and GitHub flows are source-tested and the Google production client is configured; successful live Google sign-in and end-to-end 2.3 sessions are not yet verified."
+    "boundary": "Provider-bound Google and GitHub flows are source-tested and the Google production client is configured; successful live Google sign-in and end-to-end 2.4 sessions are not yet verified."
   },
   "privacy": {
     "local_first": true,

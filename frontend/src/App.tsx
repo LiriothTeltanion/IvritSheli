@@ -6,7 +6,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { api, AUTH_REQUIRED_EVENT, configureApiSession } from './api';
-import { useI18n } from './i18n';
+import { localeOverrideFromSearch, useI18n } from './i18n';
 import { SessionAccessProvider } from './session';
 import type { AuthState, Dashboard, GamificationStatus, Locale, Profile, ProgressData, ViewKey } from './types';
 import { AICoach } from './components/AICoach';
@@ -85,7 +85,9 @@ export default function App(): React.JSX.Element {
       setProfile(nextProfile);
       setGamification(nextGamification);
       setError('');
-      if (!localStorage.getItem('ivrit-sheli-locale')) setLocale(nextProfile.interface_language);
+      if (!localeOverrideFromSearch(window.location.search) && !localStorage.getItem('ivrit-sheli-locale')) {
+        setLocale(nextProfile.interface_language);
+      }
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : String(reason));
     } finally {
@@ -132,6 +134,11 @@ export default function App(): React.JSX.Element {
       window.removeEventListener('offline', onOffline);
     };
   }, []);
+  useEffect(() => {
+    // Tour cards and sidebar navigation replace the main view in place. Reset an
+    // existing page offset so the destination heading is never mounted off-screen.
+    if (window.scrollY > 0) window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, [firstStepsOpen, view]);
   useEffect(() => {
     const onAuthenticationRequired = (): void => {
       configureApiSession(null);
@@ -341,7 +348,7 @@ export default function App(): React.JSX.Element {
       <aside className="sidebar">
         <div className="brand-lockup">
           <img src="/icons/app-icon.svg" alt="" />
-          <div><strong>{t('appName')}</strong><span>CLOUD 2.3</span></div>
+          <div><strong>{t('appName')}</strong><span>CLOUD 2.4</span></div>
         </div>
         <nav className="side-nav" aria-label={t('primaryNavigation')}>
           {navigation.map((item) => (
@@ -364,7 +371,7 @@ export default function App(): React.JSX.Element {
         </div>
         <div className="sidebar-footer">
           <div className="privacy-mini"><Icon name="shield" size={17} /><span><strong>{auth.demo ? t('demoWorkspace') : localMode ? t('localWorkspace') : t('privateMode')}</strong><small>{auth.demo ? t('readOnlyDemo') : localMode ? t('localFirstStorage') : t('accountStorage')}</small></span></div>
-          <span className="version-label">v2.3.0</span>
+          <span className="version-label">v2.4.0</span>
         </div>
       </aside>
 
@@ -416,6 +423,10 @@ export default function App(): React.JSX.Element {
             <FirstStepsLesson
               initialIndex={firstStepsProgress}
               onProgress={async (index) => {
+                if (auth.read_only) {
+                  setFirstStepsProgress(Math.max(0, Math.min(5, index)));
+                  return;
+                }
                 const nextIndex = Math.max(
                   Math.max(0, Math.min(5, Number(profile.first_steps_step) || 0)),
                   index,
@@ -448,6 +459,12 @@ export default function App(): React.JSX.Element {
                 goToLearn('audio');
               }}
               onComplete={async () => {
+                if (auth.read_only) {
+                  setFirstStepsProgress(0);
+                  setFirstStepsOpen(false);
+                  setToast(t('demoTourCompleteToast'));
+                  return;
+                }
                 const nextProfile = await api.updateProfile({
                   first_steps_step: 5,
                   first_steps_completed: true,
@@ -468,7 +485,13 @@ export default function App(): React.JSX.Element {
               onWordClick={openDictionary}
               onCapture={() => setCaptureOpen(true)}
               onStart={() => firstStepsComplete ? goToLearn('review') : setFirstStepsOpen(true)}
+              onPreviewFirstSteps={() => {
+                setFirstStepsProgress(0);
+                setFirstStepsOpen(true);
+              }}
               onOpenDictionary={() => goToLearn('dictionary')}
+              onOpenAudio={() => goToLearn('audio')}
+              onOpenProgress={() => setView('progress')}
               onOpenCoach={() => setView('coach')}
             />
           )}

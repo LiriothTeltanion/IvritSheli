@@ -144,6 +144,7 @@ function routeFetch(
 describe('App cloud session flow', () => {
   beforeEach(() => {
     localStorage.clear();
+    window.history.replaceState({}, '', '/');
     configureApiSession(null);
   });
 
@@ -207,10 +208,28 @@ describe('App cloud session flow', () => {
     expect((await screen.findAllByText('Seeded read-only demonstration')).length).toBeGreaterThan(0);
     expect(screen.getByText('Read-only')).toBeInTheDocument();
     expect(screen.getAllByText('Demo workspace').length).toBeGreaterThan(0);
+    expect(screen.getByRole('heading', { name: 'See the complete learning loop' })).toBeInTheDocument();
     const captureButtons = screen.getAllByRole('button', { name: 'Capture phrase' });
     expect(captureButtons.length).toBeGreaterThan(0);
     captureButtons.forEach((button) => expect(button).toBeDisabled());
     expect(fetchMock).toHaveBeenCalledWith('/api/v1/auth/demo', expect.objectContaining({ method: 'POST', credentials: 'include' }));
+
+    await user.click(screen.getByRole('button', { name: /Illustrated First Steps/i }));
+    expect(screen.getByRole('heading', { name: 'שָׁלוֹם' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'hello · peace' }));
+    await waitFor(() => expect(screen.getByRole('button', { name: /Next word/i })).toBeEnabled());
+    expect(fetchMock.mock.calls.some(([, init]) => init?.method === 'PUT')).toBe(false);
+  });
+
+  it('keeps the per-visit English override when the account profile prefers Spanish', async () => {
+    window.history.replaceState({}, '', '/?lang=en');
+    const spanishProfile = { ...profile, interface_language: 'es' as const };
+    vi.stubGlobal('fetch', routeFetch(githubSession, spanishProfile));
+    renderApp();
+
+    expect(await screen.findByText('Your progress is saved')).toBeInTheDocument();
+    expect(screen.getByRole('navigation', { name: 'Primary navigation' })).toBeInTheDocument();
+    expect(localStorage.getItem('ivrit-sheli-locale')).toBeNull();
   });
 
   it('localizes the dashboard hero, metrics, actions, and navigation in Hebrew RTL', async () => {

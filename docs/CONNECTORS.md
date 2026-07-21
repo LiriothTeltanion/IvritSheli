@@ -1,6 +1,6 @@
 # Personalization connectors
 
-Google Workspace connectors are separate from Google sign-in. The 2.3 login client requests only `openid profile` and cannot read Calendar, Gmail or Drive. Connector credentials, scopes, consent and production identity allowlists are configured independently; signing in with Google never authorizes mailbox, calendar or file access.
+Google Workspace connectors are separate from Google sign-in. The 2.4 login client requests only `openid profile` and cannot read Calendar, Gmail or Drive. Connector credentials, scopes, consent and production identity allowlists are configured independently; signing in with Google never authorizes mailbox, calendar or file access.
 
 ## Consent model
 

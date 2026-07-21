@@ -37,7 +37,7 @@ export function AuthGate({ busy, error, onDemo, onRetry, providers }: AuthGatePr
       <header className="auth-header">
         <a className="auth-brand" href="/" aria-label={`${t('appName')} — ${t('home')}`}>
           <img src="/icons/app-icon.svg" alt="" />
-          <span><strong>{t('appName')}</strong><small>CLOUD 2.3</small></span>
+          <span><strong>{t('appName')}</strong><small>CLOUD 2.4</small></span>
         </a>
         <div className="auth-header__actions">
           <div className="locale-switch auth-locale" aria-label={t('interfaceLanguage')}>
@@ -50,7 +50,7 @@ export function AuthGate({ busy, error, onDemo, onRetry, providers }: AuthGatePr
               </button>
             ))}
           </div>
-          <span className="auth-version">v2.3.0</span>
+          <span className="auth-version">v2.4.0</span>
         </div>
       </header>
 

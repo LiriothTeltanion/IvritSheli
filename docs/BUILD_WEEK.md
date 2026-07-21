@@ -1,14 +1,14 @@
 # Ivrit Sheli — Build Week Record
 
-This document separates the product that already existed from the work completed for the Ivrit Sheli 2.3 hackathon candidate. Repository history, tests and deployed operational endpoints remain the source of truth; planning conversations are context, not proof that a feature exists.
+This document separates the product that already existed from the work completed for the Ivrit Sheli 2.4 Contest Edition candidate. Repository history, tests and deployed operational endpoints remain the source of truth; planning conversations are context, not proof that a feature exists.
 
 ## Truth snapshot — 2026-07-21
 
-- Source candidate: `2.3.0` on `codex/ivrit-sheli-v2.3.0`.
+- Source candidate: `2.4.0` on `codex/ivrit-sheli-v2.3.0`.
 - Current public application: `2.2.0` on Railway at commit `66d68a3c44ac2500fb400eef88d5f77da0c1c1e1`.
 - Production readiness: PostgreSQL ready with the 12-entry/12-sense shared-cloud starter dictionary.
-- Candidate verification: 150 unique backend tests and 58 frontend tests, for 208 unique passing automated tests. The ordinary backend run passes 149 with one credential-gated skip; a dedicated PostgreSQL 17 run passes all three database tests and contributes that missing unique pass.
-- Publication boundary: 2.3 is not live, tagged or published as a GitHub Release until its final database, CI, deployment and browser gates pass.
+- Candidate verification: 151 unique backend tests and 62 frontend tests, for 213 unique passing automated tests. The ordinary backend run passes 150 with one credential-gated skip; a dedicated PostgreSQL 17 run passes all three database tests and contributes that missing unique pass.
+- Publication boundary: 2.4 is not live, tagged or published as a GitHub Release until its final database, CI, deployment and browser gates pass.
 
 ## Pre-existing foundation
 
@@ -39,7 +39,15 @@ The 2.3 work focuses the existing platform into a coherent first experience for 
 - Authenticated learner-data export, explicit account deletion, public privacy/terms documents and strengthened modal accessibility.
 - Dark/light presentation, responsive layouts, RTL, keyboard use and reduced-motion behavior retained as release requirements.
 
-The Google production client and Railway variable names are configured, but a successful 2.3 Google authorization, account session, persistence and logout are not claimed until the candidate is deployed and exercised in a normal browser.
+The Google production client and Railway variable names are configured, but a successful 2.4 Google authorization, account session, persistence and logout are not claimed until the candidate is deployed and exercised in a normal browser.
+
+## Contest Edition v2.4 finish
+
+- Add a deterministic visit-only EN/ES/HE interface override for judge and support links.
+- Guide the synthetic read-only demo through four real surfaces: ephemeral First Steps, dictionary visuals, microphone word intelligence and adaptive progress.
+- Preserve shared-demo immutability, mobile/RTL behavior and reduced motion.
+- Replace bearer-material storage digests with keyed BLAKE2b-256 while preserving the 64-character hexadecimal database contract and intentionally rotating active sessions on deployment.
+- Keep Google identity-only; no Gmail, Drive or Calendar permission is added.
 
 ## Codex and GPT-5.6
 
@@ -58,15 +66,15 @@ AI-generated suggestions and code are treated as untrusted until reviewed and te
 Verified for the current source candidate:
 
 - Ruff and strict MyPy.
-- 150 unique backend tests: 149 pass in the ordinary run, and a dedicated PostgreSQL 17 gate passes 3/3 with one additional unique credential-gated case.
-- 58 frontend tests across 15 files, TypeScript checking and production build.
+- 151 unique backend tests: 150 pass in the ordinary run, and a dedicated PostgreSQL 17 gate passes 3/3 with one additional unique credential-gated case.
+- 62 frontend tests across 16 files, TypeScript checking and production build.
 - Production Compose/image smoke with PostgreSQL readiness, 48 shared dictionary entries, UID 10001, runtime migration-secret removal, OAuth rate limiting and structured-log redaction.
 - Package structure, JSON/SVG parsing, version drift, secret hygiene and README links.
 
-Still required before calling 2.3 live:
+Still required before calling 2.4 live:
 
 - Run CI and CodeQL on the immutable candidate.
-- Merge deliberately and deploy the Alembic head and 2.3 image to Railway.
+- Merge deliberately and deploy the Alembic head and 2.4 image to Railway.
 - Verify `/version`, liveness, readiness and the 48-concept starter layer against the deployed commit.
 - Complete Google sign-in, refresh persistence, First Steps continuity, logout and session revocation in a normal browser.
 - Check desktop/mobile, Hebrew RTL, dark/light, reduced motion, keyboard navigation and 200% zoom.

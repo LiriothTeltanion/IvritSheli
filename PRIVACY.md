@@ -6,11 +6,11 @@ Ivrit Sheli is a Hebrew-learning application created by Kevin Cusnir. It is desi
 
 This notice describes the public hosted service at `ivritsheli-production.up.railway.app`. A private local installation stores its learning database on that device and does not require an online account.
 
-**Candidate boundary:** this notice includes the Google sign-in, export and deletion behavior implemented in the 2.3 source candidate. Those controls apply to the hosted service only after `/version` reports 2.3.0 and the corresponding provider is configured. At the time this candidate was prepared, the last independently verified public deployment was 2.2.0.
+**Candidate boundary:** this notice includes the Google sign-in, export and deletion behavior present in the 2.4 source candidate. Those controls apply to the hosted service only after `/version` reports 2.4.0 and the corresponding provider is configured. At the time this candidate was prepared, the last independently verified public deployment was 2.2.0.
 
 ## Information the hosted service keeps
 
-When a 2.3 hosted account is available and you sign in, Ivrit Sheli keeps a limited identity record from the provider you choose:
+When a 2.4 hosted account is available and you sign in, Ivrit Sheli keeps a limited identity record from the provider you choose:
 
 - Google: provider user ID, display name, and profile picture when available.
 - GitHub: provider user ID, login, display name, and profile picture when available.
@@ -45,7 +45,7 @@ Sessions expire automatically. Learning data remains while the account exists so
 
 ## Your choices
 
-In the 2.3 account interface you can:
+In the 2.4 account interface you can:
 
 - change learning and privacy preferences;
 - use the read-only synthetic demo instead of an account;

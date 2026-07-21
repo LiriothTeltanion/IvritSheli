@@ -197,7 +197,7 @@ def verify_portfolio_manifest() -> list[str]:
         "schema": "ivrit-sheli-portfolio-project-v2",
         "slug": "ivrit-sheli",
         "name": "Ivrit Sheli — העברית שלי",
-        "source_version": "2.3.0",
+        "source_version": "2.4.0",
         "live_version": "2.2.0",
         "status": "release-candidate",
         "default_branch": "main",
@@ -244,18 +244,18 @@ def verify_portfolio_manifest() -> list[str]:
     )
     failures.extend(nested_failures)
     expected_tests = {
-        "version": "2.3.0",
-        "backend_unique": 150,
-        "frontend": 58,
-        "frontend_files": 15,
-        "total_unique": 208,
-        "ordinary_backend_passed": 149,
+        "version": "2.4.0",
+        "backend_unique": 151,
+        "frontend": 62,
+        "frontend_files": 16,
+        "total_unique": 213,
+        "ordinary_backend_passed": 150,
         "ordinary_backend_skipped": 1,
         "postgresql_gate_passed": 3,
         "evidence": "TEST_REPORT.md",
     }
     if tests is not None and tests != expected_tests:
-        failures.append("portfolio/project.json: tests must match the documented 150 + 58 = 208 verified candidate baseline")
+        failures.append("portfolio/project.json: tests must match the documented 151 + 62 = 213 verified local candidate baseline")
 
     deployment, nested_failures = _verify_exact_keys(
         top_level.get("deployment"),
@@ -310,10 +310,10 @@ def verify_portfolio_manifest() -> list[str]:
         "latest_github_release": "v2.2.0",
         "source_version_tagged": False,
         "source_version_github_release_published": False,
-        "release_state": "2.3.0-candidate-with-2.2.0-live",
+        "release_state": "2.4.0-candidate-with-2.2.0-live",
     }
     if publication is not None and publication != expected_publication:
-        failures.append("portfolio/project.json: publication must distinguish the 2.3 candidate from published v2.2.0")
+        failures.append("portfolio/project.json: publication must distinguish the 2.4 candidate from published v2.2.0")
 
     visual_proof, nested_failures = _verify_exact_keys(
         top_level.get("visual_proof"),
@@ -322,7 +322,7 @@ def verify_portfolio_manifest() -> list[str]:
             "social_preview_version",
             "readme_screenshot_version",
             "readme_screenshots_match_source_version",
-            "candidate_2_3_interactive_browser_qa",
+            "candidate_2_4_interactive_browser_qa",
         },
         "visual_proof",
     )
@@ -332,10 +332,10 @@ def verify_portfolio_manifest() -> list[str]:
         "social_preview_version": "2.2.0",
         "readme_screenshot_version": "2.1.x",
         "readme_screenshots_match_source_version": False,
-        "candidate_2_3_interactive_browser_qa": "pending",
+        "candidate_2_4_interactive_browser_qa": "pending",
     }
     if visual_proof is not None and visual_proof != expected_visual_proof:
-        failures.append("portfolio/project.json: visual proof must remain pending until 2.3 QA/assets exist")
+        failures.append("portfolio/project.json: visual proof must remain pending until 2.4 QA/assets exist")
 
     oauth, nested_failures = _verify_exact_keys(
         top_level.get("oauth"),
@@ -362,12 +362,12 @@ def verify_portfolio_manifest() -> list[str]:
         "logout_verified": False,
         "boundary": (
             "Provider-bound Google and GitHub flows are source-tested and the Google production "
-            "client is configured; successful live Google sign-in and end-to-end 2.3 sessions "
+            "client is configured; successful live Google sign-in and end-to-end 2.4 sessions "
             "are not yet verified."
         ),
     }
     if oauth is not None and oauth != expected_oauth:
-        failures.append("portfolio/project.json: OAuth must retain the unverified 2.3 live boundary")
+        failures.append("portfolio/project.json: OAuth must retain the unverified 2.4 live boundary")
 
     privacy, nested_failures = _verify_exact_keys(
         top_level.get("privacy"),
@@ -402,42 +402,42 @@ def verify_release_truth_drift() -> list[str]:
         "README.md": (
             "Open the current verified production demo (2.2.0)",
             "66d68a3c44ac2500fb400eef88d5f77da0c1c1e1",
-            "Source candidate | `2.3.0`",
-            "150 unique backend tests + 58 frontend tests = 208 passed",
-            "no `v2.3.0` release is claimed yet",
+            "Source candidate | `2.4.0`",
+            "151 unique backend tests + 62 frontend tests = 213 passed",
+            "no `v2.4.0` release is claimed yet",
         ),
         "TEST_REPORT.md": (
             "Current live release | `2.2.0` / production / PostgreSQL",
             "66d68a3c44ac2500fb400eef88d5f77da0c1c1e1",
             "Latest Git tag / GitHub Release | `v2.2.0` / `v2.2.0`",
-            "Live 2.3 deployment | Not yet deployed",
-            "208 unique passing automated tests",
+            "Live 2.4 deployment | Not yet deployed",
+            "213 unique passing automated tests",
         ),
         "CHANGELOG.md": (
-            "Version metadata advances from `2.2.0` to `2.3.0`",
+            "Version metadata advances from the unreleased `2.3.0` candidate to `2.4.0`",
             "48-concept reviewed A0/A1 starter dictionary",
         ),
         "PACKAGE_MANIFEST.md": (
-            "Source candidate version: `2.3.0`",
+            "Source candidate version: `2.4.0`",
             "Current live source version: `2.2.0`",
             "Latest published Git tag and GitHub Release: `v2.2.0`",
-            "Total unique automated tests: 208 passed",
+            "Total unique automated tests: 213 passed",
         ),
         "docs/DEPLOYMENT.md": (
             "Current production verification record — 2.2.0 — 2026-07-21",
             "66d68a3c44ac2500fb400eef88d5f77da0c1c1e1",
-            "2.3 candidate deployment checklist",
+            "2.4 candidate deployment checklist",
         ),
         "docs/DEMO_DAY.md": (
-            "208 passing automated tests",
-            "2.3.0 is a source candidate",
+            "213 passing automated tests",
+            "2.4.0 is a source candidate",
             "2.2.0 remains the verified Railway release",
         ),
         "docs/BUILD_WEEK.md": (
             "Pre-existing foundation",
-            "Build Week v2.3 sprint",
+            "Contest Edition v2.4 finish",
             "Codex and GPT-5.6",
-            "208 unique passing automated tests",
+            "213 unique passing automated tests",
         ),
         "PRIVACY.md": (
             "Google: provider user ID, display name, and profile picture",
@@ -448,7 +448,7 @@ def verify_release_truth_drift() -> list[str]:
             "actively developed public pilot",
         ),
         "CITATION.cff": (
-            "version: 2.3.0",
+            "version: 2.4.0",
             "currently a source candidate",
         ),
     }
@@ -467,7 +467,7 @@ def verify_release_truth_drift() -> list[str]:
 
 def verify_source_version_surfaces() -> list[str]:
     """Keep executable and human-facing candidate versions synchronized."""
-    expected_version = "2.3.0"
+    expected_version = "2.4.0"
     failures: list[str] = []
 
     try:
@@ -500,14 +500,14 @@ def verify_source_version_surfaces() -> list[str]:
             )
 
     expected_fragments = {
-        "backend/src/ivrit_sheli/__init__.py": '__version__ = "2.3.0"',
-        "frontend/index.html": "Ivrit Sheli 2.3",
-        "frontend/public/sw.js": "ivrit-sheli-shell-v2.3.0",
-        "frontend/src/App.tsx": "v2.3.0",
-        "frontend/src/components/AuthGate.tsx": "v2.3.0",
-        "frontend/src/components/SettingsPanel.tsx": "app_version: '2.3.0'",
-        ".github/ISSUE_TEMPLATE/bug_report.yml": "placeholder: 2.3.0",
-        "CITATION.cff": "version: 2.3.0",
+        "backend/src/ivrit_sheli/__init__.py": '__version__ = "2.4.0"',
+        "frontend/index.html": "Ivrit Sheli 2.4",
+        "frontend/public/sw.js": "ivrit-sheli-shell-v2.4.0",
+        "frontend/src/App.tsx": "v2.4.0",
+        "frontend/src/components/AuthGate.tsx": "v2.4.0",
+        "frontend/src/components/SettingsPanel.tsx": "app_version: '2.4.0'",
+        ".github/ISSUE_TEMPLATE/bug_report.yml": "placeholder: 2.4.0",
+        "CITATION.cff": "version: 2.4.0",
     }
     for relative, fragment in expected_fragments.items():
         try:

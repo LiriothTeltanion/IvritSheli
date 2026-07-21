@@ -2550,16 +2550,22 @@ button.registry-card__status:active {
   color-scheme: light;
   --bg: var(--warm-cream);
   --bg-deep: var(--warm-cream-deep);
+  --surface: rgba(255, 255, 255, 0.88);
+  --surface-glass: rgba(255, 254, 250, 0.94);
+  --surface-glass-strong: #fffefa;
   --surface-solid: #fffefa;
   --surface-raised: #fffaf0;
   --surface-soft: #f1eadc;
   --surface-hover: #e9e0d0;
+  --edge-light: rgba(255, 255, 255, 0.9);
   --border: rgba(49, 63, 82, 0.18);
   --border-strong: rgba(15, 118, 110, 0.42);
   --text: var(--warm-navy);
   --text-soft: #46566b;
   --text-muted: #5c697a;
   --danger: #9f2f3d;
+  --shadow-soft: 0 12px 34px rgba(83, 66, 35, 0.09);
+  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.9) inset, 0 14px 36px rgba(83, 66, 35, 0.09);
   color: var(--text);
 }
 
@@ -2655,6 +2661,13 @@ body { font-size: 16px; line-height: 1.5; }
 
 /* One-task lesson with visual recall and an obvious speaking route. */
 .first-steps-lesson, .first-steps-complete { width: min(1020px, 100%); margin-inline: auto; }
+.first-steps-lesson {
+  padding: clamp(20px, 3vw, 32px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  background: var(--warm-cream);
+  box-shadow: var(--shadow-card);
+}
 .first-steps-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 18px; }
 .first-steps-header h1, .first-steps-complete h1 { margin: 7px 0 0; color: var(--text); font-size: clamp(2rem, 4vw, 3.1rem); letter-spacing: -0.045em; }
 .first-steps-progress { margin-bottom: 16px; display: grid; gap: 7px; color: var(--text-soft); font-size: 0.9rem; font-weight: 700; }
@@ -2701,6 +2714,53 @@ body { font-size: 16px; line-height: 1.5; }
 .guided-word-visual__label strong { color: var(--warm-navy); font: 850 clamp(2.4rem, 5vw, 4.2rem)/1.1 var(--font-hebrew); }
 .guided-word-visual__label span { color: var(--warm-teal); font-weight: 750; }
 .guided-word-visual__label p { margin: 4px 0 0; color: var(--text-soft); }
+/* Judge-safe tour: real product routes, presented without mutating shared demo data. */
+.demo-tour {
+  padding: clamp(22px, 3vw, 32px);
+  background:
+    radial-gradient(circle at 92% -10%, color-mix(in srgb, var(--warm-gold) 14%, transparent), transparent 19rem),
+    linear-gradient(145deg, color-mix(in srgb, var(--surface-solid) 97%, transparent), color-mix(in srgb, var(--warm-teal-soft) 24%, var(--surface-solid)));
+}
+.demo-tour__header { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(300px, 1.1fr); align-items: end; gap: 28px; }
+.demo-tour__header h2 { margin: 7px 0 0; color: var(--text); font-size: clamp(1.65rem, 3vw, 2.35rem); letter-spacing: -0.04em; }
+.demo-tour__header > p { max-width: 660px; margin: 0; color: var(--text-soft); line-height: 1.65; }
+.demo-tour__grid { position: relative; z-index: 1; margin-top: 23px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.demo-tour__stop {
+  position: relative;
+  min-height: 178px;
+  padding: 22px 18px 18px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-content: end;
+  align-items: end;
+  gap: 12px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--surface-solid) 92%, transparent);
+  color: var(--text);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.74), 0 12px 28px rgba(83, 66, 35, 0.07);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition: transform 190ms var(--ease), border-color 190ms ease, box-shadow 240ms ease;
+}
+.demo-tour__stop::before { content: ""; position: absolute; inset: 0 0 auto; height: 6px; background: var(--warm-gold); }
+.demo-tour__stop--2::before { background: var(--warm-teal); }
+.demo-tour__stop--3::before { background: var(--warm-coral); }
+.demo-tour__stop--4::before { background: var(--violet); }
+.demo-tour__stop:hover, .demo-tour__stop:focus-visible { transform: translateY(-4px); border-color: var(--border-strong); box-shadow: var(--shadow-card-hover); }
+.demo-tour__stop:focus-visible { outline: 3px solid color-mix(in srgb, var(--warm-teal) 22%, transparent); outline-offset: 2px; }
+.demo-tour__number { position: absolute; inset-block-start: 17px; inset-inline-end: 18px; color: var(--text-muted); font-size: 0.72rem; font-weight: 850; letter-spacing: 0.13em; }
+.demo-tour__icon { width: 45px; height: 45px; border-radius: 14px; display: grid; place-items: center; background: var(--warm-gold-soft); color: #8b6318; }
+.demo-tour__stop--2 .demo-tour__icon { background: var(--warm-teal-soft); color: var(--warm-teal); }
+.demo-tour__stop--3 .demo-tour__icon { background: var(--warm-coral-soft); color: var(--warm-coral); }
+.demo-tour__stop--4 .demo-tour__icon { background: color-mix(in srgb, var(--violet) 13%, var(--surface-solid)); color: var(--violet); }
+.demo-tour__copy { min-width: 0; display: grid; gap: 5px; align-self: stretch; align-content: end; }
+.demo-tour__copy strong { font-size: 1rem; line-height: 1.25; }
+.demo-tour__copy small { color: var(--text-soft); font-size: 0.83rem; line-height: 1.45; }
+.demo-tour__stop > svg { align-self: center; color: var(--warm-teal); }
+
 .visual-vocabulary { padding: clamp(20px, 3vw, 30px); }
 .visual-vocabulary__grid { margin-top: 20px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
 .visual-vocabulary__grid button { min-height: 188px; padding: 12px; border: 1px solid var(--border); border-radius: 18px; display: grid; place-items: center; align-content: end; gap: 4px; background: var(--surface-solid); color: var(--text); cursor: pointer; transition: transform 180ms var(--ease), border-color 180ms ease; }
@@ -2762,6 +2822,8 @@ body { font-size: 16px; line-height: 1.5; }
   .visual-word-card { grid-template-columns: minmax(250px, 0.75fr) minmax(330px, 1.25fr); }
   .visual-vocabulary__grid { grid-template-columns: repeat(3, 1fr); }
   .guided-word-visual { grid-template-columns: 150px 1fr; }
+  .demo-tour__header { grid-template-columns: 1fr; gap: 9px; }
+  .demo-tour__grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 680px) {
@@ -2786,6 +2848,9 @@ body { font-size: 16px; line-height: 1.5; }
   .visual-word-card__content h2 { font-size: clamp(3.7rem, 20vw, 5.3rem); }
   .first-steps-actions > button { flex: 1; }
   .guided-word-visual { min-width: 0; grid-template-columns: 130px 1fr; }
+  .demo-tour { padding: 19px; }
+  .demo-tour__grid { grid-template-columns: 1fr; }
+  .demo-tour__stop { min-height: 138px; }
   .visual-vocabulary .section-heading { align-items: flex-start; flex-direction: column; }
   .visual-vocabulary__grid { grid-template-columns: repeat(2, 1fr); }
   .visual-vocabulary__grid button { min-height: 168px; }
@@ -2798,8 +2863,9 @@ body { font-size: 16px; line-height: 1.5; }
 
 [dir="rtl"] .first-steps-progress i { margin-inline-start: auto; }
 [dir="rtl"] .first-steps-actions svg, [dir="rtl"] .onboarding-actions svg, [dir="rtl"] .visual-vocabulary .text-button svg { transform: rotate(180deg); }
+[dir="rtl"] .demo-tour__stop > svg { transform: rotate(180deg); }
 
 @media (prefers-reduced-motion: reduce) {
   .onboarding-step, .word-art__spark, .first-steps-complete__art { animation: none !important; }
-  .choice-card:hover, .visual-vocabulary__grid button:hover { transform: none !important; }
+  .choice-card:hover, .visual-vocabulary__grid button:hover, .demo-tour__stop:hover, .demo-tour__stop:focus-visible { transform: none !important; }
 }

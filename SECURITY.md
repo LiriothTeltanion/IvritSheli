@@ -4,7 +4,8 @@
 
 | Version | Supported |
 |---|---:|
-| 2.3.x | Yes |
+| 2.4.x | Yes |
+| 2.3.x | No — superseded candidate |
 | 2.2.x | Yes |
 | 2.1.x | Critical fixes only; upgrade recommended |
 | 2.0.x | Critical fixes only; upgrade strongly recommended |
@@ -33,7 +34,7 @@ Do not access another person's data, persist access, degrade the public demo or 
 
 - Google and GitHub OAuth use random state, S256 PKCE, provider binding and single-use state consumption.
 - Google sign-in requests only `openid profile` and stores the provider subject, display name and optional picture. GitHub stores the provider ID, login, display name and optional avatar. OAuth access tokens, ID tokens, provider passwords and provider email addresses are not persisted.
-- Session and CSRF bearer values are generated randomly; only `SESSION_SECRET`-keyed HMAC-SHA-256 hashes reach PostgreSQL.
+- Session and CSRF bearer values are generated randomly; only domain-separated, `SESSION_SECRET`-keyed BLAKE2b-256 digests reach PostgreSQL.
 - The production session cookie is `HttpOnly`, `Secure`, and `SameSite=Lax`; the double-submit CSRF cookie is intentionally browser-readable, `Secure`, and `SameSite=Strict`.
 - OAuth-state bearers use the same keyed storage boundary, so secret rotation invalidates all previously stored bearer hashes.
 - Logout revokes the server-side session.

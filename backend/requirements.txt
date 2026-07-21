@@ -1,5 +1,5 @@
 # Module: backend runtime requirements
-# Purpose: Pin the dependency set verified for Ivrit Sheli 2.3.0 cloud and local modes.
+# Purpose: Pin the dependency set used by Ivrit Sheli 2.4.0 cloud and local modes.
 # Author: Kevin "Lirioth" Cusnir
 # Date: 2026-07-15 | TZ: Asia/Jerusalem
 fastapi==0.139.0
