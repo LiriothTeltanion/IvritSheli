@@ -3,11 +3,12 @@
 - **Verification date:** 2026-07-21
 - **Time zone:** Asia/Jerusalem
 - **Verified source version:** `2.4.0`
-- **Current verified production:** `2.4.0` at `03bf84b9268ff8be528c0fab3c670f9652ee23b0`
+- **Current verified production:** `2.4.0` on Railway with PostgreSQL
+- **Release implementation commit:** `03bf84b9268ff8be528c0fab3c670f9652ee23b0`
 
 ## Result
 
-The 2.4 Contest Edition passes the local backend, dedicated PostgreSQL, frontend, dependency, package and production-shaped Docker/Compose gates documented below. Railway production separately reports version 2.4.0 at the immutable commit above with PostgreSQL and all 48 reviewed dictionary entries ready. The English entry, read-only guided tour, identity-only Google sign-in, onboarding/session persistence across reload and logout were verified in a normal browser. Git tag and GitHub Release `v2.2.0` remain the latest published release artifacts.
+The 2.4 Contest Edition passes the local backend, dedicated PostgreSQL, frontend, dependency, package and production-shaped Docker/Compose gates documented below. Railway production separately reports version 2.4.0 with PostgreSQL and all 48 reviewed dictionary entries ready. The English entry, read-only guided tour, identity-only Google sign-in, onboarding/session persistence across reload and logout were verified in a normal browser. Git tag and GitHub Release `v2.4.0` are published.
 
 | Verification area | 2.4 result |
 |---|---:|
@@ -25,11 +26,11 @@ The 2.4 Contest Edition passes the local backend, dedicated PostgreSQL, frontend
 | npm production audit | 0 vulnerabilities |
 | Package verifier | 66 files passed |
 | Production-image Compose smoke | Passed |
-| CI / CodeQL | Passed on `main` for the immutable production commit |
+| CI / CodeQL | Passed on `main` for the tagged release source |
 | Live 2.4 deployment | Passed on 2026-07-21 |
 | Current live release | `2.4.0` / production / PostgreSQL |
-| Current production commit | `03bf84b9268ff8be528c0fab3c670f9652ee23b0` |
-| Latest Git tag / GitHub Release | `v2.2.0` / `v2.2.0` |
+| Release implementation commit | `03bf84b9268ff8be528c0fab3c670f9652ee23b0` |
+| Latest Git tag / GitHub Release | `v2.4.0` / `v2.4.0` |
 
 ### Counting the backend total
 
@@ -101,20 +102,19 @@ Result: passed against the 2.4.0 production image. Readiness reported PostgreSQL
 ## Current public Railway verification — 2.4.0
 
 - URL: https://ivritsheli-production.up.railway.app
-- Current production commit: `03bf84b9268ff8be528c0fab3c670f9652ee23b0`.
+- Release implementation commit: `03bf84b9268ff8be528c0fab3c670f9652ee23b0`; later evidence and documentation deployments preserve version `2.4.0`.
 - `/version`: release `2.4.0`, environment `production`, storage `postgresql`, verified on 2026-07-21.
 - `/health/ready`: HTTPS 200 with PostgreSQL and all 48 reviewed dictionary entries ready on 2026-07-21.
-- Latest published tag and GitHub Release: `v2.2.0`.
+- Latest published tag and GitHub Release: `v2.4.0`.
 - Browser evidence: the English entry and four-stop read-only guided tour passed; identity-only Google sign-in succeeded; onboarding state and the authenticated session persisted across reload; logout returned to the English auth landing page and another reload remained signed out.
 - Boundary: re-login after logout, a live GitHub account session, live OpenAI or Google Workspace connector calls, two-real-user production isolation and backup restoration were not verified.
 
 ## Remaining publication and operator checks
 
 - Preserve existing learners' exact level and bypass first-run onboarding during migration; cover both local and legacy-cloud profiles.
-- Correct dark-theme contrast across onboarding, lesson, guided dashboard and dictionary visual surfaces, then verify the actual rendered colors.
+- Expand browser verification beyond the corrected English First Steps contrast into the full dark/light onboarding, guided dashboard and dictionary matrix.
 - Confirm the account-backed First Steps checkpoint and completion survive logout and a second sign-in. Onboarding and the active session already persisted across a normal reload. The current UI prevents Back from resubmitting completed words, but word/review/profile writes remain separate requests rather than one server-side idempotent transaction.
 - Give the persisted guided-mode switch real simplified/full-shell behavior or remove it until that behavior exists.
-- Publish Git tag and GitHub Release `v2.4.0`; until then `v2.2.0` remains the latest published release artifact.
 - Verify re-login after logout and a complete second sign-in without weakening the already verified signed-out state.
 - Confirm GitHub remains a working secondary sign-in path.
 - Check desktop, 390 px mobile, Hebrew RTL, reduced motion, keyboard navigation and 200% zoom; refresh README screenshots only after those checks pass.

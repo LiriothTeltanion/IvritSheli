@@ -13,9 +13,9 @@
 - Application license: MIT
 - Production URL: https://ivritsheli-production.up.railway.app
 - Current verified production release: `2.4.0` on Railway with managed PostgreSQL and 48 reviewed dictionary entries
-- Verified production commit: `03bf84b9268ff8be528c0fab3c670f9652ee23b0`
-- Latest published Git tag and GitHub Release: `v2.2.0`
-- Publication state: `2.4.0` is deployed; its Git tag and GitHub Release are not yet published
+- Release implementation commit: `03bf84b9268ff8be528c0fab3c670f9652ee23b0`
+- Latest published Git tag and GitHub Release: `v2.4.0`
+- Publication state: `2.4.0` is deployed, tagged and published as a GitHub Release
 - Personal signature: `KC ✦ LT` is reserved and excluded from the MIT asset grant
 - Dictionary-derived data: separate Wiktionary/Kaikki attribution and share-alike terms
 - Privacy notice: `PRIVACY.md`
@@ -89,6 +89,6 @@ Identity-only Google sign-in is configured and verified in production with `open
 - Package verifier: 66 files passed required-file, strict portfolio/release-drift, JSON, SVG, Railway, secret-hygiene and README-link checks.
 - Production-shaped Docker/Compose smoke: passed with release 2.4.0, PostgreSQL readiness, UID 10001, no migration DSN in the app runtime, OAuth rate limiting and structured-log redaction.
 
-Railway deployment succeeded on 2026-07-21 at immutable commit `03bf84b9268ff8be528c0fab3c670f9652ee23b0`. Production reports version 2.4.0, PostgreSQL ready and all 48 reviewed dictionary entries ready. The live English entry, four-stop read-only tour, identity-only Google sign-in, onboarding/session persistence across reload, logout and signed-out persistence after reload passed browser checks. Git tag and GitHub Release `v2.2.0` remain the latest published release artifacts. Re-login after logout, refreshed 2.4 desktop/mobile/RTL/reduced-motion screenshots, two-real-user production isolation, live OpenAI or Google Workspace connector calls and a managed backup restore drill remain explicit operator checks.
+The release implementation at `03bf84b9268ff8be528c0fab3c670f9652ee23b0` deployed successfully on Railway on 2026-07-21. Production reports version 2.4.0, PostgreSQL ready and all 48 reviewed dictionary entries ready. The live English entry, four-stop read-only tour, identity-only Google sign-in, onboarding/session persistence across reload, logout and signed-out persistence after reload passed browser checks. Git tag and GitHub Release `v2.4.0` are published. Re-login after logout, refreshed 2.4 desktop/mobile/RTL/reduced-motion screenshots, two-real-user production isolation, live OpenAI or Google Workspace connector calls and a managed backup restore drill remain explicit operator checks.
 
 See `TEST_REPORT.md` for commands, evidence boundaries and the historical production record.

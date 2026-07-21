@@ -265,7 +265,7 @@ def verify_portfolio_manifest() -> list[str]:
             "runtime",
             "database",
             "status",
-            "production_commit",
+            "release_implementation_commit",
             "verified_on",
             "environment",
             "health_live",
@@ -285,7 +285,7 @@ def verify_portfolio_manifest() -> list[str]:
         "runtime": "Docker",
         "database": "PostgreSQL 17",
         "status": "verified-live",
-        "production_commit": "03bf84b9268ff8be528c0fab3c670f9652ee23b0",
+        "release_implementation_commit": "03bf84b9268ff8be528c0fab3c670f9652ee23b0",
         "verified_on": "2026-07-21",
         "environment": "production",
         "health_live": True,
@@ -312,14 +312,14 @@ def verify_portfolio_manifest() -> list[str]:
     )
     failures.extend(nested_failures)
     expected_publication = {
-        "latest_git_tag": "v2.2.0",
-        "latest_github_release": "v2.2.0",
-        "source_version_tagged": False,
-        "source_version_github_release_published": False,
-        "release_state": "2.4.0-live-with-v2.2.0-latest-published-release",
+        "latest_git_tag": "v2.4.0",
+        "latest_github_release": "v2.4.0",
+        "source_version_tagged": True,
+        "source_version_github_release_published": True,
+        "release_state": "2.4.0-live-and-published",
     }
     if publication is not None and publication != expected_publication:
-        failures.append("portfolio/project.json: publication must distinguish live 2.4 from the latest published v2.2.0 artifact")
+        failures.append("portfolio/project.json: publication must identify v2.4.0 as the live tagged GitHub Release")
 
     visual_proof, nested_failures = _verify_exact_keys(
         top_level.get("visual_proof"),
@@ -418,12 +418,12 @@ def verify_release_truth_drift() -> list[str]:
             "03bf84b9268ff8be528c0fab3c670f9652ee23b0",
             "Source and deployed application | `2.4.0`",
             "151 unique backend tests + 62 frontend tests = 213 passed",
-            "no `v2.4.0` release is claimed yet",
+            "GitHub publication | [`v2.4.0`](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.4.0)",
         ),
         "TEST_REPORT.md": (
             "Current live release | `2.4.0` / production / PostgreSQL",
             "03bf84b9268ff8be528c0fab3c670f9652ee23b0",
-            "Latest Git tag / GitHub Release | `v2.2.0` / `v2.2.0`",
+            "Latest Git tag / GitHub Release | `v2.4.0` / `v2.4.0`",
             "Live 2.4 deployment | Passed on 2026-07-21",
             "213 unique passing automated tests",
         ),
@@ -434,7 +434,7 @@ def verify_release_truth_drift() -> list[str]:
         "PACKAGE_MANIFEST.md": (
             "Source version: `2.4.0`",
             "Current live source version: `2.4.0`",
-            "Latest published Git tag and GitHub Release: `v2.2.0`",
+            "Latest published Git tag and GitHub Release: `v2.4.0`",
             "Total unique automated tests: 213 passed",
         ),
         "docs/DEPLOYMENT.md": (

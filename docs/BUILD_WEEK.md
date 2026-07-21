@@ -5,10 +5,10 @@ This document separates the product that already existed from the work completed
 ## Truth snapshot — 2026-07-21
 
 - Source and current public application: `2.4.0`.
-- Railway production: successfully deployed at immutable commit `03bf84b9268ff8be528c0fab3c670f9652ee23b0` on 2026-07-21.
+- Railway production: release implementation commit `03bf84b9268ff8be528c0fab3c670f9652ee23b0` deployed successfully on 2026-07-21.
 - Production readiness: PostgreSQL ready with all 48 reviewed dictionary entries.
-- Candidate verification: 151 unique backend tests and 62 frontend tests, for 213 unique passing automated tests. The ordinary backend run passes 150 with one credential-gated skip; a dedicated PostgreSQL 17 run passes all three database tests and contributes that missing unique pass.
-- Publication boundary: 2.4 is live, while Git tag and GitHub Release `v2.2.0` remain the latest published release artifacts until `v2.4.0` is published.
+- Release verification: 151 unique backend tests and 62 frontend tests, for 213 unique passing automated tests. The ordinary backend run passes 150 with one credential-gated skip; a dedicated PostgreSQL 17 run passes all three database tests and contributes that missing unique pass.
+- Publication: Git tag and GitHub Release `v2.4.0` are published.
 
 ## Pre-existing foundation
 
@@ -70,12 +70,11 @@ Verified for the current source:
 - 62 frontend tests across 16 files, TypeScript checking and production build.
 - Production Compose/image smoke with PostgreSQL readiness, 48 shared dictionary entries, UID 10001, runtime migration-secret removal, OAuth rate limiting and structured-log redaction.
 - Package structure, JSON/SVG parsing, version drift, secret hygiene and README links.
-- Railway production version 2.4.0 at immutable commit `03bf84b9268ff8be528c0fab3c670f9652ee23b0`, with PostgreSQL and all 48 reviewed dictionary entries ready.
+- Railway production version 2.4.0 from release implementation commit `03bf84b9268ff8be528c0fab3c670f9652ee23b0`, with PostgreSQL and all 48 reviewed dictionary entries ready.
 - The live English entry, four-stop read-only tour, identity-only Google sign-in, onboarding/session persistence across reload, logout and signed-out persistence after reload.
 
 Still required before calling every 2.4 boundary verified:
 
-- Publish Git tag and GitHub Release `v2.4.0`.
 - Verify re-login after logout, First Steps continuity across a second sign-in and the GitHub secondary sign-in path.
 - Check desktop/mobile, Hebrew RTL, dark/light, reduced motion, keyboard navigation and 200% zoom.
 - Exercise live OpenAI and Google Workspace connector calls only with explicit credentials, consent, allowlists and cost controls; identity-only Google sign-in grants no Gmail, Drive or Calendar scope.
