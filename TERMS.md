@@ -1,10 +1,10 @@
 # Ivrit Sheli terms of use
 
-Last updated: 18 July 2026
+Last updated: 21 July 2026
 
 These terms apply to the public Ivrit Sheli hosted service. By using the service, you agree to use it responsibly and understand the limits below. If you do not agree, you may use the open-source local edition under its repository license instead of the hosted service.
 
-**Candidate boundary:** Google sign-in and self-service account deletion described here are part of the 2.4 source candidate and apply to the hosted service only after that version is deployed and configured. The current app version is available from `/version`; the last independently verified public deployment when these terms were prepared was 2.2.0.
+**Live-service boundary:** the hosted service reports version 2.4.0. Identity-only Google sign-in, onboarding/session persistence across reload and logout are verified in production. Re-login after logout and credential-dependent integrations remain separate unverified checks; Google sign-in grants no Gmail, Drive or Calendar scope.
 
 ## The service
 

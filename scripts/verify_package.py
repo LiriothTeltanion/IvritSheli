@@ -198,8 +198,8 @@ def verify_portfolio_manifest() -> list[str]:
         "slug": "ivrit-sheli",
         "name": "Ivrit Sheli — העברית שלי",
         "source_version": "2.4.0",
-        "live_version": "2.2.0",
-        "status": "release-candidate",
+        "live_version": "2.4.0",
+        "status": "production",
         "default_branch": "main",
         "repository_url": "https://github.com/LiriothTeltanion/IvritSheli",
         "demo_url": "https://ivritsheli-production.up.railway.app",
@@ -255,7 +255,7 @@ def verify_portfolio_manifest() -> list[str]:
         "evidence": "TEST_REPORT.md",
     }
     if tests is not None and tests != expected_tests:
-        failures.append("portfolio/project.json: tests must match the documented 151 + 62 = 213 verified local candidate baseline")
+        failures.append("portfolio/project.json: tests must match the documented 151 + 62 = 213 verified release baseline")
 
     deployment, nested_failures = _verify_exact_keys(
         top_level.get("deployment"),
@@ -272,23 +272,29 @@ def verify_portfolio_manifest() -> list[str]:
             "health_ready",
             "postgresql_ready",
             "dictionary_ready",
+            "dictionary_entries",
+            "english_entry_verified",
+            "read_only_tour_verified",
         },
         "deployment",
     )
     failures.extend(nested_failures)
     expected_deployment = {
-        "version": "2.2.0",
+        "version": "2.4.0",
         "provider": "Railway",
         "runtime": "Docker",
         "database": "PostgreSQL 17",
-        "status": "verified-previous-release",
-        "production_commit": "66d68a3c44ac2500fb400eef88d5f77da0c1c1e1",
+        "status": "verified-live",
+        "production_commit": "03bf84b9268ff8be528c0fab3c670f9652ee23b0",
         "verified_on": "2026-07-21",
         "environment": "production",
         "health_live": True,
         "health_ready": True,
         "postgresql_ready": True,
         "dictionary_ready": True,
+        "dictionary_entries": 48,
+        "english_entry_verified": True,
+        "read_only_tour_verified": True,
     }
     if deployment is not None and deployment != expected_deployment:
         failures.append("portfolio/project.json: deployment does not match verified Railway production")
@@ -310,10 +316,10 @@ def verify_portfolio_manifest() -> list[str]:
         "latest_github_release": "v2.2.0",
         "source_version_tagged": False,
         "source_version_github_release_published": False,
-        "release_state": "2.4.0-candidate-with-2.2.0-live",
+        "release_state": "2.4.0-live-with-v2.2.0-latest-published-release",
     }
     if publication is not None and publication != expected_publication:
-        failures.append("portfolio/project.json: publication must distinguish the 2.4 candidate from published v2.2.0")
+        failures.append("portfolio/project.json: publication must distinguish live 2.4 from the latest published v2.2.0 artifact")
 
     visual_proof, nested_failures = _verify_exact_keys(
         top_level.get("visual_proof"),
@@ -322,20 +328,20 @@ def verify_portfolio_manifest() -> list[str]:
             "social_preview_version",
             "readme_screenshot_version",
             "readme_screenshots_match_source_version",
-            "candidate_2_4_interactive_browser_qa",
+            "interactive_browser_qa",
         },
         "visual_proof",
     )
     failures.extend(nested_failures)
     expected_visual_proof = {
-        "state": "candidate-pending",
+        "state": "live-english-journey-verified",
         "social_preview_version": "2.2.0",
         "readme_screenshot_version": "2.1.x",
         "readme_screenshots_match_source_version": False,
-        "candidate_2_4_interactive_browser_qa": "pending",
+        "interactive_browser_qa": "verified-english-entry-and-read-only-tour",
     }
     if visual_proof is not None and visual_proof != expected_visual_proof:
-        failures.append("portfolio/project.json: visual proof must remain pending until 2.4 QA/assets exist")
+        failures.append("portfolio/project.json: visual proof must match the verified live English journey")
 
     oauth, nested_failures = _verify_exact_keys(
         top_level.get("oauth"),
@@ -346,7 +352,10 @@ def verify_portfolio_manifest() -> list[str]:
             "google_live_sign_in_verified",
             "github_live_successful_session_verified",
             "authenticated_session_refresh_verified",
+            "onboarding_persistence_across_reload_verified",
             "logout_verified",
+            "signed_out_reload_verified",
+            "relogin_after_logout_verified",
             "boundary",
         },
         "oauth",
@@ -356,18 +365,23 @@ def verify_portfolio_manifest() -> list[str]:
         "providers": ["Google", "GitHub"],
         "source_contract_tested": True,
         "google_live_configured": True,
-        "google_live_sign_in_verified": False,
+        "google_live_sign_in_verified": True,
         "github_live_successful_session_verified": False,
-        "authenticated_session_refresh_verified": False,
-        "logout_verified": False,
+        "authenticated_session_refresh_verified": True,
+        "onboarding_persistence_across_reload_verified": True,
+        "logout_verified": True,
+        "signed_out_reload_verified": True,
+        "relogin_after_logout_verified": False,
         "boundary": (
-            "Provider-bound Google and GitHub flows are source-tested and the Google production "
-            "client is configured; successful live Google sign-in and end-to-end 2.4 sessions "
-            "are not yet verified."
+            "Identity-only Google sign-in, onboarding/session persistence across reload, logout "
+            "and signed-out persistence after reload are verified in production. Re-login after "
+            "logout, a live GitHub account session, live OpenAI or Google Workspace connector "
+            "calls, two-real-user isolation and backup restoration remain unverified; Google "
+            "sign-in grants no Gmail, Drive or Calendar scope."
         ),
     }
     if oauth is not None and oauth != expected_oauth:
-        failures.append("portfolio/project.json: OAuth must retain the unverified 2.4 live boundary")
+        failures.append("portfolio/project.json: OAuth must match the verified Google and remaining operator boundaries")
 
     privacy, nested_failures = _verify_exact_keys(
         top_level.get("privacy"),
@@ -400,17 +414,17 @@ def verify_release_truth_drift() -> list[str]:
     """Keep human-readable release surfaces aligned with the public manifest."""
     expected_fragments = {
         "README.md": (
-            "Open the current verified production demo (2.2.0)",
-            "66d68a3c44ac2500fb400eef88d5f77da0c1c1e1",
-            "Source candidate | `2.4.0`",
+            "Open the verified Ivrit Sheli 2.4.0 Contest Edition",
+            "03bf84b9268ff8be528c0fab3c670f9652ee23b0",
+            "Source and deployed application | `2.4.0`",
             "151 unique backend tests + 62 frontend tests = 213 passed",
             "no `v2.4.0` release is claimed yet",
         ),
         "TEST_REPORT.md": (
-            "Current live release | `2.2.0` / production / PostgreSQL",
-            "66d68a3c44ac2500fb400eef88d5f77da0c1c1e1",
+            "Current live release | `2.4.0` / production / PostgreSQL",
+            "03bf84b9268ff8be528c0fab3c670f9652ee23b0",
             "Latest Git tag / GitHub Release | `v2.2.0` / `v2.2.0`",
-            "Live 2.4 deployment | Not yet deployed",
+            "Live 2.4 deployment | Passed on 2026-07-21",
             "213 unique passing automated tests",
         ),
         "CHANGELOG.md": (
@@ -418,20 +432,20 @@ def verify_release_truth_drift() -> list[str]:
             "48-concept reviewed A0/A1 starter dictionary",
         ),
         "PACKAGE_MANIFEST.md": (
-            "Source candidate version: `2.4.0`",
-            "Current live source version: `2.2.0`",
+            "Source version: `2.4.0`",
+            "Current live source version: `2.4.0`",
             "Latest published Git tag and GitHub Release: `v2.2.0`",
             "Total unique automated tests: 213 passed",
         ),
         "docs/DEPLOYMENT.md": (
-            "Current production verification record — 2.2.0 — 2026-07-21",
-            "66d68a3c44ac2500fb400eef88d5f77da0c1c1e1",
-            "2.4 candidate deployment checklist",
+            "Current production verification record — 2.4.0 — 2026-07-21",
+            "03bf84b9268ff8be528c0fab3c670f9652ee23b0",
+            "Identity-only Google sign-in",
         ),
         "docs/DEMO_DAY.md": (
             "213 passing automated tests",
-            "2.4.0 is a source candidate",
-            "2.2.0 remains the verified Railway release",
+            "2.4.0 is live on Railway",
+            "identity-only Google sign-in",
         ),
         "docs/BUILD_WEEK.md": (
             "Pre-existing foundation",
@@ -449,7 +463,7 @@ def verify_release_truth_drift() -> list[str]:
         ),
         "CITATION.cff": (
             "version: 2.4.0",
-            "currently a source candidate",
+            "verified live release",
         ),
     }
     failures: list[str] = []
@@ -466,7 +480,7 @@ def verify_release_truth_drift() -> list[str]:
 
 
 def verify_source_version_surfaces() -> list[str]:
-    """Keep executable and human-facing candidate versions synchronized."""
+    """Keep executable and human-facing release versions synchronized."""
     expected_version = "2.4.0"
     failures: list[str] = []
 
@@ -481,7 +495,7 @@ def verify_source_version_surfaces() -> list[str]:
             (ROOT / "backend" / "pyproject.toml").read_text(encoding="utf-8")
         )
     except (OSError, json.JSONDecodeError, tomllib.TOMLDecodeError) as error:
-        return [f"candidate version metadata could not be parsed: {error}"]
+        return [f"release version metadata could not be parsed: {error}"]
 
     structured_versions = {
         "frontend/package.json": frontend_package.get("version"),
@@ -496,7 +510,7 @@ def verify_source_version_surfaces() -> list[str]:
     for location, actual in structured_versions.items():
         if actual != expected_version:
             failures.append(
-                f"{location}: expected candidate version {expected_version!r}, got {actual!r}"
+                f"{location}: expected release version {expected_version!r}, got {actual!r}"
             )
 
     expected_fragments = {
@@ -516,7 +530,7 @@ def verify_source_version_surfaces() -> list[str]:
             failures.append(f"{relative}: {error}")
             continue
         if fragment not in text:
-            failures.append(f"{relative}: missing candidate version fragment {fragment!r}")
+            failures.append(f"{relative}: missing release version fragment {fragment!r}")
 
     return failures
 

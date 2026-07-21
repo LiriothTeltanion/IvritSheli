@@ -6,7 +6,7 @@
 - Maximum: under three minutes.
 - Target length: approximately 2:55, leaving a safety margin below three minutes.
 - Narration: English male neural voiceover with human-reviewed claims.
-- Visuals: direct English-interface captures of the v2.4 candidate at 16:9, including Google sign-in, onboarding, the guided demo tour, ephemeral First Steps, dictionary, pronunciation, word analysis and the dashboard.
+- Visuals: direct English-interface captures of the live v2.4 production build at 16:9, including Google sign-in, onboarding, the guided demo tour, ephemeral First Steps, dictionary, pronunciation, word analysis and the dashboard.
 - Captions: an `.srt` sidecar is generated with the final video.
 
 ## Voiceover
@@ -29,15 +29,15 @@ Useful local dictionary facts work without a paid service. Optional cloud transc
 
 The read-only demo now guides visitors through four real product stops without changing shared data: an ephemeral illustrated lesson, visual dictionary, microphone word intelligence, and adaptive progress. The dashboard combines review urgency, demonstrated weakness, real-life relevance, goals, and freshness, so the learner can understand why each phrase appears next.
 
-For public use, Google sign-in creates a private account-isolated PostgreSQL workspace. Onboarding, lesson checkpoints, learned words, reviews, and settings persist across sessions. A read-only demo and a one-click private SQLite mode remain available.
+For public use, Google sign-in creates a private account-isolated PostgreSQL workspace. Onboarding, lesson checkpoints, learned words, reviews, and settings persist in that workspace; onboarding and session continuity across reload were verified live. A read-only demo and a one-click private SQLite mode remain available.
 
-I began Build Week with a pre-existing local-first foundation. During the sprint, I used Codex with GPT-5.6 as an engineering partner to implement the beginner journey, Google identity, account-backed lesson continuity, visual vocabulary, release evidence, and regression tests, then shape version 2.4 for judging. The locally verified candidate passes two hundred thirteen unique automated tests, including a dedicated PostgreSQL isolation gate and a production-shaped Docker and Compose smoke test. CI, live deployment, and live Google sessions remain separate release gates.
+I began Build Week with a pre-existing local-first foundation. During the sprint, I used Codex with GPT-5.6 as an engineering partner to implement the beginner journey, Google identity, account-backed lesson continuity, visual vocabulary, release evidence, and regression tests, then shape version 2.4 for judging. The locally verified source passes two hundred thirteen unique automated tests, including a dedicated PostgreSQL isolation gate and a production-shaped Docker and Compose smoke test. Railway now serves version 2.4 with PostgreSQL and all forty-eight reviewed dictionary entries ready; the English tour, identity-only Google sign-in, reload continuity and logout passed live browser checks.
 
-Ivrit Sheli turns the Hebrew people meet in real life into a private, visual, adaptive learning journey. This is the version 2.4 Contest Edition candidate, created by Kevin Cusnir.
+Ivrit Sheli turns the Hebrew people meet in real life into a private, visual, adaptive learning journey. This is the live version 2.4 Contest Edition, created by Kevin Cusnir.
 
 ## Claim boundaries
 
 - The project foundation predates Build Week; the v2.3 sprint and v2.4 Contest Edition finish are the documented competition work.
 - Google sign-in uses identity scopes only. It does not grant Gmail, Drive or Calendar access.
 - Microphone analysis supports browser/manual local paths; cloud transcription and enrichment remain opt-in and provider-dependent.
-- The verified local test total is 151 unique backend tests plus 62 frontend tests, for 213 total; CI and live-service evidence remain separate.
+- The verified local test total is 151 unique backend tests plus 62 frontend tests, for 213 total; Railway production and browser evidence are recorded separately from those test results.

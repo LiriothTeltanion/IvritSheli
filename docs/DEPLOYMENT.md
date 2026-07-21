@@ -194,7 +194,7 @@ After configuration, verify successful login, cancelled login, invalid/replayed 
 
 For the 2.1 production check, the OAuth start flow reached GitHub's identity-only consent screen and the cancelled-login callback was verified. GitHub's anti-fraud protection disabled approval in the embedded test browser, so the final code exchange, authenticated session and logout must still be completed in a normal browser before OAuth is called fully verified.
 
-The current 2.2.0 deployment preserves that same conservative boundary. Production identity and readiness are verified, but no successful final live GitHub authorization-code exchange, authenticated refresh persistence or logout result is inferred from deployment health. Google sign-in is a 2.4 source capability inherited from the unreleased 2.3 candidate and is not claimed for the 2.2 deployment.
+The current 2.4.0 deployment verifies the separate Google identity-only path: live authorization succeeded, onboarding state and the authenticated session persisted across reload, and logout returned to the English landing page and remained signed out after another reload. This does not verify re-login after logout or a successful live GitHub authorization-code exchange. Google sign-in remains limited to `openid profile` and grants no Gmail, Drive or Calendar scope.
 
 ### Cost and data-retention guardrails
 
@@ -254,20 +254,26 @@ Verify against the public URL:
 12. Export downloads the authenticated learner state; account deletion remains verified with a disposable identity or the real PostgreSQL boundary test, not by deleting the owner's account.
 13. Desktop, 390 px mobile, Hebrew RTL, reduced-motion, keyboard-only and 200% zoom modes remain usable.
 
-### 2.4 candidate deployment checklist
-
-Version `2.4.0` is not production-verified until every applicable item above passes against the immutable deployed commit. Before promotion, also confirm the Alembic head is `20260718_0002`, the 48-concept dictionary readiness check passes without changing existing IDs, `auth_providers` exposes only configured methods, the visit-only language override and read-only guided tour pass browser checks, and the privacy/terms URLs resolve publicly. Publish tag and GitHub Release `v2.4.0` only after those checks succeed.
-
-### Current production verification record — 2.2.0 — 2026-07-21
+### Current production verification record — 2.4.0 — 2026-07-21
 
 - URL: https://ivritsheli-production.up.railway.app
+- Runtime identity: release `2.4.0`, environment `production`, storage `postgresql`.
+- Production commit: immutable `03bf84b9268ff8be528c0fab3c670f9652ee23b0`; Railway deployment completed successfully on 2026-07-21.
+- Readiness: PostgreSQL and all 48 reviewed dictionary entries passed.
+- Judge path: the `?lang=en` entry and four-stop read-only guided tour passed live browser checks.
+- Google OAuth: identity-only sign-in succeeded; onboarding state and the authenticated session persisted across reload; logout returned to the English auth landing page and a subsequent reload remained signed out.
+- Publication state: Git tag and GitHub Release `v2.2.0` remain the latest published release artifacts; `v2.4.0` is not yet published as either artifact.
+- Remaining boundary: re-login after logout, live GitHub authorization, live OpenAI or Google Workspace connector calls, two-real-user production isolation and backup restoration are unverified. Identity-only Google sign-in grants no Gmail, Drive or Calendar scope.
+- Visual boundary: the English entry and guided tour are verified live, while refreshed desktop/mobile/RTL/reduced-motion README captures remain pending.
+
+### Historical production verification record — 2.2.0 — 2026-07-21
+
 - Runtime identity: release `2.2.0`, environment `production`, storage `postgresql`.
 - Production commit: `66d68a3c44ac2500fb400eef88d5f77da0c1c1e1` from merged pull request #14.
 - `/health/live`: HTTPS `200` with version `2.2.0` and the same immutable commit.
 - `/health/ready`: HTTPS `200`; the 12-entry/12-sense shared-cloud dictionary and PostgreSQL readiness passed.
-- Publication state: Git tag and GitHub Release `v2.2.0` are published and match the deployed source version.
-- Visual boundary: the 2.2 social preview is current, while README screenshots remain 2.1.x proof and 2.2 interactive browser QA is pending.
-- OAuth: GitHub consent handoff and cancellation have verified evidence; final live code exchange, authenticated refresh persistence and logout remain pending in a normal browser.
+- Publication state: Git tag and GitHub Release `v2.2.0` were published for this source version and remain the latest release artifacts until `v2.4.0` is published.
+- OAuth: GitHub consent handoff and cancellation had verified evidence; final live code exchange, authenticated refresh persistence and logout remained pending for that deployment.
 
 ### Historical production verification record — 2.1.1 — 2026-07-16
 
