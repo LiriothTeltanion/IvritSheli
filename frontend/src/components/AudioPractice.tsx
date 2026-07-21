@@ -104,6 +104,13 @@ export function AudioPractice({
   const startLockRef = useRef(false);
   const activeCaptureRef = useRef(false);
 
+  useEffect(() => {
+    setTarget(initialText);
+    setTranscript('');
+    setScore(null);
+    setError('');
+  }, [initialText]);
+
   const clearCaptureTimer = (): void => {
     if (captureTimerRef.current !== null) {
       window.clearTimeout(captureTimerRef.current);

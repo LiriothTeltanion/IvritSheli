@@ -1,4 +1,4 @@
-# Deployment — Ivrit Sheli 2.2
+# Deployment — Ivrit Sheli 2.3
 
 This guide covers the private SQLite installation, the reproducible PostgreSQL Docker stack and the public Railway deployment. Production values belong in a secrets manager or hosting dashboard, never in Git.
 
@@ -9,7 +9,7 @@ This guide covers the private SQLite installation, the reproducible PostgreSQL D
 | Private Windows app | `./scripts/start.ps1` | Local SQLite | Not required |
 | Development | `./scripts/run-dev.ps1` or `./scripts/run-dev.sh` | Local SQLite | Optional |
 | Production-shaped local stack | `docker compose up --build` | PostgreSQL 17 + dictionary volume | Required; demo works without OAuth keys |
-| Public release | Railway Dockerfile deployment | Managed PostgreSQL | GitHub OAuth + read-only demo |
+| Public release | Railway Dockerfile deployment | Managed PostgreSQL | Google and/or GitHub OAuth + read-only demo |
 
 ## 2. Run the PostgreSQL Docker stack
 
@@ -62,10 +62,22 @@ The ownership initializer is intentionally idempotent. It changes only the mount
 | `SESSION_COOKIE_SECURE` | `true` |
 | `PUBLIC_BASE_URL` | Exact public `https://` origin, without a trailing slash |
 | `ALLOWED_ORIGINS` | Exact public origin; comma-separated only when additional trusted origins are deliberate |
-| `GITHUB_CLIENT_ID` | GitHub OAuth application client ID |
-| `GITHUB_CLIENT_SECRET` | GitHub OAuth application client secret |
-| `GITHUB_REDIRECT_URI` | `<PUBLIC_BASE_URL>/api/v1/auth/github/callback` |
 | `TRUSTED_PROXY_MODE` | `railway` on Railway; this mode is production-only and requires Railway's injected `RAILWAY_ENVIRONMENT_ID` |
+
+### Sign-in provider requirement
+
+Production requires at least one complete OAuth provider. For the intended 2.3 learner experience, configure Google as the primary option and keep GitHub as the secondary option:
+
+| Variable | Exact production value |
+|---|---|
+| `GOOGLE_AUTH_CLIENT_ID` | Google OAuth Web client ID |
+| `GOOGLE_AUTH_CLIENT_SECRET` | Matching secret, stored only in the hosting secret field |
+| `GOOGLE_AUTH_REDIRECT_URI` | `<PUBLIC_BASE_URL>/api/v1/auth/google/callback` |
+| `GITHUB_CLIENT_ID` | GitHub OAuth application client ID |
+| `GITHUB_CLIENT_SECRET` | Matching secret, stored only in the hosting secret field |
+| `GITHUB_REDIRECT_URI` | `<PUBLIC_BASE_URL>/api/v1/auth/github/callback` |
+
+Each provider is optional as a set, but partial credentials fail startup. When a provider is absent, `/api/v1/auth/me` omits it from `auth_providers` and the frontend does not show its button. The `GOOGLE_AUTH_*` variables are separate from the `GOOGLE_*` Workspace connector credentials.
 
 ### Recommended
 
@@ -97,14 +109,14 @@ The ownership initializer is intentionally idempotent. It changes only the mount
 
 ### Provider allowlists
 
-Production cloud calls are identity-gated even after GitHub authentication. Keep provider secrets unset for the public demo unless a real GitHub identity is explicitly approved:
+Paid production cloud calls are identity-gated independently of account sign-in. The current cloud-AI and Google Workspace connector allowlists are deliberately GitHub-identity based:
 
 - Cloud AI: `CLOUD_AI_ALLOWED_GITHUB_LOGINS` and/or `CLOUD_AI_ALLOWED_GITHUB_IDS`.
 - Google read-only previews: `GOOGLE_CONNECTORS_ALLOWED_GITHUB_LOGINS` and/or `GOOGLE_CONNECTORS_ALLOWED_GITHUB_IDS`.
 
-Values are comma-separated. GitHub logins are matched case-insensitively; numeric provider IDs are matched exactly and remain stable if a login is renamed. Configure only identities you have verified—do not guess IDs. `ALLOW_CLOUD_PROCESSING=true` without a cloud-AI allowlist fails application startup in production. Supplying any Google credential without a Google allowlist also fails startup. Route-level checks then reject a non-allowlisted authenticated user before any provider call. Local mode and offline coaching are unaffected.
+Values are comma-separated. GitHub logins are matched case-insensitively; numeric provider IDs are matched exactly and remain stable if a login is renamed. Configure only identities you have verified—do not guess IDs. `ALLOW_CLOUD_PROCESSING=true` without a cloud-AI allowlist fails application startup in production. Supplying any Google Workspace connector credential without its connector allowlist also fails startup. A Google-sign-in identity is not silently treated as an allowlisted GitHub identity, so paid cloud operations fail closed while local/offline learning continues.
 
-Production also fails startup when authentication is disabled, debug mode is enabled, an allowed origin is a wildcard/non-HTTPS URL/path rather than an exact origin, or the normalized GitHub callback differs from the one exact callback under `PUBLIC_BASE_URL`.
+Production also fails startup when authentication is disabled, debug mode is enabled, an allowed origin is a wildcard/non-HTTPS URL/path rather than an exact origin, no OAuth provider is complete, or a configured provider callback differs from its one exact callback under `PUBLIC_BASE_URL`.
 
 The built-in authentication limiter combines a per-client bucket with a much higher per-endpoint circuit breaker. Both are process-local, so multiple replicas multiply those allowances. `direct` mode keys the raw ASGI peer and is suitable only when that peer is the real client; `railway` mode reads exactly one syntactically valid `X-Real-IP` under the deployment assumption that Railway ingress overwrites it and the service has no direct public bypass. Missing, duplicate or malformed values share one unresolved bucket. `X-Forwarded-For` is never consulted, and Uvicorn starts with `--no-proxy-headers` so it cannot rewrite the raw peer first. The independent `OAUTH_STATE_LIMIT` decision is serialized in PostgreSQL with a transaction advisory lock and remains global across replicas.
 
@@ -135,8 +147,9 @@ Railway pre-deploy commands run in a separate container but receive the same ser
 5. Seal both database URL variables. Keep the runtime password stable across ordinary deploys.
 6. Add the remaining required and recommended variables from the tables above, including `TRUSTED_PROXY_MODE=railway`. Do not set or override `RAILWAY_ENVIRONMENT_ID`; Railway injects it.
 7. Generate a public domain for the application service.
-8. Set `PUBLIC_BASE_URL`, `ALLOWED_ORIGINS` and `GITHUB_REDIRECT_URI` to the final domain.
-9. Deploy and require `/health/ready` to return `200` before routing traffic.
+8. Set `PUBLIC_BASE_URL`, `ALLOWED_ORIGINS` and every configured provider redirect URI to the final domain.
+9. Keep Google sign-in scopes limited to `openid profile`; do not add Gmail, Drive or Calendar scopes to the login client.
+10. Deploy and require `/health/ready` to return `200` before routing traffic.
 
 Railway automatically detects the root Dockerfile. The committed configuration uses:
 
@@ -151,6 +164,23 @@ The service must bind to `0.0.0.0` and Railway's injected `PORT`; the container 
 
 Changing the runtime password while an old deployment overlaps a new one invalidates new connections from the old container. For a planned rotation, disable overlap for that deployment or use a staged second login; ordinary releases reuse the same runtime password.
 
+### Google OAuth Web client
+
+Configure Google Auth Platform only after the final public domain exists:
+
+- Application type: Web application.
+- Authorized JavaScript origin: the exact `PUBLIC_BASE_URL`.
+- Authorized redirect URI: `<PUBLIC_BASE_URL>/api/v1/auth/google/callback`.
+- Requested sign-in scope: `openid profile` only.
+- Application homepage: the public origin.
+- Privacy policy: the public repository URL for `PRIVACY.md`.
+- Terms of service: the public repository URL for `TERMS.md`.
+- Client secret: store only in Railway's sealed variable field.
+
+Do not reuse Google Workspace connector credentials for sign-in and do not add Gmail, Drive or Calendar scopes to this client. After configuration, verify successful and cancelled login, invalid/replayed/provider-swapped state, refresh persistence, logout and expired-session behavior. The source tests do not prove that the production client, consent screen or secret is correct.
+
+Official references: [Google OpenID Connect](https://developers.google.com/identity/openid-connect/openid-connect), [OIDC endpoint reference](https://developers.google.com/identity/openid-connect/reference), and [OAuth 2.0 for web server applications](https://developers.google.com/identity/protocols/oauth2/web-server).
+
 ### GitHub OAuth application
 
 Create the OAuth application only after the final public domain exists:
@@ -164,7 +194,7 @@ After configuration, verify successful login, cancelled login, invalid/replayed 
 
 For the 2.1 production check, the OAuth start flow reached GitHub's identity-only consent screen and the cancelled-login callback was verified. GitHub's anti-fraud protection disabled approval in the embedded test browser, so the final code exchange, authenticated session and logout must still be completed in a normal browser before OAuth is called fully verified.
 
-The 2.2.0 deployment preserves that same conservative boundary. Production identity and readiness are verified, but no successful final live authorization-code exchange, authenticated refresh persistence or logout result is inferred from deployment health.
+The current 2.2.0 deployment preserves that same conservative boundary. Production identity and readiness are verified, but no successful final live GitHub authorization-code exchange, authenticated refresh persistence or logout result is inferred from deployment health. Google sign-in is a 2.3 source capability and is not claimed for the 2.2 deployment.
 
 ### Cost and data-retention guardrails
 
@@ -212,15 +242,21 @@ Verify against the public URL:
 
 1. `/health/live` is `200` without database details.
 2. `/health/ready` is `200` and confirms the expected mode.
-3. `/version` shows `2.2.0` and the deployed commit.
+3. `/version` shows `2.3.0` and the deployed commit.
 4. Demo login works and is read-only.
-5. GitHub login works and logout revokes the session.
+5. Google login works when configured; GitHub remains a working secondary path when configured; logout revokes each session.
 6. Two distinct users cannot read or modify each other's data.
 7. Refreshing the page preserves the authenticated user's PostgreSQL state.
 8. Responses include `X-Request-ID`.
 9. Application logs are JSON and contain no cookie, token, OAuth code or request body.
-10. A non-allowlisted GitHub user cannot invoke cloud AI, cloud audio or Google previews.
-11. Desktop, 390 px mobile, Hebrew RTL and reduced-motion modes remain usable.
+10. A Google-sign-in user and a non-allowlisted GitHub user cannot invoke paid cloud AI, cloud audio or Google Workspace previews.
+11. A new learner can finish onboarding, complete the five-word lesson, save a word, refresh, sign out/in and recover the same state.
+12. Export downloads the authenticated learner state; account deletion remains verified with a disposable identity or the real PostgreSQL boundary test, not by deleting the owner's account.
+13. Desktop, 390 px mobile, Hebrew RTL, reduced-motion, keyboard-only and 200% zoom modes remain usable.
+
+### 2.3 candidate deployment checklist
+
+Version `2.3.0` is not production-verified until every applicable item above passes against the immutable deployed commit. Before promotion, also confirm the Alembic head is `20260718_0002`, the 48-concept dictionary readiness check passes without changing existing IDs, `auth_providers` exposes only configured methods, and the privacy/terms URLs resolve publicly. Publish tag and GitHub Release `v2.3.0` only after those checks succeed.
 
 ### Current production verification record — 2.2.0 — 2026-07-18
 

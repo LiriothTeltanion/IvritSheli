@@ -23,11 +23,15 @@ from ivrit_sheli import __version__
 from ivrit_sheli.normalization import normalize_hebrew
 
 LOGGER = logging.getLogger(__name__)
-DICTIONARY_SCHEMA_VERSION = 1
-DEFAULT_DICTIONARY_URL = (
-    "https://kaikki.org/dictionary/Hebrew/kaikki.org-dictionary-Hebrew.jsonl"
-)
+DICTIONARY_SCHEMA_VERSION = 2
+DEFAULT_DICTIONARY_URL = "https://kaikki.org/dictionary/Hebrew/kaikki.org-dictionary-Hebrew.jsonl"
 ALLOWED_DOWNLOAD_HOSTS = {"kaikki.org", "www.kaikki.org"}
+STARTER_SOURCE_NAME = "Ivrit Sheli reviewed starter vocabulary"
+STARTER_SOURCE_URL = (
+    "https://github.com/LiriothTeltanion/IvritSheli/blob/main/backend/src/ivrit_sheli/dictionary.py"
+)
+STARTER_LICENSE = "MIT application sample data"
+STARTER_PROVENANCE = "Ivrit Sheli editorial review; A0/A1 starter sense v1"
 
 DICTIONARY_SCHEMA = """
 CREATE TABLE IF NOT EXISTS dictionary_meta (
@@ -64,6 +68,14 @@ CREATE TABLE IF NOT EXISTS dictionary_senses (
     sense_order INTEGER NOT NULL DEFAULT 0,
     gloss_en TEXT,
     gloss_es TEXT,
+    level TEXT,
+    category TEXT,
+    visual_key TEXT,
+    visual_emoji TEXT,
+    visual_alt_en TEXT,
+    visual_alt_es TEXT,
+    visual_alt_he TEXT,
+    provenance TEXT,
     tags_json TEXT NOT NULL DEFAULT '[]',
     topics_json TEXT NOT NULL DEFAULT '[]'
 );
@@ -88,6 +100,7 @@ CREATE TABLE IF NOT EXISTS dictionary_examples (
     entry_id INTEGER NOT NULL REFERENCES dictionary_entries(id) ON DELETE CASCADE,
     hebrew_text TEXT NOT NULL,
     translation_en TEXT,
+    translation_es TEXT,
     romanization TEXT,
     source_text TEXT
 );
@@ -103,149 +116,1018 @@ CREATE TABLE IF NOT EXISTS dictionary_sounds (
 """
 
 
+def _starter_concept(
+    *,
+    word: str,
+    niqqud: str,
+    romanization: str,
+    pos: str,
+    gloss_en: str,
+    gloss_es: str,
+    category: str,
+    level: str,
+    visual_key: str,
+    visual_emoji: str,
+    visual_alt_en: str,
+    visual_alt_es: str,
+    visual_alt_he: str,
+    example_he: str,
+    example_en: str,
+    example_es: str,
+    example_romanization: str,
+    gender: str | None = None,
+    root: str | None = None,
+    binyan: str | None = None,
+    source_key: str | None = None,
+) -> dict[str, Any]:
+    """Build one fully reviewed, exact-sense beginner concept."""
+    return {
+        "word": word,
+        "pos": pos,
+        "romanization": romanization,
+        "gender": gender,
+        "root": root,
+        "binyan": binyan,
+        "source_key": source_key,
+        "gloss_en": gloss_en,
+        "gloss_es": gloss_es,
+        "level": level,
+        "category": category,
+        "visual_key": visual_key,
+        "visual_emoji": visual_emoji,
+        "visual_alt_en": visual_alt_en,
+        "visual_alt_es": visual_alt_es,
+        "visual_alt_he": visual_alt_he,
+        "provenance": STARTER_PROVENANCE,
+        "forms": [{"form": niqqud, "tags": ["with-niqqud"]}],
+        "examples": [
+            {
+                "hebrew": example_he,
+                "translation_en": example_en,
+                "translation_es": example_es,
+                "romanization": example_romanization,
+            }
+        ],
+    }
+
+
+# The visual belongs to this reviewed sense, never to the spelling alone. Imported
+# entries intentionally keep these nullable fields empty rather than guessing an image.
 DEMO_ENTRIES: tuple[dict[str, Any], ...] = (
-    {
-        "word": "שלום",
-        "pos": "noun",
-        "romanization": "shalom",
-        "gender": "masculine",
-        "gloss_en": "peace; hello; goodbye",
-        "gloss_es": "paz; hola; adiós",
-        "forms": [{"form": "שָׁלוֹם", "tags": ["with-niqqud"]}],
-        "examples": [
-            {
-                "hebrew": "שלום, מה שלומך?",
-                "translation_en": "Hello, how are you?",
-                "romanization": "Shalom, ma shlomkha?",
-            }
-        ],
-    },
-    {
-        "word": "תודה",
-        "pos": "interjection",
-        "romanization": "toda",
-        "gloss_en": "thank you",
-        "gloss_es": "gracias",
-        "forms": [{"form": "תּוֹדָה", "tags": ["with-niqqud"]}],
-        "examples": [
-            {
-                "hebrew": "תודה רבה על העזרה.",
-                "translation_en": "Thank you very much for the help.",
-                "romanization": "Toda raba al ha-ezra.",
-            }
-        ],
-    },
-    {
-        "word": "ללמוד",
-        "pos": "verb",
-        "romanization": "lilmod",
-        "root": "למד",
-        "binyan": "pa'al",
-        "gloss_en": "to learn; to study",
-        "gloss_es": "aprender; estudiar",
-        "forms": [
-            {"form": "לִלְמוֹד", "tags": ["infinitive", "with-niqqud"]},
-            {"form": "לומד", "tags": ["present", "masculine", "singular"]},
-            {"form": "לומדת", "tags": ["present", "feminine", "singular"]},
-        ],
-    },
-    {
-        "word": "לדבר",
-        "pos": "verb",
-        "romanization": "ledaber",
-        "root": "דבר",
-        "binyan": "pi'el",
-        "gloss_en": "to speak; to talk",
-        "gloss_es": "hablar",
-        "forms": [
-            {"form": "לְדַבֵּר", "tags": ["infinitive", "with-niqqud"]},
-            {"form": "מדבר", "tags": ["present", "masculine", "singular"]},
-        ],
-    },
-    {
-        "word": "עבודה",
-        "pos": "noun",
-        "romanization": "avoda",
-        "root": "עבד",
-        "gender": "feminine",
-        "gloss_en": "work; job",
-        "gloss_es": "trabajo; empleo",
-        "forms": [
-            {"form": "עֲבוֹדָה", "tags": ["singular", "with-niqqud"]},
-            {"form": "עבודות", "tags": ["plural"]},
-        ],
-    },
-    {
-        "word": "פגישה",
-        "pos": "noun",
-        "romanization": "pgisha",
-        "root": "פגש",
-        "gender": "feminine",
-        "gloss_en": "meeting; appointment",
-        "gloss_es": "reunión; cita",
-        "forms": [
-            {"form": "פְּגִישָׁה", "tags": ["singular", "with-niqqud"]},
-            {"form": "פגישות", "tags": ["plural"]},
-        ],
-    },
-    {
-        "word": "בסדר",
-        "pos": "adverb",
-        "romanization": "beseder",
-        "gloss_en": "okay; all right; in order",
-        "gloss_es": "bien; de acuerdo; en orden",
-        "forms": [{"form": "בְּסֵדֶר", "tags": ["with-niqqud"]}],
-    },
-    {
-        "word": "צריך",
-        "pos": "adjective",
-        "romanization": "tsarikh",
-        "root": "צרך",
-        "gloss_en": "need; must; necessary (masculine singular)",
-        "gloss_es": "necesitar; deber; necesario (masculino singular)",
-        "forms": [
-            {"form": "צָרִיךְ", "tags": ["masculine", "singular", "with-niqqud"]},
-            {"form": "צריכה", "tags": ["feminine", "singular"]},
-            {"form": "צריכים", "tags": ["masculine", "plural"]},
-            {"form": "צריכות", "tags": ["feminine", "plural"]},
-        ],
-    },
-    {
-        "word": "להבין",
-        "pos": "verb",
-        "romanization": "lehavin",
-        "root": "בין",
-        "binyan": "hif'il",
-        "gloss_en": "to understand",
-        "gloss_es": "entender",
-        "forms": [{"form": "לְהָבִין", "tags": ["infinitive", "with-niqqud"]}],
-    },
-    {
-        "word": "אפשר",
-        "pos": "adjective",
-        "romanization": "efshar",
-        "gloss_en": "possible; may/can one",
-        "gloss_es": "posible; se puede",
-        "forms": [{"form": "אֶפְשָׁר", "tags": ["with-niqqud"]}],
-    },
-    {
-        "word": "להצליח",
-        "pos": "verb",
-        "romanization": "lehatsliakh",
-        "root": "צלח",
-        "binyan": "hif'il",
-        "gloss_en": "to succeed",
-        "gloss_es": "tener éxito",
-        "forms": [{"form": "לְהַצְלִיחַ", "tags": ["infinitive", "with-niqqud"]}],
-    },
-    {
-        "word": "בבקשה",
-        "pos": "interjection",
-        "romanization": "bevakasha",
-        "gloss_en": "please; you are welcome; here you go",
-        "gloss_es": "por favor; de nada; aquí tienes",
-        "forms": [{"form": "בְּבַקָּשָׁה", "tags": ["with-niqqud"]}],
-    },
+    _starter_concept(
+        word="שלום",
+        niqqud="שָׁלוֹם",
+        romanization="shalom",
+        pos="interjection",
+        gloss_en="hello",
+        gloss_es="hola",
+        category="greetings",
+        level="A0",
+        visual_key="greetings.hello",
+        visual_emoji="👋",
+        visual_alt_en="A hand waving hello",
+        visual_alt_es="Una mano saludando",
+        visual_alt_he="יד מנופפת לשלום",
+        example_he="שָׁלוֹם, אֲנִי מִרְיָם.",
+        example_en="Hello, I am Miriam.",
+        example_es="Hola, soy Miriam.",
+        example_romanization="Shalom, ani Miryam.",
+        gender="masculine",
+        source_key="builtin:שלום:noun",
+    ),
+    _starter_concept(
+        word="תודה",
+        niqqud="תּוֹדָה",
+        romanization="toda",
+        pos="interjection",
+        gloss_en="thank you",
+        gloss_es="gracias",
+        category="greetings",
+        level="A0",
+        visual_key="greetings.thanks",
+        visual_emoji="🙏",
+        visual_alt_en="Two hands together expressing thanks",
+        visual_alt_es="Dos manos juntas expresando agradecimiento",
+        visual_alt_he="שתי ידיים יחד בהבעת תודה",
+        example_he="תּוֹדָה עַל הָעֶזְרָה.",
+        example_en="Thank you for the help.",
+        example_es="Gracias por la ayuda.",
+        example_romanization="Toda al ha-ezra.",
+    ),
+    _starter_concept(
+        word="בבקשה",
+        niqqud="בְּבַקָּשָׁה",
+        romanization="bevakasha",
+        pos="interjection",
+        gloss_en="please",
+        gloss_es="por favor",
+        category="greetings",
+        level="A0",
+        visual_key="greetings.please",
+        visual_emoji="🤲",
+        visual_alt_en="Open hands making a polite request",
+        visual_alt_es="Manos abiertas haciendo una petición amable",
+        visual_alt_he="ידיים פתוחות בבקשה מנומסת",
+        example_he="מַיִם, בְּבַקָּשָׁה.",
+        example_en="Water, please.",
+        example_es="Agua, por favor.",
+        example_romanization="Mayim, bevakasha.",
+    ),
+    _starter_concept(
+        word="כן",
+        niqqud="כֵּן",
+        romanization="ken",
+        pos="particle",
+        gloss_en="yes",
+        gloss_es="sí",
+        category="greetings",
+        level="A0",
+        visual_key="greetings.yes",
+        visual_emoji="✅",
+        visual_alt_en="A green check mark for yes",
+        visual_alt_es="Una marca verde para sí",
+        visual_alt_he="סימן אישור ירוק למילה כן",
+        example_he="כֵּן, אֲנִי מוּכָנָה.",
+        example_en="Yes, I am ready.",
+        example_es="Sí, estoy lista.",
+        example_romanization="Ken, ani mukhana.",
+    ),
+    _starter_concept(
+        word="לא",
+        niqqud="לֹא",
+        romanization="lo",
+        pos="particle",
+        gloss_en="no",
+        gloss_es="no",
+        category="greetings",
+        level="A0",
+        visual_key="greetings.no",
+        visual_emoji="❌",
+        visual_alt_en="A red cross for no",
+        visual_alt_es="Una cruz roja para no",
+        visual_alt_he="סימן איקס אדום למילה לא",
+        example_he="לֹא, תּוֹדָה.",
+        example_en="No, thank you.",
+        example_es="No, gracias.",
+        example_romanization="Lo, toda.",
+    ),
+    _starter_concept(
+        word="סליחה",
+        niqqud="סְלִיחָה",
+        romanization="slikha",
+        pos="interjection",
+        gloss_en="excuse me",
+        gloss_es="disculpe",
+        category="greetings",
+        level="A0",
+        visual_key="greetings.excuse_me",
+        visual_emoji="🙇",
+        visual_alt_en="A person bowing politely",
+        visual_alt_es="Una persona inclinándose con respeto",
+        visual_alt_he="אדם קד בנימוס",
+        example_he="סְלִיחָה, אֵיפֹה הַתַּחֲנָה?",
+        example_en="Excuse me, where is the station?",
+        example_es="Disculpe, ¿dónde está la estación?",
+        example_romanization="Slikha, eifo ha-takhana?",
+    ),
+    _starter_concept(
+        word="בוקר טוב",
+        niqqud="בּוֹקֶר טוֹב",
+        romanization="boker tov",
+        pos="phrase",
+        gloss_en="good morning",
+        gloss_es="buenos días",
+        category="greetings",
+        level="A0",
+        visual_key="greetings.good_morning",
+        visual_emoji="🌅",
+        visual_alt_en="The sun rising in the morning",
+        visual_alt_es="El sol saliendo por la mañana",
+        visual_alt_he="השמש זורחת בבוקר",
+        example_he="בּוֹקֶר טוֹב, אִמָּא.",
+        example_en="Good morning, Mom.",
+        example_es="Buenos días, mamá.",
+        example_romanization="Boker tov, ima.",
+    ),
+    _starter_concept(
+        word="להתראות",
+        niqqud="לְהִתְרָאוֹת",
+        romanization="lehitraot",
+        pos="interjection",
+        gloss_en="goodbye",
+        gloss_es="adiós",
+        category="greetings",
+        level="A0",
+        visual_key="greetings.goodbye",
+        visual_emoji="🚪",
+        visual_alt_en="An open door for saying goodbye",
+        visual_alt_es="Una puerta abierta para despedirse",
+        visual_alt_he="דלת פתוחה לפרידה",
+        example_he="לְהִתְרָאוֹת מָחָר.",
+        example_en="See you tomorrow.",
+        example_es="Hasta mañana.",
+        example_romanization="Lehitraot makhar.",
+    ),
+    _starter_concept(
+        word="אמא",
+        niqqud="אִמָּא",
+        romanization="ima",
+        pos="noun",
+        gloss_en="mother",
+        gloss_es="madre",
+        category="family",
+        level="A0",
+        visual_key="family.mother",
+        visual_emoji="👩",
+        visual_alt_en="A mother",
+        visual_alt_es="Una madre",
+        visual_alt_he="אמא",
+        example_he="אִמָּא שֶׁלִּי בַּבַּיִת.",
+        example_en="My mother is at home.",
+        example_es="Mi madre está en casa.",
+        example_romanization="Ima sheli ba-bayit.",
+        gender="feminine",
+    ),
+    _starter_concept(
+        word="אבא",
+        niqqud="אַבָּא",
+        romanization="aba",
+        pos="noun",
+        gloss_en="father",
+        gloss_es="padre",
+        category="family",
+        level="A0",
+        visual_key="family.father",
+        visual_emoji="👨",
+        visual_alt_en="A father",
+        visual_alt_es="Un padre",
+        visual_alt_he="אבא",
+        example_he="אַבָּא שֶׁלִּי שׁוֹתֶה קָפֶה.",
+        example_en="My father drinks coffee.",
+        example_es="Mi padre toma café.",
+        example_romanization="Aba sheli shote kafe.",
+        gender="masculine",
+    ),
+    _starter_concept(
+        word="אח",
+        niqqud="אָח",
+        romanization="akh",
+        pos="noun",
+        gloss_en="brother",
+        gloss_es="hermano",
+        category="family",
+        level="A0",
+        visual_key="family.brother",
+        visual_emoji="👦",
+        visual_alt_en="A brother",
+        visual_alt_es="Un hermano",
+        visual_alt_he="אח",
+        example_he="יֵשׁ לִי אָח אֶחָד.",
+        example_en="I have one brother.",
+        example_es="Tengo un hermano.",
+        example_romanization="Yesh li akh ekhad.",
+        gender="masculine",
+    ),
+    _starter_concept(
+        word="אחות",
+        niqqud="אָחוֹת",
+        romanization="akhot",
+        pos="noun",
+        gloss_en="sister",
+        gloss_es="hermana",
+        category="family",
+        level="A0",
+        visual_key="family.sister",
+        visual_emoji="👧",
+        visual_alt_en="A sister",
+        visual_alt_es="Una hermana",
+        visual_alt_he="אחות",
+        example_he="יֵשׁ לִי אָחוֹת אַחַת.",
+        example_en="I have one sister.",
+        example_es="Tengo una hermana.",
+        example_romanization="Yesh li akhot akhat.",
+        gender="feminine",
+    ),
+    _starter_concept(
+        word="סבתא",
+        niqqud="סַבְתָּא",
+        romanization="savta",
+        pos="noun",
+        gloss_en="grandmother",
+        gloss_es="abuela",
+        category="family",
+        level="A0",
+        visual_key="family.grandmother",
+        visual_emoji="👵",
+        visual_alt_en="A grandmother",
+        visual_alt_es="Una abuela",
+        visual_alt_he="סבתא",
+        example_he="סַבְתָּא שֶׁלִּי מְדַבֶּרֶת עִבְרִית.",
+        example_en="My grandmother speaks Hebrew.",
+        example_es="Mi abuela habla hebreo.",
+        example_romanization="Savta sheli medaberet Ivrit.",
+        gender="feminine",
+    ),
+    _starter_concept(
+        word="סבא",
+        niqqud="סַבָּא",
+        romanization="saba",
+        pos="noun",
+        gloss_en="grandfather",
+        gloss_es="abuelo",
+        category="family",
+        level="A0",
+        visual_key="family.grandfather",
+        visual_emoji="👴",
+        visual_alt_en="A grandfather",
+        visual_alt_es="Un abuelo",
+        visual_alt_he="סבא",
+        example_he="סַבָּא שֶׁלִּי גָּר בְּחֵיפָה.",
+        example_en="My grandfather lives in Haifa.",
+        example_es="Mi abuelo vive en Haifa.",
+        example_romanization="Saba sheli gar be-Kheifa.",
+        gender="masculine",
+    ),
+    _starter_concept(
+        word="משפחה",
+        niqqud="מִשְׁפָּחָה",
+        romanization="mishpakha",
+        pos="noun",
+        gloss_en="family",
+        gloss_es="familia",
+        category="family",
+        level="A0",
+        visual_key="family.family",
+        visual_emoji="👪",
+        visual_alt_en="A family together",
+        visual_alt_es="Una familia reunida",
+        visual_alt_he="משפחה ביחד",
+        example_he="הַמִּשְׁפָּחָה שֶׁלִּי גְּדוֹלָה.",
+        example_en="My family is big.",
+        example_es="Mi familia es grande.",
+        example_romanization="Ha-mishpakha sheli gdola.",
+        gender="feminine",
+    ),
+    _starter_concept(
+        word="בית",
+        niqqud="בַּיִת",
+        romanization="bayit",
+        pos="noun",
+        gloss_en="house",
+        gloss_es="casa",
+        category="home",
+        level="A0",
+        visual_key="home.house",
+        visual_emoji="🏠",
+        visual_alt_en="A small house",
+        visual_alt_es="Una casa pequeña",
+        visual_alt_he="בית קטן",
+        example_he="זֶה הַבַּיִת שֶׁלִּי.",
+        example_en="This is my house.",
+        example_es="Esta es mi casa.",
+        example_romanization="Ze ha-bayit sheli.",
+        gender="masculine",
+    ),
+    _starter_concept(
+        word="חדר",
+        niqqud="חֶדֶר",
+        romanization="kheder",
+        pos="noun",
+        gloss_en="room",
+        gloss_es="habitación",
+        category="home",
+        level="A0",
+        visual_key="home.room",
+        visual_emoji="🚪",
+        visual_alt_en="A door leading into a room",
+        visual_alt_es="Una puerta que lleva a una habitación",
+        visual_alt_he="דלת שמובילה לחדר",
+        example_he="הַחֶדֶר שֶׁלִּי קָטָן.",
+        example_en="My room is small.",
+        example_es="Mi habitación es pequeña.",
+        example_romanization="Ha-kheder sheli katan.",
+        gender="masculine",
+    ),
+    _starter_concept(
+        word="מטבח",
+        niqqud="מִטְבָּח",
+        romanization="mitbakh",
+        pos="noun",
+        gloss_en="kitchen",
+        gloss_es="cocina",
+        category="home",
+        level="A0",
+        visual_key="home.kitchen",
+        visual_emoji="🍳",
+        visual_alt_en="A pan in a kitchen",
+        visual_alt_es="Una sartén en una cocina",
+        visual_alt_he="מחבת במטבח",
+        example_he="הַמִּטְבָּח נָקִי.",
+        example_en="The kitchen is clean.",
+        example_es="La cocina está limpia.",
+        example_romanization="Ha-mitbakh naki.",
+        gender="masculine",
+    ),
+    _starter_concept(
+        word="מיטה",
+        niqqud="מִטָּה",
+        romanization="mita",
+        pos="noun",
+        gloss_en="bed",
+        gloss_es="cama",
+        category="home",
+        level="A0",
+        visual_key="home.bed",
+        visual_emoji="🛏️",
+        visual_alt_en="A bed ready for sleep",
+        visual_alt_es="Una cama lista para dormir",
+        visual_alt_he="מיטה מוכנה לשינה",
+        example_he="הַמִּטָּה נוֹחָה.",
+        example_en="The bed is comfortable.",
+        example_es="La cama es cómoda.",
+        example_romanization="Ha-mita nokha.",
+        gender="feminine",
+    ),
+    _starter_concept(
+        word="שולחן",
+        niqqud="שֻׁלְחָן",
+        romanization="shulkhan",
+        pos="noun",
+        gloss_en="table",
+        gloss_es="mesa",
+        category="home",
+        level="A0",
+        visual_key="home.table",
+        visual_emoji="🍽️",
+        visual_alt_en="A place setting on a table",
+        visual_alt_es="Un servicio puesto sobre una mesa",
+        visual_alt_he="כלי אוכל על שולחן",
+        example_he="הַקָּפֶה עַל הַשֻּׁלְחָן.",
+        example_en="The coffee is on the table.",
+        example_es="El café está sobre la mesa.",
+        example_romanization="Ha-kafe al ha-shulkhan.",
+        gender="masculine",
+    ),
+    _starter_concept(
+        word="כיסא",
+        niqqud="כִּסֵּא",
+        romanization="kise",
+        pos="noun",
+        gloss_en="chair",
+        gloss_es="silla",
+        category="home",
+        level="A0",
+        visual_key="home.chair",
+        visual_emoji="🪑",
+        visual_alt_en="A chair",
+        visual_alt_es="Una silla",
+        visual_alt_he="כיסא",
+        example_he="אֶפְשָׁר לָשֶׁבֶת עַל הַכִּסֵּא.",
+        example_en="You can sit on the chair.",
+        example_es="Puedes sentarte en la silla.",
+        example_romanization="Efshar lashevet al ha-kise.",
+        gender="masculine",
+    ),
+    _starter_concept(
+        word="מפתח",
+        niqqud="מַפְתֵּחַ",
+        romanization="mafteakh",
+        pos="noun",
+        gloss_en="key",
+        gloss_es="llave",
+        category="home",
+        level="A0",
+        visual_key="home.key",
+        visual_emoji="🔑",
+        visual_alt_en="A key for opening a door",
+        visual_alt_es="Una llave para abrir una puerta",
+        visual_alt_he="מפתח לפתיחת דלת",
+        example_he="אֵיפֹה הַמַּפְתֵּחַ?",
+        example_en="Where is the key?",
+        example_es="¿Dónde está la llave?",
+        example_romanization="Eifo ha-mafteakh?",
+        gender="masculine",
+    ),
+    _starter_concept(
+        word="מים",
+        niqqud="מַיִם",
+        romanization="mayim",
+        pos="noun",
+        gloss_en="water",
+        gloss_es="agua",
+        category="food",
+        level="A0",
+        visual_key="food.water",
+        visual_emoji="💧",
+        visual_alt_en="A drop of water",
+        visual_alt_es="Una gota de agua",
+        visual_alt_he="טיפת מים",
+        example_he="אֲנִי רוֹצָה מַיִם.",
+        example_en="I want water.",
+        example_es="Quiero agua.",
+        example_romanization="Ani rotsa mayim.",
+    ),
+    _starter_concept(
+        word="לחם",
+        niqqud="לֶחֶם",
+        romanization="lekhem",
+        pos="noun",
+        gloss_en="bread",
+        gloss_es="pan",
+        category="food",
+        level="A0",
+        visual_key="food.bread",
+        visual_emoji="🍞",
+        visual_alt_en="A loaf of bread",
+        visual_alt_es="Una barra de pan",
+        visual_alt_he="כיכר לחם",
+        example_he="אֲנִי אוֹכֶלֶת לֶחֶם בַּבֹּקֶר.",
+        example_en="I eat bread in the morning.",
+        example_es="Como pan por la mañana.",
+        example_romanization="Ani okhelet lekhem ba-boker.",
+        gender="masculine",
+    ),
+    _starter_concept(
+        word="חלב",
+        niqqud="חָלָב",
+        romanization="khalav",
+        pos="noun",
+        gloss_en="milk",
+        gloss_es="leche",
+        category="food",
+        level="A0",
+        visual_key="food.milk",
+        visual_emoji="🥛",
+        visual_alt_en="A glass of milk",
+        visual_alt_es="Un vaso de leche",
+        visual_alt_he="כוס חלב",
+        example_he="יֵשׁ חָלָב בַּמְּקָרֵר.",
+        example_en="There is milk in the refrigerator.",
+        example_es="Hay leche en el refrigerador.",
+        example_romanization="Yesh khalav ba-mekarer.",
+        gender="masculine",
+    ),
+    _starter_concept(
+        word="קפה",
+        niqqud="קָפֶה",
+        romanization="kafe",
+        pos="noun",
+        gloss_en="coffee",
+        gloss_es="café",
+        category="food",
+        level="A0",
+        visual_key="food.coffee",
+        visual_emoji="☕",
+        visual_alt_en="A warm cup of coffee",
+        visual_alt_es="Una taza de café caliente",
+        visual_alt_he="כוס קפה חם",
+        example_he="קָפֶה אֶחָד, בְּבַקָּשָׁה.",
+        example_en="One coffee, please.",
+        example_es="Un café, por favor.",
+        example_romanization="Kafe ekhad, bevakasha.",
+        gender="masculine",
+    ),
+    _starter_concept(
+        word="תה",
+        niqqud="תֵּה",
+        romanization="te",
+        pos="noun",
+        gloss_en="tea",
+        gloss_es="té",
+        category="food",
+        level="A0",
+        visual_key="food.tea",
+        visual_emoji="🍵",
+        visual_alt_en="A warm cup of tea",
+        visual_alt_es="Una taza de té caliente",
+        visual_alt_he="כוס תה חם",
+        example_he="אֲנִי שׁוֹתָה תֵּה.",
+        example_en="I drink tea.",
+        example_es="Tomo té.",
+        example_romanization="Ani shota te.",
+        gender="masculine",
+    ),
+    _starter_concept(
+        word="תפוח",
+        niqqud="תַּפּוּחַ",
+        romanization="tapuakh",
+        pos="noun",
+        gloss_en="apple",
+        gloss_es="manzana",
+        category="food",
+        level="A0",
+        visual_key="food.apple",
+        visual_emoji="🍎",
+        visual_alt_en="A red apple",
+        visual_alt_es="Una manzana roja",
+        visual_alt_he="תפוח אדום",
+        example_he="הַתַּפּוּחַ אָדֹם.",
+        example_en="The apple is red.",
+        example_es="La manzana es roja.",
+        example_romanization="Ha-tapuakh adom.",
+        gender="masculine",
+    ),
+    _starter_concept(
+        word="אוכל",
+        niqqud="אֹכֶל",
+        romanization="okhel",
+        pos="noun",
+        gloss_en="food",
+        gloss_es="comida",
+        category="food",
+        level="A0",
+        visual_key="food.food",
+        visual_emoji="🍲",
+        visual_alt_en="A bowl of prepared food",
+        visual_alt_es="Un plato de comida preparada",
+        visual_alt_he="קערת אוכל מוכן",
+        example_he="הָאֹכֶל טָעִים.",
+        example_en="The food is tasty.",
+        example_es="La comida está rica.",
+        example_romanization="Ha-okhel taim.",
+        gender="masculine",
+    ),
+    _starter_concept(
+        word="רעב",
+        niqqud="רָעֵב",
+        romanization="raev",
+        pos="adjective",
+        gloss_en="hungry",
+        gloss_es="hambriento",
+        category="food",
+        level="A0",
+        visual_key="food.hungry",
+        visual_emoji="😋",
+        visual_alt_en="A hungry face ready to eat",
+        visual_alt_es="Una cara con hambre lista para comer",
+        visual_alt_he="פנים רעבות שמוכנות לאכול",
+        example_he="הוּא רָעֵב.",
+        example_en="He is hungry.",
+        example_es="Él tiene hambre.",
+        example_romanization="Hu raev.",
+        gender="masculine",
+    ),
+    _starter_concept(
+        word="אוטובוס",
+        niqqud="אוֹטוֹבּוּס",
+        romanization="otobus",
+        pos="noun",
+        gloss_en="bus",
+        gloss_es="autobús",
+        category="transport",
+        level="A1",
+        visual_key="transport.bus",
+        visual_emoji="🚌",
+        visual_alt_en="A city bus",
+        visual_alt_es="Un autobús urbano",
+        visual_alt_he="אוטובוס עירוני",
+        example_he="הָאוֹטוֹבּוּס מַגִּיעַ בְּעֶשֶׂר.",
+        example_en="The bus arrives at ten.",
+        example_es="El autobús llega a las diez.",
+        example_romanization="Ha-otobus magia be-eser.",
+        gender="masculine",
+    ),
+    _starter_concept(
+        word="רכבת",
+        niqqud="רַכֶּבֶת",
+        romanization="rakevet",
+        pos="noun",
+        gloss_en="train",
+        gloss_es="tren",
+        category="transport",
+        level="A1",
+        visual_key="transport.train",
+        visual_emoji="🚆",
+        visual_alt_en="A passenger train",
+        visual_alt_es="Un tren de pasajeros",
+        visual_alt_he="רכבת נוסעים",
+        example_he="הָרַכֶּבֶת לְתֵל אָבִיב מְהִירָה.",
+        example_en="The train to Tel Aviv is fast.",
+        example_es="El tren a Tel Aviv es rápido.",
+        example_romanization="Ha-rakevet le-Tel Aviv mehira.",
+        gender="feminine",
+    ),
+    _starter_concept(
+        word="מונית",
+        niqqud="מוֹנִית",
+        romanization="monit",
+        pos="noun",
+        gloss_en="taxi",
+        gloss_es="taxi",
+        category="transport",
+        level="A1",
+        visual_key="transport.taxi",
+        visual_emoji="🚕",
+        visual_alt_en="A yellow taxi",
+        visual_alt_es="Un taxi amarillo",
+        visual_alt_he="מונית צהובה",
+        example_he="אֲנִי צְרִיכָה מוֹנִית.",
+        example_en="I need a taxi.",
+        example_es="Necesito un taxi.",
+        example_romanization="Ani tsrikha monit.",
+        gender="feminine",
+    ),
+    _starter_concept(
+        word="תחנה",
+        niqqud="תַּחֲנָה",
+        romanization="takhana",
+        pos="noun",
+        gloss_en="station",
+        gloss_es="estación",
+        category="transport",
+        level="A1",
+        visual_key="transport.station",
+        visual_emoji="🚏",
+        visual_alt_en="A public transport stop",
+        visual_alt_es="Una parada de transporte público",
+        visual_alt_he="תחנת תחבורה ציבורית",
+        example_he="הַתַּחֲנָה קְרוֹבָה.",
+        example_en="The station is nearby.",
+        example_es="La estación está cerca.",
+        example_romanization="Ha-takhana krova.",
+        gender="feminine",
+    ),
+    _starter_concept(
+        word="כרטיס",
+        niqqud="כַּרְטִיס",
+        romanization="kartis",
+        pos="noun",
+        gloss_en="ticket",
+        gloss_es="billete",
+        category="transport",
+        level="A1",
+        visual_key="transport.ticket",
+        visual_emoji="🎫",
+        visual_alt_en="A travel ticket",
+        visual_alt_es="Un billete de viaje",
+        visual_alt_he="כרטיס נסיעה",
+        example_he="אֵיפֹה קוֹנִים כַּרְטִיס?",
+        example_en="Where do you buy a ticket?",
+        example_es="¿Dónde se compra un billete?",
+        example_romanization="Eifo konim kartis?",
+        gender="masculine",
+    ),
+    _starter_concept(
+        word="רחוב",
+        niqqud="רְחוֹב",
+        romanization="rekhov",
+        pos="noun",
+        gloss_en="street",
+        gloss_es="calle",
+        category="transport",
+        level="A1",
+        visual_key="transport.street",
+        visual_emoji="🛣️",
+        visual_alt_en="A road through a neighborhood",
+        visual_alt_es="Una calle que atraviesa un barrio",
+        visual_alt_he="רחוב שעובר בשכונה",
+        example_he="הַחֲנוּת בָּרְחוֹב הַזֶּה.",
+        example_en="The store is on this street.",
+        example_es="La tienda está en esta calle.",
+        example_romanization="Ha-khanut ba-rekhov ha-ze.",
+        gender="masculine",
+    ),
+    _starter_concept(
+        word="חנות",
+        niqqud="חֲנוּת",
+        romanization="khanut",
+        pos="noun",
+        gloss_en="store",
+        gloss_es="tienda",
+        category="shopping",
+        level="A1",
+        visual_key="shopping.store",
+        visual_emoji="🏪",
+        visual_alt_en="A neighborhood store",
+        visual_alt_es="Una tienda de barrio",
+        visual_alt_he="חנות שכונתית",
+        example_he="הַחֲנוּת פְּתוּחָה.",
+        example_en="The store is open.",
+        example_es="La tienda está abierta.",
+        example_romanization="Ha-khanut ptukha.",
+        gender="feminine",
+    ),
+    _starter_concept(
+        word="כסף",
+        niqqud="כֶּסֶף",
+        romanization="kesef",
+        pos="noun",
+        gloss_en="money",
+        gloss_es="dinero",
+        category="shopping",
+        level="A1",
+        visual_key="shopping.money",
+        visual_emoji="💰",
+        visual_alt_en="A bag of money",
+        visual_alt_es="Una bolsa de dinero",
+        visual_alt_he="שק של כסף",
+        example_he="אֵין לִי מַסְפִּיק כֶּסֶף.",
+        example_en="I do not have enough money.",
+        example_es="No tengo suficiente dinero.",
+        example_romanization="Ein li maspik kesef.",
+        gender="masculine",
+    ),
+    _starter_concept(
+        word="מחיר",
+        niqqud="מְחִיר",
+        romanization="mekhir",
+        pos="noun",
+        gloss_en="price",
+        gloss_es="precio",
+        category="shopping",
+        level="A1",
+        visual_key="shopping.price",
+        visual_emoji="🏷️",
+        visual_alt_en="A price tag",
+        visual_alt_es="Una etiqueta de precio",
+        visual_alt_he="תג מחיר",
+        example_he="מָה הַמְּחִיר?",
+        example_en="What is the price?",
+        example_es="¿Cuál es el precio?",
+        example_romanization="Ma ha-mekhir?",
+        gender="masculine",
+    ),
+    _starter_concept(
+        word="זול",
+        niqqud="זוֹל",
+        romanization="zol",
+        pos="adjective",
+        gloss_en="cheap",
+        gloss_es="barato",
+        category="shopping",
+        level="A1",
+        visual_key="shopping.cheap",
+        visual_emoji="🪙",
+        visual_alt_en="A single coin for a low price",
+        visual_alt_es="Una moneda para un precio bajo",
+        visual_alt_he="מטבע אחד למחיר נמוך",
+        example_he="זֶה זוֹל מְאֹד.",
+        example_en="This is very cheap.",
+        example_es="Esto es muy barato.",
+        example_romanization="Ze zol meod.",
+        gender="masculine",
+    ),
+    _starter_concept(
+        word="יקר",
+        niqqud="יָקָר",
+        romanization="yakar",
+        pos="adjective",
+        gloss_en="expensive",
+        gloss_es="caro",
+        category="shopping",
+        level="A1",
+        visual_key="shopping.expensive",
+        visual_emoji="💎",
+        visual_alt_en="A valuable gem for a high price",
+        visual_alt_es="Una gema valiosa para un precio alto",
+        visual_alt_he="אבן יקרה למחיר גבוה",
+        example_he="זֶה יָקָר מִדַּי.",
+        example_en="This is too expensive.",
+        example_es="Esto es demasiado caro.",
+        example_romanization="Ze yakar midai.",
+        gender="masculine",
+    ),
+    _starter_concept(
+        word="לקנות",
+        niqqud="לִקְנוֹת",
+        romanization="liknot",
+        pos="verb",
+        gloss_en="to buy",
+        gloss_es="comprar",
+        category="shopping",
+        level="A1",
+        visual_key="shopping.buy",
+        visual_emoji="🛍️",
+        visual_alt_en="Shopping bags after a purchase",
+        visual_alt_es="Bolsas después de una compra",
+        visual_alt_he="שקיות לאחר קנייה",
+        example_he="אֲנִי רוֹצָה לִקְנוֹת לֶחֶם.",
+        example_en="I want to buy bread.",
+        example_es="Quiero comprar pan.",
+        example_romanization="Ani rotsa liknot lekhem.",
+        root="קנה",
+        binyan="pa'al",
+    ),
+    _starter_concept(
+        word="רופא",
+        niqqud="רוֹפֵא",
+        romanization="rofe",
+        pos="noun",
+        gloss_en="doctor",
+        gloss_es="médico",
+        category="health",
+        level="A1",
+        visual_key="health.doctor",
+        visual_emoji="🧑‍⚕️",
+        visual_alt_en="A healthcare professional",
+        visual_alt_es="Un profesional de la salud",
+        visual_alt_he="איש צוות רפואי",
+        example_he="אֲנִי צְרִיכָה רוֹפֵא.",
+        example_en="I need a doctor.",
+        example_es="Necesito un médico.",
+        example_romanization="Ani tsrikha rofe.",
+        gender="masculine",
+    ),
+    _starter_concept(
+        word="תרופה",
+        niqqud="תְּרוּפָה",
+        romanization="trufa",
+        pos="noun",
+        gloss_en="medicine",
+        gloss_es="medicina",
+        category="health",
+        level="A1",
+        visual_key="health.medicine",
+        visual_emoji="💊",
+        visual_alt_en="A medicine capsule",
+        visual_alt_es="Una cápsula de medicina",
+        visual_alt_he="כמוסת תרופה",
+        example_he="אֲנִי לוֹקַחַת תְּרוּפָה.",
+        example_en="I take medicine.",
+        example_es="Tomo una medicina.",
+        example_romanization="Ani lokakhat trufa.",
+        gender="feminine",
+    ),
+    _starter_concept(
+        word="כאב",
+        niqqud="כְּאֵב",
+        romanization="keev",
+        pos="noun",
+        gloss_en="pain",
+        gloss_es="dolor",
+        category="health",
+        level="A1",
+        visual_key="health.pain",
+        visual_emoji="🤕",
+        visual_alt_en="A face with a bandage showing pain",
+        visual_alt_es="Una cara con venda que muestra dolor",
+        visual_alt_he="פנים עם תחבושת שמראות כאב",
+        example_he="יֵשׁ לִי כְּאֵב רֹאשׁ.",
+        example_en="I have a headache.",
+        example_es="Me duele la cabeza.",
+        example_romanization="Yesh li keev rosh.",
+        gender="masculine",
+    ),
+    _starter_concept(
+        word="חולה",
+        niqqud="חוֹלֶה",
+        romanization="khole",
+        pos="adjective",
+        gloss_en="sick",
+        gloss_es="enfermo",
+        category="health",
+        level="A1",
+        visual_key="health.sick",
+        visual_emoji="🤒",
+        visual_alt_en="A face with a thermometer",
+        visual_alt_es="Una cara con termómetro",
+        visual_alt_he="פנים עם מדחום",
+        example_he="אֲנִי חוֹלָה הַיּוֹם.",
+        example_en="I am sick today.",
+        example_es="Estoy enferma hoy.",
+        example_romanization="Ani khola ha-yom.",
+        gender="masculine",
+    ),
+    _starter_concept(
+        word="בריא",
+        niqqud="בָּרִיא",
+        romanization="bari",
+        pos="adjective",
+        gloss_en="healthy",
+        gloss_es="saludable",
+        category="health",
+        level="A1",
+        visual_key="health.healthy",
+        visual_emoji="💚",
+        visual_alt_en="A green heart representing health",
+        visual_alt_es="Un corazón verde que representa salud",
+        visual_alt_he="לב ירוק שמייצג בריאות",
+        example_he="חָשׁוּב לֶאֱכֹל אֹכֶל בָּרִיא.",
+        example_en="It is important to eat healthy food.",
+        example_es="Es importante comer comida saludable.",
+        example_romanization="Khashuv leekhol okhel bari.",
+        gender="masculine",
+    ),
+    _starter_concept(
+        word="עזרה",
+        niqqud="עֶזְרָה",
+        romanization="ezra",
+        pos="noun",
+        gloss_en="help",
+        gloss_es="ayuda",
+        category="health",
+        level="A1",
+        visual_key="health.help",
+        visual_emoji="🆘",
+        visual_alt_en="An emergency help sign",
+        visual_alt_es="Una señal de ayuda de emergencia",
+        visual_alt_he="סימן לעזרה דחופה",
+        example_he="אֲנִי צְרִיכָה עֶזְרָה.",
+        example_en="I need help.",
+        example_es="Necesito ayuda.",
+        example_romanization="Ani tsrikha ezra.",
+        gender="feminine",
+    ),
 )
 
 
@@ -284,7 +1166,7 @@ class DictionaryStore:
 
     Example:
         >>> store = DictionaryStore(Path(":memory:")); store.initialize(); store.seed_demo()
-        12
+        48
     """
 
     def __init__(self, path: Path) -> None:
@@ -351,8 +1233,28 @@ class DictionaryStore:
         """
         connection = self.connect()
         should_close = str(self.path) != ":memory:"
+        refresh_starter = False
         try:
             connection.executescript(DICTIONARY_SCHEMA)
+            for column_definition in (
+                "level TEXT",
+                "category TEXT",
+                "visual_key TEXT",
+                "visual_emoji TEXT",
+                "visual_alt_en TEXT",
+                "visual_alt_es TEXT",
+                "visual_alt_he TEXT",
+                "provenance TEXT",
+            ):
+                self._ensure_column(connection, "dictionary_senses", column_definition)
+            self._ensure_column(connection, "dictionary_examples", "translation_es TEXT")
+            connection.execute(
+                "CREATE UNIQUE INDEX IF NOT EXISTS idx_dictionary_visual_key "
+                "ON dictionary_senses(visual_key) WHERE visual_key IS NOT NULL"
+            )
+            refresh_starter = bool(
+                connection.execute("SELECT COUNT(*) FROM dictionary_entries").fetchone()[0]
+            )
             connection.execute(
                 "INSERT INTO dictionary_meta(key, value) VALUES('schema_version', ?) "
                 "ON CONFLICT(key) DO UPDATE SET value = excluded.value",
@@ -362,9 +1264,38 @@ class DictionaryStore:
         finally:
             if should_close:
                 connection.close()
+        if refresh_starter:
+            # Upgrade the rebuildable built-in dataset while retaining entry IDs that
+            # may already be referenced by a learner's saved-word history.
+            self.seed_demo()
+
+    @staticmethod
+    def _ensure_column(connection: sqlite3.Connection, table: str, column_definition: str) -> None:
+        """Add one allow-listed schema-v2 column to an older dictionary database."""
+        allowed_definitions = {
+            "dictionary_senses": {
+                "level TEXT",
+                "category TEXT",
+                "visual_key TEXT",
+                "visual_emoji TEXT",
+                "visual_alt_en TEXT",
+                "visual_alt_es TEXT",
+                "visual_alt_he TEXT",
+                "provenance TEXT",
+            },
+            "dictionary_examples": {"translation_es TEXT"},
+        }
+        if column_definition not in allowed_definitions.get(table, set()):
+            raise ValueError("Unsupported dictionary schema column")
+        column_name = column_definition.split(" ", maxsplit=1)[0]
+        columns = {
+            str(row["name"]) for row in connection.execute(f"PRAGMA table_info({table})").fetchall()
+        }
+        if column_name not in columns:
+            connection.execute(f"ALTER TABLE {table} ADD COLUMN {column_definition}")
 
     def seed_demo(self) -> int:
-        """Install a compact trilingual lexicon for immediate offline use.
+        """Install the reviewed 48-concept visual starter vocabulary.
 
         Returns:
             Number of new entries inserted.
@@ -382,44 +1313,85 @@ class DictionaryStore:
         inserted = 0
         try:
             for entry in DEMO_ENTRIES:
-                source_key = f"builtin:{normalize_hebrew(entry['word'])}:{entry['pos']}"
-                cursor = connection.execute(
-                    """
-                    INSERT OR IGNORE INTO dictionary_entries(
-                        source_key, word, normalized_word, pos, romanization,
-                        root, binyan, gender, source_name, source_url,
-                        license_name, raw_json
-                    ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    """,
-                    (
-                        source_key,
-                        entry["word"],
-                        normalize_hebrew(entry["word"]),
-                        entry.get("pos"),
-                        entry.get("romanization"),
-                        entry.get("root"),
-                        entry.get("binyan"),
-                        entry.get("gender"),
-                        "Ivrit Sheli demo lexicon",
-                        None,
-                        "MIT application sample data",
-                        json.dumps(entry, ensure_ascii=False),
-                    ),
+                source_key = entry.get("source_key") or (
+                    f"builtin:{normalize_hebrew(entry['word'])}:{entry['pos']}"
                 )
-                if cursor.rowcount == 0:
-                    continue
-                inserted += 1
-                entry_id_raw = cursor.lastrowid
-                if entry_id_raw is None:
-                    raise sqlite3.DatabaseError("SQLite did not return an entry ID")
-                entry_id = int(entry_id_raw)
+                existing = connection.execute(
+                    "SELECT id FROM dictionary_entries WHERE source_key = ?", (source_key,)
+                ).fetchone()
+                entry_values = (
+                    entry["word"],
+                    normalize_hebrew(entry["word"]),
+                    entry.get("pos"),
+                    entry.get("romanization"),
+                    entry.get("root"),
+                    entry.get("binyan"),
+                    entry.get("gender"),
+                    STARTER_SOURCE_NAME,
+                    STARTER_SOURCE_URL,
+                    STARTER_LICENSE,
+                    json.dumps(entry, ensure_ascii=False, separators=(",", ":")),
+                )
+                if existing is None:
+                    cursor = connection.execute(
+                        """
+                        INSERT INTO dictionary_entries(
+                            source_key, word, normalized_word, pos, romanization,
+                            root, binyan, gender, source_name, source_url,
+                            license_name, raw_json
+                        ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        """,
+                        (source_key, *entry_values),
+                    )
+                    entry_id_raw = cursor.lastrowid
+                    if entry_id_raw is None:
+                        raise sqlite3.DatabaseError("SQLite did not return an entry ID")
+                    entry_id = int(entry_id_raw)
+                    inserted += 1
+                else:
+                    entry_id = int(existing["id"])
+                    connection.execute(
+                        """
+                        UPDATE dictionary_entries
+                        SET word = ?, normalized_word = ?, pos = ?, romanization = ?,
+                            root = ?, binyan = ?, gender = ?, source_name = ?,
+                            source_url = ?, license_name = ?, raw_json = ?
+                        WHERE id = ?
+                        """,
+                        (*entry_values, entry_id),
+                    )
+                    connection.execute(
+                        "DELETE FROM dictionary_senses WHERE entry_id = ?", (entry_id,)
+                    )
+                    connection.execute(
+                        "DELETE FROM dictionary_forms WHERE entry_id = ?", (entry_id,)
+                    )
+                    connection.execute(
+                        "DELETE FROM dictionary_examples WHERE entry_id = ?", (entry_id,)
+                    )
                 connection.execute(
                     """
                     INSERT INTO dictionary_senses(
-                        entry_id, sense_order, gloss_en, gloss_es
-                    ) VALUES(?, 0, ?, ?)
+                        entry_id, sense_order, gloss_en, gloss_es, level, category,
+                        visual_key, visual_emoji, visual_alt_en, visual_alt_es,
+                        visual_alt_he, provenance, tags_json, topics_json
+                    ) VALUES(?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
-                    (entry_id, entry.get("gloss_en"), entry.get("gloss_es")),
+                    (
+                        entry_id,
+                        entry.get("gloss_en"),
+                        entry.get("gloss_es"),
+                        entry.get("level"),
+                        entry.get("category"),
+                        entry.get("visual_key"),
+                        entry.get("visual_emoji"),
+                        entry.get("visual_alt_en"),
+                        entry.get("visual_alt_es"),
+                        entry.get("visual_alt_he"),
+                        entry.get("provenance"),
+                        json.dumps(["beginner", str(entry.get("level", "")).lower()]),
+                        json.dumps([entry.get("category")]),
+                    ),
                 )
                 for form in entry.get("forms", []):
                     connection.execute(
@@ -440,28 +1412,65 @@ class DictionaryStore:
                     connection.execute(
                         """
                         INSERT INTO dictionary_examples(
-                            entry_id, hebrew_text, translation_en, romanization
-                        ) VALUES(?, ?, ?, ?)
+                            entry_id, hebrew_text, translation_en, translation_es, romanization
+                        ) VALUES(?, ?, ?, ?, ?)
                         """,
                         (
                             entry_id,
                             example["hebrew"],
                             example.get("translation_en"),
+                            example.get("translation_es"),
                             example.get("romanization"),
                         ),
                     )
+            non_starter_sources = {
+                str(row["source_name"])
+                for row in connection.execute(
+                    "SELECT DISTINCT source_name FROM dictionary_entries WHERE source_name <> ?",
+                    (STARTER_SOURCE_NAME,),
+                ).fetchall()
+            }
+            if not non_starter_sources:
+                dataset_name = "starter_visual_vocabulary_v1"
+                dataset_license = STARTER_LICENSE
+                connection.execute(
+                    "INSERT INTO dictionary_meta(key, value) VALUES('source_url', ?) "
+                    "ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+                    (STARTER_SOURCE_URL,),
+                )
+            elif non_starter_sources == {"Kaikki / English Wiktionary"}:
+                dataset_name = "Kaikki/Wiktionary Hebrew + starter_visual_vocabulary_v1"
+                dataset_license = (
+                    "Mixed per-entry licenses: MIT starter data; CC BY-SA 4.0 / GFDL Kaikki"
+                )
+            else:
+                dataset_name = "mixed_with_starter_visual_vocabulary_v1"
+                dataset_license = "Mixed dataset; see each entry's license_name"
             connection.execute(
-                "INSERT INTO dictionary_meta(key, value) VALUES('dataset', 'demo') "
+                "INSERT INTO dictionary_meta(key, value) VALUES('dataset', ?) "
+                "ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+                (dataset_name,),
+            )
+            connection.execute(
+                "INSERT INTO dictionary_meta(key, value) VALUES('starter_entries', '48') "
                 "ON CONFLICT(key) DO UPDATE SET value = excluded.value"
+            )
+            connection.execute(
+                "INSERT INTO dictionary_meta(key, value) VALUES('license', ?) "
+                "ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+                (dataset_license,),
             )
             connection.commit()
             return inserted
+        except Exception:
+            connection.rollback()
+            raise
         finally:
             if should_close:
                 connection.close()
 
     def search(self, query: str, limit: int = 20) -> list[dict[str, Any]]:
-        """Search words, inflected forms, and English/Spanish glosses.
+        """Search Hebrew, romanization, forms, and English/Spanish glosses.
 
         Args:
             query: Hebrew word/form or translation text.
@@ -475,8 +1484,8 @@ class DictionaryStore:
 
         Example:
             >>> store = DictionaryStore(Path(":memory:")); store.initialize(); store.seed_demo()
-            >>> store.search("learn")[0]["word"]
-            'ללמוד'
+            >>> store.search("mother")[0]["word"]
+            'אמא'
         """
         raw_query = query.strip()
         if not raw_query:
@@ -486,41 +1495,54 @@ class DictionaryStore:
 
         normalized = normalize_hebrew(raw_query)
         like_normalized = f"%{normalized}%"
-        like_raw = f"%{raw_query.lower()}%"
+        folded_query = raw_query.casefold()
+        like_raw = f"%{folded_query}%"
         like_root = f"%{raw_query}%"
         connection = self.connect()
         should_close = str(self.path) != ":memory:"
         try:
             rows = connection.execute(
                 """
-                SELECT DISTINCT e.id,
-                    CASE
+                SELECT e.id,
+                    MIN(CASE
                         WHEN e.normalized_word = ? THEN 0
                         WHEN f.normalized_form = ? THEN 1
-                        WHEN e.normalized_word LIKE ? THEN 2
-                        WHEN f.normalized_form LIKE ? THEN 3
-                        WHEN e.root = ? THEN 4
-                        ELSE 5
-                    END AS rank
+                        WHEN lower(COALESCE(e.romanization, '')) = ? THEN 2
+                        WHEN lower(COALESCE(s.gloss_en, '')) = ?
+                          OR lower(COALESCE(s.gloss_es, '')) = ? THEN 3
+                        WHEN e.normalized_word LIKE ? THEN 4
+                        WHEN f.normalized_form LIKE ? THEN 5
+                        WHEN lower(COALESCE(e.romanization, '')) LIKE ? THEN 6
+                        WHEN e.root = ? THEN 7
+                        ELSE 8
+                    END) AS rank,
+                    MAX(CASE WHEN s.visual_key IS NOT NULL THEN 1 ELSE 0 END) AS curated
                 FROM dictionary_entries e
                 LEFT JOIN dictionary_forms f ON f.entry_id = e.id
                 LEFT JOIN dictionary_senses s ON s.entry_id = e.id
                 WHERE e.normalized_word LIKE ?
                    OR f.normalized_form LIKE ?
+                   OR lower(COALESCE(e.romanization, '')) LIKE ?
                    OR lower(COALESCE(s.gloss_en, '')) LIKE ?
                    OR lower(COALESCE(s.gloss_es, '')) LIKE ?
                    OR COALESCE(e.root, '') LIKE ?
-                ORDER BY rank, length(e.word), e.word
+                GROUP BY e.id
+                ORDER BY rank, curated DESC, length(e.word), e.word
                 LIMIT ?
                 """,
                 (
                     normalized,
                     normalized,
+                    folded_query,
+                    folded_query,
+                    folded_query,
                     f"{normalized}%",
                     f"{normalized}%",
+                    f"{folded_query}%",
                     raw_query,
                     like_normalized,
                     like_normalized,
+                    like_raw,
                     like_raw,
                     like_raw,
                     like_root,
@@ -547,8 +1569,8 @@ class DictionaryStore:
 
         Example:
             >>> store = DictionaryStore(Path(":memory:")); store.initialize(); store.seed_demo()
-            >>> store.lookup("לומדת")[0]["word"]
-            'ללמוד'
+            >>> store.lookup("שָׁלוֹם")[0]["word"]
+            'שלום'
         """
         normalized = normalize_hebrew(word)
         if not normalized:
@@ -559,25 +1581,37 @@ class DictionaryStore:
             rows = connection.execute(
                 """
                 SELECT DISTINCT e.id,
-                    CASE WHEN e.normalized_word = ? THEN 0 ELSE 1 END AS rank
+                    CASE WHEN e.normalized_word = ? THEN 0 ELSE 1 END AS rank,
+                    CASE WHEN EXISTS(
+                        SELECT 1 FROM dictionary_senses curated
+                        WHERE curated.entry_id = e.id AND curated.visual_key IS NOT NULL
+                    ) THEN 1 ELSE 0 END AS curated
                 FROM dictionary_entries e
                 LEFT JOIN dictionary_forms f ON f.entry_id = e.id
                 WHERE e.normalized_word = ? OR f.normalized_form = ?
-                ORDER BY rank, e.pos
+                ORDER BY rank, curated DESC, e.pos
                 LIMIT ?
                 """,
                 (normalized, normalized, normalized, limit),
             ).fetchall()
             if not rows:
                 # A clicked token may contain a Hebrew prefix such as ו/ב/ל/כ/מ/ש.
-                stripped = normalized[1:] if len(normalized) > 2 and normalized[0] in "ובלכמשה" else normalized
+                stripped = (
+                    normalized[1:]
+                    if len(normalized) > 2 and normalized[0] in "ובלכמשה"
+                    else normalized
+                )
                 rows = connection.execute(
                     """
-                    SELECT DISTINCT e.id, 2 AS rank
+                    SELECT DISTINCT e.id, 2 AS rank,
+                        CASE WHEN EXISTS(
+                            SELECT 1 FROM dictionary_senses curated
+                            WHERE curated.entry_id = e.id AND curated.visual_key IS NOT NULL
+                        ) THEN 1 ELSE 0 END AS curated
                     FROM dictionary_entries e
                     LEFT JOIN dictionary_forms f ON f.entry_id = e.id
                     WHERE e.normalized_word = ? OR f.normalized_form = ?
-                    ORDER BY e.pos
+                    ORDER BY curated DESC, e.pos
                     LIMIT ?
                     """,
                     (stripped, stripped, limit),
@@ -612,9 +1646,7 @@ class DictionaryStore:
             if should_close:
                 connection.close()
 
-    def _entry_card(
-        self, connection: sqlite3.Connection, entry_id: int
-    ) -> dict[str, Any]:
+    def _entry_card(self, connection: sqlite3.Connection, entry_id: int) -> dict[str, Any]:
         """Hydrate an entry and all linked language information.
 
         Args:
@@ -636,17 +1668,37 @@ class DictionaryStore:
         if row is None:
             raise KeyError(f"Dictionary entry {entry_id} not found")
 
-        senses = [
-            {
+        senses: list[dict[str, Any]] = []
+        for sense in connection.execute(
+            "SELECT * FROM dictionary_senses WHERE entry_id = ? ORDER BY sense_order",
+            (entry_id,),
+        ).fetchall():
+            sense_card = {
                 **dict(sense),
                 "tags": json.loads(sense["tags_json"]),
                 "topics": json.loads(sense["topics_json"]),
             }
-            for sense in connection.execute(
-                "SELECT * FROM dictionary_senses WHERE entry_id = ? ORDER BY sense_order",
-                (entry_id,),
-            ).fetchall()
-        ]
+            visual_fields = (
+                sense["visual_key"],
+                sense["visual_emoji"],
+                sense["visual_alt_en"],
+                sense["visual_alt_es"],
+                sense["visual_alt_he"],
+            )
+            sense_card["visual"] = (
+                {
+                    "key": sense["visual_key"],
+                    "emoji": sense["visual_emoji"],
+                    "alt": {
+                        "en": sense["visual_alt_en"],
+                        "es": sense["visual_alt_es"],
+                        "he": sense["visual_alt_he"],
+                    },
+                }
+                if all(visual_fields)
+                else None
+            )
+            senses.append(sense_card)
         forms = [
             {
                 **dict(form),
@@ -676,6 +1728,7 @@ class DictionaryStore:
         ]
         card = dict(row)
         card.pop("raw_json", None)
+        beginner_sense = next((sense for sense in senses if sense["visual"] is not None), None)
         card.update(
             {
                 "senses": senses,
@@ -683,13 +1736,12 @@ class DictionaryStore:
                 "examples": examples,
                 "sounds": sounds,
                 "display_niqqud": next(
-                    (
-                        form["form"]
-                        for form in forms
-                        if "with-niqqud" in form["tags"]
-                    ),
+                    (form["form"] for form in forms if "with-niqqud" in form["tags"]),
                     row["word"],
                 ),
+                "level": beginner_sense["level"] if beginner_sense else None,
+                "category": beginner_sense["category"] if beginner_sense else None,
+                "visual": beginner_sense["visual"] if beginner_sense else None,
             }
         )
         return card
@@ -707,7 +1759,6 @@ class DictionaryStore:
             self._memory_connection.close()
             self._memory_connection = None
 
-
     def stats(self) -> dict[str, Any]:
         """Return dataset size and provenance metadata.
 
@@ -717,7 +1768,7 @@ class DictionaryStore:
         Example:
             >>> store = DictionaryStore(Path(":memory:")); store.initialize(); store.seed_demo()
             >>> store.stats()["entries"]
-            12
+            48
         """
         connection = self.connect()
         should_close = str(self.path) != ":memory:"
@@ -804,6 +1855,8 @@ class DictionaryStore:
                     DELETE FROM dictionary_forms;
                     DELETE FROM dictionary_senses;
                     DELETE FROM dictionary_entries;
+                    DELETE FROM dictionary_meta
+                    WHERE key IN ('dataset', 'source_file', 'source_url', 'license', 'starter_entries');
                     """
                 )
                 connection.commit()
@@ -811,7 +1864,9 @@ class DictionaryStore:
             for record in iter_jsonl(source, max_records=max_records):
                 counters["records_read"] += 1
                 try:
-                    inserted = self._import_record(connection, record, counters, source_url=source_url)
+                    inserted = self._import_record(
+                        connection, record, counters, source_url=source_url
+                    )
                 except (KeyError, TypeError, ValueError, json.JSONDecodeError) as error:
                     LOGGER.debug("Skipping malformed dictionary record: %s", error)
                     inserted = False
@@ -841,15 +1896,21 @@ class DictionaryStore:
                     "ON CONFLICT(key) DO UPDATE SET value = excluded.value",
                     (source_url,),
                 )
+            else:
+                connection.execute("DELETE FROM dictionary_meta WHERE key = 'source_url'")
             connection.execute(
                 "INSERT INTO dictionary_meta(key, value) VALUES('license', 'CC BY-SA 4.0 / GFDL') "
                 "ON CONFLICT(key) DO UPDATE SET value = excluded.value"
             )
             connection.commit()
-            return ImportStats(**counters)
+            stats = ImportStats(**counters)
         finally:
             if should_close:
                 connection.close()
+        # The reviewed beginner layer is additive to an imported broad lexicon.
+        # Imported entries retain their own source/license and never receive guessed visuals.
+        self.seed_demo()
+        return stats
 
     def _import_record(
         self,
@@ -924,14 +1985,10 @@ class DictionaryStore:
 
         for order, sense in enumerate(senses):
             glosses = [
-                str(gloss).strip()
-                for gloss in sense.get("glosses", [])
-                if str(gloss).strip()
+                str(gloss).strip() for gloss in sense.get("glosses", []) if str(gloss).strip()
             ]
             raw_glosses = [
-                str(gloss).strip()
-                for gloss in sense.get("raw_glosses", [])
-                if str(gloss).strip()
+                str(gloss).strip() for gloss in sense.get("raw_glosses", []) if str(gloss).strip()
             ]
             gloss_en = "; ".join(glosses or raw_glosses) or None
             connection.execute(
@@ -1101,8 +2158,7 @@ class DictionaryStore:
         """
         known = ("pa'al", "nif'al", "pi'el", "pu'al", "hif'il", "huf'al", "hitpa'el")
         text = " ".join(
-            str(category.get("name", ""))
-            for category in record.get("categories", []) or []
+            str(category.get("name", "")) for category in record.get("categories", []) or []
         ).lower()
         return next((name for name in known if name in text), None)
 

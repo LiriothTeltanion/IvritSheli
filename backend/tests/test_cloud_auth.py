@@ -10,7 +10,8 @@ import pytest
 from fastapi.testclient import TestClient
 
 from ivrit_sheli.api import create_app
-from ivrit_sheli.cloud_repository import CloudLearningRepository
+from ivrit_sheli.auth import GoogleOAuthClient
+from ivrit_sheli.cloud_repository import STATE_FORMAT, CloudLearningRepository
 from ivrit_sheli.cloud_store import MemoryCloudStore
 from ivrit_sheli.config import Settings
 
@@ -32,10 +33,28 @@ class FakeGitHubOAuth:
         }
 
 
-def cloud_settings(tmp_path: Path) -> Settings:
+class FakeGoogleOAuth:
+    """Deterministic Google OIDC boundary with one stable privacy-minimal subject."""
+
+    def authorize_url(self, state: str, verifier: str, settings: Settings) -> str:
+        assert len(verifier) >= 43
+        assert settings.google_auth_client_id
+        return f"https://accounts.google.test/authorize?state={state}"
+
+    def exchange_code(self, code: str, verifier: str, settings: Settings) -> dict[str, Any]:
+        assert code and verifier and settings.google_auth_client_secret
+        return {
+            "id": "google-stable-subject",
+            "name": "Beginner Learner",
+            "avatar_url": "https://lh3.googleusercontent.com/a/learner",
+        }
+
+
+def cloud_settings(
+    tmp_path: Path, overrides: dict[str, str] | None = None
+) -> Settings:
     """Build test-only cloud settings backed by an injected in-memory store."""
-    return Settings.from_env(
-        {
+    values = {
             "APP_ENV": "test",
             "APP_DATA_DIR": str(tmp_path / "data"),
             "APP_DB_PATH": ":memory:",
@@ -48,8 +67,9 @@ def cloud_settings(tmp_path: Path) -> Settings:
             "GITHUB_CLIENT_SECRET": "fake-secret",
             "PUBLIC_BASE_URL": "http://127.0.0.1:8000",
             "DEBUG": "true",
-        }
-    )
+    }
+    values.update(overrides or {})
+    return Settings.from_env(values)
 
 
 def production_cloud_settings(
@@ -92,6 +112,88 @@ def login_github(client: TestClient, code: str = "one") -> None:
     assert callback.status_code == 303
 
 
+def test_google_oidc_client_uses_pkce_and_discards_private_token_fields(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    settings = cloud_settings(
+        tmp_path,
+        {
+            "GOOGLE_AUTH_CLIENT_ID": "google-client",
+            "GOOGLE_AUTH_CLIENT_SECRET": "google-secret",
+            "GOOGLE_AUTH_REDIRECT_URI": (
+                "http://127.0.0.1:8000/api/v1/auth/google/callback"
+            ),
+        },
+    )
+    client = GoogleOAuthClient()
+    assert client._picture_url("https://tracking.example/avatar") is None
+    verifier = "v" * 64
+    query = parse_qs(urlparse(client.authorize_url("state-value", verifier, settings)).query)
+    assert query["response_type"] == ["code"]
+    assert query["scope"] == ["openid profile"]
+    assert "email" not in query["scope"][0]
+    assert query["state"] == ["state-value"]
+    assert query["code_challenge_method"] == ["S256"]
+    assert query["code_challenge"][0] != verifier
+
+    captured: dict[str, Any] = {}
+
+    class FakeResponse:
+        def __init__(self, payload: dict[str, Any]) -> None:
+            self.payload = payload
+
+        def raise_for_status(self) -> None:
+            return None
+
+        def json(self) -> dict[str, Any]:
+            return self.payload
+
+    def fake_post(url: str, **kwargs: Any) -> FakeResponse:
+        captured["token_url"] = url
+        captured["token_request"] = kwargs
+        return FakeResponse(
+            {
+                "access_token": "transient-access-token",
+                "id_token": "transient-id-token",
+                "refresh_token": "must-not-be-retained",
+                "token_type": "Bearer",
+            }
+        )
+
+    def fake_get(url: str, **kwargs: Any) -> FakeResponse:
+        captured["userinfo_url"] = url
+        captured["userinfo_request"] = kwargs
+        return FakeResponse(
+            {
+                "sub": "google-subject",
+                "name": "Google Learner",
+                "picture": "https://lh3.googleusercontent.com/a/profile",
+                "email": "must-not-be-stored@example.test",
+            }
+        )
+
+    monkeypatch.setattr("ivrit_sheli.auth.requests.post", fake_post)
+    monkeypatch.setattr("ivrit_sheli.auth.requests.get", fake_get)
+
+    profile = client.exchange_code("one-use-code", verifier, settings)
+
+    assert profile == {
+        "id": "google-subject",
+        "name": "Google Learner",
+        "avatar_url": "https://lh3.googleusercontent.com/a/profile",
+    }
+    assert captured["token_url"] == "https://oauth2.googleapis.com/token"
+    assert captured["token_request"]["data"]["grant_type"] == "authorization_code"
+    assert captured["token_request"]["data"]["code_verifier"] == verifier
+    assert captured["userinfo_url"] == (
+        "https://openidconnect.googleapis.com/v1/userinfo"
+    )
+    assert captured["userinfo_request"]["headers"]["Authorization"] == (
+        "Bearer transient-access-token"
+    )
+
+
 def test_cloud_requires_auth_and_demo_is_seeded_read_only(tmp_path: Path) -> None:
     store = MemoryCloudStore()
     with TestClient(
@@ -104,6 +206,7 @@ def test_cloud_requires_auth_and_demo_is_seeded_read_only(tmp_path: Path) -> Non
             "read_only": False,
             "user": None,
             "mode": "cloud",
+            "auth_providers": ["github"],
             "capabilities": {
                 "cloud_learning": True,
                 "ai": True,
@@ -157,6 +260,14 @@ def test_cloud_requires_auth_and_demo_is_seeded_read_only(tmp_path: Path) -> Non
         mutation = client.post("/api/v1/items", json={"hebrew_text": "פרטי"})
         assert mutation.status_code == 403
         assert mutation.json()["error"]["code"] == "demo_read_only"
+        delete_demo = client.request(
+            "DELETE",
+            "/api/v1/account",
+            json={"confirm": True},
+            headers={"Origin": "http://localhost:5173"},
+        )
+        assert delete_demo.status_code == 403
+        assert delete_demo.json()["error"]["code"] == "demo_read_only"
 
 
 def test_github_oauth_login_csrf_logout_and_replay_protection(tmp_path: Path) -> None:
@@ -239,6 +350,116 @@ def test_github_oauth_login_csrf_logout_and_replay_protection(tmp_path: Path) ->
         assert client.get("/api/v1/dashboard").status_code == 401
 
 
+def test_google_login_persists_and_account_deletion_clears_all_private_state(
+    tmp_path: Path,
+) -> None:
+    store = MemoryCloudStore()
+    settings = cloud_settings(
+        tmp_path,
+        {
+            "GOOGLE_AUTH_CLIENT_ID": "google-client",
+            "GOOGLE_AUTH_CLIENT_SECRET": "google-secret",
+            "GOOGLE_AUTH_REDIRECT_URI": (
+                "http://127.0.0.1:8000/api/v1/auth/google/callback"
+            ),
+        },
+    )
+    assert store.store_oauth_state(
+        "provider-bound-state",
+        "provider-verifier",
+        "/next",
+        provider="google",
+    )
+    assert store.consume_oauth_state(
+        "provider-bound-state", provider="github"
+    ) is None
+    assert store.consume_oauth_state(
+        "provider-bound-state", provider="google"
+    ) == ("provider-verifier", "/next")
+
+    with TestClient(
+        create_app(
+            settings,
+            cloud_store=store,
+            oauth_client=FakeGitHubOAuth(),
+            google_oauth_client=FakeGoogleOAuth(),
+        )
+    ) as client:
+        started = client.get(
+            "/api/v1/auth/google/start",
+            headers={"Accept": "application/json"},
+        )
+        assert started.status_code == 200
+        state = parse_qs(urlparse(started.json()["authorize_url"]).query)["state"][0]
+        callback = client.get(
+            "/api/v1/auth/google/callback",
+            params={"code": "first", "state": state},
+            follow_redirects=False,
+        )
+        assert callback.status_code == 303
+
+        session = client.get("/api/v1/auth/me").json()
+        assert session["auth_providers"] == ["google", "github"]
+        assert session["user"]["provider"] == "google"
+        assert session["user"]["login"] is None
+        original_user_id = session["user"]["id"]
+
+        created = client.post(
+            "/api/v1/items",
+            json={"hebrew_text": "מילה פרטית"},
+            headers={"Origin": "http://localhost:5173"},
+        )
+        assert created.status_code == 201
+        assert client.get("/api/v1/auth/me").json()["user"]["id"] == original_user_id
+        assert client.get("/api/v1/export").status_code == 200
+
+        missing_csrf = client.request(
+            "DELETE",
+            "/api/v1/account",
+            json={"confirm": True},
+        )
+        assert missing_csrf.status_code == 403
+        assert missing_csrf.json()["error"]["code"] == "csrf_validation_failed"
+        assert store.read_state(original_user_id)
+
+        foreign_origin = client.request(
+            "DELETE",
+            "/api/v1/account",
+            json={"confirm": True},
+            headers={"Origin": "https://attacker.invalid"},
+        )
+        assert foreign_origin.status_code == 403
+
+        deleted = client.request(
+            "DELETE",
+            "/api/v1/account",
+            json={"confirm": True},
+            headers={"Origin": "http://localhost:5173"},
+        )
+        assert deleted.status_code == 200
+        assert deleted.json()["authenticated"] is False
+        assert deleted.json()["auth_providers"] == ["google", "github"]
+        assert client.get("/api/v1/auth/me").json()["authenticated"] is False
+        with pytest.raises(KeyError, match="User is not available"):
+            store.read_state(original_user_id)
+
+        restarted = client.get(
+            "/api/v1/auth/google/start",
+            headers={"Accept": "application/json"},
+        )
+        second_state = parse_qs(urlparse(restarted.json()["authorize_url"]).query)[
+            "state"
+        ][0]
+        assert client.get(
+            "/api/v1/auth/google/callback",
+            params={"code": "second", "state": second_state},
+            follow_redirects=False,
+        ).status_code == 303
+        recreated = client.get("/api/v1/auth/me").json()
+        assert recreated["user"]["id"] != original_user_id
+        assert client.get("/api/v1/items").json()["items"] == []
+
+
 def test_github_oauth_cancel_returns_safely_and_consumes_state(tmp_path: Path) -> None:
     store = MemoryCloudStore()
     with TestClient(
@@ -291,6 +512,43 @@ def test_cloud_repository_isolates_users_with_colliding_item_ids() -> None:
     assert second_repository.list_items() == []
     assert "סוד של אלפא" in str(store.read_state(first.id))
     assert "סוד של אלפא" not in str(store.read_state(second.id))
+
+
+def test_legacy_cloud_profile_keeps_level_and_skips_new_beginner_gates() -> None:
+    store = MemoryCloudStore()
+    user = store.create_test_user("Returning cloud learner")
+    legacy_state = {
+        "format": STATE_FORMAT,
+        "tables": {
+            "profiles": [
+                {
+                    "id": 1,
+                    "display_name": "Returning cloud learner",
+                    "interface_language": "he",
+                    "hebrew_level": "C1",
+                    "daily_minutes": 35,
+                    "created_at": "2026-07-16T00:00:00Z",
+                    "updated_at": "2026-07-16T00:00:00Z",
+                }
+            ]
+        },
+    }
+    store.mutate_state(user.id, lambda _current: (legacy_state, None))
+
+    repository = CloudLearningRepository(store, user.id, user.display_name)
+    profile = repository.get_profile()
+
+    assert profile["hebrew_level"] == "C1"
+    assert profile["daily_minutes"] == 35
+    assert profile["onboarding_step"] == 4
+    assert profile["onboarding_completed"] == 1
+    assert profile["first_steps_step"] == 5
+    assert profile["first_steps_completed"] == 1
+
+    repository.update_profile({"daily_minutes": 36})
+    persisted_profile = store.read_state(user.id)["tables"]["profiles"][0]
+    assert persisted_profile["hebrew_level"] == "C1"
+    assert persisted_profile["first_steps_completed"] == 1
 
 
 def test_session_store_expires_and_revokes_bearer_tokens() -> None:
@@ -366,13 +624,13 @@ def test_operational_endpoints_report_version_storage_and_readiness(tmp_path: Pa
             oauth_client=FakeGitHubOAuth(),
         )
     ) as client:
-        assert client.get("/health/live").json()["version"] == "2.2.0"
+        assert client.get("/health/live").json()["version"] == "2.3.0"
         ready = client.get("/health/ready")
         assert ready.status_code == 200
         assert ready.json()["checks"]["postgresql"] is True
         assert ready.json()["checks"]["dictionary_details"]["mode"] == "shared_cloud"
         version = client.get("/version").json()
-        assert version["version"] == "2.2.0"
+        assert version["version"] == "2.3.0"
         assert version["storage"] == "postgresql"
 
 
@@ -429,6 +687,60 @@ def test_production_settings_fail_closed_and_accept_only_https_oauth(tmp_path: P
         }
     )
     assert settings.allowed_origins == ("https://ivrit.example",)
+    assert settings.auth_providers == ("github",)
+
+    google_only = production_cloud_settings(
+        tmp_path,
+        {
+            "GITHUB_CLIENT_ID": "",
+            "GITHUB_CLIENT_SECRET": "",
+            "GITHUB_REDIRECT_URI": "",
+            "GOOGLE_AUTH_CLIENT_ID": "google-client",
+            "GOOGLE_AUTH_CLIENT_SECRET": "google-secret",
+            "GOOGLE_AUTH_REDIRECT_URI": (
+                "https://ivrit.example/api/v1/auth/google/callback"
+            ),
+        },
+    )
+    assert google_only.auth_providers == ("google",)
+
+    both_providers = production_cloud_settings(
+        tmp_path,
+        {
+            "GOOGLE_AUTH_CLIENT_ID": "google-client",
+            "GOOGLE_AUTH_CLIENT_SECRET": "google-secret",
+            "GOOGLE_AUTH_REDIRECT_URI": (
+                "https://ivrit.example/api/v1/auth/google/callback"
+            ),
+        },
+    )
+    assert both_providers.auth_providers == ("google", "github")
+
+    with pytest.raises(ValueError, match="Google sign-in requires both"):
+        production_cloud_settings(
+            tmp_path,
+            {
+                "GOOGLE_AUTH_CLIENT_ID": "google-client",
+                "GOOGLE_AUTH_CLIENT_SECRET": "",
+            },
+        )
+    with pytest.raises(ValueError, match="at least one OAuth provider"):
+        production_cloud_settings(
+            tmp_path,
+            {
+                "GITHUB_CLIENT_ID": "",
+                "GITHUB_CLIENT_SECRET": "",
+            },
+        )
+    with pytest.raises(ValueError, match="Google callback path"):
+        production_cloud_settings(
+            tmp_path,
+            {
+                "GOOGLE_AUTH_CLIENT_ID": "google-client",
+                "GOOGLE_AUTH_CLIENT_SECRET": "google-secret",
+                "GOOGLE_AUTH_REDIRECT_URI": "https://ivrit.example/wrong-callback",
+            },
+        )
 
     with pytest.raises(ValueError, match="must authenticate as ivrit_sheli_runtime"):
         Settings.from_env(

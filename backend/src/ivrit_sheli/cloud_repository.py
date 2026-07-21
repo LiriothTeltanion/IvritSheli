@@ -91,14 +91,28 @@ class CloudLearningRepository:
                 for row in rows:
                     if not isinstance(row, dict) or not row:
                         continue
-                    columns = tuple(column for column in row if column in allowed_columns)
+                    hydrated_row = dict(row)
+                    if table == "profiles" and "onboarding_completed" not in hydrated_row:
+                        # A 2.2 cloud snapshot belongs to a returning learner. Keep every
+                        # stored preference (especially level) and skip only the new-tour gates.
+                        hydrated_row.update(
+                            {
+                                "onboarding_step": 4,
+                                "onboarding_completed": 1,
+                                "first_steps_step": 5,
+                                "first_steps_completed": 1,
+                            }
+                        )
+                    columns = tuple(
+                        column for column in hydrated_row if column in allowed_columns
+                    )
                     if not columns:
                         continue
                     placeholders = ", ".join("?" for _ in columns)
                     column_sql = ", ".join(columns)
                     connection.execute(
                         f"INSERT INTO {table}({column_sql}) VALUES({placeholders})",
-                        tuple(row[column] for column in columns),
+                        tuple(hydrated_row[column] for column in columns),
                     )
             connection.commit()
         return database, LearningRepository(database)

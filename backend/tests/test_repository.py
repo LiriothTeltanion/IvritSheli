@@ -99,6 +99,11 @@ def test_profile_update_replaces_goal_weights(repository: LearningRepository) ->
             "interface_language": "es",
             "daily_minutes": 24,
             "cloud_consent": True,
+            "onboarding_step": 3,
+            "onboarding_completed": True,
+            "guided_mode": True,
+            "first_steps_step": 3,
+            "first_steps_completed": False,
             "goals": [
                 {"goal_type": "workplace", "weight": 0.7, "is_active": 1},
                 {"goal_type": "speaking", "weight": 0.3, "is_active": 1},
@@ -107,7 +112,31 @@ def test_profile_update_replaces_goal_weights(repository: LearningRepository) ->
     )
     assert profile["display_name"] == "Lirioth"
     assert profile["cloud_consent"] == 1
+    assert profile["onboarding_step"] == 3
+    assert profile["onboarding_completed"] == 1
+    assert profile["guided_mode"] == 1
+    assert profile["first_steps_step"] == 3
+    assert profile["first_steps_completed"] == 0
     assert {goal["goal_type"] for goal in profile["goals"]} == {"workplace", "speaking"}
+
+
+def test_beginner_profile_defaults_and_onboarding_validation(
+    repository: LearningRepository,
+) -> None:
+    profile = repository.get_profile()
+    assert profile["hebrew_level"] == "A0"
+    assert profile["daily_minutes"] == 10
+    assert profile["niqqud_mode"] == "always"
+    assert profile["onboarding_step"] == 0
+    assert profile["onboarding_completed"] == 0
+    assert profile["guided_mode"] == 1
+    assert profile["first_steps_step"] == 0
+    assert profile["first_steps_completed"] == 0
+
+    with pytest.raises(ValueError, match="onboarding_step"):
+        repository.update_profile({"onboarding_step": 5})
+    with pytest.raises(ValueError, match="first_steps_step"):
+        repository.update_profile({"first_steps_step": 6})
 
 
 def test_real_life_mission_rewards_success_and_reflection(repository: LearningRepository) -> None:

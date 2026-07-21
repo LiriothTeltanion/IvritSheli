@@ -4,19 +4,23 @@
 // Date: 2026-07-15 | TZ: Asia/Jerusalem
 // Notes: Comments in ENGLISH; emojis sparingly.
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { api } from '../api';
 import { useI18n } from '../i18n';
 import { useSessionAccess } from '../session';
-import type { Locale, Profile } from '../types';
+import type { AuthState, Locale, Profile } from '../types';
 import { Icon } from './Icon';
 
 export function SettingsPanel({
   profile,
   onSaved,
+  provider,
+  onAccountDeleted,
 }: {
   profile: Profile;
   onSaved: (profile: Profile, message: string) => void;
+  provider?: string;
+  onAccountDeleted: (auth: AuthState) => void;
 }): React.JSX.Element {
   const { locale, setLocale, t } = useI18n();
   const { readOnly, readOnlyReason, localMode } = useSessionAccess();
@@ -25,10 +29,26 @@ export function SettingsPanel({
   const [message, setMessage] = useState('');
   const [bugTitle, setBugTitle] = useState('');
   const [bugDescription, setBugDescription] = useState('');
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteUnderstood, setDeleteUnderstood] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const deleteTriggerRef = useRef<HTMLButtonElement>(null);
+  const keepAccountRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => setDraft(profile), [profile]);
 
+  useEffect(() => {
+    if (deleteOpen) keepAccountRef.current?.focus();
+  }, [deleteOpen]);
+
+  const closeDeleteDialog = (): void => {
+    setDeleteOpen(false);
+    setDeleteUnderstood(false);
+    deleteTriggerRef.current?.focus();
+  };
+
   const changeLocale = (next: Locale): void => {
+    window.localStorage.setItem('ivrit-sheli-locale-explicit', 'true');
     setLocale(next);
     setDraft((current) => ({ ...current, interface_language: next }));
   };
@@ -46,6 +66,9 @@ export function SettingsPanel({
         niqqud_mode: draft.niqqud_mode,
         weekly_rest_day: draft.weekly_rest_day,
         cloud_consent: draft.cloud_consent,
+        ...(draft.onboarding_step !== undefined ? { onboarding_step: draft.onboarding_step } : {}),
+        ...(draft.onboarding_completed !== undefined ? { onboarding_completed: draft.onboarding_completed } : {}),
+        ...(draft.guided_mode !== undefined ? { guided_mode: draft.guided_mode } : {}),
       });
       onSaved(updated, t('settingsSaved'));
       setMessage(t('settingsSaved'));
@@ -53,6 +76,20 @@ export function SettingsPanel({
       setMessage(reason instanceof Error ? reason.message : String(reason));
     } finally {
       setSaving(false);
+    }
+  };
+
+  const deleteAccount = async (): Promise<void> => {
+    if (!deleteUnderstood) return;
+    setDeleting(true);
+    setMessage('');
+    try {
+      const nextAuth = await api.deleteAccount();
+      onAccountDeleted(nextAuth);
+    } catch (reason) {
+      setMessage(reason instanceof Error ? reason.message : String(reason));
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -66,7 +103,7 @@ export function SettingsPanel({
         diagnostics: {
           user_agent: navigator.userAgent,
           viewport: `${window.innerWidth}x${window.innerHeight}`,
-          app_version: '2.2.0',
+          app_version: '2.3.0',
           online: navigator.onLine,
           locale,
           route: window.location.pathname,
@@ -115,12 +152,25 @@ export function SettingsPanel({
           <label className="field">
             <span>{t('hebrewLevel')}</span>
             <select value={draft.hebrew_level} onChange={(event) => setDraft((current) => ({ ...current, hebrew_level: event.target.value }))} disabled={readOnly}>
+              <option value="A0">A0 · {t('levelNewTitle')}</option>
               <option value="A1">A1 · {t('levelBeginner')}</option>
               <option value="A2">A2 · {t('levelElementary')}</option>
               <option value="B1">B1 · {t('levelIntermediate')}</option>
               <option value="B2">B2 · {t('levelUpperIntermediate')}</option>
               <option value="C1">C1 · {t('levelAdvanced')}</option>
             </select>
+          </label>
+          <label className="guided-mode-setting">
+            <span className="toggle">
+              <input
+                type="checkbox"
+                checked={draft.guided_mode === undefined ? true : Boolean(draft.guided_mode)}
+                onChange={(event) => setDraft((current) => ({ ...current, guided_mode: event.target.checked }))}
+                disabled={readOnly}
+              />
+              <span />
+            </span>
+            <span><strong>{t('guidedMode')}</strong><small>{t('guidedModeDetail')}</small></span>
           </label>
         </section>
 
@@ -194,6 +244,53 @@ export function SettingsPanel({
           {saving ? <span className="spinner" /> : <Icon name="check" size={17} />} {t('save')}
         </button>
       </div>
+
+      {!localMode && !readOnly && (
+        <section className="card account-card" aria-labelledby="account-data-title">
+          <header className="section-heading">
+            <div><span className="eyebrow"><Icon name="shield" size={15} /> {t('yourData')}</span><h2 id="account-data-title">{t('accountAndData')}</h2></div>
+          </header>
+          <p>{t('accountAndDataDetail')}</p>
+          {provider && <p className="account-provider">{t('signedInWith', { provider: provider === 'google' ? 'Google' : 'GitHub' })}</p>}
+          <div className="account-actions">
+            <a className="secondary-button" href="/api/v1/export" download><Icon name="book" size={18} /> {t('downloadMyData')}</a>
+            <button ref={deleteTriggerRef} type="button" className="danger-outline-button" onClick={() => setDeleteOpen(true)}>{t('deleteMyAccount')}</button>
+          </div>
+          <p className="account-policy-links">
+            <a href="https://github.com/LiriothTeltanion/IvritSheli/blob/main/PRIVACY.md" target="_blank" rel="noreferrer">{t('privacyPolicy')}</a>
+            <span aria-hidden="true">·</span>
+            <a href="https://github.com/LiriothTeltanion/IvritSheli/blob/main/TERMS.md" target="_blank" rel="noreferrer">{t('termsOfUse')}</a>
+          </p>
+          {deleteOpen && (
+            <div
+              className="delete-account-confirmation"
+              role="alertdialog"
+              aria-modal="true"
+              aria-labelledby="delete-account-title"
+              aria-describedby="delete-account-detail"
+              onKeyDown={(event) => {
+                if (event.key === 'Escape' && !deleting) {
+                  event.preventDefault();
+                  closeDeleteDialog();
+                }
+              }}
+            >
+              <h3 id="delete-account-title">{t('deleteAccountTitle')}</h3>
+              <p id="delete-account-detail">{t('deleteAccountWarning')}</p>
+              <label>
+                <input type="checkbox" checked={deleteUnderstood} onChange={(event) => setDeleteUnderstood(event.target.checked)} />
+                <span>{t('deleteAccountUnderstand')}</span>
+              </label>
+              <div>
+                <button ref={keepAccountRef} type="button" className="secondary-button" onClick={closeDeleteDialog} disabled={deleting}>{t('keepMyAccount')}</button>
+                <button type="button" className="danger-button" onClick={() => { void deleteAccount(); }} disabled={!deleteUnderstood || deleting}>
+                  {deleting ? <span className="spinner" /> : null} {deleting ? t('deletingAccount') : t('deleteForever')}
+                </button>
+              </div>
+            </div>
+          )}
+        </section>
+      )}
 
       <section className="card bug-card">
         <header className="section-heading"><div><span className="eyebrow"><Icon name="bug" size={15} /> {t('localDiagnostics')}</span><h2>{t('reportBug')}</h2></div></header>

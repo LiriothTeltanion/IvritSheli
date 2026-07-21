@@ -130,6 +130,35 @@ def test_unversioned_existing_schema_is_adopted_without_data_loss(tmp_path: Path
     assert version == str(SCHEMA_VERSION)
 
 
+def test_22_profile_upgrade_preserves_level_and_skips_new_beginner_gates(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "returning-learner.db"
+    with _open(path) as connection:
+        connection.executescript(SCHEMA_SQL)
+        connection.execute(
+            """
+            INSERT INTO profiles(
+                id, display_name, interface_language, hebrew_level, daily_minutes,
+                transliteration_mode, niqqud_mode, weekly_rest_day, cloud_consent,
+                created_at, updated_at
+            ) VALUES(1, 'Returning learner', 'es', 'B2', 27, 'hidden', 'difficult',
+                     5, 1, '2026-07-16T00:00:00Z', '2026-07-16T00:00:00Z')
+            """
+        )
+
+    Database(path).initialize()
+
+    with _open(path) as connection:
+        profile = connection.execute("SELECT * FROM profiles WHERE id = 1").fetchone()
+    assert profile["hebrew_level"] == "B2"
+    assert profile["daily_minutes"] == 27
+    assert profile["onboarding_step"] == 4
+    assert profile["onboarding_completed"] == 1
+    assert profile["first_steps_step"] == 5
+    assert profile["first_steps_completed"] == 1
+
+
 def test_newer_database_is_rejected_without_modification(tmp_path: Path) -> None:
     path = tmp_path / "future.db"
     database = Database(path)

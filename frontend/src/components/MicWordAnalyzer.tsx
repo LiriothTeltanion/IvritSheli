@@ -47,9 +47,11 @@ function stopRecognition(recognition: RecognitionLike | null): void {
 
 export function MicWordAnalyzer({
   onWordClick,
+  initialWord = '',
   cloudAvailable = true,
 }: {
   onWordClick: (word: string) => void;
+  initialWord?: string;
   cloudAvailable?: boolean;
 }): React.JSX.Element {
   const { locale, t } = useI18n();
@@ -58,7 +60,7 @@ export function MicWordAnalyzer({
   const [acquiring, setAcquiring] = useState(false);
   const [recording, setRecording] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [transcript, setTranscript] = useState('');
+  const [transcript, setTranscript] = useState(initialWord);
   const [result, setResult] = useState<WordAnalysisResult | null>(null);
   const [error, setError] = useState('');
   const providerRef = useRef<TranscriptProvider>('manual');
@@ -73,6 +75,13 @@ export function MicWordAnalyzer({
   const startLockRef = useRef(false);
   const activeCaptureRef = useRef(false);
   const processingRef = useRef(false);
+
+  useEffect(() => {
+    setTranscript(initialWord);
+    setResult(null);
+    setError('');
+    providerRef.current = 'manual';
+  }, [initialWord]);
 
   const clearCaptureTimer = (): void => {
     if (captureTimerRef.current !== null) {

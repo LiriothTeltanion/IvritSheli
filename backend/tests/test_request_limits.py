@@ -584,7 +584,9 @@ def test_blocking_application_routes_are_declared_sync_for_threadpool_dispatch(
     }
     blocking_routes = {
         "/api/v1/auth/github/callback",
+        "/api/v1/auth/google/callback",
         "/api/v1/auth/demo",
+        "/api/v1/account",
         "/health/ready",
         "/api/v1/dashboard",
         "/api/v1/ai/correct",

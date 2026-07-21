@@ -1,4 +1,4 @@
-# API catalog — Ivrit Sheli 2.2
+# API catalog — Ivrit Sheli 2.3
 
 Application base path: `/api/v1`
 
@@ -9,10 +9,13 @@ The production frontend and API share one HTTPS origin. JSON responses include a
 | Method | Route | Purpose | Access |
 |---|---|---|---|
 | `GET` | `/api/v1/auth/me` | Return the current session, demo/read-only flag and public user fields | Public |
-| `GET` | `/api/v1/auth/github/start?next=/` | Create OAuth state + PKCE and redirect to GitHub | Public |
+| `GET` | `/api/v1/auth/google/start?next=/` | Create provider-bound OAuth state + S256 PKCE and redirect to Google | Public when configured |
+| `GET` | `/api/v1/auth/google/callback` | Validate and consume Google state, create a session, redirect safely | Public callback |
+| `GET` | `/api/v1/auth/github/start?next=/` | Create provider-bound OAuth state + S256 PKCE and redirect to GitHub | Public when configured |
 | `GET` | `/api/v1/auth/github/callback` | Validate and consume OAuth state, create a session, redirect safely | Public callback |
 | `POST` | `/api/v1/auth/demo` | Start the deterministic read-only demo session | Public |
 | `POST` | `/api/v1/auth/logout` | Revoke the server-side session and clear cookies | Session-aware |
+| `DELETE` | `/api/v1/account` | Permanently delete the authenticated cloud identity, sessions and learner state | Authenticated + CSRF |
 
 `GET /auth/me` returns:
 
@@ -24,15 +27,21 @@ The production frontend and API share one HTTPS origin. JSON responses include a
   "user": {
     "id": "uuid",
     "display_name": "Learner",
-    "login": "github-login",
-    "avatar_url": "https://avatars.githubusercontent.com/..."
-  }
+    "provider": "google",
+    "login": null,
+    "avatar_url": "https://lh3.googleusercontent.com/..."
+  },
+  "auth_providers": ["google", "github"]
 }
 ```
+
+`auth_providers` lists only the sign-in methods configured by the server, so the frontend does not present a provider that cannot complete. Google users have `login: null`; GitHub users may have a login. The providers are separate identities and are not auto-linked by email. Google sign-in requests only `openid profile`; GitHub requests identity-only `read:user`. Neither callback persists provider bearer tokens or email addresses.
 
 The session bearer is an `HttpOnly` cookie. A separate readable CSRF cookie is echoed as `X-CSRF-Token` by the same-origin frontend for authenticated mutations. Demo sessions can read seeded learner data but receive `403 demo_read_only` on private mutations. Demo and logout POSTs require `application/json` and reject cross-site Origin/Fetch Metadata. Logout accepts an exact allow-listed Origin or, when Origin is absent, the active session's double-submit CSRF proof.
 
 OAuth start/callback and demo entry use a process-local per-client window plus a higher per-endpoint circuit breaker. Direct mode uses the raw ASGI peer; explicit Railway mode uses one valid Railway-overwritten `X-Real-IP`. `X-Forwarded-For` is never read. A limited response is `429` with `Retry-After`. Live OAuth states are also capped transactionally in PostgreSQL across all replicas.
+
+Account deletion accepts exactly `{"confirm": true}` and follows the normal authenticated mutation CSRF boundary. It is unavailable to the shared demo and local-device mode. A successful deletion clears the browser cookies and returns an unauthenticated session payload; the action cannot be undone.
 
 ## Operations
 
@@ -70,7 +79,7 @@ In cloud mode every operation resolves the authenticated tenant before accessing
 
 Generic `POST /items` accepts learner-facing provenance labels such as `manual` and `quick_capture`, but rejects the server-owned `dictionary:`, `connector:`, `system:`, `seed:` and `starter_pack` namespaces. Trusted source identity is assigned only by the dedicated server workflow.
 
-The registry returns persisted learner items with transparent `active`, `mastered`, or `needs_review` status; due/upcoming state; review count; learned and latest-activity dates; and recognition, production, listening, and speaking mastery. Search, filters, and sorting run inside the resolved tenant only.
+The profile contract also persists `onboarding_step` (0–4), `onboarding_completed`, and `guided_mode`. The registry returns persisted learner items with transparent `active`, `mastered`, or `needs_review` status; due/upcoming state; review count; learned and latest-activity dates; and recognition, production, listening, and speaking mastery. Search, filters, and sorting run inside the resolved tenant only.
 
 ## Dictionary
 
@@ -85,6 +94,8 @@ The registry returns persisted learner items with transparent `active`, `mastere
 Dictionary reference data remains local/rebuildable SQLite data in both runtime modes. Adding an entry to a learner plan is tenant-owned and therefore authenticated.
 
 Dictionary results are decorated with the current learner's saved-item ID, learning status, and due state. Search, lookup and entry GETs are read-only: exploration does not append events, award XP or change mastery. Repeated **Add to learning** requests return the existing active item instead of creating new duplicate vocabulary records.
+
+The 2.3 dictionary schema adds nullable `level`, `category`, and `visual` fields to an entry. A visual value contains a stable `key`, an `emoji`, and localized `alt` text for `en`, `es`, and `he`. Curated senses expose the same metadata and provenance; examples may include `translation_es`. Imported or unsupported entries may correctly return `visual: null` rather than receiving a fabricated cue.
 
 ## AI
 
@@ -113,7 +124,7 @@ Offline deterministic results require no external service. Online processing req
 | `POST` | `/api/v1/audio/word-analysis` |
 | `POST` | `/api/v1/audio/pronunciation-score` |
 
-Uploads are bounded by the request envelope, decoded file size and filename-extension allowlist. MIME and magic-byte validation are not claimed in 2.2. App-managed audio and transcripts are excluded from structured request logs.
+Uploads are bounded by the request envelope, decoded file size and filename-extension allowlist. MIME and magic-byte validation remain an explicit limitation in 2.3. App-managed audio and transcripts are excluded from structured request logs.
 
 `POST /audio/tts` accepts `voice_style: "masculine" | "feminine"`; clients cannot inject arbitrary provider voice IDs. `POST /audio/word-analysis` accepts exactly one Hebrew transcript plus client-reported `browser`, `openai`, or `manual` provenance. The server does not present the client report as independently verified. Its local path is a non-mutating dictionary analysis and is available to the read-only demo. Cloud enrichment still requires an authenticated non-demo identity, production allowlisting, stored learner consent, and an explicit `cloud_requested: true` action. Word analysis never updates XP or mastery.
 
@@ -145,7 +156,7 @@ One import accepts at most 50 phrases and, in cloud mode, applies the selected b
 {
   "error": {
     "code": "authentication_required",
-    "message": "Sign in with GitHub or enter the seeded demonstration.",
+    "message": "Sign in or enter the seeded demonstration.",
     "request_id": "a-safe-correlation-id"
   }
 }

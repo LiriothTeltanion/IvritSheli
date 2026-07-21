@@ -75,7 +75,10 @@ APP_CONTENT_SECURITY_POLICY = "; ".join(
         "form-action 'self'",
         "script-src 'self'",
         "style-src 'self' 'unsafe-inline'",
-        "img-src 'self' data: blob: https://avatars.githubusercontent.com",
+        (
+            "img-src 'self' data: blob: https://avatars.githubusercontent.com "
+            "https://*.googleusercontent.com"
+        ),
         "font-src 'self' data:",
         "connect-src 'self'",
         "media-src 'self' data: blob: https:",
@@ -93,9 +96,13 @@ DOCS_CONTENT_SECURITY_POLICY = (
         "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
     )
     .replace(
-        "img-src 'self' data: blob: https://avatars.githubusercontent.com",
         (
             "img-src 'self' data: blob: https://avatars.githubusercontent.com "
+            "https://*.googleusercontent.com"
+        ),
+        (
+            "img-src 'self' data: blob: https://avatars.githubusercontent.com "
+            "https://*.googleusercontent.com "
             "https://fastapi.tiangolo.com"
         ),
     )
@@ -120,6 +127,12 @@ class StrictModel(BaseModel):
     """Base request model that rejects misspelled fields."""
 
     model_config = ConfigDict(extra="forbid")
+
+
+class AccountDeletionPayload(StrictModel):
+    """Explicit destructive-action confirmation for cloud account deletion."""
+
+    confirm: Literal[True]
 
 
 class LearningItemPayload(StrictModel):
@@ -178,6 +191,11 @@ class ProfilePayload(StrictModel):
     niqqud_mode: Literal["always", "difficult", "hidden"] | None = None
     weekly_rest_day: int | None = Field(default=None, ge=0, le=6)
     cloud_consent: bool | None = None
+    onboarding_step: int | None = Field(default=None, ge=0, le=4)
+    onboarding_completed: bool | None = None
+    guided_mode: bool | None = None
+    first_steps_step: int | None = Field(default=None, ge=0, le=5)
+    first_steps_completed: bool | None = None
     goals: list[dict[str, Any]] | None = None
 
 
@@ -294,6 +312,7 @@ def build_services(
     settings: Settings,
     cloud_store: CloudStore | None = None,
     oauth_client: OAuthClient | None = None,
+    google_oauth_client: OAuthClient | None = None,
 ) -> Services:
     """Initialize databases and domain services.
 
@@ -348,7 +367,12 @@ def build_services(
         audio=AudioService(settings, database),
         connectors=ConnectorService(settings, database),
         cloud_store=configured_store,
-        auth=AuthService(settings, configured_store, oauth_client),
+        auth=AuthService(
+            settings,
+            configured_store,
+            oauth_client,
+            google_oauth_client,
+        ),
     )
 
 
@@ -357,6 +381,7 @@ def create_app(
     *,
     cloud_store: CloudStore | None = None,
     oauth_client: OAuthClient | None = None,
+    google_oauth_client: OAuthClient | None = None,
 ) -> FastAPI:
     """Create the configured FastAPI application.
 
@@ -377,7 +402,12 @@ def create_app(
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         """Initialize and close retained local resources."""
         configure_logging(runtime_settings.log_level)
-        app.state.services = build_services(runtime_settings, cloud_store, oauth_client)
+        app.state.services = build_services(
+            runtime_settings,
+            cloud_store,
+            oauth_client,
+            google_oauth_client,
+        )
         LOGGER.info(
             "Ivrit Sheli API initialized",
             extra={
@@ -427,7 +457,7 @@ def create_app(
                 request,
                 401,
                 "authentication_required",
-                "Sign in with GitHub or enter the seeded demonstration.",
+                "Sign in with Google or GitHub, or enter the seeded demonstration.",
             )
         if (
             identity is not None
@@ -440,7 +470,7 @@ def create_app(
                 request,
                 403,
                 "demo_read_only",
-                "This seeded demonstration is read-only. Sign in with GitHub to save progress.",
+                "This seeded demonstration is read-only. Sign in to save your progress.",
             )
         if (
             identity is not None
@@ -613,6 +643,10 @@ def _production_cloud_feature_allowed(
         return True
     identity = getattr(request.state, "session_identity", None)
     if identity is None or identity.user.is_demo:
+        return False
+    # Existing paid-provider allowlists are explicitly GitHub-scoped. Google login
+    # enables core persistence but cannot inherit a coincidentally matching subject ID.
+    if identity.user.provider != "github":
         return False
     if feature == "cloud_ai":
         return settings.allows_cloud_ai(identity.user.login, identity.user.provider_user_id)
@@ -793,14 +827,45 @@ def _clear_session_cookies(response: Any, settings: Settings) -> None:
     )
 
 
-def _clear_oauth_state_cookie(response: Any, settings: Settings) -> None:
+def _oauth_state_cookie_name(provider: Literal["github", "google"]) -> str:
+    """Keep provider attempts separate while preserving the established GitHub cookie."""
+    return "ivrit_oauth_state" if provider == "github" else "ivrit_google_oauth_state"
+
+
+def _oauth_callback_path(provider: Literal["github", "google"]) -> str:
+    return f"{API_PREFIX}/auth/{provider}/callback"
+
+
+def _set_oauth_state_cookie(
+    response: Any,
+    state: str,
+    settings: Settings,
+    provider: Literal["github", "google"],
+) -> None:
+    """Bind one short-lived browser state cookie to its provider callback path."""
+    response.set_cookie(
+        _oauth_state_cookie_name(provider),
+        state,
+        max_age=600,
+        httponly=True,
+        secure=settings.session_cookie_secure,
+        samesite="lax",
+        path=_oauth_callback_path(provider),
+    )
+
+
+def _clear_oauth_state_cookie(
+    response: Any,
+    settings: Settings,
+    provider: Literal["github", "google"],
+) -> None:
     """Remove the short-lived browser OAuth binding after success or cancellation."""
     response.delete_cookie(
-        "ivrit_oauth_state",
+        _oauth_state_cookie_name(provider),
         secure=settings.session_cookie_secure,
         httponly=True,
         samesite="lax",
-        path=f"{API_PREFIX}/auth/github/callback",
+        path=_oauth_callback_path(provider),
     )
 
 
@@ -817,6 +882,7 @@ def _local_auth_payload() -> dict[str, Any]:
             "login": None,
         },
         "mode": "local",
+        "auth_providers": [],
         "capabilities": {
             "cloud_learning": False,
             "ai": True,
@@ -842,9 +908,13 @@ def register_routes(app: FastAPI) -> None:
 
     @app.get(f"{API_PREFIX}/auth/me")
     def auth_me(request: Request) -> dict[str, Any]:
-        if not services(request).settings.cloud_mode:
+        container = services(request)
+        if not container.settings.cloud_mode:
             return _local_auth_payload()
-        return auth_payload(getattr(request.state, "session_identity", None))
+        return auth_payload(
+            getattr(request.state, "session_identity", None),
+            container.settings.auth_providers,
+        )
 
     @app.get(f"{API_PREFIX}/auth/github/start")
     def auth_github_start(
@@ -857,15 +927,7 @@ def register_routes(app: FastAPI) -> None:
             response: Any = JSONResponse({"authorize_url": authorize_url})
         else:
             response = RedirectResponse(authorize_url, status_code=302)
-        response.set_cookie(
-            "ivrit_oauth_state",
-            state,
-            max_age=600,
-            httponly=True,
-            secure=container.settings.session_cookie_secure,
-            samesite="lax",
-            path=f"{API_PREFIX}/auth/github/callback",
-        )
+        _set_oauth_state_cookie(response, state, container.settings, "github")
         return response
 
     @app.get(f"{API_PREFIX}/auth/github/callback")
@@ -876,11 +938,11 @@ def register_routes(app: FastAPI) -> None:
         error: str | None = Query(default=None, min_length=1, max_length=100),
     ) -> Any:
         container = services(request)
-        browser_state = request.cookies.get("ivrit_oauth_state")
+        browser_state = request.cookies.get(_oauth_state_cookie_name("github"))
         if error is not None:
             redirect_path = container.auth.cancel_github(state, browser_state)
             response = RedirectResponse(redirect_path, status_code=303)
-            _clear_oauth_state_cookie(response, container.settings)
+            _clear_oauth_state_cookie(response, container.settings, "github")
             return response
         if code is None:
             raise AuthenticationError("GitHub did not return an authorization code")
@@ -891,7 +953,48 @@ def register_routes(app: FastAPI) -> None:
         )
         container.auth.logout(request.cookies.get(container.settings.session_cookie_name))
         response = RedirectResponse(redirect_path, status_code=303)
-        _clear_oauth_state_cookie(response, container.settings)
+        _clear_oauth_state_cookie(response, container.settings, "github")
+        _set_session_cookies(response, grant, container.settings)
+        return response
+
+    @app.get(f"{API_PREFIX}/auth/google/start")
+    def auth_google_start(
+        request: Request,
+        next_path: str = Query(default="/", alias="next", max_length=500),
+    ) -> Any:
+        container = services(request)
+        state, authorize_url = container.auth.start_google(next_path)
+        if "application/json" in request.headers.get("Accept", ""):
+            response: Any = JSONResponse({"authorize_url": authorize_url})
+        else:
+            response = RedirectResponse(authorize_url, status_code=302)
+        _set_oauth_state_cookie(response, state, container.settings, "google")
+        return response
+
+    @app.get(f"{API_PREFIX}/auth/google/callback")
+    def auth_google_callback(
+        request: Request,
+        state: str = Query(min_length=1, max_length=500),
+        code: str | None = Query(default=None, min_length=1, max_length=500),
+        error: str | None = Query(default=None, min_length=1, max_length=100),
+    ) -> Any:
+        container = services(request)
+        browser_state = request.cookies.get(_oauth_state_cookie_name("google"))
+        if error is not None:
+            redirect_path = container.auth.cancel_google(state, browser_state)
+            response = RedirectResponse(redirect_path, status_code=303)
+            _clear_oauth_state_cookie(response, container.settings, "google")
+            return response
+        if code is None:
+            raise AuthenticationError("Google did not return an authorization code")
+        grant, redirect_path = container.auth.finish_google(
+            code,
+            state,
+            browser_state,
+        )
+        container.auth.logout(request.cookies.get(container.settings.session_cookie_name))
+        response = RedirectResponse(redirect_path, status_code=303)
+        _clear_oauth_state_cookie(response, container.settings, "google")
         _set_session_cookies(response, grant, container.settings)
         return response
 
@@ -901,7 +1004,9 @@ def register_routes(app: FastAPI) -> None:
         _require_safe_auth_post(request, container.settings, require_session_csrf=False)
         grant = container.auth.start_demo()
         container.auth.logout(request.cookies.get(container.settings.session_cookie_name))
-        response = JSONResponse(auth_payload(grant.identity))
+        response = JSONResponse(
+            auth_payload(grant.identity, container.settings.auth_providers)
+        )
         _set_session_cookies(response, grant, container.settings)
         return response
 
@@ -911,7 +1016,25 @@ def register_routes(app: FastAPI) -> None:
         _require_safe_auth_post(request, container.settings, require_session_csrf=True)
         container.auth.logout(request.cookies.get(container.settings.session_cookie_name))
         response = JSONResponse(
-            _local_auth_payload() if not container.settings.cloud_mode else auth_payload(None)
+            _local_auth_payload()
+            if not container.settings.cloud_mode
+            else auth_payload(None, container.settings.auth_providers)
+        )
+        _clear_session_cookies(response, container.settings)
+        return response
+
+    @app.delete(f"{API_PREFIX}/account")
+    def delete_account(request: Request, _payload: AccountDeletionPayload) -> Any:
+        """Permanently delete the current cloud identity and its learner workspace."""
+        container = services(request)
+        identity = getattr(request.state, "session_identity", None)
+        if not container.settings.cloud_mode or identity is None:
+            raise HTTPException(status_code=401, detail="A cloud account session is required")
+        if identity.user.is_demo:
+            raise HTTPException(status_code=403, detail="The shared demo cannot be deleted")
+        container.cloud_store.delete_user(identity.user.id)
+        response = JSONResponse(
+            auth_payload(None, container.settings.auth_providers)
         )
         _clear_session_cookies(response, container.settings)
         return response

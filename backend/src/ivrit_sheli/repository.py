@@ -102,7 +102,7 @@ class LearningRepository:
                     id, display_name, interface_language, hebrew_level,
                     daily_minutes, transliteration_mode, niqqud_mode,
                     weekly_rest_day, cloud_consent, created_at, updated_at
-                ) VALUES(1, ?, 'en', 'A2', 18, 'hints', 'difficult', 5, 0, ?, ?)
+                ) VALUES(1, ?, 'en', 'A0', 10, 'hints', 'always', 5, 0, ?, ?)
                 """,
                 (display_name, now, now),
             )
@@ -1255,6 +1255,11 @@ class LearningRepository:
             "niqqud_mode",
             "weekly_rest_day",
             "cloud_consent",
+            "onboarding_step",
+            "onboarding_completed",
+            "guided_mode",
+            "first_steps_step",
+            "first_steps_completed",
         }
         clean: dict[str, Any] = {
             key: value for key, value in payload.items() if key in allowed_fields
@@ -1267,6 +1272,17 @@ class LearningRepository:
             raise ValueError("interface_language must be en, es, or he")
         if "cloud_consent" in clean:
             clean["cloud_consent"] = int(bool(clean["cloud_consent"]))
+        if "onboarding_step" in clean and not 0 <= int(clean["onboarding_step"]) <= 4:
+            raise ValueError("onboarding_step must be between 0 and 4")
+        if "first_steps_step" in clean and not 0 <= int(clean["first_steps_step"]) <= 5:
+            raise ValueError("first_steps_step must be between 0 and 5")
+        for boolean_field in (
+            "onboarding_completed",
+            "guided_mode",
+            "first_steps_completed",
+        ):
+            if boolean_field in clean:
+                clean[boolean_field] = int(bool(clean[boolean_field]))
 
         with self.database.transaction() as connection:
             if clean:

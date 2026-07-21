@@ -6,24 +6,36 @@
 
 import { useI18n } from '../i18n';
 import { useSessionAccess } from '../session';
+import { localizedText, starterWords } from '../starterWords';
 import type { Dashboard } from '../types';
 import { HebrewText } from './HebrewText';
 import { Icon } from './Icon';
 import { MetricRing } from './MetricRing';
-import { XPBar } from './XPBar';
+import { WordIllustration } from './WordIllustration';
 
 interface TodayDashboardProps {
   dashboard: Dashboard;
+  firstStepsComplete: boolean;
   onWordClick: (word: string) => void;
   onCapture: () => void;
   onStart: () => void;
+  onOpenDictionary: () => void;
   onOpenCoach: () => void;
 }
 
-export function TodayDashboard({ dashboard, onWordClick, onCapture, onStart, onOpenCoach }: TodayDashboardProps): React.JSX.Element {
+export function TodayDashboard({
+  dashboard,
+  firstStepsComplete,
+  onWordClick,
+  onCapture,
+  onStart,
+  onOpenDictionary,
+  onOpenCoach,
+}: TodayDashboardProps): React.JSX.Element {
   const { locale, label, t } = useI18n();
-  const { readOnly, readOnlyReason } = useSessionAccess();
+  const { readOnly } = useSessionAccess();
   const missionTranslation = locale === 'es' ? dashboard.mission.translation_es : dashboard.mission.translation_en;
+  const firstWord = starterWords[0]!;
   const firstName = dashboard.profile.display_name.split(' ')[0] || dashboard.profile.display_name;
   const focusReason = (() => {
     if (locale === 'en') return dashboard.focus.reason;
@@ -52,24 +64,40 @@ export function TodayDashboard({ dashboard, onWordClick, onCapture, onStart, onO
       <section className="hero-dashboard card">
         <div className="hero-copy">
           <div className="hero-kicker">
-            <span className="live-dot" />
-            <span>{readOnly ? t('readOnly') : dashboard.system.offline_ready ? t('offlineReady') : t('accountIsolatedWorkspace')}</span>
-            <span aria-hidden="true">·</span>
-            <span>{t('privateMode')}</span>
+            <span aria-hidden="true">🌱</span>
+            <span>{readOnly ? t('readOnly') : t('yourProgressIsSaved')}</span>
           </div>
           <h1>{t('hello')}, <span>{firstName}</span> <b aria-hidden="true">👋</b></h1>
-          <p>{t('planDescription')}</p>
+          <p>{t('guidedPlanDescription', { count: dashboard.today.estimated_minutes })}</p>
           <div className="hero-actions">
-            <button type="button" className="primary-button primary-button--large" onClick={onStart}><Icon name="play" size={19} /> {t('startSession')}</button>
-            <button type="button" className="secondary-button secondary-button--large" onClick={onCapture} disabled={readOnly} title={readOnly ? readOnlyReason : undefined}><Icon name="plus" size={19} /> {t('capturePhrase')}</button>
+            <button type="button" className="primary-button primary-button--large" onClick={onStart}><Icon name="play" size={19} /> {firstStepsComplete ? t('continueMyLesson') : t('startFirstLesson')}</button>
+            <button type="button" className="secondary-button secondary-button--large" onClick={onOpenDictionary}><Icon name="book" size={19} /> {t('openFriendlyDictionary')}</button>
           </div>
-          <XPBar xp={dashboard.xp} />
+          {!readOnly && <button type="button" className="capture-link" onClick={onCapture}><Icon name="plus" size={17} /> {t('saveAWordYouNeed')}</button>}
         </div>
-        <div className="hero-visual" aria-hidden="true">
-          <div className="orbital-card orbital-card--one"><Icon name="brain" size={22} /><span>{t('adaptive')}</span></div>
-          <div className="orbital-card orbital-card--two"><Icon name="mic" size={22} /><span>{t('speaking')}</span></div>
-          <div className="orbital-card orbital-card--three"><Icon name="book" size={22} /><span>{t('wordCount', { count: dashboard.dictionary.entries })}</span></div>
-          <div className="hebrew-orb"><span>ע</span><i /><i /><i /></div>
+        <div className="hero-visual guided-word-visual">
+          <WordIllustration kind="greeting" title={localizedText(firstWord.illustrationAlt, locale)} />
+          <div className="guided-word-visual__label">
+            <strong lang="he" dir="rtl">{firstWord.word}</strong>
+            <span dir="ltr">{firstWord.transliteration}</span>
+            <p>{localizedText(firstWord.meaning, locale)}</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="visual-vocabulary card" aria-labelledby="visual-vocabulary-title">
+        <header className="section-heading">
+          <div><span className="eyebrow">🖼️ {t('learnWithPictures')}</span><h2 id="visual-vocabulary-title">{t('yourFirstVisualWords')}</h2></div>
+          <button type="button" className="text-button" onClick={onStart}>{t('practiceTheseWords')} <Icon name="chevron" size={16} /></button>
+        </header>
+        <div className="visual-vocabulary__grid">
+          {starterWords.map((word) => (
+            <button type="button" key={word.id} onClick={() => onWordClick(word.dictionaryWord)} aria-label={t('openDictionaryFor', { word: word.dictionaryWord })}>
+              <WordIllustration kind={word.illustration} title={localizedText(word.illustrationAlt, locale)} />
+              <strong lang="he" dir="rtl">{word.word}</strong>
+              <span>{localizedText(word.meaning, locale)}</span>
+            </button>
+          ))}
         </div>
       </section>
 

@@ -215,6 +215,30 @@ CREATE TABLE IF NOT EXISTS bug_reports (
 # new migration; existing entries must never be edited after release.
 MIGRATIONS = (
     Migration(version=1, name="initial_schema", sql=SCHEMA_SQL),
+    Migration(
+        version=2,
+        name="beginner_journey",
+        sql="""
+        ALTER TABLE profiles ADD COLUMN onboarding_step INTEGER NOT NULL DEFAULT 0
+            CHECK (onboarding_step BETWEEN 0 AND 4);
+        ALTER TABLE profiles ADD COLUMN onboarding_completed INTEGER NOT NULL DEFAULT 0
+            CHECK (onboarding_completed IN (0, 1));
+        ALTER TABLE profiles ADD COLUMN guided_mode INTEGER NOT NULL DEFAULT 1
+            CHECK (guided_mode IN (0, 1));
+        ALTER TABLE profiles ADD COLUMN first_steps_step INTEGER NOT NULL DEFAULT 0
+            CHECK (first_steps_step BETWEEN 0 AND 5);
+        ALTER TABLE profiles ADD COLUMN first_steps_completed INTEGER NOT NULL DEFAULT 0
+            CHECK (first_steps_completed IN (0, 1));
+
+        -- Existing 2.2 learners keep their exact profile and continue where they were.
+        -- Fresh installs have no profile row yet and therefore retain the beginner defaults.
+        UPDATE profiles
+        SET onboarding_step = 4,
+            onboarding_completed = 1,
+            first_steps_step = 5,
+            first_steps_completed = 1;
+        """,
+    ),
 )
 SCHEMA_VERSION = MIGRATIONS[-1].version
 

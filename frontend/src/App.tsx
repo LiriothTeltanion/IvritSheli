@@ -11,8 +11,10 @@ import { SessionAccessProvider } from './session';
 import type { AuthState, Dashboard, GamificationStatus, Locale, Profile, ProgressData, ViewKey } from './types';
 import { AICoach } from './components/AICoach';
 import { AuthGate } from './components/AuthGate';
+import { BeginnerOnboarding } from './components/BeginnerOnboarding';
 import { ConnectorPanel } from './components/ConnectorPanel';
 import { DictionaryDrawer } from './components/DictionaryDrawer';
+import { FirstStepsLesson } from './components/FirstStepsLesson';
 import { Icon, type IconName } from './components/Icon';
 import { LearnPanel } from './components/LearnPanel';
 import { ProgressPanel } from './components/ProgressPanel';
@@ -25,6 +27,16 @@ type LearnTab = 'review' | 'dictionary' | 'audio' | 'collection';
 interface DictionaryTarget {
   word: string;
   entryId?: number;
+}
+
+const ONBOARDING_VERSION = 1;
+
+function learnerStorageId(auth: AuthState | null): string {
+  return auth?.user?.id ?? (auth?.mode === 'local' ? 'local-device' : 'anonymous');
+}
+
+function onboardingStorageKey(auth: AuthState | null, suffix: 'complete' | 'draft'): string {
+  return `ivrit-sheli:onboarding-v${ONBOARDING_VERSION}:${learnerStorageId(auth)}:${suffix}`;
 }
 
 const navigation: Array<{ key: ViewKey; icon: IconName; labelKey: 'today' | 'learn' | 'coach' | 'progress' | 'connectors' | 'settings' }> = [
@@ -54,8 +66,13 @@ export default function App(): React.JSX.Element {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [toast, setToast] = useState('');
+  const [practiceWord, setPracticeWord] = useState<string | undefined>();
+  const [firstStepsOpen, setFirstStepsOpen] = useState(false);
+  const [firstStepsProgress, setFirstStepsProgress] = useState(0);
+  const [firstStepsComplete, setFirstStepsComplete] = useState(false);
+  const [onboardingRevision, setOnboardingRevision] = useState(0);
   const [online, setOnline] = useState(navigator.onLine);
-  const [theme, setTheme] = useState<'dark' | 'light'>(() => localStorage.getItem('ivrit-sheli-theme') === 'light' ? 'light' : 'dark');
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => localStorage.getItem('ivrit-sheli-theme') === 'dark' ? 'dark' : 'light');
 
   const refreshCore = useCallback(async (): Promise<void> => {
     try {
@@ -118,12 +135,13 @@ export default function App(): React.JSX.Element {
   useEffect(() => {
     const onAuthenticationRequired = (): void => {
       configureApiSession(null);
-      setAuth({
+      setAuth((current) => ({
         authenticated: false,
         demo: false,
         read_only: false,
         user: null,
         mode: 'cloud',
+        auth_providers: current?.auth_providers ?? ['github'],
         capabilities: {
           cloud_learning: true,
           ai: true,
@@ -131,10 +149,11 @@ export default function App(): React.JSX.Element {
           connectors: true,
           local_first: false,
         },
-      });
+      }));
       setAuthError(t('sessionExpired'));
       setCaptureOpen(false);
       setDictionaryTarget(null);
+      setFirstStepsOpen(false);
     };
     window.addEventListener(AUTH_REQUIRED_EVENT, onAuthenticationRequired);
     return () => window.removeEventListener(AUTH_REQUIRED_EVENT, onAuthenticationRequired);
@@ -158,6 +177,15 @@ export default function App(): React.JSX.Element {
         .catch((reason: unknown) => setError(reason instanceof Error ? reason.message : String(reason)));
     }
   }, [view, progress, gamification]);
+  useEffect(() => {
+    if (!auth?.authenticated) return;
+    setOnboardingRevision(0);
+  }, [auth]);
+  useEffect(() => {
+    if (!auth?.authenticated || !profile) return;
+    setFirstStepsProgress(Math.max(0, Math.min(5, Number(profile.first_steps_step) || 0)));
+    setFirstStepsComplete(Boolean(profile.first_steps_completed));
+  }, [auth?.authenticated, profile]);
 
   const goToLearn = (tab: LearnTab): void => {
     setLearnTab(tab);
@@ -193,6 +221,7 @@ export default function App(): React.JSX.Element {
       setView('today');
       setCaptureOpen(false);
       setDictionaryTarget(null);
+      setFirstStepsOpen(false);
       setError('');
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : String(reason));
@@ -213,7 +242,15 @@ export default function App(): React.JSX.Element {
   }
 
   if (!auth?.authenticated) {
-    return <AuthGate busy={demoBusy} error={authError} onDemo={() => { void startDemo(); }} onRetry={() => { void checkAuth(); }} />;
+    return (
+      <AuthGate
+        busy={demoBusy}
+        error={authError}
+        providers={auth?.auth_providers ?? ['github']}
+        onDemo={() => { void startDemo(); }}
+        onRetry={() => { void checkAuth(); }}
+      />
+    );
   }
 
   if (loading) {
@@ -243,6 +280,54 @@ export default function App(): React.JSX.Element {
 
   if (!dashboard || !profile || !gamification) return <></>;
 
+  const onboardingCompleteOnDevice = (() => {
+    try {
+      return window.localStorage.getItem(onboardingStorageKey(auth, 'complete')) === 'true';
+    } catch {
+      return false;
+    }
+  })();
+  const needsOnboarding = !auth.read_only
+    && !Boolean(profile.onboarding_completed)
+    && !onboardingCompleteOnDevice
+    && onboardingRevision === 0;
+
+  if (needsOnboarding) {
+    return (
+      <BeginnerOnboarding
+        profile={profile}
+        storageKey={onboardingStorageKey(auth, 'draft')}
+        onSkip={() => {
+          void api.updateProfile({ onboarding_step: 4, onboarding_completed: true })
+            .then((nextProfile) => {
+              setProfile(nextProfile);
+              try {
+                window.localStorage.setItem(onboardingStorageKey(auth, 'complete'), 'true');
+              } catch {
+                // The server profile remains the persistent source of truth.
+              }
+              setOnboardingRevision((current) => current + 1);
+              setFirstStepsOpen(true);
+            })
+            .catch((reason: unknown) => setError(reason instanceof Error ? reason.message : String(reason)));
+        }}
+        onFinished={(nextProfile) => {
+          setProfile(nextProfile);
+          setLocale(nextProfile.interface_language);
+          try {
+            window.localStorage.setItem(onboardingStorageKey(auth, 'complete'), 'true');
+            window.localStorage.removeItem(onboardingStorageKey(auth, 'draft'));
+          } catch {
+            // The server profile remains the persistent source of truth.
+          }
+          setOnboardingRevision((current) => current + 1);
+          setFirstStepsOpen(true);
+          void refreshCore();
+        }}
+      />
+    );
+  }
+
   const localMode = auth.mode === 'local';
   const identityName = localMode ? profile.display_name : auth.user?.display_name ?? profile.display_name;
 
@@ -256,7 +341,7 @@ export default function App(): React.JSX.Element {
       <aside className="sidebar">
         <div className="brand-lockup">
           <img src="/icons/app-icon.svg" alt="" />
-          <div><strong>{t('appName')}</strong><span>CLOUD 2.2</span></div>
+          <div><strong>{t('appName')}</strong><span>CLOUD 2.3</span></div>
         </div>
         <nav className="side-nav" aria-label={t('primaryNavigation')}>
           {navigation.map((item) => (
@@ -279,7 +364,7 @@ export default function App(): React.JSX.Element {
         </div>
         <div className="sidebar-footer">
           <div className="privacy-mini"><Icon name="shield" size={17} /><span><strong>{auth.demo ? t('demoWorkspace') : localMode ? t('localWorkspace') : t('privateMode')}</strong><small>{auth.demo ? t('readOnlyDemo') : localMode ? t('localFirstStorage') : t('accountStorage')}</small></span></div>
-          <span className="version-label">v2.2.0</span>
+          <span className="version-label">v2.3.0</span>
         </div>
       </aside>
 
@@ -290,7 +375,10 @@ export default function App(): React.JSX.Element {
           <div className="topbar-actions">
             <span className={`network-chip ${online ? '' : 'is-offline'}`}><Icon name={online ? 'cloud' : 'offline'} size={15} />{online ? t('online') : t('offline')}</span>
             <div className="locale-switch" aria-label={t('interfaceLanguage')}>
-              {(['en', 'es', 'he'] as Locale[]).map((code) => <button key={code} type="button" className={locale === code ? 'active' : ''} onClick={() => setLocale(code)}>{code.toUpperCase()}</button>)}
+              {(['en', 'es', 'he'] as Locale[]).map((code) => <button key={code} type="button" className={locale === code ? 'active' : ''} onClick={() => {
+                window.localStorage.setItem('ivrit-sheli-locale-explicit', 'true');
+                setLocale(code);
+              }}>{code.toUpperCase()}</button>)}
             </div>
             <button type="button" className="icon-button" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} aria-label={t('toggleTheme')}>{theme === 'dark' ? '☀' : '☾'}</button>
             <button type="button" className="capture-button" onClick={() => setCaptureOpen(true)} disabled={auth.read_only} title={auth.read_only ? t('readOnlyExplanation') : undefined}><Icon name="plus" size={18} /><span>{t('capturePhrase')}</span></button>
@@ -313,23 +401,78 @@ export default function App(): React.JSX.Element {
           <div className="demo-banner" role="status">
             <Icon name="shield" size={17} />
             <span><strong>{t('readOnlyDemo')}</strong><small>{t('readOnlyExplanation')}</small></span>
-            <a href="/api/v1/auth/github/start"><Icon name="github" size={16} /> {t('continueGithub')}</a>
+            {(auth.auth_providers ?? []).includes('google') ? (
+              <a href="/api/v1/auth/google/start"><span className="google-mark" aria-hidden="true">G</span> {t('continueGoogle')}</a>
+            ) : (
+              <a href="/api/v1/auth/github/start"><Icon name="github" size={16} /> {t('continueGithub')}</a>
+            )}
           </div>
         )}
 
         {error && <div className="global-error"><Icon name="bug" size={17} /> {error}<button type="button" onClick={() => setError('')} aria-label={t('dismissError')}><Icon name="close" size={15} /></button></div>}
 
         <main className="content" id="main-content">
-          {view === 'today' && (
+          {view === 'today' && firstStepsOpen && (
+            <FirstStepsLesson
+              initialIndex={firstStepsProgress}
+              onProgress={async (index) => {
+                const nextIndex = Math.max(
+                  Math.max(0, Math.min(5, Number(profile.first_steps_step) || 0)),
+                  index,
+                );
+                const nextProfile = await api.updateProfile({ first_steps_step: nextIndex });
+                setProfile(nextProfile);
+                setFirstStepsProgress(nextIndex);
+              }}
+              onWordLearned={async (word, responseMs) => {
+                if (auth.read_only) return;
+                const entries = await api.dictionarySearch(word.dictionaryWord);
+                const exact = entries.find((entry) => (
+                  entry.word === word.dictionaryWord || entry.normalized_word === word.dictionaryWord
+                ));
+                if (!exact) throw new Error(t('starterWordUnavailable'));
+                const item = await api.learnDictionaryEntry(exact.id);
+                await api.submitReview(item.id, {
+                  is_correct: true,
+                  confidence: 4,
+                  response_ms: responseMs,
+                  hints_used: 0,
+                  modality: 'recognition',
+                  exercise_type: 'visual_first_steps',
+                });
+                void refreshCore();
+              }}
+              onPracticeWord={(word) => {
+                setPracticeWord(word);
+                setFirstStepsOpen(false);
+                goToLearn('audio');
+              }}
+              onComplete={async () => {
+                const nextProfile = await api.updateProfile({
+                  first_steps_step: 5,
+                  first_steps_completed: true,
+                });
+                setProfile(nextProfile);
+                setFirstStepsComplete(true);
+                setFirstStepsOpen(false);
+                setToast(t('firstStepsCompleteToast'));
+              }}
+              onClose={() => setFirstStepsOpen(false)}
+              onOpenWord={openDictionary}
+            />
+          )}
+          {view === 'today' && !firstStepsOpen && (
             <TodayDashboard
               dashboard={dashboard}
+              firstStepsComplete={firstStepsComplete}
               onWordClick={openDictionary}
               onCapture={() => setCaptureOpen(true)}
-              onStart={() => goToLearn('review')}
+              onStart={() => firstStepsComplete ? goToLearn('review') : setFirstStepsOpen(true)}
+              onOpenDictionary={() => goToLearn('dictionary')}
               onOpenCoach={() => setView('coach')}
             />
           )}
-          {view === 'learn' && <LearnPanel initialTab={learnTab} cloudAvailable={dashboard.system.cloud_available} onWordClick={openDictionary} onRefresh={() => { void refreshCore(); }} />}
+          {view === 'learn' && <LearnPanel initialTab={learnTab} {...(practiceWord ? { practiceWord } : {})} cloudAvailable={dashboard.system.cloud_available} onWordClick={openDictionary} onRefresh={() => { void refreshCore(); }} />}
           {view === 'coach' && <AICoach cloudAvailable={dashboard.system.cloud_available} onWordClick={openDictionary} />}
           {view === 'progress' && progress && <ProgressPanel progress={progress} gamification={gamification} />}
           {view === 'progress' && !progress && <section className="card skeleton-page"><div className="skeleton" /><div className="skeleton" /></section>}
@@ -337,11 +480,29 @@ export default function App(): React.JSX.Element {
           {view === 'settings' && (
             <SettingsPanel
               profile={profile}
+              {...(auth.user?.provider ? { provider: auth.user.provider } : {})}
               onSaved={(nextProfile, message) => {
                 setProfile(nextProfile);
                 setLocale(nextProfile.interface_language);
                 setToast(message);
                 void refreshCore();
+              }}
+              onAccountDeleted={(nextAuth) => {
+                try {
+                  window.localStorage.removeItem(onboardingStorageKey(auth, 'complete'));
+                  window.localStorage.removeItem(onboardingStorageKey(auth, 'draft'));
+                  window.localStorage.removeItem(`ivrit-sheli:first-steps-v1:${learnerStorageId(auth)}`);
+                } catch {
+                  // Account data is already deleted server-side.
+                }
+                configureApiSession(nextAuth);
+                setAuth(nextAuth);
+                setDashboard(null);
+                setProfile(null);
+                setProgress(null);
+                setGamification(null);
+                setView('today');
+                setFirstStepsOpen(false);
               }}
             />
           )}
