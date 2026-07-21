@@ -28,7 +28,7 @@ No changes beyond the deployed 2.4.0 Contest Edition are currently queued.
 - The ordinary backend suite passes 150 tests with one credential-gated PostgreSQL skip; the dedicated PostgreSQL 17 gate passes 3/3, with two overlapping the ordinary suite and one replacing that skip, for 151 unique backend passes.
 - The frontend passes 62 tests across 16 files; combined local evidence is 213 unique automated tests.
 - Ruff, strict MyPy across 24 source files, compileall, offline doctor, pip-audit, TypeScript, Vite, npm production audit and the 66-file package verifier pass. The production-shaped Docker/Compose smoke passes with release 2.4.0, PostgreSQL readiness, UID 10001, no migration DSN in the app runtime, OAuth rate limiting and structured-log redaction.
-- Railway deployment succeeded on 2026-07-21 at immutable commit `03bf84b9268ff8be528c0fab3c670f9652ee23b0` with version 2.4.0, PostgreSQL and all 48 reviewed dictionary entries ready. The live English entry, read-only guided tour, identity-only Google sign-in, onboarding/session persistence across reload, logout and signed-out persistence after reload passed browser checks. Re-login after logout and the broader operator boundaries remain unclaimed. Git tag and GitHub Release `v2.2.0` remain the latest published release artifacts until `v2.4.0` is published.
+- The release implementation at `03bf84b9268ff8be528c0fab3c670f9652ee23b0` deployed successfully on Railway on 2026-07-21 with version 2.4.0, PostgreSQL and all 48 reviewed dictionary entries ready. The live English entry, read-only guided tour, identity-only Google sign-in, onboarding/session persistence across reload, logout and signed-out persistence after reload passed browser checks. Re-login after logout and the broader operator boundaries remain unclaimed. Git tag and GitHub Release `v2.4.0` are published.
 
 ## 2.3.0 — Superseded source candidate — 2026-07-21
 
@@ -56,7 +56,7 @@ No changes beyond the deployed 2.4.0 Contest Edition are currently queued.
 
 - The ordinary backend suite passes 149 tests with one credential-gated PostgreSQL skip; the dedicated PostgreSQL 17 gate passes all three database-boundary tests and contributes the skipped case for 150 unique backend passes.
 - The frontend type-check, 58 tests across 15 files and production build pass; the verified candidate baseline is 208 unique passing automated tests. The production Compose/image smoke also passes with release 2.3.0, PostgreSQL readiness, 48 shared dictionary entries and the unprivileged runtime identity.
-- Version `2.3.0` was not published; it was superseded by the deployed 2.4.0 Contest Edition. Git tag and GitHub Release `v2.2.0` remain the latest published release artifacts.
+- Version `2.3.0` was not published; it was superseded by the deployed and published 2.4.0 Contest Edition.
 
 ### Previous release record corrected
 

@@ -42,7 +42,7 @@
     "runtime": "Docker",
     "database": "PostgreSQL 17",
     "status": "verified-live",
-    "production_commit": "03bf84b9268ff8be528c0fab3c670f9652ee23b0",
+    "release_implementation_commit": "03bf84b9268ff8be528c0fab3c670f9652ee23b0",
     "verified_on": "2026-07-21",
     "environment": "production",
     "health_live": true,
@@ -54,11 +54,11 @@
     "read_only_tour_verified": true
   },
   "publication": {
-    "latest_git_tag": "v2.2.0",
-    "latest_github_release": "v2.2.0",
-    "source_version_tagged": false,
-    "source_version_github_release_published": false,
-    "release_state": "2.4.0-live-with-v2.2.0-latest-published-release"
+    "latest_git_tag": "v2.4.0",
+    "latest_github_release": "v2.4.0",
+    "source_version_tagged": true,
+    "source_version_github_release_published": true,
+    "release_state": "2.4.0-live-and-published"
   },
   "visual_proof": {
     "state": "live-english-journey-verified",

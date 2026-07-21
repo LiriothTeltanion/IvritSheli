@@ -258,11 +258,11 @@ Verify against the public URL:
 
 - URL: https://ivritsheli-production.up.railway.app
 - Runtime identity: release `2.4.0`, environment `production`, storage `postgresql`.
-- Production commit: immutable `03bf84b9268ff8be528c0fab3c670f9652ee23b0`; Railway deployment completed successfully on 2026-07-21.
+- Release implementation commit: `03bf84b9268ff8be528c0fab3c670f9652ee23b0`; Railway deployment completed successfully on 2026-07-21. Later evidence and documentation deployments preserve version `2.4.0`.
 - Readiness: PostgreSQL and all 48 reviewed dictionary entries passed.
 - Judge path: the `?lang=en` entry and four-stop read-only guided tour passed live browser checks.
 - Google OAuth: identity-only sign-in succeeded; onboarding state and the authenticated session persisted across reload; logout returned to the English auth landing page and a subsequent reload remained signed out.
-- Publication state: Git tag and GitHub Release `v2.2.0` remain the latest published release artifacts; `v2.4.0` is not yet published as either artifact.
+- Publication state: Git tag and GitHub Release `v2.4.0` are published.
 - Remaining boundary: re-login after logout, live GitHub authorization, live OpenAI or Google Workspace connector calls, two-real-user production isolation and backup restoration are unverified. Identity-only Google sign-in grants no Gmail, Drive or Calendar scope.
 - Visual boundary: the English entry and guided tour are verified live, while refreshed desktop/mobile/RTL/reduced-motion README captures remain pending.
 
@@ -272,7 +272,7 @@ Verify against the public URL:
 - Production commit: `66d68a3c44ac2500fb400eef88d5f77da0c1c1e1` from merged pull request #14.
 - `/health/live`: HTTPS `200` with version `2.2.0` and the same immutable commit.
 - `/health/ready`: HTTPS `200`; the 12-entry/12-sense shared-cloud dictionary and PostgreSQL readiness passed.
-- Publication state: Git tag and GitHub Release `v2.2.0` were published for this source version and remain the latest release artifacts until `v2.4.0` is published.
+- Publication state: Git tag and GitHub Release `v2.2.0` were published for this historical source version and remained latest until `v2.4.0` was published.
 - OAuth: GitHub consent handoff and cancellation had verified evidence; final live code exchange, authenticated refresh persistence and logout remained pending for that deployment.
 
 ### Historical production verification record — 2.1.1 — 2026-07-16

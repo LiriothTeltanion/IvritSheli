@@ -44,8 +44,8 @@ Show the repository map and state: React + TypeScript, Python + FastAPI, private
 4. **Differentiator:** every Hebrew word is clickable and every recommendation is explainable.
 5. **Reliability:** request IDs, redacted JSON logs, diagnostics and PostgreSQL isolation coverage. The locally verified 2.4 source has 213 passing automated tests: 151 unique backend plus 62 frontend across 16 files. Railway production independently reports PostgreSQL and all 48 reviewed dictionary entries ready.
 6. **Privacy:** no account in private local mode; minimal provider identity in cloud mode; no stored provider bearer tokens or email; export and two-step deletion; no analytics or background mailbox harvesting.
-7. **Release status:** 2.4.0 is live on Railway with managed PostgreSQL at [ivritsheli-production.up.railway.app](https://ivritsheli-production.up.railway.app/?lang=en) from immutable commit `03bf84b9268ff8be528c0fab3c670f9652ee23b0`. The English entry, read-only guided tour, identity-only Google sign-in, onboarding/session persistence across reload and logout are verified. Tag/GitHub Release `v2.2.0` remain the latest published release artifacts.
-8. **Next gate:** publish the `v2.4.0` release artifacts, then verify re-login after logout, the full mobile/RTL/reduced-motion/accessibility matrix and the remaining credential-dependent operator checks without expanding the identity-only Google scope.
+7. **Release status:** 2.4.0 is live on Railway with managed PostgreSQL at [ivritsheli-production.up.railway.app](https://ivritsheli-production.up.railway.app/?lang=en) from release implementation commit `03bf84b9268ff8be528c0fab3c670f9652ee23b0`. The English entry, read-only guided tour, identity-only Google sign-in, onboarding/session persistence across reload and logout are verified. Tag and GitHub Release `v2.4.0` are published.
+8. **Next gate:** verify re-login after logout, the full mobile/RTL/reduced-motion/accessibility matrix and the remaining credential-dependent operator checks without expanding the identity-only Google scope.
 
 ## Suggested live-demo safety plan
 
@@ -55,7 +55,7 @@ Show the repository map and state: React + TypeScript, Python + FastAPI, private
 - Build the frontend before presentation.
 - Run `--doctor` immediately before the demo.
 - Run `docker compose up --build --wait` before demonstrating the authenticated PostgreSQL path.
-- Present the Railway 2.4.0 English entry as the current verified production build and keep immutable commit `03bf84b9268ff8be528c0fab3c670f9652ee23b0` available as evidence.
+- Present the Railway 2.4.0 English entry as the current verified production build and keep release implementation commit `03bf84b9268ff8be528c0fab3c670f9652ee23b0` available as evidence.
 - Present Google strictly as identity-only sign-in. The live authorization, reload persistence and logout passed; re-login after logout, GitHub live authorization and Gmail/Drive/Calendar access remain unclaimed.
 - Use the current 2.1.x screenshots only as clearly labeled fallback evidence; do not present them as refreshed 2.4 visual proof.
 - Keep a screenshot of the dashboard as a fallback.

@@ -31,11 +31,11 @@
 | Surface | Verified state |
 |---|---|
 | Source and deployed application | `2.4.0` |
-| Railway production commit | `03bf84b9268ff8be528c0fab3c670f9652ee23b0` |
+| Release implementation commit | `03bf84b9268ff8be528c0fab3c670f9652ee23b0` |
 | Production storage/readiness | PostgreSQL · ready · 48 reviewed dictionary entries |
 | Deployment verification | Successful on 2026-07-21 |
 | Release verification | 151 unique backend tests + 62 frontend tests = 213 passed; main CI and CodeQL passed |
-| GitHub publication | `v2.2.0` remains the latest published tag and GitHub Release; no `v2.4.0` release is claimed yet |
+| GitHub publication | [`v2.4.0`](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.4.0) is the published tag and GitHub Release |
 | Live account evidence | Identity-only Google sign-in, onboarding state and the authenticated session persisted across reload; logout returned to the English landing page and remained signed out after reload |
 | Live judge-path evidence | The English entry link and four-stop read-only guided tour passed production browser checks |
 | Remaining boundary | Re-login after logout, live GitHub authorization, live OpenAI/Workspace calls, two-real-user production isolation and backup restoration remain unclaimed |
@@ -77,7 +77,7 @@ Version 2.4 adds a four-stop guided tour to the synthetic read-only demo. It nav
 
 The tour is built from the existing icon, motion, responsive, RTL and reduced-motion systems rather than a new visual dependency. On the security boundary, bearer/session/OAuth-state digests move to keyed BLAKE2b-256 while retaining their 64-character hexadecimal storage contract. Deployment intentionally rotates active session hashes. Google remains identity-only; 2.4 adds no Gmail, Drive or Calendar scope, provider, schema or dependency.
 
-These Contest Edition changes are now deployed on Railway as version `2.4.0` from immutable commit `03bf84b9268ff8be528c0fab3c670f9652ee23b0`.
+These Contest Edition changes were implemented at commit `03bf84b9268ff8be528c0fab3c670f9652ee23b0`, are deployed on Railway as version `2.4.0`, and are published in tag and GitHub Release [`v2.4.0`](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.4.0).
 
 ## Foundation inherited from the unreleased 2.3.0 candidate 🌤️
 
@@ -432,7 +432,7 @@ IvritSheli/
 
 ## Project status
 
-Version 2.4.0 is live at [ivritsheli-production.up.railway.app](https://ivritsheli-production.up.railway.app/?lang=en) from immutable commit `03bf84b9268ff8be528c0fab3c670f9652ee23b0`, deployed successfully on 2026-07-21. PostgreSQL readiness and all 48 reviewed dictionary entries passed. The English entry, read-only guided tour, identity-only Google sign-in, onboarding/session persistence across reload, logout and signed-out persistence after reload were verified in a normal browser. Git tag and GitHub Release `v2.2.0` remain the latest published release artifacts until `v2.4.0` is published. Re-login after logout, live GitHub authorization, live OpenAI or Google Workspace connector calls, two-real-user production isolation, refreshed 2.4 mobile/RTL/reduced-motion screenshots and backup restoration remain separate unclaimed operator checks.
+Version 2.4.0 is live at [ivritsheli-production.up.railway.app](https://ivritsheli-production.up.railway.app/?lang=en) and published as Git tag and GitHub Release [`v2.4.0`](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.4.0). The release implementation at `03bf84b9268ff8be528c0fab3c670f9652ee23b0` deployed successfully on 2026-07-21; later release-evidence and documentation commits do not change the application version. PostgreSQL readiness and all 48 reviewed dictionary entries passed. The English entry, read-only guided tour, identity-only Google sign-in, onboarding/session persistence across reload, logout and signed-out persistence after reload were verified in a normal browser. Re-login after logout, live GitHub authorization, live OpenAI or Google Workspace connector calls, two-real-user production isolation, refreshed 2.4 mobile/RTL/reduced-motion screenshots and backup restoration remain separate unclaimed operator checks.
 
 Passing tests and healthy local production-image checks materially reduce risk but do not prove that software is defect-free. Operational limits, credential-dependent checks and restore requirements are documented explicitly rather than hidden behind a perfect-score claim.
 
