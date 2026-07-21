@@ -2,7 +2,7 @@
 # Purpose: Pin the dependency set used by Ivrit Sheli 2.4.0 cloud and local modes.
 # Author: Kevin "Lirioth" Cusnir
 # Date: 2026-07-15 | TZ: Asia/Jerusalem
-fastapi==0.139.0
+fastapi==0.139.2
 uvicorn[standard]==0.51.0
 pydantic==2.13.4
 requests==2.34.2
