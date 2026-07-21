@@ -6,6 +6,8 @@
 
 Double-click `START_IVRIT_SHELI.bat` in the main project folder. The first launch installs the required local dependencies, builds the interface, creates your private SQLite profile, adds the starter phrases and demo dictionary, and opens the app automatically. By default, private learning data is stored in `%LOCALAPPDATA%\IvritSheli\data` so the live SQLite database is not synchronized by OneDrive.
 
+The launcher explicitly selects private local mode. It ignores any PostgreSQL or OAuth deployment credentials in `.env` for that process, so a developer's Railway configuration cannot accidentally turn the desktop launch into a cloud server.
+
 Keep the launcher window open while learning. Press `Ctrl+C` in that window to stop the app; your local progress is preserved. The default address is `http://127.0.0.1:8000`.
 
 The same launcher can be started from PowerShell:
@@ -16,9 +18,9 @@ The same launcher can be started from PowerShell:
 
 ### First Steps onboarding
 
-On a new profile, the app asks four short questions in plain language: interface language, current Hebrew level, main learning goal and daily practice time. You can preview the available voice style and record a guided-mode preference. Onboarding choices save in the learner profile. In the current candidate, **Do later** and the exact lesson checkpoint are device-local, and the guided-mode switch does not yet change the application shell.
+On a new profile, the app asks four short questions in plain language: interface language, current Hebrew level, main learning goal and daily practice time. You can preview the available voice style and record a guided-mode preference. Onboarding choices, **Do later**, the exact lesson checkpoint and completion save in the learner profile. The guided-mode switch is stored but does not yet change the application shell.
 
-The first lesson introduces five useful words: `שלום`, `תודה`, `בבקשה`, `כן` and `לא`. Each card combines a code-native visual cue, niqqud, romanization, English/Spanish meaning, a practical example and pronunciation. Saved words and submitted practice use the active learner profile; navigation checkpoint state remains on the current device until account-backed lesson continuity is implemented.
+The first lesson introduces five useful words: `שלום`, `תודה`, `בבקשה`, `כן` and `לא`. Each card combines a code-native visual cue, niqqud, romanization, English/Spanish meaning, a practical example and pronunciation. Saved words, submitted practice and navigation checkpoint use the active learner profile, so an authenticated learner can recover progress after signing in again.
 
 ### Development mode
 

@@ -1,5 +1,5 @@
 // Module: authentication gateway
-// Purpose: Present secure GitHub authentication and an honest seeded read-only product tour.
+// Purpose: Present secure provider authentication and an honest seeded read-only product tour.
 // Author: Kevin "Lirioth" Cusnir
 // Date: 2026-07-16 | TZ: Asia/Jerusalem
 // Notes: Navigation uses a normal link so OAuth remains keyboard- and browser-friendly.

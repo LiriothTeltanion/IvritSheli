@@ -26,6 +26,8 @@ REQUIRED_FILES = (
     "portfolio/project.json",
     "PACKAGE_MANIFEST.md",
     "TEST_REPORT.md",
+    "PRIVACY.md",
+    "TERMS.md",
     "CITATION.cff",
     "LICENSE",
     "THIRD_PARTY_NOTICES.md",
@@ -40,6 +42,7 @@ REQUIRED_FILES = (
     "backend/pyproject.toml",
     "backend/alembic.ini",
     "backend/migrations/versions/20260716_0001_cloud_identity_and_state.py",
+    "backend/migrations/versions/20260718_0002_google_identity_and_oauth_provider.py",
     "backend/src/ivrit_sheli/api.py",
     "backend/src/ivrit_sheli/auth.py",
     "backend/src/ivrit_sheli/cloud_repository.py",
@@ -52,9 +55,13 @@ REQUIRED_FILES = (
     "frontend/package-lock.json",
     "frontend/src/App.tsx",
     "frontend/src/components/AuthGate.tsx",
+    "frontend/src/components/BeginnerOnboarding.tsx",
+    "frontend/src/components/FirstStepsLesson.tsx",
+    "frontend/src/components/DictionaryVisualCue.tsx",
     "frontend/src/components/MicWordAnalyzer.tsx",
     "frontend/src/components/RegistryPanel.tsx",
     "frontend/src/voicePreference.ts",
+    "frontend/src/starterWords.ts",
     "frontend/public/manifest.webmanifest",
     "docs/ULTIMATE_BUILD_SPEC.md",
     "docs/ARCHITECTURE.md",
@@ -69,6 +76,7 @@ REQUIRED_FILES = (
     "docs/DEPLOYMENT.md",
     "docs/USER_GUIDE.md",
     "docs/DEMO_DAY.md",
+    "docs/BUILD_WEEK.md",
     "assets/brand/logo.svg",
     "assets/brand/app-icon.svg",
     "assets/brand/kc-lt-signature.svg",
@@ -186,12 +194,12 @@ def verify_portfolio_manifest() -> list[str]:
         return failures
 
     expected_scalars = {
-        "schema": "ivrit-sheli-portfolio-project-v1",
+        "schema": "ivrit-sheli-portfolio-project-v2",
         "slug": "ivrit-sheli",
         "name": "Ivrit Sheli — העברית שלי",
-        "source_version": "2.2.0",
+        "source_version": "2.3.0",
         "live_version": "2.2.0",
-        "status": "live",
+        "status": "release-candidate",
         "default_branch": "main",
         "repository_url": "https://github.com/LiriothTeltanion/IvritSheli",
         "demo_url": "https://ivritsheli-production.up.railway.app",
@@ -222,6 +230,7 @@ def verify_portfolio_manifest() -> list[str]:
     tests, nested_failures = _verify_exact_keys(
         top_level.get("tests"),
         {
+            "version",
             "backend_unique",
             "frontend",
             "frontend_files",
@@ -235,21 +244,23 @@ def verify_portfolio_manifest() -> list[str]:
     )
     failures.extend(nested_failures)
     expected_tests = {
-        "backend_unique": 139,
-        "frontend": 48,
-        "frontend_files": 12,
-        "total_unique": 187,
-        "ordinary_backend_passed": 138,
+        "version": "2.3.0",
+        "backend_unique": 150,
+        "frontend": 58,
+        "frontend_files": 15,
+        "total_unique": 208,
+        "ordinary_backend_passed": 149,
         "ordinary_backend_skipped": 1,
         "postgresql_gate_passed": 3,
         "evidence": "TEST_REPORT.md",
     }
     if tests is not None and tests != expected_tests:
-        failures.append("portfolio/project.json: tests must match the documented 139 + 48 = 187 baseline")
+        failures.append("portfolio/project.json: tests must match the documented 150 + 58 = 208 verified candidate baseline")
 
     deployment, nested_failures = _verify_exact_keys(
         top_level.get("deployment"),
         {
+            "version",
             "provider",
             "runtime",
             "database",
@@ -266,12 +277,13 @@ def verify_portfolio_manifest() -> list[str]:
     )
     failures.extend(nested_failures)
     expected_deployment = {
+        "version": "2.2.0",
         "provider": "Railway",
         "runtime": "Docker",
         "database": "PostgreSQL 17",
-        "status": "verified",
-        "production_commit": "c8c928661bdcf179ed1d9df88b9f2e4d730ffea3",
-        "verified_on": "2026-07-18",
+        "status": "verified-previous-release",
+        "production_commit": "66d68a3c44ac2500fb400eef88d5f77da0c1c1e1",
+        "verified_on": "2026-07-21",
         "environment": "production",
         "health_live": True,
         "health_ready": True,
@@ -296,12 +308,12 @@ def verify_portfolio_manifest() -> list[str]:
     expected_publication = {
         "latest_git_tag": "v2.2.0",
         "latest_github_release": "v2.2.0",
-        "source_version_tagged": True,
-        "source_version_github_release_published": True,
-        "release_state": "published-and-deployed",
+        "source_version_tagged": False,
+        "source_version_github_release_published": False,
+        "release_state": "2.3.0-candidate-with-2.2.0-live",
     }
     if publication is not None and publication != expected_publication:
-        failures.append("portfolio/project.json: publication must match the published v2.2.0 tag/release state")
+        failures.append("portfolio/project.json: publication must distinguish the 2.3 candidate from published v2.2.0")
 
     visual_proof, nested_failures = _verify_exact_keys(
         top_level.get("visual_proof"),
@@ -309,29 +321,30 @@ def verify_portfolio_manifest() -> list[str]:
             "state",
             "social_preview_version",
             "readme_screenshot_version",
-            "readme_screenshots_match_live_version",
-            "live_2_2_interactive_browser_qa",
+            "readme_screenshots_match_source_version",
+            "candidate_2_3_interactive_browser_qa",
         },
         "visual_proof",
     )
     failures.extend(nested_failures)
     expected_visual_proof = {
-        "state": "partial",
+        "state": "candidate-pending",
         "social_preview_version": "2.2.0",
         "readme_screenshot_version": "2.1.x",
-        "readme_screenshots_match_live_version": False,
-        "live_2_2_interactive_browser_qa": "pending",
+        "readme_screenshots_match_source_version": False,
+        "candidate_2_3_interactive_browser_qa": "pending",
     }
     if visual_proof is not None and visual_proof != expected_visual_proof:
-        failures.append("portfolio/project.json: visual proof must remain partial until 2.2 QA/assets exist")
+        failures.append("portfolio/project.json: visual proof must remain pending until 2.3 QA/assets exist")
 
     oauth, nested_failures = _verify_exact_keys(
         top_level.get("oauth"),
         {
-            "provider",
-            "consent_handoff_verified",
-            "cancellation_verified",
-            "final_live_code_exchange_verified",
+            "providers",
+            "source_contract_tested",
+            "google_live_configured",
+            "google_live_sign_in_verified",
+            "github_live_successful_session_verified",
             "authenticated_session_refresh_verified",
             "logout_verified",
             "boundary",
@@ -340,23 +353,32 @@ def verify_portfolio_manifest() -> list[str]:
     )
     failures.extend(nested_failures)
     expected_oauth = {
-        "provider": "GitHub",
-        "consent_handoff_verified": True,
-        "cancellation_verified": True,
-        "final_live_code_exchange_verified": False,
+        "providers": ["Google", "GitHub"],
+        "source_contract_tested": True,
+        "google_live_configured": True,
+        "google_live_sign_in_verified": False,
+        "github_live_successful_session_verified": False,
         "authenticated_session_refresh_verified": False,
         "logout_verified": False,
         "boundary": (
-            "Consent handoff and cancellation are verified; the final live authorization-code "
-            "exchange, authenticated refresh persistence and logout are not verified end to end."
+            "Provider-bound Google and GitHub flows are source-tested and the Google production "
+            "client is configured; successful live Google sign-in and end-to-end 2.3 sessions "
+            "are not yet verified."
         ),
     }
     if oauth is not None and oauth != expected_oauth:
-        failures.append("portfolio/project.json: OAuth must retain the unverified end-to-end boundary")
+        failures.append("portfolio/project.json: OAuth must retain the unverified 2.3 live boundary")
 
     privacy, nested_failures = _verify_exact_keys(
         top_level.get("privacy"),
-        {"local_first", "public_demo_data", "public_demo_mutations", "contains_secrets"},
+        {
+            "local_first",
+            "public_demo_data",
+            "public_demo_mutations",
+            "self_service_export_in_source",
+            "self_service_deletion_in_source",
+            "contains_secrets",
+        },
         "privacy",
     )
     failures.extend(nested_failures)
@@ -364,6 +386,8 @@ def verify_portfolio_manifest() -> list[str]:
         "local_first": True,
         "public_demo_data": "synthetic",
         "public_demo_mutations": "server-blocked",
+        "self_service_export_in_source": True,
+        "self_service_deletion_in_source": True,
         "contains_secrets": False,
     }
     if privacy is not None and privacy != expected_privacy:
@@ -376,32 +400,56 @@ def verify_release_truth_drift() -> list[str]:
     """Keep human-readable release surfaces aligned with the public manifest."""
     expected_fragments = {
         "README.md": (
-            "Open the verified live Ivrit Sheli 2.2.0 demo",
-            "c8c928661bdcf179ed1d9df88b9f2e4d730ffea3",
-            "Git tag and GitHub Release `v2.2.0` are published",
-            "139 unique backend tests + 48 frontend tests = 187",
+            "Open the current verified production demo (2.2.0)",
+            "66d68a3c44ac2500fb400eef88d5f77da0c1c1e1",
+            "Source candidate | `2.3.0`",
+            "150 unique backend tests + 58 frontend tests = 208 passed",
+            "no `v2.3.0` release is claimed yet",
         ),
         "TEST_REPORT.md": (
             "Current live release | `2.2.0` / production / PostgreSQL",
-            "c8c928661bdcf179ed1d9df88b9f2e4d730ffea3",
+            "66d68a3c44ac2500fb400eef88d5f77da0c1c1e1",
             "Latest Git tag / GitHub Release | `v2.2.0` / `v2.2.0`",
+            "Live 2.3 deployment | Not yet deployed",
+            "208 unique passing automated tests",
         ),
         "CHANGELOG.md": (
-            "production commit `c8c928661bdcf179ed1d9df88b9f2e4d730ffea3`",
-            "Git tag and GitHub Release `v2.2.0` are published",
+            "Version metadata advances from `2.2.0` to `2.3.0`",
+            "48-concept reviewed A0/A1 starter dictionary",
         ),
         "PACKAGE_MANIFEST.md": (
-            "Live source version: `2.2.0`",
-            "Latest Git tag and GitHub Release: `v2.2.0`",
-            "187 passed",
+            "Source candidate version: `2.3.0`",
+            "Current live source version: `2.2.0`",
+            "Latest published Git tag and GitHub Release: `v2.2.0`",
+            "Total unique automated tests: 208 passed",
         ),
         "docs/DEPLOYMENT.md": (
-            "Current production verification record — 2.2.0 — 2026-07-18",
-            "c8c928661bdcf179ed1d9df88b9f2e4d730ffea3",
+            "Current production verification record — 2.2.0 — 2026-07-21",
+            "66d68a3c44ac2500fb400eef88d5f77da0c1c1e1",
+            "2.3 candidate deployment checklist",
         ),
         "docs/DEMO_DAY.md": (
-            "187 unique automated tests",
-            "Ivrit Sheli 2.2.0 is live on Railway",
+            "208 passing automated tests",
+            "2.3.0 is a source candidate",
+            "2.2.0 remains the verified Railway release",
+        ),
+        "docs/BUILD_WEEK.md": (
+            "Pre-existing foundation",
+            "Build Week v2.3 sprint",
+            "Codex and GPT-5.6",
+            "208 unique passing automated tests",
+        ),
+        "PRIVACY.md": (
+            "Google: provider user ID, display name, and profile picture",
+            "delete your hosted account and its learner state",
+        ),
+        "TERMS.md": (
+            "Google or GitHub account used to sign in",
+            "actively developed public pilot",
+        ),
+        "CITATION.cff": (
+            "version: 2.3.0",
+            "currently a source candidate",
         ),
     }
     failures: list[str] = []
@@ -414,6 +462,62 @@ def verify_release_truth_drift() -> list[str]:
         for fragment in fragments:
             if fragment not in text:
                 failures.append(f"{relative}: missing release-truth fragment {fragment!r}")
+    return failures
+
+
+def verify_source_version_surfaces() -> list[str]:
+    """Keep executable and human-facing candidate versions synchronized."""
+    expected_version = "2.3.0"
+    failures: list[str] = []
+
+    try:
+        frontend_package = json.loads(
+            (ROOT / "frontend" / "package.json").read_text(encoding="utf-8")
+        )
+        frontend_lock = json.loads(
+            (ROOT / "frontend" / "package-lock.json").read_text(encoding="utf-8")
+        )
+        backend_package = tomllib.loads(
+            (ROOT / "backend" / "pyproject.toml").read_text(encoding="utf-8")
+        )
+    except (OSError, json.JSONDecodeError, tomllib.TOMLDecodeError) as error:
+        return [f"candidate version metadata could not be parsed: {error}"]
+
+    structured_versions = {
+        "frontend/package.json": frontend_package.get("version"),
+        "frontend/package-lock.json": frontend_lock.get("version"),
+        "frontend/package-lock.json packages['']": (
+            frontend_lock.get("packages", {}).get("", {}).get("version")
+            if isinstance(frontend_lock.get("packages"), dict)
+            else None
+        ),
+        "backend/pyproject.toml": backend_package.get("project", {}).get("version"),
+    }
+    for location, actual in structured_versions.items():
+        if actual != expected_version:
+            failures.append(
+                f"{location}: expected candidate version {expected_version!r}, got {actual!r}"
+            )
+
+    expected_fragments = {
+        "backend/src/ivrit_sheli/__init__.py": '__version__ = "2.3.0"',
+        "frontend/index.html": "Ivrit Sheli 2.3",
+        "frontend/public/sw.js": "ivrit-sheli-shell-v2.3.0",
+        "frontend/src/App.tsx": "v2.3.0",
+        "frontend/src/components/AuthGate.tsx": "v2.3.0",
+        "frontend/src/components/SettingsPanel.tsx": "app_version: '2.3.0'",
+        ".github/ISSUE_TEMPLATE/bug_report.yml": "placeholder: 2.3.0",
+        "CITATION.cff": "version: 2.3.0",
+    }
+    for relative, fragment in expected_fragments.items():
+        try:
+            text = (ROOT / relative).read_text(encoding="utf-8")
+        except OSError as error:
+            failures.append(f"{relative}: {error}")
+            continue
+        if fragment not in text:
+            failures.append(f"{relative}: missing candidate version fragment {fragment!r}")
+
     return failures
 
 
@@ -560,6 +664,7 @@ def main() -> int:
         "invalid_json": verify_json_files(),
         "invalid_portfolio_manifest": verify_portfolio_manifest(),
         "release_truth_drift": verify_release_truth_drift(),
+        "source_version_drift": verify_source_version_surfaces(),
         "invalid_svg": verify_svg_assets(),
         "invalid_railway_config": verify_railway_config(),
         "invalid_docker_cache_mounts": verify_docker_cache_mounts(),

@@ -1,9 +1,8 @@
 cff-version: 1.2.0
-message: "If Ivrit Sheli supports your learning or research, please cite this software release."
+message: "Ivrit Sheli 2.3.0 is currently a source candidate; cite the published tag after the release is verified."
 type: software
 title: "Ivrit Sheli — העברית שלי"
-version: 2.2.0
-date-released: 2026-07-16
+version: 2.3.0
 authors:
   - given-names: Kevin
     family-names: Cusnir

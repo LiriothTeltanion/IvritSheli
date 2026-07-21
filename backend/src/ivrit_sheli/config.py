@@ -16,7 +16,7 @@ from urllib.parse import urlparse
 
 from ivrit_sheli.cloud_store import RUNTIME_DATABASE_ROLE
 
-SUPPORTED_APP_ENVS = frozenset({"development", "test", "production"})
+SUPPORTED_APP_ENVS = frozenset({"development", "local", "test", "production"})
 
 
 def parse_bool(value: str | bool | None, default: bool = False) -> bool:
@@ -231,6 +231,26 @@ class Settings:
         values: dict[str, str] = {**file_values, **os.environ}
         if overrides:
             values.update(overrides)
+
+        # The one-click launcher must stay private and writable even when a
+        # developer's .env contains production Railway credentials. This
+        # explicit process-local marker takes precedence over those values;
+        # deployment entrypoints never set it.
+        if parse_bool(values.get("IVRIT_LOCAL_ONLY"), False):
+            values.update(
+                {
+                    "APP_ENV": "local",
+                    "DATABASE_URL": "",
+                    "AUTH_REQUIRED": "false",
+                    "SESSION_COOKIE_SECURE": "false",
+                    "TRUSTED_PROXY_MODE": "direct",
+                    "RAILWAY_ENVIRONMENT_ID": "",
+                    "GITHUB_CLIENT_ID": "",
+                    "GITHUB_CLIENT_SECRET": "",
+                    "GOOGLE_AUTH_CLIENT_ID": "",
+                    "GOOGLE_AUTH_CLIENT_SECRET": "",
+                }
+            )
 
         def value(name: str, default: str) -> str:
             return str(values.get(name, default))

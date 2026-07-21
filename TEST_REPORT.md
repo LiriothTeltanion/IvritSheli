@@ -1,52 +1,36 @@
-# Ivrit Sheli Ultimate 2.2.0 — Verification Report
+# Ivrit Sheli 2.3.0 — Candidate Verification Report
 
-**Verification date:** 2026-07-16
-**Production truth refreshed:** 2026-07-18
-**Time zone:** Asia/Jerusalem
-**Released source:** 2.2.0 merged to `main` at `c8c928661bdcf179ed1d9df88b9f2e4d730ffea3`
+- **Candidate verification date:** 2026-07-21
+- **Time zone:** Asia/Jerusalem
+- **Source candidate:** `2.3.0` on `codex/ivrit-sheli-v2.3.0`
+- **Current verified production:** `2.2.0` at `66d68a3c44ac2500fb400eef88d5f77da0c1c1e1`
 
 ## Result
 
-The 2.2.0 local-first application, real PostgreSQL boundary and production-shaped image pass the reproducible gates below. The public Railway service independently reports the same `2.2.0` source version and merged commit with PostgreSQL readiness, and Git tag/GitHub Release `v2.2.0` now match the deployed source version.
+The 2.3 source candidate passes the ordinary backend, dedicated PostgreSQL, frontend and production-image gates documented below. It is not yet a production release: CI/CodeQL, merge, Railway migration/deployment and live browser checks remain release gates. The public Railway service and latest GitHub Release therefore remain verified at 2.2.0.
 
-The 2026-07-18 release-truth pass reran Ruff, strict MyPy, the ordinary backend suite (`138 passed, 1 skipped`), the disposable PostgreSQL 17 gate (`3 passed`), frontend type-check/tests/build (`48 passed`), diagnostics, Python compilation, dependency audits, Compose parsing and package verification. The unique count remains 139 backend + 48 frontend = 187; the shared PostgreSQL tests are not counted twice.
-
-| Verification area | Result |
+| Verification area | Candidate result |
 |---|---:|
-| Unique backend automated tests | **139 passed** |
-| Frontend automated tests | **48 passed / 12 files** |
-| Total unique automated tests | **187 passed** |
+| Unique backend automated tests | **150 passed** |
+| Ordinary backend run | **149 passed / 1 PostgreSQL-gated skip** |
+| Frontend automated tests | **58 passed / 15 files** |
+| Total unique automated tests | **208 passed** |
 | Ruff | Passed |
 | MyPy strict | Passed across 24 source files |
-| Python compilation | Passed |
 | TypeScript project check | Passed |
 | Vite production build | Passed |
-| Offline doctor | Passed, release `2.2.0` |
-| PostgreSQL 17 migration/isolation gate | 3 passed |
+| Dedicated PostgreSQL 17 migration/isolation gate | 3 passed |
+| Package verifier | Passed |
 | Production-image Compose smoke | Passed |
-| Python dependency audit | 0 known vulnerabilities |
-| npm production dependency audit | 0 known vulnerabilities |
-| Package verifier | 58 required files plus strict portfolio/release drift checks passed |
+| CI / CodeQL | Pending branch publication |
+| Live 2.3 deployment | Not yet deployed |
 | Current live release | `2.2.0` / production / PostgreSQL |
-| Production commit | `c8c928661bdcf179ed1d9df88b9f2e4d730ffea3` |
+| Current production commit | `66d68a3c44ac2500fb400eef88d5f77da0c1c1e1` |
 | Latest Git tag / GitHub Release | `v2.2.0` / `v2.2.0` |
 
 ### Counting the backend total
 
-The ordinary suite reports `138 passed, 1 skipped`. The skip is the credential-gated real PostgreSQL case. The dedicated PostgreSQL command runs three tests: two are already counted in the ordinary suite and the real boundary case replaces the skip. The unique backend total is therefore 139, without double-counting the two shared tests.
-
-## Verified environment
-
-- Local Python: 3.10.11; production image: Python 3.13 slim-bookworm.
-- Local Node.js/npm: 26.3.1 / 11.16.0; image builder: Node.js 22.
-- Docker / Compose: 29.6.1 / 5.1.4.
-- PostgreSQL: 17 Alpine.
-- React: 19.2.7.
-- TypeScript: 7.0.2.
-- Vite: 8.1.4.
-- Vitest: 4.1.10.
-- FastAPI: 0.139.0.
-- Pydantic: 2.13.4.
+The ordinary 2.3 suite reports `149 passed, 1 skipped`; the skipped case requires administrator and restricted-runtime PostgreSQL URLs. The dedicated command reports `3 passed`. Two of those tests also run in the ordinary suite, while the credential-gated test replaces its skip, producing 150 unique backend passes rather than 152. Together with 58 frontend tests, the verified candidate baseline is 208 unique passing automated tests.
 
 ## Commands and evidence
 
@@ -55,32 +39,30 @@ The ordinary suite reports `138 passed, 1 skipped`. The skip is the credential-g
 ```powershell
 .\.venv\Scripts\ruff.exe check backend\src backend\tests scripts\verify_package.py scripts\verify_container_logs.py
 .\.venv\Scripts\mypy.exe --config-file backend\pyproject.toml backend\src
-$env:PYTHONPATH='backend/src'
 .\.venv\Scripts\pytest.exe backend\tests -q
-.\.venv\Scripts\python.exe -m compileall -q backend\src scripts\verify_package.py scripts\verify_container_logs.py
 ```
 
-Result: Ruff passed; strict MyPy passed; compilation passed; `138 passed, 1 skipped`. The suite emitted one non-failing upstream Starlette TestClient/httpx deprecation warning.
+Result: Ruff passed; strict MyPy passed across 24 source files; `149 passed, 1 skipped`. The ordinary suite emitted one non-failing upstream Starlette TestClient/httpx deprecation warning.
 
-Coverage added for 2.2 includes:
+Candidate coverage includes:
 
-- Configurable server-mapped voice profiles and deterministic device preference.
-- Microphone permission, double-start, late-permission, error and timeout lifecycle cleanup.
-- One-Hebrew-word validation, transcript provenance and demo-safe local analysis.
-- Full and fallback word-insight rendering contracts.
-- Atomic dictionary links, prevention of new duplicates, homograph separation, reserved provenance labels and read-only GET behavior.
-- Context-aware registry status, mastery, activity and pagination through 501 items.
-- Cloud tenant isolation and pagination forwarding.
+- Provider-bound Google and GitHub OAuth state, S256 PKCE and provider-specific callbacks.
+- Minimal identity persistence with no Google email or provider bearer tokens.
+- Account deletion cascade, CSRF enforcement and a downgrade guard when Google identities exist.
+- Atomic local onboarding fields and cloud-profile persistence.
+- Exactly 48 curated A0/A1 visual concepts with stable multilingual metadata and upgrade compatibility.
+- Search convergence across Hebrew, romanization, English and Spanish.
+- Existing 2.2 voice, microphone, registry, homograph and tenant-isolation regressions.
 
-### Real PostgreSQL 17 gate
+### Dedicated PostgreSQL 17 gate
 
-A disposable PostgreSQL 17 container exposed separate administrator and restricted runtime DSNs, then ran:
+The final candidate must be run against disposable PostgreSQL 17 administrator and restricted-runtime DSNs with:
 
 ```powershell
 .\.venv\Scripts\pytest.exe backend\tests\test_postgres_integration.py -q
 ```
 
-Result: `3 passed`. This proves idempotent Alembic provisioning, direct restricted-role login, removal of inherited/escalation roles, session/OAuth cleanup, snapshot limits, tenant isolation, forced RLS denial, transaction recovery and exact migration-head readiness.
+Result: `3 passed` in an isolated PostgreSQL 17 container with separate administrator and restricted-runtime DSNs. The gate covers Alembic upgrade/provisioning, direct restricted-role login, forced RLS and tenant isolation, account-deletion cascades, provider-bound state and the refusal to downgrade away Google identity data.
 
 ### Frontend
 
@@ -91,74 +73,51 @@ npm run test:run
 npm run build
 ```
 
-Result:
+Result: TypeScript passed; 15 test files and 58 tests passed; the Vite production build completed.
 
-```text
-12 test files passed
-48 tests passed
-JavaScript: 354.03 kB / 104.23 kB gzip
-CSS: 97.61 kB / 18.95 kB gzip
-```
+The frontend suite covers beginner onboarding, language selection, the five-word first lesson, guided progress, 48-concept visual dictionary rendering, Google/GitHub availability, microphone/voice behavior, export/account deletion, registry behavior, authentication/demo boundaries, RTL and API contracts.
 
-The frontend suite covers voice selection, audio lifecycle cleanup, cloud capability disabling, complete bilingual word facts, fallback labeling, screen-reader completion, dictionary playback cleanup, exact homograph navigation, stale-response protection, saved-vocabulary pagination, authentication/demo boundaries, review safety, RTL and API contracts.
-
-### Doctor, audits and package checks
+### Package checks
 
 ```powershell
-$env:PYTHONPATH='backend/src'
-.\.venv\Scripts\python.exe -m ivrit_sheli --doctor
 .\.venv\Scripts\python.exe scripts\verify_package.py
-.\.venv\Scripts\python.exe -m pip_audit -r backend\requirements.txt
-cd frontend; npm audit --omit=dev
-docker compose config --quiet
+git diff --check
 ```
 
-The doctor reported release 2.2.0 and passed learning database, 12-entry/12-sense demo dictionary, offline AI, pronunciation scoring, connector registry and dashboard checks. The package verifier passed 58 required files plus JSON/SVG parsing, the strict public portfolio manifest, cross-document release-truth drift, Railway types, portable Docker-cache policy, secret hygiene and README links. Both dependency audits reported zero known vulnerabilities on 2026-07-16; this is time-sensitive evidence, not a permanent guarantee.
+Result: the package verifier passes required-file, JSON, SVG, strict public portfolio manifest, source/live release-truth drift, Railway type, portable Docker-cache, secret-hygiene and README-link checks. `git diff --check` passes.
 
-`SHA256SUMS.txt` covers every packaged source file except itself using canonical Git-clean blob bytes after `.gitattributes` normalization. This avoids false cross-platform failures from a Windows CRLF working tree; verification must hash the temporary Git index blobs rather than platform-specific checkout bytes.
-
-### Production-shaped image
+### Production Compose/image smoke
 
 ```powershell
 docker compose up --build --wait
 ```
 
-The rebuilt stack passed PostgreSQL and application health checks. Verification covers `/health/live`, `/health/ready`, `/version`, UID 10001, absence of `MIGRATION_DATABASE_URL` from the runtime process, idempotent provisioning and structured-log secret scanning.
+Result: passed against the 2.3.0 production image. Readiness reported PostgreSQL true with 48 shared-cloud dictionary entries; the application ran as UID 10001, the migration DSN was absent from the application runtime, and OAuth rate limiting plus structured-log redaction checks passed.
 
 ## Current public Railway verification — 2.2.0
 
 - URL: https://ivritsheli-production.up.railway.app
-- Pull request #12 merged successfully at production commit `c8c928661bdcf179ed1d9df88b9f2e4d730ffea3`.
-- `/version`: release `2.2.0`, commit `c8c928661bdcf179ed1d9df88b9f2e4d730ffea3`, environment `production`, storage `postgresql`.
-- `/health/live`: HTTPS 200 with release `2.2.0` and the same immutable commit.
-- `/health/ready`: HTTPS 200; PostgreSQL and the shared-cloud dictionary are ready with 12 entries and 12 senses.
-- Git publication matches deployment: remote tag and GitHub Release `v2.2.0` are published.
-- GitHub OAuth consent handoff and cancellation have verified evidence; final live authorization-code exchange, authenticated refresh persistence and logout remain unclaimed.
+- Current production commit: `66d68a3c44ac2500fb400eef88d5f77da0c1c1e1`.
+- `/version`: release `2.2.0`, environment `production`, storage `postgresql`, refreshed directly on 2026-07-21.
+- `/health/ready`: HTTPS 200 with PostgreSQL and the shared-cloud dictionary ready at 12 entries and 12 senses on 2026-07-21.
+- Latest published tag and GitHub Release: `v2.2.0`.
+- These facts verify the previous release only; they do not verify any 2.3 UI, migration or OAuth behavior.
 
-The operational endpoints were refreshed directly on 2026-07-18. This proves deployed identity and readiness, not 2.2 desktop/mobile/RTL/reduced-motion interactive browser behavior; the current README screenshots remain explicitly labeled 2.1.x evidence.
+## Remaining 2.3 release gates
 
-### Historical Railway verification — 2.1.1
-
-- Pull request #11 merged and deployed at commit `95d02554d754928483ffc42d42a372b86c6fcb1b` on 2026-07-16.
-- Release identity, PostgreSQL readiness, seeded demo behavior and desktop/mobile/RTL browser smoke passed before the 2.2 deployment.
-
-## Remaining credential- and environment-dependent checks
-
-- Final GitHub authorization-code exchange, authenticated refresh persistence and logout.
-- Cross-user production isolation with two real GitHub identities.
-- Live OpenAI coaching, embeddings, speech-to-text and text-to-speech.
-- Live Google connector previews.
-- 2.2 desktop/mobile/RTL/reduced-motion interactive browser and 200% zoom QA.
-- Refreshed 2.2 README screenshots.
-- Provider cost ceilings, managed backup retention and a full restore drill.
-
-## Known 2.2 follow-up work
-
-- Produce a dry-run report and conservatively reconcile any pre-2.2 duplicate dictionary rows before adding a database uniqueness invariant.
-- Let the learner select a homograph entry or sense before optional AI enrichment; 2.2 enriches the first local match while displaying every local match.
-- Batch-hydrate and bound dictionary senses/forms for large Kaikki result sets instead of issuing per-entry detail queries.
-- Consolidate the older pronunciation-practice voice helpers onto the shared 2.2 voice-preference module.
+- Preserve existing learners' exact level and bypass first-run onboarding during migration; cover both local and legacy-cloud profiles.
+- Correct dark-theme contrast across onboarding, lesson, guided dashboard and dictionary visual surfaces, then verify the actual rendered colors.
+- Confirm the account-backed First Steps checkpoint and completion survive refresh, logout and a second sign-in. The current UI prevents Back from resubmitting completed words, but word/review/profile writes remain separate requests rather than one server-side idempotent transaction.
+- Give the persisted guided-mode switch real simplified/full-shell behavior or remove it until that behavior exists.
+- Push the branch, require CI and CodeQL, review the PR and merge intentionally.
+- Deploy the Alembic head and 2.3 image to Railway; confirm `/version`, `/health/live` and `/health/ready` against the resulting immutable commit.
+- Configure the Google OAuth Web client and exact HTTPS callback without exposing the client secret.
+- Verify successful Google sign-in, onboarding, saved-word/lesson persistence across refresh and sign-in, logout and session revocation in a normal browser.
+- Confirm GitHub remains a working secondary sign-in path.
+- Check desktop, 390 px mobile, Hebrew RTL, reduced motion, keyboard navigation and 200% zoom; refresh README screenshots only after those checks pass.
+- Exercise account export in production. Do not delete the owner's real account merely to prove deletion; use the real PostgreSQL automated boundary or a disposable test identity.
+- Review provider cost ceilings, managed backup retention and a full restore drill before describing the hosted pilot as durable.
 
 ## Reliability statement
 
-Passing tests and healthy images materially reduce risk but do not prove that software is defect-free. This report separates reproducible source evidence, current live-production evidence, publication state and operator-only checks.
+Passing tests materially reduce risk but do not prove defect-free software. This report deliberately separates source-candidate evidence, the previous live-production record and credential- or environment-dependent release gates.

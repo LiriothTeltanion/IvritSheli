@@ -168,6 +168,7 @@ describe('App cloud session flow', () => {
     expect(screen.getByRole('link', { name: /Continue with Google/i })).toHaveAttribute('href', '/api/v1/auth/google/start');
     expect(screen.getByRole('link', { name: /Continue with GitHub/i })).toHaveAttribute('href', '/api/v1/auth/github/start');
     expect(screen.getByRole('button', { name: 'Explore read-only demo' })).toBeEnabled();
+    expect(screen.getByText(/Your chosen provider handles authentication/i)).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'HE' }));
     expect(screen.getByRole('heading', { name: 'העברית שלך. ההתקדמות שלך. המקום שלך.' })).toBeInTheDocument();

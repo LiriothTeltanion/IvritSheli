@@ -118,7 +118,7 @@ The formatter recursively redacts credentials, cookies, authorization headers, O
 - Providers wrap external APIs and never leak provider-specific response shapes upward.
 - The frontend never receives provider, database or OAuth client secrets.
 - External AI and connector processing remains opt-in.
-- Beginner onboarding choices and the guided-mode preference are learner-profile state, so they follow the local database or locked tenant snapshot boundary. The current First Steps navigation checkpoint remains device-local; cross-device lesson continuity is not yet claimed.
+- Beginner onboarding choices, guided-mode preference, First Steps checkpoint and lesson completion are learner-profile state, so they follow the local database or locked tenant snapshot boundary. In authenticated PostgreSQL mode that continuity follows the learner account across sessions; each word save/review and checkpoint update remains a separate validated request rather than one server-side lesson transaction.
 
 ## Failure behavior
 

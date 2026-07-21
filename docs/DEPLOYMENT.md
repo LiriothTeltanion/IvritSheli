@@ -258,11 +258,11 @@ Verify against the public URL:
 
 Version `2.3.0` is not production-verified until every applicable item above passes against the immutable deployed commit. Before promotion, also confirm the Alembic head is `20260718_0002`, the 48-concept dictionary readiness check passes without changing existing IDs, `auth_providers` exposes only configured methods, and the privacy/terms URLs resolve publicly. Publish tag and GitHub Release `v2.3.0` only after those checks succeed.
 
-### Current production verification record — 2.2.0 — 2026-07-18
+### Current production verification record — 2.2.0 — 2026-07-21
 
 - URL: https://ivritsheli-production.up.railway.app
 - Runtime identity: release `2.2.0`, environment `production`, storage `postgresql`.
-- Production commit: `c8c928661bdcf179ed1d9df88b9f2e4d730ffea3` from merged pull request #12.
+- Production commit: `66d68a3c44ac2500fb400eef88d5f77da0c1c1e1` from merged pull request #14.
 - `/health/live`: HTTPS `200` with version `2.2.0` and the same immutable commit.
 - `/health/ready`: HTTPS `200`; the 12-entry/12-sense shared-cloud dictionary and PostgreSQL readiness passed.
 - Publication state: Git tag and GitHub Release `v2.2.0` are published and match the deployed source version.

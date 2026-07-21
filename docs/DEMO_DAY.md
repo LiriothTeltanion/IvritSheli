@@ -4,7 +4,9 @@
 
 **Ivrit Sheli Ultimate is a private, adaptive Hebrew-learning system that converts the learner's real life into personalized vocabulary, speaking practice, and explainable recommendations.**
 
-## Two-minute video flow
+## Two-minute fallback video flow
+
+The final Build Week voiceover and claim boundaries are maintained in [`VIDEO_SCRIPT.md`](VIDEO_SCRIPT.md). The sequence below remains a shorter live-recording fallback.
 
 ### 0:00–0:15 — Problem
 
@@ -40,9 +42,9 @@ Show the repository map and state: React + TypeScript, Python + FastAPI, private
 2. **Solution:** capture → understand → practice → use → reflect.
 3. **Technical architecture:** React, FastAPI, private SQLite mode, Google/GitHub-authenticated PostgreSQL tenants, a separate lexicon database, deterministic offline AI, and optional cloud adapters.
 4. **Differentiator:** every Hebrew word is clickable and every recommendation is explainable.
-5. **Reliability:** request IDs, redacted JSON logs, diagnostics, real PostgreSQL isolation tests, and 202 unique automated tests (147 backend + 55 frontend) in the 2.3 candidate.
+5. **Reliability:** request IDs, redacted JSON logs, diagnostics, PostgreSQL isolation coverage, and 208 passing automated tests (150 unique backend + 58 frontend) in the 2.3 candidate. The ordinary backend suite reports 149 passed/1 skipped; the dedicated PostgreSQL gate passes the skipped boundary separately.
 6. **Privacy:** no account in private local mode; minimal provider identity in cloud mode; no stored provider bearer tokens or email; export and two-step deletion; no analytics or background mailbox harvesting.
-7. **Release status:** 2.3.0 is a source candidate, not a live claim. Version 2.2.0 remains the verified Railway release with managed PostgreSQL at [ivritsheli-production.up.railway.app](https://ivritsheli-production.up.railway.app) from commit `c8c928661bdcf179ed1d9df88b9f2e4d730ffea3`; tag/GitHub Release `v2.2.0` remain the latest published release.
+7. **Release status:** 2.3.0 is a source candidate, not a live claim. Version 2.2.0 remains the verified Railway release with managed PostgreSQL at [ivritsheli-production.up.railway.app](https://ivritsheli-production.up.railway.app) from commit `66d68a3c44ac2500fb400eef88d5f77da0c1c1e1`; tag/GitHub Release `v2.2.0` remain the latest published release.
 8. **Next gate:** finish production-image/CI checks, deploy the migration and candidate, then verify Google sign-in, onboarding, persistence, logout and accessibility in a normal browser before calling 2.3 live.
 
 ## Suggested live-demo safety plan
@@ -70,4 +72,4 @@ This project demonstrates:
 - Adaptive algorithms and recommendation scoring.
 - Bounded audio uploads, extension allow-listing, temporary-file cleanup, and privacy controls.
 - External API integration through testable adapters.
-- 202 unique automated tests in the 2.3 candidate, plus CI, Docker, documentation, and a separately verified Railway 2.2.0 production baseline with managed PostgreSQL.
+- 208 passing automated tests in the 2.3 candidate, plus CI, Docker, documentation, and a separately verified Railway 2.2.0 production baseline with managed PostgreSQL.
