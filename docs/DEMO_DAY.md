@@ -42,10 +42,10 @@ Show the repository map and state: React + TypeScript, Python + FastAPI, private
 2. **Solution:** capture → understand → practice → use → reflect.
 3. **Technical architecture:** React, FastAPI, private SQLite mode, Google/GitHub-authenticated PostgreSQL tenants, a separate lexicon database, deterministic offline AI, and optional cloud adapters.
 4. **Differentiator:** every Hebrew word is clickable and every recommendation is explainable.
-5. **Reliability:** request IDs, redacted JSON logs, diagnostics and PostgreSQL isolation coverage. The locally verified 2.4 candidate has 213 passing automated tests: 151 unique backend plus 62 frontend across 16 files. CI/CodeQL policy and live deployment remain separate gates.
+5. **Reliability:** request IDs, redacted JSON logs, diagnostics and PostgreSQL isolation coverage. The locally verified 2.4 source has 213 passing automated tests: 151 unique backend plus 62 frontend across 16 files. Railway production independently reports PostgreSQL and all 48 reviewed dictionary entries ready.
 6. **Privacy:** no account in private local mode; minimal provider identity in cloud mode; no stored provider bearer tokens or email; export and two-step deletion; no analytics or background mailbox harvesting.
-7. **Release status:** 2.4.0 is a source candidate, not a live claim. Version 2.2.0 remains the verified Railway release with managed PostgreSQL at [ivritsheli-production.up.railway.app](https://ivritsheli-production.up.railway.app) from commit `66d68a3c44ac2500fb400eef88d5f77da0c1c1e1`; tag/GitHub Release `v2.2.0` remain the latest published release.
-8. **Next gate:** finish updated tests and production-image/CI checks, deploy the candidate, then verify the language override, guided tour, Google sign-in, onboarding, persistence, logout and accessibility in a normal browser before calling 2.4 live.
+7. **Release status:** 2.4.0 is live on Railway with managed PostgreSQL at [ivritsheli-production.up.railway.app](https://ivritsheli-production.up.railway.app/?lang=en) from immutable commit `03bf84b9268ff8be528c0fab3c670f9652ee23b0`. The English entry, read-only guided tour, identity-only Google sign-in, onboarding/session persistence across reload and logout are verified. Tag/GitHub Release `v2.2.0` remain the latest published release artifacts.
+8. **Next gate:** publish the `v2.4.0` release artifacts, then verify re-login after logout, the full mobile/RTL/reduced-motion/accessibility matrix and the remaining credential-dependent operator checks without expanding the identity-only Google scope.
 
 ## Suggested live-demo safety plan
 
@@ -55,8 +55,8 @@ Show the repository map and state: React + TypeScript, Python + FastAPI, private
 - Build the frontend before presentation.
 - Run `--doctor` immediately before the demo.
 - Run `docker compose up --build --wait` before demonstrating the authenticated PostgreSQL path.
-- Present the Railway 2.2.0 demo as the current verified production release. Describe the 2.4 Contest Edition from a local candidate build unless the deployed `/version` already reports 2.4.0 and the live checklist has been completed.
-- Never present Google sign-in as live from source tests alone. If the production provider is not configured or the final code exchange/session check has not passed, say so directly.
+- Present the Railway 2.4.0 English entry as the current verified production build and keep immutable commit `03bf84b9268ff8be528c0fab3c670f9652ee23b0` available as evidence.
+- Present Google strictly as identity-only sign-in. The live authorization, reload persistence and logout passed; re-login after logout, GitHub live authorization and Gmail/Drive/Calendar access remain unclaimed.
 - Use the current 2.1.x screenshots only as clearly labeled fallback evidence; do not present them as refreshed 2.4 visual proof.
 - Keep a screenshot of the dashboard as a fallback.
 
@@ -72,4 +72,4 @@ This project demonstrates:
 - Adaptive algorithms and recommendation scoring.
 - Bounded audio uploads, extension allow-listing, temporary-file cleanup, and privacy controls.
 - External API integration through testable adapters.
-- A 213-test locally verified 2.4 candidate, passing production-shaped Docker/Compose smoke and package checks, plus a separately verified Railway 2.2.0 production baseline with managed PostgreSQL.
+- A 213-test locally verified 2.4 source, passing production-shaped Docker/Compose smoke and package checks, plus a separately verified Railway 2.4.0 deployment with managed PostgreSQL, 48 reviewed dictionary entries and a live beginner account journey.

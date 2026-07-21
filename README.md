@@ -15,7 +15,7 @@
   </p>
 
   <p>
-    <img src="assets/readme/badge-tests.svg" alt="213 automated tests passing in the locally verified 2.4 candidate" />
+    <img src="assets/readme/badge-tests.svg" alt="213 automated tests passing for the locally verified 2.4 source" />
     <img src="assets/readme/badge-private.svg" alt="Local-first private" />
     <img src="assets/readme/badge-trilingual.svg" alt="Hebrew English Spanish" />
     <img src="assets/readme/badge-pwa.svg" alt="Installable PWA" />
@@ -23,21 +23,23 @@
 </div>
 
 <p align="center">
-  <a href="https://ivritsheli-production.up.railway.app"><strong>🌐 Open the current verified production demo (2.2.0)</strong></a>
+  <a href="https://ivritsheli-production.up.railway.app/?lang=en"><strong>🌐 Open the verified Ivrit Sheli 2.4.0 Contest Edition</strong></a>
 </p>
 
 ### Source and live release truth
 
 | Surface | Verified state |
 |---|---|
-| Source candidate | `2.4.0` on `codex/ivrit-sheli-v2.3.0`; not yet tagged, released or deployed |
-| Current live application | `2.2.0` |
-| Railway production commit | `66d68a3c44ac2500fb400eef88d5f77da0c1c1e1` |
-| Production storage/readiness | PostgreSQL · ready |
-| Local candidate verification | 151 unique backend tests + 62 frontend tests = 213 passed |
+| Source and deployed application | `2.4.0` |
+| Railway production commit | `03bf84b9268ff8be528c0fab3c670f9652ee23b0` |
+| Production storage/readiness | PostgreSQL · ready · 48 reviewed dictionary entries |
+| Deployment verification | Successful on 2026-07-21 |
+| Release verification | 151 unique backend tests + 62 frontend tests = 213 passed; main CI and CodeQL passed |
 | GitHub publication | `v2.2.0` remains the latest published tag and GitHub Release; no `v2.4.0` release is claimed yet |
-| OAuth boundary | Google/GitHub provider flows are source-tested; live Google sign-in and successful end-to-end account sessions are not yet verified for 2.4 |
-| Visual proof | README screenshots remain verified 2.1.x evidence; refreshed 2.4 desktop/mobile/RTL/reduced-motion proof is pending |
+| Live account evidence | Identity-only Google sign-in, onboarding state and the authenticated session persisted across reload; logout returned to the English landing page and remained signed out after reload |
+| Live judge-path evidence | The English entry link and four-stop read-only guided tour passed production browser checks |
+| Remaining boundary | Re-login after logout, live GitHub authorization, live OpenAI/Workspace calls, two-real-user production isolation and backup restoration remain unclaimed |
+| Visual proof | The live English entry and tour are verified; README screenshots remain 2.1.x evidence and the full desktop/mobile/RTL/reduced-motion matrix is pending |
 
 The same conservative fields are available for portfolio/profile tooling in [`portfolio/project.json`](portfolio/project.json).
 
@@ -61,7 +63,7 @@ The same conservative fields are available for portfolio/profile tooling in [`po
 </table>
 </details>
 
-> **Screenshot boundary:** these verified images show the deployed 2.1.x interface. They do not prove the new 2.4 Contest Edition; refreshed desktop/mobile/RTL/reduced-motion screenshots and interactive browser QA remain release-candidate checks.
+> **Screenshot boundary:** these images show the deployed 2.1.x interface. The 2.4 English entry and read-only guided tour were verified directly in production, but refreshed desktop/mobile/RTL/reduced-motion README captures remain pending.
 
 ## Why this project exists 💙
 
@@ -75,7 +77,7 @@ Version 2.4 adds a four-stop guided tour to the synthetic read-only demo. It nav
 
 The tour is built from the existing icon, motion, responsive, RTL and reduced-motion systems rather than a new visual dependency. On the security boundary, bearer/session/OAuth-state digests move to keyed BLAKE2b-256 while retaining their 64-character hexadecimal storage contract. Deployment intentionally rotates active session hashes. Google remains identity-only; 2.4 adds no Gmail, Drive or Calendar scope, provider, schema or dependency.
 
-This section describes source candidate `2.4.0`, not the current Railway deployment. Production remains independently verified at 2.2.0 until the candidate is merged, deployed and checked live.
+These Contest Edition changes are now deployed on Railway as version `2.4.0` from immutable commit `03bf84b9268ff8be528c0fab3c670f9652ee23b0`.
 
 ## Foundation inherited from the unreleased 2.3.0 candidate 🌤️
 
@@ -83,7 +85,7 @@ Version 2.3 introduces a warm, light-first beginner journey built for learners w
 
 The bundled dictionary now contains exactly 48 reviewed A0/A1 visual concepts across greetings, family, home, food, transport, shopping and health. Each concept carries stable code-native visual metadata, accessible Hebrew/English/Spanish alternative text, niqqud, romanization, meanings and a practical trilingual example. Google identity-only sign-in is the beginner-facing option when configured, while GitHub remains available; both use provider-bound single-use state and S256 PKCE, and neither stores provider bearer tokens or email addresses. Settings adds learner-data export and a two-step authenticated account deletion action.
 
-The 2.3 candidate was never tagged or published; its completed beginner journey is incorporated into 2.4.0. Production remains verified at 2.2.0 until the newer candidate is merged, deployed and checked live.
+The 2.3 candidate was never tagged or published; its completed beginner journey is incorporated into the live 2.4.0 Contest Edition.
 
 ## What changed in 2.2.0 🎙️
 
@@ -345,7 +347,7 @@ Implemented achievements:
 
 ## Test everything
 
-The locally verified 2.4.0 candidate passes **151 unique backend tests + 62 frontend tests = 213 passing automated tests**. The ordinary backend run reports 150 passed and one credential-gated PostgreSQL skip; the dedicated PostgreSQL 17 gate passes all three database-boundary tests, two already represented in the ordinary suite and one replacing that skip. Ruff, strict MyPy across 24 source files, compileall, offline doctor, pip-audit, TypeScript, Vite, npm production audit, package verification and the production-shaped Docker/Compose smoke all pass locally. CI/CodeQL policy, Railway deployment, live Google sessions and browser release gates remain separate and are not inferred from these results.
+The locally verified 2.4.0 source passes **151 unique backend tests + 62 frontend tests = 213 passing automated tests**. The ordinary backend run reports 150 passed and one credential-gated PostgreSQL skip; the dedicated PostgreSQL 17 gate passes all three database-boundary tests, two already represented in the ordinary suite and one replacing that skip. Ruff, strict MyPy across 24 source files, compileall, offline doctor, pip-audit, TypeScript, Vite, npm production audit, package verification and the production-shaped Docker/Compose smoke all pass locally. Separately, Railway production reports 2.4.0 with PostgreSQL and all 48 reviewed dictionary entries ready; the English judge path, identity-only Google sign-in, onboarding/session persistence across reload and logout were verified in a normal browser.
 
 ```bash
 ./scripts/test-all.sh
@@ -425,12 +427,12 @@ IvritSheli/
 - No secret keys in frontend code.
 - No cloud synchronization by default.
 - No automatic email/document ingestion.
-- Learner data can be exported as JSON; the 2.4 candidate includes authenticated two-step self-service cloud-account deletion.
+- Learner data can be exported as JSON; the 2.4 deployment includes authenticated two-step self-service cloud-account deletion.
 - External requests are labeled before content leaves the device.
 
 ## Project status
 
-Version 2.4.0 is an implemented source candidate on `codex/ivrit-sheli-v2.3.0`; it is not yet tagged, published as a GitHub Release or verified in production. The current public service remains the independently verified 2.2.0 release at [ivritsheli-production.up.railway.app](https://ivritsheli-production.up.railway.app) from commit `66d68a3c44ac2500fb400eef88d5f77da0c1c1e1`, refreshed on 2026-07-21. Before 2.4 can be called live, the branch must pass its updated tests, package and production-image/CI gates, merge, deploy, report version 2.4.0 with PostgreSQL readiness, and complete browser checks for the guided tour, language override, Google sign-in, persistence, logout, onboarding and visual accessibility. Live OpenAI/Google connector calls, two-real-user isolation, refreshed 2.4 screenshots and backup restoration remain separate operator checks.
+Version 2.4.0 is live at [ivritsheli-production.up.railway.app](https://ivritsheli-production.up.railway.app/?lang=en) from immutable commit `03bf84b9268ff8be528c0fab3c670f9652ee23b0`, deployed successfully on 2026-07-21. PostgreSQL readiness and all 48 reviewed dictionary entries passed. The English entry, read-only guided tour, identity-only Google sign-in, onboarding/session persistence across reload, logout and signed-out persistence after reload were verified in a normal browser. Git tag and GitHub Release `v2.2.0` remain the latest published release artifacts until `v2.4.0` is published. Re-login after logout, live GitHub authorization, live OpenAI or Google Workspace connector calls, two-real-user production isolation, refreshed 2.4 mobile/RTL/reduced-motion screenshots and backup restoration remain separate unclaimed operator checks.
 
 Passing tests and healthy local production-image checks materially reduce risk but do not prove that software is defect-free. Operational limits, credential-dependent checks and restore requirements are documented explicitly rather than hidden behind a perfect-score claim.
 

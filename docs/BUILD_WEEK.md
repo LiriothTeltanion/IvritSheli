@@ -1,14 +1,14 @@
 # Ivrit Sheli — Build Week Record
 
-This document separates the product that already existed from the work completed for the Ivrit Sheli 2.4 Contest Edition candidate. Repository history, tests and deployed operational endpoints remain the source of truth; planning conversations are context, not proof that a feature exists.
+This document separates the product that already existed from the work completed and deployed for the Ivrit Sheli 2.4 Contest Edition. Repository history, tests and deployed operational endpoints remain the source of truth; planning conversations are context, not proof that a feature exists.
 
 ## Truth snapshot — 2026-07-21
 
-- Source candidate: `2.4.0` on `codex/ivrit-sheli-v2.3.0`.
-- Current public application: `2.2.0` on Railway at commit `66d68a3c44ac2500fb400eef88d5f77da0c1c1e1`.
-- Production readiness: PostgreSQL ready with the 12-entry/12-sense shared-cloud starter dictionary.
+- Source and current public application: `2.4.0`.
+- Railway production: successfully deployed at immutable commit `03bf84b9268ff8be528c0fab3c670f9652ee23b0` on 2026-07-21.
+- Production readiness: PostgreSQL ready with all 48 reviewed dictionary entries.
 - Candidate verification: 151 unique backend tests and 62 frontend tests, for 213 unique passing automated tests. The ordinary backend run passes 150 with one credential-gated skip; a dedicated PostgreSQL 17 run passes all three database tests and contributes that missing unique pass.
-- Publication boundary: 2.4 is not live, tagged or published as a GitHub Release until its final database, CI, deployment and browser gates pass.
+- Publication boundary: 2.4 is live, while Git tag and GitHub Release `v2.2.0` remain the latest published release artifacts until `v2.4.0` is published.
 
 ## Pre-existing foundation
 
@@ -39,7 +39,7 @@ The 2.3 work focuses the existing platform into a coherent first experience for 
 - Authenticated learner-data export, explicit account deletion, public privacy/terms documents and strengthened modal accessibility.
 - Dark/light presentation, responsive layouts, RTL, keyboard use and reduced-motion behavior retained as release requirements.
 
-The Google production client and Railway variable names are configured, but a successful 2.4 Google authorization, account session, persistence and logout are not claimed until the candidate is deployed and exercised in a normal browser.
+The identity-only Google production client is configured and its successful 2.4 sign-in was verified in a normal browser. Onboarding state and the authenticated session persisted across reload; logout returned to the English landing page and remained signed out after another reload. Re-login after logout is not yet claimed.
 
 ## Contest Edition v2.4 finish
 
@@ -61,23 +61,25 @@ Kevin owns the problem definition, product direction, prioritization and release
 
 AI-generated suggestions and code are treated as untrusted until reviewed and tested. No model is silently trained on learner data, no provider credential belongs in the repository, and optional cloud AI remains consent-gated with an offline fallback.
 
-## Verification and remaining release gates
+## Verification and remaining operator checks
 
-Verified for the current source candidate:
+Verified for the current source:
 
 - Ruff and strict MyPy.
 - 151 unique backend tests: 150 pass in the ordinary run, and a dedicated PostgreSQL 17 gate passes 3/3 with one additional unique credential-gated case.
 - 62 frontend tests across 16 files, TypeScript checking and production build.
 - Production Compose/image smoke with PostgreSQL readiness, 48 shared dictionary entries, UID 10001, runtime migration-secret removal, OAuth rate limiting and structured-log redaction.
 - Package structure, JSON/SVG parsing, version drift, secret hygiene and README links.
+- Railway production version 2.4.0 at immutable commit `03bf84b9268ff8be528c0fab3c670f9652ee23b0`, with PostgreSQL and all 48 reviewed dictionary entries ready.
+- The live English entry, four-stop read-only tour, identity-only Google sign-in, onboarding/session persistence across reload, logout and signed-out persistence after reload.
 
-Still required before calling 2.4 live:
+Still required before calling every 2.4 boundary verified:
 
-- Run CI and CodeQL on the immutable candidate.
-- Merge deliberately and deploy the Alembic head and 2.4 image to Railway.
-- Verify `/version`, liveness, readiness and the 48-concept starter layer against the deployed commit.
-- Complete Google sign-in, refresh persistence, First Steps continuity, logout and session revocation in a normal browser.
+- Publish Git tag and GitHub Release `v2.4.0`.
+- Verify re-login after logout, First Steps continuity across a second sign-in and the GitHub secondary sign-in path.
 - Check desktop/mobile, Hebrew RTL, dark/light, reduced motion, keyboard navigation and 200% zoom.
+- Exercise live OpenAI and Google Workspace connector calls only with explicit credentials, consent, allowlists and cost controls; identity-only Google sign-in grants no Gmail, Drive or Calendar scope.
+- Complete a two-real-user production isolation exercise and managed backup restore drill.
 
 Passing checks reduce risk; they do not establish that the product is defect-free. The First Steps UI avoids duplicate submission when navigating backward, but word, review and profile persistence still use separate requests rather than one server-side idempotent transaction.
 

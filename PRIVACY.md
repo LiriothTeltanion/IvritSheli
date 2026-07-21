@@ -1,12 +1,12 @@
 # Ivrit Sheli privacy notice
 
-Last updated: 18 July 2026
+Last updated: 21 July 2026
 
 Ivrit Sheli is a Hebrew-learning application created by Kevin Cusnir. It is designed to keep learner data private, collect only what the product needs, and remain useful without paid AI services.
 
 This notice describes the public hosted service at `ivritsheli-production.up.railway.app`. A private local installation stores its learning database on that device and does not require an online account.
 
-**Candidate boundary:** this notice includes the Google sign-in, export and deletion behavior present in the 2.4 source candidate. Those controls apply to the hosted service only after `/version` reports 2.4.0 and the corresponding provider is configured. At the time this candidate was prepared, the last independently verified public deployment was 2.2.0.
+**Live-service boundary:** the hosted service reports version 2.4.0. Identity-only Google sign-in, onboarding/session persistence across reload and logout are verified in production. Re-login after logout, live OpenAI or Google Workspace connector calls and backup restoration remain unverified; Google sign-in grants no Gmail, Drive or Calendar scope.
 
 ## Information the hosted service keeps
 

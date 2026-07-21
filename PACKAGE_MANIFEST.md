@@ -1,28 +1,28 @@
-# Ivrit Sheli 2.4.0 Contest Edition — Candidate Package Manifest
+# Ivrit Sheli 2.4.0 Contest Edition — Package Manifest
 
 ## Release identity
 
 - Product: Ivrit Sheli — העברית שלי
-- Source candidate version: `2.4.0`
-- Current live source version: `2.2.0`
-- Candidate date: 2026-07-21
+- Source version: `2.4.0`
+- Current live source version: `2.4.0`
+- Verification date: 2026-07-21
 - Time zone: Asia/Jerusalem
 - Author: Kevin “Lirioth” Cusnir
-- Candidate branch: `codex/ivrit-sheli-v2.3.0`
+- Release-evidence branch: `codex/ivrit-sheli-v2.4-release-evidence`
 - Default branch: `main`
 - Application license: MIT
 - Production URL: https://ivritsheli-production.up.railway.app
-- Current verified production release: `2.2.0` on Railway with managed PostgreSQL
-- Verified production commit: `66d68a3c44ac2500fb400eef88d5f77da0c1c1e1`
+- Current verified production release: `2.4.0` on Railway with managed PostgreSQL and 48 reviewed dictionary entries
+- Verified production commit: `03bf84b9268ff8be528c0fab3c670f9652ee23b0`
 - Latest published Git tag and GitHub Release: `v2.2.0`
-- Candidate publication state: `2.4.0` is not yet tagged, released or deployed
+- Publication state: `2.4.0` is deployed; its Git tag and GitHub Release are not yet published
 - Personal signature: `KC ✦ LT` is reserved and excluded from the MIT asset grant
 - Dictionary-derived data: separate Wiktionary/Kaikki attribution and share-alike terms
 - Privacy notice: `PRIVACY.md`
 - Terms of use: `TERMS.md`
 - Machine-readable public source: `portfolio/project.json`
 
-## 2.4 candidate capabilities
+## 2.4 capabilities
 
 ### Contest judge journey
 
@@ -71,9 +71,9 @@
 
 ## Credential-dependent capabilities
 
-Google sign-in is implemented in the candidate source and its production OAuth client, exact HTTPS callback and Railway variable names have been configured; successful 2.4 authorization, session persistence and logout remain unverified until the candidate is deployed. OpenAI AI/embedding/TTS/STT and Google Workspace connector adapters require separate operator credentials, consent, identity allowlists and cost controls. No real credentials are included in this package.
+Identity-only Google sign-in is configured and verified in production with `openid profile` only. Onboarding state and the authenticated session persisted across reload; logout returned to the English auth landing page and remained signed out after another reload. Re-login after logout remains unverified. OpenAI AI/embedding/TTS/STT and Google Workspace connector adapters require separate operator credentials, consent, identity allowlists and cost controls; Google sign-in grants no Gmail, Drive or Calendar scope. No real credentials are included in this package.
 
-## Candidate verification summary
+## Verification summary
 
 - Backend ordinary suite: 150 passed, 1 credential-gated PostgreSQL skip.
 - Dedicated PostgreSQL 17 gate: 3 passed; two overlap the ordinary suite and one replaces its skip, producing 151 unique backend passes.
@@ -89,6 +89,6 @@ Google sign-in is implemented in the candidate source and its production OAuth c
 - Package verifier: 66 files passed required-file, strict portfolio/release-drift, JSON, SVG, Railway, secret-hygiene and README-link checks.
 - Production-shaped Docker/Compose smoke: passed with release 2.4.0, PostgreSQL readiness, UID 10001, no migration DSN in the app runtime, OAuth rate limiting and structured-log redaction.
 
-Before release, updated tests/package checks, CI/CodeQL, Railway migration/deployment, live 2.4 operational endpoints and browser-based tour/language/Google sign-in/onboarding/First Steps persistence/logout checks remain release gates. The current public verification record therefore remains 2.2.0. Refreshed 2.4 desktop/mobile/RTL/reduced-motion screenshots, two-real-user production isolation, live OpenAI/Google connector calls and a managed backup restore drill remain explicit operator checks.
+Railway deployment succeeded on 2026-07-21 at immutable commit `03bf84b9268ff8be528c0fab3c670f9652ee23b0`. Production reports version 2.4.0, PostgreSQL ready and all 48 reviewed dictionary entries ready. The live English entry, four-stop read-only tour, identity-only Google sign-in, onboarding/session persistence across reload, logout and signed-out persistence after reload passed browser checks. Git tag and GitHub Release `v2.2.0` remain the latest published release artifacts. Re-login after logout, refreshed 2.4 desktop/mobile/RTL/reduced-motion screenshots, two-real-user production isolation, live OpenAI or Google Workspace connector calls and a managed backup restore drill remain explicit operator checks.
 
 See `TEST_REPORT.md` for commands, evidence boundaries and the historical production record.
