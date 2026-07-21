@@ -26,6 +26,7 @@ from ivrit_sheli.migrations import MIGRATION_HEAD
 
 DEMO_USER_ID = "00000000-0000-4000-8000-000000000042"
 RUNTIME_DATABASE_ROLE = "ivrit_sheli_runtime"
+OAUTH_PROVIDERS = frozenset({"github", "google"})
 StateResult = TypeVar("StateResult")
 
 
@@ -34,15 +35,27 @@ def utc_now() -> datetime:
     return datetime.now(timezone.utc)
 
 
+def validate_oauth_provider(provider: str) -> None:
+    """Reject state or identity writes outside the supported provider boundary."""
+    if provider not in OAUTH_PROVIDERS:
+        raise ValueError("OAuth provider must be github or google")
+
+
 DEFAULT_TEST_SESSION_SECRET = "test-only-cloud-store-secret-at-least-32-characters"
 
 
 def bearer_hash(value: str, session_secret: str) -> str:
     """Key bearer material so rotating SESSION_SECRET invalidates prior hashes."""
-    return hmac.new(
+    secret_key = hashlib.blake2b(
         session_secret.encode("utf-8"),
+        digest_size=32,
+        person=b"ivrit-bearer-v1",
+    ).digest()
+    return hashlib.blake2b(
         value.encode("utf-8"),
-        hashlib.sha256,
+        key=secret_key,
+        digest_size=32,
+        person=b"ivrit-token-v1",
     ).hexdigest()
 
 
@@ -75,6 +88,7 @@ class AuthUser:
 
     id: str
     display_name: str
+    provider: str
     login: str | None = None
     provider_user_id: str | None = None
     avatar_url: str | None = None
@@ -86,6 +100,7 @@ class AuthUser:
         return {
             "id": self.id,
             "display_name": self.display_name,
+            "provider": self.provider,
             "avatar_url": self.avatar_url,
             "login": self.login,
         }
@@ -111,6 +126,8 @@ class CloudStore(Protocol):
     def ready(self) -> bool: ...
     def ensure_demo_user(self) -> AuthUser: ...
     def upsert_github_user(self, profile: dict[str, Any]) -> AuthUser: ...
+    def upsert_google_user(self, profile: dict[str, Any]) -> AuthUser: ...
+    def delete_user(self, user_id: str) -> None: ...
     def create_session(
         self,
         user_id: str,
@@ -130,9 +147,12 @@ class CloudStore(Protocol):
         redirect_path: str,
         ttl_seconds: int = 600,
         *,
+        provider: str = "github",
         max_active_states: int | None = None,
     ) -> bool: ...
-    def consume_oauth_state(self, state: str) -> tuple[str, str] | None: ...
+    def consume_oauth_state(
+        self, state: str, *, provider: str = "github"
+    ) -> tuple[str, str] | None: ...
     def read_state(self, user_id: str) -> dict[str, Any]: ...
     def mutate_state(
         self,
@@ -157,7 +177,7 @@ class MemoryCloudStore:
         self._provider_ids: dict[tuple[str, str], str] = {}
         self._sessions: dict[str, tuple[str, str, datetime, datetime, int]] = {}
         self._session_sequence = 0
-        self._oauth_states: dict[str, tuple[str, str, datetime]] = {}
+        self._oauth_states: dict[str, tuple[str, str, str, datetime]] = {}
         self._states: dict[str, dict[str, Any]] = {}
 
     def close(self) -> None:
@@ -186,6 +206,7 @@ class MemoryCloudStore:
             user = AuthUser(
                 id=DEMO_USER_ID,
                 display_name="Ivrit Sheli Demo",
+                provider="demo",
                 login="ivrit-sheli-demo",
                 provider_user_id="seeded-public-demo",
                 avatar_url=None,
@@ -198,13 +219,22 @@ class MemoryCloudStore:
 
     def upsert_github_user(self, profile: dict[str, Any]) -> AuthUser:
         """Upsert a GitHub identity without retaining tokens or email addresses."""
+        return self._upsert_oauth_user("github", profile)
+
+    def upsert_google_user(self, profile: dict[str, Any]) -> AuthUser:
+        """Upsert minimal Google OIDC identity fields without retaining tokens or email."""
+        return self._upsert_oauth_user("google", profile)
+
+    def _upsert_oauth_user(self, provider: str, profile: dict[str, Any]) -> AuthUser:
+        validate_oauth_provider(provider)
         provider_id = str(profile["id"])
-        key = ("github", provider_id)
+        key = (provider, provider_id)
         with self._lock:
             user_id = self._provider_ids.get(key, str(uuid4()))
             user = AuthUser(
                 id=user_id,
                 display_name=str(profile.get("name") or profile.get("login") or "Learner")[:100],
+                provider=provider,
                 login=str(profile.get("login") or "")[:100] or None,
                 provider_user_id=provider_id,
                 avatar_url=str(profile.get("avatar_url") or "")[:500] or None,
@@ -213,6 +243,27 @@ class MemoryCloudStore:
             self._users[user.id] = user
             self._states.setdefault(user.id, {})
             return user
+
+    def delete_user(self, user_id: str) -> None:
+        """Delete one non-demo identity, all sessions, and its private learner state."""
+        with self._lock:
+            user = self._users.get(user_id)
+            if user is None:
+                raise KeyError("User is not available")
+            if user.is_demo:
+                raise ValueError("The shared demonstration account cannot be deleted")
+            self._users.pop(user_id)
+            self._states.pop(user_id, None)
+            self._provider_ids = {
+                key: stored_user_id
+                for key, stored_user_id in self._provider_ids.items()
+                if stored_user_id != user_id
+            }
+            self._sessions = {
+                key: record
+                for key, record in self._sessions.items()
+                if record[0] != user_id
+            }
 
     def create_test_user(self, name: str) -> AuthUser:
         """Create a non-provider user for focused ownership tests."""
@@ -242,7 +293,7 @@ class MemoryCloudStore:
             self._oauth_states = {
                 key: record
                 for key, record in self._oauth_states.items()
-                if record[2] > now
+                if record[3] > now
             }
             if max_live_sessions is not None:
                 keep_existing = max(0, max_live_sessions - 1)
@@ -295,15 +346,17 @@ class MemoryCloudStore:
         redirect_path: str,
         ttl_seconds: int = 600,
         *,
+        provider: str = "github",
         max_active_states: int | None = None,
     ) -> bool:
         """Persist one bounded PKCE verifier keyed by hashed OAuth state."""
+        validate_oauth_provider(provider)
         with self._lock:
             now = utc_now()
             self._oauth_states = {
                 key: record
                 for key, record in self._oauth_states.items()
-                if record[2] > now
+                if record[3] > now
             }
             if (
                 max_active_states is not None
@@ -311,19 +364,31 @@ class MemoryCloudStore:
             ):
                 return False
             self._oauth_states[self.hash_bearer(state)] = (
+                provider,
                 verifier,
                 redirect_path,
                 now + timedelta(seconds=ttl_seconds),
             )
             return True
 
-    def consume_oauth_state(self, state: str) -> tuple[str, str] | None:
-        """Atomically consume an OAuth state so it cannot be replayed."""
+    def consume_oauth_state(
+        self, state: str, *, provider: str = "github"
+    ) -> tuple[str, str] | None:
+        """Consume only an unexpired state created for the same provider."""
+        validate_oauth_provider(provider)
         with self._lock:
-            value = self._oauth_states.pop(self.hash_bearer(state), None)
-            if value is None or value[2] <= utc_now():
+            state_hash = self.hash_bearer(state)
+            value = self._oauth_states.get(state_hash)
+            if value is None:
                 return None
-            return value[0], value[1]
+            stored_provider, verifier, redirect_path, expires_at = value
+            if expires_at <= utc_now():
+                self._oauth_states.pop(state_hash, None)
+                return None
+            if not hmac.compare_digest(stored_provider, provider):
+                return None
+            self._oauth_states.pop(state_hash, None)
+            return verifier, redirect_path
 
     def read_state(self, user_id: str) -> dict[str, Any]:
         """Return a defensive copy of one user's learner document."""
@@ -396,7 +461,7 @@ class PostgresCloudStore:
     def configure_security(
         self, session_secret: str, max_snapshot_bytes: int
     ) -> None:
-        """Apply the current HMAC key and tenant document ceiling."""
+        """Apply the current bearer-digest secret and tenant document ceiling."""
         validate_store_security(session_secret, max_snapshot_bytes)
         self.session_secret = session_secret
         self.max_snapshot_bytes = max_snapshot_bytes
@@ -454,6 +519,7 @@ class PostgresCloudStore:
         return AuthUser(
             id=str(row["id"]),
             display_name=str(row["display_name"]),
+            provider=str(row["provider"]),
             login=row.get("login"),
             provider_user_id=str(row.get("provider_user_id") or "") or None,
             avatar_url=row.get("avatar_url"),
@@ -484,6 +550,14 @@ class PostgresCloudStore:
 
     def upsert_github_user(self, profile: dict[str, Any]) -> AuthUser:
         """Upsert allow-listed GitHub profile fields and never store OAuth tokens."""
+        return self._upsert_oauth_user("github", profile)
+
+    def upsert_google_user(self, profile: dict[str, Any]) -> AuthUser:
+        """Upsert Google sub/name/picture only; bearer tokens and email are discarded."""
+        return self._upsert_oauth_user("google", profile)
+
+    def _upsert_oauth_user(self, provider: str, profile: dict[str, Any]) -> AuthUser:
+        validate_oauth_provider(provider)
         provider_id = str(profile["id"])
         with self._connection() as connection:
             row = connection.execute(
@@ -491,7 +565,7 @@ class PostgresCloudStore:
                 INSERT INTO users(
                     id, provider, provider_user_id, login, display_name, avatar_url,
                     is_demo, is_admin
-                ) VALUES(%s, 'github', %s, %s, %s, %s, FALSE, FALSE)
+                ) VALUES(%s, %s, %s, %s, %s, %s, FALSE, FALSE)
                 ON CONFLICT(provider, provider_user_id) DO UPDATE SET
                     login = EXCLUDED.login,
                     display_name = EXCLUDED.display_name,
@@ -501,6 +575,7 @@ class PostgresCloudStore:
                 """,
                 (
                     str(uuid4()),
+                    provider,
                     provider_id,
                     str(profile.get("login") or "")[:100] or None,
                     str(profile.get("name") or profile.get("login") or "Learner")[:100],
@@ -508,10 +583,21 @@ class PostgresCloudStore:
                 ),
             ).fetchone()
         if row is None:
-            raise RuntimeError("PostgreSQL did not return the GitHub user")
+            raise RuntimeError("PostgreSQL did not return the OAuth user")
         user = self._user(row)
         self._ensure_state(user.id)
         return user
+
+    def delete_user(self, user_id: str) -> None:
+        """Delete a non-demo identity and cascade its sessions and learner state."""
+        UUID(user_id)
+        with self._tenant_connection(user_id) as connection:
+            row = connection.execute(
+                "DELETE FROM users WHERE id = %s AND is_demo = FALSE RETURNING id",
+                (user_id,),
+            ).fetchone()
+        if row is None:
+            raise KeyError("User is not available")
 
     def _ensure_state(self, user_id: str) -> None:
         with self._tenant_connection(user_id) as connection:
@@ -618,9 +704,11 @@ class PostgresCloudStore:
         redirect_path: str,
         ttl_seconds: int = 600,
         *,
+        provider: str = "github",
         max_active_states: int | None = None,
     ) -> bool:
         """Persist a globally bounded single-use OAuth state and PKCE verifier."""
+        validate_oauth_provider(provider)
         with self._connection() as connection:
             # Serialize the count-and-insert decision across every application replica.
             connection.execute(
@@ -636,11 +724,13 @@ class PostgresCloudStore:
                     return False
             connection.execute(
                 """
-                INSERT INTO oauth_states(state_hash, code_verifier, redirect_path, expires_at)
-                VALUES(%s, %s, %s, %s)
+                INSERT INTO oauth_states(
+                    state_hash, provider, code_verifier, redirect_path, expires_at
+                ) VALUES(%s, %s, %s, %s, %s)
                 """,
                 (
                     self.hash_bearer(state),
+                    provider,
                     verifier,
                     redirect_path,
                     utc_now() + timedelta(seconds=ttl_seconds),
@@ -648,16 +738,19 @@ class PostgresCloudStore:
             )
             return True
 
-    def consume_oauth_state(self, state: str) -> tuple[str, str] | None:
-        """Delete and return one valid state in a single PostgreSQL statement."""
+    def consume_oauth_state(
+        self, state: str, *, provider: str = "github"
+    ) -> tuple[str, str] | None:
+        """Delete one valid state only when its callback provider matches."""
+        validate_oauth_provider(provider)
         with self._connection() as connection:
             row = connection.execute(
                 """
                 DELETE FROM oauth_states
-                WHERE state_hash = %s AND expires_at > NOW()
+                WHERE state_hash = %s AND provider = %s AND expires_at > NOW()
                 RETURNING code_verifier, redirect_path
                 """,
-                (self.hash_bearer(state),),
+                (self.hash_bearer(state), provider),
             ).fetchone()
         if row is None:
             return None

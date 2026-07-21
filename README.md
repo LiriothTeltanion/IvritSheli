@@ -1,13 +1,13 @@
 <div align="center">
-  <img src="assets/brand/logo.svg" alt="Ivrit Sheli Ultimate" width="680" />
+  <img src="assets/brand/logo.svg" alt="Ivrit Sheli" width="680" />
 
-  <h1>Ivrit Sheli 2.2.0 Ultimate — העברית שלי</h1>
+  <h1>Ivrit Sheli 2.4.0 — Contest Edition · העברית שלי</h1>
   <p><strong>A private-first, authenticated, trilingual Hebrew-learning operating system built from real life.</strong></p>
 
   <p>
     <code>Hebrew • English • Spanish</code> ·
     <code>SQLite + PostgreSQL</code> ·
-    <code>GitHub OAuth</code> ·
+    <code>Google + GitHub OAuth</code> ·
     <code>Docker</code> ·
     <code>AI-optional</code> ·
     <code>RTL-native</code> ·
@@ -15,7 +15,7 @@
   </p>
 
   <p>
-    <img src="assets/readme/badge-tests.svg" alt="187 automated tests passing" />
+    <img src="assets/readme/badge-tests.svg" alt="213 automated tests passing in the locally verified 2.4 candidate" />
     <img src="assets/readme/badge-private.svg" alt="Local-first private" />
     <img src="assets/readme/badge-trilingual.svg" alt="Hebrew English Spanish" />
     <img src="assets/readme/badge-pwa.svg" alt="Installable PWA" />
@@ -23,20 +23,21 @@
 </div>
 
 <p align="center">
-  <a href="https://ivritsheli-production.up.railway.app"><strong>🌐 Open the verified live Ivrit Sheli 2.2.0 demo</strong></a>
+  <a href="https://ivritsheli-production.up.railway.app"><strong>🌐 Open the current verified production demo (2.2.0)</strong></a>
 </p>
 
-### Live release truth
+### Source and live release truth
 
 | Surface | Verified state |
 |---|---|
-| Source and live application | `2.2.0` |
-| Railway production commit | `c8c928661bdcf179ed1d9df88b9f2e4d730ffea3` |
+| Source candidate | `2.4.0` on `codex/ivrit-sheli-v2.3.0`; not yet tagged, released or deployed |
+| Current live application | `2.2.0` |
+| Railway production commit | `66d68a3c44ac2500fb400eef88d5f77da0c1c1e1` |
 | Production storage/readiness | PostgreSQL · ready |
-| Automated baseline | 139 unique backend tests + 48 frontend tests = 187 |
-| GitHub publication | Git tag and GitHub Release `v2.2.0` are published and match the deployed source version |
-| OAuth boundary | Consent handoff and cancellation are verified; final live authorization-code exchange, authenticated refresh persistence and logout are not verified end to end |
-| Visual proof | The 2.2 social preview is current; README screenshots remain verified 2.1.x evidence and 2.2 interactive browser QA is pending |
+| Local candidate verification | 151 unique backend tests + 62 frontend tests = 213 passed |
+| GitHub publication | `v2.2.0` remains the latest published tag and GitHub Release; no `v2.4.0` release is claimed yet |
+| OAuth boundary | Google/GitHub provider flows are source-tested; live Google sign-in and successful end-to-end account sessions are not yet verified for 2.4 |
+| Visual proof | README screenshots remain verified 2.1.x evidence; refreshed 2.4 desktop/mobile/RTL/reduced-motion proof is pending |
 
 The same conservative fields are available for portfolio/profile tooling in [`portfolio/project.json`](portfolio/project.json).
 
@@ -60,13 +61,29 @@ The same conservative fields are available for portfolio/profile tooling in [`po
 </table>
 </details>
 
-> **Screenshot boundary:** these verified images show the deployed 2.1.x interface. The 2.2 social preview is current, while refreshed 2.2 desktop/mobile/RTL screenshots and interactive browser QA remain the next visual-proof task.
+> **Screenshot boundary:** these verified images show the deployed 2.1.x interface. They do not prove the new 2.4 Contest Edition; refreshed desktop/mobile/RTL/reduced-motion screenshots and interactive browser QA remain release-candidate checks.
 
 ## Why this project exists 💙
 
 Most language products make every learner follow the same path. Ivrit Sheli does the opposite: it converts the Hebrew you encounter at work, in Be'er Sheva, in messages, appointments, media, and daily conversations into an evolving personal curriculum.
 
 The system tracks what you recognize, what you can produce, where you hesitate, which grammar errors repeat, which situations matter, and which learning mode works best. Recommendations are explainable: the app tells you *why* it selected a word, exercise, mission, or speaking drill.
+
+## What changes in the 2.4.0 Contest Edition 🧭
+
+Version 2.4 adds a four-stop guided tour to the synthetic read-only demo. It navigates through an ephemeral illustrated First Steps lesson, visual dictionary, microphone word intelligence and adaptive progress without mutating shared demo data. A per-visit `?lang=en`, `?lang=es` or `?lang=he` override makes judge links and support captures deterministic without replacing a learner's saved language.
+
+The tour is built from the existing icon, motion, responsive, RTL and reduced-motion systems rather than a new visual dependency. On the security boundary, bearer/session/OAuth-state digests move to keyed BLAKE2b-256 while retaining their 64-character hexadecimal storage contract. Deployment intentionally rotates active session hashes. Google remains identity-only; 2.4 adds no Gmail, Drive or Calendar scope, provider, schema or dependency.
+
+This section describes source candidate `2.4.0`, not the current Railway deployment. Production remains independently verified at 2.2.0 until the candidate is merged, deployed and checked live.
+
+## Foundation inherited from the unreleased 2.3.0 candidate 🌤️
+
+Version 2.3 introduces a warm, light-first beginner journey built for learners who may be new to both Hebrew and technology. A short onboarding flow records level, interface language, learning goal and daily pace, then leads into a five-word first lesson using `שלום`, `תודה`, `בבקשה`, `כן` and `לא`. Onboarding, the current First Steps checkpoint and lesson completion are learner-profile state, so they persist in private SQLite or the authenticated PostgreSQL account instead of relying on browser-only storage. Existing learners bypass beginner onboarding without losing their exact saved level. The guided-mode preference is stored, but a distinct simplified/full-shell behavior remains a candidate follow-up.
+
+The bundled dictionary now contains exactly 48 reviewed A0/A1 visual concepts across greetings, family, home, food, transport, shopping and health. Each concept carries stable code-native visual metadata, accessible Hebrew/English/Spanish alternative text, niqqud, romanization, meanings and a practical trilingual example. Google identity-only sign-in is the beginner-facing option when configured, while GitHub remains available; both use provider-bound single-use state and S256 PKCE, and neither stores provider bearer tokens or email addresses. Settings adds learner-data export and a two-step authenticated account deletion action.
+
+The 2.3 candidate was never tagged or published; its completed beginner journey is incorporated into 2.4.0. Production remains verified at 2.2.0 until the newer candidate is merged, deployed and checked live.
 
 ## What changed in 2.2.0 🎙️
 
@@ -88,11 +105,11 @@ Version 2.1 established the Railway production path at [ivritsheli-production.up
 
 Version 2.0 turns the complete local-first learning system into a deployment-ready, production-shaped full-stack product without sacrificing its private offline path.
 
-![Ivrit Sheli 2.2 cloud architecture](assets/readme/cloud-architecture.svg)
+![Ivrit Sheli cloud architecture](assets/readme/cloud-architecture.svg)
 
 | Production capability | Verifiable implementation |
 |---|---|
-| Authentication | GitHub OAuth web flow with state, PKCE, short-lived single-use state and HMAC-hashed server-side sessions |
+| Authentication | Google OpenID Connect or GitHub OAuth with provider-bound state, S256 PKCE, short-lived single-use attempts and keyed BLAKE2b-hashed server-side sessions |
 | Session security | Random bearers stored only as hashes; `HttpOnly`, `Secure`, `SameSite` cookies; logout revocation |
 | Demo boundary | Deterministic non-admin tenant with seeded data and server-enforced read-only mutations |
 | PostgreSQL | Users, sessions, OAuth state and one revisioned JSONB learner snapshot per authenticated user |
@@ -103,7 +120,7 @@ Version 2.0 turns the complete local-first learning system into a deployment-rea
 | Observability | One redacted JSON log per completed request with correlation ID, status, duration, version and build commit |
 | Operations | Independent liveness, readiness and immutable version endpoints plus explicit rollback/restore guidance |
 
-The public-demo design does not contain Kevin's private learning history: it uses synthetic seeded phrases and cannot permanently mutate shared state. Paid AI and Kevin's Google provider credentials must remain disabled in any public recruiter deployment until its identity allowlists and cost controls are explicitly verified.
+The public-demo design does not contain Kevin's private learning history: it uses synthetic seeded phrases and cannot permanently mutate shared state. Paid AI and Kevin's Google Workspace connector credentials remain separate from identity-only Google sign-in and must stay disabled until their identity allowlists and cost controls are explicitly verified.
 
 ## What is included
 
@@ -112,14 +129,14 @@ The public-demo design does not contain Kevin's private learning history: it use
 | Learning | Capture, adaptive reviews, speaking drills, sentence creation, missions, reflections |
 | Personalization | Mastery model, mistake taxonomy, context frequency, confidence, latency, modality preference |
 | AI | Offline deterministic coach plus OpenAI Responses adapter with structured outputs and fallback |
-| Dictionary | Clickable Hebrew everywhere, bilingual senses, grammar/forms/examples/provenance, learned state, duplicate prevention |
+| Dictionary | 48 reviewed visual A0/A1 concepts, clickable Hebrew everywhere, trilingual meanings/examples, grammar/forms/provenance, learned state and duplicate prevention |
 | Word registry | Tenant-scoped search, status/due filters, sorting, review history, dates and four-skill mastery |
 | Full lexicon | One-command importer for the current Kaikki/Wiktionary Hebrew JSONL dataset |
 | Audio | Persistent synthetic voice styles, browser/OpenAI TTS, microphone one-word intelligence, consent-gated STT/AI, transparent scoring and ephemeral raw analysis audio |
 | Gamification | XP ledger, levels, streaks, achievements, badges, mission bonuses, anti-grind limits |
 | Integrations | Read-only Google Calendar, Gmail, and Drive adapters; ICS import; explicit consent gates |
 | Languages | Trilingual interface and content layers: Hebrew, English, Spanish |
-| UI | Responsive React app, RTL/LTR switching, custom SVG icons, motion, reduced-motion support |
+| UI | Warm light-first beginner shell, guided onboarding, first lesson, responsive RTL/LTR layouts, code-native illustrations and reduced-motion support |
 | Reliability | FastAPI error handling, request IDs, liveness/readiness/version probes, real PostgreSQL integration tests, CI |
 | Privacy | Local SQLite mode, isolated PostgreSQL tenants, read-only public demo, no analytics, explicit cloud consent |
 
@@ -221,17 +238,19 @@ The checked-in Compose secrets and separate administrator/runtime database passw
 
 Local-first mode remains writable without an online account. Cloud mode requires an authenticated session and never accepts a client-supplied owner ID.
 
-- **GitHub sign-in:** identity-only `read:user` OAuth, state + PKCE, no repository permission.
+- **Google sign-in:** identity-only `openid profile`, provider-bound state + S256 PKCE, no Gmail/Drive/Calendar permission, and no stored email or bearer token.
+- **GitHub sign-in:** secondary identity-only `read:user` OAuth, provider-bound state + S256 PKCE, and no repository permission.
 - **Private sessions:** session and CSRF tokens are random; only their hashes are durable.
 - **Bounded public surface:** layered client/global auth limits, per-user write and session caps, and a 4 MiB cloud-snapshot ceiling limit abuse and storage growth.
 - **Tenant storage:** one PostgreSQL learner state per user with explicit ownership and forced RLS.
 - **Read-only demo:** synthetic seeded data, no admin rights and `403` on private mutations.
 - **Logout:** server-side revocation, not merely browser cookie removal.
+- **Account control:** authenticated learners can export their state and permanently delete the account with an explicit two-step confirmation.
 - **Cloud continuity:** the private SQLite launcher remains available when a hosting service is offline.
 
 ## Full Hebrew dictionary
 
-The package contains a small attributed demo lexicon so the app works immediately. To install the full machine-readable Hebrew dictionary:
+The package contains a reviewed 48-concept A0/A1 starter layer so useful visual Hebrew works immediately. To install the broader machine-readable Hebrew dictionary:
 
 ```bash
 source .venv/bin/activate
@@ -326,7 +345,7 @@ Implemented achievements:
 
 ## Test everything
 
-The 2.2.0 verification baseline is **139 unique backend tests + 48 frontend tests = 187 passing automated tests**. The ordinary backend run reports 138 passed with one credential-gated PostgreSQL case skipped; the dedicated PostgreSQL 17 gate runs all three database-boundary tests and supplies that one additional unique pass. The integration gate is not replaced by SQLite or an in-memory fake.
+The locally verified 2.4.0 candidate passes **151 unique backend tests + 62 frontend tests = 213 passing automated tests**. The ordinary backend run reports 150 passed and one credential-gated PostgreSQL skip; the dedicated PostgreSQL 17 gate passes all three database-boundary tests, two already represented in the ordinary suite and one replacing that skip. Ruff, strict MyPy across 24 source files, compileall, offline doctor, pip-audit, TypeScript, Vite, npm production audit, package verification and the production-shaped Docker/Compose smoke all pass locally. CI/CodeQL policy, Railway deployment, live Google sessions and browser release gates remain separate and are not inferred from these results.
 
 ```bash
 ./scripts/test-all.sh
@@ -369,6 +388,8 @@ IvritSheli/
 ├── docker-compose.yml
 ├── railway.toml                # Deployment, migration and health policy
 ├── Makefile
+├── PRIVACY.md                  # Hosted-service privacy notice
+├── TERMS.md                    # Hosted-service terms of use
 └── README.md
 ```
 
@@ -386,26 +407,30 @@ IvritSheli/
 - [`docs/API.md`](docs/API.md) — endpoint catalog.
 - [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) — local, Docker, and production hardening.
 - [`docs/USER_GUIDE.md`](docs/USER_GUIDE.md) — complete learner and administrator workflow.
-- [`docs/DEMO_DAY.md`](docs/DEMO_DAY.md) — two-minute video and live presentation plan.
+- [`docs/DEMO_DAY.md`](docs/DEMO_DAY.md) — fallback demo flow and live presentation plan.
+- [`docs/VIDEO_SCRIPT.md`](docs/VIDEO_SCRIPT.md) — reviewed under-three-minute Build Week narration, storyboard, and claim boundaries.
+- [`docs/BUILD_WEEK.md`](docs/BUILD_WEEK.md) — pre-existing product foundation, v2.3 sprint, v2.4 contest finish, AI collaboration and evidence boundaries.
 - [`PACKAGE_MANIFEST.md`](PACKAGE_MANIFEST.md) — exact release contents and credential boundaries.
 - [`TEST_REPORT.md`](TEST_REPORT.md) — commands, results, and honest limitations.
 - [`SECURITY.md`](SECURITY.md) — session, tenant, logging, secret-management, reporting, and incident controls.
+- [`PRIVACY.md`](PRIVACY.md) — learner data, sign-in, microphone and account-control policy.
+- [`TERMS.md`](TERMS.md) — public pilot terms and educational limitations.
 
 ## Privacy promise 🔒
 
 - No account required for private local-first mode.
-- Cloud identities are limited to GitHub ID, login, display name and avatar; GitHub OAuth tokens are never persisted, while optional Google credentials stay only in server-side configuration and never enter learner data.
+- Cloud identities are limited to the selected provider's user ID plus display name, avatar and GitHub login when applicable; Google email and all provider bearer tokens are excluded from durable identity records.
 - Public demo content is synthetic, tenant-isolated and read-only.
 - No advertising or behavioral analytics.
 - No secret keys in frontend code.
 - No cloud synchronization by default.
 - No automatic email/document ingestion.
-- Learner data can be exported as JSON; self-service cloud-account deletion is a documented post-2.0 privacy improvement and is not claimed as implemented.
+- Learner data can be exported as JSON; the 2.4 candidate includes authenticated two-step self-service cloud-account deletion.
 - External requests are labeled before content leaves the device.
 
 ## Project status
 
-Version 2.2.0 is implemented, merged, tagged, published as a GitHub Release and live at [ivritsheli-production.up.railway.app](https://ivritsheli-production.up.railway.app) from production commit `c8c928661bdcf179ed1d9df88b9f2e4d730ffea3`. Selectable voice styles, microphone word intelligence, the saved-vocabulary registry, the expanded dictionary and the visual/motion system pass the local automated, real-PostgreSQL and production-image gates documented in [`TEST_REPORT.md`](TEST_REPORT.md); the live service reports release `2.2.0`, environment `production`, PostgreSQL storage and ready health checks. Successful final GitHub code exchange, authenticated persistence across refreshes, logout, live OpenAI/Google calls, two-identity production isolation, refreshed 2.2 screenshots, 2.2 interactive browser visual QA and backup restoration remain honest operator checks rather than inflated claims.
+Version 2.4.0 is an implemented source candidate on `codex/ivrit-sheli-v2.3.0`; it is not yet tagged, published as a GitHub Release or verified in production. The current public service remains the independently verified 2.2.0 release at [ivritsheli-production.up.railway.app](https://ivritsheli-production.up.railway.app) from commit `66d68a3c44ac2500fb400eef88d5f77da0c1c1e1`, refreshed on 2026-07-21. Before 2.4 can be called live, the branch must pass its updated tests, package and production-image/CI gates, merge, deploy, report version 2.4.0 with PostgreSQL readiness, and complete browser checks for the guided tour, language override, Google sign-in, persistence, logout, onboarding and visual accessibility. Live OpenAI/Google connector calls, two-real-user isolation, refreshed 2.4 screenshots and backup restoration remain separate operator checks.
 
 Passing tests and healthy local production-image checks materially reduce risk but do not prove that software is defect-free. Operational limits, credential-dependent checks and restore requirements are documented explicitly rather than hidden behind a perfect-score claim.
 

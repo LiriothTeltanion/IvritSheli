@@ -4,11 +4,13 @@
 
 **Ivrit Sheli Ultimate is a private, adaptive Hebrew-learning system that converts the learner's real life into personalized vocabulary, speaking practice, and explainable recommendations.**
 
-## Two-minute video flow
+## Two-minute fallback video flow
+
+The final Build Week voiceover and claim boundaries are maintained in [`VIDEO_SCRIPT.md`](VIDEO_SCRIPT.md). The sequence below remains a shorter live-recording fallback.
 
 ### 0:00–0:15 — Problem
 
-Show the dashboard and explain that generic language apps teach fixed lists, while an adult living in Israel needs the phrases encountered at work, in appointments, messages, and daily life.
+Start with the calm First Steps screen and explain that a new learner should not have to understand a dense dashboard. Show the language/level/goal choices, then transition to the guided five-word lesson.
 
 ### 0:15–0:35 — Capture
 
@@ -16,7 +18,7 @@ Capture `אני אטפל בזה` with English and Spanish meanings. Point out RT
 
 ### 0:35–0:55 — Clickable dictionary
 
-Click `אטפל`. Show the drawer, pronunciation button, root/binyan, forms, source attribution, and root-family navigation. Add the entry to learning.
+Open one of the 48 reviewed starter concepts. Show the visual cue, niqqud, romanization, English/Spanish meaning and example first; then expand grammar, source attribution and related forms. Add the entry to learning.
 
 ### 0:55–1:15 — Adaptive review
 
@@ -38,12 +40,12 @@ Show the repository map and state: React + TypeScript, Python + FastAPI, private
 
 1. **Need:** personal Hebrew is situational, not generic.
 2. **Solution:** capture → understand → practice → use → reflect.
-3. **Technical architecture:** React, FastAPI, private SQLite mode, GitHub-authenticated PostgreSQL tenants, a separate lexicon database, deterministic offline AI, and optional cloud adapters.
+3. **Technical architecture:** React, FastAPI, private SQLite mode, Google/GitHub-authenticated PostgreSQL tenants, a separate lexicon database, deterministic offline AI, and optional cloud adapters.
 4. **Differentiator:** every Hebrew word is clickable and every recommendation is explainable.
-5. **Reliability:** request IDs, redacted JSON logs, diagnostics, real PostgreSQL isolation tests, and 187 unique automated tests (139 backend + 48 frontend).
-6. **Privacy:** no account in private local mode; minimal GitHub identity in cloud mode; no analytics or background mailbox harvesting; explicit provider actions.
-7. **Deployment status:** Ivrit Sheli 2.2.0 is live on Railway with managed PostgreSQL at [ivritsheli-production.up.railway.app](https://ivritsheli-production.up.railway.app) from commit `c8c928661bdcf179ed1d9df88b9f2e4d730ffea3`; HTTPS identity and readiness are verified, and tag/GitHub Release `v2.2.0` are published.
-8. **Roadmap:** complete the GitHub OAuth exchange/session check in a normal browser, then add self-service cloud-account deletion, a packaged desktop/mobile shell, richer phoneme scoring, and licensed dictionary enrichment.
+5. **Reliability:** request IDs, redacted JSON logs, diagnostics and PostgreSQL isolation coverage. The locally verified 2.4 candidate has 213 passing automated tests: 151 unique backend plus 62 frontend across 16 files. CI/CodeQL policy and live deployment remain separate gates.
+6. **Privacy:** no account in private local mode; minimal provider identity in cloud mode; no stored provider bearer tokens or email; export and two-step deletion; no analytics or background mailbox harvesting.
+7. **Release status:** 2.4.0 is a source candidate, not a live claim. Version 2.2.0 remains the verified Railway release with managed PostgreSQL at [ivritsheli-production.up.railway.app](https://ivritsheli-production.up.railway.app) from commit `66d68a3c44ac2500fb400eef88d5f77da0c1c1e1`; tag/GitHub Release `v2.2.0` remain the latest published release.
+8. **Next gate:** finish updated tests and production-image/CI checks, deploy the candidate, then verify the language override, guided tour, Google sign-in, onboarding, persistence, logout and accessibility in a normal browser before calling 2.4 live.
 
 ## Suggested live-demo safety plan
 
@@ -53,8 +55,9 @@ Show the repository map and state: React + TypeScript, Python + FastAPI, private
 - Build the frontend before presentation.
 - Run `--doctor` immediately before the demo.
 - Run `docker compose up --build --wait` before demonstrating the authenticated PostgreSQL path.
-- Present the Railway 2.2.0 demo as live and operationally verified while describing GitHub OAuth precisely: consent handoff and cancellation are verified, but final live authorization-code exchange, authenticated refresh persistence and logout remain pending.
-- Use the current 2.1.x screenshots only as clearly labeled fallback evidence; do not present them as refreshed 2.2 visual proof.
+- Present the Railway 2.2.0 demo as the current verified production release. Describe the 2.4 Contest Edition from a local candidate build unless the deployed `/version` already reports 2.4.0 and the live checklist has been completed.
+- Never present Google sign-in as live from source tests alone. If the production provider is not configured or the final code exchange/session check has not passed, say so directly.
+- Use the current 2.1.x screenshots only as clearly labeled fallback evidence; do not present them as refreshed 2.4 visual proof.
 - Keep a screenshot of the dashboard as a fallback.
 
 ## Portfolio highlights
@@ -69,4 +72,4 @@ This project demonstrates:
 - Adaptive algorithms and recommendation scoring.
 - Bounded audio uploads, extension allow-listing, temporary-file cleanup, and privacy controls.
 - External API integration through testable adapters.
-- 187 unique automated tests, CI, Docker, documentation, and verified Railway 2.2.0 production with managed PostgreSQL.
+- A 213-test locally verified 2.4 candidate, passing production-shaped Docker/Compose smoke and package checks, plus a separately verified Railway 2.2.0 production baseline with managed PostgreSQL.

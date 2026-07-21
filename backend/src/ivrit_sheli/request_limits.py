@@ -22,6 +22,8 @@ AUTH_RATE_LIMIT_PATHS = frozenset(
     {
         "/api/v1/auth/github/start",
         "/api/v1/auth/github/callback",
+        "/api/v1/auth/google/start",
+        "/api/v1/auth/google/callback",
         "/api/v1/auth/demo",
     }
 )

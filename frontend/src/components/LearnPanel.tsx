@@ -10,6 +10,7 @@ import { useI18n } from '../i18n';
 import { useSessionAccess } from '../session';
 import type { DictionaryEntry } from '../types';
 import { AudioPractice } from './AudioPractice';
+import { DictionaryVisualCue } from './DictionaryVisualCue';
 import { HebrewText } from './HebrewText';
 import { Icon } from './Icon';
 import { MicWordAnalyzer } from './MicWordAnalyzer';
@@ -20,11 +21,13 @@ type LearnTab = 'review' | 'dictionary' | 'audio' | 'collection';
 
 export function LearnPanel({
   initialTab = 'review',
+  practiceWord,
   cloudAvailable,
   onWordClick,
   onRefresh,
 }: {
   initialTab?: LearnTab;
+  practiceWord?: string;
   cloudAvailable: boolean;
   onWordClick: (word: string, entryId?: number) => void;
   onRefresh: () => void;
@@ -107,8 +110,8 @@ export function LearnPanel({
       {tab === 'review' && <ReviewCard active={tab === 'review'} onWordClick={onWordClick} onReviewed={onRefresh} />}
       {tab === 'audio' && (
         <div className="audio-workspace">
-          <AudioPractice cloudAvailable={cloudAvailable} onWordClick={onWordClick} />
-          <MicWordAnalyzer cloudAvailable={cloudAvailable} onWordClick={onWordClick} />
+          <AudioPractice initialText={practiceWord ?? 'אני עדיין לומד עברית'} cloudAvailable={cloudAvailable} onWordClick={onWordClick} />
+          <MicWordAnalyzer initialWord={practiceWord ?? ''} cloudAvailable={cloudAvailable} onWordClick={onWordClick} />
         </div>
       )}
       {tab === 'dictionary' && (
@@ -134,10 +137,16 @@ export function LearnPanel({
               return (
                 <article className="dictionary-result" key={entry.id}>
                   <button type="button" className="dictionary-result__main" onClick={() => onWordClick(entry.word, entry.id)}>
+                    <DictionaryVisualCue visual={entry.visual} locale={locale} className="dictionary-result__visual" />
                     <HebrewText text={entry.display_niqqud || entry.word} className="dictionary-result__word" as="h3" />
                     <span dir="ltr">{entry.romanization || '—'}</span>
                     <p>{meaning || t('noDefinition')}</p>
-                    <div className="tag-row">{entry.pos && <span>{label(entry.pos)}</span>}{entry.root && <span>{t('rootLabel')} · {entry.root}</span>}</div>
+                    <div className="tag-row">
+                      {entry.level && <span>{entry.level}</span>}
+                      {entry.category && <span>{label(entry.category)}</span>}
+                      {entry.pos && <span>{label(entry.pos)}</span>}
+                      {entry.root && <span>{t('rootLabel')} · {entry.root}</span>}
+                    </div>
                   </button>
                   <button
                     type="button"

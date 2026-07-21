@@ -392,7 +392,18 @@ def test_auth_posts_reject_cross_site_forms_and_logout_retains_csrf(
         assert logged_out.json()["authenticated"] is False
 
 
-def test_hmac_key_rotation_invalidates_session_csrf_and_oauth_bearers() -> None:
+def test_bearer_hash_is_deterministic_fixed_length_and_keyed() -> None:
+    session_secret = "session-secret-with-at-least-32-characters"
+    digest = bearer_hash("session-token", session_secret)
+
+    assert digest == bearer_hash("session-token", session_secret)
+    assert len(digest) == 64
+    assert digest != bearer_hash("different-token", session_secret)
+    assert len(bearer_hash("session-token", "x" * 128)) == 64
+    assert len(bearer_hash("session-token", "סוד-ארוך-מאוד-" * 8)) == 64
+
+
+def test_key_rotation_invalidates_session_csrf_and_oauth_bearers() -> None:
     first_secret = "first-session-secret-with-at-least-32-characters"
     second_secret = "second-session-secret-with-at-least-32-characters"
     store = MemoryCloudStore(session_secret=first_secret)
@@ -584,7 +595,9 @@ def test_blocking_application_routes_are_declared_sync_for_threadpool_dispatch(
     }
     blocking_routes = {
         "/api/v1/auth/github/callback",
+        "/api/v1/auth/google/callback",
         "/api/v1/auth/demo",
+        "/api/v1/account",
         "/health/ready",
         "/api/v1/dashboard",
         "/api/v1/ai/correct",

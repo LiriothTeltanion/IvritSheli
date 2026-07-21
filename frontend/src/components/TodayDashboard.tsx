@@ -6,24 +6,42 @@
 
 import { useI18n } from '../i18n';
 import { useSessionAccess } from '../session';
+import { localizedText, starterWords } from '../starterWords';
 import type { Dashboard } from '../types';
 import { HebrewText } from './HebrewText';
-import { Icon } from './Icon';
+import { Icon, type IconName } from './Icon';
 import { MetricRing } from './MetricRing';
-import { XPBar } from './XPBar';
+import { WordIllustration } from './WordIllustration';
 
 interface TodayDashboardProps {
   dashboard: Dashboard;
+  firstStepsComplete: boolean;
   onWordClick: (word: string) => void;
   onCapture: () => void;
   onStart: () => void;
+  onPreviewFirstSteps: () => void;
+  onOpenDictionary: () => void;
+  onOpenAudio: () => void;
+  onOpenProgress: () => void;
   onOpenCoach: () => void;
 }
 
-export function TodayDashboard({ dashboard, onWordClick, onCapture, onStart, onOpenCoach }: TodayDashboardProps): React.JSX.Element {
+export function TodayDashboard({
+  dashboard,
+  firstStepsComplete,
+  onWordClick,
+  onCapture,
+  onStart,
+  onPreviewFirstSteps,
+  onOpenDictionary,
+  onOpenAudio,
+  onOpenProgress,
+  onOpenCoach,
+}: TodayDashboardProps): React.JSX.Element {
   const { locale, label, t } = useI18n();
-  const { readOnly, readOnlyReason } = useSessionAccess();
+  const { readOnly } = useSessionAccess();
   const missionTranslation = locale === 'es' ? dashboard.mission.translation_es : dashboard.mission.translation_en;
+  const firstWord = starterWords[0]!;
   const firstName = dashboard.profile.display_name.split(' ')[0] || dashboard.profile.display_name;
   const focusReason = (() => {
     if (locale === 'en') return dashboard.focus.reason;
@@ -47,29 +65,103 @@ export function TodayDashboard({ dashboard, onWordClick, onCapture, onStart, onO
     const localized = reasonKeys.filter(([phrase]) => reason.toLowerCase().includes(phrase)).map(([, key]) => t(key));
     return localized.length > 0 ? `${localized.join(' · ')}.` : t('balancedCandidate');
   };
+  const demoTourStops: ReadonlyArray<{
+    key: string;
+    icon: IconName;
+    title: string;
+    detail: string;
+    open: () => void;
+  }> = [
+    {
+      key: 'first-steps',
+      icon: 'sparkles',
+      title: t('demoTourFirstStepsTitle'),
+      detail: t('demoTourFirstStepsDetail'),
+      open: onPreviewFirstSteps,
+    },
+    {
+      key: 'dictionary',
+      icon: 'book',
+      title: t('demoTourDictionaryTitle'),
+      detail: t('demoTourDictionaryDetail'),
+      open: onOpenDictionary,
+    },
+    {
+      key: 'mic',
+      icon: 'mic',
+      title: t('demoTourMicTitle'),
+      detail: t('demoTourMicDetail'),
+      open: onOpenAudio,
+    },
+    {
+      key: 'progress',
+      icon: 'chart',
+      title: t('demoTourProgressTitle'),
+      detail: t('demoTourProgressDetail'),
+      open: onOpenProgress,
+    },
+  ];
   return (
     <div className="today-page stagger-in">
       <section className="hero-dashboard card">
         <div className="hero-copy">
           <div className="hero-kicker">
-            <span className="live-dot" />
-            <span>{readOnly ? t('readOnly') : dashboard.system.offline_ready ? t('offlineReady') : t('accountIsolatedWorkspace')}</span>
-            <span aria-hidden="true">·</span>
-            <span>{t('privateMode')}</span>
+            <span aria-hidden="true">🌱</span>
+            <span>{readOnly ? t('readOnly') : t('yourProgressIsSaved')}</span>
           </div>
           <h1>{t('hello')}, <span>{firstName}</span> <b aria-hidden="true">👋</b></h1>
-          <p>{t('planDescription')}</p>
+          <p>{t('guidedPlanDescription', { count: dashboard.today.estimated_minutes })}</p>
           <div className="hero-actions">
-            <button type="button" className="primary-button primary-button--large" onClick={onStart}><Icon name="play" size={19} /> {t('startSession')}</button>
-            <button type="button" className="secondary-button secondary-button--large" onClick={onCapture} disabled={readOnly} title={readOnly ? readOnlyReason : undefined}><Icon name="plus" size={19} /> {t('capturePhrase')}</button>
+            <button type="button" className="primary-button primary-button--large" onClick={onStart}><Icon name="play" size={19} /> {firstStepsComplete ? t('continueMyLesson') : t('startFirstLesson')}</button>
+            <button type="button" className="secondary-button secondary-button--large" onClick={onOpenDictionary}><Icon name="book" size={19} /> {t('openFriendlyDictionary')}</button>
           </div>
-          <XPBar xp={dashboard.xp} />
+          {!readOnly && <button type="button" className="capture-link" onClick={onCapture}><Icon name="plus" size={17} /> {t('saveAWordYouNeed')}</button>}
         </div>
-        <div className="hero-visual" aria-hidden="true">
-          <div className="orbital-card orbital-card--one"><Icon name="brain" size={22} /><span>{t('adaptive')}</span></div>
-          <div className="orbital-card orbital-card--two"><Icon name="mic" size={22} /><span>{t('speaking')}</span></div>
-          <div className="orbital-card orbital-card--three"><Icon name="book" size={22} /><span>{t('wordCount', { count: dashboard.dictionary.entries })}</span></div>
-          <div className="hebrew-orb"><span>ע</span><i /><i /><i /></div>
+        <div className="hero-visual guided-word-visual">
+          <WordIllustration kind="greeting" title={localizedText(firstWord.illustrationAlt, locale)} />
+          <div className="guided-word-visual__label">
+            <strong lang="he" dir="rtl">{firstWord.word}</strong>
+            <span dir="ltr">{firstWord.transliteration}</span>
+            <p>{localizedText(firstWord.meaning, locale)}</p>
+          </div>
+        </div>
+      </section>
+
+      {readOnly && (
+        <section className="demo-tour card" aria-labelledby="demo-tour-title">
+          <header className="demo-tour__header">
+            <div>
+              <span className="eyebrow"><Icon name="play" size={16} /> {t('demoTourEyebrow')}</span>
+              <h2 id="demo-tour-title">{t('demoTourTitle')}</h2>
+            </div>
+            <p>{t('demoTourDescription')}</p>
+          </header>
+          <div className="demo-tour__grid">
+            {demoTourStops.map((stop, index) => (
+              <button key={stop.key} type="button" className={`demo-tour__stop demo-tour__stop--${index + 1}`} onClick={stop.open}>
+                <span className="demo-tour__number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                <span className="demo-tour__icon" aria-hidden="true"><Icon name={stop.icon} size={22} /></span>
+                <span className="demo-tour__copy"><strong>{stop.title}</strong><small>{stop.detail}</small></span>
+                <Icon name="chevron" size={18} />
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <section className="visual-vocabulary card" aria-labelledby="visual-vocabulary-title">
+        <header className="section-heading">
+          <div><span className="eyebrow">🖼️ {t('learnWithPictures')}</span><h2 id="visual-vocabulary-title">{t('yourFirstVisualWords')}</h2></div>
+          <button type="button" className="text-button" onClick={onStart}>{t('practiceTheseWords')} <Icon name="chevron" size={16} /></button>
+        </header>
+        <div className="visual-vocabulary__grid">
+          {starterWords.map((word) => (
+            <button type="button" key={word.id} onClick={() => onWordClick(word.dictionaryWord)} aria-label={t('openDictionaryFor', { word: word.dictionaryWord })}>
+              <WordIllustration kind={word.illustration} title={localizedText(word.illustrationAlt, locale)} />
+              <strong lang="he" dir="rtl">{word.word}</strong>
+              <span>{localizedText(word.meaning, locale)}</span>
+            </button>
+          ))}
         </div>
       </section>
 

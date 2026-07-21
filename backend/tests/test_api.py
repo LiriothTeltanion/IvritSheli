@@ -57,6 +57,7 @@ def test_health_and_security_headers(
         "data:",
         "blob:",
         "https://avatars.githubusercontent.com",
+        "https://*.googleusercontent.com",
     }
     assert content_security_policy["media-src"] == {
         "'self'",
@@ -143,7 +144,7 @@ def test_dashboard_profile_and_gamification_boot_cleanly(client: TestClient) -> 
     gamification = client.get("/api/v1/gamification/status")
     assert dashboard.status_code == profile.status_code == gamification.status_code == 200
     assert dashboard.json()["system"]["offline_ready"] is True
-    assert dashboard.json()["dictionary"]["entries"] == 12
+    assert dashboard.json()["dictionary"]["entries"] == 48
     assert profile.json()["weekly_rest_day"] == 5
 
 

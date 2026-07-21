@@ -4,9 +4,63 @@ All notable changes are documented here. Versions follow Semantic Versioning.
 
 ## Unreleased
 
-### Corrected
+No changes beyond the 2.4.0 Contest Edition candidate are currently queued.
 
-- Reconciled recruiter-facing release truth after the existing 2.2.0 source was deployed: Railway production now reports version `2.2.0`, PostgreSQL readiness and production commit `c8c928661bdcf179ed1d9df88b9f2e4d730ffea3`.
+## 2.4.0 — Contest Edition candidate — 2026-07-21
+
+### Added
+
+- A four-stop guided product tour for the synthetic read-only demo, with real navigation to an ephemeral illustrated First Steps lesson, visual dictionary, microphone word intelligence and adaptive-progress surfaces.
+- A deterministic per-visit `?lang=en`, `?lang=es` or `?lang=he` override for judge links, documentation captures and support flows without overwriting the learner's saved language.
+
+### Changed
+
+- Version metadata advances from the unreleased `2.3.0` candidate to `2.4.0` across Python, npm, PWA, browser, diagnostics, citation and release surfaces.
+- The contest tour reuses the existing responsive, RTL-aware, keyboard-accessible and reduced-motion architecture; it does not add a new animation framework or external visual dependency.
+
+### Security
+
+- Session, CSRF and OAuth-state bearer material now uses keyed BLAKE2b-256 rather than HMAC-SHA256. The stored representation remains a 64-character hexadecimal digest; deploying the change intentionally rotates active session hashes without a schema migration.
+- Google sign-in remains identity-only and gains no Gmail, Drive or Calendar scope, schema, provider or dependency in this release.
+
+### Local candidate verification
+
+- The ordinary backend suite passes 150 tests with one credential-gated PostgreSQL skip; the dedicated PostgreSQL 17 gate passes 3/3, with two overlapping the ordinary suite and one replacing that skip, for 151 unique backend passes.
+- The frontend passes 62 tests across 16 files; combined local candidate evidence is 213 unique automated tests.
+- Ruff, strict MyPy across 24 source files, compileall, offline doctor, pip-audit, TypeScript, Vite, npm production audit and the 66-file package verifier pass. The production-shaped Docker/Compose smoke passes with release 2.4.0, PostgreSQL readiness, UID 10001, no migration DSN in the app runtime, OAuth rate limiting and structured-log redaction.
+- Version `2.4.0` remains an unpublished source candidate until CI/CodeQL policy, merge, Railway deployment and live Google/session/browser checks pass. The current independently verified public release and latest GitHub Release remain `2.2.0`.
+
+## 2.3.0 — Superseded source candidate — 2026-07-21
+
+### Added
+
+- Google sign-in as the beginner-facing account path, with provider-bound OAuth state, S256 PKCE, minimal `openid profile` scope, and no stored provider bearer tokens or email addresses. GitHub sign-in remains available for developers and returning learners.
+- A resumable trilingual First Steps onboarding journey for interface language, plain-language Hebrew level, daily time, practical goals, niqqud, transliteration and voice preview.
+- A warm illustrated guided mode, original accessible SVG word scenes, and a complete five-word first lesson that works without OpenAI or another paid provider.
+- A 48-concept reviewed A0/A1 starter dictionary with exact-sense visual metadata, Hebrew/English/Spanish meanings, transliteration, practical examples, and broader multilingual search.
+- Self-service learner export and permanent cloud-account deletion, plus public privacy and terms documents.
+
+### Changed
+
+- New local and cloud profiles now begin with beginner-friendly A0, ten-minute, full-niqqud defaults. Existing learner choices remain persisted, while the onboarding step and guided-mode preference now resume across devices.
+- The default visual direction moves from a dense futuristic dashboard to a light-first cream, navy, teal, gold and coral learning journey. Dark mode and advanced tools remain available.
+- Version metadata advances from `2.2.0` to `2.3.0` across Python, npm, PWA, browser, diagnostics, citation and release surfaces.
+
+### Privacy and safety
+
+- Google and GitHub OAuth attempts are cryptographically bound to their provider, preventing state from being replayed across callback paths.
+- Account deletion requires an authenticated, CSRF-verified request and an explicit destructive-action confirmation. The shared demo cannot be deleted.
+- Original illustrations are bundled locally, have localized accessible descriptions, and do not introduce tracking, remote-image, or licensing dependencies.
+
+### Candidate verification
+
+- The ordinary backend suite passes 149 tests with one credential-gated PostgreSQL skip; the dedicated PostgreSQL 17 gate passes all three database-boundary tests and contributes the skipped case for 150 unique backend passes.
+- The frontend type-check, 58 tests across 15 files and production build pass; the verified candidate baseline is 208 unique passing automated tests. The production Compose/image smoke also passes with release 2.3.0, PostgreSQL readiness, 48 shared dictionary entries and the unprivileged runtime identity.
+- Version `2.3.0` was not published; it was superseded in source by the 2.4.0 Contest Edition candidate. The current verified public release and latest GitHub Release remain `2.2.0`.
+
+### Previous release record corrected
+
+- Reconciled recruiter-facing release truth after the existing 2.2.0 source was deployed: Railway production reports version `2.2.0`, PostgreSQL readiness and production commit `66d68a3c44ac2500fb400eef88d5f77da0c1c1e1` as refreshed on 2026-07-21.
 - Added the strict public `portfolio/project.json` manifest and package drift checks without changing the application version; this finishes the 2.2.0 release record rather than starting 2.3.0.
 - Published Git tag and GitHub Release `v2.2.0` while keeping the remaining evidence boundaries explicit: README screenshots remain 2.1.x visual proof, and final live OAuth authorization-code exchange remains unverified end to end.
 
@@ -38,7 +92,7 @@ All notable changes are documented here. Versions follow Semantic Versioning.
 ### Verification
 
 - Backend lint, strict typing, local suite, real PostgreSQL 17 boundary, frontend type-check/tests/build and package diff checks pass for the 2.2.0 release source.
-- The public Railway service is verified on merged 2.2.0 production commit `c8c928661bdcf179ed1d9df88b9f2e4d730ffea3` with PostgreSQL readiness; Git tag and GitHub Release `v2.2.0` are published.
+- The 2.2.0 application merge was first production-verified at `c8c928661bdcf179ed1d9df88b9f2e4d730ffea3`; the service later advanced through release-documentation commits to `66d68a3c44ac2500fb400eef88d5f77da0c1c1e1`, which remained the live PostgreSQL-ready commit on 2026-07-21. Git tag and GitHub Release `v2.2.0` are published.
 
 ## 2.1.1 — 2026-07-16
 

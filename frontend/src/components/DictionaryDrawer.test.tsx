@@ -13,6 +13,18 @@ import { I18nProvider } from '../i18n';
 import type { DictionaryEntry, LearningItem } from '../types';
 import { DictionaryDrawer } from './DictionaryDrawer';
 
+const EMPTY_SENSE_METADATA = {
+  level: null,
+  category: null,
+  visual_key: null,
+  visual_emoji: null,
+  visual_alt_en: null,
+  visual_alt_es: null,
+  visual_alt_he: null,
+  provenance: null,
+  visual: null,
+} as const;
+
 const ENTRY: DictionaryEntry = {
   id: 7,
   word: 'שלום',
@@ -23,16 +35,23 @@ const ENTRY: DictionaryEntry = {
   root: 'שלם',
   binyan: null,
   gender: 'masculine',
+  level: 'A1',
+  category: 'greetings',
+  visual: {
+    key: 'greetings.hello',
+    emoji: '👋',
+    alt: { en: 'Two people greeting', es: 'Dos personas saludándose', he: 'שני אנשים מברכים' },
+  },
   etymology: null,
   source_name: 'Test lexicon',
   source_url: 'https://example.test/hebrew/shalom',
   license_name: 'CC BY-SA',
   senses: [
-    { id: 1, gloss_en: 'peace; hello', gloss_es: 'paz; hola', tags: ['common'], topics: [] },
-    { id: 4, gloss_en: 'goodbye', gloss_es: 'adiós', tags: [], topics: ['greetings'] },
+    { ...EMPTY_SENSE_METADATA, id: 1, gloss_en: 'peace; hello', gloss_es: 'paz; hola', tags: ['common'], topics: [] },
+    { ...EMPTY_SENSE_METADATA, id: 4, gloss_en: 'goodbye', gloss_es: 'adiós', tags: [], topics: ['greetings'] },
   ],
   forms: [{ id: 2, form: 'שלומות', romanization: 'shalomot', tags: ['plural'] }],
-  examples: [{ id: 3, hebrew_text: 'שלום לכולם', translation_en: 'Hello everyone', romanization: null }],
+  examples: [{ id: 3, hebrew_text: 'שלום לכולם', translation_en: 'Hello everyone', translation_es: 'Hola a todos', romanization: null }],
   sounds: [{ id: 5, audio_url: 'https://audio.example.test/shalom.ogg', ipa: 'ʃaˈlom', romanization: 'shalom', tags: ['Modern Hebrew'] }],
 };
 
@@ -91,6 +110,7 @@ describe('DictionaryDrawer', () => {
 
     await waitFor(() => expect(lookup).toHaveBeenCalledWith('שלום'));
     expect((await screen.findAllByText('shalom')).length).toBeGreaterThan(0);
+    expect(screen.getByRole('img', { name: 'Two people greeting' })).toBeInTheDocument();
     expect(screen.getByText('peace; hello')).toBeInTheDocument();
     expect(screen.getByText('paz; hola')).toBeInTheDocument();
     expect(screen.getByText('goodbye')).toBeInTheDocument();
@@ -234,7 +254,7 @@ describe('DictionaryDrawer', () => {
       display_niqqud: 'לִלְמוֹד',
       pos: 'verb',
       romanization: 'lilmod',
-      senses: [{ id: 8, gloss_en: 'to learn', gloss_es: 'aprender', tags: [], topics: [] }],
+      senses: [{ ...EMPTY_SENSE_METADATA, id: 8, gloss_en: 'to learn', gloss_es: 'aprender', tags: [], topics: [] }],
       forms: [],
       examples: [],
       sounds: [],
@@ -264,7 +284,7 @@ describe('DictionaryDrawer', () => {
       display_niqqud: 'שָׁלוֹם ב׳',
       pos: 'interjection',
       romanization: 'shalom-b',
-      senses: [{ id: 8, gloss_en: 'second homograph', gloss_es: 'segundo homógrafo', tags: [], topics: [] }],
+      senses: [{ ...EMPTY_SENSE_METADATA, id: 8, gloss_en: 'second homograph', gloss_es: 'segundo homógrafo', tags: [], topics: [] }],
       forms: [],
       examples: [],
       sounds: [],
@@ -293,7 +313,7 @@ describe('DictionaryDrawer', () => {
       normalized_word: 'חדש',
       display_niqqud: 'חָדָשׁ',
       romanization: 'chadash',
-      senses: [{ id: 12, gloss_en: 'new', gloss_es: 'nuevo', tags: [], topics: [] }],
+      senses: [{ ...EMPTY_SENSE_METADATA, id: 12, gloss_en: 'new', gloss_es: 'nuevo', tags: [], topics: [] }],
       forms: [],
       examples: [],
       sounds: [],

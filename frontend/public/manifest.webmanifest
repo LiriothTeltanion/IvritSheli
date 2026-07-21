@@ -1,11 +1,11 @@
 {
   "name": "Ivrit Sheli Cloud",
   "short_name": "Ivrit Sheli",
-  "description": "Secure, account-isolated, adaptive Hebrew learning in English, Spanish, and Hebrew.",
+  "description": "Ivrit Sheli 2.4 Contest Edition: a guided, illustrated Hebrew-learning journey in English, Spanish, and Hebrew.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#07111f",
-  "theme_color": "#07111f",
+  "background_color": "#f7f1e5",
+  "theme_color": "#f7f1e5",
   "lang": "en",
   "dir": "auto",
   "icons": [

@@ -63,6 +63,31 @@ describe('read-only API guard', () => {
     });
   });
 
+  it('sends an explicit confirmation for permanent account deletion', async () => {
+    document.cookie = 'ivrit_csrf=csrf-delete-token; path=/';
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      authenticated: false,
+      demo: false,
+      read_only: false,
+      user: null,
+      mode: 'cloud',
+      capabilities: {},
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await api.deleteAccount();
+
+    expect(fetchMock).toHaveBeenCalledWith('/api/v1/account', expect.objectContaining({
+      method: 'DELETE',
+      credentials: 'include',
+      body: JSON.stringify({ confirm: true }),
+      headers: expect.objectContaining({ 'X-CSRF-Token': 'csrf-delete-token' }),
+    }));
+  });
+
   it('uses the recorded MIME type for uploads and preserves pronunciation context', async () => {
     const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response(JSON.stringify({
       transcript: 'שלום',

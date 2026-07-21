@@ -6,6 +6,8 @@
 
 Double-click `START_IVRIT_SHELI.bat` in the main project folder. The first launch installs the required local dependencies, builds the interface, creates your private SQLite profile, adds the starter phrases and demo dictionary, and opens the app automatically. By default, private learning data is stored in `%LOCALAPPDATA%\IvritSheli\data` so the live SQLite database is not synchronized by OneDrive.
 
+The launcher explicitly selects private local mode. It ignores any PostgreSQL or OAuth deployment credentials in `.env` for that process, so a developer's Railway configuration cannot accidentally turn the desktop launch into a cloud server.
+
 Keep the launcher window open while learning. Press `Ctrl+C` in that window to stop the app; your local progress is preserved. The default address is `http://127.0.0.1:8000`.
 
 The same launcher can be started from PowerShell:
@@ -13,6 +15,12 @@ The same launcher can be started from PowerShell:
 ```powershell
 .\scripts\start.ps1
 ```
+
+### First Steps onboarding
+
+On a new profile, the app asks four short questions in plain language: interface language, current Hebrew level, main learning goal and daily practice time. You can preview the available voice style and record a guided-mode preference. Onboarding choices, **Do later**, the exact lesson checkpoint and completion save in the learner profile. The guided-mode switch is stored but does not yet change the application shell.
+
+The first lesson introduces five useful words: `שלום`, `תודה`, `בבקשה`, `כן` and `לא`. Each card combines a code-native visual cue, niqqud, romanization, English/Spanish meaning, a practical example and pronunciation. Saved words, submitted practice and navigation checkpoint use the active learner profile, so an authenticated learner can recover progress after signing in again.
 
 ### Development mode
 
@@ -44,6 +52,7 @@ Open **Settings** and choose:
 - Weekly rest day.
 - Weighted learning goals.
 - Whether cloud processing is permitted at all.
+- Whether guided beginner mode is enabled.
 
 The profile drives recommendation scoring. A workplace goal raises the priority of workplace phrases; a speaking goal raises production and audio practice; repeated preposition mistakes create targeted drills.
 
@@ -72,7 +81,7 @@ Missions convert passive knowledge into behavior. Complete the mission, then rec
 
 The progress area shows modality accuracy, repeated mistake categories, activity, mastery, XP, streak, and achievements. The recommendation panel explains why a task was selected.
 
-## 4. Clickable Hebrew dictionary
+## 4. Clickable visual Hebrew dictionary
 
 Every Hebrew token rendered through the shared `HebrewText` component opens the dictionary drawer. The drawer includes, when the source provides them:
 
@@ -86,6 +95,8 @@ Every Hebrew token rendered through the shared `HebrewText` component opens the 
 - Examples.
 - IPA, audio URLs, and pronunciation fallback.
 - Source and license attribution.
+
+The bundled 48-concept A0/A1 layer also shows a stable visual cue and localized accessible description. Beginner facts appear first; advanced grammar, forms and provenance remain available without crowding the initial view. Visual cues aid memory but are not presented as grammatical evidence. An imported or unsupported word can correctly have no illustration.
 
 Click a form to open it. Click the root chip to explore its word family. Click **Add to learning** to turn a dictionary entry into a personal review item.
 
@@ -174,6 +185,12 @@ PYTHONPATH=backend/src .venv/bin/python -m ivrit_sheli \
 ```
 
 Secrets, OAuth tokens, raw private uploads, and temporary audio are excluded from exports. Full-disk encryption is recommended for strong protection because an app-level PIN alone is not database encryption.
+
+### Hosted accounts
+
+When the public service has a provider configured, choose Google for the beginner-facing identity-only flow or GitHub as the secondary option. The sign-in screen shows only providers available on the server. Google requests `openid profile`; GitHub requests `read:user`. The app stores the provider ID, display name, picture and GitHub login when applicable, but not provider passwords, bearer tokens or email addresses.
+
+Use **Settings → Export my data** to download your current learner state. To permanently remove a hosted account, open the danger section, choose **Delete account**, read the warning and confirm the second step. This deletes the Ivrit Sheli identity, sessions and learner state; it does not delete the separate Google or GitHub account. The shared read-only demo cannot be deleted. See `PRIVACY.md` and `TERMS.md` before using the hosted pilot.
 
 ## 10. Diagnostics and recovery
 

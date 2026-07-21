@@ -8,10 +8,12 @@ from uuid import uuid4
 
 import psycopg
 import pytest
+from alembic import command
 from alembic.config import Config
 from alembic.script import ScriptDirectory
 from psycopg import sql
 from psycopg.rows import dict_row
+from sqlalchemy.exc import DBAPIError
 
 from ivrit_sheli.cloud_repository import CloudLearningRepository
 from ivrit_sheli.cloud_store import CloudSnapshotLimitError, PostgresCloudStore
@@ -29,7 +31,15 @@ def test_migration_graph_has_one_v2_head() -> None:
     """The migration graph must remain linear and independently inspectable."""
     configuration = Config(str(BACKEND_DIR / "alembic.ini"))
     scripts = ScriptDirectory.from_config(configuration)
-    assert scripts.get_heads() == ["20260716_0001"]
+    assert scripts.get_heads() == ["20260718_0002"]
+    google_migration = (
+        BACKEND_DIR
+        / "migrations"
+        / "versions"
+        / "20260718_0002_google_identity_and_oauth_provider.py"
+    ).read_text(encoding="utf-8")
+    assert "RAISE EXCEPTION" in google_migration
+    assert "DELETE FROM users WHERE provider = 'google'" not in google_migration
 
 
 def test_runtime_store_rejects_an_administrator_url_before_connecting() -> None:
@@ -89,6 +99,15 @@ def test_real_postgres_idempotent_provisioning_least_privilege_and_rls() -> None
     beta = store.upsert_github_user(
         {"id": f"beta-{nonce}", "login": f"beta-{nonce}", "name": "Beta"}
     )
+    google = store.upsert_google_user(
+        {
+            "id": f"google-{nonce}",
+            "name": "Google Learner",
+            "avatar_url": "https://lh3.googleusercontent.com/a/test",
+        }
+    )
+    assert google.provider == "google"
+    assert google.login is None
     alpha_repository = CloudLearningRepository(store, alpha.id, alpha.display_name)
     beta_repository = CloudLearningRepository(store, beta.id, beta.display_name)
     item = alpha_repository.create_item({"hebrew_text": "מידע מבודד"})
@@ -102,6 +121,36 @@ def test_real_postgres_idempotent_provisioning_least_privilege_and_rls() -> None
         alpha_repository.create_item({"hebrew_text": "שמירה גדולה מדי"})
     assert store.read_state(alpha.id) == before_limited_save
     store.configure_security(store.session_secret, 4_194_304)
+
+    google_repository = CloudLearningRepository(store, google.id, google.display_name)
+    google_repository.create_item({"hebrew_text": "מידע למחיקה"})
+    google_token = f"google-session-{nonce}"
+    store.create_session(google.id, google_token, f"google-csrf-{nonce}", 300)
+    assert store.resolve_session(google_token) is not None
+
+    # Downgrading must never silently delete a Google learner or their private state.
+    configuration = Config(str(BACKEND_DIR / "alembic.ini"))
+    with pytest.raises(
+        DBAPIError,
+        match="Cannot downgrade while Google learner accounts exist",
+    ):
+        command.downgrade(configuration, "20260716_0001")
+    assert store.ready() is True
+    assert google_repository.list_items()[0]["hebrew_text"] == "מידע למחיקה"
+
+    store.delete_user(google.id)
+    assert store.resolve_session(google_token) is None
+    with psycopg.connect(normalized_admin_url, row_factory=dict_row) as connection:
+        deleted_counts = connection.execute(
+            """
+            SELECT
+                (SELECT COUNT(*) FROM users WHERE id = %s) AS users,
+                (SELECT COUNT(*) FROM sessions WHERE user_id = %s) AS sessions,
+                (SELECT COUNT(*) FROM learner_states WHERE user_id = %s) AS learner_states
+            """,
+            (google.id, google.id, google.id),
+        ).fetchone()
+    assert deleted_counts == {"users": 0, "sessions": 0, "learner_states": 0}
 
     token = f"session-{nonce}"
     csrf = f"csrf-{nonce}"
@@ -144,6 +193,7 @@ def test_real_postgres_idempotent_provisioning_least_privilege_and_rls() -> None
         bounded_state,
         "bounded-verifier",
         "/bounded",
+        provider="google",
         max_active_states=active_before + 1,
     )
     assert not store.store_oauth_state(
@@ -152,7 +202,8 @@ def test_real_postgres_idempotent_provisioning_least_privilege_and_rls() -> None
         "/blocked",
         max_active_states=active_before + 1,
     )
-    assert store.consume_oauth_state(bounded_state) == (
+    assert store.consume_oauth_state(bounded_state, provider="github") is None
+    assert store.consume_oauth_state(bounded_state, provider="google") == (
         "bounded-verifier",
         "/bounded",
     )

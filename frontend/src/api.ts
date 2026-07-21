@@ -109,6 +109,10 @@ export const api = {
   authMe: (): Promise<AuthState> => request('/auth/me'),
   startDemo: (): Promise<AuthState> => request('/auth/demo', { method: 'POST' }),
   logout: (): Promise<AuthState> => request('/auth/logout', { method: 'POST' }),
+  deleteAccount: (): Promise<AuthState> => request('/account', {
+    method: 'DELETE',
+    body: JSON.stringify({ confirm: true }),
+  }),
   dashboard: (): Promise<Dashboard> => request('/dashboard'),
   profile: (): Promise<Profile> => request('/profile'),
   updateProfile: (profile: Partial<Profile>): Promise<Profile> =>

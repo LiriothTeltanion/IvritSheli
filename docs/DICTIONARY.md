@@ -2,7 +2,17 @@
 
 ## Immediate mode
 
-The seed database contains representative modern-Hebrew entries so every dictionary interaction works on first launch.
+The seed database contains exactly 48 reviewed A0/A1 visual concepts so useful beginner searches and the first lesson work on first launch. The distribution is deliberate: 8 greetings, 7 family, 7 home, 8 food, 6 transport, 6 shopping and 6 health concepts.
+
+Every curated concept includes:
+
+- A stable visual key and emoji cue with Hebrew, English and Spanish alternative text.
+- Hebrew with niqqud, niqqud-free normalization and romanization.
+- English and Spanish meanings.
+- One practical Hebrew example with romanization and EN/ES translations.
+- A0/A1 level, category and explicit curated provenance.
+
+The visuals are semantic learning cues, not dictionary facts. Unsupported or imported entries can return `visual: null`; the application does not fabricate illustrations, roots or grammar to fill a missing source field.
 
 ## Full mode
 
@@ -12,17 +22,22 @@ The CLI downloads or imports the Kaikki/Wiktionary Hebrew JSONL dataset into a d
 
 Search order:
 
-1. Exact original spelling.
-2. Exact niqqud-free normalized spelling.
-3. Inflected-form match.
-4. FTS prefix search.
-5. Safe `LIKE` fallback.
+1. Exact curated concept match across Hebrew, niqqud-free Hebrew, romanization, English or Spanish.
+2. Exact original spelling.
+3. Exact niqqud-free normalized spelling.
+4. Inflected-form match.
+5. FTS prefix search.
+6. Safe `LIKE` fallback.
+
+Equivalent beginner searches such as `שלום`, `shalom`, `hello`, and `hola` converge on the same curated concept. When an imported Kaikki entry duplicates the surface form, the reviewed exact concept ranks first while the imported record and its provenance remain available.
 
 ## Cross-app behavior
 
 The frontend uses one `HebrewText` component. It detects Hebrew tokens, preserves punctuation and niqqud, and opens the dictionary drawer. The same component is used in lessons, AI output, messages, reports, mission text, and examples.
 
-The 2.2 drawer presents each source-backed layer separately: bilingual senses, grammatical metadata, forms, examples, pronunciation sources, provenance and license. It also shows whether the current learner has already saved the word and prevents new duplicate additions. Dictionary search, lookup and entry GETs are read-only; saving a word is the explicit learner mutation.
+The 2.3 drawer uses progressive disclosure: the beginner-facing cue, niqqud, romanization, EN/ES meaning and one useful example appear first, while grammatical metadata, forms, source details and licensing remain available in deeper sections. It also shows whether the current learner has already saved the word and prevents new duplicate additions. Dictionary search, lookup and entry GETs are read-only; saving or practicing a word is the explicit learner mutation.
+
+The API keeps visual metadata attached to the exact entry/sense identity so a homograph cannot accidentally borrow another sense's illustration. Localized alternative text is content, while assistive technology still receives ordinary semantic labels for controls and state.
 
 ## Saved-vocabulary registry
 
@@ -39,6 +54,10 @@ Status is derived from persisted review/mastery signals, never from a client-sid
 ## 2.1 to 2.2 upgrade note
 
 The 2.2 atomic link path prevents new duplicate active rows for the same exact dictionary entry. It does not auto-merge duplicates that may already exist from 2.1 because combining their review schedules, attempts and mastery without learner confirmation could discard history. The Word Explorer milestone counts distinct active dictionary sources, so a legacy duplicate cannot accelerate it. Previously unlocked milestones remain unlocked for compatibility; sub-threshold lookup activity is not carried into the new saved-word metric. A future repair migration should first produce a dry-run report, then reconcile histories before adding a database-level uniqueness invariant.
+
+## 2.2 to 2.3 upgrade note
+
+Opening a 2.2 demo dictionary expands it to the 48-concept starter layer while preserving existing entry IDs. A full imported database receives the same curated starter layer additively rather than being replaced. Dictionary readiness requires the packaged schema version, but existing learner links remain stable because the upgrade does not renumber prior records.
 
 ## Data quality
 

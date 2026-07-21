@@ -11,6 +11,7 @@ import { useI18n } from '../i18n';
 import { useSessionAccess } from '../session';
 import type { DictionaryEntry } from '../types';
 import { configureHebrewUtterance } from '../voicePreference';
+import { DictionaryVisualCue } from './DictionaryVisualCue';
 import { HebrewText } from './HebrewText';
 import { Icon } from './Icon';
 
@@ -33,7 +34,7 @@ interface DictionaryDrawerProps {
 }
 
 export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, onLearned }: DictionaryDrawerProps): React.JSX.Element | null {
-  const { label, t } = useI18n();
+  const { locale, label, t } = useI18n();
   const { readOnly, readOnlyReason } = useSessionAccess();
   const [entries, setEntries] = useState<DictionaryEntry[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -258,6 +259,11 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
         {entry && (
           <div className="dictionary-content stagger-in">
             <section className="dictionary-hero">
+              {entry.visual && (
+                <div className="dictionary-visual-stage">
+                  <DictionaryVisualCue visual={entry.visual} locale={locale} className="dictionary-visual" />
+                </div>
+              )}
               <HebrewText text={entry.display_niqqud || entry.word} onWordClick={onOpenWord} className="dictionary-word" as="h2" />
               <button type="button" className="voice-orb" onClick={play} aria-label={t('pronunciation')}>
                 <Icon name="volume" size={24} />
@@ -269,6 +275,8 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
               )}
               <div className="tag-row">
                 {entry.pos && <span>{label(entry.pos)}</span>}
+                {entry.level && <span>{entry.level}</span>}
+                {entry.category && <span>{label(entry.category)}</span>}
                 {entry.gender && <span>{label(entry.gender)}</span>}
                 {entry.binyan && <span>{label(entry.binyan)}</span>}
                 {entry.root && (
@@ -315,45 +323,16 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
               ))}
             </section>
 
-            {(entry.pos || entry.gender || entry.root || entry.binyan) && (
-              <section className="drawer-section">
-                <h3>{t('grammarDetails')}</h3>
-                <dl className="dictionary-details-grid">
-                  {entry.pos && <div className="dictionary-detail"><dt>{t('partOfSpeech')}</dt><dd>{label(entry.pos)}</dd></div>}
-                  {entry.gender && <div className="dictionary-detail"><dt>{t('genderLabel')}</dt><dd>{label(entry.gender)}</dd></div>}
-                  {entry.binyan && <div className="dictionary-detail"><dt>{t('binyanLabel')}</dt><dd>{label(entry.binyan)}</dd></div>}
-                  {entry.root && (
-                    <div className="dictionary-detail">
-                      <dt>{t('rootLabel')}</dt>
-                      <dd><button type="button" className="root-tag root-tag--button" onClick={() => { void exploreRoot(entry.root ?? ''); }}>{entry.root}</button></dd>
-                    </div>
-                  )}
-                </dl>
-              </section>
-            )}
-
-            {entry.forms.length > 0 && (
-              <section className="drawer-section">
-                <h3>{t('forms')}</h3>
-                <div className="form-grid">
-                  {entry.forms.slice(0, 16).map((form) => (
-                    <button key={form.id} type="button" onClick={() => onOpenWord(form.form)}>
-                      <HebrewText text={form.form} />
-                      <small>{form.tags.map(label).join(' · ')}</small>
-                    </button>
-                  ))}
-                </div>
-              </section>
-            )}
-
             {entry.examples.length > 0 && (
-              <section className="drawer-section">
-                <h3>{t('examples')}</h3>
+              <section className="drawer-section dictionary-examples-primary">
+                <h3>{t('seeItInRealLife')}</h3>
                 <div className="example-stack">
                   {entry.examples.map((example) => (
                     <article key={example.id}>
                       <HebrewText text={example.hebrew_text} onWordClick={onOpenWord} className="example-hebrew" as="p" />
-                      {example.translation_en && <p>{example.translation_en}</p>}
+                      {(locale === 'es' ? example.translation_es ?? example.translation_en : example.translation_en ?? example.translation_es) && (
+                        <p>{locale === 'es' ? example.translation_es ?? example.translation_en : example.translation_en ?? example.translation_es}</p>
+                      )}
                       {example.romanization && <small dir="ltr">{example.romanization}</small>}
                     </article>
                   ))}
@@ -361,39 +340,78 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
               </section>
             )}
 
-            {entry.sounds.length > 0 && (
-              <section className="drawer-section dictionary-pronunciations">
-                <h3>{t('pronunciationSources')}</h3>
-                <p className="muted-copy">{t('pronunciationSourceDetail')}</p>
-                {entry.sounds.map((sound) => {
-                  const audioUrl = safeExternalUrl(sound.audio_url);
-                  return (
-                    <article className="dictionary-pronunciation" key={sound.id}>
-                      {audioUrl && (
-                        <button type="button" className="icon-button" onClick={() => playSource(audioUrl)} aria-label={t('play')}>
-                          <Icon name="play" size={17} />
-                        </button>
+            <details className="dictionary-more">
+              <summary><Icon name="book" size={18} /> <span>{t('moreWordDetails')}</span><Icon name="chevron" size={17} /></summary>
+              <div className="dictionary-more__content">
+                {(entry.pos || entry.gender || entry.root || entry.binyan) && (
+                  <section className="drawer-section">
+                    <h3>{t('grammarDetails')}</h3>
+                    <dl className="dictionary-details-grid">
+                      {entry.pos && <div className="dictionary-detail"><dt>{t('partOfSpeech')}</dt><dd>{label(entry.pos)}</dd></div>}
+                      {entry.gender && <div className="dictionary-detail"><dt>{t('genderLabel')}</dt><dd>{label(entry.gender)}</dd></div>}
+                      {entry.binyan && <div className="dictionary-detail"><dt>{t('binyanLabel')}</dt><dd>{label(entry.binyan)}</dd></div>}
+                      {entry.root && (
+                        <div className="dictionary-detail">
+                          <dt>{t('rootLabel')}</dt>
+                          <dd><button type="button" className="root-tag root-tag--button" onClick={() => { void exploreRoot(entry.root ?? ''); }}>{entry.root}</button></dd>
+                        </div>
                       )}
-                      <div>
-                        {sound.ipa && <p><strong>IPA</strong> <span dir="ltr">{sound.ipa}</span></p>}
-                        {sound.romanization && <p dir="ltr">{sound.romanization}</p>}
-                        {sound.tags.length > 0 && <small>{sound.tags.map(label).join(' · ')}</small>}
-                      </div>
-                    </article>
-                  );
-                })}
-              </section>
-            )}
-
-            <footer className="dictionary-footer dictionary-provenance">
-              <div>
-                <span className="eyebrow">{t('provenance')}</span>
-                <p>{entry.source_name}</p>
-                {entry.license_name && <small>{entry.license_name}</small>}
-                {safeExternalUrl(entry.source_url) && (
-                  <a href={safeExternalUrl(entry.source_url) ?? undefined} target="_blank" rel="noreferrer">{t('openSource')}</a>
+                    </dl>
+                  </section>
                 )}
+
+                {entry.forms.length > 0 && (
+                  <section className="drawer-section">
+                    <h3>{t('forms')}</h3>
+                    <div className="form-grid">
+                      {entry.forms.slice(0, 16).map((form) => (
+                        <button key={form.id} type="button" onClick={() => onOpenWord(form.form)}>
+                          <HebrewText text={form.form} />
+                          <small>{form.tags.map(label).join(' · ')}</small>
+                        </button>
+                      ))}
+                    </div>
+                  </section>
+                )}
+
+                {entry.sounds.length > 0 && (
+                  <section className="drawer-section dictionary-pronunciations">
+                    <h3>{t('pronunciationSources')}</h3>
+                    <p className="muted-copy">{t('pronunciationSourceDetail')}</p>
+                    {entry.sounds.map((sound) => {
+                      const audioUrl = safeExternalUrl(sound.audio_url);
+                      return (
+                        <article className="dictionary-pronunciation" key={sound.id}>
+                          {audioUrl && (
+                            <button type="button" className="icon-button" onClick={() => playSource(audioUrl)} aria-label={t('play')}>
+                              <Icon name="play" size={17} />
+                            </button>
+                          )}
+                          <div>
+                            {sound.ipa && <p><strong>IPA</strong> <span dir="ltr">{sound.ipa}</span></p>}
+                            {sound.romanization && <p dir="ltr">{sound.romanization}</p>}
+                            {sound.tags.length > 0 && <small>{sound.tags.map(label).join(' · ')}</small>}
+                          </div>
+                        </article>
+                      );
+                    })}
+                  </section>
+                )}
+
+                <section className="dictionary-footer dictionary-provenance">
+                  <div>
+                    <span className="eyebrow">{t('provenance')}</span>
+                    <p>{entry.source_name}</p>
+                    {entry.license_name && <small>{entry.license_name}</small>}
+                    {safeExternalUrl(entry.source_url) && (
+                      <a href={safeExternalUrl(entry.source_url) ?? undefined} target="_blank" rel="noreferrer">{t('openSource')}</a>
+                    )}
+                  </div>
+                </section>
               </div>
+            </details>
+
+            <footer className="dictionary-save-footer">
               <button type="button" className={`primary-button learned-button ${isLearned ? 'is-learned' : ''}`} onClick={() => { void learn(); }} disabled={readOnly || isLearned || adding} title={readOnly ? readOnlyReason : undefined}>
                 {adding ? <span className="spinner" /> : <Icon name={isLearned ? 'check' : 'plus'} size={18} />}
                 {adding ? t('addingToLearning') : isLearned ? t('alreadyInLearning') : t('addToLearning')}

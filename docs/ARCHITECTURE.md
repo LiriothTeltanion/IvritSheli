@@ -1,6 +1,6 @@
-# Architecture — Ivrit Sheli 2.2
+# Architecture — Ivrit Sheli 2.4 Contest Edition
 
-Ivrit Sheli 2.2 has two deliberate runtime modes. The original private SQLite application remains the simplest offline installation; the cloud mode adds authenticated multi-user delivery without duplicating or weakening the learning engine.
+Ivrit Sheli 2.4 has two deliberate runtime modes. The private SQLite application remains the simplest offline installation; the cloud mode adds authenticated multi-user delivery without duplicating or weakening the learning engine.
 
 ## System shape
 
@@ -9,8 +9,8 @@ Browser: React 19 + TypeScript + PWA + EN/ES/HE + RTL
                          │
                          │ same-origin HTTPS + secure session cookie
                          ▼
-Ivrit Sheli 2.2 FastAPI application
-  ├── GitHub OAuth + PKCE + state replay protection
+Ivrit Sheli 2.4 FastAPI application
+  ├── Google OIDC / GitHub OAuth + provider-bound PKCE state
   ├── signed-in / deterministic demo session boundary
   ├── CSRF verification for authenticated mutations
   ├── request-ID and structured JSON logging middleware
@@ -31,7 +31,7 @@ Ivrit Sheli 2.2 FastAPI application
 | Mode | Durable learner data | Identity | Intended use |
 |---|---|---|---|
 | Local-first | SQLite files under the configured data directory | One trusted local learner; no account required | Private personal use, offline development |
-| Cloud | PostgreSQL plus Alembic migrations | GitHub OAuth or deterministic demo session | Public HTTPS deployment, recruiter demo, multi-user testing |
+| Cloud | PostgreSQL plus Alembic migrations | Google OIDC, GitHub OAuth or deterministic demo session | Public HTTPS deployment, learner pilot, multi-user testing |
 
 The restricted runtime `DATABASE_URL` selects cloud mode. `MIGRATION_DATABASE_URL` exists only for the one-shot schema/role provisioner and is removed before Uvicorn starts. Without a runtime URL, the established SQLite repository is used. The dictionary stays in SQLite in both modes because it is rebuildable reference data with FTS-oriented access patterns, not private tenant state.
 
@@ -52,19 +52,21 @@ AI interactions, pronunciation attempts and connector state use the same locked 
 
 ## Authentication and session flow
 
-### GitHub OAuth
+### Provider-bound OAuth/OIDC
 
-1. `GET /api/v1/auth/github/start` creates a random state and PKCE verifier.
-2. Only a hash of the single-use state is stored; it expires after ten minutes. PostgreSQL serializes the count-and-insert decision and caps all active states across replicas.
-3. GitHub redirects to `/api/v1/auth/github/callback`.
-4. The backend consumes the state atomically, exchanges the code, and allow-lists only GitHub ID, login, display name and avatar URL.
-5. GitHub OAuth access tokens are not persisted; optional Google credentials remain server-side configuration and never enter learner state.
-6. A random session and CSRF token are generated. Only `SESSION_SECRET`-keyed HMAC hashes are stored in PostgreSQL, so rotating that secret invalidates the bearer material.
+1. `GET /api/v1/auth/{google|github}/start` creates a random state and S256 PKCE verifier.
+2. Only a hash of the single-use state is stored with its exact provider; it expires after ten minutes. PostgreSQL serializes the count-and-insert decision and caps all active states across replicas.
+3. The provider redirects to its own `/api/v1/auth/{provider}/callback` and provider-specific state cookie path.
+4. The backend rejects missing, replayed or provider-swapped state, then exchanges the code over the server channel.
+5. Google persists only `sub`, display name and optional picture. GitHub persists only provider ID, login, display name and optional avatar. Provider tokens and email addresses are not persisted, and identities are never auto-linked by email.
+6. A random session and CSRF token are generated. Only domain-separated, `SESSION_SECRET`-keyed BLAKE2b-256 digests are stored in PostgreSQL, so rotating that secret invalidates the bearer material.
 7. The browser receives an `HttpOnly`, `Secure`, `SameSite=Lax` session cookie.
+
+Google sign-in requests `openid profile` only. The separate Google Workspace connector client, credentials and user consent do not widen the login scope. `auth_providers` reports only complete server configurations so the browser cannot offer a dead sign-in button.
 
 ### Demo session
 
-`POST /api/v1/auth/demo` creates a session for a deterministic, non-admin demo identity. Its seed state is isolated from every GitHub identity. Demo mutations are rejected so a visitor cannot permanently change the shared demonstration.
+`POST /api/v1/auth/demo` creates a session for a deterministic, non-admin demo identity. Its seed state is isolated from every Google/GitHub identity. Demo mutations are rejected so a visitor cannot permanently change the shared demonstration.
 
 ### Request authorization
 
@@ -72,6 +74,7 @@ AI interactions, pronunciation attempts and connector state use the same locked 
 - Authenticated: learner data and domain endpoints when `AUTH_REQUIRED=true`.
 - Mutations: valid session plus CSRF verification.
 - Logout: revokes the server-side session before clearing the cookie.
+- Account deletion: authenticated CSRF-verified `DELETE /api/v1/account` removes the identity, sessions and learner state in one database boundary; the shared demo cannot be deleted.
 - Demo/logout POSTs: non-simple same-origin JSON requests; logout verifies an exact allow-listed Origin or the active session's double-submit CSRF fallback.
 - Public OAuth start/callback and demo entry: per-client sliding windows plus a higher endpoint circuit breaker are enforced per process; direct mode uses the raw peer, Railway mode trusts exactly one ingress-overwritten `X-Real-IP`, and `X-Forwarded-For` is never used.
 - Authenticated writes: a per-user sliding window is enforced per process; live sessions are capped per user and the oldest excess session is removed on sign-in.
@@ -115,6 +118,7 @@ The formatter recursively redacts credentials, cookies, authorization headers, O
 - Providers wrap external APIs and never leak provider-specific response shapes upward.
 - The frontend never receives provider, database or OAuth client secrets.
 - External AI and connector processing remains opt-in.
+- Beginner onboarding choices, guided-mode preference, First Steps checkpoint and lesson completion are learner-profile state, so they follow the local database or locked tenant snapshot boundary. In authenticated PostgreSQL mode that continuity follows the learner account across sessions; each word save/review and checkpoint update remains a separate validated request rather than one server-side lesson transaction.
 
 ## Failure behavior
 
@@ -127,6 +131,7 @@ The formatter recursively redacts credentials, cookies, authorization headers, O
 | Session invalid or expired | JSON `401`; no learner state is loaded |
 | CSRF check fails | JSON `403`; no mutation executes |
 | OAuth state missing/replayed | Login fails safely; no session is created |
+| OAuth state reaches the other provider callback | Provider mismatch fails safely; no session is created |
 | AI provider unavailable | Offline provider result with a degraded-mode label |
 | Dictionary unavailable | Startup or the affected dictionary request fails; no dictionaryless runtime fallback is claimed |
 | Audio provider unavailable | Browser TTS or text-only practice |

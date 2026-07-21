@@ -16,7 +16,7 @@ from urllib.parse import urlparse
 
 from ivrit_sheli.cloud_store import RUNTIME_DATABASE_ROLE
 
-SUPPORTED_APP_ENVS = frozenset({"development", "test", "production"})
+SUPPORTED_APP_ENVS = frozenset({"development", "local", "test", "production"})
 
 
 def parse_bool(value: str | bool | None, default: bool = False) -> bool:
@@ -129,6 +129,9 @@ class Settings:
         google_client_secret: Optional OAuth client secret.
         google_refresh_token: Optional refresh token.
         google_access_token: Optional access token.
+        google_auth_client_id: Optional Google sign-in OAuth client ID.
+        google_auth_client_secret: Optional Google sign-in OAuth client secret.
+        google_auth_redirect_uri: Exact Google sign-in callback URI.
 
     Example:
         >>> settings = Settings.from_env({"APP_PORT": "9000"})
@@ -162,6 +165,11 @@ class Settings:
     google_refresh_token: str = ""
     google_access_token: str = ""
     google_redirect_uri: str = "http://127.0.0.1:8765/oauth/callback"
+    google_auth_client_id: str = ""
+    google_auth_client_secret: str = ""
+    google_auth_redirect_uri: str = (
+        "http://127.0.0.1:8000/api/v1/auth/google/callback"
+    )
     database_url: str = ""
     auth_required: bool = False
     session_secret: str = ""
@@ -223,6 +231,26 @@ class Settings:
         values: dict[str, str] = {**file_values, **os.environ}
         if overrides:
             values.update(overrides)
+
+        # The one-click launcher must stay private and writable even when a
+        # developer's .env contains production Railway credentials. This
+        # explicit process-local marker takes precedence over those values;
+        # deployment entrypoints never set it.
+        if parse_bool(values.get("IVRIT_LOCAL_ONLY"), False):
+            values.update(
+                {
+                    "APP_ENV": "local",
+                    "DATABASE_URL": "",
+                    "AUTH_REQUIRED": "false",
+                    "SESSION_COOKIE_SECURE": "false",
+                    "TRUSTED_PROXY_MODE": "direct",
+                    "RAILWAY_ENVIRONMENT_ID": "",
+                    "GITHUB_CLIENT_ID": "",
+                    "GITHUB_CLIENT_SECRET": "",
+                    "GOOGLE_AUTH_CLIENT_ID": "",
+                    "GOOGLE_AUTH_CLIENT_SECRET": "",
+                }
+            )
 
         def value(name: str, default: str) -> str:
             return str(values.get(name, default))
@@ -306,6 +334,12 @@ class Settings:
             google_redirect_uri=value(
                 "GOOGLE_REDIRECT_URI", "http://127.0.0.1:8765/oauth/callback"
             ),
+            google_auth_client_id=value("GOOGLE_AUTH_CLIENT_ID", ""),
+            google_auth_client_secret=value("GOOGLE_AUTH_CLIENT_SECRET", ""),
+            google_auth_redirect_uri=value(
+                "GOOGLE_AUTH_REDIRECT_URI",
+                f"{public_base_url}/api/v1/auth/google/callback",
+            ).strip().rstrip("/"),
             database_url=value("DATABASE_URL", ""),
             auth_required=parse_bool(values.get("AUTH_REQUIRED"), app_env == "production"),
             session_secret=value("SESSION_SECRET", ""),
@@ -392,6 +426,26 @@ class Settings:
         return bool(self.database_url)
 
     @property
+    def github_auth_configured(self) -> bool:
+        """Return whether the complete GitHub login credential pair is present."""
+        return bool(self.github_client_id and self.github_client_secret)
+
+    @property
+    def google_auth_configured(self) -> bool:
+        """Return whether the complete Google login credential pair is present."""
+        return bool(self.google_auth_client_id and self.google_auth_client_secret)
+
+    @property
+    def auth_providers(self) -> tuple[str, ...]:
+        """Return configured sign-in providers in beginner-first display order."""
+        providers: list[str] = []
+        if self.google_auth_configured:
+            providers.append("google")
+        if self.github_auth_configured:
+            providers.append("github")
+        return tuple(providers)
+
+    @property
     def cloud_ai_allowlist_configured(self) -> bool:
         """Return whether at least one GitHub identity may use paid cloud AI."""
         return bool(
@@ -443,6 +497,10 @@ class Settings:
 
     def validate_cloud_configuration(self) -> None:
         """Reject unsafe production authentication and database settings early."""
+        if bool(self.github_client_id) != bool(self.github_client_secret):
+            raise ValueError("GitHub sign-in requires both client ID and client secret")
+        if bool(self.google_auth_client_id) != bool(self.google_auth_client_secret):
+            raise ValueError("Google sign-in requires both client ID and client secret")
         if not 60 <= self.session_ttl_seconds <= 31_536_000:
             raise ValueError("SESSION_TTL_SECONDS must be between 60 and 31536000")
         if not 0 <= self.session_retention_seconds <= 31_536_000:
@@ -536,14 +594,29 @@ class Settings:
                 raise ValueError("Production session cookies must be Secure")
             if not self.public_base_url.startswith("https://"):
                 raise ValueError("Production PUBLIC_BASE_URL must use HTTPS")
-            if not self.github_client_id or not self.github_client_secret:
-                raise ValueError("Production authentication requires GitHub OAuth credentials")
-            expected_callback = (
+            if not self.auth_providers:
+                raise ValueError(
+                    "Production authentication requires at least one OAuth provider"
+                )
+            expected_github_callback = (
                 f"{self.public_base_url}/api/v1/auth/github/callback"
             )
-            if self.github_redirect_uri != expected_callback:
+            if (
+                self.github_auth_configured
+                and self.github_redirect_uri != expected_github_callback
+            ):
                 raise ValueError(
                     "GITHUB_REDIRECT_URI must use PUBLIC_BASE_URL and the GitHub callback path"
+                )
+            expected_google_callback = (
+                f"{self.public_base_url}/api/v1/auth/google/callback"
+            )
+            if (
+                self.google_auth_configured
+                and self.google_auth_redirect_uri != expected_google_callback
+            ):
+                raise ValueError(
+                    "GOOGLE_AUTH_REDIRECT_URI must use PUBLIC_BASE_URL and the Google callback path"
                 )
         if self.app_env == "production":
             for origin in self.allowed_origins:

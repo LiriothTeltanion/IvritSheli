@@ -8,12 +8,14 @@ export type Locale = 'en' | 'es' | 'he';
 export type ViewKey = 'today' | 'learn' | 'coach' | 'progress' | 'connectors' | 'settings';
 export type VoiceStyle = 'masculine' | 'feminine';
 export type TranscriptProvider = 'browser' | 'openai' | 'manual';
+export type AuthProvider = 'google' | 'github';
 
 export interface AuthUser {
   id: string;
   login: string | null;
   display_name: string;
   avatar_url: string | null;
+  provider?: AuthProvider | 'demo';
 }
 
 export interface AuthCapabilities {
@@ -30,6 +32,7 @@ export interface AuthState {
   read_only: boolean;
   user: AuthUser | null;
   mode: 'local' | 'cloud';
+  auth_providers?: AuthProvider[];
   capabilities: AuthCapabilities;
 }
 
@@ -43,6 +46,11 @@ export interface Profile {
   niqqud_mode: 'always' | 'difficult' | 'hidden';
   weekly_rest_day: number;
   cloud_consent: number;
+  onboarding_step?: number;
+  onboarding_completed?: number | boolean;
+  guided_mode?: number | boolean;
+  first_steps_step?: number;
+  first_steps_completed?: number | boolean;
   goals?: Goal[];
 }
 
@@ -179,6 +187,21 @@ export interface DictionarySense {
   gloss_es: string | null;
   tags: string[];
   topics: string[];
+  level: string | null;
+  category: string | null;
+  visual_key: string | null;
+  visual_emoji: string | null;
+  visual_alt_en: string | null;
+  visual_alt_es: string | null;
+  visual_alt_he: string | null;
+  provenance: string | null;
+  visual: DictionaryVisual | null;
+}
+
+export interface DictionaryVisual {
+  key: string;
+  emoji: string;
+  alt: Record<Locale, string>;
 }
 
 export interface DictionaryForm {
@@ -198,6 +221,9 @@ export interface DictionaryEntry {
   root: string | null;
   binyan: string | null;
   gender: string | null;
+  level: string | null;
+  category: string | null;
+  visual: DictionaryVisual | null;
   etymology: string | null;
   source_name: string;
   source_url: string | null;
@@ -211,6 +237,7 @@ export interface DictionaryEntry {
     id: number;
     hebrew_text: string;
     translation_en: string | null;
+    translation_es: string | null;
     romanization: string | null;
   }>;
   sounds: Array<{

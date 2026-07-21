@@ -11,6 +11,18 @@ import { I18nProvider } from '../i18n';
 import type { DictionaryEntry } from '../types';
 import { LearnPanel } from './LearnPanel';
 
+const EMPTY_SENSE_METADATA = {
+  level: null,
+  category: null,
+  visual_key: null,
+  visual_emoji: null,
+  visual_alt_en: null,
+  visual_alt_es: null,
+  visual_alt_he: null,
+  provenance: null,
+  visual: null,
+} as const;
+
 const HOMOGRAPHS: DictionaryEntry[] = [1, 2].map((id) => ({
   id,
   word: 'שלום',
@@ -21,11 +33,19 @@ const HOMOGRAPHS: DictionaryEntry[] = [1, 2].map((id) => ({
   root: 'שלם',
   binyan: null,
   gender: null,
+  level: null,
+  category: null,
+  visual: id === 1 ? {
+    key: 'greetings.hello',
+    emoji: '👋',
+    alt: { en: 'Friendly greeting', es: 'Saludo amable', he: 'ברכה ידידותית' },
+  } : null,
   etymology: null,
   source_name: 'Test lexicon',
   source_url: null,
   license_name: null,
   senses: [{
+    ...EMPTY_SENSE_METADATA,
     id,
     gloss_en: id === 1 ? 'peace' : 'second homograph',
     gloss_es: id === 1 ? 'paz' : 'segundo homógrafo',
@@ -60,6 +80,7 @@ describe('LearnPanel dictionary identity', () => {
     const dictionaryButtons = screen.getAllByRole('button', { name: 'Dictionary' });
     await user.click(dictionaryButtons[1]!);
     await waitFor(() => expect(screen.getByText('second homograph')).toBeInTheDocument());
+    expect(screen.getByRole('img', { name: 'Friendly greeting' })).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: /shalom-b/i }));
     expect(onWordClick).toHaveBeenCalledWith('שלום', 2);

@@ -1,11 +1,11 @@
 // Module: authentication gateway
-// Purpose: Present secure GitHub authentication and an honest seeded read-only product tour.
+// Purpose: Present secure provider authentication and an honest seeded read-only product tour.
 // Author: Kevin "Lirioth" Cusnir
 // Date: 2026-07-16 | TZ: Asia/Jerusalem
 // Notes: Navigation uses a normal link so OAuth remains keyboard- and browser-friendly.
 
 import { useI18n } from '../i18n';
-import type { Locale } from '../types';
+import type { AuthProvider, Locale } from '../types';
 import { Icon } from './Icon';
 
 interface AuthGateProps {
@@ -13,10 +13,20 @@ interface AuthGateProps {
   error: string;
   onDemo: () => void;
   onRetry: () => void;
+  providers: AuthProvider[];
 }
 
-export function AuthGate({ busy, error, onDemo, onRetry }: AuthGateProps): React.JSX.Element {
+const creatorLinks = {
+  github: 'https://github.com/LiriothTeltanion',
+  linkedin: 'https://www.linkedin.com/in/kevin-cusnir-883173b4/',
+  privacy: 'https://github.com/LiriothTeltanion/IvritSheli/blob/main/PRIVACY.md',
+  terms: 'https://github.com/LiriothTeltanion/IvritSheli/blob/main/TERMS.md',
+} as const;
+
+export function AuthGate({ busy, error, onDemo, onRetry, providers }: AuthGateProps): React.JSX.Element {
   const { locale, setLocale, t } = useI18n();
+  const googleAvailable = providers.includes('google');
+  const githubAvailable = providers.includes('github');
 
   return (
     <main className="auth-gate">
@@ -27,17 +37,20 @@ export function AuthGate({ busy, error, onDemo, onRetry }: AuthGateProps): React
       <header className="auth-header">
         <a className="auth-brand" href="/" aria-label={`${t('appName')} — ${t('home')}`}>
           <img src="/icons/app-icon.svg" alt="" />
-          <span><strong>{t('appName')}</strong><small>CLOUD 2.2</small></span>
+          <span><strong>{t('appName')}</strong><small>CLOUD 2.4</small></span>
         </a>
         <div className="auth-header__actions">
           <div className="locale-switch auth-locale" aria-label={t('interfaceLanguage')}>
             {(['en', 'es', 'he'] as Locale[]).map((code) => (
-              <button key={code} type="button" className={locale === code ? 'active' : ''} onClick={() => setLocale(code)}>
+              <button key={code} type="button" className={locale === code ? 'active' : ''} onClick={() => {
+                window.localStorage.setItem('ivrit-sheli-locale-explicit', 'true');
+                setLocale(code);
+              }}>
                 {code.toUpperCase()}
               </button>
             ))}
           </div>
-          <span className="auth-version">v2.2.0</span>
+          <span className="auth-version">v2.4.0</span>
         </div>
       </header>
 
@@ -62,11 +75,20 @@ export function AuthGate({ busy, error, onDemo, onRetry }: AuthGateProps): React
           )}
 
           <div className="auth-actions">
-            <a className="auth-button auth-button--primary" href="/api/v1/auth/github/start">
-              <Icon name="github" size={21} />
-              {t('continueGithub')}
-              <Icon name="chevron" size={17} />
-            </a>
+            {googleAvailable && (
+              <a className="auth-button auth-button--primary" href="/api/v1/auth/google/start">
+                <span className="google-mark" aria-hidden="true">G</span>
+                {t('continueGoogle')}
+                <Icon name="chevron" size={17} />
+              </a>
+            )}
+            {githubAvailable && (
+              <a className={`auth-button ${googleAvailable ? 'auth-button--provider-secondary' : 'auth-button--primary'}`} href="/api/v1/auth/github/start">
+                <Icon name="github" size={21} />
+                {t('continueGithub')}
+                <Icon name="chevron" size={17} />
+              </a>
+            )}
             <button className="auth-button auth-button--secondary" type="button" onClick={onDemo} disabled={busy}>
               {busy ? <span className="spinner" /> : <Icon name="play" size={19} />}
               {busy ? t('startingDemo') : t('exploreDemo')}
@@ -74,6 +96,11 @@ export function AuthGate({ busy, error, onDemo, onRetry }: AuthGateProps): React
           </div>
 
           <p className="auth-privacy"><Icon name="shield" size={16} /> {t('authPrivacy')}</p>
+          <p className="auth-policy-links">
+            <a href={creatorLinks.privacy} target="_blank" rel="noreferrer">{t('privacyPolicy')}</a>
+            <span aria-hidden="true">·</span>
+            <a href={creatorLinks.terms} target="_blank" rel="noreferrer">{t('termsOfUse')}</a>
+          </p>
         </article>
 
         <aside className="auth-visual" aria-label={t('learningWorkspacePreview')}>
@@ -94,7 +121,11 @@ export function AuthGate({ busy, error, onDemo, onRetry }: AuthGateProps): React
 
       <footer className="auth-footer">
         <span><i /> React + FastAPI</span>
-        <span>{t('builtBy')}</span>
+        <nav className="creator-links" aria-label={t('creatorLinks')}>
+          <span>{t('builtBy')}</span>
+          <a href={creatorLinks.github} target="_blank" rel="noreferrer"><Icon name="github" size={17} /> GitHub</a>
+          <a href={creatorLinks.linkedin} target="_blank" rel="noreferrer">in LinkedIn</a>
+        </nav>
       </footer>
     </main>
   );

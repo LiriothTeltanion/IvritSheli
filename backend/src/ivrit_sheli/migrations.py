@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-MIGRATION_HEAD = "20260716_0001"
+MIGRATION_HEAD = "20260718_0002"
 
 
 def upgrade_postgres(migration_database_url: str, backend_dir: Path) -> None:

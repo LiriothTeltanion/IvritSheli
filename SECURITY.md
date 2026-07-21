@@ -4,9 +4,11 @@
 
 | Version | Supported |
 |---|---:|
+| 2.4.x | Yes |
+| 2.3.x | No — superseded candidate |
 | 2.2.x | Yes |
-| 2.1.x | Yes |
-| 2.0.x | Critical fixes only; upgrade recommended |
+| 2.1.x | Critical fixes only; upgrade recommended |
+| 2.0.x | Critical fixes only; upgrade strongly recommended |
 | 1.0.x | Critical fixes only; upgrade recommended |
 | Older | No |
 
@@ -30,12 +32,13 @@ Do not access another person's data, persist access, degrade the public demo or 
 
 ### Identity and sessions
 
-- GitHub OAuth uses random state, PKCE and single-use state consumption.
-- Only allow-listed GitHub identity fields are stored; GitHub OAuth access tokens and email addresses are not persisted. Optional Google credentials remain server-side configuration and never enter learner records.
-- Session and CSRF bearer values are generated randomly; only `SESSION_SECRET`-keyed HMAC-SHA-256 hashes reach PostgreSQL.
+- Google and GitHub OAuth use random state, S256 PKCE, provider binding and single-use state consumption.
+- Google sign-in requests only `openid profile` and stores the provider subject, display name and optional picture. GitHub stores the provider ID, login, display name and optional avatar. OAuth access tokens, ID tokens, provider passwords and provider email addresses are not persisted.
+- Session and CSRF bearer values are generated randomly; only domain-separated, `SESSION_SECRET`-keyed BLAKE2b-256 digests reach PostgreSQL.
 - The production session cookie is `HttpOnly`, `Secure`, and `SameSite=Lax`; the double-submit CSRF cookie is intentionally browser-readable, `Secure`, and `SameSite=Strict`.
 - OAuth-state bearers use the same keyed storage boundary, so secret rotation invalidates all previously stored bearer hashes.
 - Logout revokes the server-side session.
+- Authenticated learners can permanently delete their cloud identity and learner state; foreign-key cascades remove sessions and the tenant snapshot in the same database transaction.
 - Sessions have a bounded configurable lifetime and retention window; expired OAuth state and session rows are cleaned opportunistically.
 - Auth POSTs require same-origin JSON semantics; logout accepts an exact allow-listed Origin or, when Origin is absent, the active session's double-submit CSRF proof.
 - Active OAuth states have a transaction-serialized global PostgreSQL cap. OAuth/demo endpoints combine a process-local client bucket with a higher circuit breaker; Railway mode deliberately trusts exactly one ingress-overwritten `X-Real-IP`, while `X-Forwarded-For` is never used.
@@ -76,7 +79,7 @@ Do not access another person's data, persist access, degrade the public demo or 
 ### Optional external processing
 
 - External AI is disabled by default.
-- Production cloud AI requires server configuration, explicit user action and a matching GitHub login or provider-ID allowlist entry.
+- Production cloud AI requires server configuration, explicit user action and a matching GitHub login or provider-ID allowlist entry. Google-authenticated learners retain the complete offline/core product but do not implicitly inherit Kevin's paid-provider allowlist.
 - Google connector scopes are read-only.
 - Production Google previews require a separate matching GitHub identity allowlist; credentials without that allowlist fail startup.
 - The application never automatically ingests a mailbox, calendar or drive.
@@ -88,6 +91,7 @@ Never commit live or non-placeholder values for:
 - `.env` files with values.
 - `SESSION_SECRET`.
 - GitHub OAuth client secrets.
+- Google sign-in OAuth client secrets.
 - `DATABASE_URL` restricted runtime credentials.
 - `MIGRATION_DATABASE_URL` administrator credentials.
 - AI or Google API credentials.
@@ -102,7 +106,7 @@ Production values belong in the host's sealed secret store. Rotate a secret imme
 1. Set `APP_ENV=production`, `AUTH_REQUIRED=true` and `DEBUG=false`.
 2. Use HTTPS and `SESSION_COOKIE_SECURE=true`.
 3. Generate a unique `SESSION_SECRET` of at least 32 characters.
-4. Restrict `PUBLIC_BASE_URL`, `ALLOWED_ORIGINS` and the GitHub callback to the exact public domain.
+4. Restrict `PUBLIC_BASE_URL`, `ALLOWED_ORIGINS`, and every configured Google/GitHub callback to the exact public domain.
 5. Store both database URLs and provider credentials as sealed variables; never give the web process the migration URL.
 6. Run `python -m ivrit_sheli.db_admin migrate` as the separate pre-deploy step.
 7. Require `/health/ready` before routing traffic.
