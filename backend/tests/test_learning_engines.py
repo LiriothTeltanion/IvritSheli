@@ -109,4 +109,7 @@ def test_achievement_evaluation_excludes_existing_unlocks() -> None:
     unlocked = evaluate_achievement_keys(
         {"captured_items": 1, "streak_days": 7}, already_unlocked={"first_word"}
     )
-    assert [achievement.key for achievement in unlocked] == ["week_streak"]
+    assert [achievement.key for achievement in unlocked] == [
+        "week_streak",
+        "three_day_flow",
+    ]

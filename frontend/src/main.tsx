@@ -10,6 +10,9 @@ import App from './App';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { I18nProvider } from './i18n';
 import './styles.css';
+import './v25-private-pilot.css';
+import './learner-mode.css';
+import './achievement-progress.css';
 
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {

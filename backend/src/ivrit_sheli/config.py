@@ -206,8 +206,10 @@ class Settings:
     build_commit: str = "development"
     cloud_ai_allowed_github_logins: tuple[str, ...] = ()
     cloud_ai_allowed_github_ids: tuple[str, ...] = ()
+    cloud_ai_allowed_google_subjects: tuple[str, ...] = ()
     google_connectors_allowed_github_logins: tuple[str, ...] = ()
     google_connectors_allowed_github_ids: tuple[str, ...] = ()
+    google_connectors_allowed_google_subjects: tuple[str, ...] = ()
 
     @classmethod
     def from_env(cls, overrides: Mapping[str, str] | None = None) -> Settings:
@@ -408,12 +410,18 @@ class Settings:
             cloud_ai_allowed_github_ids=parse_csv(
                 value("CLOUD_AI_ALLOWED_GITHUB_IDS", "")
             ),
+            cloud_ai_allowed_google_subjects=parse_csv(
+                value("CLOUD_AI_ALLOWED_GOOGLE_SUBJECTS", "")
+            ),
             google_connectors_allowed_github_logins=parse_csv(
                 value("GOOGLE_CONNECTORS_ALLOWED_GITHUB_LOGINS", ""),
                 casefold=True,
             ),
             google_connectors_allowed_github_ids=parse_csv(
                 value("GOOGLE_CONNECTORS_ALLOWED_GITHUB_IDS", "")
+            ),
+            google_connectors_allowed_google_subjects=parse_csv(
+                value("GOOGLE_CONNECTORS_ALLOWED_GOOGLE_SUBJECTS", "")
             ),
         )
         settings.validate_cloud_configuration()
@@ -447,39 +455,72 @@ class Settings:
 
     @property
     def cloud_ai_allowlist_configured(self) -> bool:
-        """Return whether at least one GitHub identity may use paid cloud AI."""
+        """Return whether at least one explicit identity may use paid cloud AI."""
         return bool(
             self.cloud_ai_allowed_github_logins
             or self.cloud_ai_allowed_github_ids
+            or self.cloud_ai_allowed_google_subjects
         )
 
     @property
     def google_connector_allowlist_configured(self) -> bool:
-        """Return whether at least one GitHub identity may use Google previews."""
+        """Return whether at least one explicit identity may use Google previews."""
         return bool(
             self.google_connectors_allowed_github_logins
             or self.google_connectors_allowed_github_ids
+            or self.google_connectors_allowed_google_subjects
         )
 
-    def allows_cloud_ai(self, login: str | None, github_id: str | None) -> bool:
-        """Match one authenticated GitHub identity against the cloud-AI allowlist."""
+    def allows_cloud_ai(
+        self,
+        login: str | None,
+        provider_user_id: str | None,
+        provider: str = "github",
+    ) -> bool:
+        """Match one authenticated provider identity against the cloud-AI allowlist."""
+        if provider == "google":
+            return self._subject_allowed(
+                provider_user_id,
+                self.cloud_ai_allowed_google_subjects,
+            )
+        if provider != "github":
+            return False
         return self._github_identity_allowed(
             login,
-            github_id,
+            provider_user_id,
             self.cloud_ai_allowed_github_logins,
             self.cloud_ai_allowed_github_ids,
         )
 
     def allows_google_connectors(
-        self, login: str | None, github_id: str | None
+        self,
+        login: str | None,
+        provider_user_id: str | None,
+        provider: str = "github",
     ) -> bool:
-        """Match one authenticated GitHub identity against the Google allowlist."""
+        """Match one authenticated provider identity against the connector allowlist."""
+        if provider == "google":
+            return self._subject_allowed(
+                provider_user_id,
+                self.google_connectors_allowed_google_subjects,
+            )
+        if provider != "github":
+            return False
         return self._github_identity_allowed(
             login,
-            github_id,
+            provider_user_id,
             self.google_connectors_allowed_github_logins,
             self.google_connectors_allowed_github_ids,
         )
+
+    @staticmethod
+    def _subject_allowed(
+        provider_user_id: str | None,
+        allowed_subjects: tuple[str, ...],
+    ) -> bool:
+        """Match an opaque provider subject without relying on email or display name."""
+        normalized_id = provider_user_id.strip() if provider_user_id else ""
+        return bool(normalized_id and normalized_id in allowed_subjects)
 
     @staticmethod
     def _github_identity_allowed(
@@ -631,7 +672,7 @@ class Settings:
         if self.app_env == "production" and self.cloud_mode:
             if self.allow_cloud_processing and not self.cloud_ai_allowlist_configured:
                 raise ValueError(
-                    "Production cloud AI requires an explicit GitHub identity allowlist"
+                    "Production cloud AI requires an explicit provider identity allowlist"
                 )
             google_credentials_present = any(
                 (
@@ -643,7 +684,7 @@ class Settings:
             )
             if google_credentials_present and not self.google_connector_allowlist_configured:
                 raise ValueError(
-                    "Production Google connectors require an explicit GitHub identity allowlist"
+                    "Production Google connectors require an explicit provider identity allowlist"
                 )
 
     def ensure_directories(self) -> None:

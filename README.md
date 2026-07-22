@@ -1,7 +1,7 @@
 <div align="center">
   <img src="assets/brand/logo.svg" alt="Ivrit Sheli" width="680" />
 
-  <h1>Ivrit Sheli 2.4.0 — Contest Edition · העברית שלי</h1>
+  <h1>Ivrit Sheli 2.5.0 — Private Pilot · העברית שלי</h1>
   <p><strong>A private-first, authenticated, trilingual Hebrew-learning operating system built from real life.</strong></p>
 
   <p>
@@ -15,7 +15,7 @@
   </p>
 
   <p>
-    <img src="assets/readme/badge-tests.svg" alt="213 automated tests passing for the locally verified 2.4 source" />
+    <img src="assets/readme/badge-tests.svg" alt="213 automated tests in the verified public 2.4 baseline" />
     <img src="assets/readme/badge-private.svg" alt="Local-first private" />
     <img src="assets/readme/badge-trilingual.svg" alt="Hebrew English Spanish" />
     <img src="assets/readme/badge-pwa.svg" alt="Installable PWA" />
@@ -26,15 +26,19 @@
   <a href="https://ivritsheli-production.up.railway.app/?lang=en"><strong>🌐 Open the verified Ivrit Sheli 2.4.0 Contest Edition</strong></a>
 </p>
 
+> **Private-pilot boundary:** this checkout is the local, unpublished 2.5.0 pilot. The link below, Railway deployment, public Git tag and GitHub Release intentionally remain on the verified 2.4.0 Contest Edition until the pilot is approved.
+
 ### Source and live release truth
 
 | Surface | Verified state |
 |---|---|
-| Source and deployed application | `2.4.0` |
+| Current private source checkout | `2.5.0` · local private-pilot branch · not deployed or published |
+| Current public deployed application | `2.4.0` |
 | Release implementation commit | `03bf84b9268ff8be528c0fab3c670f9652ee23b0` |
 | Production storage/readiness | PostgreSQL · ready · 48 reviewed dictionary entries |
 | Deployment verification | Successful on 2026-07-21 |
 | Release verification | 151 unique backend tests + 62 frontend tests = 213 passed; main CI and CodeQL passed |
+| Private-pilot verification | Focused feature checks are passing; consolidated 2.5 verification is recorded only after all quality gates complete |
 | GitHub publication | [`v2.4.0`](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.4.0) is the published tag and GitHub Release |
 | Live account evidence | Identity-only Google sign-in, onboarding state and the authenticated session persisted across reload; logout returned to the English landing page and remained signed out after reload |
 | Live judge-path evidence | The English entry link and four-stop read-only guided tour passed production browser checks |
@@ -71,7 +75,17 @@ Most language products make every learner follow the same path. Ivrit Sheli does
 
 The system tracks what you recognize, what you can produce, where you hesitate, which grammar errors repeat, which situations matter, and which learning mode works best. Recommendations are explainable: the app tells you *why* it selected a word, exercise, mission, or speaking drill.
 
-## What changes in the 2.4.0 Contest Edition 🧭
+## What changes in the 2.5.0 Private Pilot 🗺️
+
+Version 2.5 introduces three persisted learner experiences with real behavior differences: **Guided** simplifies navigation and keeps First Steps prominent, **Explorer** opens independent adaptive practice and the AI Coach, and **Experienced** exposes the complete toolset and connections with less compulsory guidance. Existing profile choices migrate conservatively.
+
+The learning journey now uses an original Israel-wide visual atlas across Galilee, Haifa/Carmel, Tel Aviv/Jaffa, Jerusalem, the Dead Sea and the Negev. A warm editorial illustration adds depth to the authentication and dashboard surfaces, while reading content remains on nearly opaque cards with high-contrast and reduced-motion fallbacks. The Negev is one meaningful stop, not the app's entire visual identity.
+
+The reviewed starter dictionary grows from 48 to exactly **96 trilingual concepts** across eight balanced categories. The private pilot also expands the achievement journey from 6 to 15 milestones and adds a learner-visible activity log for captures, reviews, pronunciation, missions and XP. AI and connector access remains consent- and cost-gated; Google-authenticated pilot users can be allowlisted by immutable provider subject without expanding identity-only sign-in into Gmail, Drive or Calendar access.
+
+The 2.5 source is deliberately not deployed, tagged or pushed from this private-pilot pass. Its final consolidated verification replaces this paragraph's pending status only after the backend, frontend, accessibility-oriented build and browser checks complete.
+
+## What changed in the 2.4.0 Contest Edition 🧭
 
 Version 2.4 adds a four-stop guided tour to the synthetic read-only demo. It navigates through an ephemeral illustrated First Steps lesson, visual dictionary, microphone word intelligence and adaptive progress without mutating shared demo data. A per-visit `?lang=en`, `?lang=es` or `?lang=he` override makes judge links and support captures deterministic without replacing a learner's saved language.
 

@@ -144,8 +144,17 @@ def test_dashboard_profile_and_gamification_boot_cleanly(client: TestClient) -> 
     gamification = client.get("/api/v1/gamification/status")
     assert dashboard.status_code == profile.status_code == gamification.status_code == 200
     assert dashboard.json()["system"]["offline_ready"] is True
-    assert dashboard.json()["dictionary"]["entries"] == 48
+    assert dashboard.json()["dictionary"]["entries"] == 96
     assert profile.json()["weekly_rest_day"] == 5
+    assert profile.json()["learner_mode"] == "guided"
+
+    experienced = client.put("/api/v1/profile", json={"learner_mode": "experienced"})
+    assert experienced.status_code == 200
+    assert experienced.json()["learner_mode"] == "experienced"
+    assert experienced.json()["guided_mode"] == 0
+
+    invalid = client.put("/api/v1/profile", json={"learner_mode": "expert"})
+    assert invalid.status_code == 422
 
 
 def test_capture_review_and_progress_flow(client: TestClient) -> None:
@@ -175,7 +184,10 @@ def test_capture_review_and_progress_flow(client: TestClient) -> None:
     )
     assert reviewed.status_code == 200
     assert reviewed.json()["xp_awarded"] >= 30
-    assert client.get("/api/v1/progress").json()["modalities"][0]["attempts"] == 1
+    progress = client.get("/api/v1/progress").json()
+    assert progress["modalities"][0]["attempts"] == 1
+    assert progress["activity_log"][0]["type"] == "review_submitted"
+    assert progress["activity_log"][0]["source"] == "learning_item"
 
 
 def test_dictionary_is_linked_to_learning_collection(

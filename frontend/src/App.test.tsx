@@ -9,6 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
 import { configureApiSession } from './api';
 import { I18nProvider } from './i18n';
+import type { LearnerMode, Profile } from './types';
 
 const cloudCapabilities = {
   cloud_learning: true,
@@ -65,7 +66,7 @@ const localSession = {
   capabilities: localCapabilities,
 };
 
-const profile = {
+const profile: Profile = {
   id: 1,
   display_name: 'Demo Learner',
   interface_language: 'en',
@@ -78,6 +79,7 @@ const profile = {
   onboarding_step: 4,
   onboarding_completed: 1,
   guided_mode: 1,
+  learner_mode: 'guided',
   first_steps_step: 5,
   first_steps_completed: 1,
   goals: [],
@@ -116,7 +118,7 @@ function renderApp(): void {
 
 function routeFetch(
   initialSession: typeof anonymous | typeof demoSession | typeof githubSession | typeof localSession,
-  learnerProfile = profile,
+  learnerProfile: Profile = profile,
 ): ReturnType<typeof vi.fn> {
   return vi.fn(async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
     const path = String(input);
@@ -132,7 +134,7 @@ function routeFetch(
       });
     }
     if (path.endsWith('/profile') && method === 'PUT') {
-      const update = JSON.parse(String(init?.body ?? '{}')) as Partial<typeof profile>;
+      const update = JSON.parse(String(init?.body ?? '{}')) as Partial<Profile>;
       return json({ ...learnerProfile, ...update });
     }
     if (path.endsWith('/profile')) return json(learnerProfile);
@@ -230,6 +232,26 @@ describe('App cloud session flow', () => {
     expect(await screen.findByText('Your progress is saved')).toBeInTheDocument();
     expect(screen.getByRole('navigation', { name: 'Primary navigation' })).toBeInTheDocument();
     expect(localStorage.getItem('ivrit-sheli-locale')).toBeNull();
+  });
+
+  it.each([
+    ['guided', false, false],
+    ['explorer', true, false],
+    ['experienced', true, true],
+  ] as Array<[LearnerMode, boolean, boolean]>)('gives %s mode a distinct navigation depth', async (mode, hasCoach, hasConnections) => {
+    const modeProfile: Profile = {
+      ...profile,
+      learner_mode: mode,
+      guided_mode: mode === 'guided' ? 1 : 0,
+    };
+    vi.stubGlobal('fetch', routeFetch(githubSession, modeProfile));
+    renderApp();
+
+    const navigation = await screen.findByRole('navigation', { name: 'Primary navigation' });
+    const labels = Array.from(navigation.querySelectorAll('button')).map((button) => button.textContent);
+    expect(labels.some((label) => label?.includes('AI Coach'))).toBe(hasCoach);
+    expect(labels.some((label) => label?.includes('Connections'))).toBe(hasConnections);
+    expect(screen.getByText(`${mode === 'guided' ? 'Guided' : mode === 'explorer' ? 'Explorer' : 'Experienced'} mode`)).toBeInTheDocument();
   });
 
   it('localizes the dashboard hero, metrics, actions, and navigation in Hebrew RTL', async () => {

@@ -33,8 +33,18 @@ export function AchievementGrid({ achievements }: { achievements: Achievement[] 
             </div>
             <div>
               <h3>{title(achievement)}</h3>
-              <p>{label(achievement.metric)} · {achievement.threshold}</p>
-              <span>+{achievement.xp_reward} XP</span>
+              <p>{label(achievement.metric)} · {achievement.current_value}/{achievement.threshold}</p>
+              <div
+                className="achievement-progress"
+                role="progressbar"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={achievement.progress_percent}
+                aria-label={`${title(achievement)}: ${achievement.progress_percent}%`}
+              >
+                <i style={{ width: `${achievement.progress_percent}%` }} />
+              </div>
+              <span>{achievement.unlocked ? t('achievementUnlocked') : `${Math.round(achievement.progress_percent)}%`} · +{achievement.xp_reward} XP</span>
             </div>
           </article>
         ))}

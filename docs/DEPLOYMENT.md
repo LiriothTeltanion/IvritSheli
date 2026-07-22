@@ -111,8 +111,10 @@ Each provider is optional as a set, but partial credentials fail startup. When a
 
 Paid production cloud calls are identity-gated independently of account sign-in. The current cloud-AI and Google Workspace connector allowlists are deliberately GitHub-identity based:
 
-- Cloud AI: `CLOUD_AI_ALLOWED_GITHUB_LOGINS` and/or `CLOUD_AI_ALLOWED_GITHUB_IDS`.
-- Google read-only previews: `GOOGLE_CONNECTORS_ALLOWED_GITHUB_LOGINS` and/or `GOOGLE_CONNECTORS_ALLOWED_GITHUB_IDS`.
+- Cloud AI: `CLOUD_AI_ALLOWED_GITHUB_LOGINS`, `CLOUD_AI_ALLOWED_GITHUB_IDS`, and/or opaque `CLOUD_AI_ALLOWED_GOOGLE_SUBJECTS`.
+- Google read-only previews: `GOOGLE_CONNECTORS_ALLOWED_GITHUB_LOGINS`, `GOOGLE_CONNECTORS_ALLOWED_GITHUB_IDS`, and/or opaque `GOOGLE_CONNECTORS_ALLOWED_GOOGLE_SUBJECTS`.
+
+Google subject allowlists use the provider's immutable `sub` identifier. They do not use email addresses or display names, and they do not grant Gmail, Drive, or Calendar scopes by themselves.
 
 Values are comma-separated. GitHub logins are matched case-insensitively; numeric provider IDs are matched exactly and remain stable if a login is renamed. Configure only identities you have verified—do not guess IDs. `ALLOW_CLOUD_PROCESSING=true` without a cloud-AI allowlist fails application startup in production. Supplying any Google Workspace connector credential without its connector allowlist also fails startup. A Google-sign-in identity is not silently treated as an allowlisted GitHub identity, so paid cloud operations fail closed while local/offline learning continues.
 

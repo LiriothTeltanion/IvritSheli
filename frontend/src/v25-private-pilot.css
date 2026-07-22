@@ -1,0 +1,203 @@
+/* Ivrit Sheli 2.5 private pilot: Israel-wide imagery and contrast-safe depth. */
+
+.auth-gate {
+  isolation: isolate;
+}
+
+.auth-gate::before {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  pointer-events: none;
+  background-image: url('/assets/illustrations/israel-living-atlas-v2.5.webp');
+  background-position: 72% center;
+  background-size: cover;
+  opacity: 0.24;
+  filter: saturate(0.86) contrast(1.06);
+  -webkit-mask-image: linear-gradient(90deg, transparent 8%, rgba(0, 0, 0, 0.35) 42%, #000 100%);
+  mask-image: linear-gradient(90deg, transparent 8%, rgba(0, 0, 0, 0.35) 42%, #000 100%);
+}
+
+[dir='rtl'] .auth-gate::before {
+  background-position: 28% center;
+  -webkit-mask-image: linear-gradient(270deg, transparent 8%, rgba(0, 0, 0, 0.35) 42%, #000 100%);
+  mask-image: linear-gradient(270deg, transparent 8%, rgba(0, 0, 0, 0.35) 42%, #000 100%);
+}
+
+.auth-preview-card {
+  background: color-mix(in srgb, var(--surface-solid) 96%, transparent);
+  -webkit-backdrop-filter: blur(24px) saturate(1.08);
+  backdrop-filter: blur(24px) saturate(1.08);
+}
+
+.auth-capabilities span,
+.auth-locale,
+.auth-version {
+  background: color-mix(in srgb, var(--bg-deep) 84%, transparent);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+
+.auth-mode-preview {
+  max-width: 38rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.auth-mode-preview > span {
+  min-width: 0;
+  padding: 0.72rem 0.78rem;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 0.9rem;
+  background: color-mix(in srgb, var(--bg-deep) 88%, transparent);
+  color: var(--text-soft);
+  font-size: 0.72rem;
+  font-weight: 760;
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+
+.auth-mode-preview i {
+  width: 1.65rem;
+  height: 1.65rem;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--teal) 18%, transparent);
+  color: var(--teal);
+  font-style: normal;
+  font-size: 0.68rem;
+}
+
+.hero-dashboard--living-atlas {
+  isolation: isolate;
+  overflow: hidden;
+  border-color: color-mix(in srgb, #7bcfc1 42%, var(--border));
+  background: #10263a;
+  color: #fffdf8;
+  box-shadow: 0 1.8rem 5rem rgba(4, 20, 31, 0.28);
+}
+
+.hero-dashboard--living-atlas::before {
+  content: '';
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  width: auto;
+  height: auto;
+  border: 0;
+  border-radius: inherit;
+  background-image: url('/assets/illustrations/israel-living-atlas-v2.5.webp');
+  background-position: center;
+  background-size: cover;
+  filter: saturate(0.92) contrast(1.02);
+  transform: scale(1.015);
+  transition: transform 700ms var(--ease), filter 500ms ease;
+}
+
+.hero-dashboard--living-atlas::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(5, 21, 33, 0.96) 0%, rgba(7, 27, 41, 0.87) 43%, rgba(7, 27, 41, 0.36) 72%, rgba(7, 27, 41, 0.18) 100%),
+    linear-gradient(0deg, rgba(6, 23, 36, 0.42), transparent 55%);
+}
+
+.hero-dashboard--living-atlas:hover::before {
+  filter: saturate(1) contrast(1.04);
+  transform: scale(1.03);
+}
+
+.hero-dashboard--living-atlas .hero-kicker,
+.hero-dashboard--living-atlas .hero-copy > p,
+.hero-dashboard--living-atlas .capture-link {
+  color: rgba(255, 253, 248, 0.88);
+}
+
+.hero-dashboard--living-atlas .hero-copy h1 {
+  color: #fffdf8;
+  text-shadow: 0 0.18rem 1.1rem rgba(3, 15, 24, 0.38);
+}
+
+.hero-dashboard--living-atlas .hero-copy h1 span {
+  color: #87e3d2;
+}
+
+.hero-dashboard--living-atlas .guided-word-visual {
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  background: rgba(255, 253, 248, 0.93);
+  box-shadow: 0 1.2rem 3.2rem rgba(3, 16, 26, 0.31);
+  -webkit-backdrop-filter: blur(16px) saturate(1.08);
+  backdrop-filter: blur(16px) saturate(1.08);
+}
+
+.today-living-atlas {
+  margin-block: 1.25rem;
+}
+
+@media (max-width: 900px) {
+  .hero-dashboard--living-atlas::after {
+    background:
+      linear-gradient(0deg, rgba(5, 21, 33, 0.97) 0%, rgba(6, 24, 38, 0.78) 66%, rgba(6, 24, 38, 0.42) 100%);
+  }
+
+  .hero-dashboard--living-atlas::before {
+    background-position: 47% center;
+  }
+}
+
+@media (max-width: 580px) {
+  .auth-mode-preview {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-gate::before {
+    background-position: center;
+    opacity: 0.16;
+    -webkit-mask-image: linear-gradient(to bottom, #000, transparent 85%);
+    mask-image: linear-gradient(to bottom, #000, transparent 85%);
+  }
+
+  .hero-dashboard--living-atlas::before {
+    background-position: 35% center;
+  }
+
+  .hero-dashboard--living-atlas .guided-word-visual {
+    background: rgba(255, 253, 248, 0.97);
+  }
+}
+
+@media (prefers-contrast: more) {
+  .auth-gate::before {
+    opacity: 0;
+  }
+
+  .hero-dashboard--living-atlas::after {
+    background: rgba(2, 16, 27, 0.9);
+  }
+
+  .hero-dashboard--living-atlas .guided-word-visual {
+    border-color: #fff;
+    background: #fff;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-dashboard--living-atlas::before {
+    transition: none;
+    transform: none;
+  }
+
+  .hero-dashboard--living-atlas:hover::before {
+    transform: none;
+  }
+}

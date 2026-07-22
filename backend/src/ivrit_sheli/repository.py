@@ -1258,6 +1258,7 @@ class LearningRepository:
             "onboarding_step",
             "onboarding_completed",
             "guided_mode",
+            "learner_mode",
             "first_steps_step",
             "first_steps_completed",
         }
@@ -1270,6 +1271,12 @@ class LearningRepository:
             raise ValueError("weekly_rest_day must use Python weekday 0–6")
         if "interface_language" in clean and clean["interface_language"] not in {"en", "es", "he"}:
             raise ValueError("interface_language must be en, es, or he")
+        if "learner_mode" in clean and clean["learner_mode"] not in {
+            "guided",
+            "explorer",
+            "experienced",
+        }:
+            raise ValueError("learner_mode must be guided, explorer, or experienced")
         if "cloud_consent" in clean:
             clean["cloud_consent"] = int(bool(clean["cloud_consent"]))
         if "onboarding_step" in clean and not 0 <= int(clean["onboarding_step"]) <= 4:
@@ -1278,11 +1285,19 @@ class LearningRepository:
             raise ValueError("first_steps_step must be between 0 and 5")
         for boolean_field in (
             "onboarding_completed",
-            "guided_mode",
             "first_steps_completed",
         ):
             if boolean_field in clean:
                 clean[boolean_field] = int(bool(clean[boolean_field]))
+
+        # Keep the v2.3 boolean contract synchronized for old clients and old
+        # exports while exposing three explicit modes to current clients.
+        if "learner_mode" in clean:
+            clean["guided_mode"] = int(clean["learner_mode"] == "guided")
+        elif "guided_mode" in clean:
+            guided = bool(clean["guided_mode"])
+            clean["guided_mode"] = int(guided)
+            clean["learner_mode"] = "guided" if guided else "explorer"
 
         with self.database.transaction() as connection:
             if clean:
@@ -1372,6 +1387,67 @@ class LearningRepository:
                 LIMIT 100
                 """
             ).fetchall()
+            activity_log_rows = connection.execute(
+                """
+                SELECT e.id, e.event_type, e.entity_type, e.entity_id,
+                       e.payload_json, e.created_at, i.hebrew_text,
+                       (
+                           SELECT COALESCE(SUM(x.amount), 0)
+                           FROM xp_ledger x
+                           WHERE x.source_type = e.entity_type
+                             AND x.source_id = e.entity_id
+                             AND x.created_at = e.created_at
+                       ) AS linked_xp
+                FROM user_events e
+                LEFT JOIN learning_items i
+                  ON e.entity_type = 'learning_item'
+                 AND CAST(i.id AS TEXT) = e.entity_id
+                WHERE e.event_type IN (
+                    'item_created',
+                    'review_submitted',
+                    'pronunciation_scored',
+                    'mission_completed'
+                )
+                ORDER BY e.created_at DESC, e.id DESC
+                LIMIT 30
+                """
+            ).fetchall()
+            activity_log: list[dict[str, Any]] = []
+            for row in activity_log_rows:
+                try:
+                    metadata = json.loads(row["payload_json"] or "{}")
+                except (TypeError, json.JSONDecodeError):
+                    metadata = {}
+                safe_details: dict[str, Any] = {}
+                if row["event_type"] == "item_created":
+                    safe_details = {"xp_awarded": max(0, int(row["linked_xp"] or 0))}
+                elif row["event_type"] == "review_submitted":
+                    safe_details = {
+                        "correct": bool(metadata.get("correct", False)),
+                        "modality": str(metadata.get("modality", "recognition")),
+                        "xp_awarded": max(0, int(metadata.get("xp_awarded", 0) or 0)),
+                    }
+                elif row["event_type"] == "pronunciation_scored":
+                    safe_details = {
+                        "score": max(0, min(100, int(metadata.get("score", 0) or 0))),
+                        "xp_awarded": max(0, int(metadata.get("xp_awarded", 0) or 0)),
+                    }
+                elif row["event_type"] == "mission_completed":
+                    safe_details = {
+                        "success": bool(metadata.get("success", False)),
+                        "xp_awarded": max(0, int(metadata.get("xp", 0) or 0)),
+                    }
+                activity_log.append(
+                    {
+                        "id": int(row["id"]),
+                        "type": str(row["event_type"]),
+                        "source": str(row["entity_type"] or "learning"),
+                        "source_id": row["entity_id"],
+                        "hebrew_text": row["hebrew_text"],
+                        "details": safe_details,
+                        "created_at": str(row["created_at"]),
+                    }
+                )
             return {
                 "modalities": [
                     {
@@ -1385,6 +1461,7 @@ class LearningRepository:
                 ],
                 "mistakes": [dict(row) for row in mistake_rows],
                 "activity": [dict(row) for row in activity_rows],
+                "activity_log": activity_log,
                 "mastery": [dict(row) for row in mastery_rows],
                 "streak_days": self._calculate_streak(connection),
             }
@@ -1407,6 +1484,7 @@ class LearningRepository:
         should_close = str(self.database.path) != ":memory:"
         try:
             total_xp = self._total_xp(connection)
+            metrics = self._metrics(connection)
             unlocked = {
                 row["achievement_key"]: dict(row)
                 for row in connection.execute("SELECT * FROM unlocked_achievements").fetchall()
@@ -1425,6 +1503,29 @@ class LearningRepository:
                         **asdict(definition),
                         "unlocked": definition.key in unlocked,
                         "unlocked_at": unlocked.get(definition.key, {}).get("unlocked_at"),
+                        "current_value": metrics.get(definition.metric, 0),
+                        "progress_percent": (
+                            100.0
+                            if definition.key in unlocked
+                            else min(
+                                100.0,
+                                round(
+                                    metrics.get(definition.metric, 0)
+                                    / definition.threshold
+                                    * 100,
+                                    1,
+                                ),
+                            )
+                        ),
+                        "remaining": (
+                            0
+                            if definition.key in unlocked
+                            else max(
+                                0,
+                                definition.threshold
+                                - metrics.get(definition.metric, 0),
+                            )
+                        ),
                     }
                     for definition in ACHIEVEMENTS
                 ],

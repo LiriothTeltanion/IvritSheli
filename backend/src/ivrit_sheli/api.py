@@ -194,6 +194,7 @@ class ProfilePayload(StrictModel):
     onboarding_step: int | None = Field(default=None, ge=0, le=4)
     onboarding_completed: bool | None = None
     guided_mode: bool | None = None
+    learner_mode: Literal["guided", "explorer", "experienced"] | None = None
     first_steps_step: int | None = Field(default=None, ge=0, le=5)
     first_steps_completed: bool | None = None
     goals: list[dict[str, Any]] | None = None
@@ -644,13 +645,17 @@ def _production_cloud_feature_allowed(
     identity = getattr(request.state, "session_identity", None)
     if identity is None or identity.user.is_demo:
         return False
-    # Existing paid-provider allowlists are explicitly GitHub-scoped. Google login
-    # enables core persistence but cannot inherit a coincidentally matching subject ID.
-    if identity.user.provider != "github":
-        return False
     if feature == "cloud_ai":
-        return settings.allows_cloud_ai(identity.user.login, identity.user.provider_user_id)
-    return settings.allows_google_connectors(identity.user.login, identity.user.provider_user_id)
+        return settings.allows_cloud_ai(
+            identity.user.login,
+            identity.user.provider_user_id,
+            provider=identity.user.provider,
+        )
+    return settings.allows_google_connectors(
+        identity.user.login,
+        identity.user.provider_user_id,
+        provider=identity.user.provider,
+    )
 
 
 def _require_production_cloud_feature(

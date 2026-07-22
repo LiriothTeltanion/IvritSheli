@@ -2,7 +2,7 @@
 
 ## Immediate mode
 
-The seed database contains exactly 48 reviewed A0/A1 visual concepts so useful beginner searches and the first lesson work on first launch. The distribution is deliberate: 8 greetings, 7 family, 7 home, 8 food, 6 transport, 6 shopping and 6 health concepts.
+The seed database contains exactly 96 reviewed A0/A1 visual concepts so useful beginner searches and early journeys work on first launch. The distribution is deliberately balanced across eight Israel-life categories: 12 greetings, 12 family, 12 home, 12 food, 12 transport, 12 shopping, 12 health and 12 places concepts. The places layer includes Jerusalem, Tel Aviv, Haifa, Be'er Sheva and other everyday location vocabulary; the Negev is represented without becoming the only visual setting.
 
 Every curated concept includes:
 
@@ -11,6 +11,8 @@ Every curated concept includes:
 - English and Spanish meanings.
 - One practical Hebrew example with romanization and EN/ES translations.
 - A0/A1 level, category and explicit curated provenance.
+
+The 48 v2.5 additions intentionally leave `root` and `binyan` unknown. Those fields are populated only when a reviewed linguistic source establishes them; an attractive card is never treated as evidence for grammar.
 
 The visuals are semantic learning cues, not dictionary facts. Unsupported or imported entries can return `visual: null`; the application does not fabricate illustrations, roots or grammar to fill a missing source field.
 
@@ -58,6 +60,10 @@ The 2.2 atomic link path prevents new duplicate active rows for the same exact d
 ## 2.2 to 2.3 upgrade note
 
 Opening a 2.2 demo dictionary expands it to the 48-concept starter layer while preserving existing entry IDs. A full imported database receives the same curated starter layer additively rather than being replaced. Dictionary readiness requires the packaged schema version, but existing learner links remain stable because the upgrade does not renumber prior records.
+
+## 2.4 to 2.5 upgrade note
+
+Opening a previous database expands the reviewed layer from 48 to 96 concepts. The original source keys and entry IDs remain stable, new entries are inserted only once, and reseeding refreshes reviewed metadata without duplicating senses, forms or examples. A strict validation contract enforces the exact count, balanced categories, required HE/EN/ES content, one niqqud form, one practical example, unique exact-sense and visual identities, and explicit editorial provenance.
 
 ## Data quality
 

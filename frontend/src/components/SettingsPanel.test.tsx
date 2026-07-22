@@ -23,6 +23,7 @@ const PROFILE: Profile = {
   onboarding_step: 4,
   onboarding_completed: 1,
   guided_mode: 1,
+  learner_mode: 'guided',
   goals: [],
 };
 
@@ -106,5 +107,20 @@ describe('SettingsPanel account data controls', () => {
 
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     expect(trigger).toHaveFocus();
+  });
+
+  it('persists the experienced learner mode while keeping the legacy flag compatible', async () => {
+    const updated = { ...PROFILE, learner_mode: 'experienced' as const, guided_mode: 0 };
+    const updateProfile = vi.spyOn(api, 'updateProfile').mockResolvedValue(updated);
+    const user = userEvent.setup();
+    renderSettings({ readOnly: false, localMode: false });
+
+    await user.click(screen.getByRole('button', { name: /Experienced mode/i }));
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() => expect(updateProfile).toHaveBeenCalledWith(expect.objectContaining({
+      learner_mode: 'experienced',
+      guided_mode: false,
+    })));
   });
 });

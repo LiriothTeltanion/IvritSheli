@@ -18,7 +18,7 @@ export function ProgressPanel({
   progress: ProgressData;
   gamification: GamificationStatus;
 }): React.JSX.Element {
-  const { label, t } = useI18n();
+  const { label, locale, t } = useI18n();
   const averageAccuracy = progress.modalities.length
     ? progress.modalities.reduce((sum, item) => sum + item.accuracy, 0) / progress.modalities.length * 100
     : 0;
@@ -27,6 +27,28 @@ export function ProgressPanel({
     : 0;
   const maxMistakes = Math.max(1, ...progress.mistakes.map((item) => item.count));
   const maxActivity = Math.max(1, ...progress.activity.map((item) => item.attempts));
+  const activityLog = progress.activity_log ?? [];
+  const eventTitle = (type: string): string => {
+    if (type === 'item_created') return t('activityItemCreated');
+    if (type === 'review_submitted') return t('activityReviewSubmitted');
+    if (type === 'pronunciation_scored') return t('activityPronunciationScored');
+    if (type === 'mission_completed') return t('activityMissionCompleted');
+    return t('activityLearningEvent');
+  };
+  const sourceTitle = (source: string): string => {
+    if (source === 'learning_item') return t('activitySourceVocabulary');
+    if (source === 'audio_attempt') return t('activitySourceAudio');
+    if (source === 'mission') return t('activitySourceMission');
+    return t('activitySourceLearning');
+  };
+  const formatActivityTime = (value: string): string => {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return value;
+    return new Intl.DateTimeFormat(locale === 'he' ? 'he-IL' : locale === 'es' ? 'es-ES' : 'en-US', {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    }).format(date);
+  };
 
   return (
     <div className="progress-page stagger-in">
@@ -98,6 +120,55 @@ export function ProgressPanel({
             </div>
           ))}
         </div>
+      </section>
+
+      <section className="card learning-activity-log" aria-labelledby="learning-activity-title">
+        <header className="section-heading">
+          <div>
+            <span className="eyebrow"><Icon name="book" size={16} /> {t('learningActivityEyebrow')}</span>
+            <h2 id="learning-activity-title">{t('learningActivityLog')}</h2>
+          </div>
+          <span className="count-chip">{activityLog.length}</span>
+        </header>
+        <p className="learning-activity-intro">{t('learningActivityDescription')}</p>
+        {activityLog.length === 0 ? (
+          <div className="learning-activity-empty">
+            <span aria-hidden="true">🪴</span>
+            <strong>{t('learningActivityEmptyTitle')}</strong>
+            <p>{t('learningActivityEmptyDetail')}</p>
+          </div>
+        ) : (
+          <ol className="learning-activity-list">
+            {activityLog.map((entry) => {
+              const xp = entry.details.xp_awarded ?? 0;
+              const result = entry.details.correct ?? entry.details.success;
+              return (
+                <li key={entry.id}>
+                  <span className={`learning-activity-marker learning-activity-marker--${entry.type}`} aria-hidden="true">
+                    {entry.type === 'item_created' ? '+' : entry.type === 'review_submitted' ? '✓' : entry.type === 'pronunciation_scored' ? '◉' : '★'}
+                  </span>
+                  <div className="learning-activity-copy">
+                    <div>
+                      <strong>{eventTitle(entry.type)}</strong>
+                      {entry.hebrew_text && <b lang="he" dir="rtl">{entry.hebrew_text}</b>}
+                    </div>
+                    <span>{t('activitySource')}: {sourceTitle(entry.source)}</span>
+                    {entry.type === 'pronunciation_scored' && typeof entry.details.score === 'number' && (
+                      <small>{t('activityPronunciationScore', { score: entry.details.score })}</small>
+                    )}
+                    {result !== undefined && (
+                      <small className={result ? 'is-positive' : 'is-practice'}>{result ? t('activitySuccessful') : t('activityKeepPracticing')}</small>
+                    )}
+                  </div>
+                  <div className="learning-activity-meta">
+                    <time dateTime={entry.created_at}>{formatActivityTime(entry.created_at)}</time>
+                    {xp > 0 && <span>+{xp} XP</span>}
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+        )}
       </section>
 
       <AchievementGrid achievements={gamification.achievements} />

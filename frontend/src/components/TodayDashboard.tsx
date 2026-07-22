@@ -4,12 +4,14 @@
 // Date: 2026-07-15 | TZ: Asia/Jerusalem
 // Notes: Comments in ENGLISH; emojis sparingly.
 
+import { useState } from 'react';
 import { useI18n } from '../i18n';
 import { useSessionAccess } from '../session';
 import { localizedText, starterWords } from '../starterWords';
 import type { Dashboard } from '../types';
 import { HebrewText } from './HebrewText';
 import { Icon, type IconName } from './Icon';
+import { LivingHebrewAtlas, type AtlasRegionId } from './LivingHebrewAtlas';
 import { MetricRing } from './MetricRing';
 import { WordIllustration } from './WordIllustration';
 
@@ -40,6 +42,7 @@ export function TodayDashboard({
 }: TodayDashboardProps): React.JSX.Element {
   const { locale, label, t } = useI18n();
   const { readOnly } = useSessionAccess();
+  const [atlasRegion, setAtlasRegion] = useState<AtlasRegionId>('jerusalem');
   const missionTranslation = locale === 'es' ? dashboard.mission.translation_es : dashboard.mission.translation_en;
   const firstWord = starterWords[0]!;
   const firstName = dashboard.profile.display_name.split(' ')[0] || dashboard.profile.display_name;
@@ -103,7 +106,7 @@ export function TodayDashboard({
   ];
   return (
     <div className="today-page stagger-in">
-      <section className="hero-dashboard card">
+      <section className="hero-dashboard hero-dashboard--living-atlas card">
         <div className="hero-copy">
           <div className="hero-kicker">
             <span aria-hidden="true">🌱</span>
@@ -126,6 +129,14 @@ export function TodayDashboard({
           </div>
         </div>
       </section>
+
+      <LivingHebrewAtlas
+        locale={locale}
+        activeRegion={atlasRegion}
+        completedRegions={firstStepsComplete ? ['jerusalem'] : []}
+        onSelectRegion={setAtlasRegion}
+        className="today-living-atlas"
+      />
 
       {readOnly && (
         <section className="demo-tour card" aria-labelledby="demo-tour-title">

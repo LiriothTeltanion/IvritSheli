@@ -22,6 +22,7 @@ const PROFILE: Profile = {
   onboarding_step: 0,
   onboarding_completed: 0,
   guided_mode: 1,
+  learner_mode: 'guided',
   goals: [],
 };
 
@@ -65,6 +66,9 @@ describe('BeginnerOnboarding', () => {
 
     await user.click(await screen.findByRole('button', { name: /Continue/i }));
     expect(await screen.findByRole('heading', { name: 'How much Hebrew do you know?' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Guided mode/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Explorer mode/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Experienced mode/i })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: /I know a few words/i }));
     await user.click(screen.getByRole('button', { name: /Continue/i }));
     await user.click(await screen.findByRole('button', { name: /Everyday life/i }));
@@ -79,6 +83,7 @@ describe('BeginnerOnboarding', () => {
       onboarding_step: 4,
       onboarding_completed: true,
       guided_mode: true,
+      learner_mode: 'guided',
     }));
   });
 });

@@ -1,0 +1,231 @@
+/* Learner-mode controls and privacy-safe activity history for v2.5. */
+
+.learner-mode-fieldset,
+.learner-mode-setting {
+  border: 0;
+  margin: 1.25rem 0 0;
+  padding: 0;
+  min-inline-size: 0;
+}
+
+.learner-mode-fieldset > legend,
+.learner-mode-setting > legend {
+  color: var(--text, #15292a);
+  font-weight: 750;
+}
+
+.learner-mode-fieldset > p,
+.learner-mode-setting > p,
+.learning-activity-intro {
+  color: var(--text-muted, #60706f);
+  margin: 0.35rem 0 0.85rem;
+}
+
+.learner-mode-options {
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.learner-mode-option {
+  align-items: flex-start;
+  background: color-mix(in srgb, var(--surface, #fff) 82%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border, #cbd7d2) 78%, transparent);
+  border-radius: 1rem;
+  color: var(--text, #15292a);
+  display: grid;
+  gap: 0.3rem;
+  min-block-size: 7.5rem;
+  padding: 0.9rem;
+  text-align: start;
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.learner-mode-option > span {
+  font-size: 1.35rem;
+}
+
+.learner-mode-option > small {
+  color: var(--text-muted, #60706f);
+  line-height: 1.35;
+}
+
+.learner-mode-option:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--accent, #0f766e) 55%, transparent);
+  transform: translateY(-1px);
+}
+
+.learner-mode-option.active {
+  background: color-mix(in srgb, var(--accent, #0f766e) 10%, var(--surface, #fff) 90%);
+  border-color: var(--accent, #0f766e);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent, #0f766e) 14%, transparent);
+}
+
+.learner-mode-option:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--accent, #0f766e) 35%, transparent);
+  outline-offset: 2px;
+}
+
+.learner-mode-chip {
+  background: color-mix(in srgb, var(--surface, #fff) 68%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border, #cbd7d2) 72%, transparent);
+  border-radius: 999px;
+  color: var(--text-muted, #60706f);
+  font-size: 0.7rem;
+  font-style: normal;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  padding: 0.26rem 0.55rem;
+  text-transform: uppercase;
+}
+
+.learner-mode--experienced .learner-mode-chip {
+  background: color-mix(in srgb, #d69e2e 14%, var(--surface, #fff) 86%);
+  border-color: color-mix(in srgb, #d69e2e 52%, transparent);
+}
+
+.learning-activity-log {
+  overflow: hidden;
+}
+
+.learning-activity-list {
+  display: grid;
+  gap: 0;
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+}
+
+.learning-activity-list > li {
+  align-items: center;
+  border-block-start: 1px solid color-mix(in srgb, var(--border, #cbd7d2) 68%, transparent);
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  padding: 0.85rem 0;
+}
+
+.learning-activity-marker {
+  align-items: center;
+  background: color-mix(in srgb, var(--accent, #0f766e) 12%, var(--surface, #fff) 88%);
+  border: 1px solid color-mix(in srgb, var(--accent, #0f766e) 32%, transparent);
+  border-radius: 50%;
+  color: var(--accent, #0f766e);
+  display: inline-flex;
+  font-weight: 850;
+  height: 2.25rem;
+  justify-content: center;
+  width: 2.25rem;
+}
+
+.learning-activity-marker--mission_completed {
+  background: color-mix(in srgb, #d69e2e 15%, var(--surface, #fff) 85%);
+  border-color: color-mix(in srgb, #d69e2e 45%, transparent);
+  color: #9a6700;
+}
+
+.learning-activity-copy,
+.learning-activity-copy > div,
+.learning-activity-meta {
+  display: flex;
+}
+
+.learning-activity-copy {
+  flex-direction: column;
+  gap: 0.22rem;
+  min-width: 0;
+}
+
+.learning-activity-copy > div {
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.learning-activity-copy b[lang='he'] {
+  color: var(--accent, #0f766e);
+  font-size: 1.08rem;
+}
+
+.learning-activity-copy > span,
+.learning-activity-copy > small,
+.learning-activity-meta time {
+  color: var(--text-muted, #60706f);
+  font-size: 0.78rem;
+}
+
+.learning-activity-copy .is-positive {
+  color: #177245;
+}
+
+.learning-activity-copy .is-practice {
+  color: #9a6700;
+}
+
+.learning-activity-meta {
+  align-items: flex-end;
+  flex-direction: column;
+  gap: 0.35rem;
+  text-align: end;
+}
+
+.learning-activity-meta > span {
+  background: color-mix(in srgb, var(--accent, #0f766e) 11%, transparent);
+  border-radius: 999px;
+  color: var(--accent, #0f766e);
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 0.2rem 0.45rem;
+}
+
+.learning-activity-empty {
+  align-items: center;
+  background: color-mix(in srgb, var(--surface, #fff) 64%, transparent);
+  border: 1px dashed color-mix(in srgb, var(--border, #cbd7d2) 80%, transparent);
+  border-radius: 1rem;
+  display: flex;
+  flex-direction: column;
+  margin-block-start: 1rem;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.learning-activity-empty > span {
+  font-size: 2rem;
+}
+
+.learning-activity-empty > p {
+  color: var(--text-muted, #60706f);
+  margin: 0.3rem 0 0;
+}
+
+@media (max-width: 760px) {
+  .learner-mode-options {
+    grid-template-columns: 1fr;
+  }
+
+  .learner-mode-option {
+    min-block-size: auto;
+  }
+
+  .learner-mode-chip {
+    display: none;
+  }
+
+  .learning-activity-list > li {
+    align-items: flex-start;
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .learning-activity-meta {
+    align-items: flex-start;
+    grid-column: 2;
+    text-align: start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .learner-mode-option {
+    transition: none;
+  }
+}

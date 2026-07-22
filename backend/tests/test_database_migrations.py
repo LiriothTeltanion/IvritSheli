@@ -157,6 +157,35 @@ def test_22_profile_upgrade_preserves_level_and_skips_new_beginner_gates(
     assert profile["onboarding_completed"] == 1
     assert profile["first_steps_step"] == 5
     assert profile["first_steps_completed"] == 1
+    assert profile["learner_mode"] == "guided"
+
+
+def test_legacy_guided_boolean_migrates_to_explicit_learner_mode(tmp_path: Path) -> None:
+    path = tmp_path / "learner-mode.db"
+    with _open(path) as connection:
+        connection.executescript(SCHEMA_SQL)
+        connection.executescript(MIGRATIONS[1].sql)
+        connection.execute(
+            "INSERT INTO app_meta(key, value) VALUES('schema_version', '2')"
+        )
+        connection.execute(
+            """
+            INSERT INTO profiles(
+                id, display_name, interface_language, hebrew_level, daily_minutes,
+                transliteration_mode, niqqud_mode, weekly_rest_day, cloud_consent,
+                onboarding_step, onboarding_completed, guided_mode,
+                first_steps_step, first_steps_completed, created_at, updated_at
+            ) VALUES(1, 'Explorer', 'en', 'B1', 15, 'hidden', 'hidden', 5, 0,
+                     4, 1, 0, 5, 1, '2026-07-22T00:00:00Z', '2026-07-22T00:00:00Z')
+            """
+        )
+
+    Database(path).initialize()
+
+    with _open(path) as connection:
+        profile = connection.execute("SELECT * FROM profiles WHERE id = 1").fetchone()
+    assert profile["guided_mode"] == 0
+    assert profile["learner_mode"] == "explorer"
 
 
 def test_newer_database_is_rejected_without_modification(tmp_path: Path) -> None:

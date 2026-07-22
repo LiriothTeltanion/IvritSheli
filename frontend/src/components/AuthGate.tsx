@@ -37,7 +37,7 @@ export function AuthGate({ busy, error, onDemo, onRetry, providers }: AuthGatePr
       <header className="auth-header">
         <a className="auth-brand" href="/" aria-label={`${t('appName')} — ${t('home')}`}>
           <img src="/icons/app-icon.svg" alt="" />
-          <span><strong>{t('appName')}</strong><small>CLOUD 2.4</small></span>
+          <span><strong>{t('appName')}</strong><small>PRIVATE PILOT 2.5</small></span>
         </a>
         <div className="auth-header__actions">
           <div className="locale-switch auth-locale" aria-label={t('interfaceLanguage')}>
@@ -50,7 +50,7 @@ export function AuthGate({ busy, error, onDemo, onRetry, providers }: AuthGatePr
               </button>
             ))}
           </div>
-          <span className="auth-version">v2.4.0</span>
+          <span className="auth-version">v2.5.0 private</span>
         </div>
       </header>
 
@@ -64,6 +64,12 @@ export function AuthGate({ busy, error, onDemo, onRetry, providers }: AuthGatePr
             <span><Icon name="shield" size={17} /> {t('secureSessions')}</span>
             <span><Icon name="cloud" size={17} /> {t('isolatedProgress')}</span>
             <span><Icon name="language" size={17} /> {t('trilingualInterface')}</span>
+          </div>
+
+          <div className="auth-mode-preview" aria-label={t('learningMode')}>
+            <span><i aria-hidden="true">1</i>{t('guidedMode')}</span>
+            <span><i aria-hidden="true">2</i>{t('explorerMode')}</span>
+            <span><i aria-hidden="true">3</i>{t('experiencedMode')}</span>
           </div>
 
           {error && (

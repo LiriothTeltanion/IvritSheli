@@ -1,0 +1,539 @@
+/* Living Hebrew Atlas: a self-contained, contrast-safe illustrated journey system. */
+
+.ivrit-brand-lockup {
+  --atlas-ink: #172033;
+  --atlas-muted: #526070;
+  --atlas-teal: #0f766e;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+  color: var(--atlas-ink);
+}
+
+.ivrit-brand-lockup__mark {
+  width: 3rem;
+  height: 3rem;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(15, 118, 110, 0.24);
+  border-radius: 1rem;
+  background: #fffdf8;
+  box-shadow: 0 0.65rem 1.6rem rgba(23, 32, 51, 0.11);
+}
+
+.ivrit-brand-lockup__mark img {
+  width: 2.15rem;
+  height: 2.15rem;
+  display: block;
+}
+
+.ivrit-brand-lockup__copy {
+  min-width: 0;
+  display: grid;
+  gap: 0.13rem;
+  text-align: start;
+}
+
+.ivrit-brand-lockup__copy strong {
+  font-size: 1rem;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.ivrit-brand-lockup__copy > span {
+  color: var(--atlas-muted);
+  font-size: 0.78rem;
+  line-height: 1.3;
+}
+
+.ivrit-brand-lockup__hebrew {
+  padding-inline-start: 0.8rem;
+  border-inline-start: 1px solid rgba(23, 32, 51, 0.16);
+  color: var(--atlas-teal);
+  font-size: 0.88rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.ivrit-brand-lockup--compact .ivrit-brand-lockup__mark {
+  width: 2.55rem;
+  height: 2.55rem;
+  border-radius: 0.82rem;
+}
+
+.ivrit-brand-lockup--compact .ivrit-brand-lockup__mark img {
+  width: 1.82rem;
+  height: 1.82rem;
+}
+
+.ivrit-brand-lockup--compact .ivrit-brand-lockup__hebrew {
+  display: none;
+}
+
+.ivrit-atlas {
+  --atlas-ink: #172033;
+  --atlas-muted: #526070;
+  --atlas-teal: #0f766e;
+  --atlas-teal-soft: #dff4ed;
+  --atlas-gold: #d99b2b;
+  --atlas-coral: #c45143;
+  --atlas-cream: #fffaf0;
+  --atlas-paper: #fffdf8;
+  --atlas-border: rgba(23, 32, 51, 0.16);
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(18rem, 0.9fr) minmax(24rem, 1.1fr);
+  gap: clamp(1.5rem, 4vw, 4.5rem);
+  padding: clamp(1.35rem, 4vw, 3.5rem);
+  border: 1px solid var(--atlas-border);
+  border-radius: clamp(1.5rem, 3vw, 2.5rem);
+  background:
+    radial-gradient(circle at 9% 8%, rgba(217, 155, 43, 0.12), transparent 20rem),
+    linear-gradient(145deg, #fffdf8 0%, #fff9ec 100%);
+  box-shadow: 0 1.5rem 4rem rgba(23, 32, 51, 0.1);
+  color: var(--atlas-ink);
+}
+
+.ivrit-atlas::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(15, 118, 110, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 118, 110, 0.035) 1px, transparent 1px);
+  background-size: 2.8rem 2.8rem;
+  mask-image: linear-gradient(to bottom, black, transparent 85%);
+}
+
+.ivrit-atlas__copy {
+  position: relative;
+  z-index: 3;
+  align-self: center;
+  min-width: 0;
+}
+
+.ivrit-atlas__eyebrow {
+  margin-block: 1.75rem 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--atlas-teal);
+  font-size: 0.76rem;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.ivrit-atlas__eyebrow::before {
+  content: '';
+  width: 1.8rem;
+  height: 2px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.ivrit-atlas h2 {
+  max-width: 17ch;
+  margin: 0;
+  color: var(--atlas-ink);
+  font-size: clamp(2rem, 4.7vw, 4.25rem);
+  line-height: 0.98;
+  letter-spacing: -0.055em;
+  text-wrap: balance;
+}
+
+.ivrit-atlas[dir='rtl'] h2 {
+  letter-spacing: -0.025em;
+  line-height: 1.08;
+}
+
+.ivrit-atlas__description {
+  max-width: 58ch;
+  margin: 1rem 0 0;
+  color: var(--atlas-muted);
+  font-size: clamp(0.94rem, 1.5vw, 1.08rem);
+  line-height: 1.68;
+}
+
+.ivrit-atlas__region-list {
+  max-width: 40rem;
+  margin: 1.6rem 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+  list-style: none;
+}
+
+.ivrit-atlas__region-list li {
+  min-width: 0;
+  padding: 0.72rem;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.65rem;
+  border: 1px solid rgba(23, 32, 51, 0.12);
+  border-radius: 0.95rem;
+  background: rgba(255, 253, 248, 0.97);
+  box-shadow: 0 0.4rem 1.1rem rgba(23, 32, 51, 0.045);
+}
+
+.ivrit-atlas__region-list li[data-state='active'] {
+  border-color: rgba(15, 118, 110, 0.48);
+  background: #f0faf5;
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.08);
+}
+
+.ivrit-atlas__region-list li[data-state='complete'] .ivrit-atlas__region-index {
+  color: #fff;
+  background: var(--atlas-teal);
+}
+
+.ivrit-atlas__region-index {
+  width: 1.85rem;
+  height: 1.85rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #f1e7d0;
+  color: #5f4b27;
+  font-size: 0.7rem;
+  font-weight: 900;
+}
+
+.ivrit-atlas__region-copy {
+  min-width: 0;
+  display: grid;
+  gap: 0.08rem;
+  text-align: start;
+}
+
+.ivrit-atlas__region-copy strong {
+  overflow: hidden;
+  color: var(--atlas-ink);
+  font-size: 0.88rem;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ivrit-atlas__region-copy small {
+  overflow: hidden;
+  color: var(--atlas-muted);
+  font-size: 0.75rem;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ivrit-atlas__region-status {
+  grid-column: 2;
+  color: var(--atlas-teal);
+  font-size: 0.68rem;
+  font-weight: 780;
+  text-align: start;
+}
+
+.ivrit-atlas__visual {
+  position: relative;
+  align-self: center;
+  min-width: 0;
+  aspect-ratio: 0.92;
+  overflow: hidden;
+  border: 1px solid rgba(23, 32, 51, 0.17);
+  border-radius: clamp(1.6rem, 3vw, 2.4rem);
+  background: #d8eff0;
+  box-shadow: 0 1.5rem 3rem rgba(23, 32, 51, 0.14);
+}
+
+.ivrit-atlas__scene {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.ivrit-atlas__sky { fill: #f9f3df; }
+.ivrit-atlas__sea { opacity: 0.98; }
+.ivrit-atlas__land { opacity: 0.99; }
+.ivrit-atlas__coastline { fill: none; stroke: #5b9fa2; stroke-width: 4; stroke-linecap: round; }
+.ivrit-atlas__sun { opacity: 0.94; transform-origin: 628px 88px; animation: atlasSun 7s ease-in-out infinite alternate; }
+.ivrit-atlas__cloud { fill: #fffdf8; opacity: 0.72; }
+.ivrit-atlas__cloud--one { animation: atlasCloud 14s ease-in-out infinite alternate; }
+.ivrit-atlas__cloud--two { animation: atlasCloud 18s ease-in-out -5s infinite alternate-reverse; }
+.ivrit-atlas__journey-line { fill: none; stroke: rgba(15, 118, 110, 0.48); stroke-width: 5; stroke-linecap: round; stroke-dasharray: 3 17; animation: atlasRoute 10s linear infinite; }
+
+.ivrit-atlas__hill { fill: #699b72; }
+.ivrit-atlas__hill--far { fill: #95b88d; }
+.ivrit-atlas__lake, .ivrit-atlas__dead-sea { fill: #77b8bc; }
+.ivrit-atlas__water-line, .ivrit-atlas__salt-line { fill: none; stroke: #f7fcf8; stroke-width: 4; stroke-linecap: round; opacity: 0.84; }
+.ivrit-atlas__carmel { fill: #6d916a; }
+.ivrit-atlas__terrace { fill: none; stroke: #e5d5a9; stroke-width: 7; stroke-linecap: round; }
+.ivrit-atlas__tower { fill: #fff8e6; stroke: #375d60; stroke-width: 4; }
+.ivrit-atlas__tower-light { fill: #d99b2b; stroke: #375d60; stroke-width: 4; stroke-linejoin: round; }
+.ivrit-atlas__city { fill: #fff9e9; stroke: #4c606e; stroke-width: 6; stroke-linejoin: round; }
+.ivrit-atlas__window { fill: none; stroke: #d99b2b; stroke-width: 5; stroke-linecap: round; }
+.ivrit-atlas__jaffa { fill: #d7a86b; stroke: #784f35; stroke-width: 5; }
+.ivrit-atlas__wave { fill: none; stroke: #287f86; stroke-width: 6; stroke-linecap: round; }
+.ivrit-atlas__stone { fill: #e6c88e; stroke: #755d40; stroke-width: 5; }
+.ivrit-atlas__stone-line { fill: none; stroke: rgba(117, 93, 64, 0.55); stroke-width: 3; }
+.ivrit-atlas__arch { fill: #745c43; stroke: #745c43; stroke-width: 4; }
+.ivrit-atlas__roof { fill: #c68c55; stroke: #745c43; stroke-width: 5; stroke-linejoin: round; }
+.ivrit-atlas__dune { fill: #d79e55; }
+.ivrit-atlas__dune--far { fill: #e9bd79; }
+.ivrit-atlas__acacia { fill: #41674c; stroke: #41674c; stroke-width: 7; stroke-linejoin: round; }
+
+.ivrit-atlas__letter {
+  fill: #0f766e;
+  font-family: "Noto Sans Hebrew", "Arial Hebrew", Arial, sans-serif;
+  font-size: 44px;
+  font-weight: 850;
+  opacity: 0.17;
+}
+
+.ivrit-atlas__letter--aleph { animation: atlasLetter 5.5s ease-in-out infinite alternate; }
+.ivrit-atlas__letter--lamed { animation: atlasLetter 6.5s ease-in-out -2s infinite alternate; }
+.ivrit-atlas__letter--shin { animation: atlasLetter 7s ease-in-out -3s infinite alternate; }
+
+.ivrit-atlas__active-halo {
+  fill: rgba(255, 253, 248, 0.9);
+  stroke: #0f766e;
+  stroke-width: 4;
+  transform-origin: 0 0;
+  animation: atlasHalo 2.4s ease-out infinite;
+  pointer-events: none;
+}
+
+.ivrit-atlas__active-halo circle:last-child { fill: #0f766e; stroke: #fffdf8; stroke-width: 5; }
+.ivrit-atlas__active-halo--galilee { transform: translate(482px, 93px); }
+.ivrit-atlas__active-halo--haifa-carmel { transform: translate(238px, 203px); }
+.ivrit-atlas__active-halo--tel-aviv-jaffa { transform: translate(194px, 351px); }
+.ivrit-atlas__active-halo--jerusalem { transform: translate(432px, 382px); }
+.ivrit-atlas__active-halo--dead-sea { transform: translate(504px, 507px); }
+.ivrit-atlas__active-halo--negev { transform: translate(353px, 671px); }
+
+.ivrit-atlas__markers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.ivrit-atlas__marker {
+  position: absolute;
+  z-index: 4;
+  /* Geography stays physically stable when interface copy switches to RTL. */
+  left: var(--atlas-x);
+  top: var(--atlas-y);
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+}
+
+button.ivrit-atlas__marker {
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--atlas-ink);
+  cursor: pointer;
+}
+
+.ivrit-atlas__marker i {
+  width: 1.05rem;
+  height: 1.05rem;
+  display: block;
+  margin: auto;
+  border: 0.26rem solid #fffdf8;
+  border-radius: 50%;
+  background: var(--atlas-coral);
+  box-shadow: 0 0 0 2px rgba(23, 32, 51, 0.42), 0 0.45rem 1rem rgba(23, 32, 51, 0.22);
+}
+
+.ivrit-atlas__marker.is-active i {
+  background: var(--atlas-teal);
+  box-shadow: 0 0 0 4px rgba(255, 253, 248, 0.96), 0 0 0 7px rgba(15, 118, 110, 0.4);
+}
+
+.ivrit-atlas__marker.is-complete i {
+  background: var(--atlas-gold);
+}
+
+.ivrit-atlas__marker > span {
+  position: absolute;
+  inset-block-start: calc(100% + 0.15rem);
+  inset-inline-start: 50%;
+  width: max-content;
+  max-width: 8.5rem;
+  padding: 0.33rem 0.48rem;
+  transform: translateX(-50%);
+  border: 1px solid rgba(23, 32, 51, 0.18);
+  border-radius: 0.55rem;
+  background: rgba(255, 253, 248, 0.98);
+  box-shadow: 0 0.35rem 0.9rem rgba(23, 32, 51, 0.11);
+  color: var(--atlas-ink);
+  font-size: 0.7rem;
+  font-weight: 850;
+  line-height: 1.25;
+  text-align: center;
+  white-space: normal;
+}
+
+button.ivrit-atlas__marker:hover i,
+button.ivrit-atlas__marker:focus-visible i {
+  transform: scale(1.16);
+}
+
+button.ivrit-atlas__marker:focus-visible {
+  outline: 3px solid #172033;
+  outline-offset: 3px;
+}
+
+.ivrit-atlas__visual-note {
+  position: absolute;
+  z-index: 5;
+  inset: auto 1rem 1rem;
+  margin: 0;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid rgba(23, 32, 51, 0.17);
+  border-radius: 0.85rem;
+  background: rgba(255, 253, 248, 0.98);
+  box-shadow: 0 0.6rem 1.4rem rgba(23, 32, 51, 0.12);
+  color: var(--atlas-ink);
+  font-size: 0.8rem;
+  font-weight: 760;
+  line-height: 1.4;
+  text-align: start;
+}
+
+.ivrit-atlas__visual-note span { color: var(--atlas-gold); }
+
+.ivrit-atlas-backdrop {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ivrit-atlas-backdrop .ivrit-atlas__scene {
+  width: 100%;
+  height: 100%;
+  opacity: 0.2;
+  object-fit: cover;
+}
+
+@keyframes atlasSun {
+  to { transform: scale(1.06); opacity: 1; }
+}
+
+@keyframes atlasCloud {
+  to { transform: translateX(22px); }
+}
+
+@keyframes atlasRoute {
+  to { stroke-dashoffset: -80; }
+}
+
+@keyframes atlasLetter {
+  to { transform: translateY(-7px); opacity: 0.25; }
+}
+
+@keyframes atlasHalo {
+  0%, 100% { opacity: 0.7; }
+  55% { opacity: 1; }
+}
+
+@media (max-width: 900px) {
+  .ivrit-atlas {
+    grid-template-columns: 1fr;
+  }
+
+  .ivrit-atlas h2 {
+    max-width: 22ch;
+  }
+
+  .ivrit-atlas__visual {
+    width: min(100%, 40rem);
+    justify-self: center;
+    aspect-ratio: 0.96;
+  }
+}
+
+@media (max-width: 580px) {
+  .ivrit-atlas {
+    gap: 1.25rem;
+    padding: 1rem;
+    border-radius: 1.45rem;
+  }
+
+  .ivrit-brand-lockup__hebrew {
+    display: none;
+  }
+
+  .ivrit-atlas__eyebrow {
+    margin-block-start: 1.25rem;
+  }
+
+  .ivrit-atlas__region-list {
+    grid-template-columns: 1fr;
+  }
+
+  .ivrit-atlas__region-list li {
+    padding: 0.68rem 0.75rem;
+  }
+
+  .ivrit-atlas__visual {
+    min-height: 31rem;
+    aspect-ratio: 0.78;
+    border-radius: 1.25rem;
+  }
+
+  .ivrit-atlas__marker > span {
+    display: none;
+  }
+
+  .ivrit-atlas__visual-note {
+    inset: auto 0.7rem 0.7rem;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .ivrit-atlas,
+  .ivrit-atlas__visual,
+  .ivrit-atlas__region-list li,
+  .ivrit-atlas__visual-note,
+  .ivrit-atlas__marker > span {
+    border-color: #172033;
+  }
+
+  .ivrit-atlas__region-list li,
+  .ivrit-atlas__visual-note,
+  .ivrit-atlas__marker > span {
+    background: #fff;
+  }
+
+  .ivrit-atlas__description,
+  .ivrit-atlas__region-copy small {
+    color: #344253;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ivrit-atlas *,
+  .ivrit-atlas-backdrop * {
+    scroll-behavior: auto !important;
+    animation: none !important;
+    transition: none !important;
+  }
+
+  button.ivrit-atlas__marker:hover i,
+  button.ivrit-atlas__marker:focus-visible i {
+    transform: none;
+  }
+}

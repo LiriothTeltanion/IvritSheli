@@ -2,9 +2,26 @@
 
 All notable changes are documented here. Versions follow Semantic Versioning.
 
-## Unreleased
+## 2.5.0 — Private Pilot — Unreleased
 
-No changes beyond the deployed 2.4.0 Contest Edition are currently queued.
+This work remains on a private local branch. The public Railway deployment, Git tag and GitHub Release remain at 2.4.0 until the pilot is explicitly approved for publication.
+
+### Added
+
+- Three persisted learner experiences: Guided for first-time learners, Explorer for independent practice and Experienced for direct access with less compulsory guidance.
+- A user-facing learning activity log that explains captured words, submitted reviews, pronunciation attempts, completed missions and earned XP without exposing secrets or raw provider payloads.
+- An original Israel-wide illustrated journey spanning Galilee, Haifa/Carmel, Tel Aviv/Jaffa, Jerusalem, the Dead Sea and the Negev; the Negev remains one region rather than the whole visual identity.
+- Nine additional milestone definitions for a 15-achievement path covering vocabulary capture, speaking, dictionary use, real-life practice, consistency and multilingual use.
+
+### Changed
+
+- Authentication, dashboard and atlas surfaces gain richer illustration, depth and translucent accents while keeping reading cards nearly opaque, contrast-safe and stationary under reduced-motion preferences.
+- Source, package, browser and PWA metadata advance from 2.4.0 to the unreleased 2.5.0 Private Pilot.
+- Google-authenticated pilot users can be independently allowlisted for cloud AI and Google connectors by immutable provider subject; identity-only Google sign-in still grants no Workspace scopes.
+
+### Verification
+
+- Final private-pilot verification is pending completion of the dictionary expansion and consolidated backend/frontend quality gates.
 
 ## 2.4.0 — Contest Edition — 2026-07-21
 

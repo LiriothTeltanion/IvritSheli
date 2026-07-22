@@ -4,7 +4,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { api } from '../api';
 import { useI18n } from '../i18n';
-import type { Locale, Profile, VoiceStyle } from '../types';
+import { resolveLearnerMode } from '../learnerMode';
+import type { LearnerMode, Locale, Profile, VoiceStyle } from '../types';
 import { configureHebrewUtterance, persistVoiceStyle, readStoredVoiceStyle } from '../voicePreference';
 import { Icon } from './Icon';
 import { WordIllustration } from './WordIllustration';
@@ -20,6 +21,7 @@ interface OnboardingDraft {
   transliteration: Profile['transliteration_mode'];
   niqqud: Profile['niqqud_mode'];
   voiceStyle: VoiceStyle;
+  learnerMode: LearnerMode;
 }
 
 interface StoredOnboarding {
@@ -57,6 +59,7 @@ function defaultDraft(profile: Profile): OnboardingDraft {
     transliteration: profile.transliteration_mode === 'hidden' ? 'hints' : profile.transliteration_mode,
     niqqud: profile.niqqud_mode === 'hidden' ? 'difficult' : profile.niqqud_mode,
     voiceStyle: readStoredVoiceStyle(),
+    learnerMode: resolveLearnerMode(profile),
   };
 }
 
@@ -150,7 +153,8 @@ export function BeginnerOnboarding({ profile, storageKey, onFinished, onSkip }: 
     niqqud_mode: draft.niqqud,
     onboarding_step: onboardingStep,
     onboarding_completed: completed,
-    guided_mode: true,
+    learner_mode: draft.learnerMode,
+    guided_mode: draft.learnerMode === 'guided',
     goals: [{
       id: profile.goals?.find((goal) => goal.goal_type === draft.goal)?.id ?? 0,
       goal_type: draft.goal,
@@ -198,6 +202,11 @@ export function BeginnerOnboarding({ profile, storageKey, onFinished, onSkip }: 
     { value: 'speaking', emoji: '🗣️', label: t('goalSpeaking') },
     { value: 'travel', emoji: '🚌', label: t('goalTravel') },
     { value: 'medical', emoji: '❤️', label: t('goalHealth') },
+  ];
+  const modeOptions: ReadonlyArray<{ value: LearnerMode; emoji: string; title: string; detail: string }> = [
+    { value: 'guided', emoji: '🧭', title: t('guidedMode'), detail: t('guidedModeDetail') },
+    { value: 'explorer', emoji: '🗺️', title: t('explorerMode'), detail: t('explorerModeDetail') },
+    { value: 'experienced', emoji: '✦', title: t('experiencedMode'), detail: t('experiencedModeDetail') },
   ];
 
   return (
@@ -264,6 +273,25 @@ export function BeginnerOnboarding({ profile, storageKey, onFinished, onSkip }: 
                 </button>
               ))}
             </div>
+            <fieldset className="onboarding-fieldset learner-mode-fieldset">
+              <legend>{t('chooseLearningMode')}</legend>
+              <p>{t('chooseLearningModeDetail')}</p>
+              <div className="learner-mode-options">
+                {modeOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    className={draft.learnerMode === option.value ? 'learner-mode-option active' : 'learner-mode-option'}
+                    onClick={() => setDraft((current) => ({ ...current, learnerMode: option.value }))}
+                    aria-pressed={draft.learnerMode === option.value}
+                  >
+                    <span aria-hidden="true">{option.emoji}</span>
+                    <strong>{option.title}</strong>
+                    <small>{option.detail}</small>
+                  </button>
+                ))}
+              </div>
+            </fieldset>
           </div>
         )}
 

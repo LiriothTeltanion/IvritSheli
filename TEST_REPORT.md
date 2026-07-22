@@ -1,16 +1,19 @@
-# Ivrit Sheli 2.4.0 Contest Edition — Verification Report
+# Ivrit Sheli 2.5.0 Private Pilot — Verification Ledger
 
-- **Verification date:** 2026-07-21
+- **Ledger update date:** 2026-07-22
 - **Time zone:** Asia/Jerusalem
-- **Verified source version:** `2.4.0`
+- **Current private source candidate:** `2.5.0` / local / unpublished
+- **Private-pilot consolidated verification:** Pending
 - **Current verified production:** `2.4.0` on Railway with PostgreSQL
 - **Release implementation commit:** `03bf84b9268ff8be528c0fab3c670f9652ee23b0`
 
-## Result
+## Current status
 
-The 2.4 Contest Edition passes the local backend, dedicated PostgreSQL, frontend, dependency, package and production-shaped Docker/Compose gates documented below. Railway production separately reports version 2.4.0 with PostgreSQL and all 48 reviewed dictionary entries ready. The English entry, read-only guided tour, identity-only Google sign-in, onboarding/session persistence across reload and logout were verified in a normal browser. Git tag and GitHub Release `v2.4.0` are published.
+The 2.5 Private Pilot is a source candidate and is not yet claimed as fully verified, deployed, tagged or published. Its consolidated backend, frontend, accessibility-oriented build and browser results will be recorded only after those commands complete. The table and command evidence below preserve the last fully verified 2.4 Contest Edition baseline; they are not relabeled as 2.5 evidence.
 
-| Verification area | 2.4 result |
+The verified public 2.4 Contest Edition passes the local backend, dedicated PostgreSQL, frontend, dependency, package and production-shaped Docker/Compose gates documented below. Railway production separately reports version 2.4.0 with PostgreSQL and all 48 reviewed dictionary entries ready. The English entry, read-only guided tour, identity-only Google sign-in, onboarding/session persistence across reload and logout were verified in a normal browser. Git tag and GitHub Release `v2.4.0` are published.
+
+| Verification area | Verified public 2.4 result |
 |---|---:|
 | Unique backend automated tests | **151 passed** |
 | Ordinary backend run | **150 passed / 1 PostgreSQL-gated skip** |
@@ -36,7 +39,7 @@ The 2.4 Contest Edition passes the local backend, dedicated PostgreSQL, frontend
 
 The ordinary 2.4 suite reports `150 passed, 1 skipped`; the skipped case requires administrator and restricted-runtime PostgreSQL URLs. The dedicated command reports `3 passed`. Two of those tests also run in the ordinary suite, while the credential-gated test replaces its skip, producing 151 unique backend passes rather than 153. Together with 62 frontend tests, the verified local baseline is 213 unique passing automated tests.
 
-## Commands and evidence
+## Verified 2.4 commands and evidence
 
 ### Backend quality and local-first suite
 

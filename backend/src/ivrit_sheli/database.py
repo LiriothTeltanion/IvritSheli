@@ -239,6 +239,22 @@ MIGRATIONS = (
             first_steps_completed = 1;
         """,
     ),
+    Migration(
+        version=3,
+        name="three_learner_modes",
+        sql="""
+        ALTER TABLE profiles ADD COLUMN learner_mode TEXT NOT NULL DEFAULT 'guided'
+            CHECK (learner_mode IN ('guided', 'explorer', 'experienced'));
+
+        -- Keep the legacy boolean meaningful for older clients while giving
+        -- every existing learner a deterministic mode in the richer model.
+        UPDATE profiles
+        SET learner_mode = CASE
+            WHEN guided_mode = 1 THEN 'guided'
+            ELSE 'explorer'
+        END;
+        """,
+    ),
 )
 SCHEMA_VERSION = MIGRATIONS[-1].version
 

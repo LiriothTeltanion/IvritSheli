@@ -1,28 +1,37 @@
-# Ivrit Sheli 2.4.0 Contest Edition — Package Manifest
+# Ivrit Sheli 2.5.0 Private Pilot — Package Manifest
 
 ## Release identity
 
 - Product: Ivrit Sheli — העברית שלי
-- Source version: `2.4.0`
-- Current live source version: `2.4.0`
-- Verification date: 2026-07-21
+- Source version: `2.5.0`
+- Current public live source version: `2.4.0`
+- Manifest update date: 2026-07-22
+- Private-pilot consolidated verification: pending
+- Verified public baseline date: 2026-07-21
 - Time zone: Asia/Jerusalem
 - Author: Kevin “Lirioth” Cusnir
-- Release-evidence branch: `codex/ivrit-sheli-v2.4-release-evidence`
+- Private-pilot branch: `codex/ivrit-sheli-v2.5.0-private-pilot`
 - Default branch: `main`
 - Application license: MIT
 - Production URL: https://ivritsheli-production.up.railway.app
 - Current verified production release: `2.4.0` on Railway with managed PostgreSQL and 48 reviewed dictionary entries
 - Release implementation commit: `03bf84b9268ff8be528c0fab3c670f9652ee23b0`
 - Latest published Git tag and GitHub Release: `v2.4.0`
-- Publication state: `2.4.0` is deployed, tagged and published as a GitHub Release
+- Private-pilot publication state: `2.5.0` is local, untagged and unpublished
+- Public publication state: `2.4.0` is deployed, tagged and published as a GitHub Release
 - Personal signature: `KC ✦ LT` is reserved and excluded from the MIT asset grant
 - Dictionary-derived data: separate Wiktionary/Kaikki attribution and share-alike terms
 - Privacy notice: `PRIVACY.md`
 - Terms of use: `TERMS.md`
 - Machine-readable public source: `portfolio/project.json`
 
-## 2.4 capabilities
+## 2.5 private-pilot scope
+
+This manifest describes the local 2.5 source candidate without promoting it to a public release. The candidate adds three persisted learner experiences, an Israel-wide learning atlas, a larger reviewed starter lexicon, a learner-visible activity log, broader achievements and provider-subject pilot allowlists. These changes remain source-only until the complete backend, frontend, accessibility, package and browser verification gates are recorded.
+
+The Railway URL, production health evidence, public Git tag and GitHub Release below all remain the verified 2.4.0 record. Google sign-in remains identity-only and does not itself grant Gmail, Drive or Calendar access.
+
+## Verified 2.4 capabilities
 
 ### Contest judge journey
 
@@ -73,7 +82,7 @@
 
 Identity-only Google sign-in is configured and verified in production with `openid profile` only. Onboarding state and the authenticated session persisted across reload; logout returned to the English auth landing page and remained signed out after another reload. Re-login after logout remains unverified. OpenAI AI/embedding/TTS/STT and Google Workspace connector adapters require separate operator credentials, consent, identity allowlists and cost controls; Google sign-in grants no Gmail, Drive or Calendar scope. No real credentials are included in this package.
 
-## Verification summary
+## Verified public 2.4 baseline
 
 - Backend ordinary suite: 150 passed, 1 credential-gated PostgreSQL skip.
 - Dedicated PostgreSQL 17 gate: 3 passed; two overlap the ordinary suite and one replaces its skip, producing 151 unique backend passes.
@@ -90,5 +99,7 @@ Identity-only Google sign-in is configured and verified in production with `open
 - Production-shaped Docker/Compose smoke: passed with release 2.4.0, PostgreSQL readiness, UID 10001, no migration DSN in the app runtime, OAuth rate limiting and structured-log redaction.
 
 The release implementation at `03bf84b9268ff8be528c0fab3c670f9652ee23b0` deployed successfully on Railway on 2026-07-21. Production reports version 2.4.0, PostgreSQL ready and all 48 reviewed dictionary entries ready. The live English entry, four-stop read-only tour, identity-only Google sign-in, onboarding/session persistence across reload, logout and signed-out persistence after reload passed browser checks. Git tag and GitHub Release `v2.4.0` are published. Re-login after logout, refreshed 2.4 desktop/mobile/RTL/reduced-motion screenshots, two-real-user production isolation, live OpenAI or Google Workspace connector calls and a managed backup restore drill remain explicit operator checks.
+
+None of the 2.4 counts or production observations above are presented as completed 2.5 verification. The private-pilot test totals and build measurements will be added only after the consolidated gates finish.
 
 See `TEST_REPORT.md` for commands, evidence boundaries and the historical production record.

@@ -7,8 +7,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { api } from '../api';
 import { useI18n } from '../i18n';
+import { resolveLearnerMode } from '../learnerMode';
 import { useSessionAccess } from '../session';
-import type { AuthState, Locale, Profile } from '../types';
+import type { AuthState, LearnerMode, Locale, Profile } from '../types';
 import { Icon } from './Icon';
 
 export function SettingsPanel({
@@ -34,6 +35,7 @@ export function SettingsPanel({
   const [deleting, setDeleting] = useState(false);
   const deleteTriggerRef = useRef<HTMLButtonElement>(null);
   const keepAccountRef = useRef<HTMLButtonElement>(null);
+  const learnerMode = resolveLearnerMode(draft);
 
   useEffect(() => setDraft(profile), [profile]);
 
@@ -68,7 +70,8 @@ export function SettingsPanel({
         cloud_consent: draft.cloud_consent,
         ...(draft.onboarding_step !== undefined ? { onboarding_step: draft.onboarding_step } : {}),
         ...(draft.onboarding_completed !== undefined ? { onboarding_completed: draft.onboarding_completed } : {}),
-        ...(draft.guided_mode !== undefined ? { guided_mode: draft.guided_mode } : {}),
+        learner_mode: learnerMode,
+        guided_mode: learnerMode === 'guided',
       });
       onSaved(updated, t('settingsSaved'));
       setMessage(t('settingsSaved'));
@@ -103,7 +106,7 @@ export function SettingsPanel({
         diagnostics: {
           user_agent: navigator.userAgent,
           viewport: `${window.innerWidth}x${window.innerHeight}`,
-          app_version: '2.4.0',
+          app_version: '2.5.0',
           online: navigator.onLine,
           locale,
           route: window.location.pathname,
@@ -160,18 +163,30 @@ export function SettingsPanel({
               <option value="C1">C1 · {t('levelAdvanced')}</option>
             </select>
           </label>
-          <label className="guided-mode-setting">
-            <span className="toggle">
-              <input
-                type="checkbox"
-                checked={draft.guided_mode === undefined ? true : Boolean(draft.guided_mode)}
-                onChange={(event) => setDraft((current) => ({ ...current, guided_mode: event.target.checked }))}
-                disabled={readOnly}
-              />
-              <span />
-            </span>
-            <span><strong>{t('guidedMode')}</strong><small>{t('guidedModeDetail')}</small></span>
-          </label>
+          <fieldset className="learner-mode-setting">
+            <legend>{t('learningMode')}</legend>
+            <p>{t('learningModeDetail')}</p>
+            <div className="learner-mode-options learner-mode-options--settings">
+              {(["guided", "explorer", "experienced"] as LearnerMode[]).map((mode) => (
+                <button
+                  key={mode}
+                  type="button"
+                  className={learnerMode === mode ? 'learner-mode-option active' : 'learner-mode-option'}
+                  onClick={() => setDraft((current) => ({
+                    ...current,
+                    learner_mode: mode,
+                    guided_mode: mode === 'guided',
+                  }))}
+                  aria-pressed={learnerMode === mode}
+                  disabled={readOnly}
+                >
+                  <span aria-hidden="true">{mode === 'guided' ? '🧭' : mode === 'explorer' ? '🗺️' : '✦'}</span>
+                  <strong>{t(`${mode}Mode`)}</strong>
+                  <small>{t(`${mode}ModeDetail`)}</small>
+                </button>
+              ))}
+            </div>
+          </fieldset>
         </section>
 
         <section className="card settings-card">

@@ -7,6 +7,7 @@
 export type Locale = 'en' | 'es' | 'he';
 export type ViewKey = 'today' | 'learn' | 'coach' | 'progress' | 'connectors' | 'settings';
 export type VoiceStyle = 'masculine' | 'feminine';
+export type LearnerMode = 'guided' | 'explorer' | 'experienced';
 export type TranscriptProvider = 'browser' | 'openai' | 'manual';
 export type AuthProvider = 'google' | 'github';
 
@@ -49,6 +50,7 @@ export interface Profile {
   onboarding_step?: number;
   onboarding_completed?: number | boolean;
   guided_mode?: number | boolean;
+  learner_mode?: LearnerMode;
   first_steps_step?: number;
   first_steps_completed?: number | boolean;
   goals?: Goal[];
@@ -315,6 +317,9 @@ export interface Achievement {
   icon: string;
   unlocked: boolean;
   unlocked_at: string | null;
+  current_value: number;
+  progress_percent: number;
+  remaining: number;
 }
 
 export interface GamificationStatus {
@@ -346,8 +351,25 @@ export interface ProgressData {
     attempts: number;
     correct: number;
   }>;
+  activity_log?: ActivityLogEntry[];
   mastery: Array<Record<string, unknown>>;
   streak_days: number;
+}
+
+export interface ActivityLogEntry {
+  id: number;
+  type: 'item_created' | 'review_submitted' | 'pronunciation_scored' | 'mission_completed';
+  source: string;
+  source_id: string | null;
+  hebrew_text: string | null;
+  details: {
+    correct?: boolean;
+    modality?: string;
+    score?: number;
+    success?: boolean;
+    xp_awarded?: number;
+  };
+  created_at: string;
 }
 
 export interface AIResponse<T = Record<string, unknown>> {

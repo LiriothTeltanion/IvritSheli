@@ -527,6 +527,7 @@ def test_legacy_cloud_profile_keeps_level_and_skips_new_beginner_gates() -> None
                     "interface_language": "he",
                     "hebrew_level": "C1",
                     "daily_minutes": 35,
+                    "guided_mode": 0,
                     "created_at": "2026-07-16T00:00:00Z",
                     "updated_at": "2026-07-16T00:00:00Z",
                 }
@@ -544,11 +545,13 @@ def test_legacy_cloud_profile_keeps_level_and_skips_new_beginner_gates() -> None
     assert profile["onboarding_completed"] == 1
     assert profile["first_steps_step"] == 5
     assert profile["first_steps_completed"] == 1
+    assert profile["learner_mode"] == "explorer"
 
     repository.update_profile({"daily_minutes": 36})
     persisted_profile = store.read_state(user.id)["tables"]["profiles"][0]
     assert persisted_profile["hebrew_level"] == "C1"
     assert persisted_profile["first_steps_completed"] == 1
+    assert persisted_profile["learner_mode"] == "explorer"
 
 
 def test_session_store_expires_and_revokes_bearer_tokens() -> None:
@@ -624,13 +627,13 @@ def test_operational_endpoints_report_version_storage_and_readiness(tmp_path: Pa
             oauth_client=FakeGitHubOAuth(),
         )
     ) as client:
-        assert client.get("/health/live").json()["version"] == "2.4.0"
+        assert client.get("/health/live").json()["version"] == "2.5.0"
         ready = client.get("/health/ready")
         assert ready.status_code == 200
         assert ready.json()["checks"]["postgresql"] is True
         assert ready.json()["checks"]["dictionary_details"]["mode"] == "shared_cloud"
         version = client.get("/version").json()
-        assert version["version"] == "2.4.0"
+        assert version["version"] == "2.5.0"
         assert version["storage"] == "postgresql"
 
 
@@ -817,14 +820,20 @@ def test_production_provider_credentials_require_explicit_identity_allowlists(
         {
             "ALLOW_CLOUD_PROCESSING": "true",
             "CLOUD_AI_ALLOWED_GITHUB_LOGINS": "Owner, owner",
+            "CLOUD_AI_ALLOWED_GOOGLE_SUBJECTS": "google-alpha, google-alpha",
             "GOOGLE_ACCESS_TOKEN": "test-only-google-token",
             "GOOGLE_CONNECTORS_ALLOWED_GITHUB_IDS": "12345",
+            "GOOGLE_CONNECTORS_ALLOWED_GOOGLE_SUBJECTS": "google-beta",
             "RAILWAY_GIT_COMMIT_SHA": "railway-commit-sha",
         },
     )
     assert settings.cloud_ai_allowed_github_logins == ("owner",)
+    assert settings.cloud_ai_allowed_google_subjects == ("google-alpha",)
     assert settings.allows_cloud_ai("OWNER", None) is True
+    assert settings.allows_cloud_ai(None, "google-alpha", provider="google") is True
+    assert settings.allows_cloud_ai("owner", "google-alpha", provider="unknown") is False
     assert settings.allows_google_connectors(None, "12345") is True
+    assert settings.allows_google_connectors(None, "google-beta", provider="google") is True
     assert settings.allows_google_connectors("owner", None) is False
     assert settings.build_commit == "railway-commit-sha"
 
@@ -901,6 +910,66 @@ def test_production_cloud_ai_allows_only_the_matching_github_identity(
         base_url="https://ivrit.example",
     ) as client:
         login_github(client, "primary")
+        headers = {"Origin": "https://ivrit.example"}
+        denied_without_consent = client.post(
+            "/api/v1/ai/correct",
+            json={"payload": {"text": "אני לומד"}, "cloud_requested": True},
+            headers=headers,
+        )
+        assert denied_without_consent.status_code == 403
+        assert denied_without_consent.json()["error"]["code"] == "cloud_consent_required"
+
+        consent = client.put(
+            "/api/v1/profile",
+            json={"cloud_consent": True},
+            headers=headers,
+        )
+        assert consent.status_code == 200
+        response = client.post(
+            "/api/v1/ai/correct",
+            json={"payload": {"text": "אני לומד"}, "cloud_requested": True},
+            headers=headers,
+        )
+        assert response.status_code == 200
+        assert response.json()["provider"] == "offline"
+        assert response.json()["degraded_mode"] is True
+
+
+def test_production_cloud_ai_can_allow_an_explicit_google_subject(
+    tmp_path: Path,
+) -> None:
+    settings = production_cloud_settings(
+        tmp_path,
+        {
+            "GOOGLE_AUTH_CLIENT_ID": "google-client",
+            "GOOGLE_AUTH_CLIENT_SECRET": "google-secret",
+            "GOOGLE_AUTH_REDIRECT_URI": (
+                "https://ivrit.example/api/v1/auth/google/callback"
+            ),
+            "CLOUD_AI_ALLOWED_GOOGLE_SUBJECTS": "google-stable-subject",
+        },
+    )
+    with TestClient(
+        create_app(
+            settings,
+            cloud_store=MemoryCloudStore(),
+            oauth_client=FakeGitHubOAuth(),
+            google_oauth_client=FakeGoogleOAuth(),
+        ),
+        base_url="https://ivrit.example",
+    ) as client:
+        started = client.get(
+            "/api/v1/auth/google/start",
+            headers={"Accept": "application/json"},
+        )
+        state = parse_qs(urlparse(started.json()["authorize_url"]).query)["state"][0]
+        callback = client.get(
+            "/api/v1/auth/google/callback",
+            params={"code": "pilot", "state": state},
+            follow_redirects=False,
+        )
+        assert callback.status_code == 303
+
         headers = {"Origin": "https://ivrit.example"}
         denied_without_consent = client.post(
             "/api/v1/ai/correct",

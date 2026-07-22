@@ -103,6 +103,10 @@ class CloudLearningRepository:
                                 "first_steps_completed": 1,
                             }
                         )
+                    if table == "profiles" and "learner_mode" not in hydrated_row:
+                        hydrated_row["learner_mode"] = (
+                            "guided" if bool(hydrated_row.get("guided_mode", 1)) else "explorer"
+                        )
                     columns = tuple(
                         column for column in hydrated_row if column in allowed_columns
                     )

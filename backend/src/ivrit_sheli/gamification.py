@@ -86,16 +86,106 @@ ACHIEVEMENTS: tuple[AchievementDefinition, ...] = (
         "first_word", "captured_items", 1, 25, "First Word", "Primera palabra", "המילה הראשונה", "assets/badges/first-word.svg"
     ),
     AchievementDefinition(
+        "word_collector_10",
+        "captured_items",
+        10,
+        60,
+        "Pocket Dictionary",
+        "Diccionario de bolsillo",
+        "מילון בכיס",
+        "assets/badges/first-word.svg",
+    ),
+    AchievementDefinition(
+        "word_garden_50",
+        "captured_items",
+        50,
+        140,
+        "Word Garden",
+        "Jardín de palabras",
+        "גן מילים",
+        "assets/badges/first-word.svg",
+    ),
+    AchievementDefinition(
+        "first_voice",
+        "speaking_attempts",
+        1,
+        35,
+        "First Voice",
+        "Primera voz",
+        "הקול הראשון",
+        "assets/badges/speaker.svg",
+    ),
+    AchievementDefinition(
+        "speaker_10",
+        "speaking_attempts",
+        10,
+        75,
+        "Finding Your Voice",
+        "Encontrando tu voz",
+        "מוצאים את הקול",
+        "assets/badges/speaker.svg",
+    ),
+    AchievementDefinition(
         "week_streak", "streak_days", 7, 80, "Seven-Day Flow", "Racha de siete días", "רצף של שבעה ימים", "assets/badges/streak.svg"
     ),
     AchievementDefinition(
         "speaker_25", "speaking_attempts", 25, 120, "Voice Builder", "Constructor de voz", "בונה קול", "assets/badges/speaker.svg"
     ),
     AchievementDefinition(
+        "dictionary_first",
+        "dictionary_items_saved",
+        1,
+        25,
+        "Curious Reader",
+        "Lector curioso",
+        "קוראים בסקרנות",
+        "assets/badges/explorer.svg",
+    ),
+    AchievementDefinition(
+        "dictionary_25",
+        "dictionary_items_saved",
+        25,
+        80,
+        "Meaning Maker",
+        "Creador de significados",
+        "יוצרים משמעות",
+        "assets/badges/explorer.svg",
+    ),
+    AchievementDefinition(
         "dictionary_100", "dictionary_items_saved", 100, 100, "Word Explorer", "Explorador de palabras", "חוקר מילים", "assets/badges/explorer.svg"
     ),
     AchievementDefinition(
+        "real_world_first",
+        "real_life_successes",
+        1,
+        55,
+        "First Real Moment",
+        "Primer momento real",
+        "הרגע האמיתי הראשון",
+        "assets/badges/real-world.svg",
+    ),
+    AchievementDefinition(
         "real_world_10", "real_life_successes", 10, 180, "Israel in Action", "Israel en acción", "עברית בפעולה", "assets/badges/real-world.svg"
+    ),
+    AchievementDefinition(
+        "three_day_flow",
+        "streak_days",
+        3,
+        40,
+        "Three-Day Rhythm",
+        "Ritmo de tres días",
+        "קצב של שלושה ימים",
+        "assets/badges/streak.svg",
+    ),
+    AchievementDefinition(
+        "bilingual",
+        "locales_used",
+        2,
+        45,
+        "Language Bridge",
+        "Puente de idiomas",
+        "גשר בין שפות",
+        "assets/badges/polyglot.svg",
     ),
     AchievementDefinition(
         "trilingual", "locales_used", 3, 90, "Three-Language Mind", "Mente trilingüe", "חשיבה תלת־לשונית", "assets/badges/polyglot.svg"

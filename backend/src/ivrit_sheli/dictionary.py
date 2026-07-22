@@ -21,6 +21,8 @@ import requests
 
 from ivrit_sheli import __version__
 from ivrit_sheli.normalization import normalize_hebrew
+from ivrit_sheli.starter_lexicon_v2 import EXPANDED_STARTER_ENTRIES
+from ivrit_sheli.starter_lexicon_validation import validate_starter_vocabulary
 
 LOGGER = logging.getLogger(__name__)
 DICTIONARY_SCHEMA_VERSION = 2
@@ -1130,6 +1132,11 @@ DEMO_ENTRIES: tuple[dict[str, Any], ...] = (
     ),
 )
 
+# Keep the original 48 source identities stable, then add the reviewed v2.5
+# layer. Existing databases are updated in place and receive only missing rows.
+DEMO_ENTRIES += EXPANDED_STARTER_ENTRIES
+validate_starter_vocabulary(DEMO_ENTRIES)
+
 
 @dataclass(frozen=True, slots=True)
 class ImportStats:
@@ -1166,7 +1173,7 @@ class DictionaryStore:
 
     Example:
         >>> store = DictionaryStore(Path(":memory:")); store.initialize(); store.seed_demo()
-        48
+        96
     """
 
     def __init__(self, path: Path) -> None:
@@ -1295,7 +1302,7 @@ class DictionaryStore:
             connection.execute(f"ALTER TABLE {table} ADD COLUMN {column_definition}")
 
     def seed_demo(self) -> int:
-        """Install the reviewed 48-concept visual starter vocabulary.
+        """Install the reviewed 96-concept visual starter vocabulary.
 
         Returns:
             Number of new entries inserted.
@@ -1431,7 +1438,7 @@ class DictionaryStore:
                 ).fetchall()
             }
             if not non_starter_sources:
-                dataset_name = "starter_visual_vocabulary_v1"
+                dataset_name = "starter_visual_vocabulary_v2"
                 dataset_license = STARTER_LICENSE
                 connection.execute(
                     "INSERT INTO dictionary_meta(key, value) VALUES('source_url', ?) "
@@ -1439,12 +1446,12 @@ class DictionaryStore:
                     (STARTER_SOURCE_URL,),
                 )
             elif non_starter_sources == {"Kaikki / English Wiktionary"}:
-                dataset_name = "Kaikki/Wiktionary Hebrew + starter_visual_vocabulary_v1"
+                dataset_name = "Kaikki/Wiktionary Hebrew + starter_visual_vocabulary_v2"
                 dataset_license = (
                     "Mixed per-entry licenses: MIT starter data; CC BY-SA 4.0 / GFDL Kaikki"
                 )
             else:
-                dataset_name = "mixed_with_starter_visual_vocabulary_v1"
+                dataset_name = "mixed_with_starter_visual_vocabulary_v2"
                 dataset_license = "Mixed dataset; see each entry's license_name"
             connection.execute(
                 "INSERT INTO dictionary_meta(key, value) VALUES('dataset', ?) "
@@ -1452,7 +1459,7 @@ class DictionaryStore:
                 (dataset_name,),
             )
             connection.execute(
-                "INSERT INTO dictionary_meta(key, value) VALUES('starter_entries', '48') "
+                "INSERT INTO dictionary_meta(key, value) VALUES('starter_entries', '96') "
                 "ON CONFLICT(key) DO UPDATE SET value = excluded.value"
             )
             connection.execute(
@@ -1768,7 +1775,7 @@ class DictionaryStore:
         Example:
             >>> store = DictionaryStore(Path(":memory:")); store.initialize(); store.seed_demo()
             >>> store.stats()["entries"]
-            48
+            96
         """
         connection = self.connect()
         should_close = str(self.path) != ":memory:"

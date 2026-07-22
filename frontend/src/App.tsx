@@ -7,8 +7,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { api, AUTH_REQUIRED_EVENT, configureApiSession } from './api';
 import { localeOverrideFromSearch, useI18n } from './i18n';
+import { resolveLearnerMode } from './learnerMode';
 import { SessionAccessProvider } from './session';
-import type { AuthState, Dashboard, GamificationStatus, Locale, Profile, ProgressData, ViewKey } from './types';
+import type { AuthState, Dashboard, GamificationStatus, LearnerMode, Locale, Profile, ProgressData, ViewKey } from './types';
 import { AICoach } from './components/AICoach';
 import { AuthGate } from './components/AuthGate';
 import { BeginnerOnboarding } from './components/BeginnerOnboarding';
@@ -47,6 +48,16 @@ const navigation: Array<{ key: ViewKey; icon: IconName; labelKey: 'today' | 'lea
   { key: 'connectors', icon: 'link', labelKey: 'connectors' },
   { key: 'settings', icon: 'settings', labelKey: 'settings' },
 ];
+
+function navigationForLearnerMode(mode: LearnerMode): typeof navigation {
+  if (mode === 'guided') {
+    return navigation.filter((item) => item.key !== 'coach' && item.key !== 'connectors');
+  }
+  if (mode === 'explorer') {
+    return navigation.filter((item) => item.key !== 'connectors');
+  }
+  return navigation;
+}
 
 export default function App(): React.JSX.Element {
   const { locale, setLocale, t } = useI18n();
@@ -203,7 +214,18 @@ export default function App(): React.JSX.Element {
     setDictionaryTarget(entryId === undefined ? { word } : { word, entryId });
   }, []);
 
-  const pageTitle = useMemo(() => navigation.find((item) => item.key === view)?.labelKey ?? 'today', [view]);
+  const activeLearnerMode = profile ? resolveLearnerMode(profile) : 'guided';
+  const visibleNavigation = useMemo(
+    () => navigationForLearnerMode(activeLearnerMode),
+    [activeLearnerMode],
+  );
+  useEffect(() => {
+    if (!visibleNavigation.some((item) => item.key === view)) setView('today');
+  }, [view, visibleNavigation]);
+  const pageTitle = useMemo(
+    () => visibleNavigation.find((item) => item.key === view)?.labelKey ?? 'today',
+    [view, visibleNavigation],
+  );
 
   const startDemo = async (): Promise<void> => {
     setDemoBusy(true);
@@ -314,7 +336,7 @@ export default function App(): React.JSX.Element {
                 // The server profile remains the persistent source of truth.
               }
               setOnboardingRevision((current) => current + 1);
-              setFirstStepsOpen(true);
+              setFirstStepsOpen(resolveLearnerMode(nextProfile) === 'guided');
             })
             .catch((reason: unknown) => setError(reason instanceof Error ? reason.message : String(reason)));
         }}
@@ -328,7 +350,7 @@ export default function App(): React.JSX.Element {
             // The server profile remains the persistent source of truth.
           }
           setOnboardingRevision((current) => current + 1);
-          setFirstStepsOpen(true);
+          setFirstStepsOpen(resolveLearnerMode(nextProfile) === 'guided');
           void refreshCore();
         }}
       />
@@ -336,11 +358,12 @@ export default function App(): React.JSX.Element {
   }
 
   const localMode = auth.mode === 'local';
+  const learnerMode = activeLearnerMode;
   const identityName = localMode ? profile.display_name : auth.user?.display_name ?? profile.display_name;
 
   return (
     <SessionAccessProvider readOnly={auth.read_only} readOnlyReason={t('readOnlyExplanation')} localMode={localMode}>
-    <div className={`app-shell ${auth.demo ? 'is-demo' : ''}`}>
+    <div className={`app-shell learner-mode--${learnerMode} ${auth.demo ? 'is-demo' : ''}`} data-learner-mode={learnerMode}>
       <div className="ambient ambient--one" aria-hidden="true" />
       <div className="ambient ambient--two" aria-hidden="true" />
       <div className="grid-noise" aria-hidden="true" />
@@ -348,10 +371,10 @@ export default function App(): React.JSX.Element {
       <aside className="sidebar">
         <div className="brand-lockup">
           <img src="/icons/app-icon.svg" alt="" />
-          <div><strong>{t('appName')}</strong><span>CLOUD 2.4</span></div>
+          <div><strong>{t('appName')}</strong><span>PRIVATE 2.5</span></div>
         </div>
         <nav className="side-nav" aria-label={t('primaryNavigation')}>
-          {navigation.map((item) => (
+          {visibleNavigation.map((item) => (
             <button
               key={item.key}
               type="button"
@@ -371,14 +394,14 @@ export default function App(): React.JSX.Element {
         </div>
         <div className="sidebar-footer">
           <div className="privacy-mini"><Icon name="shield" size={17} /><span><strong>{auth.demo ? t('demoWorkspace') : localMode ? t('localWorkspace') : t('privateMode')}</strong><small>{auth.demo ? t('readOnlyDemo') : localMode ? t('localFirstStorage') : t('accountStorage')}</small></span></div>
-          <span className="version-label">v2.4.0</span>
+          <span className="version-label">v2.5.0 private</span>
         </div>
       </aside>
 
       <div className="main-column">
         <header className="topbar">
           <div className="mobile-brand"><img src="/icons/app-icon.svg" alt="" /><strong>{t('appName')}</strong></div>
-          <div className="topbar-context"><span>{t(pageTitle)}</span><i /> <strong>{t('appTagline')}</strong></div>
+          <div className="topbar-context"><span>{t(pageTitle)}</span><i /> <strong>{t('appTagline')}</strong><em className="learner-mode-chip">{t(`${learnerMode}Mode`)}</em></div>
           <div className="topbar-actions">
             <span className={`network-chip ${online ? '' : 'is-offline'}`}><Icon name={online ? 'cloud' : 'offline'} size={15} />{online ? t('online') : t('offline')}</span>
             <div className="locale-switch" aria-label={t('interfaceLanguage')}>
@@ -484,7 +507,7 @@ export default function App(): React.JSX.Element {
               firstStepsComplete={firstStepsComplete}
               onWordClick={openDictionary}
               onCapture={() => setCaptureOpen(true)}
-              onStart={() => firstStepsComplete ? goToLearn('review') : setFirstStepsOpen(true)}
+              onStart={() => learnerMode !== 'guided' || firstStepsComplete ? goToLearn('review') : setFirstStepsOpen(true)}
               onPreviewFirstSteps={() => {
                 setFirstStepsProgress(0);
                 setFirstStepsOpen(true);
@@ -533,7 +556,7 @@ export default function App(): React.JSX.Element {
       </div>
 
       <nav className="bottom-nav" aria-label={t('mobileNavigation')}>
-        {navigation.slice(0, 5).map((item) => (
+        {visibleNavigation.filter((item) => item.key !== 'settings').slice(0, 5).map((item) => (
           <button key={item.key} type="button" className={view === item.key ? 'active' : ''} onClick={() => setView(item.key)}>
             <Icon name={item.icon} size={21} /><span>{t(item.labelKey)}</span>
           </button>
