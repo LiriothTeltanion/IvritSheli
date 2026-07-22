@@ -27,6 +27,7 @@ from ivrit_sheli.dictionary import (
     DictionaryStore,
     download_dictionary,
 )
+from ivrit_sheli.learning_core import CEFR_BANDS, CURRICULUM_TRACKS, LEARNER_MODES
 from ivrit_sheli.repository import LearningRepository
 from ivrit_sheli.seed import seed_all
 
@@ -102,6 +103,27 @@ def build_parser() -> argparse.ArgumentParser:
         "--export-json",
         type=Path,
         help="Export portable learner data without provider secrets.",
+    )
+    parser.add_argument(
+        "--learning-core-status",
+        action="store_true",
+        help="Print the local v2.6 Learning Core profile, state, skills, and retention evidence.",
+    )
+    parser.add_argument(
+        "--set-curriculum-track",
+        choices=CURRICULUM_TRACKS,
+        help="Select the local curriculum track without changing Hebrew level or interface mode.",
+    )
+    parser.add_argument(
+        "--set-cefr-band",
+        type=str.upper,
+        choices=CEFR_BANDS,
+        help="Set the pragmatic A0-C2 learning band; this is not CEFR certification.",
+    )
+    parser.add_argument(
+        "--set-learner-mode",
+        choices=LEARNER_MODES,
+        help="Set Guided, Explorer, or Experienced interface behavior independently of level.",
     )
     parser.add_argument(
         "--doctor",
@@ -201,9 +223,13 @@ def doctor_report(settings: Settings, live: bool = False) -> dict[str, Any]:
         score = audio.score("שלום", "שלום")
         checks.append(
             {
-                "name": "audio_scoring",
+                "name": "audio_recognition_match",
                 "status": "pass" if score["score"] == 100 else "fail",
-                "details": {"score": score["score"], "method": score["method"]},
+                "details": {
+                    "score": score["score"],
+                    "method": score["method"],
+                    "assessment_type": score["assessment_type"],
+                },
             }
         )
         connectors = ConnectorService(settings, database)
@@ -356,6 +382,10 @@ def main(argv: list[str] | None = None) -> int:
             args.download_dictionary,
             args.dictionary_jsonl,
             args.export_json,
+            args.learning_core_status,
+            args.set_curriculum_track,
+            args.set_cefr_band,
+            args.set_learner_mode,
             args.doctor,
         )
     ):
@@ -418,6 +448,25 @@ def main(argv: list[str] | None = None) -> int:
         if args.export_json:
             destination = repository.export_json(args.export_json)
             print(f"Exported learner data to {destination} ✅")
+
+        profile_updates = {
+            key: value
+            for key, value in {
+                "curriculum_track": args.set_curriculum_track,
+                "cefr_band": args.set_cefr_band,
+                "learner_mode": args.set_learner_mode,
+            }.items()
+            if value is not None
+        }
+        if profile_updates:
+            profile = repository.update_profile(profile_updates)
+            print(
+                "Updated Learning Core profile: "
+                f"track={profile['curriculum_track']}, "
+                f"band={profile['cefr_band']}, mode={profile['learner_mode']} ✅"
+            )
+        if args.learning_core_status:
+            print(json.dumps(repository.learning_core_state(), ensure_ascii=False, indent=2))
     except (OSError, ValueError, sqlite3.Error, RuntimeError) as error:
         LOGGER.error("%s", error)
         print(f"Operation failed: {error} ❌", file=sys.stderr)

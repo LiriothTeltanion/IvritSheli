@@ -1,8 +1,8 @@
 <div align="center">
   <img src="assets/brand/logo.svg" alt="Ivrit Sheli" width="680" />
 
-  <h1>Ivrit Sheli 2.5.0 — Private Pilot · העברית שלי</h1>
-  <p><strong>A private-first, authenticated, trilingual Hebrew-learning operating system built from real life.</strong></p>
+  <h1>Ivrit Sheli 2.6.0 — Learning Core · העברית שלי</h1>
+  <p><strong>An evidence-informed, private-first Hebrew learning journey built for real life.</strong></p>
 
   <p>
     <code>Hebrew • English • Spanish</code> ·
@@ -26,24 +26,24 @@
   <a href="https://ivritsheli-production.up.railway.app/?lang=en"><strong>🌐 Open the verified Ivrit Sheli 2.4.0 Contest Edition</strong></a>
 </p>
 
-> **Private-pilot boundary:** this checkout is the local, unpublished 2.5.0 pilot. The link below, Railway deployment, public Git tag and GitHub Release intentionally remain on the verified 2.4.0 Contest Edition until the pilot is approved.
+> **Private-pilot boundary:** this checkout is the local, unpublished 2.6.0 Learning Core. The Railway deployment, public Git tag and GitHub Release intentionally remain on the verified 2.4.0 Contest Edition until the private pilot is approved.
 
 ### Source and live release truth
 
 | Surface | Verified state |
 |---|---|
-| Current private source checkout | `2.5.0` · local private-pilot branch · not deployed or published |
+| Current private source checkout | `2.6.0` · local Learning Core branch · not deployed or published |
 | Current public deployed application | `2.4.0` |
 | Release implementation commit | `03bf84b9268ff8be528c0fab3c670f9652ee23b0` |
 | Production storage/readiness | PostgreSQL · ready · 48 reviewed dictionary entries |
 | Deployment verification | Successful on 2026-07-21 |
 | Release verification | 151 unique backend tests + 62 frontend tests = 213 passed; main CI and CodeQL passed |
-| Private-pilot verification | Focused feature checks are passing; consolidated 2.5 verification is recorded only after all quality gates complete |
+| Private-pilot verification | v2.6 verified locally: 180 unique backend + 97 frontend = 277 passing automated tests; PostgreSQL 17, audits, package, Docker image and private browser QA passed |
 | GitHub publication | [`v2.4.0`](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.4.0) is the published tag and GitHub Release |
 | Live account evidence | Identity-only Google sign-in, onboarding state and the authenticated session persisted across reload; logout returned to the English landing page and remained signed out after reload |
 | Live judge-path evidence | The English entry link and four-stop read-only guided tour passed production browser checks |
 | Remaining boundary | Re-login after logout, live GitHub authorization, live OpenAI/Workspace calls, two-real-user production isolation and backup restoration remain unclaimed |
-| Visual proof | The live English entry and tour are verified; README screenshots remain 2.1.x evidence and the full desktop/mobile/RTL/reduced-motion matrix is pending |
+| Visual proof | Private v2.6 desktop English, 390 px mobile, Hebrew RTL and phase transitions passed browser QA; README screenshots remain clearly labelled 2.1.x public evidence |
 
 The same conservative fields are available for portfolio/profile tooling in [`portfolio/project.json`](portfolio/project.json).
 
@@ -75,7 +75,19 @@ Most language products make every learner follow the same path. Ivrit Sheli does
 
 The system tracks what you recognize, what you can produce, where you hesitate, which grammar errors repeat, which situations matter, and which learning mode works best. Recommendations are explainable: the app tells you *why* it selected a word, exercise, mission, or speaking drill.
 
-## What changes in the 2.5.0 Private Pilot 🗺️
+## What changes in the 2.6.0 Learning Core 🧠
+
+Version 2.6 converts the private-pilot foundation into one explicit learning contract: **contextual encounter → unassisted retrieval → reference feedback/self-correction → corrected retry → delayed review → transfer → reflection**. Exposure, answer reveals, XP and AI output do not count as mastery. The server owns phase transitions and derives the practiced skill, while the interface explains why an activity appeared and when it returns. Correctness and confidence are explicitly learner-reported in this pilot; they are not presented as objective language scoring.
+
+The learner model now separates curriculum-track preference, a self-selected pragmatic CEFR-aligned planning band and interface experience. **Guided**, **Explorer** and **Experienced** change interaction density without silently changing the planning band. Version 2.6 keeps one shared due queue until items have reviewed track and level metadata; it does not pretend those preferences already provide a complete adaptive syllabus. Skill evidence is tracked across recognition, production, listening, speaking, pointed reading, unpointed reading and contextual transfer. Reading assistance follows a per-concept ladder from full niqqud to mechanically reduced cues, hint-only support and everyday unpointed Hebrew; it advances only after repeated unassisted evidence, restores a rung after a lapse and remains unchanged when a pointed form is unavailable.
+
+The Today journey and progress map expose honest loading, unavailable, degraded and insufficient-evidence states. Delayed-retention checkpoints at 24 hours, 7 days and 30 days remain empty until enough qualified observations exist. The deterministic local fallback can demonstrate the lesson structure when the new endpoint is unavailable, but it never pretends to save server progress.
+
+Each writable activity also carries a server-owned state token and a bounded idempotency key. Exact retries return the original result without advancing twice; stale tabs or devices receive a conflict and reload the current activity. The private build must remain isolated from the live 2.4 learner-state writer until the backup and single-writer transition in [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) is approved.
+
+The research and content policy are documented in [`docs/LEARNING_SCIENCE.md`](docs/LEARNING_SCIENCE.md), [`docs/LEARNING_CORE_V2_6.md`](docs/LEARNING_CORE_V2_6.md) and [`docs/HEBREW_CONTENT_PROVENANCE.md`](docs/HEBREW_CONTENT_PROVENANCE.md). These documents grade evidence, record licensing boundaries and explicitly reject CEFR certification, opaque AI mastery, engagement-as-learning and unvalidated Hebrew phoneme or accent claims.
+
+## Foundation completed in the 2.5.0 Private Pilot 🗺️
 
 Version 2.5 introduces three persisted learner experiences with real behavior differences: **Guided** simplifies navigation and keeps First Steps prominent, **Explorer** opens independent adaptive practice and the AI Coach, and **Experienced** exposes the complete toolset and connections with less compulsory guidance. Existing profile choices migrate conservatively.
 
@@ -83,7 +95,7 @@ The learning journey now uses an original Israel-wide visual atlas across Galile
 
 The reviewed starter dictionary grows from 48 to exactly **96 trilingual concepts** across eight balanced categories. The private pilot also expands the achievement journey from 6 to 15 milestones and adds a learner-visible activity log for captures, reviews, pronunciation, missions and XP. AI and connector access remains consent- and cost-gated; Google-authenticated pilot users can be allowlisted by immutable provider subject without expanding identity-only sign-in into Gmail, Drive or Calendar access.
 
-The 2.5 source is deliberately not deployed, tagged or pushed from this private-pilot pass. Its final consolidated verification replaces this paragraph's pending status only after the backend, frontend, accessibility-oriented build and browser checks complete.
+The 2.5 foundation was preserved locally at commit `36c9791` after 157 backend tests, 74 frontend tests, Ruff, strict MyPy, TypeScript, the Vite build and the 75-file package verifier passed. It was not deployed, tagged or pushed; v2.6 continues from that private checkpoint.
 
 ## What changed in the 2.4.0 Contest Edition 🧭
 
@@ -145,7 +157,7 @@ The public-demo design does not contain Kevin's private learning history: it use
 | Learning | Capture, adaptive reviews, speaking drills, sentence creation, missions, reflections |
 | Personalization | Mastery model, mistake taxonomy, context frequency, confidence, latency, modality preference |
 | AI | Offline deterministic coach plus OpenAI Responses adapter with structured outputs and fallback |
-| Dictionary | 48 reviewed visual A0/A1 concepts, clickable Hebrew everywhere, trilingual meanings/examples, grammar/forms/provenance, learned state and duplicate prevention |
+| Dictionary | 96 reviewed visual A0/A1 concepts, clickable Hebrew everywhere, trilingual meanings/examples, grammar/forms/provenance, learned state and duplicate prevention |
 | Word registry | Tenant-scoped search, status/due filters, sorting, review history, dates and four-skill mastery |
 | Full lexicon | One-command importer for the current Kaikki/Wiktionary Hebrew JSONL dataset |
 | Audio | Persistent synthetic voice styles, browser/OpenAI TTS, microphone one-word intelligence, consent-gated STT/AI, transparent scoring and ephemeral raw analysis audio |
@@ -266,7 +278,7 @@ Local-first mode remains writable without an online account. Cloud mode requires
 
 ## Full Hebrew dictionary
 
-The package contains a reviewed 48-concept A0/A1 starter layer so useful visual Hebrew works immediately. To install the broader machine-readable Hebrew dictionary:
+The package contains a reviewed 96-concept A0/A1 starter layer so useful visual Hebrew works immediately. To install the broader machine-readable Hebrew dictionary:
 
 ```bash
 source .venv/bin/activate
@@ -321,7 +333,7 @@ Choose a persistent masculine-style or feminine-style synthetic profile. Browser
 
 The microphone word-intelligence card accepts one Hebrew word from browser recognition, optional cloud transcription, or manual entry. It returns source-labeled dictionary meanings, translations, grammar, forms and examples, with optional consent-gated AI enrichment. Ivrit Sheli does not receive or retain browser-recognition audio, although the browser or operating-system speech provider's policy may apply. App-managed cloud uploads are deleted after processing; the configured provider's policy remains separate. This analysis cannot award XP or update mastery.
 
-Pronunciation scoring is deliberately transparent. It compares normalized transcription, word coverage, sequence similarity, and omitted/extra words. It does **not** claim phoneme-level clinical accuracy.
+Recognition match is deliberately transparent. It compares normalized transcription, word coverage, sequence similarity, and omitted/extra words. It does **not** claim phoneme, accent, intelligibility, native-likeness or clinical accuracy.
 
 ## Personalization connectors
 
@@ -358,6 +370,20 @@ Implemented achievements:
 - Word Explorer — save 100 distinct active dictionary words.
 - Israel in Action — complete 10 real-life missions successfully.
 - Three-Language Mind — use all three interface languages.
+
+## Learning Core from the CLI
+
+The local CLI exposes the same independent track, level and experience settings as the GUI:
+
+```powershell
+.\.venv\Scripts\python.exe -m ivrit_sheli `
+  --set-curriculum-track modern_conversation `
+  --set-cefr-band A1 `
+  --set-learner-mode guided `
+  --learning-core-status
+```
+
+Available track preferences are `modern_conversation`, `pointed_reading` and `formal_professional`; bands are the self-selected pragmatic `A0` onboarding state plus `A1`–`C2`; modes are `guided`, `explorer` and `experienced`. Selecting one dimension does not silently rewrite another. In this pilot, track and band are planning metadata while activity selection remains a shared due queue. The status command reports real persisted evidence and uses `insufficient_evidence` rather than manufacturing retention percentages.
 
 ## Test everything
 

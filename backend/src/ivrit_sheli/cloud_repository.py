@@ -25,6 +25,10 @@ STATE_TABLES = (
     "review_state",
     "attempts",
     "skill_mastery",
+    "learning_core_state",
+    "reading_support_state",
+    "learning_core_attempts",
+    "learning_core_idempotency",
     "user_events",
     "xp_ledger",
     "unlocked_achievements",
@@ -106,6 +110,15 @@ class CloudLearningRepository:
                     if table == "profiles" and "learner_mode" not in hydrated_row:
                         hydrated_row["learner_mode"] = (
                             "guided" if bool(hydrated_row.get("guided_mode", 1)) else "explorer"
+                        )
+                    if table == "profiles" and "curriculum_track" not in hydrated_row:
+                        hydrated_row["curriculum_track"] = "modern_conversation"
+                    if table == "profiles" and "cefr_band" not in hydrated_row:
+                        legacy_band = str(hydrated_row.get("hebrew_level", "A0")).upper()
+                        hydrated_row["cefr_band"] = (
+                            legacy_band
+                            if legacy_band in {"A0", "A1", "A2", "B1", "B2", "C1", "C2"}
+                            else "A0"
                         )
                     columns = tuple(
                         column for column in hydrated_row if column in allowed_columns
@@ -253,6 +266,15 @@ class CloudLearningRepository:
 
     def submit_review(self, item_id: int, payload: dict[str, Any]) -> dict[str, Any]:
         return cast(dict[str, Any], self._write("submit_review", item_id, payload))
+
+    def learning_core_state(self) -> dict[str, Any]:
+        return cast(dict[str, Any], self._read("learning_core_state"))
+
+    def next_learning_core_activity(self) -> dict[str, Any]:
+        return cast(dict[str, Any], self._read("next_learning_core_activity"))
+
+    def submit_learning_core_attempt(self, payload: dict[str, Any]) -> dict[str, Any]:
+        return cast(dict[str, Any], self._write("submit_learning_core_attempt", payload))
 
     def recommendations(self, limit: int = 8) -> list[dict[str, Any]]:
         return cast(list[dict[str, Any]], self._read("recommendations", limit))

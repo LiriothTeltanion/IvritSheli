@@ -144,11 +144,11 @@ The audio studio supports:
 - Microphone recording through `MediaRecorder`.
 - Optional OpenAI text-to-speech.
 - Optional OpenAI speech-to-text.
-- Transparent pronunciation scoring.
+- Transparent transcript-based Recognition match.
 - Persistent masculine-style or feminine-style synthetic voice selection.
 - One-word microphone analysis with dictionary facts, translations, grammar, forms, uses and examples.
 
-The score combines normalized transcript similarity, target-word coverage, missing words, and extra words. It is a learning signal, not a clinical phoneme assessment. When live browser recognition is unavailable, type the transcript manually and score it normally.
+Recognition match combines normalized transcript similarity, target-word coverage, missing words, and extra words. It is a practice signal, not a phoneme, accent, intelligibility, native-likeness or clinical assessment. When live browser recognition is unavailable, type the transcript manually and compare it normally.
 
 The voice labels are style choices, not claims about a real speaker's identity. Browser voices depend on the device; configured cloud profiles use server-controlled provider IDs.
 

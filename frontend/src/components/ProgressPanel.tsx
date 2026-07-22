@@ -5,20 +5,25 @@
 // Notes: Comments in ENGLISH; emojis sparingly.
 
 import { useI18n } from '../i18n';
+import { learningCoreCopy } from '../learningCoreCopy';
 import type { GamificationStatus, ProgressData } from '../types';
 import { AchievementGrid } from './AchievementGrid';
 import { Icon } from './Icon';
+import { LearningSkillMap } from './LearningSkillMap';
 import { MetricRing } from './MetricRing';
 import { XPBar } from './XPBar';
 
 export function ProgressPanel({
   progress,
   gamification,
+  cefrBand = 'A1',
 }: {
   progress: ProgressData;
   gamification: GamificationStatus;
+  cefrBand?: string;
 }): React.JSX.Element {
   const { label, locale, t } = useI18n();
+  const learningCopy = learningCoreCopy(locale);
   const averageAccuracy = progress.modalities.length
     ? progress.modalities.reduce((sum, item) => sum + item.accuracy, 0) / progress.modalities.length * 100
     : 0;
@@ -33,6 +38,9 @@ export function ProgressPanel({
     if (type === 'review_submitted') return t('activityReviewSubmitted');
     if (type === 'pronunciation_scored') return t('activityPronunciationScored');
     if (type === 'mission_completed') return t('activityMissionCompleted');
+    if (type === 'learning_core_attempted') return locale === 'es'
+      ? 'Intento del núcleo de aprendizaje'
+      : locale === 'he' ? 'ניסיון בליבת הלמידה' : 'Learning-core attempt';
     return t('activityLearningEvent');
   };
   const sourceTitle = (source: string): string => {
@@ -64,6 +72,8 @@ export function ProgressPanel({
           <MetricRing value={averageConfidence} label={t('confidence')} />
         </div>
       </section>
+
+      <LearningSkillMap progress={progress} cefrBand={cefrBand} />
 
       <div className="progress-grid">
         <section className="card analytics-card">
@@ -142,10 +152,12 @@ export function ProgressPanel({
             {activityLog.map((entry) => {
               const xp = entry.details.xp_awarded ?? 0;
               const result = entry.details.correct ?? entry.details.success;
+              const learningCoreAssessment = entry.type !== 'learning_core_attempted'
+                || (entry.details.evidence_kind !== undefined && entry.details.evidence_kind !== 'exposure');
               return (
                 <li key={entry.id}>
                   <span className={`learning-activity-marker learning-activity-marker--${entry.type}`} aria-hidden="true">
-                    {entry.type === 'item_created' ? '+' : entry.type === 'review_submitted' ? '✓' : entry.type === 'pronunciation_scored' ? '◉' : '★'}
+                    {entry.type === 'item_created' ? '+' : entry.type === 'review_submitted' ? '✓' : entry.type === 'pronunciation_scored' ? '◉' : entry.type === 'learning_core_attempted' ? '✦' : '★'}
                   </span>
                   <div className="learning-activity-copy">
                     <div>
@@ -156,7 +168,24 @@ export function ProgressPanel({
                     {entry.type === 'pronunciation_scored' && typeof entry.details.score === 'number' && (
                       <small>{t('activityPronunciationScore', { score: entry.details.score })}</small>
                     )}
-                    {result !== undefined && (
+                    {entry.type === 'learning_core_attempted' && entry.details.phase && entry.details.skill_dimension && entry.details.evidence_kind && (
+                      <small>
+                        {learningCopy.phases[entry.details.phase]} · {learningCopy.skills[entry.details.skill_dimension]} · {
+                          entry.details.evidence_kind === 'unassisted'
+                            ? locale === 'es' ? 'sin ayuda' : locale === 'he' ? 'ללא עזרה' : 'unassisted'
+                            : entry.details.evidence_kind === 'assisted'
+                              ? locale === 'es' ? 'con ayuda' : locale === 'he' ? 'עם עזרה' : 'assisted'
+                              : entry.details.evidence_kind === 'correction_uptake'
+                                ? locale === 'es' ? 'corrección aplicada' : locale === 'he' ? 'יישום תיקון' : 'correction applied'
+                                : locale === 'es' ? 'exposición' : locale === 'he' ? 'חשיפה' : 'exposure'
+                        }
+                        {entry.details.reading_support ? ` · ${learningCopy.readingLevels[entry.details.reading_support]}` : ''}
+                      </small>
+                    )}
+                    {entry.type === 'learning_core_attempted' && entry.details.evidence_kind === 'exposure' && (
+                      <small>{learningCopy.evidenceRecorded}</small>
+                    )}
+                    {learningCoreAssessment && result !== undefined && (
                       <small className={result ? 'is-positive' : 'is-practice'}>{result ? t('activitySuccessful') : t('activityKeepPracticing')}</small>
                     )}
                   </div>

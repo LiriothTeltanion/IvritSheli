@@ -19,6 +19,9 @@ frontend/node_modules/
 frontend/dist/
 frontend/coverage/
 
+# Local research and verification artifacts
+tmp/
+
 # Local user data
 data/**/*.db*
 data/**/*.sqlite*

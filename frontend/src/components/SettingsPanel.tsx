@@ -7,9 +7,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { api } from '../api';
 import { useI18n } from '../i18n';
+import { learningCoreCopy } from '../learningCoreCopy';
 import { resolveLearnerMode } from '../learnerMode';
 import { useSessionAccess } from '../session';
-import type { AuthState, LearnerMode, Locale, Profile } from '../types';
+import type { AuthState, CefrBand, CurriculumTrack, LearnerMode, Locale, Profile } from '../types';
 import { Icon } from './Icon';
 
 export function SettingsPanel({
@@ -24,6 +25,7 @@ export function SettingsPanel({
   onAccountDeleted: (auth: AuthState) => void;
 }): React.JSX.Element {
   const { locale, setLocale, t } = useI18n();
+  const learningCopy = learningCoreCopy(locale);
   const { readOnly, readOnlyReason, localMode } = useSessionAccess();
   const [draft, setDraft] = useState<Profile>(profile);
   const [saving, setSaving] = useState(false);
@@ -36,6 +38,8 @@ export function SettingsPanel({
   const deleteTriggerRef = useRef<HTMLButtonElement>(null);
   const keepAccountRef = useRef<HTMLButtonElement>(null);
   const learnerMode = resolveLearnerMode(draft);
+  const cefrBand = (draft.cefr_band ?? draft.hebrew_level) as CefrBand;
+  const curriculumTrack = draft.curriculum_track ?? 'modern_conversation';
 
   useEffect(() => setDraft(profile), [profile]);
 
@@ -62,7 +66,9 @@ export function SettingsPanel({
       const updated = await api.updateProfile({
         display_name: draft.display_name,
         interface_language: draft.interface_language,
-        hebrew_level: draft.hebrew_level,
+        hebrew_level: cefrBand,
+        cefr_band: cefrBand,
+        curriculum_track: curriculumTrack,
         daily_minutes: draft.daily_minutes,
         transliteration_mode: draft.transliteration_mode,
         niqqud_mode: draft.niqqud_mode,
@@ -106,7 +112,7 @@ export function SettingsPanel({
         diagnostics: {
           user_agent: navigator.userAgent,
           viewport: `${window.innerWidth}x${window.innerHeight}`,
-          app_version: '2.5.0',
+          app_version: '2.6.0',
           online: navigator.onLine,
           locale,
           route: window.location.pathname,
@@ -154,15 +160,40 @@ export function SettingsPanel({
           </div>
           <label className="field">
             <span>{t('hebrewLevel')}</span>
-            <select value={draft.hebrew_level} onChange={(event) => setDraft((current) => ({ ...current, hebrew_level: event.target.value }))} disabled={readOnly}>
+            <select value={cefrBand} onChange={(event) => {
+              const value = event.target.value as CefrBand;
+              setDraft((current) => ({ ...current, hebrew_level: value, cefr_band: value }));
+            }} disabled={readOnly} aria-describedby="cefr-settings-disclosure">
               <option value="A0">A0 · {t('levelNewTitle')}</option>
               <option value="A1">A1 · {t('levelBeginner')}</option>
               <option value="A2">A2 · {t('levelElementary')}</option>
               <option value="B1">B1 · {t('levelIntermediate')}</option>
               <option value="B2">B2 · {t('levelUpperIntermediate')}</option>
               <option value="C1">C1 · {t('levelAdvanced')}</option>
+              <option value="C2">C2</option>
             </select>
           </label>
+          <p className="settings-note" id="cefr-settings-disclosure">{learningCopy.cefrSettingsDisclosure}</p>
+          <fieldset className="curriculum-track-setting">
+            <legend>{learningCopy.curriculumTitle}</legend>
+            <p>{learningCopy.curriculumDescription}</p>
+            <div className="curriculum-track-options">
+              {(['modern_conversation', 'pointed_reading', 'formal_professional'] as CurriculumTrack[]).map((track) => (
+                <button
+                  key={track}
+                  type="button"
+                  className={curriculumTrack === track ? 'curriculum-track-option active' : 'curriculum-track-option'}
+                  onClick={() => setDraft((current) => ({ ...current, curriculum_track: track }))}
+                  aria-pressed={curriculumTrack === track}
+                  disabled={readOnly}
+                >
+                  <span aria-hidden="true">{track === 'modern_conversation' ? '🗣️' : track === 'pointed_reading' ? 'אְ' : '💼'}</span>
+                  <strong>{learningCopy.tracks[track]}</strong>
+                  <small>{learningCopy.trackDescriptions[track]}</small>
+                </button>
+              ))}
+            </div>
+          </fieldset>
           <fieldset className="learner-mode-setting">
             <legend>{t('learningMode')}</legend>
             <p>{t('learningModeDetail')}</p>

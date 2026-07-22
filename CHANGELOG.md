@@ -2,6 +2,35 @@
 
 All notable changes are documented here. Versions follow Semantic Versioning.
 
+## 2.6.0 — Learning Core — Unreleased
+
+This candidate remains on a private local branch. The public Railway deployment, Git tag and GitHub Release remain at 2.4.0.
+
+### Added
+
+- A server-owned seven-phase lesson loop: contextual encounter, unassisted retrieval, reference feedback/self-correction, corrected retry, delayed review, transfer and reflection.
+- Independent curriculum track, pragmatic CEFR-aligned band and learner-experience settings; Guided, Explorer and Experienced no longer imply a language level.
+- Separate evidence for recognition, production, listening, speaking, pointed reading, unpointed reading and contextual transfer.
+- A per-concept reading-support ladder from full niqqud through partial and hint-only support to unpointed Hebrew, advanced only by repeated unassisted evidence.
+- Learning Core state, next-activity and attempt endpoints with a versioned contract, server-derived transitions, explainable scheduling and migration-safe persistence.
+- Activity-version checks and bounded idempotent replay protection so a double-click, network retry or stale second device cannot advance two phases.
+- A Today learning journey, CEFR-lite skill map, transparent recommendation rationale and honest 24-hour, 7-day and 30-day insufficient-evidence states.
+- A source-checked learning-science ledger, curriculum specification and Hebrew content-provenance policy.
+
+### Changed
+
+- XP, exposure, answer reveals, feedback acknowledgement and AI output remain separate from mastery evidence.
+- Correctness and confidence are labelled as learner self-report; reference feedback does not claim automated diagnosis, and 24-hour/7-day/30-day retention uses explicit target windows rather than broad relabelled buckets.
+- Speech practice is presented as transcript-based Recognition match rather than phoneme, accent or clinical pronunciation scoring.
+- Application, Python, npm, browser, PWA, citation and package metadata advance to the private 2.6.0 candidate while all public/live claims stay at 2.4.0.
+
+### Verification
+
+- The ordinary backend suite passes 179 tests with one credential-gated PostgreSQL skip; the dedicated disposable PostgreSQL 17 gate passes all three cases and contributes the skipped case, producing 180 unique backend passes.
+- The frontend passes 97 tests across 22 files; combined private-candidate evidence is 277 unique automated passes.
+- Ruff, strict MyPy across 27 source files, TypeScript, Vite, compileall, offline doctor, pip-audit, npm production audit, the 81-file package verifier, Docker Compose configuration and an isolated production-image build pass.
+- Private browser QA passes English desktop, 390 px mobile, Hebrew RTL, the first four Learning Core phases, RTL Hebrew input and an empty error/warning console. The candidate remains local, untagged, unpushed and undeployed.
+
 ## 2.5.0 — Private Pilot — Unreleased
 
 This work remains on a private local branch. The public Railway deployment, Git tag and GitHub Release remain at 2.4.0 until the pilot is explicitly approved for publication.
@@ -21,7 +50,8 @@ This work remains on a private local branch. The public Railway deployment, Git 
 
 ### Verification
 
-- Final private-pilot verification is pending completion of the dictionary expansion and consolidated backend/frontend quality gates.
+- Preserved locally at commit `36c9791` after 157 backend tests passed with one credential-gated PostgreSQL skip, 74 frontend tests passed across 19 files, Ruff and strict MyPy passed across 26 backend source files, TypeScript and the production build passed, and the 75-file package verifier passed.
+- Version 2.5.0 was not deployed, tagged or pushed; it is the private foundation for v2.6.
 
 ## 2.4.0 — Contest Edition — 2026-07-21
 

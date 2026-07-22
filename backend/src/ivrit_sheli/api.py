@@ -54,6 +54,11 @@ from ivrit_sheli.config import Settings
 from ivrit_sheli.connectors import ConnectorError, ConnectorService, ContextPreview
 from ivrit_sheli.database import Database
 from ivrit_sheli.dictionary import DICTIONARY_SCHEMA_VERSION, DictionaryStore
+from ivrit_sheli.learning_core import (
+    CefrBand,
+    CurriculumTrack,
+    LearningCoreConflictError,
+)
 from ivrit_sheli.normalization import hebrew_tokens, normalize_hebrew
 from ivrit_sheli.repository import LearningRepository
 from ivrit_sheli.request_limits import (
@@ -174,7 +179,15 @@ class ReviewPayload(StrictModel):
     confidence: int = Field(default=3, ge=1, le=5)
     response_ms: int = Field(default=0, ge=0, le=3_600_000)
     hints_used: int = Field(default=0, ge=0, le=100)
-    modality: Literal["recognition", "production", "listening", "speaking"] = "recognition"
+    modality: Literal[
+        "recognition",
+        "production",
+        "listening",
+        "speaking",
+        "pointed_reading",
+        "unpointed_reading",
+        "contextual_transfer",
+    ] = "recognition"
     exercise_type: str = Field(default="mixed_review", max_length=100)
     mistake_category: str | None = Field(default=None, max_length=100)
     answer_text: str | None = Field(default=None, max_length=10_000)
@@ -197,7 +210,26 @@ class ProfilePayload(StrictModel):
     learner_mode: Literal["guided", "explorer", "experienced"] | None = None
     first_steps_step: int | None = Field(default=None, ge=0, le=5)
     first_steps_completed: bool | None = None
+    curriculum_track: CurriculumTrack | None = None
+    cefr_band: CefrBand | None = None
     goals: list[dict[str, Any]] | None = None
+
+
+class LearningCoreAttemptPayload(StrictModel):
+    """Evidence submitted for the current server-selected learning-core activity."""
+
+    item_id: int = Field(ge=1)
+    activity_token: str = Field(min_length=64, max_length=64, pattern=r"^[a-f0-9]{64}$")
+    idempotency_key: str = Field(
+        min_length=8,
+        max_length=128,
+        pattern=r"^[A-Za-z0-9._:-]+$",
+    )
+    is_correct: bool
+    confidence: int = Field(default=3, ge=1, le=5)
+    response_ms: int = Field(default=0, ge=0, le=3_600_000)
+    hints_used: int = Field(default=0, ge=0, le=100)
+    answer_text: str | None = Field(default=None, max_length=10_000)
 
 
 class AITaskPayload(StrictModel):
@@ -1132,6 +1164,24 @@ def register_routes(app: FastAPI) -> None:
     def update_profile(request: Request, payload: ProfilePayload) -> dict[str, Any]:
         return repository_for(request).update_profile(payload.model_dump(exclude_none=True))
 
+    @app.get(f"{API_PREFIX}/learning-core")
+    def learning_core_state(request: Request) -> dict[str, Any]:
+        """Return the v2.6 curriculum contract and current learner state."""
+        return repository_for(request).learning_core_state()
+
+    @app.get(f"{API_PREFIX}/learning-core/next")
+    def next_learning_core_activity(request: Request) -> dict[str, Any]:
+        """Select one deterministic, explainable activity without mutating state."""
+        return repository_for(request).next_learning_core_activity()
+
+    @app.post(f"{API_PREFIX}/learning-core/attempt")
+    def submit_learning_core_attempt(
+        request: Request,
+        payload: LearningCoreAttemptPayload,
+    ) -> dict[str, Any]:
+        """Persist learner self-report while deriving learning state server-side."""
+        return repository_for(request).submit_learning_core_attempt(payload.model_dump())
+
     @app.get(f"{API_PREFIX}/items")
     def list_items(
         request: Request,
@@ -1610,6 +1660,13 @@ def register_error_handlers(app: FastAPI, settings: Settings) -> None:
     @app.exception_handler(ValueError)
     async def value_error(request: Request, error: ValueError) -> JSONResponse:
         return error_response(request, 400, "invalid_request", str(error))
+
+    @app.exception_handler(LearningCoreConflictError)
+    async def learning_core_conflict(
+        request: Request,
+        error: LearningCoreConflictError,
+    ) -> JSONResponse:
+        return error_response(request, 409, "learning_core_conflict", str(error))
 
     @app.exception_handler(CloudSnapshotLimitError)
     async def cloud_snapshot_limit_error(

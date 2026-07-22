@@ -235,6 +235,12 @@ def test_cloud_requires_auth_and_demo_is_seeded_read_only(tmp_path: Path) -> Non
         assert dashboard.json()["system"]["offline_ready"] is False
         assert len(items.json()["items"]) == 6
 
+        learning_core = client.get("/api/v1/learning-core")
+        learning_core_next = client.get("/api/v1/learning-core/next")
+        assert learning_core.status_code == learning_core_next.status_code == 200
+        assert learning_core.json()["contract_version"] == "2.6"
+        assert learning_core_next.json()["activity"]["phase"] == "encounter"
+
         before_safe_reads = store.read_state(demo.json()["user"]["id"])
         assert client.get("/api/v1/dictionary/lookup", params={"word": "שלום"}).status_code == 200
         assert client.get("/api/v1/connectors").status_code == 200
@@ -255,6 +261,17 @@ def test_cloud_requires_auth_and_demo_is_seeded_read_only(tmp_path: Path) -> Non
         )
         assert cloud_word_analysis.status_code == 403
         assert cloud_word_analysis.json()["error"]["code"] == "cloud_feature_not_allowed"
+        assert store.read_state(demo.json()["user"]["id"]) == before_safe_reads
+
+        core_mutation = client.post(
+            "/api/v1/learning-core/attempt",
+            json={
+                "item_id": learning_core_next.json()["activity"]["item"]["id"],
+                "is_correct": True,
+            },
+        )
+        assert core_mutation.status_code == 403
+        assert core_mutation.json()["error"]["code"] == "demo_read_only"
         assert store.read_state(demo.json()["user"]["id"]) == before_safe_reads
 
         mutation = client.post("/api/v1/items", json={"hebrew_text": "פרטי"})
@@ -627,13 +644,13 @@ def test_operational_endpoints_report_version_storage_and_readiness(tmp_path: Pa
             oauth_client=FakeGitHubOAuth(),
         )
     ) as client:
-        assert client.get("/health/live").json()["version"] == "2.5.0"
+        assert client.get("/health/live").json()["version"] == "2.6.0"
         ready = client.get("/health/ready")
         assert ready.status_code == 200
         assert ready.json()["checks"]["postgresql"] is True
         assert ready.json()["checks"]["dictionary_details"]["mode"] == "shared_cloud"
         version = client.get("/version").json()
-        assert version["version"] == "2.5.0"
+        assert version["version"] == "2.6.0"
         assert version["storage"] == "postgresql"
 
 

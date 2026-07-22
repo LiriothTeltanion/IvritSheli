@@ -1,4 +1,4 @@
-# Deployment — Ivrit Sheli 2.4 Contest Edition
+# Deployment — Ivrit Sheli 2.6 private candidate / 2.4 production
 
 This guide covers the private SQLite installation, the reproducible PostgreSQL Docker stack and the public Railway deployment. Production values belong in a secrets manager or hosting dashboard, never in Git.
 
@@ -226,6 +226,18 @@ Rules:
 - Prefer forward-compatible migrations. Document any irreversible operation.
 - Do not report readiness until PostgreSQL is reachable, the exact packaged revision is active and the direct runtime identity passes every privilege check.
 
+### 2.6 learner-snapshot compatibility boundary
+
+Version 2.6 adds Learning Core tables and profile columns inside each tenant's serialized cloud snapshot. The current snapshot format identifier remains compatible with the 2.4 reader, but a 2.4 or 2.5 writer serializes only the tables and columns it knows. If an older process writes after 2.6 has stored Learning Core state, it can silently remove the newer Learning Core fields while preserving the older account data.
+
+Therefore the private 2.6 build must not point at the production learner-state database while 2.4 remains live. A future public rollout requires all of the following:
+
+1. Create and verify a database backup before the first 2.6 learner write.
+2. Deploy 2.6 as one controlled writer transition; do not run mixed 2.4/2.5 and 2.6 application replicas against the same learner-state rows.
+3. Verify a disposable account through sign-in, one Learning Core attempt, refresh, logout/re-login and export before broad access.
+4. After any 2.6 write, do not roll the application back to a 2.4/2.5 writer unless the pre-upgrade database backup is restored or a forward-preserving compatibility patch is deployed first.
+5. Keep the private pilot on isolated/local state until that operational procedure is explicitly approved.
+
 ## 6. Release verification
 
 Run locally before tagging:
@@ -255,6 +267,7 @@ Verify against the public URL:
 11. A new learner can finish onboarding, complete the five-word lesson, save a word, refresh, sign out/in and recover the same state.
 12. Export downloads the authenticated learner state; account deletion remains verified with a disposable identity or the real PostgreSQL boundary test, not by deleting the owner's account.
 13. Desktop, 390 px mobile, Hebrew RTL, reduced-motion, keyboard-only and 200% zoom modes remain usable.
+14. For a 2.6 rollout, prove the learner-snapshot writer transition and rollback/restore boundary above; a green 2.4 readiness check is not sufficient evidence.
 
 ### Current production verification record — 2.4.0 — 2026-07-21
 
@@ -312,10 +325,12 @@ Keep backups encrypted and private because learner state may contain personal ph
 Application rollback and database rollback are separate decisions:
 
 1. Stop routing new traffic if readiness fails.
-2. Roll back to the previous immutable application image or commit.
+2. Roll back to the previous immutable application image or commit only when its learner-snapshot writer is forward-compatible with data already written by the newer release.
 3. Do not downgrade the database automatically.
 4. If a migration is forward-compatible, keep it and deploy the previous app.
 5. If data restoration is required, preserve the failed database first, then restore into a separate database and validate it before switching URLs.
 6. Record the request IDs, deployed commit, migration revision and timeline.
+
+For 2.6 specifically, an unmodified 2.4/2.5 writer is not a safe rollback target after 2.6 Learning Core state has been written. Restore the verified pre-upgrade backup or first ship a compatibility writer that preserves unknown snapshot tables and columns.
 
 The stable local-first mode is the user-facing continuity path if a cloud host is unavailable.

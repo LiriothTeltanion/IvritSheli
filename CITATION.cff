@@ -1,8 +1,8 @@
 cff-version: 1.2.0
-message: "This checkout is the unpublished Ivrit Sheli 2.5.0 Private Pilot; cite the verified public v2.4.0 release for published work."
+message: "This checkout is the unpublished Ivrit Sheli 2.6.0 Learning Core private pilot; cite the verified public v2.4.0 release for published work."
 type: software
 title: "Ivrit Sheli — העברית שלי"
-version: 2.5.0
+version: 2.6.0
 authors:
   - given-names: Kevin
     family-names: Cusnir

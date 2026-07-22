@@ -22,6 +22,9 @@ class MasteryState:
         listening: Listening mastery from 0 to 1.
         speaking: Speaking mastery from 0 to 1.
         observations: Number of incorporated events.
+        pointed_reading: Reading mastery while niqqud support is visible.
+        unpointed_reading: Reading mastery without visible niqqud.
+        contextual_transfer: Ability to apply the concept in a new context.
 
     Example:
         >>> MasteryState().recognition
@@ -33,6 +36,9 @@ class MasteryState:
     listening: float = 0.0
     speaking: float = 0.0
     observations: int = 0
+    pointed_reading: float = 0.0
+    unpointed_reading: float = 0.0
+    contextual_transfer: float = 0.0
 
 
 def _clamp(value: float) -> float:
@@ -64,7 +70,7 @@ def update_mastery(
 
     Args:
         previous: Existing state.
-        modality: recognition, production, listening, or speaking.
+        modality: One supported learning-core skill dimension.
         is_correct: Answer correctness.
         confidence: Self-rating from 1 to 5.
         response_ms: Response latency in milliseconds.
@@ -81,7 +87,15 @@ def update_mastery(
         >>> update_mastery(MasteryState(), "recognition", True, 4, 1500).recognition > 0
         True
     """
-    valid = {"recognition", "production", "listening", "speaking"}
+    valid = {
+        "recognition",
+        "production",
+        "listening",
+        "speaking",
+        "pointed_reading",
+        "unpointed_reading",
+        "contextual_transfer",
+    }
     if modality not in valid:
         raise ValueError(f"Unsupported modality: {modality}")
     if not 1 <= confidence <= 5:
@@ -102,6 +116,9 @@ def update_mastery(
         "production": previous.production,
         "listening": previous.listening,
         "speaking": previous.speaking,
+        "pointed_reading": previous.pointed_reading,
+        "unpointed_reading": previous.unpointed_reading,
+        "contextual_transfer": previous.contextual_transfer,
     }
     old_value = values[modality]
     values[modality] = _clamp(old_value * (1 - alpha) + observation * alpha)
@@ -110,6 +127,9 @@ def update_mastery(
         production=round(values["production"], 4),
         listening=round(values["listening"], 4),
         speaking=round(values["speaking"], 4),
+        pointed_reading=round(values["pointed_reading"], 4),
+        unpointed_reading=round(values["unpointed_reading"], 4),
+        contextual_transfer=round(values["contextual_transfer"], 4),
         observations=previous.observations + 1,
     )
 

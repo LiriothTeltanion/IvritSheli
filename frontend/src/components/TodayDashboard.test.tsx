@@ -48,6 +48,7 @@ function actionSpies() {
     onOpenAudio: vi.fn<() => void>(),
     onOpenProgress: vi.fn<() => void>(),
     onOpenCoach: vi.fn<() => void>(),
+    onRefresh: vi.fn<() => void>(),
   };
 }
 
@@ -68,6 +69,7 @@ function renderDashboard(readOnly: boolean, actions: ActionSpies): void {
           onOpenAudio={actions.onOpenAudio}
           onOpenProgress={actions.onOpenProgress}
           onOpenCoach={actions.onOpenCoach}
+          onRefresh={actions.onRefresh}
         />
       </SessionAccessProvider>
     </I18nProvider>,

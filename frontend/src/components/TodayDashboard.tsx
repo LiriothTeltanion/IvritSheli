@@ -6,11 +6,13 @@
 
 import { useState } from 'react';
 import { useI18n } from '../i18n';
+import { resolveLearnerMode } from '../learnerMode';
 import { useSessionAccess } from '../session';
 import { localizedText, starterWords } from '../starterWords';
 import type { Dashboard } from '../types';
 import { HebrewText } from './HebrewText';
 import { Icon, type IconName } from './Icon';
+import { LearningCoreJourney } from './LearningCoreJourney';
 import { LivingHebrewAtlas, type AtlasRegionId } from './LivingHebrewAtlas';
 import { MetricRing } from './MetricRing';
 import { WordIllustration } from './WordIllustration';
@@ -26,6 +28,7 @@ interface TodayDashboardProps {
   onOpenAudio: () => void;
   onOpenProgress: () => void;
   onOpenCoach: () => void;
+  onRefresh: () => void;
 }
 
 export function TodayDashboard({
@@ -39,10 +42,12 @@ export function TodayDashboard({
   onOpenAudio,
   onOpenProgress,
   onOpenCoach,
+  onRefresh,
 }: TodayDashboardProps): React.JSX.Element {
   const { locale, label, t } = useI18n();
   const { readOnly } = useSessionAccess();
   const [atlasRegion, setAtlasRegion] = useState<AtlasRegionId>('jerusalem');
+  const learnerMode = resolveLearnerMode(dashboard.profile);
   const missionTranslation = locale === 'es' ? dashboard.mission.translation_es : dashboard.mission.translation_en;
   const firstWord = starterWords[0]!;
   const firstName = dashboard.profile.display_name.split(' ')[0] || dashboard.profile.display_name;
@@ -116,9 +121,9 @@ export function TodayDashboard({
           <p>{t('guidedPlanDescription', { count: dashboard.today.estimated_minutes })}</p>
           <div className="hero-actions">
             <button type="button" className="primary-button primary-button--large" onClick={onStart}><Icon name="play" size={19} /> {firstStepsComplete ? t('continueMyLesson') : t('startFirstLesson')}</button>
-            <button type="button" className="secondary-button secondary-button--large" onClick={onOpenDictionary}><Icon name="book" size={19} /> {t('openFriendlyDictionary')}</button>
+            {learnerMode !== 'guided' && <button type="button" className="secondary-button secondary-button--large" onClick={onOpenDictionary}><Icon name="book" size={19} /> {t('openFriendlyDictionary')}</button>}
           </div>
-          {!readOnly && <button type="button" className="capture-link" onClick={onCapture}><Icon name="plus" size={17} /> {t('saveAWordYouNeed')}</button>}
+          {!readOnly && learnerMode !== 'guided' && <button type="button" className="capture-link" onClick={onCapture}><Icon name="plus" size={17} /> {t('saveAWordYouNeed')}</button>}
         </div>
         <div className="hero-visual guided-word-visual">
           <WordIllustration kind="greeting" title={localizedText(firstWord.illustrationAlt, locale)} />
@@ -129,6 +134,15 @@ export function TodayDashboard({
           </div>
         </div>
       </section>
+
+      <LearningCoreJourney
+        dashboard={dashboard}
+        learnerMode={learnerMode}
+        onOpenDictionary={onWordClick}
+        onOpenProgress={onOpenProgress}
+        onStartReview={onStart}
+        onRefresh={onRefresh}
+      />
 
       <LivingHebrewAtlas
         locale={locale}
@@ -176,11 +190,11 @@ export function TodayDashboard({
         </div>
       </section>
 
-      <section className="metric-grid">
+      <section className={`metric-grid metric-grid--${learnerMode}`}>
         <article className="metric-card card"><span className="metric-icon"><Icon name="book" /></span><div><strong>{dashboard.today.due_reviews}</strong><span>{t('dueReviews')}</span></div><small>{t('adaptiveQueue')}</small></article>
-        <article className="metric-card card"><span className="metric-icon"><Icon name="mic" /></span><div><strong>{dashboard.today.speaking_drills}</strong><span>{t('speakingDrills')}</span></div><small>{t('productionFirst')}</small></article>
+        {learnerMode !== 'guided' && <article className="metric-card card"><span className="metric-icon"><Icon name="mic" /></span><div><strong>{dashboard.today.speaking_drills}</strong><span>{t('speakingDrills')}</span></div><small>{t('productionFirst')}</small></article>}
         <article className="metric-card card"><span className="metric-icon"><Icon name="clock" /></span><div><strong>{dashboard.today.estimated_minutes}</strong><span>{t('minutes')}</span></div><small>{t('estimatedTime')}</small></article>
-        <article className="metric-card card"><span className="metric-icon"><Icon name="flame" /></span><div><strong>{dashboard.stats.streak_days}</strong><span>{t('streak')}</span></div><small>{t('restDayGrace')}</small></article>
+        {learnerMode !== 'guided' && <article className="metric-card card"><span className="metric-icon"><Icon name="flame" /></span><div><strong>{dashboard.stats.streak_days}</strong><span>{t('streak')}</span></div><small>{t('restDayGrace')}</small></article>}
       </section>
 
       <div className="today-main-grid">
@@ -199,7 +213,7 @@ export function TodayDashboard({
         </section>
       </div>
 
-      <section className="recommendation-section card">
+      {learnerMode !== 'guided' && <section className="recommendation-section card">
         <header className="section-heading"><div><span className="eyebrow"><Icon name="sparkles" size={16} /> {t('explainableRanking')}</span><h2>{t('recommendations')}</h2></div><span className="count-chip">{dashboard.recommendations.length}</span></header>
         <div className="recommendation-list">
           {dashboard.recommendations.map((recommendation, index) => (
@@ -212,7 +226,7 @@ export function TodayDashboard({
           ))}
           {dashboard.recommendations.length === 0 && <p className="muted-copy">{t('captureFirstRecommendation')}</p>}
         </div>
-      </section>
+      </section>}
     </div>
   );
 }

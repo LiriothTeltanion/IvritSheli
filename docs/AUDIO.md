@@ -32,15 +32,17 @@ The **Record one Hebrew word** flow accepts exactly one Hebrew token from browse
 
 The result records its transcript/dictionary/enrichment provenance. A recognized or typed word cannot award XP, change mastery, or count as verified speaking evidence. Browser/manual local analysis remains available in the seeded read-only demo; cloud transcription and enrichment remain disabled there.
 
-## Pronunciation score
+## Recognition match
 
-The default score combines:
+The transcript-based Recognition match combines:
 
 - 55% normalized character-sequence similarity.
 - 30% target-word coverage.
 - 15% length/omission balance.
 
-The response shows missing and extra words. Niqqud is ignored for the baseline comparison. This is a useful speaking-practice signal, not a clinical accent assessment.
+The response shows missing and extra words. Niqqud is ignored for the baseline comparison. The measurement describes agreement between the expected text and the recognized transcript; it is not phoneme accuracy, accent quality, intelligibility, native-likeness or a clinical assessment. Provider confidence cannot be converted directly into learner mastery.
+
+The historical `/api/v1/audio/pronunciation-score` route remains available for client compatibility in v2.6, but the response declares `assessment_type: transcript_recognition_match` and the learner interface uses the honest Recognition match label.
 
 ## Privacy
 

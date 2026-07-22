@@ -8,12 +8,14 @@ Notes: Minimal deps; comments in ENGLISH; emojis sparingly.
 
 from __future__ import annotations
 
+import hashlib
+import hmac
 import json
 import sqlite3
 from dataclasses import asdict
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from ivrit_sheli.database import Database
 from ivrit_sheli.gamification import (
@@ -23,12 +25,36 @@ from ivrit_sheli.gamification import (
     level_progress,
     xp_for_action,
 )
+from ivrit_sheli.learning_core import (
+    CEFR_BANDS,
+    CONTRACT_VERSION,
+    CURRICULUM_TRACKS,
+    EVIDENCE_KINDS,
+    LEARNER_MODES,
+    LESSON_PHASES,
+    READING_EVIDENCE_THRESHOLD,
+    READING_SUPPORT_LADDER,
+    SKILL_DIMENSIONS,
+    LearnerMode,
+    LearningCoreConflictError,
+    LessonPhase,
+    ReadingSupport,
+    activity_prompt_key,
+    activity_rationale,
+    apply_reading_evidence,
+    build_activity_token,
+    evidence_kind_for_activity,
+    reading_evidence_to_advance,
+    skill_for_activity,
+    transition_phase,
+)
 from ivrit_sheli.normalization import normalize_hebrew
 from ivrit_sheli.personalization import MasteryState, focus_summary, update_mastery
 from ivrit_sheli.recommendation import RecommendationCandidate, rank_candidates
 from ivrit_sheli.scheduler import ReviewState, review_urgency, schedule_review
 
 PRONUNCIATION_MASTERY_THRESHOLD = 70
+LEARNING_CORE_IDEMPOTENCY_RETENTION = 25
 REGISTRY_STATUSES = {"all", "active", "mastered", "needs_review"}
 REGISTRY_DUE_FILTERS = {"all", "due", "upcoming"}
 REGISTRY_SORTS = {
@@ -673,6 +699,343 @@ class LearningRepository:
             if should_close:
                 connection.close()
 
+    def learning_core_state(self) -> dict[str, Any]:
+        """Return the stable v2.6 curriculum, skill, and current-journey state."""
+        connection = self.database.connect()
+        should_close = str(self.database.path) != ":memory:"
+        try:
+            payload, _item = self._learning_core_read_model(connection)
+            return payload
+        finally:
+            if should_close:
+                connection.close()
+
+    def next_learning_core_activity(self) -> dict[str, Any]:
+        """Return one explainable activity without mutating learner state."""
+        connection = self.database.connect()
+        should_close = str(self.database.path) != ":memory:"
+        try:
+            state_payload, item = self._learning_core_read_model(connection)
+            activity = self._learning_core_activity(state_payload, item)
+            return {
+                "contract_version": CONTRACT_VERSION,
+                "available": bool(activity and activity["can_submit"]),
+                "activity": activity,
+                "state": state_payload["state"],
+            }
+        finally:
+            if should_close:
+                connection.close()
+
+    def submit_learning_core_attempt(self, payload: dict[str, Any]) -> dict[str, Any]:
+        """Accept evidence for the server-owned activity and advance the learning loop.
+
+        The request intentionally contains no phase, skill, mastery, interval, or XP fields.
+        Those values are derived from persisted state and trusted domain rules.
+        """
+        item_id = int(payload.get("item_id", 0))
+        is_correct = bool(payload.get("is_correct", False))
+        confidence = int(payload.get("confidence", 3))
+        response_ms = int(payload.get("response_ms", 0))
+        hints_used = int(payload.get("hints_used", 0))
+        answer_text_raw = payload.get("answer_text")
+        answer_text = str(answer_text_raw) if answer_text_raw is not None else None
+        activity_token = str(payload.get("activity_token", "")).strip()
+        idempotency_key = str(payload.get("idempotency_key", "")).strip()
+        if item_id < 1:
+            raise ValueError("item_id must be positive")
+        if not 1 <= confidence <= 5:
+            raise ValueError("confidence must be between 1 and 5")
+        if not 0 <= response_ms <= 3_600_000:
+            raise ValueError("response_ms must be between 0 and 3600000")
+        if not 0 <= hints_used <= 100:
+            raise ValueError("hints_used must be between 0 and 100")
+        if answer_text is not None and len(answer_text) > 10_000:
+            raise ValueError("answer_text must not exceed 10000 characters")
+        if len(activity_token) != 64 or any(
+            character not in "0123456789abcdef" for character in activity_token
+        ):
+            raise ValueError("activity_token must be a 64-character lowercase hexadecimal token")
+        if not 8 <= len(idempotency_key) <= 128 or any(
+            not (character.isascii() and (character.isalnum() or character in "._:-"))
+            for character in idempotency_key
+        ):
+            raise ValueError(
+                "idempotency_key must be 8-128 ASCII letters, numbers, dots, underscores, "
+                "colons, or hyphens"
+            )
+
+        request_hash = self._learning_core_request_hash(
+            {
+                "item_id": item_id,
+                "is_correct": is_correct,
+                "confidence": confidence,
+                "response_ms": response_ms,
+                "hints_used": hints_used,
+                "answer_text": answer_text,
+                "activity_token": activity_token,
+            }
+        )
+
+        now_dt = utc_now()
+        now = now_dt.isoformat(timespec="seconds")
+        mastery: MasteryState | None = None
+        schedule: dict[str, Any] | None = None
+
+        with self.database.transaction() as connection:
+            replay = connection.execute(
+                """
+                SELECT request_hash, response_json
+                FROM learning_core_idempotency
+                WHERE idempotency_key = ?
+                """,
+                (idempotency_key,),
+            ).fetchone()
+            if replay is not None:
+                if not hmac.compare_digest(str(replay["request_hash"]), request_hash):
+                    raise LearningCoreConflictError(
+                        "The idempotency key was already used with a different attempt payload."
+                    )
+                try:
+                    replayed_response = json.loads(str(replay["response_json"]))
+                except (TypeError, json.JSONDecodeError) as error:
+                    raise sqlite3.DatabaseError(
+                        "Stored learning-core idempotency response is invalid"
+                    ) from error
+                if not isinstance(replayed_response, dict):
+                    raise sqlite3.DatabaseError(
+                        "Stored learning-core idempotency response is not an object"
+                    )
+                replayed_response["duplicate"] = True
+                return cast(dict[str, Any], replayed_response)
+
+            state_payload, item = self._learning_core_read_model(connection, now_dt=now_dt)
+            current = state_payload["state"]
+            if item is None:
+                raise KeyError("No learning-core activity is currently available")
+            if int(item["id"]) != item_id:
+                raise LearningCoreConflictError(
+                    "The activity token and item do not match the current learning activity. "
+                    "Fetch /api/v1/learning-core/next and retry with a new idempotency key."
+                )
+            if current["wait_until"] is not None:
+                raise ValueError(
+                    "The delayed review is not due yet; use wait_until from learning-core state"
+                )
+            current_activity = self._learning_core_activity(state_payload, item)
+            if current_activity is None or not hmac.compare_digest(
+                str(current_activity["activity_token"]),
+                activity_token,
+            ):
+                raise LearningCoreConflictError(
+                    "The activity token is stale or does not match the current item and phase. "
+                    "Fetch /api/v1/learning-core/next and retry with a new idempotency key."
+                )
+
+            phase = cast(LessonPhase, current["phase"])
+            support = cast(ReadingSupport, current["reading_support"])
+            skill = skill_for_activity(phase, support)
+            if (
+                phase in {"retrieval", "delayed_review"}
+                and not bool(current["niqqud_available"])
+            ):
+                skill = "unpointed_reading"
+            evidence_kind = evidence_kind_for_activity(phase, hints_used)
+            cursor = connection.execute(
+                """
+                INSERT INTO learning_core_attempts(
+                    item_id, phase, skill_dimension, evidence_kind, reading_support, is_correct,
+                    confidence, response_ms, hints_used, answer_text, created_at
+                ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    item_id,
+                    phase,
+                    skill,
+                    evidence_kind,
+                    support,
+                    int(is_correct),
+                    confidence,
+                    response_ms,
+                    hints_used,
+                    answer_text,
+                    now,
+                ),
+            )
+            attempt_id_raw = cursor.lastrowid
+            if attempt_id_raw is None:
+                raise sqlite3.DatabaseError("SQLite did not return a learning-core attempt ID")
+            attempt_id = int(attempt_id_raw)
+
+            support_state = self._reading_support_record(connection, item_id)
+            reading_decision = None
+            if phase in {"retrieval", "delayed_review"}:
+                reading_decision = apply_reading_evidence(
+                    support,
+                    success_streak=int(support_state["success_streak"]),
+                    total_successes=int(support_state["total_successes"]),
+                    total_failures=int(support_state["total_failures"]),
+                    is_correct=is_correct,
+                    hints_used=hints_used,
+                    has_niqqud=bool(current["niqqud_available"]),
+                )
+                connection.execute(
+                    """
+                    INSERT INTO reading_support_state(
+                        concept_key, support_level, success_streak,
+                        total_successes, total_failures, updated_at
+                    ) VALUES(?, ?, ?, ?, ?, ?)
+                    ON CONFLICT(concept_key) DO UPDATE SET
+                        support_level = excluded.support_level,
+                        success_streak = excluded.success_streak,
+                        total_successes = excluded.total_successes,
+                        total_failures = excluded.total_failures,
+                        updated_at = excluded.updated_at
+                    """,
+                    (
+                        f"item:{item_id}",
+                        reading_decision.level,
+                        reading_decision.success_streak,
+                        reading_decision.total_successes,
+                        reading_decision.total_failures,
+                        now,
+                    ),
+                )
+
+            mastery_evidence = phase == "corrected_retry" or (
+                phase in {"retrieval", "delayed_review", "transfer"} and hints_used == 0
+            )
+            if mastery_evidence:
+                mastery = self._update_item_mastery(
+                    connection,
+                    item_id=item_id,
+                    modality=skill,
+                    is_correct=is_correct,
+                    confidence=confidence,
+                    response_ms=response_ms,
+                    hints_used=hints_used,
+                    updated_at=now,
+                )
+
+            if (phase == "corrected_retry" and is_correct) or phase == "delayed_review":
+                schedule = self._schedule_learning_core_review(
+                    connection,
+                    item_id=item_id,
+                    is_correct=is_correct,
+                    confidence=confidence,
+                    hints_used=hints_used,
+                    now_dt=now_dt,
+                )
+
+            transition = transition_phase(phase, is_correct=is_correct)
+            next_item_id = None if phase == "reflection" else item_id
+            next_state_version = int(current["state_version"]) + 1
+            connection.execute(
+                """
+                INSERT INTO learning_core_state(
+                    profile_id, current_item_id, phase, updated_at, state_version
+                ) VALUES(1, ?, ?, ?, ?)
+                ON CONFLICT(profile_id) DO UPDATE SET
+                    current_item_id = excluded.current_item_id,
+                    phase = excluded.phase,
+                    updated_at = excluded.updated_at,
+                    state_version = excluded.state_version
+                """,
+                (next_item_id, transition.to_phase, now, next_state_version),
+            )
+            connection.execute(
+                """
+                INSERT INTO user_events(
+                    event_type, entity_type, entity_id, payload_json, created_at
+                ) VALUES('learning_core_attempted', 'learning_item', ?, ?, ?)
+                """,
+                (
+                    str(item_id),
+                    json.dumps(
+                        {
+                            "phase": phase,
+                            "skill_dimension": skill,
+                            "evidence_kind": evidence_kind,
+                            "correct": is_correct,
+                            "reading_support": support,
+                        }
+                    ),
+                    now,
+                ),
+            )
+            reading_payload = (
+                asdict(reading_decision)
+                if reading_decision is not None
+                else {
+                    "level": support_state["support_level"],
+                    "success_streak": int(support_state["success_streak"]),
+                    "total_successes": int(support_state["total_successes"]),
+                    "total_failures": int(support_state["total_failures"]),
+                    "evidence_to_advance": int(support_state["evidence_to_advance"]),
+                    "advanced": False,
+                    "restored": False,
+                    "reason": "This phase does not change reading-support evidence.",
+                }
+            )
+            next_state_payload, next_item = self._learning_core_read_model(
+                connection,
+                now_dt=now_dt,
+            )
+            response = {
+                "contract_version": CONTRACT_VERSION,
+                "accepted": True,
+                "duplicate": False,
+                "attempt": {
+                    "id": attempt_id,
+                    "item_id": item_id,
+                    "phase": phase,
+                    "skill_dimension": skill,
+                    "evidence_kind": evidence_kind,
+                    "evidence_source": "learner_self_report",
+                    "is_correct": is_correct,
+                    "reading_support": support,
+                },
+                "transition": asdict(transition),
+                "mastery": asdict(mastery) if mastery is not None else None,
+                "reading_support_state": reading_payload,
+                "schedule": schedule,
+                "next_activity": self._learning_core_activity(next_state_payload, next_item),
+                "state": next_state_payload["state"],
+            }
+            connection.execute(
+                """
+                INSERT INTO learning_core_idempotency(
+                    idempotency_key, request_hash, activity_token,
+                    response_json, created_at
+                ) VALUES(?, ?, ?, ?, ?)
+                """,
+                (
+                    idempotency_key,
+                    request_hash,
+                    activity_token,
+                    json.dumps(
+                        response,
+                        ensure_ascii=False,
+                        sort_keys=True,
+                        separators=(",", ":"),
+                    ),
+                    now,
+                ),
+            )
+            connection.execute(
+                """
+                DELETE FROM learning_core_idempotency
+                WHERE idempotency_key IN (
+                    SELECT idempotency_key
+                    FROM learning_core_idempotency
+                    ORDER BY created_at DESC, idempotency_key DESC
+                    LIMIT -1 OFFSET ?
+                )
+                """,
+                (LEARNING_CORE_IDEMPOTENCY_RETENTION,),
+            )
+            return response
+
     def submit_review(self, item_id: int, payload: dict[str, Any]) -> dict[str, Any]:
         """Record a review and atomically update adaptive systems.
 
@@ -1129,6 +1492,9 @@ class LearningRepository:
             "review_state",
             "attempts",
             "skill_mastery",
+            "learning_core_state",
+            "reading_support_state",
+            "learning_core_attempts",
             "user_events",
             "xp_ledger",
             "unlocked_achievements",
@@ -1261,6 +1627,8 @@ class LearningRepository:
             "learner_mode",
             "first_steps_step",
             "first_steps_completed",
+            "curriculum_track",
+            "cefr_band",
         }
         clean: dict[str, Any] = {
             key: value for key, value in payload.items() if key in allowed_fields
@@ -1277,6 +1645,15 @@ class LearningRepository:
             "experienced",
         }:
             raise ValueError("learner_mode must be guided, explorer, or experienced")
+        if "curriculum_track" in clean and clean["curriculum_track"] not in CURRICULUM_TRACKS:
+            raise ValueError(
+                "curriculum_track must be modern_conversation, pointed_reading, "
+                "or formal_professional"
+            )
+        if "cefr_band" in clean:
+            clean["cefr_band"] = str(clean["cefr_band"]).upper()
+            if clean["cefr_band"] not in CEFR_BANDS:
+                raise ValueError("cefr_band must be one of A0, A1, A2, B1, B2, C1, or C2")
         if "cloud_consent" in clean:
             clean["cloud_consent"] = int(bool(clean["cloud_consent"]))
         if "onboarding_step" in clean and not 0 <= int(clean["onboarding_step"]) <= 4:
@@ -1298,6 +1675,16 @@ class LearningRepository:
             guided = bool(clean["guided_mode"])
             clean["guided_mode"] = int(guided)
             clean["learner_mode"] = "guided" if guided else "explorer"
+
+        # Keep the historical profile field readable by v2.5 clients while the
+        # learning core uses the explicit CEFR-aligned band.
+        if "cefr_band" in clean:
+            clean["hebrew_level"] = clean["cefr_band"]
+        elif "hebrew_level" in clean:
+            legacy_level = str(clean["hebrew_level"]).upper()
+            if legacy_level in CEFR_BANDS:
+                clean["hebrew_level"] = legacy_level
+                clean["cefr_band"] = legacy_level
 
         with self.database.transaction() as connection:
             if clean:
@@ -1349,11 +1736,23 @@ class LearningRepository:
         try:
             modality_rows = connection.execute(
                 """
+                WITH meaningful_evidence AS (
+                    SELECT modality, is_correct, confidence, response_ms, 'legacy' AS source
+                    FROM attempts
+                    UNION ALL
+                    SELECT skill_dimension AS modality, is_correct, confidence,
+                           response_ms, 'learning_core' AS source
+                    FROM learning_core_attempts
+                    WHERE evidence_kind IN ('unassisted', 'correction_uptake')
+                )
                 SELECT modality, COUNT(*) AS attempts, AVG(is_correct) AS accuracy,
-                       AVG(confidence) AS confidence, AVG(response_ms) AS response_ms
-                FROM attempts
+                       AVG(confidence) AS confidence, AVG(response_ms) AS response_ms,
+                       SUM(CASE WHEN source = 'legacy' THEN 1 ELSE 0 END) AS legacy_attempts,
+                       SUM(CASE WHEN source = 'learning_core' THEN 1 ELSE 0 END)
+                           AS learning_core_attempts
+                FROM meaningful_evidence
                 GROUP BY modality
-                ORDER BY attempts DESC
+                ORDER BY attempts DESC, modality
                 """
             ).fetchall()
             mistake_rows = connection.execute(
@@ -1368,20 +1767,39 @@ class LearningRepository:
             ).fetchall()
             activity_rows = connection.execute(
                 """
+                WITH practice_events AS (
+                    SELECT created_at, is_correct, 1 AS meaningful
+                    FROM attempts
+                    WHERE created_at >= ?
+                    UNION ALL
+                    SELECT created_at, is_correct,
+                           CASE
+                               WHEN evidence_kind IN ('unassisted', 'correction_uptake') THEN 1
+                               ELSE 0
+                           END AS meaningful
+                    FROM learning_core_attempts
+                    WHERE created_at >= ?
+                )
                 SELECT substr(created_at, 1, 10) AS day,
-                       COUNT(*) AS attempts,
-                       SUM(is_correct) AS correct
-                FROM attempts
-                WHERE created_at >= ?
+                       SUM(meaningful) AS attempts,
+                       SUM(CASE WHEN meaningful = 1 THEN is_correct ELSE 0 END) AS correct,
+                       COUNT(*) AS practice_events,
+                       SUM(CASE WHEN meaningful = 0 THEN 1 ELSE 0 END)
+                           AS assisted_or_exposure_events
+                FROM practice_events
                 GROUP BY day
                 ORDER BY day
                 """,
-                ((utc_now() - timedelta(days=30)).isoformat(timespec="seconds"),),
+                (
+                    (utc_now() - timedelta(days=30)).isoformat(timespec="seconds"),
+                    (utc_now() - timedelta(days=30)).isoformat(timespec="seconds"),
+                ),
             ).fetchall()
             mastery_rows = connection.execute(
                 """
                 SELECT concept_key, recognition, production, listening,
-                       speaking, observations, updated_at
+                       speaking, pointed_reading, unpointed_reading,
+                       contextual_transfer, observations, updated_at
                 FROM skill_mastery
                 ORDER BY updated_at DESC
                 LIMIT 100
@@ -1405,6 +1823,7 @@ class LearningRepository:
                 WHERE e.event_type IN (
                     'item_created',
                     'review_submitted',
+                    'learning_core_attempted',
                     'pronunciation_scored',
                     'mission_completed'
                 )
@@ -1427,6 +1846,21 @@ class LearningRepository:
                         "modality": str(metadata.get("modality", "recognition")),
                         "xp_awarded": max(0, int(metadata.get("xp_awarded", 0) or 0)),
                     }
+                elif row["event_type"] == "learning_core_attempted":
+                    evidence_kind = str(metadata.get("evidence_kind", "exposure"))
+                    safe_details = {
+                        "phase": str(metadata.get("phase", "encounter")),
+                        "skill_dimension": str(
+                            metadata.get("skill_dimension", "recognition")
+                        ),
+                        "evidence_kind": evidence_kind,
+                        "reading_support": str(
+                            metadata.get("reading_support", "full_niqqud")
+                        ),
+                        "xp_awarded": 0,
+                    }
+                    if evidence_kind != "exposure":
+                        safe_details["correct"] = bool(metadata.get("correct", False))
                 elif row["event_type"] == "pronunciation_scored":
                     safe_details = {
                         "score": max(0, min(100, int(metadata.get("score", 0) or 0))),
@@ -1456,6 +1890,8 @@ class LearningRepository:
                         "accuracy": round(float(row["accuracy"] or 0), 4),
                         "confidence": round(float(row["confidence"] or 0), 2),
                         "average_response_ms": round(float(row["response_ms"] or 0)),
+                        "legacy_attempts": int(row["legacy_attempts"]),
+                        "learning_core_attempts": int(row["learning_core_attempts"]),
                     }
                     for row in modality_rows
                 ],
@@ -1463,6 +1899,7 @@ class LearningRepository:
                 "activity": [dict(row) for row in activity_rows],
                 "activity_log": activity_log,
                 "mastery": [dict(row) for row in mastery_rows],
+                "retention_checkpoints": self._retention_checkpoints(connection),
                 "streak_days": self._calculate_streak(connection),
             }
         finally:
@@ -1780,6 +2217,13 @@ class LearningRepository:
             production=float(mastery_row["production"]) if mastery_row else 0.0,
             listening=float(mastery_row["listening"]) if mastery_row else 0.0,
             speaking=float(mastery_row["speaking"]) if mastery_row else 0.0,
+            pointed_reading=float(mastery_row["pointed_reading"]) if mastery_row else 0.0,
+            unpointed_reading=(
+                float(mastery_row["unpointed_reading"]) if mastery_row else 0.0
+            ),
+            contextual_transfer=(
+                float(mastery_row["contextual_transfer"]) if mastery_row else 0.0
+            ),
             observations=int(mastery_row["observations"]) if mastery_row else 0,
         )
         mastery = update_mastery(
@@ -1794,13 +2238,17 @@ class LearningRepository:
             """
             INSERT INTO skill_mastery(
                 concept_key, concept_type, recognition, production,
-                listening, speaking, observations, updated_at
-            ) VALUES(?, 'learning_item', ?, ?, ?, ?, ?, ?)
+                listening, speaking, pointed_reading, unpointed_reading,
+                contextual_transfer, observations, updated_at
+            ) VALUES(?, 'learning_item', ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(concept_key) DO UPDATE SET
                 recognition = excluded.recognition,
                 production = excluded.production,
                 listening = excluded.listening,
                 speaking = excluded.speaking,
+                pointed_reading = excluded.pointed_reading,
+                unpointed_reading = excluded.unpointed_reading,
+                contextual_transfer = excluded.contextual_transfer,
                 observations = excluded.observations,
                 updated_at = excluded.updated_at
             """,
@@ -1810,11 +2258,452 @@ class LearningRepository:
                 mastery.production,
                 mastery.listening,
                 mastery.speaking,
+                mastery.pointed_reading,
+                mastery.unpointed_reading,
+                mastery.contextual_transfer,
                 mastery.observations,
                 updated_at,
             ),
         )
         return mastery
+
+    def _learning_core_read_model(
+        self,
+        connection: Any,
+        *,
+        now_dt: datetime | None = None,
+    ) -> tuple[dict[str, Any], dict[str, Any] | None]:
+        """Build the v2.6 read model without changing persisted learner state."""
+        current_time = now_dt or utc_now()
+        now = current_time.isoformat(timespec="seconds")
+        profile_row = connection.execute("SELECT * FROM profiles WHERE id = 1").fetchone()
+        if profile_row is None:
+            raise KeyError("Local profile is not initialized")
+        profile = dict(profile_row)
+        raw_track = str(profile.get("curriculum_track", "modern_conversation"))
+        track = raw_track if raw_track in CURRICULUM_TRACKS else "modern_conversation"
+        raw_band = str(profile.get("cefr_band", profile.get("hebrew_level", "A0"))).upper()
+        band = raw_band if raw_band in CEFR_BANDS else "A0"
+        raw_mode = str(profile.get("learner_mode", "guided"))
+        mode = raw_mode if raw_mode in LEARNER_MODES else "guided"
+
+        persisted_state = connection.execute(
+            """
+            SELECT current_item_id, phase, state_version, updated_at
+            FROM learning_core_state
+            WHERE profile_id = 1
+            """
+        ).fetchone()
+        item = None
+        phase: LessonPhase = "encounter"
+        next_due_at: str | None = None
+        state_version = int(persisted_state["state_version"]) if persisted_state else 0
+        state_updated_at = (
+            str(persisted_state["updated_at"]) if persisted_state else "bootstrap"
+        )
+        if persisted_state is not None and persisted_state["current_item_id"] is not None:
+            item_row = connection.execute(
+                """
+                SELECT i.*, r.interval_days, r.ease_factor, r.repetitions,
+                       r.lapses, r.due_at, r.last_reviewed_at
+                FROM learning_items i
+                JOIN review_state r ON r.item_id = i.id
+                WHERE i.id = ? AND i.archived_at IS NULL
+                  AND (
+                      NULLIF(TRIM(COALESCE(i.translation_en, '')), '') IS NOT NULL
+                      OR NULLIF(TRIM(COALESCE(i.translation_es, '')), '') IS NOT NULL
+                  )
+                """,
+                (int(persisted_state["current_item_id"]),),
+            ).fetchone()
+            if item_row is not None:
+                item = dict(item_row)
+                raw_phase = str(persisted_state["phase"])
+                phase = raw_phase if raw_phase in LESSON_PHASES else "encounter"
+
+        if item is None:
+            candidate = connection.execute(
+                """
+                SELECT i.*, r.interval_days, r.ease_factor, r.repetitions,
+                       r.lapses, r.due_at, r.last_reviewed_at
+                FROM learning_items i
+                JOIN review_state r ON r.item_id = i.id
+                WHERE i.archived_at IS NULL
+                  AND r.due_at <= ?
+                  AND (
+                      NULLIF(TRIM(COALESCE(i.translation_en, '')), '') IS NOT NULL
+                      OR NULLIF(TRIM(COALESCE(i.translation_es, '')), '') IS NOT NULL
+                  )
+                ORDER BY r.due_at ASC, i.priority DESC, i.id ASC
+                LIMIT 1
+                """,
+                (now,),
+            ).fetchone()
+            if candidate is None:
+                candidate = connection.execute(
+                    """
+                    SELECT i.*, r.interval_days, r.ease_factor, r.repetitions,
+                           r.lapses, r.due_at, r.last_reviewed_at
+                    FROM learning_items i
+                    JOIN review_state r ON r.item_id = i.id
+                    WHERE i.archived_at IS NULL
+                      AND r.repetitions = 0
+                      AND (
+                          NULLIF(TRIM(COALESCE(i.translation_en, '')), '') IS NOT NULL
+                          OR NULLIF(TRIM(COALESCE(i.translation_es, '')), '') IS NOT NULL
+                      )
+                      AND NOT EXISTS (
+                          SELECT 1 FROM learning_core_attempts a WHERE a.item_id = i.id
+                      )
+                    ORDER BY i.priority DESC, i.id ASC
+                    LIMIT 1
+                    """
+                ).fetchone()
+            item = dict(candidate) if candidate is not None else None
+            phase = (
+                "delayed_review"
+                if item is not None and int(item.get("repetitions", 0)) > 0
+                else "encounter"
+            )
+            if item is None:
+                future_review = connection.execute(
+                    """
+                    SELECT MIN(r.due_at) AS due_at
+                    FROM review_state r
+                    JOIN learning_items i ON i.id = r.item_id
+                    WHERE i.archived_at IS NULL
+                      AND r.due_at > ?
+                      AND (
+                          NULLIF(TRIM(COALESCE(i.translation_en, '')), '') IS NOT NULL
+                          OR NULLIF(TRIM(COALESCE(i.translation_es, '')), '') IS NOT NULL
+                      )
+                    """,
+                    (now,),
+                ).fetchone()
+                if future_review is not None and future_review["due_at"] is not None:
+                    next_due_at = str(future_review["due_at"])
+
+        support_state: dict[str, Any] = (
+            self._reading_support_record(connection, int(item["id"]))
+            if item is not None
+            else {
+                "support_level": "full_niqqud",
+                "success_streak": 0,
+                "total_successes": 0,
+                "total_failures": 0,
+                "evidence_to_advance": READING_EVIDENCE_THRESHOLD,
+            }
+        )
+        support = cast(ReadingSupport, support_state["support_level"])
+        niqqud_available = bool(
+            item is not None and str(item.get("hebrew_with_niqqud") or "").strip()
+        )
+        wait_until = next_due_at
+        if item is not None and phase == "delayed_review":
+            due_at = datetime.fromisoformat(str(item["due_at"]))
+            if due_at > current_time:
+                wait_until = due_at.isoformat(timespec="seconds")
+
+        skill_rows = connection.execute(
+            """
+            WITH meaningful_evidence AS (
+                SELECT modality AS skill_dimension, is_correct
+                FROM attempts
+                UNION ALL
+                SELECT skill_dimension, is_correct
+                FROM learning_core_attempts
+                WHERE evidence_kind IN ('unassisted', 'correction_uptake')
+            )
+            SELECT skill_dimension, COUNT(*) AS evidence_count,
+                   AVG(is_correct) AS accuracy
+            FROM meaningful_evidence
+            GROUP BY skill_dimension
+            """
+        ).fetchall()
+        skill_map: dict[str, float] = {dimension: 0.0 for dimension in SKILL_DIMENSIONS}
+        skill_evidence_counts: dict[str, int] = {
+            dimension: 0 for dimension in SKILL_DIMENSIONS
+        }
+        for row in skill_rows:
+            dimension = str(row["skill_dimension"])
+            if dimension not in skill_map:
+                continue
+            skill_map[dimension] = round(float(row["accuracy"] or 0), 4)
+            skill_evidence_counts[dimension] = int(row["evidence_count"])
+        state = {
+            "current_item_id": int(item["id"]) if item is not None else None,
+            "phase": phase,
+            "reading_support": support,
+            "niqqud_available": niqqud_available,
+            "reading_evidence": {
+                "success_streak": int(support_state["success_streak"]),
+                "total_successes": int(support_state["total_successes"]),
+                "total_failures": int(support_state["total_failures"]),
+                "evidence_to_advance": int(support_state["evidence_to_advance"]),
+            },
+            "wait_until": wait_until,
+            "state_version": state_version,
+            "updated_at": state_updated_at,
+        }
+        payload = {
+            "contract_version": CONTRACT_VERSION,
+            "profile": {
+                "curriculum_track": track,
+                "cefr_band": band,
+                "learner_mode": mode,
+            },
+            "curriculum": {
+                "tracks": list(CURRICULUM_TRACKS),
+                "cefr_bands": list(CEFR_BANDS),
+                "ux_modes": list(LEARNER_MODES),
+                "lesson_phases": list(LESSON_PHASES),
+                "skill_dimensions": list(SKILL_DIMENSIONS),
+                "evidence_kinds": list(EVIDENCE_KINDS),
+                "reading_support_ladder": list(READING_SUPPORT_LADDER),
+                "evidence_source": "learner_self_report",
+                "skill_map_metric": "meaningful_attempt_accuracy",
+                "selection_policy": "shared_due_queue_pilot",
+                "track_status": "preference_only",
+                "cefr_status": "self_selected_planning_band",
+            },
+            "state": state,
+            "skill_map": skill_map,
+            "skill_evidence_counts": skill_evidence_counts,
+            "retention_checkpoints": self._retention_checkpoints(connection),
+        }
+        return payload, item
+
+    @staticmethod
+    def _reading_support_record(connection: Any, item_id: int) -> dict[str, Any]:
+        row = connection.execute(
+            "SELECT * FROM reading_support_state WHERE concept_key = ?",
+            (f"item:{item_id}",),
+        ).fetchone()
+        if row is None:
+            return {
+                "support_level": "full_niqqud",
+                "success_streak": 0,
+                "total_successes": 0,
+                "total_failures": 0,
+                "evidence_to_advance": READING_EVIDENCE_THRESHOLD,
+            }
+        payload = dict(row)
+        level = cast(ReadingSupport, str(payload["support_level"]))
+        payload["evidence_to_advance"] = reading_evidence_to_advance(
+            level,
+            int(payload["success_streak"]),
+        )
+        return payload
+
+    @staticmethod
+    def _learning_core_request_hash(payload: dict[str, Any]) -> str:
+        """Hash a normalized attempt for idempotency comparison without storing answer text."""
+        encoded = json.dumps(
+            payload,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+        return hashlib.sha256(encoded).hexdigest()
+
+    @staticmethod
+    def _retention_checkpoints(connection: Any) -> list[dict[str, Any]]:
+        """Summarize delayed evidence without exposing text or inventing percentages."""
+        rows = connection.execute(
+            """
+            SELECT delayed.is_correct,
+                   (
+                       julianday(delayed.created_at) - julianday((
+                           SELECT MAX(learned.created_at)
+                           FROM learning_core_attempts learned
+                           WHERE learned.item_id = delayed.item_id
+                             AND learned.phase = 'corrected_retry'
+                             AND learned.is_correct = 1
+                             AND learned.created_at < delayed.created_at
+                       ))
+                   ) * 24 AS elapsed_hours
+            FROM learning_core_attempts delayed
+            WHERE delayed.phase = 'delayed_review'
+              AND delayed.evidence_kind = 'unassisted'
+            """
+        ).fetchall()
+        windows = {
+            "24h": (18, 54),
+            "7d": (120, 240),
+            "30d": (504, 1080),
+        }
+        buckets: dict[str, list[bool]] = {checkpoint: [] for checkpoint in windows}
+        for row in rows:
+            if row["elapsed_hours"] is None:
+                continue
+            elapsed_hours = float(row["elapsed_hours"])
+            for checkpoint, (minimum, maximum) in windows.items():
+                if minimum <= elapsed_hours <= maximum:
+                    buckets[checkpoint].append(bool(row["is_correct"]))
+                    break
+
+        results: list[dict[str, Any]] = []
+        for checkpoint in ("24h", "7d", "30d"):
+            observations = buckets[checkpoint]
+            attempts = len(observations)
+            correct = sum(observations)
+            enough = attempts >= 3
+            results.append(
+                {
+                    "checkpoint": checkpoint,
+                    "evidence_source": "learner_self_report",
+                    "window_hours": {
+                        "minimum": windows[checkpoint][0],
+                        "maximum": windows[checkpoint][1],
+                    },
+                    "attempts": attempts,
+                    "correct": correct,
+                    "accuracy": round(correct / attempts, 4) if enough else None,
+                    "status": "observed" if enough else "insufficient_evidence",
+                }
+            )
+        return results
+
+    @staticmethod
+    def _learning_core_activity(
+        state_payload: dict[str, Any],
+        item: dict[str, Any] | None,
+    ) -> dict[str, Any] | None:
+        if item is None:
+            return None
+        state = state_payload["state"]
+        phase = cast(LessonPhase, state["phase"])
+        support = cast(ReadingSupport, state["reading_support"])
+        mode = cast(LearnerMode, state_payload["profile"]["learner_mode"])
+        wait_until = state["wait_until"]
+        niqqud_available = bool(state["niqqud_available"])
+        skill = skill_for_activity(phase, support)
+        if phase in {"retrieval", "delayed_review"} and not niqqud_available:
+            skill = "unpointed_reading"
+        rationale = activity_rationale(
+            phase,
+            support,
+            niqqud_available=niqqud_available,
+        )
+        activity_token = build_activity_token(
+            item_id=int(item["id"]),
+            phase=phase,
+            state_version=int(state["state_version"]),
+            state_updated_at=str(state["updated_at"]),
+            due_at=str(item["due_at"]),
+            item_updated_at=str(item["updated_at"]),
+            support=support,
+            niqqud_available=niqqud_available,
+        )
+        if wait_until:
+            review_reason = (
+                f"Delayed review is scheduled for {wait_until}; spacing is preserved until then."
+            )
+        elif phase == "delayed_review":
+            review_reason = "The scheduler's delayed review is due now."
+        elif phase in {"encounter", "retrieval", "focused_feedback", "corrected_retry"}:
+            review_reason = (
+                "A delayed review will be scheduled after a correct corrected-retry response."
+            )
+        else:
+            review_reason = (
+                "The existing review interval is retained while transfer and reflection are recorded."
+            )
+        return {
+            "item": LearningRepository._learning_core_public_item(item),
+            "phase": phase,
+            "skill_dimension": skill,
+            "reading_support": support,
+            "niqqud_available": niqqud_available,
+            "prompt_key": activity_prompt_key(phase, mode),
+            "rationale": rationale,
+            "next_review_reason": review_reason,
+            "can_submit": wait_until is None,
+            "wait_until": wait_until,
+            "activity_token": activity_token,
+        }
+
+    @staticmethod
+    def _learning_core_public_item(item: dict[str, Any]) -> dict[str, Any]:
+        """Return only fields required by the learning UI, excluding private capture metadata."""
+        fields = (
+            "id",
+            "hebrew_text",
+            "hebrew_with_niqqud",
+            "transliteration",
+            "translation_en",
+            "translation_es",
+            "item_type",
+            "root",
+            "binyan",
+            "grammatical_gender",
+            "register_label",
+            "context_label",
+        )
+        return {field: item.get(field) for field in fields}
+
+    @staticmethod
+    def _schedule_learning_core_review(
+        connection: Any,
+        *,
+        item_id: int,
+        is_correct: bool,
+        confidence: int,
+        hints_used: int,
+        now_dt: datetime,
+    ) -> dict[str, Any]:
+        row = connection.execute(
+            "SELECT * FROM review_state WHERE item_id = ?",
+            (item_id,),
+        ).fetchone()
+        previous = (
+            ReviewState(
+                interval_days=float(row["interval_days"]),
+                ease_factor=float(row["ease_factor"]),
+                repetitions=int(row["repetitions"]),
+                lapses=int(row["lapses"]),
+                due_at=datetime.fromisoformat(str(row["due_at"])),
+            )
+            if row is not None
+            else ReviewState.new(now_dt)
+        )
+        decision = schedule_review(
+            previous,
+            is_correct=is_correct,
+            confidence=confidence,
+            hints_used=hints_used,
+            now=now_dt,
+        )
+        connection.execute(
+            """
+            INSERT INTO review_state(
+                item_id, interval_days, ease_factor, repetitions,
+                lapses, due_at, last_reviewed_at
+            ) VALUES(?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(item_id) DO UPDATE SET
+                interval_days = excluded.interval_days,
+                ease_factor = excluded.ease_factor,
+                repetitions = excluded.repetitions,
+                lapses = excluded.lapses,
+                due_at = excluded.due_at,
+                last_reviewed_at = excluded.last_reviewed_at
+            """,
+            (
+                item_id,
+                decision.state.interval_days,
+                decision.state.ease_factor,
+                decision.state.repetitions,
+                decision.state.lapses,
+                decision.state.due_at.isoformat(timespec="seconds"),
+                now_dt.isoformat(timespec="seconds"),
+            ),
+        )
+        return {
+            **asdict(decision.state),
+            "due_at": decision.state.due_at.isoformat(timespec="seconds"),
+            "quality": decision.quality,
+            "reason": decision.reason,
+        }
 
     def _unlock_achievements(self, connection: Any, unlocked_at: str) -> list[Any]:
         """Persist newly satisfied achievements inside an active transaction.
@@ -1989,9 +2878,16 @@ class LearningRepository:
             rest_day = int(profile["weekly_rest_day"]) if profile else 5
             rows = connection.execute(
                 """
-                SELECT DISTINCT substr(created_at, 1, 10) AS day
-                FROM user_events
-                WHERE event_type IN ('review_submitted', 'mission_completed')
+                SELECT day
+                FROM (
+                    SELECT DISTINCT substr(created_at, 1, 10) AS day
+                    FROM user_events
+                    WHERE event_type IN ('review_submitted', 'mission_completed')
+                    UNION
+                    SELECT DISTINCT substr(created_at, 1, 10) AS day
+                    FROM learning_core_attempts
+                    WHERE evidence_kind IN ('unassisted', 'correction_uptake')
+                )
                 ORDER BY day DESC
                 """
             ).fetchall()

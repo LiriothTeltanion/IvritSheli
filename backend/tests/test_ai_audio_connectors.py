@@ -238,6 +238,11 @@ def test_audio_browser_fallback_and_scoring(settings: Settings, database: Databa
     scored = service.score("תודה רבה", "תודה")
     assert scored["score"] < 100
     assert scored["method"] == "transcript_similarity"
+    assert scored["assessment_type"] == "transcript_recognition_match"
+    assert scored["display_label"] == "Recognition match"
+    assert scored["verified_speech_evidence"] is False
+    assert scored["audio_retained"] is False
+    assert "does not assess phonemes" in scored["limitations"]
 
 
 def test_verified_pronunciation_updates_linked_mastery_xp_and_events_atomically(

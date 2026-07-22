@@ -12,6 +12,10 @@ import type {
   Dashboard,
   DictionaryEntry,
   GamificationStatus,
+  LearningCoreAttemptRequest,
+  LearningCoreAttemptResponse,
+  LearningCoreNext,
+  LearningCoreOverview,
   LearningItem,
   Profile,
   ProgressData,
@@ -67,7 +71,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const csrfToken = ['GET', 'HEAD', 'OPTIONS'].includes(method) ? '' : readCsrfCookie();
   if (readOnlySession && !['GET', 'HEAD', 'OPTIONS'].includes(method) && !allowedReadOnlyWrites.has(path)) {
     throw new ApiError(
-      'This seeded demonstration is read-only. Sign in with GitHub to save your own progress.',
+      'This seeded demonstration is read-only. Sign in to save your own progress.',
       403,
       'demo_read_only',
     );
@@ -114,6 +118,10 @@ export const api = {
     body: JSON.stringify({ confirm: true }),
   }),
   dashboard: (): Promise<Dashboard> => request('/dashboard'),
+  learningCore: (): Promise<LearningCoreOverview> => request('/learning-core'),
+  nextLearningCoreActivity: (): Promise<LearningCoreNext> => request('/learning-core/next'),
+  submitLearningCoreAttempt: (payload: LearningCoreAttemptRequest): Promise<LearningCoreAttemptResponse> =>
+    request('/learning-core/attempt', { method: 'POST', body: JSON.stringify(payload) }),
   profile: (): Promise<Profile> => request('/profile'),
   updateProfile: (profile: Partial<Profile>): Promise<Profile> =>
     request('/profile', { method: 'PUT', body: JSON.stringify(profile) }),

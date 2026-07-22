@@ -1,15 +1,81 @@
-# Ivrit Sheli 2.5.0 Private Pilot — Verification Ledger
+# Ivrit Sheli 2.6.0 Learning Core — Verification Ledger
 
 - **Ledger update date:** 2026-07-22
 - **Time zone:** Asia/Jerusalem
-- **Current private source candidate:** `2.5.0` / local / unpublished
-- **Private-pilot consolidated verification:** Pending
+- **Current private source candidate:** `2.6.0` / local / unpublished
+- **Private-pilot consolidated verification:** Passed locally
 - **Current verified production:** `2.4.0` on Railway with PostgreSQL
 - **Release implementation commit:** `03bf84b9268ff8be528c0fab3c670f9652ee23b0`
 
 ## Current status
 
-The 2.5 Private Pilot is a source candidate and is not yet claimed as fully verified, deployed, tagged or published. Its consolidated backend, frontend, accessibility-oriented build and browser results will be recorded only after those commands complete. The table and command evidence below preserve the last fully verified 2.4 Contest Edition baseline; they are not relabeled as 2.5 evidence.
+The 2.6 Learning Core is a locally verified private source candidate. It is not deployed, tagged, pushed or published. Its local test, PostgreSQL, dependency, package, image and browser evidence is recorded below; the verified 2.5 foundation and public 2.4 Contest Edition remain separate records.
+
+## Verified private 2.6 candidate
+
+| Verification area | Private 2.6 result |
+|---|---:|
+| Ordinary backend suite | **179 passed / 1 PostgreSQL-gated skip** |
+| Dedicated PostgreSQL 17 gate | **3 passed** |
+| Unique backend automated tests | **180 passed** |
+| Frontend suite | **97 passed / 22 files** |
+| Total unique automated tests | **277 passed** |
+| Ruff | Passed |
+| MyPy strict | Passed across 27 source files |
+| TypeScript project check | Passed |
+| Vite production build | Passed |
+| Python compileall / offline doctor | Passed / passed |
+| pip-audit / npm production audit | No known vulnerabilities / 0 vulnerabilities |
+| Package verifier | 81 required files and packaged assets passed |
+| Docker Compose configuration | Passed |
+| Private Docker image build | Passed as `ivrit-sheli:v2.6-private` |
+| Disposable SQLite image readiness/version | Passed / `2.6.0` |
+| Independent correctness/privacy review | Clean |
+
+The ordinary backend run includes two environment-independent tests from `test_postgres_integration.py`; its third case is skipped without administrator and restricted-runtime URLs. Running that file against a disposable PostgreSQL 17 instance passed all three, replacing the one skip and producing 180 unique backend passes rather than 182. Together with 97 frontend tests, the private candidate has 277 unique passing automated tests.
+
+### Consolidated commands and evidence
+
+```powershell
+.\.venv\Scripts\ruff.exe check backend\src backend\tests scripts\verify_package.py scripts\verify_container_logs.py
+.\.venv\Scripts\mypy.exe --config-file backend\pyproject.toml backend\src
+.\.venv\Scripts\python.exe -m pytest backend\tests -q
+.\.venv\Scripts\python.exe -m compileall -q backend\src scripts\verify_package.py scripts\verify_container_logs.py
+.\.venv\Scripts\python.exe -m ivrit_sheli --doctor
+.\.venv\Scripts\python.exe scripts\verify_package.py
+.\.venv\Scripts\python.exe -m pip_audit -r backend\requirements.txt
+npm --prefix frontend run typecheck
+npm --prefix frontend run test:run
+npm --prefix frontend run build
+npm --prefix frontend audit --omit=dev
+docker compose config --quiet
+docker build --tag ivrit-sheli:v2.6-private .
+```
+
+The dedicated PostgreSQL command ran `backend/tests/test_postgres_integration.py` against disposable PostgreSQL 17 administrator and direct restricted-runtime DSNs; the container was removed immediately afterward. A second disposable container ran the production image with private SQLite state on loopback. Its readiness and `/version` endpoints passed, reporting version `2.6.0`, storage `sqlite` and environment `development`; it was also removed after the check.
+
+Browser QA covered the English desktop Today experience, a 390×844 mobile viewport, Hebrew `lang=he` / `dir=rtl`, the Encounter → Retrieve → Reference feedback → Corrected retry path, an RTL Hebrew production field and an empty error/warning console. The reduced-motion media preference was recognized; the current README screenshots were intentionally not replaced and remain labelled as older public visual evidence.
+
+The final independent review found no remaining actionable correctness, transparency or privacy issue. It specifically rechecked idempotent replay, stale-state conflicts, delayed timing, learner-self-report provenance, retention windows, niqqud restoration and missing-pointed-form behavior, coherent degraded content, incomplete-meaning gating and optional-TTS labelling. One non-failing upstream Starlette TestClient/httpx deprecation warning remains.
+
+This evidence does not claim a public v2.6 deployment, live Google re-authorization, live OpenAI/Workspace provider calls, a real-phone pilot, 24-hour/7-day/30-day longitudinal learner outcomes or a production backup/restore drill.
+
+## Verified private 2.5 foundation
+
+Before the v2.6 branch was created, the complete v2.5 worktree was verified and preserved locally at commit `36c9791`:
+
+| Verification area | Private 2.5 result |
+|---|---:|
+| Ordinary backend suite | **157 passed / 1 PostgreSQL-gated skip** |
+| Frontend suite | **74 passed / 19 files** |
+| Combined ordinary automated checks | **231 passed** |
+| Ruff | Passed |
+| MyPy strict | Passed across 26 source files |
+| TypeScript project check | Passed |
+| Vite production build | Passed |
+| Package verifier | 75 files passed |
+
+The v2.5 foundation was not deployed, tagged or pushed. These numbers are not relabeled as v2.6 results.
 
 The verified public 2.4 Contest Edition passes the local backend, dedicated PostgreSQL, frontend, dependency, package and production-shaped Docker/Compose gates documented below. Railway production separately reports version 2.4.0 with PostgreSQL and all 48 reviewed dictionary entries ready. The English entry, read-only guided tour, identity-only Google sign-in, onboarding/session persistence across reload and logout were verified in a normal browser. Git tag and GitHub Release `v2.4.0` are published.
 

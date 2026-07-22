@@ -37,7 +37,7 @@ export function AuthGate({ busy, error, onDemo, onRetry, providers }: AuthGatePr
       <header className="auth-header">
         <a className="auth-brand" href="/" aria-label={`${t('appName')} — ${t('home')}`}>
           <img src="/icons/app-icon.svg" alt="" />
-          <span><strong>{t('appName')}</strong><small>PRIVATE PILOT 2.5</small></span>
+          <span><strong>{t('appName')}</strong><small>PRIVATE LEARNING CORE 2.6</small></span>
         </a>
         <div className="auth-header__actions">
           <div className="locale-switch auth-locale" aria-label={t('interfaceLanguage')}>
@@ -50,7 +50,7 @@ export function AuthGate({ busy, error, onDemo, onRetry, providers }: AuthGatePr
               </button>
             ))}
           </div>
-          <span className="auth-version">v2.5.0 private</span>
+          <span className="auth-version">v2.6.0 private</span>
         </div>
       </header>
 

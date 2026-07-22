@@ -1,23 +1,23 @@
-# Ivrit Sheli 2.5.0 Private Pilot — Package Manifest
+# Ivrit Sheli 2.6.0 Learning Core — Package Manifest
 
 ## Release identity
 
 - Product: Ivrit Sheli — העברית שלי
-- Source version: `2.5.0`
+- Source version: `2.6.0`
 - Current public live source version: `2.4.0`
 - Manifest update date: 2026-07-22
-- Private-pilot consolidated verification: pending
+- Private-pilot consolidated verification: passed locally
 - Verified public baseline date: 2026-07-21
 - Time zone: Asia/Jerusalem
 - Author: Kevin “Lirioth” Cusnir
-- Private-pilot branch: `codex/ivrit-sheli-v2.5.0-private-pilot`
+- Private-pilot branch: `codex/ivrit-sheli-v2.6.0-learning-core`
 - Default branch: `main`
 - Application license: MIT
 - Production URL: https://ivritsheli-production.up.railway.app
 - Current verified production release: `2.4.0` on Railway with managed PostgreSQL and 48 reviewed dictionary entries
 - Release implementation commit: `03bf84b9268ff8be528c0fab3c670f9652ee23b0`
 - Latest published Git tag and GitHub Release: `v2.4.0`
-- Private-pilot publication state: `2.5.0` is local, untagged and unpublished
+- Private-pilot publication state: `2.6.0` is local, untagged and unpublished
 - Public publication state: `2.4.0` is deployed, tagged and published as a GitHub Release
 - Personal signature: `KC ✦ LT` is reserved and excluded from the MIT asset grant
 - Dictionary-derived data: separate Wiktionary/Kaikki attribution and share-alike terms
@@ -25,9 +25,9 @@
 - Terms of use: `TERMS.md`
 - Machine-readable public source: `portfolio/project.json`
 
-## 2.5 private-pilot scope
+## 2.6 Learning Core scope
 
-This manifest describes the local 2.5 source candidate without promoting it to a public release. The candidate adds three persisted learner experiences, an Israel-wide learning atlas, a larger reviewed starter lexicon, a learner-visible activity log, broader achievements and provider-subject pilot allowlists. These changes remain source-only until the complete backend, frontend, accessibility, package and browser verification gates are recorded.
+This manifest describes the local 2.6 source candidate without promoting it to a public release. It adds a versioned, server-owned seven-phase learning loop, curriculum and CEFR-aligned profile settings, separate skill evidence, a niqqud support ladder, delayed-retention checkpoints, a transparent Today journey and source-checked learning-science and provenance contracts. It inherits the three learner experiences, Israel-wide visual atlas, 96-concept reviewed starter lexicon, activity log, achievements and provider-subject pilot allowlists preserved in the verified local 2.5 foundation.
 
 The Railway URL, production health evidence, public Git tag and GitHub Release below all remain the verified 2.4.0 record. Google sign-in remains identity-only and does not itself grant Gmail, Drive or Calendar access.
 
@@ -82,6 +82,24 @@ The Railway URL, production health evidence, public Git tag and GitHub Release b
 
 Identity-only Google sign-in is configured and verified in production with `openid profile` only. Onboarding state and the authenticated session persisted across reload; logout returned to the English auth landing page and remained signed out after another reload. Re-login after logout remains unverified. OpenAI AI/embedding/TTS/STT and Google Workspace connector adapters require separate operator credentials, consent, identity allowlists and cost controls; Google sign-in grants no Gmail, Drive or Calendar scope. No real credentials are included in this package.
 
+## Verified private 2.6 candidate
+
+- Ordinary backend suite: 179 passed with one credential-gated PostgreSQL skip.
+- Dedicated disposable PostgreSQL 17 gate: 3 passed, contributing the skipped case for 180 unique backend passes.
+- Frontend: 97 passed across 22 files.
+- Total unique automated tests: 277 passed.
+- Ruff and strict MyPy across 27 backend source files: passed.
+- TypeScript, Vite production build, Python compileall and offline doctor: passed.
+- Vite output: JavaScript 473.85 kB / 139.14 kB gzip; CSS 164.67 kB / 30.77 kB gzip.
+- pip-audit: no known vulnerabilities; npm production audit: 0 vulnerabilities.
+- Package verifier: 81 required files and packaged assets passed.
+- Docker Compose configuration and isolated `ivrit-sheli:v2.6-private` image build: passed.
+- Disposable image readiness/version: passed with version 2.6.0 and SQLite storage.
+- Private browser QA: English desktop, 390 px mobile, Hebrew RTL, four visible Learning Core phases, RTL Hebrew input and no console errors/warnings passed.
+- Independent correctness, transparency and privacy review: clean.
+
+This local evidence does not promote 2.6 to production. The private writer remains isolated from live 2.4 learner data until a backup and controlled single-writer transition are approved. Track and CEFR settings are planning preferences over a shared due queue, and correctness/retention evidence is learner self-report rather than objective language scoring.
+
 ## Verified public 2.4 baseline
 
 - Backend ordinary suite: 150 passed, 1 credential-gated PostgreSQL skip.
@@ -100,6 +118,6 @@ Identity-only Google sign-in is configured and verified in production with `open
 
 The release implementation at `03bf84b9268ff8be528c0fab3c670f9652ee23b0` deployed successfully on Railway on 2026-07-21. Production reports version 2.4.0, PostgreSQL ready and all 48 reviewed dictionary entries ready. The live English entry, four-stop read-only tour, identity-only Google sign-in, onboarding/session persistence across reload, logout and signed-out persistence after reload passed browser checks. Git tag and GitHub Release `v2.4.0` are published. Re-login after logout, refreshed 2.4 desktop/mobile/RTL/reduced-motion screenshots, two-real-user production isolation, live OpenAI or Google Workspace connector calls and a managed backup restore drill remain explicit operator checks.
 
-None of the 2.4 counts or production observations above are presented as completed 2.5 verification. The private-pilot test totals and build measurements will be added only after the consolidated gates finish.
+None of the 2.4 production observations above are presented as public 2.6 evidence. The v2.5 foundation passed 157 backend and 74 frontend tests before the v2.6 branch was created; the separate private 2.6 results are recorded above without changing the live release.
 
 See `TEST_REPORT.md` for commands, evidence boundaries and the historical production record.

@@ -13,6 +13,7 @@ import './styles.css';
 import './v25-private-pilot.css';
 import './learner-mode.css';
 import './achievement-progress.css';
+import './learning-core.css';
 
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {

@@ -1,6 +1,6 @@
-# Architecture — Ivrit Sheli 2.4 Contest Edition
+# Architecture — Ivrit Sheli 2.6 Learning Core
 
-Ivrit Sheli 2.4 has two deliberate runtime modes. The private SQLite application remains the simplest offline installation; the cloud mode adds authenticated multi-user delivery without duplicating or weakening the learning engine.
+Ivrit Sheli 2.6 keeps two deliberate runtime modes. The private SQLite application remains the simplest offline installation; the cloud mode adds authenticated multi-user delivery without duplicating or weakening the learning engine. The verified public deployment remains 2.4.0 while this 2.6 source is private.
 
 ## System shape
 
@@ -9,7 +9,7 @@ Browser: React 19 + TypeScript + PWA + EN/ES/HE + RTL
                          │
                          │ same-origin HTTPS + secure session cookie
                          ▼
-Ivrit Sheli 2.4 FastAPI application
+Ivrit Sheli 2.6 FastAPI application
   ├── Google OIDC / GitHub OAuth + provider-bound PKCE state
   ├── signed-in / deterministic demo session boundary
   ├── CSRF verification for authenticated mutations
@@ -82,6 +82,10 @@ Google sign-in requests `openid profile` only. The separate Google Workspace con
 
 ## Core learning transaction
 
+Learning Core 2.6 adds a second server-owned transaction boundary for lesson evidence. GET requests expose curriculum/state and derive the next activity without writing. A submitted attempt accepts only bounded learner self-report; the server derives the active phase, skill dimension, reading support, transition and schedule. An activity concurrency token rejects stale state, and an idempotency key returns the stored response for an exact retry without advancing twice. Exposure, reveal, reference-feedback acknowledgement and reflection do not update mastery. Corrected retry, delayed recall and transfer remain distinct evidence types. XP is not accepted by this endpoint and cannot reduce reading support.
+
+The seven phases are encounter, retrieval, reference feedback (internally `focused_feedback`), corrected retry, delayed review, transfer and reflection. Per-concept reading support advances through full niqqud, mechanically reduced niqqud, hint-only and unpointed Hebrew after repeated unassisted self-report, restores one rung after a lapse, and does not fade when a reviewed pointed form is absent. Older local databases and cloud snapshots receive conservative defaults while preserving prior level, learner mode, review and four-skill history.
+
 Submitting one review remains atomic:
 
 1. Store the attempt.
@@ -148,5 +152,6 @@ The formatter recursively redacts credentials, cookies, authorization headers, O
 - Readiness requires the exact packaged Alembic head and verifies both `SESSION_USER` and `CURRENT_USER` are the restricted login.
 - Production uses one same-origin HTTPS hostname; CORS is allow-listed to that origin.
 - Horizontal replicas are safe for session/state access, but migrations must remain a separate pre-deploy step.
+- The private 2.6 learner snapshot adds fields that an unmodified 2.4/2.5 writer does not preserve. Do not mix those writers against one production state store or roll back after 2.6 writes without a verified backup/forward-compatibility plan; see `DEPLOYMENT.md`.
 
 See [DEPLOYMENT.md](DEPLOYMENT.md) for the exact operational procedure and [API.md](API.md) for the public contract.

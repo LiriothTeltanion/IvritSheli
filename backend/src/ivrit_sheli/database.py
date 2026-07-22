@@ -255,6 +255,110 @@ MIGRATIONS = (
         END;
         """,
     ),
+    Migration(
+        version=4,
+        name="evidence_based_learning_core",
+        sql="""
+        ALTER TABLE profiles ADD COLUMN curriculum_track TEXT NOT NULL
+            DEFAULT 'modern_conversation'
+            CHECK (curriculum_track IN (
+                'modern_conversation', 'pointed_reading', 'formal_professional'
+            ));
+        ALTER TABLE profiles ADD COLUMN cefr_band TEXT NOT NULL DEFAULT 'A0'
+            CHECK (cefr_band IN ('A0', 'A1', 'A2', 'B1', 'B2', 'C1', 'C2'));
+
+        -- Preserve recognized legacy levels while safely normalizing unknown labels.
+        UPDATE profiles
+        SET cefr_band = CASE upper(hebrew_level)
+            WHEN 'A0' THEN 'A0'
+            WHEN 'A1' THEN 'A1'
+            WHEN 'A2' THEN 'A2'
+            WHEN 'B1' THEN 'B1'
+            WHEN 'B2' THEN 'B2'
+            WHEN 'C1' THEN 'C1'
+            WHEN 'C2' THEN 'C2'
+            ELSE 'A0'
+        END;
+
+        ALTER TABLE skill_mastery ADD COLUMN pointed_reading REAL NOT NULL DEFAULT 0
+            CHECK (pointed_reading BETWEEN 0 AND 1);
+        ALTER TABLE skill_mastery ADD COLUMN unpointed_reading REAL NOT NULL DEFAULT 0
+            CHECK (unpointed_reading BETWEEN 0 AND 1);
+        ALTER TABLE skill_mastery ADD COLUMN contextual_transfer REAL NOT NULL DEFAULT 0
+            CHECK (contextual_transfer BETWEEN 0 AND 1);
+
+        CREATE TABLE learning_core_state (
+            profile_id INTEGER PRIMARY KEY DEFAULT 1 CHECK (profile_id = 1)
+                REFERENCES profiles(id) ON DELETE CASCADE,
+            current_item_id INTEGER REFERENCES learning_items(id) ON DELETE SET NULL,
+            phase TEXT NOT NULL DEFAULT 'encounter'
+                CHECK (phase IN (
+                    'encounter', 'retrieval', 'focused_feedback', 'corrected_retry',
+                    'delayed_review', 'transfer', 'reflection'
+                )),
+            updated_at TEXT NOT NULL
+        );
+
+        CREATE TABLE reading_support_state (
+            concept_key TEXT PRIMARY KEY,
+            support_level TEXT NOT NULL DEFAULT 'full_niqqud'
+                CHECK (support_level IN (
+                    'full_niqqud', 'partial_niqqud', 'hint_only', 'unpointed'
+                )),
+            success_streak INTEGER NOT NULL DEFAULT 0 CHECK (success_streak >= 0),
+            total_successes INTEGER NOT NULL DEFAULT 0 CHECK (total_successes >= 0),
+            total_failures INTEGER NOT NULL DEFAULT 0 CHECK (total_failures >= 0),
+            updated_at TEXT NOT NULL
+        );
+
+        CREATE TABLE learning_core_attempts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            item_id INTEGER NOT NULL REFERENCES learning_items(id) ON DELETE CASCADE,
+            phase TEXT NOT NULL CHECK (phase IN (
+                'encounter', 'retrieval', 'focused_feedback', 'corrected_retry',
+                'delayed_review', 'transfer', 'reflection'
+            )),
+            skill_dimension TEXT NOT NULL CHECK (skill_dimension IN (
+                'recognition', 'production', 'listening', 'speaking',
+                'pointed_reading', 'unpointed_reading', 'contextual_transfer'
+            )),
+            evidence_kind TEXT NOT NULL DEFAULT 'exposure' CHECK (evidence_kind IN (
+                'exposure', 'assisted', 'unassisted', 'correction_uptake'
+            )),
+            reading_support TEXT NOT NULL CHECK (reading_support IN (
+                'full_niqqud', 'partial_niqqud', 'hint_only', 'unpointed'
+            )),
+            is_correct INTEGER NOT NULL CHECK (is_correct IN (0, 1)),
+            confidence INTEGER NOT NULL CHECK (confidence BETWEEN 1 AND 5),
+            response_ms INTEGER NOT NULL DEFAULT 0 CHECK (response_ms >= 0),
+            hints_used INTEGER NOT NULL DEFAULT 0 CHECK (hints_used >= 0),
+            answer_text TEXT,
+            created_at TEXT NOT NULL
+        );
+
+        CREATE INDEX idx_learning_core_attempts_item_created
+        ON learning_core_attempts(item_id, created_at DESC);
+        """,
+    ),
+    Migration(
+        version=5,
+        name="learning_core_replay_protection",
+        sql="""
+        ALTER TABLE learning_core_state ADD COLUMN state_version INTEGER NOT NULL DEFAULT 0
+            CHECK (state_version >= 0);
+
+        CREATE TABLE learning_core_idempotency (
+            idempotency_key TEXT PRIMARY KEY,
+            request_hash TEXT NOT NULL,
+            activity_token TEXT NOT NULL,
+            response_json TEXT NOT NULL,
+            created_at TEXT NOT NULL
+        );
+
+        CREATE INDEX idx_learning_core_idempotency_created
+        ON learning_core_idempotency(created_at DESC);
+        """,
+    ),
 )
 SCHEMA_VERSION = MIGRATIONS[-1].version
 

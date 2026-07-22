@@ -61,4 +61,68 @@ describe('ProgressPanel learning activity log', () => {
     expect(screen.getByText('Your learning story starts here')).toBeInTheDocument();
     expect(screen.getByText(/Save a word, complete a review/i)).toBeInTheDocument();
   });
+
+  it('renders learning-core evidence without inventing XP', () => {
+    render(
+      <I18nProvider>
+        <ProgressPanel
+          gamification={GAMIFICATION}
+          progress={{
+            ...BASE_PROGRESS,
+            activity_log: [{
+              id: 2,
+              type: 'learning_core_attempted',
+              source: 'learning_item',
+              source_id: '7',
+              hebrew_text: 'ללמוד',
+              details: {
+                correct: true,
+                phase: 'delayed_review',
+                skill_dimension: 'unpointed_reading',
+                evidence_kind: 'unassisted',
+                reading_support: 'unpointed',
+                xp_awarded: 0,
+              },
+              created_at: '2026-07-22T18:30:00+00:00',
+            }],
+          }}
+        />
+      </I18nProvider>,
+    );
+
+    expect(screen.getByText('Learning-core attempt')).toBeInTheDocument();
+    expect(screen.getByText(/Delayed review · Reading without niqqud · unassisted · Unpointed/)).toBeInTheDocument();
+    expect(screen.queryByText(/\+0 XP/)).not.toBeInTheDocument();
+  });
+
+  it('labels exposure as recorded even if a defensive payload contains correctness', () => {
+    render(
+      <I18nProvider>
+        <ProgressPanel
+          gamification={GAMIFICATION}
+          progress={{
+            ...BASE_PROGRESS,
+            activity_log: [{
+              id: 3,
+              type: 'learning_core_attempted',
+              source: 'learning_item',
+              source_id: '7',
+              hebrew_text: 'שלום',
+              details: {
+                correct: true,
+                phase: 'encounter',
+                skill_dimension: 'listening',
+                evidence_kind: 'exposure',
+                reading_support: 'full_niqqud',
+              },
+              created_at: '2026-07-22T18:35:00+00:00',
+            }],
+          }}
+        />
+      </I18nProvider>,
+    );
+
+    expect(screen.getByText('Learning activity recorded')).toBeInTheDocument();
+    expect(screen.queryByText('Successful')).not.toBeInTheDocument();
+  });
 });

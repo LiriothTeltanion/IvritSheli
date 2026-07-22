@@ -8,6 +8,26 @@ export type Locale = 'en' | 'es' | 'he';
 export type ViewKey = 'today' | 'learn' | 'coach' | 'progress' | 'connectors' | 'settings';
 export type VoiceStyle = 'masculine' | 'feminine';
 export type LearnerMode = 'guided' | 'explorer' | 'experienced';
+export type CurriculumTrack = 'modern_conversation' | 'pointed_reading' | 'formal_professional';
+export type CefrBand = 'A0' | 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
+export type LearningPhase =
+  | 'encounter'
+  | 'retrieval'
+  | 'focused_feedback'
+  | 'corrected_retry'
+  | 'delayed_review'
+  | 'transfer'
+  | 'reflection';
+export type LearningSkillDimension =
+  | 'recognition'
+  | 'production'
+  | 'listening'
+  | 'speaking'
+  | 'pointed_reading'
+  | 'unpointed_reading'
+  | 'contextual_transfer';
+export type ReadingSupport = 'full_niqqud' | 'partial_niqqud' | 'hint_only' | 'unpointed';
+export type LearningEvidenceKind = 'exposure' | 'assisted' | 'unassisted' | 'correction_uptake';
 export type TranscriptProvider = 'browser' | 'openai' | 'manual';
 export type AuthProvider = 'google' | 'github';
 
@@ -51,6 +71,8 @@ export interface Profile {
   onboarding_completed?: number | boolean;
   guided_mode?: number | boolean;
   learner_mode?: LearnerMode;
+  curriculum_track?: CurriculumTrack;
+  cefr_band?: CefrBand;
   first_steps_step?: number;
   first_steps_completed?: number | boolean;
   goals?: Goal[];
@@ -322,6 +344,140 @@ export interface Achievement {
   remaining: number;
 }
 
+export interface LearningCoreReadingEvidence {
+  success_streak: number;
+  total_successes: number;
+  total_failures: number;
+  evidence_to_advance: number;
+}
+
+export interface LearningCoreState {
+  current_item_id: number | null;
+  phase: LearningPhase;
+  reading_support: ReadingSupport;
+  reading_evidence: LearningCoreReadingEvidence;
+  wait_until: string | null;
+  state_version: number;
+  updated_at: string;
+  niqqud_available: boolean;
+}
+
+export interface LearningCoreOverview {
+  contract_version: '2.6';
+  profile: {
+    curriculum_track: CurriculumTrack;
+    cefr_band: CefrBand;
+    learner_mode: LearnerMode;
+  };
+  curriculum: {
+    tracks: CurriculumTrack[];
+    cefr_bands: CefrBand[];
+    lesson_phases: LearningPhase[];
+    skill_dimensions: LearningSkillDimension[];
+    reading_support_ladder: ReadingSupport[];
+    evidence_kinds: LearningEvidenceKind[];
+    selection_policy: 'shared_due_queue_pilot';
+    track_status: 'preference_only';
+    cefr_status: 'self_selected_planning_band';
+    evidence_source: 'learner_self_report';
+    skill_map_metric: 'meaningful_attempt_accuracy';
+  };
+  state: LearningCoreState;
+  skill_map: Record<LearningSkillDimension, number>;
+  skill_evidence_counts: Record<LearningSkillDimension, number>;
+  retention_checkpoints?: RetentionCheckpoint[];
+}
+
+export type LearningCoreItem = Pick<LearningItem,
+  | 'id'
+  | 'hebrew_text'
+  | 'hebrew_with_niqqud'
+  | 'transliteration'
+  | 'translation_en'
+  | 'translation_es'
+  | 'item_type'
+  | 'root'
+  | 'binyan'
+  | 'grammatical_gender'
+  | 'register_label'
+  | 'context_label'
+>;
+
+export interface LearningCoreActivity {
+  item: LearningCoreItem;
+  phase: LearningPhase;
+  skill_dimension: LearningSkillDimension;
+  reading_support: ReadingSupport;
+  prompt_key: string;
+  rationale: string;
+  next_review_reason: string;
+  can_submit: boolean;
+  wait_until: string | null;
+  activity_token: string;
+  niqqud_available: boolean;
+}
+
+export interface LearningCoreNext {
+  contract_version: '2.6';
+  available: boolean;
+  activity: LearningCoreActivity | null;
+  state: LearningCoreState;
+}
+
+export interface LearningCoreAttemptRequest {
+  item_id: number;
+  activity_token: string;
+  idempotency_key: string;
+  is_correct: boolean;
+  confidence: number;
+  response_ms: number;
+  hints_used: number;
+  answer_text?: string | null;
+}
+
+export interface LearningCoreAttemptResponse {
+  contract_version: '2.6';
+  accepted: true;
+  duplicate: boolean;
+  attempt: {
+    id: number;
+    item_id: number;
+    phase: LearningPhase;
+    skill_dimension: LearningSkillDimension;
+    is_correct: boolean;
+    reading_support: ReadingSupport;
+    evidence_kind: LearningEvidenceKind;
+    evidence_source: 'learner_self_report';
+  };
+  transition: {
+    from_phase: LearningPhase;
+    to_phase: LearningPhase;
+    reason: string;
+  };
+  mastery: Record<string, unknown> | null;
+  reading_support_state: {
+    level: ReadingSupport;
+    success_streak: number;
+    total_successes: number;
+    total_failures: number;
+    evidence_to_advance: number;
+    advanced: boolean;
+    restored: boolean;
+    reason: string;
+  };
+  schedule: {
+    interval_days: number;
+    ease_factor: number;
+    repetitions: number;
+    lapses: number;
+    due_at: string;
+    quality: number;
+    reason: string;
+  } | null;
+  next_activity: LearningCoreActivity | null;
+  state: LearningCoreState;
+}
+
 export interface GamificationStatus {
   xp: XPStatus & { total: number };
   streak_days: number;
@@ -354,11 +510,22 @@ export interface ProgressData {
   activity_log?: ActivityLogEntry[];
   mastery: Array<Record<string, unknown>>;
   streak_days: number;
+  retention_checkpoints?: RetentionCheckpoint[];
+}
+
+export interface RetentionCheckpoint {
+  checkpoint: '24h' | '7d' | '30d';
+  window_hours: { minimum: number; maximum: number };
+  evidence_source: 'learner_self_report';
+  attempts: number;
+  correct: number;
+  accuracy: number | null;
+  status: 'observed' | 'insufficient_evidence';
 }
 
 export interface ActivityLogEntry {
   id: number;
-  type: 'item_created' | 'review_submitted' | 'pronunciation_scored' | 'mission_completed';
+  type: 'item_created' | 'review_submitted' | 'pronunciation_scored' | 'mission_completed' | 'learning_core_attempted';
   source: string;
   source_id: string | null;
   hebrew_text: string | null;
@@ -368,6 +535,10 @@ export interface ActivityLogEntry {
     score?: number;
     success?: boolean;
     xp_awarded?: number;
+    phase?: LearningPhase;
+    skill_dimension?: LearningSkillDimension;
+    evidence_kind?: LearningEvidenceKind;
+    reading_support?: ReadingSupport;
   };
   created_at: string;
 }

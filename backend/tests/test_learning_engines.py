@@ -60,6 +60,14 @@ def test_mastery_updates_only_selected_modality() -> None:
     assert updated.observations == 1
 
 
+def test_mastery_state_preserves_legacy_positional_observation_argument() -> None:
+    legacy = MasteryState(0.1, 0.2, 0.3, 0.4, 7)
+    assert legacy.observations == 7
+    assert legacy.pointed_reading == 0
+    assert legacy.unpointed_reading == 0
+    assert legacy.contextual_transfer == 0
+
+
 def test_mastery_rejects_unsupported_modality() -> None:
     with pytest.raises(ValueError, match="Unsupported modality"):
         update_mastery(MasteryState(), "reading", True, 4, 1000)

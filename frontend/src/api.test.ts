@@ -175,4 +175,44 @@ describe('read-only API guard', () => {
       expect.objectContaining({ credentials: 'include' }),
     );
   });
+
+  it('keeps learning-core phase, mastery, schedule, and XP decisions on the server', async () => {
+    document.cookie = 'ivrit_csrf=csrf-learning-core; path=/';
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      contract_version: '2.6',
+      accepted: true,
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await api.submitLearningCoreAttempt({
+      item_id: 7,
+      activity_token: 'a'.repeat(64),
+      idempotency_key: 'attempt-12345678',
+      is_correct: true,
+      confidence: 4,
+      response_ms: 1250,
+      hints_used: 0,
+      answer_text: 'hello',
+    });
+
+    const init = fetchMock.mock.calls[0]?.[1] as RequestInit;
+    expect(fetchMock).toHaveBeenCalledWith('/api/v1/learning-core/attempt', expect.objectContaining({
+      method: 'POST',
+      credentials: 'include',
+      headers: expect.objectContaining({ 'X-CSRF-Token': 'csrf-learning-core' }),
+    }));
+    expect(JSON.parse(String(init.body))).toEqual({
+      item_id: 7,
+      activity_token: 'a'.repeat(64),
+      idempotency_key: 'attempt-12345678',
+      is_correct: true,
+      confidence: 4,
+      response_ms: 1250,
+      hints_used: 0,
+      answer_text: 'hello',
+    });
+  });
 });

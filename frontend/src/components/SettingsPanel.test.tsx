@@ -24,6 +24,8 @@ const PROFILE: Profile = {
   onboarding_completed: 1,
   guided_mode: 1,
   learner_mode: 'guided',
+  curriculum_track: 'modern_conversation',
+  cefr_band: 'A1',
   goals: [],
 };
 
@@ -122,5 +124,28 @@ describe('SettingsPanel account data controls', () => {
       learner_mode: 'experienced',
       guided_mode: false,
     })));
+  });
+
+  it('persists curriculum track and CEFR band independently from interface mode', async () => {
+    const updateProfile = vi.spyOn(api, 'updateProfile').mockResolvedValue({
+      ...PROFILE,
+      curriculum_track: 'formal_professional',
+      cefr_band: 'B2',
+      hebrew_level: 'B2',
+    });
+    const user = userEvent.setup();
+    renderSettings({ readOnly: false, localMode: false });
+
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Hebrew level' }), 'B2');
+    await user.click(screen.getByRole('button', { name: /Formal & professional/i }));
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() => expect(updateProfile).toHaveBeenCalledWith(expect.objectContaining({
+      curriculum_track: 'formal_professional',
+      cefr_band: 'B2',
+      hebrew_level: 'B2',
+      learner_mode: 'guided',
+    })));
+    expect(screen.getByText(/not a certification/i)).toBeInTheDocument();
   });
 });

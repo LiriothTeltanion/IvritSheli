@@ -371,7 +371,7 @@ export default function App(): React.JSX.Element {
       <aside className="sidebar">
         <div className="brand-lockup">
           <img src="/icons/app-icon.svg" alt="" />
-          <div><strong>{t('appName')}</strong><span>PRIVATE 2.5</span></div>
+          <div><strong>{t('appName')}</strong><span>PRIVATE LEARNING CORE 2.6</span></div>
         </div>
         <nav className="side-nav" aria-label={t('primaryNavigation')}>
           {visibleNavigation.map((item) => (
@@ -394,14 +394,14 @@ export default function App(): React.JSX.Element {
         </div>
         <div className="sidebar-footer">
           <div className="privacy-mini"><Icon name="shield" size={17} /><span><strong>{auth.demo ? t('demoWorkspace') : localMode ? t('localWorkspace') : t('privateMode')}</strong><small>{auth.demo ? t('readOnlyDemo') : localMode ? t('localFirstStorage') : t('accountStorage')}</small></span></div>
-          <span className="version-label">v2.5.0 private</span>
+          <span className="version-label">v2.6.0 private · learning core</span>
         </div>
       </aside>
 
       <div className="main-column">
         <header className="topbar">
           <div className="mobile-brand"><img src="/icons/app-icon.svg" alt="" /><strong>{t('appName')}</strong></div>
-          <div className="topbar-context"><span>{t(pageTitle)}</span><i /> <strong>{t('appTagline')}</strong><em className="learner-mode-chip">{t(`${learnerMode}Mode`)}</em></div>
+          <div className="topbar-context"><span>{t(pageTitle)}</span><i /> <strong>{t('appTagline')}</strong><em className="learner-mode-chip">{t(`${learnerMode}Mode`)}</em><em className="cefr-level-chip">{t('level')} {profile.cefr_band ?? profile.hebrew_level}</em></div>
           <div className="topbar-actions">
             <span className={`network-chip ${online ? '' : 'is-offline'}`}><Icon name={online ? 'cloud' : 'offline'} size={15} />{online ? t('online') : t('offline')}</span>
             <div className="locale-switch" aria-label={t('interfaceLanguage')}>
@@ -516,11 +516,12 @@ export default function App(): React.JSX.Element {
               onOpenAudio={() => goToLearn('audio')}
               onOpenProgress={() => setView('progress')}
               onOpenCoach={() => setView('coach')}
+              onRefresh={() => { void refreshCore(); }}
             />
           )}
           {view === 'learn' && <LearnPanel initialTab={learnTab} {...(practiceWord ? { practiceWord } : {})} cloudAvailable={dashboard.system.cloud_available} onWordClick={openDictionary} onRefresh={() => { void refreshCore(); }} />}
           {view === 'coach' && <AICoach cloudAvailable={dashboard.system.cloud_available} onWordClick={openDictionary} />}
-          {view === 'progress' && progress && <ProgressPanel progress={progress} gamification={gamification} />}
+          {view === 'progress' && progress && <ProgressPanel progress={progress} gamification={gamification} cefrBand={profile.cefr_band ?? profile.hebrew_level} />}
           {view === 'progress' && !progress && <section className="card skeleton-page"><div className="skeleton" /><div className="skeleton" /></section>}
           {view === 'connectors' && <ConnectorPanel onImported={() => { setToast(t('captured')); void refreshCore(); }} />}
           {view === 'settings' && (

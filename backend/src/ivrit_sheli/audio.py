@@ -385,9 +385,14 @@ class AudioService:
             **asdict(breakdown),
             "feedback": feedback,
             "method": "transcript_similarity",
+            "assessment_type": "transcript_recognition_match",
+            "display_label": "Recognition match",
+            "verified_speech_evidence": verified_speech_evidence,
+            "audio_retained": retained_path is not None,
             "limitations": (
-                "This score measures transcription similarity and word coverage; "
-                "it is not phoneme-level or clinical pronunciation assessment."
+                "Recognition match measures transcript similarity and word coverage; it does "
+                "not assess phonemes, accent, intelligibility, native-likeness, or clinical "
+                "speech quality."
             ),
         }
 

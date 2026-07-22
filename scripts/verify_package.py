@@ -48,6 +48,7 @@ REQUIRED_FILES = (
     "backend/src/ivrit_sheli/cloud_repository.py",
     "backend/src/ivrit_sheli/cloud_store.py",
     "backend/src/ivrit_sheli/audio.py",
+    "backend/src/ivrit_sheli/learning_core.py",
     "backend/src/ivrit_sheli/repository.py",
     "backend/src/ivrit_sheli/starter_lexicon_v2.py",
     "backend/src/ivrit_sheli/starter_lexicon_validation.py",
@@ -64,6 +65,8 @@ REQUIRED_FILES = (
     "frontend/src/components/RegistryPanel.tsx",
     "frontend/src/components/IvritSheliBrandLockup.tsx",
     "frontend/src/components/LivingHebrewAtlas.tsx",
+    "frontend/src/components/LearningCoreJourney.tsx",
+    "frontend/src/components/LearningSkillMap.tsx",
     "frontend/src/learnerMode.ts",
     "frontend/src/achievement-progress.css",
     "frontend/src/learner-mode.css",
@@ -79,6 +82,9 @@ REQUIRED_FILES = (
     "docs/AUDIO.md",
     "docs/GAMIFICATION.md",
     "docs/PERSONALIZATION.md",
+    "docs/LEARNING_SCIENCE.md",
+    "docs/LEARNING_CORE_V2_6.md",
+    "docs/HEBREW_CONTENT_PROVENANCE.md",
     "docs/DESIGN_SYSTEM.md",
     "docs/CONNECTORS.md",
     "docs/API.md",
@@ -206,7 +212,7 @@ def verify_portfolio_manifest() -> list[str]:
         "schema": "ivrit-sheli-portfolio-project-v2",
         "slug": "ivrit-sheli",
         "name": "Ivrit Sheli — העברית שלי",
-        "source_version": "2.5.0",
+        "source_version": "2.6.0",
         "live_version": "2.4.0",
         "status": "private-pilot-development",
         "default_branch": "main",
@@ -325,11 +331,11 @@ def verify_portfolio_manifest() -> list[str]:
         "latest_github_release": "v2.4.0",
         "source_version_tagged": False,
         "source_version_github_release_published": False,
-        "release_state": "2.5.0-private-local-2.4.0-live-and-published",
+        "release_state": "2.6.0-private-local-2.4.0-live-and-published",
     }
     if publication is not None and publication != expected_publication:
         failures.append(
-            "portfolio/project.json: publication must keep 2.5.0 private and identify "
+            "portfolio/project.json: publication must keep 2.6.0 private and identify "
             "v2.4.0 as the live tagged GitHub Release"
         )
 
@@ -428,14 +434,15 @@ def verify_release_truth_drift() -> list[str]:
         "README.md": (
             "Open the verified Ivrit Sheli 2.4.0 Contest Edition",
             "03bf84b9268ff8be528c0fab3c670f9652ee23b0",
-            "Current private source checkout | `2.5.0`",
+            "Current private source checkout | `2.6.0`",
             "Current public deployed application | `2.4.0`",
             "151 unique backend tests + 62 frontend tests = 213 passed",
             "GitHub publication | [`v2.4.0`](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.4.0)",
         ),
         "TEST_REPORT.md": (
-            "Current private source candidate:** `2.5.0` / local / unpublished",
-            "Private-pilot consolidated verification:** Pending",
+            "Current private source candidate:** `2.6.0` / local / unpublished",
+            "Private-pilot consolidated verification:** Passed locally",
+            "Total unique automated tests | **277 passed**",
             "Current live release | `2.4.0` / production / PostgreSQL",
             "03bf84b9268ff8be528c0fab3c670f9652ee23b0",
             "Latest Git tag / GitHub Release | `v2.4.0` / `v2.4.0`",
@@ -443,14 +450,14 @@ def verify_release_truth_drift() -> list[str]:
             "213 unique passing automated tests",
         ),
         "CHANGELOG.md": (
-            "2.5.0 — Private Pilot — Unreleased",
+            "2.6.0 — Learning Core — Unreleased",
             "Version metadata advances from the unreleased `2.3.0` candidate to `2.4.0`",
             "48-concept reviewed A0/A1 starter dictionary",
         ),
         "PACKAGE_MANIFEST.md": (
-            "Source version: `2.5.0`",
+            "Source version: `2.6.0`",
             "Current public live source version: `2.4.0`",
-            "Private-pilot publication state: `2.5.0` is local, untagged and unpublished",
+            "Private-pilot publication state: `2.6.0` is local, untagged and unpublished",
             "Latest published Git tag and GitHub Release: `v2.4.0`",
             "Total unique automated tests: 213 passed",
         ),
@@ -479,8 +486,8 @@ def verify_release_truth_drift() -> list[str]:
             "actively developed public pilot",
         ),
         "CITATION.cff": (
-            "version: 2.5.0",
-            "unpublished Ivrit Sheli 2.5.0 Private Pilot",
+            "version: 2.6.0",
+            "unpublished Ivrit Sheli 2.6.0 Learning Core private pilot",
             "verified public v2.4.0 release",
         ),
     }
@@ -499,7 +506,7 @@ def verify_release_truth_drift() -> list[str]:
 
 def verify_source_version_surfaces() -> list[str]:
     """Keep executable and human-facing release versions synchronized."""
-    expected_version = "2.5.0"
+    expected_version = "2.6.0"
     failures: list[str] = []
 
     try:
@@ -532,14 +539,14 @@ def verify_source_version_surfaces() -> list[str]:
             )
 
     expected_fragments = {
-        "backend/src/ivrit_sheli/__init__.py": '__version__ = "2.5.0"',
-        "frontend/index.html": "Ivrit Sheli 2.5",
-        "frontend/public/sw.js": "ivrit-sheli-shell-v2.5.0",
-        "frontend/src/App.tsx": "v2.5.0 private",
-        "frontend/src/components/AuthGate.tsx": "v2.5.0 private",
-        "frontend/src/components/SettingsPanel.tsx": "app_version: '2.5.0'",
-        ".github/ISSUE_TEMPLATE/bug_report.yml": "placeholder: 2.5.0-private",
-        "CITATION.cff": "version: 2.5.0",
+        "backend/src/ivrit_sheli/__init__.py": '__version__ = "2.6.0"',
+        "frontend/index.html": "Ivrit Sheli 2.6",
+        "frontend/public/sw.js": "ivrit-sheli-shell-v2.6.0",
+        "frontend/src/App.tsx": "v2.6.0 private",
+        "frontend/src/components/AuthGate.tsx": "v2.6.0 private",
+        "frontend/src/components/SettingsPanel.tsx": "app_version: '2.6.0'",
+        ".github/ISSUE_TEMPLATE/bug_report.yml": "placeholder: 2.6.0-private",
+        "CITATION.cff": "version: 2.6.0",
     }
     for relative, fragment in expected_fragments.items():
         try:

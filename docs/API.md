@@ -79,7 +79,19 @@ In cloud mode every operation resolves the authenticated tenant before accessing
 
 Generic `POST /items` accepts learner-facing provenance labels such as `manual` and `quick_capture`, but rejects the server-owned `dictionary:`, `connector:`, `system:`, `seed:` and `starter_pack` namespaces. Trusted source identity is assigned only by the dedicated server workflow.
 
-The profile contract also persists `onboarding_step` (0–4), `onboarding_completed`, and `guided_mode`. The registry returns persisted learner items with transparent `active`, `mastered`, or `needs_review` status; due/upcoming state; review count; learned and latest-activity dates; and recognition, production, listening, and speaking mastery. Search, filters, and sorting run inside the resolved tenant only.
+The profile contract also persists onboarding state, learner experience, curriculum-track preference and a self-selected pragmatic CEFR-aligned planning band. Experience mode (`guided`, `explorer`, or `experienced`) changes interface guidance without silently changing that band. The v2.6 curriculum contract explicitly identifies its selection policy as a shared due queue; track and band do not filter activities until reviewed item metadata is available. The registry returns persisted learner items with transparent `active`, `mastered`, or `needs_review` status; due/upcoming state; review count; learned and latest-activity dates; and modality-specific mastery. Search, filters, and sorting run inside the resolved tenant only.
+
+## Learning Core 2.6
+
+| Method | Route | Purpose |
+|---|---|---|
+| `GET` | `/api/v1/learning-core` | Versioned curriculum, learner state, skill map and delayed-retention checkpoints. |
+| `GET` | `/api/v1/learning-core/next` | Next server-derived phase and explainable activity. |
+| `POST` | `/api/v1/learning-core/attempt` | Submit bounded learner evidence; the server derives phase, skill, schedule and support transition. |
+
+The attempt payload accepts `item_id`, the current server-issued `activity_token`, a client-generated `idempotency_key`, learner-reported correctness and confidence, response time, hint count and optional answer text. It does not accept a client-selected phase, skill, mastery value, interval or XP award. The activity token is a concurrency checksum, not an authentication credential; normal session and CSRF controls still authorize the write. An exact retry with the same idempotency key returns the stored response with `duplicate: true` and does not advance again. Reusing a key with different content, or submitting a stale activity token under a new key, returns `409 learning_core_conflict` before any evidence is written.
+
+Core correctness, mastery signals and retention checkpoints identify their source as `learner_self_report`; v2.6 does not present them as objective scoring. Exposure, reference-feedback acknowledgement, answer reveals and reflection cannot increase mastery. Retention is reported only inside explicit target windows: 18–54 hours for the `24h` checkpoint, 120–240 hours for `7d`, and 504–1080 hours for `30d`; out-of-window attempts are not relabeled. The shared read-only demonstration may inspect the two GET routes but cannot submit an attempt.
 
 ## Dictionary
 
@@ -127,6 +139,8 @@ Offline deterministic results require no external service. Online processing req
 Uploads are bounded by the request envelope, decoded file size and filename-extension allowlist. MIME and magic-byte validation remain an explicit limitation in 2.4. App-managed audio and transcripts are excluded from structured request logs.
 
 `POST /audio/tts` accepts `voice_style: "masculine" | "feminine"`; clients cannot inject arbitrary provider voice IDs. `POST /audio/word-analysis` accepts exactly one Hebrew transcript plus client-reported `browser`, `openai`, or `manual` provenance. The server does not present the client report as independently verified. Its local path is a non-mutating dictionary analysis and is available to the read-only demo. Cloud enrichment still requires an authenticated non-demo identity, production allowlisting, stored learner consent, and an explicit `cloud_requested: true` action. Word analysis never updates XP or mastery.
+
+The historical `pronunciation-score` route name remains for v2.6 compatibility. Its response declares `assessment_type: "transcript_recognition_match"`; the value compares the expected text with a recognized transcript and is not a phoneme, accent, intelligibility, native-likeness or clinical assessment.
 
 ## Gamification and missions
 
