@@ -17,6 +17,10 @@ EXPECTED_STARTER_CATEGORY_COUNTS: dict[str, int] = {
     "shopping": 12,
     "health": 12,
     "places": 12,
+    "numbers": 12,
+    "time": 12,
+    "weather": 12,
+    "nature": 12,
 }
 EXPECTED_STARTER_ENTRY_COUNT = sum(EXPECTED_STARTER_CATEGORY_COUNTS.values())
 HEBREW_START = "\u0590"

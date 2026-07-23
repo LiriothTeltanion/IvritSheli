@@ -108,16 +108,12 @@ export function LearningSkillMap({
             const windowHours = checkpoint?.window_hours ?? pilotWindows[name];
             return (
               <article key={name} className={observed ? 'is-observed' : 'is-insufficient'}>
-                <strong>{copy.retentionAround(name)}</strong>
+                <strong>{copy.retentionAround(copy.checkpointLabels[name])}</strong>
                 <span>{observed ? `${Math.round(checkpoint.accuracy! * 100)}%` : '—'}</span>
                 <small>{checkpoint
                   ? observed
                     ? copy.evidenceCount(checkpoint.attempts)
-                    : locale === 'es'
-                      ? `Evidencia insuficiente · ${copy.evidenceCount(checkpoint.attempts)}`
-                      : locale === 'he'
-                        ? `אין מספיק ראיות · ${copy.evidenceCount(checkpoint.attempts)}`
-                        : `Insufficient evidence · ${copy.evidenceCount(checkpoint.attempts)}`
+                    : `${copy.insufficientEvidence} · ${copy.evidenceCount(checkpoint.attempts)}`
                   : copy.collectingEvidence}</small>
                 <small>{copy.retentionWindow(windowHours.minimum, windowHours.maximum)}</small>
               </article>

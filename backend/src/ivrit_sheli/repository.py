@@ -54,7 +54,10 @@ from ivrit_sheli.recommendation import RecommendationCandidate, rank_candidates
 from ivrit_sheli.scheduler import ReviewState, review_urgency, schedule_review
 
 PRONUNCIATION_MASTERY_THRESHOLD = 70
-LEARNING_CORE_IDEMPOTENCY_RETENTION = 25
+# One full lesson loop is 7 attempts, so a single active session can easily
+# exceed a small cap; 200 keeps replay/conflict protection durable across a
+# long session while remaining a bounded table.
+LEARNING_CORE_IDEMPOTENCY_RETENTION = 200
 REGISTRY_STATUSES = {"all", "active", "mastered", "needs_review"}
 REGISTRY_DUE_FILTERS = {"all", "due", "upcoming"}
 REGISTRY_SORTS = {
@@ -819,7 +822,7 @@ class LearningRepository:
                     "Fetch /api/v1/learning-core/next and retry with a new idempotency key."
                 )
             if current["wait_until"] is not None:
-                raise ValueError(
+                raise LearningCoreConflictError(
                     "The delayed review is not due yet; use wait_until from learning-core state"
                 )
             current_activity = self._learning_core_activity(state_payload, item)

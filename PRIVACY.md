@@ -17,7 +17,7 @@ When a 2.4 hosted account is available and you sign in, Ivrit Sheli keeps a limi
 
 The service does not store your provider password, OAuth access token, Google email address, or GitHub email address.
 
-The service also keeps the learning information needed to provide your account: onboarding choices, language and display settings, saved words, examples and notes you add, review history, progress, achievements, and consent choices. Operational logs contain request and deployment information and a privacy-safe user correlation value; request bodies, cookies, OAuth codes, recordings, and learner exports are excluded.
+The service also keeps the learning information needed to provide your account: onboarding choices, language and display settings, saved words, examples and notes you add, review history, progress, achievements, and consent choices. Learning Core lesson attempts are part of that review history and are learner self-reports: the answer text you choose to type, whether you marked the attempt correct, a confidence rating, hint use, and response timing. Operational logs contain request and deployment information and a privacy-safe user correlation value; request bodies, answer text, cookies, OAuth codes, recordings, and learner exports are excluded.
 
 ## Microphone and optional cloud features
 

@@ -50,7 +50,9 @@ describe('LearningSkillMap', () => {
     expect(screen.getByText('Insufficient evidence · 2 learner-reported attempts')).toBeInTheDocument();
     expect(screen.getByText('Insufficient evidence · 0 learner-reported attempts')).toBeInTheDocument();
     expect(screen.getByText(/never derived from XP/i)).toBeInTheDocument();
-    expect(screen.getByText('Around 24h')).toBeInTheDocument();
+    expect(screen.getByText('Around 24 hours')).toBeInTheDocument();
+    expect(screen.getByText('Around 7 days')).toBeInTheDocument();
+    expect(screen.getByText('Around 30 days')).toBeInTheDocument();
     expect(screen.getByText('Target window: 18–54 hours')).toBeInTheDocument();
   });
 });

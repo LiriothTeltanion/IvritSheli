@@ -292,6 +292,76 @@ describe('LearningCoreJourney', () => {
     expect(await screen.findByText('Retrieve → Reference feedback')).toBeInTheDocument();
   });
 
+  it('dismisses the previous attempt outcome once the learner starts the next activity', async () => {
+    const retrievalActivity: LearningCoreActivity = { ...activity, phase: 'retrieval', skill_dimension: 'production' };
+    vi.spyOn(api, 'learningCore').mockResolvedValue({ ...overview, state: { ...state, phase: 'retrieval' } });
+    vi.spyOn(api, 'nextLearningCoreActivity').mockResolvedValue({
+      ...next,
+      activity: retrievalActivity,
+      state: { ...state, phase: 'retrieval' },
+    });
+    vi.spyOn(api, 'submitLearningCoreAttempt').mockResolvedValue({
+      contract_version: '2.6',
+      accepted: true,
+      duplicate: false,
+      attempt: { id: 102, item_id: 7, phase: 'retrieval', skill_dimension: 'production', is_correct: true, reading_support: 'full_niqqud', evidence_kind: 'unassisted', evidence_source: 'learner_self_report' },
+      transition: { from_phase: 'retrieval', to_phase: 'focused_feedback', reason: 'Successful retrieval.' },
+      mastery: null,
+      reading_support_state: { level: 'full_niqqud', success_streak: 1, total_successes: 1, total_failures: 0, evidence_to_advance: 1, advanced: false, restored: false, reason: 'More evidence is needed.' },
+      schedule: { interval_days: 3, ease_factor: 2.5, repetitions: 2, lapses: 0, due_at: '2026-07-25T12:00:00Z', quality: 4, reason: 'Successful retrieval increased the interval.' },
+      next_activity: { ...retrievalActivity, phase: 'corrected_retry', skill_dimension: 'production', activity_token: 'b'.repeat(64) },
+      state: { ...state, phase: 'corrected_retry', state_version: state.state_version + 1 },
+    });
+    const user = userEvent.setup();
+    renderJourney('guided');
+
+    await user.click(await screen.findByRole('button', { name: 'I remembered — submit recall' }));
+
+    expect(await screen.findByText('Attempt saved to your private learning record.')).toBeInTheDocument();
+    expect(screen.getByText('Retrieve → Reference feedback')).toBeInTheDocument();
+
+    await user.type(screen.getByPlaceholderText('Write the corrected Hebrew…'), 'שלום');
+
+    expect(screen.queryByText('Attempt saved to your private learning record.')).not.toBeInTheDocument();
+    expect(screen.queryByText('Retrieve → Reference feedback')).not.toBeInTheDocument();
+  });
+
+  it('never shows a transition explanation from one item against a different next item', async () => {
+    const retrievalActivity: LearningCoreActivity = { ...activity, phase: 'retrieval', skill_dimension: 'production' };
+    vi.spyOn(api, 'learningCore').mockResolvedValue({ ...overview, state: { ...state, phase: 'retrieval' } });
+    vi.spyOn(api, 'nextLearningCoreActivity').mockResolvedValue({
+      ...next,
+      activity: retrievalActivity,
+      state: { ...state, phase: 'retrieval' },
+    });
+    vi.spyOn(api, 'submitLearningCoreAttempt').mockResolvedValue({
+      contract_version: '2.6',
+      accepted: true,
+      duplicate: false,
+      attempt: { id: 103, item_id: 7, phase: 'retrieval', skill_dimension: 'production', is_correct: true, reading_support: 'full_niqqud', evidence_kind: 'unassisted', evidence_source: 'learner_self_report' },
+      transition: { from_phase: 'retrieval', to_phase: 'delayed_review', reason: 'Review scheduled.' },
+      mastery: null,
+      reading_support_state: { level: 'full_niqqud', success_streak: 1, total_successes: 1, total_failures: 0, evidence_to_advance: 1, advanced: false, restored: false, reason: 'More evidence is needed.' },
+      schedule: { interval_days: 3, ease_factor: 2.5, repetitions: 2, lapses: 0, due_at: '2026-07-25T12:00:00Z', quality: 4, reason: 'Review scheduled.' },
+      next_activity: {
+        ...retrievalActivity,
+        item: { ...retrievalActivity.item, id: 8, hebrew_text: 'שיעור', translation_en: 'lesson' },
+        phase: 'encounter',
+        skill_dimension: 'listening',
+        activity_token: 'c'.repeat(64),
+      },
+      state: { ...state, phase: 'encounter', current_item_id: 8, state_version: state.state_version + 1 },
+    });
+    const user = userEvent.setup();
+    renderJourney('guided');
+
+    await user.click(await screen.findByRole('button', { name: 'I remembered — submit recall' }));
+
+    expect(await screen.findByText('Attempt saved to your private learning record.')).toBeInTheDocument();
+    expect(screen.queryByText('Retrieve → Delayed review')).not.toBeInTheDocument();
+    expect(document.querySelector('.learning-transition')).toBeNull();
+  });
+
   it('shows Hebrew structure immediately only in Experienced mode', async () => {
     vi.spyOn(api, 'learningCore').mockResolvedValue({ ...overview, profile: { ...overview.profile, learner_mode: 'experienced' } });
     vi.spyOn(api, 'nextLearningCoreActivity').mockResolvedValue(next);

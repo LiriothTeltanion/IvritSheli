@@ -158,6 +158,12 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .muted-copy { color: var(--text-muted); line-height: 1.7; }
 .text-button { border: 0; background: transparent; padding: 0; display: inline-flex; align-items: center; gap: 4px; color: var(--teal); font-weight: 750; cursor: pointer; }
 
+/* Touch devices get comfortable targets without changing the pointer layout. */
+@media (pointer: coarse) {
+  .icon-button, .capture-button { min-width: 44px; min-height: 44px; }
+  .text-button { min-height: 44px; padding-block: 10px; }
+}
+
 .primary-button, .secondary-button { min-height: 42px; border-radius: 12px; padding: 10px 15px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 780; cursor: pointer; transition: transform .2s var(--ease), box-shadow .2s, border-color .2s, background .2s; }
 .primary-button { border: 0; color: #04231e; background: linear-gradient(135deg, var(--teal-fill), var(--cyan-fill)); box-shadow: 0 9px 24px color-mix(in srgb, var(--teal) 18%, transparent); }
 .secondary-button { border: 1px solid var(--border); color: var(--text); background: var(--surface-soft); }

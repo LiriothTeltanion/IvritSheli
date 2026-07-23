@@ -362,14 +362,14 @@ XP rewards language outcomes, not screen tapping.
 
 Daily anti-grind limits reduce exploitative repetition. Streaks use grace rules and never punish Shabbat or a configured weekly rest period.
 
-Implemented achievements:
+Implemented achievements (all 15):
 
-- First Word — save the first learning item.
-- Seven-Day Flow — sustain a seven-day meaningful-practice streak.
-- Voice Builder — complete 25 speaking attempts.
-- Word Explorer — save 100 distinct active dictionary words.
-- Israel in Action — complete 10 real-life missions successfully.
-- Three-Language Mind — use all three interface languages.
+- First Word / Pocket Dictionary / Word Garden — capture 1, 10 and 50 learning items.
+- First Voice / Finding Your Voice / Voice Builder — complete 1, 10 and 25 speaking attempts.
+- Curious Reader / Meaning Maker / Word Explorer — save 1, 25 and 100 distinct dictionary words.
+- First Real Moment / Israel in Action — complete 1 and 10 real-life missions successfully.
+- Three-Day Rhythm / Seven-Day Flow — sustain 3- and 7-day meaningful-practice streaks.
+- Language Bridge / Three-Language Mind — use two, then all three, interface languages.
 
 ## Learning Core from the CLI
 

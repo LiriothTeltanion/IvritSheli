@@ -80,10 +80,12 @@ interface LearningCoreCopy {
   cefrDisclosure: string;
   evidenceCount: (count: number) => string;
   collectingEvidence: string;
+  insufficientEvidence: string;
   masteryEvidence: string;
   evidenceRecorded: string;
   retentionTitle: string;
   retentionDescription: string;
+  checkpointLabels: Record<'24h' | '7d' | '30d', string>;
   retentionAround: (checkpoint: string) => string;
   retentionWindow: (minimum: number, maximum: number) => string;
 }
@@ -188,10 +190,12 @@ const en: LearningCoreCopy = {
   cefrDisclosure: 'This is a learning guide, not an official CEFR certificate.',
   evidenceCount: (count) => count === 1 ? '1 learner-reported attempt' : `${count} learner-reported attempts`,
   collectingEvidence: 'No learner-reported evidence yet',
+  insufficientEvidence: 'Insufficient evidence',
   masteryEvidence: 'Learner-reported mastery signal',
   evidenceRecorded: 'Learning activity recorded',
   retentionTitle: 'Delayed retention',
   retentionDescription: 'Only learner-reported attempts inside each target delay window count; this is never derived from XP.',
+  checkpointLabels: { '24h': '24 hours', '7d': '7 days', '30d': '30 days' },
   retentionAround: (checkpoint) => `Around ${checkpoint}`,
   retentionWindow: (minimum, maximum) => `Target window: ${minimum}–${maximum} hours`,
 };
@@ -296,10 +300,12 @@ const es: LearningCoreCopy = {
   cefrDisclosure: 'Es una guía de aprendizaje, no un certificado CEFR oficial.',
   evidenceCount: (count) => count === 1 ? '1 intento autorreportado' : `${count} intentos autorreportados`,
   collectingEvidence: 'Todavía no hay evidencia autorreportada',
+  insufficientEvidence: 'Evidencia insuficiente',
   masteryEvidence: 'Señal de dominio autorreportada',
   evidenceRecorded: 'Actividad de aprendizaje registrada',
   retentionTitle: 'Retención diferida',
   retentionDescription: 'Solo cuentan intentos autorreportados dentro de la ventana objetivo; nunca se calcula desde XP.',
+  checkpointLabels: { '24h': '24 horas', '7d': '7 días', '30d': '30 días' },
   retentionAround: (checkpoint) => `Alrededor de ${checkpoint}`,
   retentionWindow: (minimum, maximum) => `Ventana objetivo: ${minimum}–${maximum} horas`,
 };
@@ -404,10 +410,12 @@ const he: LearningCoreCopy = {
   cefrDisclosure: 'זוהי מפת למידה ולא תעודת CEFR רשמית.',
   evidenceCount: (count) => count === 1 ? 'ניסיון אחד בדיווח עצמי' : `${count} ניסיונות בדיווח עצמי`,
   collectingEvidence: 'עדיין אין ראיות בדיווח עצמי',
+  insufficientEvidence: 'אין מספיק ראיות',
   masteryEvidence: 'מדד שליטה בדיווח עצמי',
   evidenceRecorded: 'פעילות הלמידה נרשמה',
   retentionTitle: 'שימור לאחר השהיה',
   retentionDescription: 'נספרים רק ניסיונות בדיווח עצמי בתוך חלון הזמן המיועד; המדד לעולם אינו מחושב מנקודות.',
+  checkpointLabels: { '24h': '24 שעות', '7d': '7 ימים', '30d': '30 יום' },
   retentionAround: (checkpoint) => `בערך ${checkpoint}`,
   retentionWindow: (minimum, maximum) => `חלון יעד: ${minimum}–${maximum} שעות`,
 };

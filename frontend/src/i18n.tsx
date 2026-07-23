@@ -493,7 +493,7 @@ const messages = {
     connectors: 'Conexiones',
     settings: 'Ajustes',
     hello: 'Shalom',
-    startSession: 'Iniciar sesión enfocada',
+    startSession: 'Empezar práctica enfocada',
     capturePhrase: 'Capturar frase',
     dueReviews: 'Repasos pendientes',
     speakingDrills: 'Prácticas orales',
@@ -1449,6 +1449,10 @@ const codeLabels: Record<Locale, Record<string, string>> = {
     binyan: 'Binyan', tense: 'Tense', person: 'Person', gender: 'Gender', number: 'Number', feedback: 'Feedback',
     missing_words: 'Missing words', extra_words: 'Extra words', normalized_target: 'Normalized target',
     normalized_transcript: 'Normalized transcript', similarity: 'Similarity', reply: 'Reply', prompt: 'Prompt',
+    phrase: 'Phrase', particle: 'Particle',
+    greetings: 'Greetings', family: 'Family', home: 'Home', food: 'Food', transport: 'Transport',
+    shopping: 'Shopping', health: 'Health', places: 'Places', numbers: 'Numbers', time: 'Time',
+    weather: 'Weather', nature: 'Nature',
   },
   es: {
     recognition: 'Reconocimiento', production: 'Producción', listening: 'Comprensión auditiva', speaking: 'Expresión oral',
@@ -1469,6 +1473,10 @@ const codeLabels: Record<Locale, Record<string, string>> = {
     binyan: 'Binyan', tense: 'Tiempo', person: 'Persona', gender: 'Género', number: 'Número', feedback: 'Comentarios',
     missing_words: 'Palabras faltantes', extra_words: 'Palabras adicionales', normalized_target: 'Objetivo normalizado',
     normalized_transcript: 'Transcripción normalizada', similarity: 'Similitud', reply: 'Respuesta', prompt: 'Indicación',
+    phrase: 'Frase', particle: 'Partícula',
+    greetings: 'Saludos', family: 'Familia', home: 'Hogar', food: 'Comida', transport: 'Transporte',
+    shopping: 'Compras', health: 'Salud', places: 'Lugares', numbers: 'Números', time: 'Tiempo',
+    weather: 'Clima', nature: 'Naturaleza',
   },
   he: {
     recognition: 'זיהוי', production: 'הפקה', listening: 'הבנת הנשמע', speaking: 'דיבור',
@@ -1489,6 +1497,10 @@ const codeLabels: Record<Locale, Record<string, string>> = {
     binyan: 'בניין', tense: 'זמן', person: 'גוף', gender: 'מין דקדוקי', number: 'מספר', feedback: 'משוב',
     missing_words: 'מילים חסרות', extra_words: 'מילים נוספות', normalized_target: 'ביטוי יעד מנורמל',
     normalized_transcript: 'תמלול מנורמל', similarity: 'דמיון', reply: 'תשובה', prompt: 'הנחיה',
+    phrase: 'ביטוי', particle: 'מילית',
+    greetings: 'ברכות', family: 'משפחה', home: 'בית', food: 'אוכל', transport: 'תחבורה',
+    shopping: 'קניות', health: 'בריאות', places: 'מקומות', numbers: 'מספרים', time: 'זמן',
+    weather: 'מזג אוויר', nature: 'טבע',
   },
 };
 

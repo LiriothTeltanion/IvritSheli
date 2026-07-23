@@ -182,6 +182,12 @@ export const api = {
     );
     return response.results;
   },
+  dictionaryBrowse: async (category: string): Promise<DictionaryEntry[]> => {
+    const response = await request<{ results: DictionaryEntry[] }>(
+      `/dictionary/browse?category=${encodeURIComponent(category)}`,
+    );
+    return response.results;
+  },
   learnDictionaryEntry: (entryId: number): Promise<LearningItem> =>
     request(`/dictionary/${entryId}/learn`, { method: 'POST' }),
   ai: <T>(

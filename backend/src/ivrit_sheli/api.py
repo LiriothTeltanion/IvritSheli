@@ -1258,6 +1258,19 @@ def register_routes(app: FastAPI) -> None:
         )
         return {"query": q, "results": results}
 
+    @app.get(f"{API_PREFIX}/dictionary/browse")
+    def dictionary_browse(
+        request: Request,
+        category: str = Query(min_length=1, max_length=64),
+        limit: int = Query(default=24, ge=1, le=100),
+    ) -> dict[str, Any]:
+        repository = repository_for(request)
+        results = _with_dictionary_learning_state(
+            repository,
+            services(request).dictionary.browse(category, limit),
+        )
+        return {"category": category, "results": results}
+
     @app.get(f"{API_PREFIX}/dictionary/lookup")
     def dictionary_lookup(
         request: Request,

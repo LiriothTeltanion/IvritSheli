@@ -8,6 +8,7 @@ Notes: Minimal deps; comments in ENGLISH; emojis sparingly.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import sys
@@ -661,6 +662,50 @@ def verify_secret_hygiene() -> list[str]:
     return failures
 
 
+def verify_checksum_manifest() -> list[str]:
+    """Validate SHA256SUMS.txt against the files it lists.
+
+    Every listed file must exist and hash to its recorded digest, and every
+    required package file must be listed, so the manifest cannot drift silently
+    behind source changes the way it did between 2.4.0 and 2.6.
+
+    Returns:
+        Human-readable drift failures.
+
+    Example:
+        >>> isinstance(verify_checksum_manifest(), list)
+        True
+    """
+    manifest = ROOT / "SHA256SUMS.txt"
+    if not manifest.is_file():
+        return ["SHA256SUMS.txt: missing; run scripts/generate_checksums.py"]
+    failures: list[str] = []
+    listed: set[str] = set()
+    for line_number, line in enumerate(
+        manifest.read_text(encoding="utf-8").splitlines(), start=1
+    ):
+        if not line.strip():
+            continue
+        try:
+            digest, relative = line.split("  ", 1)
+        except ValueError:
+            failures.append(f"SHA256SUMS.txt:{line_number}: malformed line")
+            continue
+        listed.add(relative)
+        path = ROOT / relative
+        if not path.is_file():
+            failures.append(f"SHA256SUMS.txt: listed file is missing: {relative}")
+            continue
+        if hashlib.sha256(path.read_bytes()).hexdigest() != digest:
+            failures.append(
+                f"SHA256SUMS.txt: stale digest for {relative}; run scripts/generate_checksums.py"
+            )
+    for relative in REQUIRED_FILES:
+        if relative not in listed:
+            failures.append(f"SHA256SUMS.txt: required file not listed: {relative}")
+    return failures
+
+
 def verify_documentation_links() -> list[str]:
     """Check local Markdown links in the root README.
 
@@ -708,6 +753,7 @@ def main() -> int:
         "invalid_railway_config": verify_railway_config(),
         "invalid_docker_cache_mounts": verify_docker_cache_mounts(),
         "possible_secrets": verify_secret_hygiene(),
+        "checksum_manifest_drift": verify_checksum_manifest(),
         "broken_readme_links": verify_documentation_links(),
     }
     failures = {name: items for name, items in checks.items() if items}

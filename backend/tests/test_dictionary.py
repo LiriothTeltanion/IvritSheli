@@ -27,7 +27,7 @@ from ivrit_sheli.starter_lexicon_validation import (
 
 
 def test_demo_dictionary_is_trilingual_and_clickable(dictionary_store: DictionaryStore) -> None:
-    assert dictionary_store.seed_demo() == 96
+    assert dictionary_store.seed_demo() == 144
     results = dictionary_store.lookup("שָׁלוֹם")
     assert results[0]["word"] == "שלום"
     assert results[0]["senses"][0]["gloss_en"] == "hello"
@@ -74,11 +74,11 @@ def test_starter_vocabulary_contract_has_96_reviewed_exact_senses(
     expected_categories = Counter(EXPECTED_STARTER_CATEGORY_COUNTS)
     assert len(DEMO_ENTRIES) == EXPECTED_STARTER_ENTRY_COUNT
     assert Counter(str(entry["category"]) for entry in DEMO_ENTRIES) == expected_categories
-    assert len({str(entry["visual_key"]) for entry in DEMO_ENTRIES}) == 96
+    assert len({str(entry["visual_key"]) for entry in DEMO_ENTRIES}) == 144
     validate_starter_vocabulary(DEMO_ENTRIES)
-    assert dictionary_store.seed_demo() == 96
+    assert dictionary_store.seed_demo() == 144
     assert dictionary_store.seed_demo() == 0
-    assert dictionary_store.stats()["entries"] == 96
+    assert dictionary_store.stats()["entries"] == 144
 
     for source_entry in DEMO_ENTRIES:
         card = dictionary_store.lookup(str(source_entry["word"]))[0]
@@ -123,7 +123,7 @@ def test_v24_starter_database_expands_without_renumbering_existing_entries(
     }
     assert len(original_ids) == 48
 
-    assert dictionary_store.seed_demo() == 48
+    assert dictionary_store.seed_demo() == 96
     assert dictionary_store.seed_demo() == 0
     expanded_ids = {
         str(row["source_key"]): int(row["id"])
@@ -131,7 +131,7 @@ def test_v24_starter_database_expands_without_renumbering_existing_entries(
             "SELECT id, source_key FROM dictionary_entries ORDER BY id"
         ).fetchall()
     }
-    assert len(expanded_ids) == 96
+    assert len(expanded_ids) == 144
     assert all(expanded_ids[source_key] == entry_id for source_key, entry_id in original_ids.items())
 
 
@@ -213,8 +213,8 @@ def test_streamed_jsonl_import_preserves_forms_examples_and_audio(
     assert entry["examples"][0]["translation_es"] is None
     assert entry["visual"] is None
     assert entry["senses"][0]["visual"] is None
-    assert dictionary_store.stats()["entries"] == 97
-    assert dictionary_store.stats()["metadata"]["starter_entries"] == "96"
+    assert dictionary_store.stats()["entries"] == 145
+    assert dictionary_store.stats()["metadata"]["starter_entries"] == "144"
 
 
 def test_kaikki_dictionary_keeps_the_starter_pack_and_ranks_curated_exact_match_first(
@@ -245,10 +245,10 @@ def test_kaikki_dictionary_keeps_the_starter_pack_and_ranks_curated_exact_match_
     metadata = dictionary_store.stats()["metadata"]
     assert metadata["dataset"] == "Kaikki/Wiktionary Hebrew + starter_visual_vocabulary_v2"
     assert "MIT starter data" in metadata["license"]
-    assert dictionary_store.stats()["entries"] == 97
+    assert dictionary_store.stats()["entries"] == 145
 
     dictionary_store.initialize()
-    assert dictionary_store.stats()["entries"] == 97
+    assert dictionary_store.stats()["entries"] == 145
 
 
 def test_import_skips_non_hebrew_records(dictionary_store: DictionaryStore, tmp_path: Path) -> None:
@@ -322,6 +322,6 @@ def test_schema_v1_starter_database_upgrades_without_changing_existing_entry_id(
     assert upgraded["visual"]["key"] == "greetings.hello"
     assert upgraded["examples"][0]["translation_es"] == "Hola, soy Miriam."
     assert store.stats()["metadata"]["schema_version"] == str(DICTIONARY_SCHEMA_VERSION)
-    assert store.stats()["metadata"]["starter_entries"] == "96"
-    assert store.stats()["entries"] == 96
+    assert store.stats()["metadata"]["starter_entries"] == "144"
+    assert store.stats()["entries"] == 144
     store.close()

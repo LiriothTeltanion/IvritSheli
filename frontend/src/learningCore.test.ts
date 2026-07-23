@@ -52,4 +52,21 @@ describe('local learning-core preview', () => {
     expect(fallback.next.activity?.item.id).toBe(0);
     expect(fallback.next.activity?.skill_dimension).toBe('recognition');
   });
+
+  it('never promises fading support when the preview already reads unpointed Hebrew', () => {
+    const unpointed = {
+      profile: { hebrew_level: 'B1', niqqud_mode: 'hidden' },
+      recommendations: [],
+      mission: { hebrew: 'שלום', translation_en: 'Hello', translation_es: 'Hola' },
+    } as unknown as Dashboard;
+    const pointed = {
+      profile: { hebrew_level: 'A1', niqqud_mode: 'always' },
+      recommendations: [],
+      mission: { hebrew: 'שלום', translation_en: 'Hello', translation_es: 'Hola' },
+    } as unknown as Dashboard;
+
+    expect(buildLocalLearningCore(unpointed, 'guided').overview.state.reading_support).toBe('unpointed');
+    expect(buildLocalLearningCore(unpointed, 'guided').overview.state.reading_evidence.evidence_to_advance).toBe(0);
+    expect(buildLocalLearningCore(pointed, 'guided').overview.state.reading_evidence.evidence_to_advance).toBe(2);
+  });
 });

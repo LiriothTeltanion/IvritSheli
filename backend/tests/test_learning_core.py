@@ -21,6 +21,7 @@ from ivrit_sheli.learning_core import (
     skill_for_activity,
     transition_phase,
 )
+import ivrit_sheli.repository as repository_module
 from ivrit_sheli.repository import LearningRepository
 
 _ATTEMPT_SEQUENCE = count(1)
@@ -501,7 +502,11 @@ def test_api_attempt_is_idempotent_and_rejects_stale_or_reused_tokens(
 
 def test_learning_activity_and_bounded_replay_cache_exclude_private_item_fields(
     repository: LearningRepository,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    # The production retention is 200 so one long session keeps its replay
+    # protection; shrink it here to prove the eviction bound without 200 writes.
+    monkeypatch.setattr(repository_module, "LEARNING_CORE_IDEMPOTENCY_RETENTION", 25)
     secret = "PRIVATE-CAPTURE-NOTE-DO-NOT-REPLAY"
     item = repository.create_item(
         {

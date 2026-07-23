@@ -4,7 +4,7 @@
 
 **Last evidence review:** 2026-07-22
 
-This document converts the 16-page IvritSheli learning-methods research brief into product decisions. The brief is useful synthesis, but it is not treated as an authority by itself. Claims below are anchored to primary publications, systematic reviews, or official capability documentation.
+This document converts the 16-page IvritSheli learning-methods research brief — archived at [research/ivrit-sheli-learning-research.pdf](research/ivrit-sheli-learning-research.pdf) — into product decisions. The brief is useful synthesis, but it is not treated as an authority by itself. Claims below are anchored to primary publications, systematic reviews, or official capability documentation.
 
 ## Evidence labels
 

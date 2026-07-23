@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "ivrit-sheli-ultimate"
 version = "2.6.0"
 description = "Private, adaptive, trilingual Hebrew-learning operating system"
-readme = {text = "Ivrit Sheli 2.4 Contest Edition backend: local-first SQLite plus Google/GitHub authenticated PostgreSQL cloud mode.", content-type = "text/markdown"}
+readme = {text = "Ivrit Sheli backend: local-first SQLite plus Google/GitHub authenticated PostgreSQL cloud mode.", content-type = "text/markdown"}
 requires-python = ">=3.10"
 license = {text = "MIT"}
 authors = [{name = "Kevin Lirioth Cusnir"}]

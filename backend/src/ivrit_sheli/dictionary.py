@@ -22,6 +22,7 @@ import requests
 from ivrit_sheli import __version__
 from ivrit_sheli.normalization import normalize_hebrew
 from ivrit_sheli.starter_lexicon_v2 import EXPANDED_STARTER_ENTRIES
+from ivrit_sheli.starter_lexicon_v3 import LEARNING_EXPANSION_ENTRIES
 from ivrit_sheli.starter_lexicon_validation import validate_starter_vocabulary
 
 LOGGER = logging.getLogger(__name__)
@@ -1133,8 +1134,10 @@ DEMO_ENTRIES: tuple[dict[str, Any], ...] = (
 )
 
 # Keep the original 48 source identities stable, then add the reviewed v2.5
-# layer. Existing databases are updated in place and receive only missing rows.
+# and v2.8 layers. Existing databases are updated in place and receive only
+# missing rows.
 DEMO_ENTRIES += EXPANDED_STARTER_ENTRIES
+DEMO_ENTRIES += LEARNING_EXPANSION_ENTRIES
 validate_starter_vocabulary(DEMO_ENTRIES)
 
 
@@ -1459,8 +1462,9 @@ class DictionaryStore:
                 (dataset_name,),
             )
             connection.execute(
-                "INSERT INTO dictionary_meta(key, value) VALUES('starter_entries', '96') "
-                "ON CONFLICT(key) DO UPDATE SET value = excluded.value"
+                "INSERT INTO dictionary_meta(key, value) VALUES('starter_entries', ?) "
+                "ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+                (str(len(DEMO_ENTRIES)),),
             )
             connection.execute(
                 "INSERT INTO dictionary_meta(key, value) VALUES('license', ?) "
@@ -1555,6 +1559,51 @@ class DictionaryStore:
                     like_root,
                     limit,
                 ),
+            ).fetchall()
+            return [self._entry_card(connection, int(row["id"])) for row in rows]
+        finally:
+            if should_close:
+                connection.close()
+
+    def browse(self, category: str, limit: int = 24) -> list[dict[str, Any]]:
+        """Return reviewed entry cards for one vocabulary category.
+
+        Args:
+            category: Reviewed starter category key, e.g. ``"weather"``.
+            limit: Maximum number of entry cards.
+
+        Returns:
+            Curated-first cards ordered by level then Hebrew word.
+
+        Raises:
+            ValueError: If category is empty or limit is invalid.
+
+        Example:
+            >>> store = DictionaryStore(Path(":memory:")); store.initialize(); store.seed_demo()
+            >>> store.browse("greetings")[0]["senses"][0]["category"]
+            'greetings'
+        """
+        normalized_category = category.strip().lower()
+        if not normalized_category:
+            raise ValueError("category is required")
+        if not 1 <= limit <= 100:
+            raise ValueError("limit must be between 1 and 100")
+        connection = self.connect()
+        should_close = str(self.path) != ":memory:"
+        try:
+            rows = connection.execute(
+                """
+                SELECT e.id,
+                    MAX(CASE WHEN s.visual_key IS NOT NULL THEN 1 ELSE 0 END) AS curated,
+                    MIN(COALESCE(s.level, 'Z9')) AS level
+                FROM dictionary_entries e
+                JOIN dictionary_senses s ON s.entry_id = e.id
+                WHERE lower(COALESCE(s.category, '')) = ?
+                GROUP BY e.id
+                ORDER BY curated DESC, level, e.word
+                LIMIT ?
+                """,
+                (normalized_category, limit),
             ).fetchall()
             return [self._entry_card(connection, int(row["id"])) for row in rows]
         finally:

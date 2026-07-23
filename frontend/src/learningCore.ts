@@ -168,7 +168,9 @@ export function buildLocalLearningCore(
       success_streak: 0,
       total_successes: 0,
       total_failures: 0,
-      evidence_to_advance: 2,
+      // Mirrors the server's reading_evidence_to_advance: the bottom rung has
+      // no further support to fade, so no evidence can advance it.
+      evidence_to_advance: readingSupport === 'unpointed' ? 0 : 2,
     },
     wait_until: null,
     state_version: 0,

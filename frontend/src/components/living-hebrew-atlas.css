@@ -82,6 +82,10 @@
   --atlas-cream: #fffaf0;
   --atlas-paper: #fffdf8;
   --atlas-border: rgba(23, 32, 51, 0.16);
+  /* Elements floating over the framed daylight illustration keep these fixed
+     values in both themes; only the card chrome variables above flip. */
+  --atlas-art-ink: #172033;
+  --atlas-art-gold: #d99b2b;
   position: relative;
   isolation: isolate;
   width: 100%;
@@ -341,7 +345,7 @@ button.ivrit-atlas__marker {
   border: 0;
   border-radius: 999px;
   background: transparent;
-  color: var(--atlas-ink);
+  color: var(--atlas-art-ink);
   cursor: pointer;
 }
 
@@ -367,8 +371,10 @@ button.ivrit-atlas__marker {
 
 .ivrit-atlas__marker > span {
   position: absolute;
-  inset-block-start: calc(100% + 0.15rem);
-  inset-inline-start: 50%;
+  top: calc(100% + 0.15rem);
+  /* Physical left + physical translateX keep the label centered in RTL too,
+     matching the physically anchored marker coordinates above. */
+  left: 50%;
   width: max-content;
   max-width: 8.5rem;
   padding: 0.33rem 0.48rem;
@@ -377,7 +383,7 @@ button.ivrit-atlas__marker {
   border-radius: 0.55rem;
   background: rgba(255, 253, 248, 0.98);
   box-shadow: 0 0.35rem 0.9rem rgba(23, 32, 51, 0.11);
-  color: var(--atlas-ink);
+  color: var(--atlas-art-ink);
   font-size: 0.7rem;
   font-weight: 850;
   line-height: 1.25;
@@ -405,14 +411,14 @@ button.ivrit-atlas__marker:focus-visible {
   border-radius: 0.85rem;
   background: rgba(255, 253, 248, 0.98);
   box-shadow: 0 0.6rem 1.4rem rgba(23, 32, 51, 0.12);
-  color: var(--atlas-ink);
+  color: var(--atlas-art-ink);
   font-size: 0.8rem;
   font-weight: 760;
   line-height: 1.4;
   text-align: start;
 }
 
-.ivrit-atlas__visual-note span { color: var(--atlas-gold); }
+.ivrit-atlas__visual-note span { color: var(--atlas-art-gold); }
 
 .ivrit-atlas-backdrop {
   position: absolute;
@@ -501,6 +507,54 @@ button.ivrit-atlas__marker:focus-visible {
   .ivrit-atlas__visual-note {
     inset: auto 0.7rem 0.7rem;
   }
+}
+
+/* The dark app theme is the default (:root); only [data-theme="light"] keeps
+   the warm editorial card. The framed daylight illustration and everything
+   floating on it (markers, labels, visual note) stay unchanged, like artwork
+   hung on a dark wall. */
+:root:not([data-theme="light"]) .ivrit-atlas {
+  --atlas-ink: #eef4fc;
+  --atlas-muted: #a9b8ca;
+  --atlas-teal: #5eead4;
+  --atlas-teal-soft: rgba(94, 234, 212, 0.13);
+  --atlas-gold: #f5cb73;
+  --atlas-border: rgba(164, 190, 224, 0.17);
+  background:
+    radial-gradient(circle at 9% 8%, rgba(245, 203, 115, 0.06), transparent 20rem),
+    linear-gradient(145deg, #10202f 0%, #0b1726 100%);
+  box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.42);
+}
+
+:root:not([data-theme="light"]) .ivrit-atlas::before {
+  background-image:
+    linear-gradient(rgba(94, 234, 212, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(94, 234, 212, 0.05) 1px, transparent 1px);
+}
+
+:root:not([data-theme="light"]) .ivrit-atlas__region-list li {
+  border-color: rgba(164, 190, 224, 0.14);
+  background: rgba(16, 32, 47, 0.92);
+  box-shadow: 0 0.4rem 1.1rem rgba(0, 0, 0, 0.25);
+}
+
+:root:not([data-theme="light"]) .ivrit-atlas__region-list li[data-state='active'] {
+  border-color: rgba(94, 234, 212, 0.5);
+  background: rgba(94, 234, 212, 0.09);
+  box-shadow: 0 0 0 3px rgba(94, 234, 212, 0.08);
+}
+
+:root:not([data-theme="light"]) .ivrit-atlas__region-index {
+  background: rgba(245, 203, 115, 0.16);
+  color: #f5cb73;
+}
+
+:root:not([data-theme="light"]) .ivrit-atlas__region-list li[data-state='complete'] .ivrit-atlas__region-index {
+  color: #06101c;
+}
+
+:root:not([data-theme="light"]) .ivrit-atlas__visual {
+  border-color: rgba(164, 190, 224, 0.22);
 }
 
 @media (prefers-contrast: more) {

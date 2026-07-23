@@ -85,8 +85,10 @@ export function LearningCoreJourney({
   const [feedback, setFeedback] = useState('');
   const startedAt = useRef(performance.now());
   const cachedAttempt = useRef<{ intent: string; payload: LearningCoreAttemptRequest } | null>(null);
+  const loadGeneration = useRef(0);
 
   const load = useCallback(async (): Promise<void> => {
+    const generation = ++loadGeneration.current;
     setLoading(true);
     setLoadError('');
     setResult(null);
@@ -108,23 +110,26 @@ export function LearningCoreJourney({
           throw new Error('The learning record changed on another device and a consistent snapshot is not available yet.');
         }
       }
+      if (generation !== loadGeneration.current) return;
       setOverview(loadedOverview);
       setNext(loadedNext);
       setSource('live');
     } catch (reason) {
+      if (generation !== loadGeneration.current) return;
       const local = fallbackRef.current;
       setOverview(local.overview);
       setNext(local.next);
       setSource('local');
       setLoadError(reason instanceof Error ? reason.message : String(reason));
     } finally {
-      setLoading(false);
+      if (generation === loadGeneration.current) setLoading(false);
     }
   }, []);
 
   useEffect(() => { void load(); }, [load]);
 
   useEffect(() => () => {
+    loadGeneration.current += 1;
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
   }, []);
 
@@ -136,7 +141,16 @@ export function LearningCoreJourney({
     setReflectionConfidence(0);
     cachedAttempt.current = null;
     startedAt.current = performance.now();
+    const itemId = activity?.item.id;
+    setResult((current) => (
+      current && itemId !== undefined && current.attempt.item_id !== itemId ? null : current
+    ));
   }, [activity?.activity_token]);
+
+  const dismissOutcome = (): void => {
+    setFeedback('');
+    setResult(null);
+  };
 
   const phases = overview?.curriculum.lesson_phases ?? fallback.overview.curriculum.lesson_phases;
   const currentPhase = activity?.phase ?? overview?.state.phase ?? 'encounter';
@@ -179,6 +193,7 @@ export function LearningCoreJourney({
       setFeedback(t('speechSynthesisUnavailable'));
       return;
     }
+    dismissOutcome();
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(activity.item.hebrew_with_niqqud || activity.item.hebrew_text);
     configureHebrewUtterance(utterance, window.speechSynthesis.getVoices());
@@ -357,7 +372,10 @@ export function LearningCoreJourney({
             )}
 
             {!productionRecall && activity.reading_support === 'hint_only' && activity.item.hebrew_with_niqqud && (
-              <button type="button" className="reading-hint-button" aria-pressed={hintRevealed} onClick={() => setHintRevealed((current) => !current)}>
+              <button type="button" className="reading-hint-button" aria-pressed={hintRevealed} onClick={() => {
+                dismissOutcome();
+                setHintRevealed((current) => !current);
+              }}>
                 <Icon name="language" size={17} /> {hintRevealed ? copy.hideReadingHint : copy.showReadingHint}
               </button>
             )}
@@ -367,7 +385,10 @@ export function LearningCoreJourney({
                 <span>{answerPrompt}</span>
                 <textarea
                   value={answer}
-                  onChange={(event) => setAnswer(event.target.value)}
+                  onChange={(event) => {
+                    dismissOutcome();
+                    setAnswer(event.target.value);
+                  }}
                   placeholder={answerPlaceholder}
                   rows={2}
                   dir={typedAnswerRequired ? 'rtl' : undefined}
@@ -394,7 +415,10 @@ export function LearningCoreJourney({
                         type="button"
                         aria-label={copy.reflectionConfidence(value)}
                         aria-pressed={reflectionConfidence === value}
-                        onClick={() => setReflectionConfidence(value)}
+                        onClick={() => {
+                          dismissOutcome();
+                          setReflectionConfidence(value);
+                        }}
                       >
                         {value}
                       </button>
@@ -419,6 +443,7 @@ export function LearningCoreJourney({
                   </button>
                   <button type="button" className="secondary-button" disabled={submitting} onClick={() => { void submitAttempt(false); }}>{copy.needsPractice}</button>
                   <button type="button" className="text-button learning-reveal-answer" disabled={submitting} onClick={() => {
+                    dismissOutcome();
                     setAnswerRevealed(true);
                     void submitAttempt(false, true);
                   }}>{copy.revealAnswer}</button>
