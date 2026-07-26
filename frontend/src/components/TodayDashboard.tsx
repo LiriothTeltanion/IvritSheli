@@ -8,8 +8,8 @@ import { useState } from 'react';
 import { useI18n } from '../i18n';
 import { resolveLearnerMode } from '../learnerMode';
 import { useSessionAccess } from '../session';
-import { localizedText, starterWords, starterWordVisual } from '../starterWords';
-import type { Dashboard } from '../types';
+import { starterWords, starterWordVisual } from '../starterWords';
+import type { Dashboard, VisualSpotlightEntry } from '../types';
 import { HebrewText } from './HebrewText';
 import { Icon, type IconName } from './Icon';
 import { LearningCoreJourney } from './LearningCoreJourney';
@@ -50,7 +50,44 @@ export function TodayDashboard({
   const [atlasRegion, setAtlasRegion] = useState<AtlasRegionId>('jerusalem');
   const learnerMode = resolveLearnerMode(dashboard.profile);
   const missionTranslation = locale === 'es' ? dashboard.mission.translation_es : dashboard.mission.translation_en;
-  const firstWord = starterWords[0]!;
+  const fallbackSpotlight: VisualSpotlightEntry[] = starterWords.map((word, index) => ({
+    entry_id: -(index + 1),
+    word: word.dictionaryWord,
+    display_niqqud: word.word,
+    romanization: word.transliteration,
+    translation_en: word.meaning.en,
+    translation_es: word.meaning.es,
+    translation_he: word.meaning.he,
+    visual: starterWordVisual(word),
+  })).concat({
+    entry_id: -6,
+    word: 'מים',
+    display_niqqud: 'מַיִם',
+    romanization: 'mayim',
+    translation_en: 'water',
+    translation_es: 'agua',
+    translation_he: 'מים לשתייה',
+    visual: {
+      key: 'food.water',
+      emoji: '💧',
+      alt: {
+        en: 'A clear glass filling with water from a kitchen tap',
+        es: 'Un vaso transparente que se llena con agua del grifo',
+        he: 'כוס שקופה מתמלאת במים מהברז',
+      },
+    },
+  });
+  const visualSpotlight = dashboard.visual_spotlight?.length
+    ? dashboard.visual_spotlight.slice(0, 6)
+    : fallbackSpotlight;
+  const firstWord = visualSpotlight[0]!;
+  const localizedSpotlightMeaning = (word: VisualSpotlightEntry): string => (
+    locale === 'he'
+      ? word.translation_he
+      : locale === 'es'
+        ? word.translation_es
+        : word.translation_en
+  );
   const firstName = dashboard.profile.display_name.split(' ')[0] || dashboard.profile.display_name;
   const focusReason = (() => {
     if (locale === 'en') return dashboard.focus.reason;
@@ -127,11 +164,11 @@ export function TodayDashboard({
           {!readOnly && learnerMode !== 'guided' && <button type="button" className="capture-link" onClick={onCapture}><Icon name="plus" size={17} /> {t('saveAWordYouNeed')}</button>}
         </div>
         <div className="hero-visual guided-word-visual">
-          <DictionaryVisualCue visual={starterWordVisual(firstWord)} locale={locale} size="hero" />
+          <DictionaryVisualCue visual={firstWord.visual} locale={locale} size="hero" />
           <div className="guided-word-visual__label">
-            <strong lang="he" dir="rtl">{firstWord.word}</strong>
-            <span dir="ltr">{firstWord.transliteration}</span>
-            <p>{localizedText(firstWord.meaning, locale)}</p>
+            <strong lang="he" dir="rtl">{firstWord.display_niqqud}</strong>
+            <span dir="ltr">{firstWord.romanization}</span>
+            <p>{localizedSpotlightMeaning(firstWord)}</p>
           </div>
         </div>
       </section>
@@ -200,11 +237,11 @@ export function TodayDashboard({
           <button type="button" className="text-button" onClick={onStart}>{t('practiceTheseWords')} <Icon name="chevron" size={16} /></button>
         </header>
         <div className="visual-vocabulary__grid">
-          {starterWords.map((word) => (
-            <button type="button" key={word.id} onClick={() => onWordClick(word.dictionaryWord)} aria-label={t('openDictionaryFor', { word: word.dictionaryWord })}>
-              <DictionaryVisualCue visual={starterWordVisual(word)} locale={locale} size="thumbnail" />
-              <strong lang="he" dir="rtl">{word.word}</strong>
-              <span>{localizedText(word.meaning, locale)}</span>
+          {visualSpotlight.map((word) => (
+            <button type="button" key={word.entry_id} onClick={() => onWordClick(word.word)} aria-label={t('openDictionaryFor', { word: word.word })}>
+              <DictionaryVisualCue visual={word.visual} locale={locale} size="thumbnail" />
+              <strong lang="he" dir="rtl">{word.display_niqqud}</strong>
+              <span>{localizedSpotlightMeaning(word)}</span>
             </button>
           ))}
         </div>

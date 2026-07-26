@@ -51,9 +51,9 @@ labels intentionally separate implementation evidence from release evidence:
   applicable test, accessibility and build gates after the final diff.
 
 The root verification pass is complete for the local code, accessibility,
-build, dependency and Docker/PostgreSQL boundaries. It executed 196 backend,
-205 Vitest and 21 Playwright cases with no failures. The final 2.8.2 staged
-package verifier and 281-entry canonical checksum manifest pass; the
+build, dependency and Docker/PostgreSQL readiness boundaries. It executed 201
+backend, 310 Vitest and 25 Playwright cases with no failures. The final 2.8.3
+staged package verifier and 294-entry canonical checksum manifest pass; the
 reproducible ZIP for historical 2.8.1 checkpoint `c9e2762` also passed clean
 extraction, package verification, Compose parsing and external SHA comparison.
 Publication still requires the two-real-Google-account check, the mother-pilot
@@ -61,12 +61,13 @@ acceptance retest and the OpenAI Build Week winner announcement.
 
 | Research decision now represented in code | Current implementation boundary | Code evidence | Release verification |
 |---|---|---|---|
-| Teach three words before account or configuration | `PreAccountLesson` presents the first three reviewed starter words one at a time, with meaning choices, retry, an example and optional browser speech. `AuthGate` keeps account, local-mode and demo choices behind completion or an explicit skip. The lesson is intentionally ephemeral: it does not claim saved progress, XP or a scored attempt. | `frontend/src/components/PreAccountLesson.tsx`; `frontend/src/components/AuthGate.tsx` | Verified locally in the 185-test Vitest suite |
+| Teach three words before account or configuration | `PreAccountLesson` presents the first three reviewed starter words one at a time, with meaning choices, retry, an example and optional browser speech. `AuthGate` keeps account, local-mode and demo choices behind completion or an explicit skip. The lesson is intentionally ephemeral: it does not claim saved progress, XP or a scored attempt. | `frontend/src/components/PreAccountLesson.tsx`; `frontend/src/components/AuthGate.tsx` | Verified locally in the 310-test Vitest suite |
 | Plain “Before you start” guide | Daily Practice now opens with a trilingual briefing that previews the session's unique concepts, lets the learner hear them, states the goal and provides one start action. Read-only demo status is disclosed before practice begins. | `frontend/src/components/DailyPracticeSession.tsx` | Verified locally in component and browser gates |
 | Progressive visual retrieval cue | Retrieval exercises with a supported `visual_id` initially hide the illustration and expose a labelled “Show visual hint” action. Revealing it increments `hints_used`; unsupported or personal concepts do not receive fabricated art. | `frontend/src/components/DailyPracticeSession.tsx`; `backend/src/ivrit_sheli/local_learning_engine.py` | Verified locally in backend and frontend suites |
 | Linguistically reviewed reading support | The display ladder uses authored `reading_hints` when available. The legacy state name `partial_niqqud` now means “reviewed cue or full reviewed niqqud,” never deletion by character position. Hint-only remains unpointed until reveal, then uses the reviewed cue or full form; entries without reviewed support remain honestly unpointed. | `frontend/src/learningCore.ts`; `frontend/src/components/LearningCoreJourney.tsx`; `backend/src/ivrit_sheli/learning_core.py` | Verified locally in backend and frontend suites |
 | Actionable high-value empty states | An exhausted review queue and an empty progress activity log offer Daily Practice. A filtered word collection offers Clear filters; a genuinely empty collection offers Dictionary. This is a targeted improvement, not yet a claim that every empty state in the product has been audited. | `frontend/src/components/ReviewCard.tsx`; `frontend/src/components/ProgressPanel.tsx`; `frontend/src/components/RegistryPanel.tsx`; `frontend/src/components/LearnPanel.tsx` | Verified locally for the targeted states |
 | Larger touch floor on primary learning surfaces | Shared primary/secondary controls and the inspected locale, icon, atlas, dictionary and round-action controls have a 48 px minimum dimension in CSS. | `frontend/src/styles.css` | Verified locally across 390/768/1440 px, keyboard, reduced-motion, dark/light axe and 200% reflow gates |
+| Visual association without generic stock art | Seventy-two reviewed concepts now have exact, local SVG scenes with progressive context/meaning/anchor layers. Today selects recommended exact-scene words first and uses deterministic exact backfill only. A private-LAN QA gallery compares all scenes and records a seeded five-second recognition run. | `frontend/src/visuals/a0VisualRecipes.ts`; `frontend/src/components/semantic-scenes/`; `backend/src/ivrit_sheli/visual_spotlight.py` | Verified locally at 390/768/1440 px, light/dark, Hebrew RTL, reduced motion and 200% text reflow; 12-scene mother pilot remains required |
 
 ## Adopt
 

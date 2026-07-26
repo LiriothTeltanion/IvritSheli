@@ -1,46 +1,46 @@
-# Ivrit Sheli 2.8.2 — Private Candidate Verification Ledger
+# Ivrit Sheli 2.8.3 — Private Candidate Verification Ledger
 
 - **Ledger update date:** 2026-07-26
 - **Time zone:** Asia/Jerusalem
-- **Current private source candidate:** `2.8.2` / local / unpublished
-- **Candidate branch:** `codex/ivrit-sheli-v2.8.2-visual-vocabulary`
+- **Current private source candidate:** `2.8.3` / local / unpublished
+- **Candidate branch:** `codex/ivrit-sheli-v2.8.3-visual-recognition`
 - **Current verified production:** `2.4.0` on Railway with PostgreSQL
 - **Published release implementation commit:** `03bf84b9268ff8be528c0fab3c670f9652ee23b0`
 - **Publication decision:** Blocked pending the operator and pilot gates listed below
 
 ## Current status
 
-Ivrit Sheli 2.8.2 is a locally verified private candidate for the **Warm Illustrated Learning Journey**. The source, deterministic learning engine, curriculum, semantic A0 visual engine, daily-session flow, frontend, accessibility matrix and production build pass the checks that can run in the current workstation environment.
+Ivrit Sheli 2.8.3 is a locally verified private candidate for the **Warm Illustrated Learning Journey**. The source, deterministic learning engine, curriculum, 72-scene semantic visual engine, daily-session flow, frontend, accessibility matrix and production build pass the checks that can run in the current workstation environment.
 
-This ledger does **not** promote 2.8.2 to production. Docker Desktop, PostgreSQL 17, the production-shaped image, tenant isolation and a disposable backup/restore drill were verified locally for the private 2.8 foundation. The final 2.8.2 staged package and canonical Git-blob checksum manifest pass. A commit-suffixed archive of historical 2.8.1 implementation checkpoint `c9e2762` also passed clean extraction, package verification, Compose parsing and external SHA-256 comparison; it is not the current 2.8.2 package. Two-account Google persistence/isolation, the formal mother-pilot acceptance retest and the end of the OpenAI Build Week winner-announcement freeze remain external gates. The live Railway application, Git tag and GitHub Release therefore remain at verified version 2.4.0.
+This ledger does **not** promote 2.8.3 to production. The current production-shaped Docker image and its PostgreSQL-backed readiness were reverified for 2.8.3. Tenant isolation and a disposable backup/restore drill remain verified foundation evidence from the preceding private 2.8 gate and were not repeated for this visual-only increment. The final 2.8.3 staged package and canonical Git-blob checksum manifest pass. A commit-suffixed archive of historical 2.8.1 implementation checkpoint `c9e2762` also passed clean extraction, package verification, Compose parsing and external SHA-256 comparison; it is not the current 2.8.3 package. Two-account Google persistence/isolation, the formal 12-scene mother-pilot recognition test and the end of the OpenAI Build Week winner-announcement freeze remain external gates. The live Railway application, Git tag and GitHub Release therefore remain at verified version 2.4.0.
 
 ## Verified private 2.8 candidate
 
 | Verification area | Current 2.8 result |
 |---|---:|
-| Ordinary backend suite | **196 passed / 1 credential-gated PostgreSQL skip** |
-| Frontend Vitest suite | **205 passed / 33 files** |
-| Playwright + axe browser matrix | **21 passed / 24 intentional skips / 0 failed** |
-| Directly executed automated passes | **422 passed** |
+| Ordinary backend suite | **201 passed / 1 credential-gated PostgreSQL skip** |
+| Frontend Vitest suite | **310 passed / 34 files** |
+| Playwright + axe browser matrix | **25 passed / 26 intentional skips / 0 failed** |
+| Directly executed automated passes | **536 passed** |
 | Ruff | Passed |
-| MyPy strict | Passed across 30 backend source files |
+| MyPy strict | Passed across 31 backend source files |
 | TypeScript project check | Passed |
 | Vite production build | Passed |
 | Python compileall | Passed |
-| Offline doctor | Passed; source version `2.8.2` |
+| Offline doctor | Passed; source version `2.8.3` |
 | pip-audit | No known vulnerabilities |
 | npm production audit | 0 vulnerabilities |
 | Docker Compose configuration | Passed |
-| Source package verifier | Passed / 140 required files |
-| Canonical Git-blob checksum manifest | Passed / 281 files |
-| Clean extracted candidate archive | **Historical 2.8.1 checkpoint `c9e2762` passed; SHA-256 `535e93aaf3912704aaae56076a2b4e9ef8e47fe9df03bbb0fa996d0707c33ccb`; a current 2.8.2 archive is deferred until publication approval** |
-| PostgreSQL 17 integration gate | **3 passed with administrator and restricted-runtime roles** |
-| Production Docker image/readiness | **Passed; non-root app and PostgreSQL 17 healthy** |
-| PostgreSQL backup/restore drill | **Passed in a disposable database** |
+| Source package verifier | Passed / 153 required files |
+| Canonical Git-blob checksum manifest | Passed / 294 files |
+| Clean extracted candidate archive | **Historical 2.8.1 checkpoint `c9e2762` passed; SHA-256 `535e93aaf3912704aaae56076a2b4e9ef8e47fe9df03bbb0fa996d0707c33ccb`; a current 2.8.3 archive is deferred until publication approval** |
+| PostgreSQL 17 integration gate | **Foundation gate passed previously with administrator and restricted-runtime roles; not repeated for the visual-only delta** |
+| Production Docker image/readiness | **Rebuilt and passed for 2.8.3; non-root app and PostgreSQL 17 healthy** |
+| PostgreSQL backup/restore drill | **Foundation gate passed previously in a disposable database; not repeated for this visual-only delta** |
 | Two live Google accounts | **Not verified for 2.8** |
 | Required mother pilot | **Started on a real Samsung phone; formal acceptance retest remains** |
 
-The 422 figure is the transparent sum of 196 backend tests, 205 frontend unit/component tests and 21 Playwright browser cases executed for this candidate. The 24 Playwright skips are intentional viewport-independent duplicates in the configured matrix, not failures. The single ordinary-backend skip requires PostgreSQL administrator and restricted-runtime connection URLs; the dedicated Docker/PostgreSQL gate passes all three database-boundary cases and is not added again to the 422 total.
+The 536 figure is the transparent sum of 201 backend tests, 310 frontend unit/component tests and 25 Playwright browser cases executed for this candidate. The 26 Playwright skips are intentional viewport-independent duplicates in the configured matrix, not failures. The single ordinary-backend skip requires PostgreSQL administrator and restricted-runtime connection URLs. The earlier dedicated Docker/PostgreSQL foundation gate is not added to the 536 total.
 
 ### Commands executed
 
@@ -61,7 +61,7 @@ docker compose config --quiet
 
 ### Backend evidence
 
-The ordinary backend suite reports `196 passed, 1 skipped`. It covers:
+The ordinary backend suite reports `201 passed, 1 skipped`. It covers:
 
 - The deterministic `LocalLearningEngine` and mode-specific 3–5 retrieval plans.
 - A resumable `encounter → retrieval → listening → speaking/manual fallback → reflection → summary` practice flow.
@@ -71,16 +71,18 @@ The ordinary backend suite reports `196 passed, 1 skipped`. It covers:
 - Export, import and cloud-snapshot inclusion for the new records.
 - Tenant isolation and account-deletion behavior.
 - Stable visual IDs, reading hints and the reviewed starter-lexicon contract.
+- Exactly 72 exact semantic visual recipes, 168 explicit fallbacks and complete EN/ES/HE alternative text.
+- Six-item, recommendation-first `visual_spotlight` selection with deterministic exact-scene backfill, without repeated concepts or fallback promotion.
 - Exactly 96 reviewed A2 additions and exactly 240 reviewed starter concepts.
 - Public cloud AI/audio feature gating for the 2.8 release boundary.
 
-Ruff passed the backend, tests and scripts. Strict MyPy passed across 30 backend source files. Python compileall passed. The ordinary suite emits one non-failing upstream Starlette TestClient/httpx deprecation warning.
+Ruff passed the backend, tests and scripts. Strict MyPy passed across 31 backend source files. Python compileall passed. The ordinary suite emits one non-failing upstream Starlette TestClient/httpx deprecation warning.
 
-The offline doctor passed and reported version 2.8.2. The workstation dictionary database contains 244 total entries because it also preserves four local non-starter records; its metadata correctly reports the reviewed starter layer as 240 entries. This is not presented as a 244-concept starter curriculum.
+The offline doctor passed and reported version 2.8.3. The workstation dictionary database contains 244 total entries because it also preserves four local non-starter records; its metadata correctly reports the reviewed starter layer as 240 entries. This is not presented as a 244-concept starter curriculum.
 
 ### Frontend and build evidence
 
-TypeScript passed. Vitest passed all 205 tests across 33 files. Coverage includes:
+TypeScript passed. Vitest passed all 310 tests across 34 files. Coverage includes:
 
 - Guided, Explorer and Experienced modes.
 - Three-word beginner entry before account/profile configuration.
@@ -91,7 +93,10 @@ TypeScript passed. Vitest passed all 205 tests across 33 files. Coverage include
 - Accessible profile menu and persisted focus, text, voice and speed preferences.
 - Honest Finish for today confirmation and browser/PWA completion guidance without pretending that a website can close the browser.
 - Canonical, continuous Hebrew speech input with an explicit regression for `בבקשה`.
-- Twenty-four responsive exact-sense scenes (five inherited and nineteen new), 216 explicit fallbacks and aligned trilingual alternative text.
+- Seventy-two responsive exact-sense scenes, including redesigned First Steps visuals, 168 explicit fallbacks and aligned trilingual alternative text.
+- Progressive `context`, `meaning` and `anchor` layers for every exact scene.
+- Six exact-scene Today recommendations plus a local 72-scene QA gallery with small, card and hero comparisons.
+- A seeded five-second, four-choice visual-recognition flow with changing answer positions that records only an in-memory QA score.
 - Dictionary reading hints and offline starter-dictionary behavior.
 - Healthy goals, XP/mastery separation and reduced-motion celebrations.
 - Public disabling of experimental cloud AI/audio controls.
@@ -100,20 +105,23 @@ The Vite production build completed without a chunk-size warning:
 
 | Output | Raw | Gzip |
 |---|---:|---:|
-| Main JavaScript | 486.66 kB | 143.48 kB |
-| Main CSS | 205.87 kB | 37.88 kB |
-| LearnPanel JavaScript | 63.87 kB | 17.37 kB |
+| Main JavaScript | 451.88 kB | 123.38 kB |
+| Main CSS | 207.40 kB | 38.14 kB |
+| Visual QA JavaScript | 6.22 kB | 2.23 kB |
+| Visual QA CSS | 4.73 kB | 1.32 kB |
+| LearnPanel JavaScript | 63.91 kB | 17.35 kB |
 | LearnPanel CSS | 4.63 kB | 1.38 kB |
-| Progress JavaScript | 13.19 kB | 3.82 kB |
-| Settings JavaScript | 12.94 kB | 3.39 kB |
-| AICoach JavaScript | 5.39 kB | 1.96 kB |
-| Connector JavaScript | 4.36 kB | 1.50 kB |
+| Progress JavaScript | 13.21 kB | 3.82 kB |
+| Settings JavaScript | 12.98 kB | 3.40 kB |
+| AICoach JavaScript | 5.42 kB | 1.98 kB |
+| Connector JavaScript | 4.39 kB | 1.51 kB |
+| i18n JavaScript | 103.53 kB | 33.47 kB |
 
-The 566,181-byte offline starter dictionary contains exactly 240 unique reviewed entries and no user, session, profile or token fields.
+The 571,974-byte offline starter dictionary contains exactly 240 unique reviewed entries and no user, session, profile or token fields.
 
 ### Browser and accessibility evidence
 
-Playwright and axe completed with 21 passes, 24 intentional skips and zero failures. The matrix covers:
+Playwright and axe completed with 25 passes, 26 intentional skips and zero failures. The matrix covers:
 
 - 390 px, 768 px and 1440 px viewports.
 - English, Spanish and Hebrew.
@@ -124,6 +132,8 @@ Playwright and axe completed with 21 passes, 24 intentional skips and zero failu
 - Reduced motion.
 - A CSS-equivalent 200% zoom/reflow check.
 - Serious and critical axe violations.
+- The local visual QA gallery at 390 px, 768 px and 1440 px.
+- Exact-scene light/dark presentation, RTL, reduced motion and the five-second recognition interaction.
 
 No serious or critical axe violation remained in the executed matrix. This evidence does not replace the required real-user mother-pilot acceptance retest.
 
@@ -149,7 +159,7 @@ Publication remains blocked until all of the following are complete:
 1. Use two real Google accounts to verify `openid profile` sign-in, account isolation and progress continuity between phone and computer.
 2. Complete the mother-pilot acceptance retest after the first Samsung session exposed onboarding, profile-isolation and Settings-navigation defects: find the primary action within 30 seconds, learn three words, finish a session without assistance and confirm progress after reload. Cross-device continuity belongs to the two-account hosted gate, not the LAN-only pilot.
 3. Back up production immediately before deployment and verify login, persistence, export and deletion after deployment.
-4. Wait until the OpenAI Build Week judging freeze ends, then obtain explicit final approval before merge, push, tag `v2.8.2`, GitHub Release or Railway deployment.
+4. Wait until the OpenAI Build Week judging freeze ends, then obtain explicit final approval before merge, push, tag `v2.8.3`, GitHub Release or Railway deployment.
 
 No rollback to the 2.4 application is safe after 2.8 accepts writes using the new schema unless the matching pre-deployment database backup is restored.
 

@@ -28,6 +28,11 @@
   filter: drop-shadow(0 0.4rem 0.7rem rgba(80, 58, 26, 0.1));
 }
 
+.semantic-art--thumbnail .semantic-art__detail--thin,
+.semantic-art--thumbnail .semantic-art__glow {
+  display: none;
+}
+
 .semantic-art__paper {
   fill: var(--semantic-paper);
   stroke: color-mix(in srgb, var(--semantic-ink) 22%, transparent);
@@ -239,6 +244,15 @@
   font-size: 18px;
 }
 
+.semantic-art__calendar-marker {
+  fill: var(--semantic-symbol-ink);
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 900;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
 .semantic-art__scarf {
   stroke: color-mix(in srgb, var(--semantic-ink) 55%, transparent);
   stroke-width: 2.5;
@@ -321,9 +335,56 @@
     transform: translateY(-2px);
     transition: transform 180ms ease;
   }
+
+  button:hover .semantic-art__motion-part,
+  button:focus-visible .semantic-art__motion-part,
+  .semantic-art--hero:hover .semantic-art__motion-part {
+    animation: semanticMeaningMotion 650ms ease-in-out;
+  }
+
+  button:hover .semantic-art__water-stream,
+  button:focus-visible .semantic-art__water-stream,
+  .semantic-art--hero:hover .semantic-art__water-stream {
+    animation: semanticWaterFlow 720ms ease-in-out;
+  }
+
+  button:hover .semantic-art__sun-rays,
+  button:focus-visible .semantic-art__sun-rays,
+  .semantic-art--hero:hover .semantic-art__sun-rays {
+    animation: semanticSunPulse 760ms ease-in-out;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  button:hover .semantic-art__arrow,
+  button:focus-visible .semantic-art__arrow,
+  .semantic-art--hero:hover .semantic-art__arrow {
+    animation: semanticArrowMove 620ms ease-in-out;
+  }
 }
 
 @keyframes semanticSpark {
   from { transform: scale(0.9) rotate(-3deg); }
   to { transform: scale(1.08) rotate(3deg); }
+}
+
+@keyframes semanticMeaningMotion {
+  0%, 100% { transform: rotate(0deg); }
+  45% { transform: rotate(-5deg); }
+  75% { transform: rotate(4deg); }
+}
+
+@keyframes semanticWaterFlow {
+  0%, 100% { stroke-dasharray: 0 0; opacity: 1; }
+  50% { stroke-dasharray: 8 5; opacity: 0.72; }
+}
+
+@keyframes semanticSunPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.08); opacity: 0.82; }
+}
+
+@keyframes semanticArrowMove {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(4px); }
 }

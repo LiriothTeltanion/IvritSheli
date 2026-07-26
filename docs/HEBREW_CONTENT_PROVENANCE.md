@@ -1,10 +1,15 @@
 # Hebrew content sourcing and provenance
 
-**Status:** v2.6 content policy
+**Status:** v2.8.3 content policy
 
-**Last source review:** 2026-07-22
+**Last source review:** 2026-07-26
 
 IvritSheli uses external resources to verify facts and design curricula; it does not treat public web access as permission to copy. Every imported definition, example, image, recording, corpus excerpt, translation, or CEFR descriptor must have an explicit source and reuse basis before it enters a distributable dataset.
+
+The 72 exact semantic scenes in v2.8.3 are original local SVG compositions
+implemented in this repository. Their EN/ES/HE descriptions are versioned with
+the reviewed lexicon. The remaining 168 concepts are explicitly presented as
+category/emoji fallbacks rather than bespoke illustrations.
 
 ## Source hierarchy
 

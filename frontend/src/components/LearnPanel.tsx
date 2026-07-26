@@ -152,7 +152,12 @@ export function LearnPanel({
               return (
                 <article className="dictionary-result" key={entry.id}>
                   <button type="button" className="dictionary-result__main" onClick={() => onWordClick(entry.word, entry.id)}>
-                    <DictionaryVisualCue visual={entry.visual} locale={locale} className="dictionary-result__visual" />
+                    <DictionaryVisualCue
+                      visual={entry.visual}
+                      locale={locale}
+                      className="dictionary-result__visual"
+                      size="thumbnail"
+                    />
                     <HebrewText text={entry.display_niqqud || entry.word} className="dictionary-result__word" as="h3" />
                     <span dir="ltr">{entry.romanization || '—'}</span>
                     <p>{meaning || t('noDefinition')}</p>

@@ -2,13 +2,13 @@
   "schema": "ivrit-sheli-portfolio-project-v2",
   "slug": "ivrit-sheli",
   "name": "Ivrit Sheli — העברית שלי",
-  "source_version": "2.8.2",
+  "source_version": "2.8.3",
   "live_version": "2.4.0",
   "status": "private-release-candidate",
   "default_branch": "main",
   "repository_url": "https://github.com/LiriothTeltanion/IvritSheli",
   "demo_url": "https://ivritsheli-production.up.railway.app",
-  "summary": "An unpublished 2.8.2 Visual Vocabulary candidate with beginner-first A0-A2 practice, 24 exact semantic A0 scenes, centralized Hebrew pronunciation, deterministic personalization and local or account-backed persistence; the verified 2.4 Contest Edition remains the public Railway and GitHub release.",
+  "summary": "An unpublished 2.8.3 Visual Recognition Expansion candidate with beginner-first A0-A2 practice, 72 exact semantic scenes, centralized Hebrew pronunciation, deterministic personalization and local or account-backed persistence; the verified 2.4 Contest Edition remains public.",
   "languages": [
     "en",
     "es",
@@ -58,10 +58,10 @@
     "latest_github_release": "v2.4.0",
     "source_version_tagged": false,
     "source_version_github_release_published": false,
-    "release_state": "2.8.2-private-candidate-2.4.0-live-and-published"
+    "release_state": "2.8.3-private-candidate-2.4.0-live-and-published"
   },
   "candidate": {
-    "version": "2.8.2",
+    "version": "2.8.3",
     "published": false,
     "coverage": "Structured A0-A2 with an explicitly experimental B1/B2 Lab",
     "reviewed_concepts": 240,
@@ -71,8 +71,8 @@
       "Experienced"
     ],
     "learning_engine": "Deterministic LocalLearningEngine",
-    "semantic_visual_recipes": 24,
-    "category_visual_fallbacks": 216,
+    "semantic_visual_recipes": 72,
+    "category_visual_fallbacks": 168,
     "visual_journey_regions": 6,
     "public_google_scope": "openid profile",
     "local_mode_without_account": true,
@@ -83,7 +83,7 @@
     "social_preview_version": "2.2.0",
     "readme_screenshot_version": "2.8.0-local-candidate",
     "readme_screenshots_match_source_version": false,
-    "interactive_browser_qa": "local-2.8.2-semantic-food-and-morning-scenes-directly-verified-at-desktop-and-390px-with-no-console-errors-or-horizontal-overflow; prior-2.8.1-profile-settings-finish-flow-and-2.8-accessibility-matrix-verified"
+    "interactive_browser_qa": "2.8.3 visual-recognition QA verified across 390/768/1440, light/dark, Hebrew RTL, reduced motion, 200% text reflow and seeded five-second recognition; 72 exact scenes loaded"
   },
   "oauth": {
     "providers": [

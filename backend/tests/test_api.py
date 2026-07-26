@@ -145,6 +145,9 @@ def test_dashboard_profile_and_gamification_boot_cleanly(client: TestClient) -> 
     assert dashboard.status_code == profile.status_code == gamification.status_code == 200
     assert dashboard.json()["system"]["offline_ready"] is True
     assert dashboard.json()["dictionary"]["entries"] == 240
+    spotlight = dashboard.json()["visual_spotlight"]
+    assert len(spotlight) == 6
+    assert len({entry["visual"]["key"] for entry in spotlight}) == 6
     assert profile.json()["weekly_rest_day"] == 5
     assert profile.json()["learner_mode"] == "guided"
 

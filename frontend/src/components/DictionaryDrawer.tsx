@@ -321,7 +321,12 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
             <section className="dictionary-hero">
               {entry.visual && (
                 <div className="dictionary-visual-stage">
-                  <DictionaryVisualCue visual={entry.visual} locale={locale} className="dictionary-visual" />
+                  <DictionaryVisualCue
+                    visual={entry.visual}
+                    locale={locale}
+                    className="dictionary-visual"
+                    size="hero"
+                  />
                 </div>
               )}
               <HebrewText text={entry.display_niqqud || entry.word} onWordClick={onOpenWord} className="dictionary-word" as="h2" />

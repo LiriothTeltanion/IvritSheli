@@ -16,9 +16,11 @@ import time
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from dataclasses import asdict, dataclass
+from datetime import datetime
 from pathlib import Path
 from typing import Annotated, Any, Literal, cast
 from uuid import uuid4
+from zoneinfo import ZoneInfo
 
 from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
 from fastapi.exceptions import RequestValidationError
@@ -69,6 +71,7 @@ from ivrit_sheli.request_limits import (
     SlidingWindowLimiter,
 )
 from ivrit_sheli.structured_logging import configure_json_logging, privacy_user_hash
+from ivrit_sheli.visual_spotlight import build_visual_spotlight
 
 LOGGER = logging.getLogger(__name__)
 API_PREFIX = "/api/v1"
@@ -1166,12 +1169,33 @@ def register_routes(app: FastAPI) -> None:
     @app.get(f"{API_PREFIX}/dashboard")
     def dashboard(request: Request) -> dict[str, Any]:
         payload = repository_for(request).dashboard()
-        payload["dictionary"] = services(request).dictionary.stats()
+        container = services(request)
+        payload["dictionary"] = container.dictionary.stats()
+        profile = payload.get("profile", {})
+        today = payload.get("today", {})
+        spotlight_seed = "|".join(
+            (
+                datetime.now(ZoneInfo("Asia/Jerusalem")).date().isoformat(),
+                str(profile.get("hebrew_level", "A0")),
+                str(profile.get("learner_mode", profile.get("guided_mode", "guided"))),
+                str(today.get("due_reviews", 0)),
+            )
+        )
+        recommendation_words = tuple(
+            str(recommendation["label"])
+            for recommendation in payload.get("recommendations", ())
+            if isinstance(recommendation, dict) and recommendation.get("label")
+        )
+        payload["visual_spotlight"] = build_visual_spotlight(
+            container.dictionary,
+            seed=spotlight_seed,
+            preferred_words=recommendation_words,
+        )
         payload["system"] = {
-            "offline_ready": not services(request).settings.cloud_mode,
+            "offline_ready": not container.settings.cloud_mode,
             "cloud_available": bool(
-                services(request).settings.allow_cloud_processing
-                and services(request).settings.openai_api_key
+                container.settings.allow_cloud_processing
+                and container.settings.openai_api_key
                 and _production_cloud_feature_allowed(request, "cloud_ai")
             ),
         }

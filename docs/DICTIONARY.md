@@ -14,7 +14,7 @@ Every curated concept includes:
 
 Fields such as `root` and `binyan` remain unknown when a reviewed linguistic source does not establish them; an attractive card is never treated as evidence for grammar.
 
-The visuals are semantic learning cues, not dictionary facts. Twenty-four reviewed concepts have exact semantic SVG scenes: five inherited First Steps scenes and nineteen new context-rich scenes. The other 216 concepts use explicit category-composition and emoji fallbacks. The nineteen new scenes can progressively reveal context, meaning and anchor layers; the five inherited scenes remain all-or-nothing. Unsupported or imported entries can return `visual: null`; the application does not fabricate illustrations, roots or grammar to fill a missing source field.
+The visuals are semantic learning cues, not dictionary facts. Seventy-two reviewed concepts have exact semantic SVG scenes with progressive context, meaning and anchor layers. The other 168 concepts use explicit category-composition and emoji fallbacks. Unsupported or imported entries can return `visual: null`; the application does not fabricate illustrations, roots or grammar to fill a missing source field.
 
 ## Full mode
 
@@ -70,10 +70,9 @@ Historically, opening a 2.4 database in the 2.5 checkpoint expanded the reviewed
 Opening a previous database expands the reviewed layer additively from 144 to
 240 concepts: the A0/A1 foundation plus 96 reviewed A2 concepts. Stable source
 keys preserve existing learner links. Visual metadata is complete and
-trilingual, while the art system honestly distinguishes 24 exact semantic
-scenes (five inherited and nineteen new) from 216 explicit category-composition
-and emoji fallbacks. Progressive context, meaning and anchor layers apply to
-the nineteen new scenes; the five inherited scenes are currently all-or-nothing.
+trilingual, while the 2.8.3 art system honestly distinguishes 72 exact semantic
+scenes from 168 explicit category-composition and emoji fallbacks. Progressive
+context, meaning and anchor layers apply to every exact scene.
 
 ## Data quality
 

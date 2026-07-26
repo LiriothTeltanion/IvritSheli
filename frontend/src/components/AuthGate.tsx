@@ -54,7 +54,7 @@ export function AuthGate({ busy, error, onDemo, onRetry, providers }: AuthGatePr
               </button>
             ))}
           </div>
-          <span className="auth-version">v2.8.2 local candidate</span>
+          <span className="auth-version">v2.8.3 local candidate</span>
         </div>
       </header>
 

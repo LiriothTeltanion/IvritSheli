@@ -27,6 +27,31 @@ const dashboard: Dashboard = {
   xp: { level: 2, current_threshold: 100, next_threshold: 300, xp_in_level: 80, percent: 40, total: 180 },
   focus: { focus: 'daily_conversation', reason: 'Balanced practice candidate.', suggested_exercise: 'recognition' },
   recommendations: [],
+  visual_spotlight: [
+    ['family.mother', 'אמא', 'אִמָּא', 'ima', 'mother', 'mamá'],
+    ['food.bread', 'לחם', 'לֶחֶם', 'lechem', 'bread', 'pan'],
+    ['places.jerusalem', 'ירושלים', 'יְרוּשָׁלַיִם', 'Yerushalayim', 'Jerusalem', 'Jerusalén'],
+    ['home.kitchen', 'מטבח', 'מִטְבָּח', 'mitbach', 'kitchen', 'cocina'],
+    ['time.morning', 'בוקר', 'בֹּקֶר', 'boker', 'morning', 'mañana'],
+    ['time.hour', 'שעה', 'שָׁעָה', 'shaah', 'hour', 'hora'],
+  ].map(([key, word, displayNiqqud, romanization, translationEn, translationEs], index) => ({
+    entry_id: index + 101,
+    word: word!,
+    display_niqqud: displayNiqqud!,
+    romanization: romanization!,
+    translation_en: translationEn!,
+    translation_es: translationEs!,
+    translation_he: `משמעות ${word}`,
+    visual: {
+      key: key!,
+      emoji: '🧭',
+      alt: {
+        en: `Reviewed scene for ${translationEn}`,
+        es: `Escena revisada para ${translationEs}`,
+        he: `סצנה בדוקה עבור ${word}`,
+      },
+    },
+  })),
   achievements: [],
   mission: {
     title: 'Greeting',
@@ -54,12 +79,16 @@ function actionSpies() {
 
 type ActionSpies = ReturnType<typeof actionSpies>;
 
-function renderDashboard(readOnly: boolean, actions: ActionSpies): void {
+function renderDashboard(
+  readOnly: boolean,
+  actions: ActionSpies,
+  value: Dashboard = dashboard,
+): void {
   render(
     <I18nProvider>
       <SessionAccessProvider readOnly={readOnly} readOnlyReason="Demo is read-only" localMode={false}>
         <TodayDashboard
-          dashboard={dashboard}
+          dashboard={value}
           firstStepsComplete
           onWordClick={actions.onWordClick}
           onCapture={actions.onCapture}
@@ -113,5 +142,34 @@ describe('TodayDashboard product tour', () => {
     expect(disclosure).not.toHaveAttribute('open');
     expect(screen.getByRole('button', { name: /Continue my lesson/i })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Open AI coach/i })).not.toBeInTheDocument();
+  });
+
+  it('shows six exact API-recommended scenes and opens the selected word', async () => {
+    const actions = actionSpies();
+    const user = userEvent.setup();
+    renderDashboard(false, actions);
+
+    expect(screen.getByRole('heading', { name: 'Your visual words today' })).toBeInTheDocument();
+    expect(document.querySelectorAll('.visual-vocabulary__grid [data-visual-detail="semantic"]')).toHaveLength(6);
+    expect(document.querySelector('.hero-visual [data-visual-id="family.mother"]')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Open dictionary for לחם' }));
+    expect(actions.onWordClick).toHaveBeenCalledWith('לחם');
+  });
+
+  it('keeps six exact compatibility scenes when an older dashboard omits the spotlight', () => {
+    const { visual_spotlight: _spotlight, ...olderDashboard } = dashboard;
+    renderDashboard(false, actionSpies(), olderDashboard);
+
+    expect(document.querySelectorAll('.visual-vocabulary__grid [data-visual-detail="semantic"]')).toHaveLength(6);
+    expect(document.querySelector('[data-visual-id="food.water"]')).toBeInTheDocument();
+  });
+
+  it('uses the reviewed Hebrew cue instead of falling back to English', () => {
+    window.history.replaceState({}, '', '/?lang=he');
+    renderDashboard(false, actionSpies());
+
+    expect(screen.getAllByText('משמעות אמא')).toHaveLength(2);
+    expect(screen.queryByText('mother')).not.toBeInTheDocument();
   });
 });

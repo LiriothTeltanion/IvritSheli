@@ -24,13 +24,9 @@ function visual(key: string): DictionaryVisual {
   };
 }
 
-const NEW_SEMANTIC_KEYS = A0_SEMANTIC_VISUAL_KEYS.filter(
-  (key) => !getA0VisualRecipe(key).legacyKind,
-);
-
 describe('SemanticWordIllustration', () => {
-  it('covers 24 high-impact A0 meanings with unique semantic fingerprints', () => {
-    expect(A0_SEMANTIC_VISUAL_KEYS).toHaveLength(24);
+  it('covers 72 high-impact A0 meanings with unique semantic fingerprints', () => {
+    expect(A0_SEMANTIC_VISUAL_KEYS).toHaveLength(72);
     const fingerprints = A0_SEMANTIC_VISUAL_KEYS.map((key) => semanticFingerprint(getA0VisualRecipe(key)));
     expect(new Set(fingerprints)).toHaveLength(A0_SEMANTIC_VISUAL_KEYS.length);
   });
@@ -59,7 +55,7 @@ describe('SemanticWordIllustration', () => {
     expect(container.querySelector('[data-visual-layer="anchor"]')).toBeInTheDocument();
   });
 
-  it.each(NEW_SEMANTIC_KEYS)('renders the reviewed context, meaning, and anchor layers for %s', (key) => {
+  it.each(A0_SEMANTIC_VISUAL_KEYS)('renders the reviewed context, meaning, and anchor layers for %s', (key) => {
     const { container } = render(
       <SemanticWordIllustration visual={visual(key)} locale="en" hintStage={2} />,
     );
@@ -79,8 +75,8 @@ describe('SemanticWordIllustration', () => {
       'semantic',
     );
 
-    rerender(<DictionaryVisualCue visual={visual('family.mother')} locale="en" />);
-    expect(container.querySelector('[data-visual-id="family.mother"]')).toHaveAttribute(
+    rerender(<DictionaryVisualCue visual={visual('transport.bus')} locale="en" />);
+    expect(container.querySelector('[data-visual-id="transport.bus"]')).toHaveAttribute(
       'data-visual-fallback',
       'true',
     );

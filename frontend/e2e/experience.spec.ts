@@ -151,3 +151,68 @@ test.describe('keyboard and accessibility', () => {
     });
   }
 });
+
+test.describe('visual recognition expansion', () => {
+  test('renders all 72 exact scenes across the configured viewport and display preferences', async ({ page }, testInfo) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/?visualQa=1&lang=en');
+
+    await expect(page.getByText('72/72 exact scenes loaded')).toBeVisible();
+    await expect(page.locator('.visual-qa__catalog > article')).toHaveCount(72);
+    await expect(page.locator('.visual-qa__catalog [data-size="thumbnail"]')).toHaveCount(72);
+    await expect(page.locator('.visual-qa__catalog [data-size="card"]')).toHaveCount(72);
+    await expect(page.locator('.visual-qa__catalog [data-size="hero"]')).toHaveCount(72);
+    await expect(page.locator('[data-visual-id="family.mother"]').first()).toBeVisible();
+
+    const animationNames = await page.locator(
+      '.semantic-art__motion, .semantic-art__motion-part, .semantic-art__sun-rays, .semantic-art__arrow',
+    ).evaluateAll((elements) => elements.slice(0, 12).map(
+      (element) => window.getComputedStyle(element).animationName,
+    ));
+    expect(animationNames.length).toBeGreaterThan(0);
+    expect(animationNames.every((name) => name === 'none')).toBe(true);
+
+    await page.getByRole('button', { name: 'Dark' }).click();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    await page.getByRole('button', { name: 'HE', exact: true }).click();
+    await expect(page.locator('html')).toHaveAttribute('lang', 'he');
+    await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
+
+    const dimensions = await page.evaluate(() => ({
+      clientWidth: document.documentElement.clientWidth,
+      scrollWidth: document.documentElement.scrollWidth,
+    }));
+    expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth + 1);
+
+    await page.evaluate(() => {
+      document.documentElement.style.fontSize = '200%';
+    });
+    const zoomedDimensions = await page.evaluate(() => ({
+      clientWidth: document.documentElement.clientWidth,
+      scrollWidth: document.documentElement.scrollWidth,
+    }));
+    expect(zoomedDimensions.scrollWidth).toBeLessThanOrEqual(zoomedDimensions.clientWidth + 1);
+
+    if (testInfo.project.name === 'desktop-1440') {
+      const results = await new AxeBuilder({ page })
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+        .analyze();
+      const blockingViolations = results.violations.filter(
+        (violation) => violation.impact === 'serious' || violation.impact === 'critical',
+      );
+      expect(blockingViolations, JSON.stringify(blockingViolations, null, 2)).toEqual([]);
+    }
+  });
+
+  test('reveals four meanings only after the five-second recognition exposure', async ({ page }, testInfo) => {
+    desktopOnly(testInfo.project.name);
+    await page.goto('/?visualQa=1&lang=en');
+    await expect(page.getByText('72/72 exact scenes loaded')).toBeVisible();
+
+    await page.getByRole('button', { name: 'Start recognition check' }).click();
+    await expect(page.getByText('Observe the scene… 5 seconds')).toBeVisible();
+    await expect(page.locator('.visual-qa__choices')).toHaveCount(0);
+    await page.waitForTimeout(5100);
+    await expect(page.locator('.visual-qa__choices button')).toHaveCount(4);
+  });
+});

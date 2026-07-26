@@ -256,6 +256,17 @@ export interface XPStatus {
   total?: number;
 }
 
+export interface VisualSpotlightEntry {
+  entry_id: number;
+  word: string;
+  display_niqqud: string;
+  romanization: string;
+  translation_en: string;
+  translation_es: string;
+  translation_he: string;
+  visual: DictionaryVisual;
+}
+
 export interface Dashboard {
   profile: Profile;
   today: {
@@ -277,6 +288,11 @@ export interface Dashboard {
     suggested_exercise: string;
   };
   recommendations: Recommendation[];
+  /**
+   * Reviewed exact-scene concepts for Today. Optional for compatibility with
+   * older local servers and previously cached dashboard responses.
+   */
+  visual_spotlight?: VisualSpotlightEntry[];
   achievements: Array<Record<string, unknown>>;
   mission: {
     title: string;

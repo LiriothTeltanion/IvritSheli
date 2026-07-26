@@ -176,6 +176,31 @@ export async function installApiFixtures(
       suggested_exercise: 'recognition',
     },
     recommendations: [],
+    visual_spotlight: [
+      ['family.mother', 'אמא', 'אִמָּא', 'ima', 'mother', 'mamá'],
+      ['food.bread', 'לחם', 'לֶחֶם', 'lechem', 'bread', 'pan'],
+      ['places.jerusalem', 'ירושלים', 'יְרוּשָׁלַיִם', 'Yerushalayim', 'Jerusalem', 'Jerusalén'],
+      ['home.kitchen', 'מטבח', 'מִטְבָּח', 'mitbach', 'kitchen', 'cocina'],
+      ['time.morning', 'בוקר', 'בֹּקֶר', 'boker', 'morning', 'mañana'],
+      ['time.hour', 'שעה', 'שָׁעָה', 'shaah', 'hour', 'hora'],
+    ].map(([key, word, displayNiqqud, romanization, translationEn, translationEs], index) => ({
+      entry_id: index + 101,
+      word,
+      display_niqqud: displayNiqqud,
+      romanization,
+      translation_en: translationEn,
+      translation_es: translationEs,
+      translation_he: word,
+      visual: {
+        key,
+        emoji: '🧭',
+        alt: {
+          en: `Reviewed scene for ${translationEn}`,
+          es: `Escena revisada para ${translationEs}`,
+          he: `סצנה בדוקה עבור ${word}`,
+        },
+      },
+    })),
     achievements: [],
     mission: {
       title: 'Greeting',

@@ -54,6 +54,7 @@ REQUIRED_FILES = (
     "backend/src/ivrit_sheli/audio.py",
     "backend/src/ivrit_sheli/learning_core.py",
     "backend/src/ivrit_sheli/local_learning_engine.py",
+    "backend/src/ivrit_sheli/visual_spotlight.py",
     "backend/src/ivrit_sheli/repository.py",
     "backend/src/ivrit_sheli/starter_lexicon_v2.py",
     "backend/src/ivrit_sheli/starter_lexicon_v3.py",
@@ -65,6 +66,8 @@ REQUIRED_FILES = (
     "backend/src/ivrit_sheli/structured_logging.py",
     "backend/tests/test_daily_practice.py",
     "backend/tests/test_learning_engines.py",
+    "backend/tests/test_visual_catalog.py",
+    "backend/tests/test_visual_spotlight.py",
     "frontend/package-lock.json",
     "frontend/playwright.config.ts",
     "frontend/e2e/experience.spec.ts",
@@ -86,6 +89,16 @@ REQUIRED_FILES = (
     "frontend/src/components/SemanticWordIllustration.tsx",
     "frontend/src/components/SemanticWordIllustration.test.tsx",
     "frontend/src/components/semantic-word-illustration.css",
+    "frontend/src/components/semantic-scenes/CoreDailyScenes.tsx",
+    "frontend/src/components/semantic-scenes/CoreGreetingTimeScenes.tsx",
+    "frontend/src/components/semantic-scenes/FamilyPlaceScenes.tsx",
+    "frontend/src/components/semantic-scenes/FamilyRelationshipScenes.tsx",
+    "frontend/src/components/semantic-scenes/FoodHomeScenes.tsx",
+    "frontend/src/components/semantic-scenes/GreetingTimeScenes.tsx",
+    "frontend/src/components/semantic-scenes/SemanticScenePrimitives.tsx",
+    "frontend/src/components/VisualQAGallery.tsx",
+    "frontend/src/components/VisualQAGallery.test.tsx",
+    "frontend/src/components/visual-qa-gallery.css",
     "frontend/src/visuals/a0VisualRecipes.ts",
     "frontend/src/components/MicWordAnalyzer.tsx",
     "frontend/src/components/ProfileMenu.tsx",
@@ -297,7 +310,7 @@ def verify_portfolio_manifest() -> list[str]:
         "schema": "ivrit-sheli-portfolio-project-v2",
         "slug": "ivrit-sheli",
         "name": "Ivrit Sheli — העברית שלי",
-        "source_version": "2.8.2",
+        "source_version": "2.8.3",
         "live_version": "2.4.0",
         "status": "private-release-candidate",
         "default_branch": "main",
@@ -416,11 +429,11 @@ def verify_portfolio_manifest() -> list[str]:
         "latest_github_release": "v2.4.0",
         "source_version_tagged": False,
         "source_version_github_release_published": False,
-        "release_state": "2.8.2-private-candidate-2.4.0-live-and-published",
+        "release_state": "2.8.3-private-candidate-2.4.0-live-and-published",
     }
     if publication is not None and publication != expected_publication:
         failures.append(
-            "portfolio/project.json: publication must keep 2.8.2 private and identify "
+            "portfolio/project.json: publication must keep 2.8.3 private and identify "
             "v2.4.0 as the live tagged GitHub Release"
         )
 
@@ -444,14 +457,14 @@ def verify_portfolio_manifest() -> list[str]:
     )
     failures.extend(nested_failures)
     expected_candidate = {
-        "version": "2.8.2",
+        "version": "2.8.3",
         "published": False,
         "coverage": "Structured A0-A2 with an explicitly experimental B1/B2 Lab",
         "reviewed_concepts": 240,
         "learner_experiences": ["Guided", "Explorer", "Experienced"],
         "learning_engine": "Deterministic LocalLearningEngine",
-        "semantic_visual_recipes": 24,
-        "category_visual_fallbacks": 216,
+        "semantic_visual_recipes": 72,
+        "category_visual_fallbacks": 168,
         "visual_journey_regions": 6,
         "public_google_scope": "openid profile",
         "local_mode_without_account": True,
@@ -464,7 +477,7 @@ def verify_portfolio_manifest() -> list[str]:
     if candidate is not None and candidate != expected_candidate:
         failures.append(
             "portfolio/project.json: candidate must describe the unpublished "
-            "2.8.2 implementation and its remaining release gate"
+            "2.8.3 implementation and its remaining release gate"
         )
 
     visual_proof, nested_failures = _verify_exact_keys(
@@ -485,9 +498,9 @@ def verify_portfolio_manifest() -> list[str]:
         "readme_screenshot_version": "2.8.0-local-candidate",
         "readme_screenshots_match_source_version": False,
         "interactive_browser_qa": (
-            "local-2.8.2-semantic-food-and-morning-scenes-directly-verified-at-desktop-"
-            "and-390px-with-no-console-errors-or-horizontal-overflow; "
-            "prior-2.8.1-profile-settings-finish-flow-and-2.8-accessibility-matrix-verified"
+            "2.8.3 visual-recognition QA verified across 390/768/1440, "
+            "light/dark, Hebrew RTL, reduced motion, 200% text reflow and "
+            "seeded five-second recognition; 72 exact scenes loaded"
         ),
     }
     if visual_proof is not None and visual_proof != expected_visual_proof:
@@ -566,22 +579,22 @@ def verify_release_truth_drift() -> list[str]:
         "README.md": (
             "Open the verified Ivrit Sheli 2.4.0 Contest Edition",
             "03bf84b9268ff8be528c0fab3c670f9652ee23b0",
-            "Current private source checkout | `2.8.2`",
+            "Current private source checkout | `2.8.3`",
             "Current public deployed application | `2.4.0`",
             "151 unique backend tests + 62 frontend tests = 213 passed",
-            "140-file/281-checksum staged-tree gate",
+            "153-file/294-checksum staged-tree gate",
             "clean `c9e2762` archive",
             "GitHub publication | [`v2.4.0`](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.4.0)",
             "Two-real-Google-account isolation/persistence, the formal mother-pilot acceptance retest and the end of the active Devpost judging freeze",
         ),
         "TEST_REPORT.md": (
-            "Current private source candidate:** `2.8.2` / local / unpublished",
-            "196 passed",
-            "205 passed",
-            "21 passed",
-            "422 passed",
-            "140 required files",
-            "281 files",
+            "Current private source candidate:** `2.8.3` / local / unpublished",
+            "201 passed",
+            "310 passed",
+            "25 passed",
+            "536 passed",
+            "153 required files",
+            "294 files",
             "535e93aaf3912704aaae56076a2b4e9ef8e47fe9df03bbb0fa996d0707c33ccb",
             "Current verified production:** `2.4.0` on Railway with PostgreSQL",
             "03bf84b9268ff8be528c0fab3c670f9652ee23b0",
@@ -590,20 +603,20 @@ def verify_release_truth_drift() -> list[str]:
             "mother-pilot acceptance retest",
         ),
         "CHANGELOG.md": (
-            "2.8.2 — Visual Vocabulary — Private candidate",
+            "2.8.3 — Visual Recognition Expansion — Private candidate",
             "Version 2.7 was a private implementation checkpoint",
             "2.4.0 — Contest Edition — 2026-07-21",
         ),
         "PACKAGE_MANIFEST.md": (
-            "Source version: `2.8.2`",
+            "Source version: `2.8.3`",
             "Current verified public version: `2.4.0`",
-            "`2.8.2` is local, untagged, unpushed and unpublished",
+            "`2.8.3` is local, untagged, unpushed and unpublished",
             "Latest published Git tag and GitHub Release: `v2.4.0`",
-            "196 passed",
-            "205 passed",
-            "21 passed",
-            "422 passed",
-            "140 required files / 281 canonical Git blobs passed",
+            "201 passed",
+            "310 passed",
+            "25 passed",
+            "536 passed",
+            "153 required files / 294 canonical Git blobs passed",
             "c9e2762",
         ),
         "docs/DEPLOYMENT.md": (
@@ -631,8 +644,8 @@ def verify_release_truth_drift() -> list[str]:
             "actively developed public pilot",
         ),
         "CITATION.cff": (
-            "version: 2.8.2",
-            "unpublished Ivrit Sheli 2.8.2 Visual Vocabulary candidate",
+            "version: 2.8.3",
+            "unpublished Ivrit Sheli 2.8.3 Visual Recognition Expansion candidate",
             "verified public v2.4.0 release",
         ),
     }
@@ -651,7 +664,7 @@ def verify_release_truth_drift() -> list[str]:
 
 def verify_source_version_surfaces() -> list[str]:
     """Keep executable and human-facing release versions synchronized."""
-    expected_version = "2.8.2"
+    expected_version = "2.8.3"
     failures: list[str] = []
 
     try:
@@ -684,14 +697,14 @@ def verify_source_version_surfaces() -> list[str]:
             )
 
     expected_fragments = {
-        "backend/src/ivrit_sheli/__init__.py": '__version__ = "2.8.2"',
+        "backend/src/ivrit_sheli/__init__.py": '__version__ = "2.8.3"',
         "frontend/index.html": "Ivrit Sheli 2.8",
-        "frontend/public/sw.js": "ivrit-sheli-shell-v2.8.2",
-        "frontend/src/App.tsx": "v2.8.2 local candidate",
-        "frontend/src/components/AuthGate.tsx": "v2.8.2 local candidate",
-        "frontend/src/components/SettingsPanel.tsx": "app_version: '2.8.2'",
-        ".github/ISSUE_TEMPLATE/bug_report.yml": "placeholder: 2.8.2-private",
-        "CITATION.cff": "version: 2.8.2",
+        "frontend/public/sw.js": "ivrit-sheli-shell-v2.8.3-visual-r2",
+        "frontend/src/App.tsx": "v2.8.3 local candidate",
+        "frontend/src/components/AuthGate.tsx": "v2.8.3 local candidate",
+        "frontend/src/components/SettingsPanel.tsx": "app_version: '2.8.3'",
+        ".github/ISSUE_TEMPLATE/bug_report.yml": "placeholder: 2.8.3-private",
+        "CITATION.cff": "version: 2.8.3",
     }
     for relative, fragment in expected_fragments.items():
         try:

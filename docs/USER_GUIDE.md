@@ -18,9 +18,9 @@ The same launcher can be started from PowerShell:
 
 ### First Steps onboarding
 
-On a new browser profile, the app first teaches three useful words before asking for an account or configuration. After that low-friction lesson, the learner can create a separate local profile, choose a display name and complete the short personal setup for level, goal, daily rhythm, voice and learning mode. The Guided experience is the default for a new learner and intentionally reduces the main navigation to Today, Words and Help; Explorer and Experienced progressively reveal more controls without discarding progress.
+On a new browser profile, the app first teaches three useful words before asking for an account or configuration. After that low-friction lesson, the learner can enter a separate local profile or use a configured identity provider, choose a display name and complete the short personal setup for level, goal, daily rhythm, voice and learning mode. The Guided experience is the default for a new learner and intentionally reduces the main navigation to Today, Words and Help; Explorer and Experienced progressively reveal more controls without discarding progress.
 
-The first lesson introduces five useful words: `שלום`, `תודה`, `בבקשה`, `כן` and `לא`. Each card combines a code-native visual cue, niqqud, romanization, English/Spanish meaning, a practical example and pronunciation. Saved words, submitted practice and navigation checkpoint use the active learner profile, so an authenticated learner can recover progress after signing in again.
+The pre-account preview teaches `שלום`, `תודה` and `בבקשה`. The optional First Steps collection then expands that foundation with `כן` and `לא`. Each card combines an exact code-native scene, niqqud, romanization, a localized meaning, a practical example and pronunciation. Saved words, submitted practice and navigation checkpoints use the active learner profile, so an authenticated learner can recover progress after signing in again.
 
 ### Development mode
 
@@ -96,7 +96,9 @@ Every Hebrew token rendered through the shared `HebrewText` component opens the 
 - IPA, audio URLs, and pronunciation fallback.
 - Source and license attribution.
 
-The bundled 240-concept A0–A2 layer also shows a stable visual cue and localized accessible description. Twenty-four words use exact semantic SVG scenes: five inherited First Steps scenes and nineteen new context-rich scenes. The other 216 concepts use explicit category-composition and emoji fallbacks. The nineteen new scenes can progressively reveal context, meaning and anchor layers; the five inherited scenes are currently all-or-nothing. Beginner facts appear first; advanced grammar, forms and provenance remain available without crowding the initial view. Visual cues aid memory but are not presented as grammatical evidence. An imported or unsupported word can correctly have no illustration.
+The bundled 240-concept A0–A2 layer also shows a stable visual cue and localized accessible description. Seventy-two frequent concepts use exact semantic SVG scenes; all support progressive `context`, `meaning` and `anchor` layers. The remaining 168 concepts use explicit category-composition and emoji fallbacks. Today features up to six exact scenes selected from the learner's recommendations before deterministic exact-scene backfill. Dictionary results use a simplified thumbnail, while the drawer uses a larger hero scene. Beginner facts appear first; advanced grammar, forms and provenance remain available without crowding the initial view. Visual cues aid memory but are not presented as grammatical evidence. An imported or unsupported word can correctly have no illustration.
+
+For visual review on the same PC or private Wi-Fi, append `?visualQa=1` to the local pilot URL. The private QA gallery compares all 72 exact scenes at three sizes and offers a seeded five-second recognition check. It is unavailable on a public hostname and does not persist a learner score.
 
 ## Finishing a visit
 

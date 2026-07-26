@@ -32,14 +32,12 @@ The frontend includes a small custom inline SVG icon set. Icons inherit `current
 
 ## Word illustrations
 
-The reviewed layer contains 240 concepts. Twenty-four words use exact semantic
-code-native SVG scenes: five inherited First Steps scenes and nineteen new
-context-rich scenes. The other 216 concepts use explicit category-composition
-and emoji fallbacks rather than being presented as bespoke art. Each cue is
+The reviewed layer contains 240 concepts. Seventy-two words use exact semantic
+code-native SVG scenes with progressive context, meaning and anchor layers.
+The other 168 concepts use explicit category-composition and emoji fallbacks
+rather than being presented as bespoke art. Each cue is
 selected for recall rather than decoration and is paired with localized Hebrew,
-English and Spanish alternative text. The nineteen new scenes can progressively
-reveal context, meaning and anchor layers; the five inherited scenes are
-currently all-or-nothing. Illustration colors reuse the warm tokens so
+English and Spanish alternative text. Illustration colors reuse the warm tokens so
 high-contrast and theme behavior stay coherent. Images do not load from
 third-party hosts, track learners or introduce a separate asset license.
 
@@ -61,4 +59,4 @@ Set direction at the smallest correct semantic boundary. Hebrew content uses `di
 
 Voice, microphone, registry and expanded dictionary layouts collapse to one column on small screens. Filter rows remain horizontally reachable, focus rings stay visible, and direction-sensitive drawers/entry animations have RTL variants.
 
-Onboarding and the five-word lesson also collapse to one column below the tablet breakpoint. Primary actions remain at least 44 px high, step state is communicated in text as well as color, and Hebrew content keeps its own `dir="rtl"` boundary even when the interface is English or Spanish.
+Onboarding and First Steps also collapse to one column below the tablet breakpoint. Primary actions remain at least 48 px high, functional copy remains at least 16 px, pointed Hebrew remains at least 28 px, step state is communicated in text as well as color, and Hebrew content keeps its own `dir="rtl"` boundary even when the interface is English or Spanish.

@@ -2908,19 +2908,20 @@ body { font-size: 16px; line-height: 1.5; }
 .demo-tour__stop > svg { align-self: center; color: var(--warm-teal); }
 
 .visual-vocabulary { padding: clamp(20px, 3vw, 30px); }
-.visual-vocabulary__grid { margin-top: 20px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+.visual-vocabulary__grid { margin-top: 20px; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
 .visual-vocabulary__grid button { min-height: 188px; padding: 12px; border: 1px solid var(--border); border-radius: 18px; display: grid; place-items: center; align-content: end; gap: 4px; background: var(--surface-solid); color: var(--text); cursor: pointer; transition: transform 180ms var(--ease), border-color 180ms ease; }
 .visual-vocabulary__grid button:hover { transform: translateY(-3px); border-color: var(--border-strong); }
-.visual-vocabulary__grid .word-art { max-width: 140px; }
-.visual-vocabulary__grid strong { font: 800 1.5rem var(--font-hebrew); }
-.visual-vocabulary__grid span { color: var(--text); font-size: 0.86rem; text-align: center; }
+.visual-vocabulary__grid .word-art,
+.visual-vocabulary__grid .semantic-art { max-width: 160px; }
+.visual-vocabulary__grid strong { font: 800 1.75rem var(--font-hebrew); }
+.visual-vocabulary__grid span { color: var(--text); font-size: 1rem; line-height: 1.35; text-align: center; }
 
 /* Dictionary visual cues and calm progressive disclosure */
-.dictionary-visual { width: min(220px, 34vw); flex: 0 0 auto; padding: 12px; border-radius: 20px; background: linear-gradient(145deg, var(--warm-gold-soft), var(--warm-teal-soft)); }
+.dictionary-visual { width: min(280px, 44vw); flex: 0 0 auto; padding: 12px; border-radius: 20px; background: linear-gradient(145deg, var(--warm-gold-soft), var(--warm-teal-soft)); }
 .dictionary-visual-stage { display: flex; justify-content: center; margin-bottom: 10px; }
 .dictionary-emoji-visual { min-width: 116px; min-height: 116px; display: inline-grid; place-items: center; border-radius: 20px; background: linear-gradient(145deg, var(--warm-gold-soft), var(--warm-teal-soft)); }
 .dictionary-emoji-visual > span { font-size: clamp(3.2rem, 8vw, 5rem); filter: drop-shadow(0 8px 12px rgba(57, 42, 20, 0.12)); }
-.dictionary-result__visual { width: 96px; margin: 0 0 8px; padding: 5px; border-radius: 14px; background: linear-gradient(145deg, var(--warm-gold-soft), var(--warm-teal-soft)); }
+.dictionary-result__visual { width: 160px; max-width: 100%; margin: 0 0 8px; padding: 5px; border-radius: 14px; background: linear-gradient(145deg, var(--warm-gold-soft), var(--warm-teal-soft)); }
 .dictionary-result .dictionary-emoji-visual { min-width: 68px; min-height: 68px; }
 .dictionary-result .dictionary-emoji-visual > span { font-size: 2.3rem; }
 .dictionary-more { margin-top: 18px; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; background: var(--surface-soft); }

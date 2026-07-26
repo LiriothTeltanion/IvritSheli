@@ -631,16 +631,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "A mother",
-              "es": "Una madre",
-              "he": "אמא"
+              "en": "A family relationship diagram highlights the mother above her child",
+              "es": "Un diagrama familiar destaca a la madre sobre su hijo",
+              "he": "תרשים משפחתי מדגיש את האם מעל הילד"
             },
             "emoji": "👩",
             "key": "family.mother"
           },
-          "visual_alt_en": "A mother",
-          "visual_alt_es": "Una madre",
-          "visual_alt_he": "אמא",
+          "visual_alt_en": "A family relationship diagram highlights the mother above her child",
+          "visual_alt_es": "Un diagrama familiar destaca a la madre sobre su hijo",
+          "visual_alt_he": "תרשים משפחתי מדגיש את האם מעל הילד",
           "visual_emoji": "👩",
           "visual_key": "family.mother"
         }
@@ -650,9 +650,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "A mother",
-          "es": "Una madre",
-          "he": "אמא"
+          "en": "A family relationship diagram highlights the mother above her child",
+          "es": "Un diagrama familiar destaca a la madre sobre su hijo",
+          "he": "תרשים משפחתי מדגיש את האם מעל הילד"
         },
         "emoji": "👩",
         "key": "family.mother"
@@ -704,16 +704,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "A father",
-              "es": "Un padre",
-              "he": "אבא"
+              "en": "A family relationship diagram highlights the father above his child",
+              "es": "Un diagrama familiar destaca al padre sobre su hijo",
+              "he": "תרשים משפחתי מדגיש את האב מעל הילד"
             },
             "emoji": "👨",
             "key": "family.father"
           },
-          "visual_alt_en": "A father",
-          "visual_alt_es": "Un padre",
-          "visual_alt_he": "אבא",
+          "visual_alt_en": "A family relationship diagram highlights the father above his child",
+          "visual_alt_es": "Un diagrama familiar destaca al padre sobre su hijo",
+          "visual_alt_he": "תרשים משפחתי מדגיש את האב מעל הילד",
           "visual_emoji": "👨",
           "visual_key": "family.father"
         }
@@ -723,9 +723,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "A father",
-          "es": "Un padre",
-          "he": "אבא"
+          "en": "A family relationship diagram highlights the father above his child",
+          "es": "Un diagrama familiar destaca al padre sobre su hijo",
+          "he": "תרשים משפחתי מדגיש את האב מעל הילד"
         },
         "emoji": "👨",
         "key": "family.father"
@@ -777,16 +777,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "A brother",
-              "es": "Un hermano",
-              "he": "אח"
+              "en": "A family relationship diagram highlights a brother beside his sibling",
+              "es": "Un diagrama familiar destaca a un hermano junto a su hermano o hermana",
+              "he": "תרשים משפחתי מדגיש אח לצד אחיו או אחותו"
             },
             "emoji": "👦",
             "key": "family.brother"
           },
-          "visual_alt_en": "A brother",
-          "visual_alt_es": "Un hermano",
-          "visual_alt_he": "אח",
+          "visual_alt_en": "A family relationship diagram highlights a brother beside his sibling",
+          "visual_alt_es": "Un diagrama familiar destaca a un hermano junto a su hermano o hermana",
+          "visual_alt_he": "תרשים משפחתי מדגיש אח לצד אחיו או אחותו",
           "visual_emoji": "👦",
           "visual_key": "family.brother"
         }
@@ -796,9 +796,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "A brother",
-          "es": "Un hermano",
-          "he": "אח"
+          "en": "A family relationship diagram highlights a brother beside his sibling",
+          "es": "Un diagrama familiar destaca a un hermano junto a su hermano o hermana",
+          "he": "תרשים משפחתי מדגיש אח לצד אחיו או אחותו"
         },
         "emoji": "👦",
         "key": "family.brother"
@@ -850,16 +850,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "A sister",
-              "es": "Una hermana",
-              "he": "אחות"
+              "en": "A family relationship diagram highlights a sister beside her sibling",
+              "es": "Un diagrama familiar destaca a una hermana junto a su hermano o hermana",
+              "he": "תרשים משפחתי מדגיש אחות לצד אחיה או אחותה"
             },
             "emoji": "👧",
             "key": "family.sister"
           },
-          "visual_alt_en": "A sister",
-          "visual_alt_es": "Una hermana",
-          "visual_alt_he": "אחות",
+          "visual_alt_en": "A family relationship diagram highlights a sister beside her sibling",
+          "visual_alt_es": "Un diagrama familiar destaca a una hermana junto a su hermano o hermana",
+          "visual_alt_he": "תרשים משפחתי מדגיש אחות לצד אחיה או אחותה",
           "visual_emoji": "👧",
           "visual_key": "family.sister"
         }
@@ -869,9 +869,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "A sister",
-          "es": "Una hermana",
-          "he": "אחות"
+          "en": "A family relationship diagram highlights a sister beside her sibling",
+          "es": "Un diagrama familiar destaca a una hermana junto a su hermano o hermana",
+          "he": "תרשים משפחתי מדגיש אחות לצד אחיה או אחותה"
         },
         "emoji": "👧",
         "key": "family.sister"
@@ -923,16 +923,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "A grandmother",
-              "es": "Una abuela",
-              "he": "סבתא"
+              "en": "A three-generation family diagram highlights the grandmother",
+              "es": "Un diagrama familiar de tres generaciones destaca a la abuela",
+              "he": "תרשים משפחתי בן שלושה דורות מדגיש את הסבתא"
             },
             "emoji": "👵",
             "key": "family.grandmother"
           },
-          "visual_alt_en": "A grandmother",
-          "visual_alt_es": "Una abuela",
-          "visual_alt_he": "סבתא",
+          "visual_alt_en": "A three-generation family diagram highlights the grandmother",
+          "visual_alt_es": "Un diagrama familiar de tres generaciones destaca a la abuela",
+          "visual_alt_he": "תרשים משפחתי בן שלושה דורות מדגיש את הסבתא",
           "visual_emoji": "👵",
           "visual_key": "family.grandmother"
         }
@@ -942,9 +942,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "A grandmother",
-          "es": "Una abuela",
-          "he": "סבתא"
+          "en": "A three-generation family diagram highlights the grandmother",
+          "es": "Un diagrama familiar de tres generaciones destaca a la abuela",
+          "he": "תרשים משפחתי בן שלושה דורות מדגיש את הסבתא"
         },
         "emoji": "👵",
         "key": "family.grandmother"
@@ -996,16 +996,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "A grandfather",
-              "es": "Un abuelo",
-              "he": "סבא"
+              "en": "A three-generation family diagram highlights the grandfather",
+              "es": "Un diagrama familiar de tres generaciones destaca al abuelo",
+              "he": "תרשים משפחתי בן שלושה דורות מדגיש את הסבא"
             },
             "emoji": "👴",
             "key": "family.grandfather"
           },
-          "visual_alt_en": "A grandfather",
-          "visual_alt_es": "Un abuelo",
-          "visual_alt_he": "סבא",
+          "visual_alt_en": "A three-generation family diagram highlights the grandfather",
+          "visual_alt_es": "Un diagrama familiar de tres generaciones destaca al abuelo",
+          "visual_alt_he": "תרשים משפחתי בן שלושה דורות מדגיש את הסבא",
           "visual_emoji": "👴",
           "visual_key": "family.grandfather"
         }
@@ -1015,9 +1015,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "A grandfather",
-          "es": "Un abuelo",
-          "he": "סבא"
+          "en": "A three-generation family diagram highlights the grandfather",
+          "es": "Un diagrama familiar de tres generaciones destaca al abuelo",
+          "he": "תרשים משפחתי בן שלושה דורות מדגיש את הסבא"
         },
         "emoji": "👴",
         "key": "family.grandfather"
@@ -1069,16 +1069,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "A family together",
-              "es": "Una familia reunida",
-              "he": "משפחה ביחד"
+              "en": "A warm multi-generation family diagram with every relative connected",
+              "es": "Un cálido diagrama familiar multigeneracional con todos conectados",
+              "he": "תרשים משפחתי חם ורב דורי שבו כולם מחוברים"
             },
             "emoji": "👪",
             "key": "family.family"
           },
-          "visual_alt_en": "A family together",
-          "visual_alt_es": "Una familia reunida",
-          "visual_alt_he": "משפחה ביחד",
+          "visual_alt_en": "A warm multi-generation family diagram with every relative connected",
+          "visual_alt_es": "Un cálido diagrama familiar multigeneracional con todos conectados",
+          "visual_alt_he": "תרשים משפחתי חם ורב דורי שבו כולם מחוברים",
           "visual_emoji": "👪",
           "visual_key": "family.family"
         }
@@ -1088,9 +1088,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "A family together",
-          "es": "Una familia reunida",
-          "he": "משפחה ביחד"
+          "en": "A warm multi-generation family diagram with every relative connected",
+          "es": "Un cálido diagrama familiar multigeneracional con todos conectados",
+          "he": "תרשים משפחתי חם ורב דורי שבו כולם מחוברים"
         },
         "emoji": "👪",
         "key": "family.family"
@@ -3624,16 +3624,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "A quiet moon above sleeping homes",
-              "es": "Una luna tranquila sobre casas dormidas",
-              "he": "ירח שקט מעל בתים ישנים"
+              "en": "A person settling into bed beneath a moonlit window",
+              "es": "Una persona se acomoda en la cama bajo una ventana iluminada por la luna",
+              "he": "אדם נכנס למיטה מתחת לחלון מואר באור הירח"
             },
             "emoji": "🌙",
             "key": "greetings.good_night"
           },
-          "visual_alt_en": "A quiet moon above sleeping homes",
-          "visual_alt_es": "Una luna tranquila sobre casas dormidas",
-          "visual_alt_he": "ירח שקט מעל בתים ישנים",
+          "visual_alt_en": "A person settling into bed beneath a moonlit window",
+          "visual_alt_es": "Una persona se acomoda en la cama bajo una ventana iluminada por la luna",
+          "visual_alt_he": "אדם נכנס למיטה מתחת לחלון מואר באור הירח",
           "visual_emoji": "🌙",
           "visual_key": "greetings.good_night"
         }
@@ -3643,9 +3643,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "A quiet moon above sleeping homes",
-          "es": "Una luna tranquila sobre casas dormidas",
-          "he": "ירח שקט מעל בתים ישנים"
+          "en": "A person settling into bed beneath a moonlit window",
+          "es": "Una persona se acomoda en la cama bajo una ventana iluminada por la luna",
+          "he": "אדם נכנס למיטה מתחת לחלון מואר באור הירח"
         },
         "emoji": "🌙",
         "key": "greetings.good_night"
@@ -3843,16 +3843,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "Parents standing together with their child",
-              "es": "Padres junto a su hijo",
-              "he": "הורים עומדים יחד עם ילדם"
+              "en": "A family relationship diagram highlights both parents above their child",
+              "es": "Un diagrama familiar destaca a ambos padres sobre su hijo",
+              "he": "תרשים משפחתי מדגיש את שני ההורים מעל הילד"
             },
             "emoji": "🧑‍🧑‍🧒",
             "key": "family.parents"
           },
-          "visual_alt_en": "Parents standing together with their child",
-          "visual_alt_es": "Padres junto a su hijo",
-          "visual_alt_he": "הורים עומדים יחד עם ילדם",
+          "visual_alt_en": "A family relationship diagram highlights both parents above their child",
+          "visual_alt_es": "Un diagrama familiar destaca a ambos padres sobre su hijo",
+          "visual_alt_he": "תרשים משפחתי מדגיש את שני ההורים מעל הילד",
           "visual_emoji": "🧑‍🧑‍🧒",
           "visual_key": "family.parents"
         }
@@ -3862,9 +3862,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "Parents standing together with their child",
-          "es": "Padres junto a su hijo",
-          "he": "הורים עומדים יחד עם ילדם"
+          "en": "A family relationship diagram highlights both parents above their child",
+          "es": "Un diagrama familiar destaca a ambos padres sobre su hijo",
+          "he": "תרשים משפחתי מדגיש את שני ההורים מעל הילד"
         },
         "emoji": "🧑‍🧑‍🧒",
         "key": "family.parents"
@@ -3916,16 +3916,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "A son standing beside his parent",
-              "es": "Un hijo junto a uno de sus padres",
-              "he": "בן עומד ליד אחד מהוריו"
+              "en": "A family relationship diagram highlights a son below his parents",
+              "es": "Un diagrama familiar destaca a un hijo debajo de sus padres",
+              "he": "תרשים משפחתי מדגיש בן מתחת להוריו"
             },
             "emoji": "👦",
             "key": "family.son"
           },
-          "visual_alt_en": "A son standing beside his parent",
-          "visual_alt_es": "Un hijo junto a uno de sus padres",
-          "visual_alt_he": "בן עומד ליד אחד מהוריו",
+          "visual_alt_en": "A family relationship diagram highlights a son below his parents",
+          "visual_alt_es": "Un diagrama familiar destaca a un hijo debajo de sus padres",
+          "visual_alt_he": "תרשים משפחתי מדגיש בן מתחת להוריו",
           "visual_emoji": "👦",
           "visual_key": "family.son"
         }
@@ -3935,9 +3935,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "A son standing beside his parent",
-          "es": "Un hijo junto a uno de sus padres",
-          "he": "בן עומד ליד אחד מהוריו"
+          "en": "A family relationship diagram highlights a son below his parents",
+          "es": "Un diagrama familiar destaca a un hijo debajo de sus padres",
+          "he": "תרשים משפחתי מדגיש בן מתחת להוריו"
         },
         "emoji": "👦",
         "key": "family.son"
@@ -3989,16 +3989,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "A daughter standing beside her parent",
-              "es": "Una hija junto a uno de sus padres",
-              "he": "בת עומדת ליד אחד מהוריה"
+              "en": "A family relationship diagram highlights a daughter below her parents",
+              "es": "Un diagrama familiar destaca a una hija debajo de sus padres",
+              "he": "תרשים משפחתי מדגיש בת מתחת להוריה"
             },
             "emoji": "👧",
             "key": "family.daughter"
           },
-          "visual_alt_en": "A daughter standing beside her parent",
-          "visual_alt_es": "Una hija junto a uno de sus padres",
-          "visual_alt_he": "בת עומדת ליד אחד מהוריה",
+          "visual_alt_en": "A family relationship diagram highlights a daughter below her parents",
+          "visual_alt_es": "Un diagrama familiar destaca a una hija debajo de sus padres",
+          "visual_alt_he": "תרשים משפחתי מדגיש בת מתחת להוריה",
           "visual_emoji": "👧",
           "visual_key": "family.daughter"
         }
@@ -4008,9 +4008,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "A daughter standing beside her parent",
-          "es": "Una hija junto a uno de sus padres",
-          "he": "בת עומדת ליד אחד מהוריה"
+          "en": "A family relationship diagram highlights a daughter below her parents",
+          "es": "Un diagrama familiar destaca a una hija debajo de sus padres",
+          "he": "תרשים משפחתי מדגיש בת מתחת להוריה"
         },
         "emoji": "👧",
         "key": "family.daughter"
@@ -4062,16 +4062,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "A boy reading a book",
-              "es": "Un niño leyendo un libro",
-              "he": "ילד קורא ספר"
+              "en": "A young boy beside a clear masculine square marker",
+              "es": "Un niño junto a un marcador masculino cuadrado y claro",
+              "he": "ילד צעיר לצד סמן זכרי מרובע וברור"
             },
             "emoji": "🧒",
             "key": "family.boy"
           },
-          "visual_alt_en": "A boy reading a book",
-          "visual_alt_es": "Un niño leyendo un libro",
-          "visual_alt_he": "ילד קורא ספר",
+          "visual_alt_en": "A young boy beside a clear masculine square marker",
+          "visual_alt_es": "Un niño junto a un marcador masculino cuadrado y claro",
+          "visual_alt_he": "ילד צעיר לצד סמן זכרי מרובע וברור",
           "visual_emoji": "🧒",
           "visual_key": "family.boy"
         }
@@ -4081,9 +4081,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "A boy reading a book",
-          "es": "Un niño leyendo un libro",
-          "he": "ילד קורא ספר"
+          "en": "A young boy beside a clear masculine square marker",
+          "es": "Un niño junto a un marcador masculino cuadrado y claro",
+          "he": "ילד צעיר לצד סמן זכרי מרובע וברור"
         },
         "emoji": "🧒",
         "key": "family.boy"
@@ -4135,16 +4135,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "A girl drinking a glass of water",
-              "es": "Una niña bebiendo un vaso de agua",
-              "he": "ילדה שותה כוס מים"
+              "en": "A young girl beside a clear feminine circle marker",
+              "es": "Una niña junto a un marcador femenino circular y claro",
+              "he": "ילדה צעירה לצד סמן נקבי עגול וברור"
             },
             "emoji": "🧒",
             "key": "family.girl"
           },
-          "visual_alt_en": "A girl drinking a glass of water",
-          "visual_alt_es": "Una niña bebiendo un vaso de agua",
-          "visual_alt_he": "ילדה שותה כוס מים",
+          "visual_alt_en": "A young girl beside a clear feminine circle marker",
+          "visual_alt_es": "Una niña junto a un marcador femenino circular y claro",
+          "visual_alt_he": "ילדה צעירה לצד סמן נקבי עגול וברור",
           "visual_emoji": "🧒",
           "visual_key": "family.girl"
         }
@@ -4154,9 +4154,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "A girl drinking a glass of water",
-          "es": "Una niña bebiendo un vaso de agua",
-          "he": "ילדה שותה כוס מים"
+          "en": "A young girl beside a clear feminine circle marker",
+          "es": "Una niña junto a un marcador femenino circular y claro",
+          "he": "ילדה צעירה לצד סמן נקבי עגול וברור"
         },
         "emoji": "🧒",
         "key": "family.girl"
@@ -4646,16 +4646,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "A cooked egg on a plate",
-              "es": "Un huevo cocido en un plato",
-              "he": "ביצה מבושלת על צלחת"
+              "en": "An egg cracking above a pan with the yolk visible",
+              "es": "Un huevo se rompe sobre una sartén con la yema visible",
+              "he": "ביצה נשברת מעל מחבת והחלמון נראה"
             },
             "emoji": "🥚",
             "key": "food.egg"
           },
-          "visual_alt_en": "A cooked egg on a plate",
-          "visual_alt_es": "Un huevo cocido en un plato",
-          "visual_alt_he": "ביצה מבושלת על צלחת",
+          "visual_alt_en": "An egg cracking above a pan with the yolk visible",
+          "visual_alt_es": "Un huevo se rompe sobre una sartén con la yema visible",
+          "visual_alt_he": "ביצה נשברת מעל מחבת והחלמון נראה",
           "visual_emoji": "🥚",
           "visual_key": "food.egg"
         }
@@ -4665,9 +4665,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "A cooked egg on a plate",
-          "es": "Un huevo cocido en un plato",
-          "he": "ביצה מבושלת על צלחת"
+          "en": "An egg cracking above a pan with the yolk visible",
+          "es": "Un huevo se rompe sobre una sartén con la yema visible",
+          "he": "ביצה נשברת מעל מחבת והחלמון נראה"
         },
         "emoji": "🥚",
         "key": "food.egg"
@@ -8296,16 +8296,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "A festive new-year greeting card",
-              "es": "Una tarjeta festiva de año nuevo",
-              "he": "כרטיס ברכה חגיגי לשנה החדשה"
+              "en": "A circular year wheel divided into four changing seasons",
+              "es": "Una rueda anual circular dividida en cuatro estaciones",
+              "he": "גלגל שנה עגול המחולק לארבע עונות מתחלפות"
             },
             "emoji": "🎆",
             "key": "time.year"
           },
-          "visual_alt_en": "A festive new-year greeting card",
-          "visual_alt_es": "Una tarjeta festiva de año nuevo",
-          "visual_alt_he": "כרטיס ברכה חגיגי לשנה החדשה",
+          "visual_alt_en": "A circular year wheel divided into four changing seasons",
+          "visual_alt_es": "Una rueda anual circular dividida en cuatro estaciones",
+          "visual_alt_he": "גלגל שנה עגול המחולק לארבע עונות מתחלפות",
           "visual_emoji": "🎆",
           "visual_key": "time.year"
         }
@@ -8315,9 +8315,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "A festive new-year greeting card",
-          "es": "Una tarjeta festiva de año nuevo",
-          "he": "כרטיס ברכה חגיגי לשנה החדשה"
+          "en": "A circular year wheel divided into four changing seasons",
+          "es": "Una rueda anual circular dividida en cuatro estaciones",
+          "he": "גלגל שנה עגול המחולק לארבע עונות מתחלפות"
         },
         "emoji": "🎆",
         "key": "time.year"
@@ -8515,16 +8515,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "A market stall at dusk",
-              "es": "Un puesto de mercado al anochecer",
-              "he": "דוכן בשוק בשעת בין ערביים"
+              "en": "Two calendar pages with an arrow pointing back to the previous day",
+              "es": "Dos páginas de calendario con una flecha hacia el día anterior",
+              "he": "שני דפי לוח שנה עם חץ החוזר אל היום הקודם"
             },
             "emoji": "🌙",
             "key": "time.yesterday"
           },
-          "visual_alt_en": "A market stall at dusk",
-          "visual_alt_es": "Un puesto de mercado al anochecer",
-          "visual_alt_he": "דוכן בשוק בשעת בין ערביים",
+          "visual_alt_en": "Two calendar pages with an arrow pointing back to the previous day",
+          "visual_alt_es": "Dos páginas de calendario con una flecha hacia el día anterior",
+          "visual_alt_he": "שני דפי לוח שנה עם חץ החוזר אל היום הקודם",
           "visual_emoji": "🌙",
           "visual_key": "time.yesterday"
         }
@@ -8534,9 +8534,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "A market stall at dusk",
-          "es": "Un puesto de mercado al anochecer",
-          "he": "דוכן בשוק בשעת בין ערביים"
+          "en": "Two calendar pages with an arrow pointing back to the previous day",
+          "es": "Dos páginas de calendario con una flecha hacia el día anterior",
+          "he": "שני דפי לוח שנה עם חץ החוזר אל היום הקודם"
         },
         "emoji": "🌙",
         "key": "time.yesterday"

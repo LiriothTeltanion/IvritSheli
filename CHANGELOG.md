@@ -2,6 +2,49 @@
 
 All notable changes are documented here. Versions follow Semantic Versioning.
 
+## 2.8.3 — Visual Recognition Expansion — Private candidate
+
+This private slice expands meaning-first illustration coverage from 24 to 72
+reviewed concepts. It remains local, untagged, unpushed and unpublished; the
+verified public Railway and GitHub release remains 2.4.0.
+
+### Added
+
+- Forty-eight new exact semantic scenes across family, places, food, home,
+  greetings, time and routine.
+- Visible redesigns of all 24 foundation scenes plus progressive
+  `context → meaning → anchor` layers for all 72 exact scenes.
+- A recommendation-first Today `visual_spotlight` contract that promotes
+  learner-ranked exact scenes, then uses deterministic exact-scene backfill.
+- A private-host-only `?visualQa=1` gallery comparing thumbnail, card and hero
+  sizes, light/dark themes, three accessible languages and a seeded
+  five-second recognition check.
+- Cross-stack catalog verification for exactly 72 semantic scenes and 168
+  explicitly marked fallbacks.
+
+### Changed
+
+- Today now shows six reviewed visual recommendations instead of a fixed
+  five-word collection, while retaining a safe fallback for older servers.
+- Dictionary result illustrations are approximately 160 × 120 px and the
+  drawer scene can grow to approximately 280 × 210 px.
+- Small illustrations remove fine decorative lines automatically, and
+  meaning-related motion remains disabled under reduced-motion preferences.
+- The subject and discriminating action now dominate each scene; settings and
+  secondary objects support recognition without becoming visual noise.
+- Family scenes use a shared three-generation diagram with color-independent
+  square, circle and reference markers rather than activity stereotypes.
+- Trilingual alternative text now describes the actual redesigned
+  composition, with targeted regressions for family, egg, good night, year and
+  yesterday.
+
+### Verification boundary
+
+- Automated scene structure and catalog checks are implemented. Human
+  recognition remains a pilot outcome, not an invented metric.
+- Kevin's mother must still test at least twelve scenes; repeated confusion
+  remains a redesign trigger before any public 2.8 release.
+
 ## 2.8.2 — Visual Vocabulary — Private candidate
 
 This private slice makes beginner imagery meaning-first instead of

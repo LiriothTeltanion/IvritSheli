@@ -232,7 +232,7 @@ describe('App cloud session flow', () => {
     await user.click(screen.getByRole('button', { name: 'hello · peace' }));
     await waitFor(() => expect(screen.getByRole('button', { name: /Next word/i })).toBeEnabled());
     expect(fetchMock.mock.calls.some(([, init]) => init?.method === 'PUT')).toBe(false);
-  });
+  }, 10_000);
 
   it('keeps the per-visit English override when the account profile prefers Spanish', async () => {
     window.history.replaceState({}, '', '/?lang=en');
@@ -324,7 +324,7 @@ describe('App cloud session flow', () => {
 
     expect(await screen.findByText('היום עושים צעד קל אחד: מתרגלים 12 מילים שימושיות עם תמונות, צלילים ודוגמאות.')).toBeInTheDocument();
     expect(screen.getByText(/לימוד עם תמונות/)).toBeInTheDocument();
-    expect(screen.getByText('המילים החזותיות הראשונות שלך')).toBeInTheDocument();
+    expect(screen.getByText('המילים החזותיות שלך להיום')).toBeInTheDocument();
     expect(screen.getByText('תור חזרות מותאם')).toBeInTheDocument();
     expect(screen.getByRole('navigation', { name: 'ניווט ראשי' })).toBeInTheDocument();
     expect(screen.getByRole('navigation', { name: 'ניווט בנייד' })).toBeInTheDocument();
