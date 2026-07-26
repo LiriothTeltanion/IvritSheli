@@ -78,6 +78,39 @@ describe('AudioPractice', () => {
     expect(selectBrowserVoice(voices, 'masculine')?.name).toBe('Tav');
   });
 
+  it('sends canonical continuous Hebrew to both cloud and browser playback', async () => {
+    class UtteranceStub {
+      lang = '';
+      rate = 1;
+      pitch = 1;
+      voice: SpeechSynthesisVoice | null = null;
+      constructor(public text: string) {}
+    }
+    const speak = vi.fn();
+    vi.stubGlobal('SpeechSynthesisUtterance', UtteranceStub);
+    vi.stubGlobal('speechSynthesis', {
+      cancel: vi.fn(),
+      getVoices: () => [],
+      speak,
+    });
+    const tts = vi.spyOn(api, 'tts').mockResolvedValue({
+      provider: 'browser',
+      language: 'he-IL',
+      degraded_mode: false,
+    });
+    const user = userEvent.setup();
+
+    render(
+      <I18nProvider>
+        <AudioPractice initialText="בְּבַקָּשָׁה" onWordClick={vi.fn()} />
+      </I18nProvider>,
+    );
+    await user.click(screen.getByRole('button', { name: 'Play' }));
+
+    expect(tts).toHaveBeenCalledWith('בבקשה', false, 'feminine');
+    expect(speak.mock.calls[0]?.[0]).toMatchObject({ text: 'בבקשה', lang: 'he-IL' });
+  });
+
   it('discards a delayed TTS response after unmount instead of starting playback', async () => {
     let resolveTts!: (response: Awaited<ReturnType<typeof api.tts>>) => void;
     const ttsPromise = new Promise<Awaited<ReturnType<typeof api.tts>>>((resolve) => {

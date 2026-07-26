@@ -10,11 +10,12 @@ import { useI18n } from '../i18n';
 import { useSessionAccess } from '../session';
 import type { VoiceStyle } from '../types';
 import {
-  configureHebrewUtterance,
+  createHebrewUtterance,
   persistVoiceSpeed,
   persistVoiceStyle,
   readStoredVoiceSpeed,
   readStoredVoiceStyle,
+  resolveHebrewPronunciation,
   type VoiceSpeed,
 } from '../voicePreference';
 import { HebrewText } from './HebrewText';
@@ -182,9 +183,8 @@ export function AudioPractice({
       return;
     }
     window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    configureHebrewUtterance(
-      utterance,
+    const utterance = createHebrewUtterance(
+      text,
       window.speechSynthesis.getVoices(),
       voiceStyle,
       voiceSpeed,
@@ -201,7 +201,11 @@ export function AudioPractice({
     setLoadingVoice(true);
     setError('');
     try {
-      const response = await api.tts(target, cloudAvailable && cloud, voiceStyle);
+      const response = await api.tts(
+        resolveHebrewPronunciation(target).speechText,
+        cloudAvailable && cloud,
+        voiceStyle,
+      );
       if (!mountedRef.current || playGenerationRef.current !== playGeneration) return;
       if (response.audio_base64) {
         const previousAudio = audioRef.current;

@@ -2,6 +2,47 @@
 
 All notable changes are documented here. Versions follow Semantic Versioning.
 
+## 2.8.1 — Mother Pilot Polish — Private candidate
+
+This focused candidate responds to the first real Android pilot. It remains
+local, untagged, unpushed and unpublished; the verified public Railway and
+GitHub release remains 2.4.0 until Kevin approves publication.
+
+### Added
+
+- A separate first-run local learner profile so a shared Wi-Fi link does not
+  open with Kevin's identity or onboarding state.
+- A trilingual **Finish for today** flow with accessible confirmation, honest
+  browser/PWA close guidance and a safe return to learning.
+- A centralized Hebrew pronunciation resolver with separate display text,
+  canonical speech text, learner transliteration and future audio-asset/
+  word-override support.
+- Regression coverage for continuous `בבקשה`, display-mode guidance, local and
+  cloud profile-menu behavior, exact-sense illustrations and the mobile finish
+  flow.
+- An explicit vocabulary-illustration architecture and replacement plan.
+
+### Changed
+
+- All browser and optional cloud TTS entry points now receive normalized,
+  continuous Hebrew through the shared `he-IL` pronunciation path instead of
+  independently speaking display strings; reviewed niqqud remains available
+  for ambiguous words and only known device failures use narrow overrides.
+- The five First Steps illustrations now share a warmer storybook micro-scene
+  grammar with consistent frames, outlines, proportions, high-contrast
+  treatment and exact trilingual descriptions.
+- Settings remains reachable in Guided mode; the first local onboarding asks
+  for the learner's own display name.
+- Documentation now distinguishes five bespoke starter scenes from the 235
+  reusable category compositions instead of overstating concept-level art.
+
+### Platform boundary
+
+- The source is a web/PWA and has no native Android, iOS, Electron, Tauri or
+  Capacitor wrapper. It never calls unsupported `window.close()` behavior.
+- Automated tests verify exact speech input and locale, but naturalness still
+  requires a final listen on the target Samsung voice at normal and slow speed.
+
 ## 2.8.0 — Warm Illustrated Learning Journey — Release candidate
 
 This candidate remains private and unpublished. The verified Railway deployment, Git tag and GitHub Release remain at 2.4.0 until the complete verification matrix, two-real-account isolation check, backup/restore drill and beginner pilot are approved.

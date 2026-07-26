@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useI18n } from '../i18n';
 import { localizedText, starterWords, type StarterWord } from '../starterWords';
-import { configureHebrewUtterance } from '../voicePreference';
+import { createHebrewUtterance } from '../voicePreference';
 import { Icon } from './Icon';
 import { WordIllustration } from './WordIllustration';
 
@@ -58,8 +58,14 @@ export function FirstStepsLesson({
   const speak = (): void => {
     if (!current || !('speechSynthesis' in window)) return;
     window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(current.word);
-    configureHebrewUtterance(utterance, window.speechSynthesis.getVoices());
+    const utterance = createHebrewUtterance(
+      {
+        displayText: current.word,
+        speechText: current.speechText,
+        transliteration: current.transliteration,
+      },
+      window.speechSynthesis.getVoices(),
+    );
     window.speechSynthesis.speak(utterance);
   };
 

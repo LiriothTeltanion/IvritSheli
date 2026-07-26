@@ -14,6 +14,7 @@ export interface LocalizedText {
 export interface StarterWord {
   id: string;
   word: string;
+  speechText: string;
   dictionaryWord: string;
   transliteration: string;
   meaning: LocalizedText;
@@ -27,6 +28,7 @@ export const starterWords: readonly StarterWord[] = [
   {
     id: 'shalom',
     word: 'שָׁלוֹם',
+    speechText: 'שלום',
     dictionaryWord: 'שלום',
     transliteration: 'shalom',
     meaning: { en: 'hello · peace', es: 'hola · paz', he: 'ברכה · שלום' },
@@ -38,14 +40,15 @@ export const starterWords: readonly StarterWord[] = [
     },
     illustration: 'greeting',
     illustrationAlt: {
-      en: 'Two neighbors greeting each other warmly',
-      es: 'Dos vecinos saludándose con calidez',
-      he: 'שני שכנים מברכים זה את זה',
+      en: 'Two neighbors facing each other and waving hello',
+      es: 'Dos vecinos frente a frente saludándose con la mano',
+      he: 'שני שכנים עומדים זה מול זה ומנופפים לשלום',
     },
   },
   {
     id: 'toda',
     word: 'תּוֹדָה',
+    speechText: 'תודה',
     dictionaryWord: 'תודה',
     transliteration: 'toda',
     meaning: { en: 'thank you', es: 'gracias', he: 'מילת הודיה' },
@@ -57,14 +60,15 @@ export const starterWords: readonly StarterWord[] = [
     },
     illustration: 'gratitude',
     illustrationAlt: {
-      en: 'A person receiving a small gift with gratitude',
-      es: 'Una persona recibiendo un pequeño regalo con gratitud',
-      he: 'אדם מקבל מתנה קטנה בהוקרה',
+      en: 'Two neighbors sharing a small gift with gratitude',
+      es: 'Dos vecinos compartiendo un pequeño regalo con gratitud',
+      he: 'שני שכנים חולקים מתנה קטנה בהכרת תודה',
     },
   },
   {
     id: 'bevakasha',
     word: 'בְּבַקָּשָׁה',
+    speechText: 'בבקשה',
     dictionaryWord: 'בבקשה',
     transliteration: 'bevakasha',
     meaning: { en: 'please · you are welcome', es: 'por favor · de nada', he: 'מילת בקשה' },
@@ -76,14 +80,15 @@ export const starterWords: readonly StarterWord[] = [
     },
     illustration: 'please',
     illustrationAlt: {
-      en: 'A glass of water offered politely',
-      es: 'Un vaso de agua ofrecido con amabilidad',
-      he: 'כוס מים מוצעת בנימוס',
+      en: 'Two neighbors politely passing a glass of water',
+      es: 'Dos vecinos pasando un vaso de agua con amabilidad',
+      he: 'שני שכנים מעבירים כוס מים בנימוס',
     },
   },
   {
     id: 'ken',
     word: 'כֵּן',
+    speechText: 'כן',
     dictionaryWord: 'כן',
     transliteration: 'ken',
     meaning: { en: 'yes', es: 'sí', he: 'תשובה חיובית' },
@@ -103,6 +108,7 @@ export const starterWords: readonly StarterWord[] = [
   {
     id: 'lo',
     word: 'לֹא',
+    speechText: 'לא',
     dictionaryWord: 'לא',
     transliteration: 'lo',
     meaning: { en: 'no · not', es: 'no', he: 'שלילה' },

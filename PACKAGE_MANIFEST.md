@@ -1,11 +1,11 @@
-# Ivrit Sheli 2.8.0 — Private Candidate Package Manifest
+# Ivrit Sheli 2.8.1 — Mother Pilot Polish Package Manifest
 
 ## Release identity
 
 - Product: Ivrit Sheli — העברית שלי
-- Candidate name: Warm Illustrated Learning Journey
-- Source version: `2.8.0`
-- Candidate branch: `codex/ivrit-sheli-v2.8.0`
+- Candidate name: Mother Pilot Polish
+- Source version: `2.8.1`
+- Candidate branch: `codex/ivrit-sheli-v2.8.1`
 - Manifest update date: 2026-07-26
 - Time zone: Asia/Jerusalem
 - Author: Kevin Cusnir
@@ -17,8 +17,8 @@
 - Current public storage: managed PostgreSQL
 - Published implementation commit: `03bf84b9268ff8be528c0fab3c670f9652ee23b0`
 - Latest published Git tag and GitHub Release: `v2.4.0`
-- Candidate publication state: `2.8.0` is local, untagged, unpushed and unpublished
-- Publication gate: blocked pending two-account Google and mother-pilot verification, plus the active Devpost judging freeze
+- Candidate publication state: `2.8.1` is local, untagged, unpushed and unpublished
+- Publication gate: blocked pending two-account Google isolation, completion of the mother-pilot acceptance retest, the OpenAI Build Week winner announcement and Kevin's explicit publication approval
 - Personal signature: `KC ✦ LT` is reserved and excluded from the MIT asset grant
 - Dictionary-derived data: separate Wiktionary/Kaikki attribution and share-alike terms
 - Privacy notice: `PRIVACY.md`
@@ -27,7 +27,7 @@
 
 ## Candidate purpose
 
-This manifest describes the private 2.8 candidate without promoting it to a public release. The release is designed so a total beginner can open a shared link, learn three words and complete a first guided session without technical assistance, while Explorer and Experienced modes expose progressively richer navigation and learning controls.
+This manifest describes the private 2.8.1 candidate without promoting it to a public release. It retains the beginner-first journey and adds the focused fixes found during the mother pilot: isolated first-run profiles, centralized continuous Hebrew speech text, clearer exact-sense starter illustrations and an honest Finish for today flow for web/PWA use.
 
 The candidate provides structured A0–A2 coverage and labels B1/B2 content honestly as an experimental Lab rather than a complete B2 course. The public learning path is deterministic and local; no per-user LLM or cloud-audio call is required. Google sign-in requests identity only through `openid profile` and grants no Gmail, Drive or Calendar access.
 
@@ -89,7 +89,7 @@ The live Railway application, public tag and GitHub Release remain version 2.4.0
 - Twelve category illustration kits.
 - Stable `visual_id` values and trilingual alternative text.
 - Parameterized educational SVG compositions and optimized local WebP region art.
-- Emoji retained only as a fallback.
+- Five starter words use bespoke story scenes; the remaining 235 concepts currently combine reusable category compositions with semantic emoji cues while the professional-asset replacement roadmap advances.
 - Progressive visual-hint reveal to avoid showing the answer permanently.
 - Lazy-loaded major routes to keep the initial application bundle below the previous warning threshold.
 
@@ -105,7 +105,7 @@ The live Railway application, public tag and GitHub Release remain version 2.4.0
 
 ### Phone and PWA behavior
 
-- Direct web access from a WhatsApp link while connected.
+- Private pilot access from a same-Wi-Fi LAN link while the PC and local server remain running; public HTTPS sharing follows deployment.
 - Optional Add to Home Screen installation.
 - Cached public shell, initial lessons, six region images and reviewed starter dictionary.
 - Read-only cached content remains available offline.
@@ -130,7 +130,7 @@ The source tree includes:
 - Frontend React/TypeScript application with Guided, Explorer and Experienced modes.
 - Six optimized regional WebP illustrations under `frontend/public/illustrations/regions/`.
 - Twelve reusable category illustration kits.
-- `frontend/public/content/starter-dictionary-v2.8.json`, a 558,348-byte public offline dictionary with 240 reviewed entries.
+- `frontend/public/content/starter-dictionary-v2.8.json`, a 558,924-byte public offline dictionary with 240 reviewed entries.
 - PWA manifest and allowlisted service worker.
 - English, Spanish and Hebrew interface strings.
 - API, architecture, deployment, privacy, terms, changelog and competitive-benchmark documentation.
@@ -141,39 +141,39 @@ The source tree includes:
 
 `IvritSheli-v2.6-local.zip` is retained only as an obsolete historical artifact. It is not the 2.8 candidate and must not be distributed as the current application.
 
-A reproducible, commit-suffixed local candidate ZIP and external SHA-256 have been generated, extracted into a clean directory and verified. They remain private candidate artifacts—not a GitHub Release—until the external gates pass.
+The reproducible, commit-suffixed 2.8.1 ZIP, external SHA-256 and clean extracted-tree verification remain pending until the final checkpoint tree is committed. Any generated artifacts remain private candidates—not a GitHub Release—until the external gates pass.
 
 ## Verified private 2.8 candidate
 
 | Verification area | Current result |
 |---|---:|
-| Ordinary backend suite | 194 passed / 1 credential-gated PostgreSQL skip |
-| Frontend Vitest suite | 133 passed / 29 files |
-| Playwright + axe | 20 passed / 22 intentional skips / 0 failed |
-| Directly executed automated passes | 347 passed |
+| Ordinary backend suite | 195 passed / 1 credential-gated PostgreSQL skip |
+| Frontend Vitest suite | 158 passed / 32 files |
+| Playwright + axe | 21 passed / 24 intentional skips / 0 failed |
+| Directly executed automated passes | 374 passed |
 | Ruff | Passed |
 | Strict MyPy | Passed across 30 backend source files |
 | TypeScript / Vite build | Passed / passed |
 | Python compileall / offline doctor | Passed / passed |
 | pip-audit / npm production audit | No known vulnerabilities / 0 vulnerabilities |
 | Docker Compose configuration | Passed |
-| Source package verifier / canonical checksums | 124 required files / 270 Git blobs passed |
+| Source package verifier / canonical checksums | 136 required files / 277 canonical Git blobs passed |
 | PostgreSQL 17 / production image / restore drill | Passed / passed / passed in a disposable database |
-| Two live Google accounts / mother pilot | Not verified |
+| Two live Google accounts / mother pilot | Google gate not verified / Samsung pilot started, formal acceptance retest remains |
 
-The 347 total is 194 backend tests + 133 frontend tests + 20 Playwright cases. The credential-gated backend skip and 22 intentional Playwright matrix skips are not counted as passes. The dedicated three-case PostgreSQL gate passed and is not added again because it exercises the database-boundary cases represented by the ordinary suite and its environment-gated skip.
+The 374 total is 195 backend tests + 158 frontend tests + 21 Playwright cases. The credential-gated backend skip and 24 intentional Playwright matrix skips are not counted as passes. The dedicated three-case PostgreSQL gate passed and is not added again because it exercises the database-boundary cases represented by the ordinary suite and its environment-gated skip.
 
 ### Production build output
 
 | Output | Raw | Gzip |
 |---|---:|---:|
-| Main JavaScript | 443.13 kB | 133.59 kB |
-| Main CSS | 190.66 kB | 35.25 kB |
-| LearnPanel JavaScript | 64.01 kB | 17.38 kB |
+| Main JavaScript | 457.51 kB | 137.56 kB |
+| Main CSS | 199.30 kB | 36.71 kB |
+| LearnPanel JavaScript | 64.09 kB | 17.47 kB |
 | LearnPanel CSS | 4.63 kB | 1.38 kB |
-| Progress JavaScript | 13.19 kB | 3.80 kB |
+| Progress JavaScript | 13.19 kB | 3.82 kB |
 | Settings JavaScript | 12.94 kB | 3.39 kB |
-| AICoach JavaScript | 5.39 kB | 1.97 kB |
+| AICoach JavaScript | 5.39 kB | 1.96 kB |
 | Connector JavaScript | 4.36 kB | 1.50 kB |
 
 The current workstation dictionary may contain additional private/imported records; the reviewed starter layer and packaged offline dictionary remain exactly 240 concepts.
@@ -182,7 +182,7 @@ See `TEST_REPORT.md` for commands, coverage and evidence boundaries.
 
 ## Package and deployment state
 
-The source-quality, test, accessibility, dependency, doctor, build and Compose gates have passed. The source package verifier passed 124 required-file and packaged-asset checks, and `SHA256SUMS.txt` records 270 canonical Git-index blobs. A commit-suffixed archive was rebuilt from canonical Git blobs, extracted cleanly, reverified and matched its external SHA-256.
+The source-quality, test, accessibility, dependency, doctor, build and Compose gates have passed. The final staged-tree package verifier passed 136 required files and `SHA256SUMS.txt` records 277 canonical Git-index blobs. The reproducible ZIP and clean extracted archive remain committed-tree gates.
 
 Docker Desktop 4.83 / Engine 29.6.2 verified the PostgreSQL 17 migration and restricted role, three database-boundary integration cases, forced RLS, the non-root production-shaped image, healthy `/health/ready` and `/version`, and a disposable backup/restore drill. The restored database retained 2 users, 3 sessions, 0 OAuth states, 2 learner states and its forced-RLS policy. The backup SHA-256 was `A483C8DACC2E0F649139D4139635B28FA88E084A3D3D47F8F9D7148F182E6F62`.
 
@@ -191,7 +191,7 @@ Docker Desktop 4.83 / Engine 29.6.2 verified the PostgreSQL 17 migration and res
 Do not merge, push, tag, publish a GitHub Release or deploy to Railway until:
 
 1. Two real Google accounts prove identity-only sign-in, tenant isolation and phone/computer progress continuity.
-2. Kevin's mother completes the WhatsApp-link beginner pilot without assistance.
+2. Kevin's mother completes the WhatsApp-link acceptance retest without assistance after the initial Samsung pilot findings are fixed.
 3. A production backup is created immediately before deployment.
 4. The OpenAI Build Week judging freeze ends.
 5. Kevin gives explicit final publication approval.

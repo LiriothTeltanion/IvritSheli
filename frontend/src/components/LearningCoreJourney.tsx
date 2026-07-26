@@ -9,7 +9,7 @@ import {
 } from '../learningCore';
 import { learningCoreCopy } from '../learningCoreCopy';
 import { useSessionAccess } from '../session';
-import { configureHebrewUtterance } from '../voicePreference';
+import { createHebrewUtterance } from '../voicePreference';
 import type {
   Dashboard,
   LearnerMode,
@@ -202,8 +202,14 @@ export function LearningCoreJourney({
     }
     dismissOutcome();
     window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(activity.item.hebrew_with_niqqud || activity.item.hebrew_text);
-    configureHebrewUtterance(utterance, window.speechSynthesis.getVoices());
+    const utterance = createHebrewUtterance(
+      {
+        displayText: activity.item.hebrew_with_niqqud || activity.item.hebrew_text,
+        speechText: activity.item.hebrew_text,
+        transliteration: activity.item.transliteration ?? undefined,
+      },
+      window.speechSynthesis.getVoices(),
+    );
     window.speechSynthesis.speak(utterance);
   };
 

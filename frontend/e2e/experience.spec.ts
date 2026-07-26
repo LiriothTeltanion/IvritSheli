@@ -10,6 +10,10 @@ function desktopOnly(projectName: string): void {
   test.skip(projectName !== 'desktop-1440', 'This behavior is viewport-independent and runs once on desktop.');
 }
 
+function mobileOnly(projectName: string): void {
+  test.skip(projectName !== 'mobile-390', 'This flow is the focused phone regression.');
+}
+
 test.describe('responsive learning workspace', () => {
   test('fits the configured viewport without document-level horizontal overflow', async ({ page }) => {
     await openWorkspace(page);
@@ -102,6 +106,34 @@ test.describe('keyboard and accessibility', () => {
     await page.keyboard.press('Escape');
     await expect(dialog).toBeHidden();
     await expect(trigger).toBeFocused();
+  });
+
+  test('mobile learner can cancel or finish a visit without signing out', async ({ page }, testInfo) => {
+    mobileOnly(testInfo.project.name);
+    await openWorkspace(page);
+    const trigger = page.getByRole('button', { name: /open profile menu/i });
+
+    await trigger.click();
+    const finishAction = page.getByRole('button', { name: /finish for today/i });
+    await finishAction.click();
+    const confirmation = page.getByRole('alertdialog', { name: /finish for today/i });
+    await expect(confirmation).toBeVisible();
+    await confirmation.getByRole('button', { name: 'Cancel' }).click();
+    await expect(confirmation).toBeHidden();
+    await expect(finishAction).toBeFocused();
+
+    await finishAction.click();
+    await confirmation.getByRole('button', { name: 'Finish' }).click();
+    await expect(page.getByRole('heading', { name: /good work today/i })).toBeVisible();
+    await expect(page.getByText(/close this browser tab/i)).toBeVisible();
+    await page.getByRole('button', { name: /keep learning/i }).click();
+    await expect(page.getByRole('main')).toBeVisible();
+
+    const dimensions = await page.evaluate(() => ({
+      clientWidth: document.documentElement.clientWidth,
+      scrollWidth: document.documentElement.scrollWidth,
+    }));
+    expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth + 1);
   });
 
   for (const theme of ['light', 'dark'] as const) {

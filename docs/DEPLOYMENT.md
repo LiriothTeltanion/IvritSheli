@@ -248,7 +248,7 @@ Therefore the private 2.8 build must not point at the production learner-state d
 3. Verify two real Google accounts through sign-in, one complete daily session, refresh, device change, logout/re-login and export; prove that neither account can access the other's state.
 4. Verify a disposable account's deletion without deleting the owner's account.
 5. After any 2.8 write, do not roll the application back to the 2.4 writer unless the pre-upgrade database backup is restored or a forward-preserving compatibility patch is deployed first.
-6. Keep the private candidate on isolated/local state until that operational procedure and the beginner pilot are explicitly approved.
+6. Keep the private candidate on isolated/local state until that operational procedure and the mother-pilot acceptance retest are explicitly approved.
 
 ## 6. Release verification
 
@@ -274,12 +274,12 @@ Build the ZIP and its external checksum directly from canonical Git blobs:
 ```bash
 python scripts/build_release_archive.py \
   --ref HEAD \
-  --output IvritSheli-v2.8.0.zip \
-  --prefix IvritSheli-v2.8.0 \
-  --checksum-output IvritSheli-v2.8.0.zip.sha256
+  --output IvritSheli-v2.8.1.zip \
+  --prefix IvritSheli-v2.8.1 \
+  --checksum-output IvritSheli-v2.8.1.zip.sha256
 ```
 
-Before deploying, create the PostgreSQL backup described below and complete a restore drill against a separate database. Package the candidate only from the final committed tree, verify the extracted archive, and publish its SHA-256 outside the ZIP. Merge, push, tag `v2.8.0`, create the GitHub Release and deploy Railway only after Kevin gives final approval.
+Before deploying, create the PostgreSQL backup described below and complete a restore drill against a separate database. Package the candidate only from the final committed tree, verify the extracted archive, and publish its SHA-256 outside the ZIP. Merge, push, tag `v2.8.1`, create the GitHub Release and deploy Railway only after Kevin gives final approval.
 
 Verify against the public URL:
 
@@ -298,7 +298,7 @@ Verify against the public URL:
 13. Desktop, 390 px mobile, Hebrew RTL, reduced-motion, keyboard-only and 200% zoom modes remain usable.
 14. Prove cached shell/dictionary/region browsing offline while confirming that cloud writes pause and request reconnection; private API responses must not appear in the service-worker cache.
 15. For a 2.8 rollout, prove the learner-snapshot writer transition and rollback/restore boundary above; a green 2.4 readiness check is not sufficient evidence.
-16. Run the beginner pilot from a WhatsApp link: find the primary action within 30 seconds, learn three words and finish a session without assistance. Record comprehension problems before approval.
+16. Complete the mother-pilot acceptance retest from a WhatsApp link: find the primary action within 30 seconds, learn three words and finish a session without assistance. Record comprehension problems before approval.
 
 ### Current production verification record — 2.4.0 — 2026-07-21
 

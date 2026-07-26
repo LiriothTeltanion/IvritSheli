@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } fro
 import { api, ApiError } from '../api';
 import { useI18n } from '../i18n';
 import { useSessionAccess } from '../session';
+import { createHebrewUtterance } from '../voicePreference';
 import type {
   Dashboard,
   Locale,
@@ -449,9 +450,16 @@ export function DailyPracticeSession({
       return;
     }
     window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'he-IL';
-    utterance.rate = 0.78;
+    const utterance = createHebrewUtterance(
+      {
+        displayText: text,
+        speechText: practiceConcept.hebrew_text,
+        transliteration: practiceConcept.transliteration,
+      },
+      window.speechSynthesis.getVoices(),
+      undefined,
+      'slow',
+    );
     window.speechSynthesis.speak(utterance);
   };
 

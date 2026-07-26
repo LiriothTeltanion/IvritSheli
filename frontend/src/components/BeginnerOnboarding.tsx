@@ -6,7 +6,7 @@ import { api } from '../api';
 import { useI18n } from '../i18n';
 import { resolveLearnerMode } from '../learnerMode';
 import type { LearnerMode, Locale, Profile, VoiceStyle } from '../types';
-import { configureHebrewUtterance, persistVoiceStyle, readStoredVoiceStyle } from '../voicePreference';
+import { createHebrewUtterance, persistVoiceStyle, readStoredVoiceStyle } from '../voicePreference';
 import { Icon } from './Icon';
 import { WordIllustration } from './WordIllustration';
 
@@ -143,8 +143,11 @@ export function BeginnerOnboarding({ profile, storageKey, onFinished, onSkip }: 
     }
     setError('');
     window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance('שָׁלוֹם');
-    configureHebrewUtterance(utterance, window.speechSynthesis.getVoices(), draft.voiceStyle);
+    const utterance = createHebrewUtterance(
+      { displayText: 'שָׁלוֹם', speechText: 'שלום', transliteration: 'shalom' },
+      window.speechSynthesis.getVoices(),
+      draft.voiceStyle,
+    );
     window.speechSynthesis.speak(utterance);
   };
 

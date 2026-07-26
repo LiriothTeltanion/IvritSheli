@@ -86,7 +86,38 @@ describe('PreAccountLesson', () => {
 
     expect(speak).toHaveBeenCalledOnce();
     expect(speak.mock.calls[0]?.[0]).toMatchObject({
-      text: 'שָׁלוֹם',
+      text: 'שלום',
+      lang: 'he-IL',
+    });
+  });
+
+  it('speaks bevakasha as one continuous unpointed Hebrew word', async () => {
+    class UtteranceStub {
+      lang = '';
+      rate = 1;
+      pitch = 1;
+      voice: SpeechSynthesisVoice | null = null;
+      constructor(public text: string) {}
+    }
+    const speak = vi.fn();
+    vi.stubGlobal('SpeechSynthesisUtterance', UtteranceStub);
+    vi.stubGlobal('speechSynthesis', {
+      cancel: vi.fn(),
+      getVoices: () => [],
+      speak,
+    });
+    const user = userEvent.setup();
+
+    renderLesson();
+    await user.click(screen.getByRole('button', { name: 'hello · peace' }));
+    await user.click(screen.getByRole('button', { name: /Next word/i }));
+    await user.click(screen.getByRole('button', { name: 'thank you' }));
+    await user.click(screen.getByRole('button', { name: /Next word/i }));
+    await user.click(screen.getByRole('button', { name: 'Hear this word: בְּבַקָּשָׁה' }));
+
+    expect(speak).toHaveBeenCalledOnce();
+    expect(speak.mock.calls[0]?.[0]).toMatchObject({
+      text: 'בבקשה',
       lang: 'he-IL',
     });
   });

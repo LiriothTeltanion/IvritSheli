@@ -10,7 +10,7 @@ import { useModalDialog } from '../hooks/useModalDialog';
 import { useI18n } from '../i18n';
 import { useSessionAccess } from '../session';
 import type { DictionaryEntry } from '../types';
-import { configureHebrewUtterance } from '../voicePreference';
+import { createHebrewUtterance } from '../voicePreference';
 import { DictionaryVisualCue } from './DictionaryVisualCue';
 import { HebrewText } from './HebrewText';
 import { Icon } from './Icon';
@@ -207,8 +207,14 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
     }
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(entry.display_niqqud || entry.word);
-      configureHebrewUtterance(utterance, window.speechSynthesis.getVoices());
+      const utterance = createHebrewUtterance(
+        {
+          displayText: entry.display_niqqud || entry.word,
+          speechText: entry.word,
+          transliteration: entry.romanization ?? undefined,
+        },
+        window.speechSynthesis.getVoices(),
+      );
       window.speechSynthesis.speak(utterance);
     }
   };

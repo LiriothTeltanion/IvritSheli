@@ -19,6 +19,7 @@ import { PreAccountLesson } from './components/PreAccountLesson';
 import { ProfileMenu } from './components/ProfileMenu';
 import { QuickCapture } from './components/QuickCapture';
 import { TodayDashboard } from './components/TodayDashboard';
+import { VisitFinished } from './components/VisitFinished';
 import { XPBar } from './components/XPBar';
 
 const AICoach = lazy(async () => ({ default: (await import('./components/AICoach')).AICoach }));
@@ -103,6 +104,7 @@ export default function App(): React.JSX.Element {
   const [onboardingRevision, setOnboardingRevision] = useState(0);
   const [localWelcomeComplete, setLocalWelcomeComplete] = useState(false);
   const [online, setOnline] = useState(navigator.onLine);
+  const [visitFinished, setVisitFinished] = useState(false);
   const [theme, setTheme] = useState<'dark' | 'light'>(() => localStorage.getItem('ivrit-sheli-theme') === 'dark' ? 'dark' : 'light');
 
   const refreshCore = useCallback(async (): Promise<void> => {
@@ -450,6 +452,16 @@ export default function App(): React.JSX.Element {
   const learnerMode = activeLearnerMode;
   const identityName = localMode ? profile.display_name : auth.user?.display_name ?? profile.display_name;
 
+  if (visitFinished) {
+    return (
+      <VisitFinished
+        learnerName={identityName}
+        online={online}
+        onContinue={() => setVisitFinished(false)}
+      />
+    );
+  }
+
   return (
     <SessionAccessProvider readOnly={auth.read_only} readOnlyReason={t('readOnlyExplanation')} localMode={localMode}>
     <div className={`app-shell learner-mode--${learnerMode} ${auth.demo ? 'is-demo' : ''}`} data-learner-mode={learnerMode}>
@@ -483,7 +495,7 @@ export default function App(): React.JSX.Element {
         </div>
         <div className="sidebar-footer">
           <div className="privacy-mini"><Icon name="target" size={17} /><span><strong>{t(`${learnerMode}Mode`)}</strong><small>{t('level')} {profile.cefr_band ?? profile.hebrew_level}</small></span></div>
-          <span className="version-label">v2.8.0 local candidate</span>
+          <span className="version-label">v2.8.1 local candidate</span>
         </div>
       </aside>
 
@@ -527,6 +539,7 @@ export default function App(): React.JSX.Element {
                 loggingOut={loggingOut}
                 onOpenSettings={() => setView('settings')}
                 onLogout={() => { void logout(); }}
+                onFinishVisit={() => setVisitFinished(true)}
               />
             </div>
           </div>

@@ -47,16 +47,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "A hand waving hello",
-              "es": "Una mano saludando",
-              "he": "יד מנופפת לשלום"
+              "en": "Two neighbors facing each other and waving hello",
+              "es": "Dos vecinos frente a frente saludándose con la mano",
+              "he": "שני שכנים עומדים זה מול זה ומנופפים לשלום"
             },
             "emoji": "👋",
             "key": "greetings.hello"
           },
-          "visual_alt_en": "A hand waving hello",
-          "visual_alt_es": "Una mano saludando",
-          "visual_alt_he": "יד מנופפת לשלום",
+          "visual_alt_en": "Two neighbors facing each other and waving hello",
+          "visual_alt_es": "Dos vecinos frente a frente saludándose con la mano",
+          "visual_alt_he": "שני שכנים עומדים זה מול זה ומנופפים לשלום",
           "visual_emoji": "👋",
           "visual_key": "greetings.hello"
         }
@@ -66,9 +66,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "A hand waving hello",
-          "es": "Una mano saludando",
-          "he": "יד מנופפת לשלום"
+          "en": "Two neighbors facing each other and waving hello",
+          "es": "Dos vecinos frente a frente saludándose con la mano",
+          "he": "שני שכנים עומדים זה מול זה ומנופפים לשלום"
         },
         "emoji": "👋",
         "key": "greetings.hello"
@@ -120,16 +120,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "Two hands together expressing thanks",
-              "es": "Dos manos juntas expresando agradecimiento",
-              "he": "שתי ידיים יחד בהבעת תודה"
+              "en": "Two neighbors sharing a small gift with gratitude",
+              "es": "Dos vecinos compartiendo un pequeño regalo con gratitud",
+              "he": "שני שכנים חולקים מתנה קטנה בהכרת תודה"
             },
             "emoji": "🙏",
             "key": "greetings.thanks"
           },
-          "visual_alt_en": "Two hands together expressing thanks",
-          "visual_alt_es": "Dos manos juntas expresando agradecimiento",
-          "visual_alt_he": "שתי ידיים יחד בהבעת תודה",
+          "visual_alt_en": "Two neighbors sharing a small gift with gratitude",
+          "visual_alt_es": "Dos vecinos compartiendo un pequeño regalo con gratitud",
+          "visual_alt_he": "שני שכנים חולקים מתנה קטנה בהכרת תודה",
           "visual_emoji": "🙏",
           "visual_key": "greetings.thanks"
         }
@@ -139,9 +139,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "Two hands together expressing thanks",
-          "es": "Dos manos juntas expresando agradecimiento",
-          "he": "שתי ידיים יחד בהבעת תודה"
+          "en": "Two neighbors sharing a small gift with gratitude",
+          "es": "Dos vecinos compartiendo un pequeño regalo con gratitud",
+          "he": "שני שכנים חולקים מתנה קטנה בהכרת תודה"
         },
         "emoji": "🙏",
         "key": "greetings.thanks"
@@ -193,16 +193,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "Open hands making a polite request",
-              "es": "Manos abiertas haciendo una petición amable",
-              "he": "ידיים פתוחות בבקשה מנומסת"
+              "en": "Two neighbors politely passing a glass of water",
+              "es": "Dos vecinos pasando un vaso de agua con amabilidad",
+              "he": "שני שכנים מעבירים כוס מים בנימוס"
             },
             "emoji": "🤲",
             "key": "greetings.please"
           },
-          "visual_alt_en": "Open hands making a polite request",
-          "visual_alt_es": "Manos abiertas haciendo una petición amable",
-          "visual_alt_he": "ידיים פתוחות בבקשה מנומסת",
+          "visual_alt_en": "Two neighbors politely passing a glass of water",
+          "visual_alt_es": "Dos vecinos pasando un vaso de agua con amabilidad",
+          "visual_alt_he": "שני שכנים מעבירים כוס מים בנימוס",
           "visual_emoji": "🤲",
           "visual_key": "greetings.please"
         }
@@ -212,9 +212,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "Open hands making a polite request",
-          "es": "Manos abiertas haciendo una petición amable",
-          "he": "ידיים פתוחות בבקשה מנומסת"
+          "en": "Two neighbors politely passing a glass of water",
+          "es": "Dos vecinos pasando un vaso de agua con amabilidad",
+          "he": "שני שכנים מעבירים כוס מים בנימוס"
         },
         "emoji": "🤲",
         "key": "greetings.please"

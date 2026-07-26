@@ -18,7 +18,7 @@ The same launcher can be started from PowerShell:
 
 ### First Steps onboarding
 
-On a new profile, the app asks four short questions in plain language: interface language, current Hebrew level, main learning goal and daily practice time. You can preview the available voice style and record a guided-mode preference. Onboarding choices, **Do later**, the exact lesson checkpoint and completion save in the learner profile. The guided-mode switch is stored but does not yet change the application shell.
+On a new browser profile, the app first teaches three useful words before asking for an account or configuration. After that low-friction lesson, the learner can create a separate local profile, choose a display name and complete the short personal setup for level, goal, daily rhythm, voice and learning mode. The Guided experience is the default for a new learner and intentionally reduces the main navigation to Today, Words and Help; Explorer and Experienced progressively reveal more controls without discarding progress.
 
 The first lesson introduces five useful words: `שלום`, `תודה`, `בבקשה`, `כן` and `לא`. Each card combines a code-native visual cue, niqqud, romanization, English/Spanish meaning, a practical example and pronunciation. Saved words, submitted practice and navigation checkpoint use the active learner profile, so an authenticated learner can recover progress after signing in again.
 
@@ -96,7 +96,19 @@ Every Hebrew token rendered through the shared `HebrewText` component opens the 
 - IPA, audio URLs, and pronunciation fallback.
 - Source and license attribution.
 
-The bundled 48-concept A0/A1 layer also shows a stable visual cue and localized accessible description. Beginner facts appear first; advanced grammar, forms and provenance remain available without crowding the initial view. Visual cues aid memory but are not presented as grammatical evidence. An imported or unsupported word can correctly have no illustration.
+The bundled 240-concept A0–A2 layer also shows a stable visual cue and localized accessible description. Five First Steps words use bespoke exact-sense scenes; the remaining concepts currently use reusable category compositions and semantic emoji cues. Beginner facts appear first; advanced grammar, forms and provenance remain available without crowding the initial view. Visual cues aid memory but are not presented as grammatical evidence. An imported or unsupported word can correctly have no illustration.
+
+## Finishing a visit
+
+Open the circular profile menu and choose **Finish for today**. Ivrit Sheli asks
+for confirmation, keeps the account signed in, and shows a calm completion
+screen. **Keep learning** returns to the same workspace.
+
+Browsers and installed PWAs do not allow a website to close a tab or Android
+activity reliably. After finishing, close the browser tab, use Android Back or
+Home, or close an installed Ivrit Sheli PWA from recent apps. **Sign out** is a
+separate cloud-account action; local learners do not see a meaningless sign-out
+button.
 
 Click a form to open it. Click the root chip to explore its word family. Click **Add to learning** to turn a dictionary entry into a personal review item.
 

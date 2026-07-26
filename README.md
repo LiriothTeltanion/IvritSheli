@@ -1,7 +1,7 @@
 <div align="center">
   <img src="assets/brand/logo.svg" alt="Ivrit Sheli" width="680" />
 
-  <h1>Ivrit Sheli 2.8.0 — Warm Illustrated Learning Journey · העברית שלי</h1>
+  <h1>Ivrit Sheli 2.8.1 — Mother Pilot Polish · העברית שלי</h1>
   <p><strong>A beginner-first, evidence-informed Hebrew journey that grows with the learner.</strong></p>
 
   <p>
@@ -25,23 +25,23 @@
   <a href="https://ivritsheli-production.up.railway.app/?lang=en"><strong>🌐 Open the verified Ivrit Sheli 2.4.0 Contest Edition</strong></a>
 </p>
 
-> **Release-candidate boundary:** this checkout is the local, unpublished 2.8.0 candidate. The Railway deployment, public Git tag and GitHub Release intentionally remain on the verified 2.4.0 Contest Edition until the full release gate and beginner pilot are approved.
+> **Release-candidate boundary:** this checkout is the local, unpublished 2.8.1 candidate. The Railway deployment, public Git tag and GitHub Release intentionally remain on the verified 2.4.0 Contest Edition until the full release gate and formal mother-pilot acceptance retest are approved.
 
 ### Source and live release truth
 
 | Surface | Verified state |
 |---|---|
-| Current private source checkout | `2.8.0` · Warm Illustrated Learning Journey candidate · not deployed or published |
+| Current private source checkout | `2.8.1` · Mother Pilot Polish candidate · not deployed or published |
 | Current public deployed application | `2.4.0` |
 | Release implementation commit | `03bf84b9268ff8be528c0fab3c670f9652ee23b0` |
 | Production storage/readiness | PostgreSQL · ready · 48 reviewed dictionary entries |
 | Deployment verification | Successful on 2026-07-21 |
 | Release verification | 151 unique backend tests + 62 frontend tests = 213 passed; main CI and CodeQL passed |
-| Candidate verification | 194 backend + 133 Vitest + 20 Playwright = 347 executed passes; Ruff, strict MyPy, TypeScript, Vite, dependency audits, Docker/PostgreSQL, tenant isolation, disposable backup/restore and clean extracted-package checks are verified |
+| Candidate verification | 195 backend + 158 Vitest + 21 Playwright = 374 executed passes; Ruff, strict MyPy, TypeScript, Vite, dependency audits, Docker/PostgreSQL, tenant isolation, disposable backup/restore and the 136-file/277-checksum staged-tree gates are verified |
 | GitHub publication | [`v2.4.0`](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.4.0) is the published tag and GitHub Release |
 | Live account evidence | Identity-only Google sign-in, onboarding state and the authenticated session persisted across reload; logout returned to the English landing page and remained signed out after reload |
 | Live judge-path evidence | The English entry link and four-stop read-only guided tour passed production browser checks |
-| Remaining v2.8 release gate | Two-real-Google-account isolation/persistence, the beginner pilot and the end of the active Devpost judging freeze remain required before public release |
+| Remaining v2.8 release gate | Two-real-Google-account isolation/persistence, the formal mother-pilot acceptance retest and the end of the active Devpost judging freeze remain required before public release |
 | Visual proof | The animated journey and desktop/mobile/RTL captures below were generated from the local 2.8.0 candidate after Docker rebuild and direct browser inspection |
 
 The same conservative fields are available for portfolio/profile tooling in
@@ -84,7 +84,14 @@ Most language products make every learner follow the same path. Ivrit Sheli does
 
 The system tracks what you recognize, what you can produce, where you hesitate, which grammar errors repeat, which situations matter, and which learning mode works best. Recommendations are explainable: the app tells you *why* it selected a word, exercise, mission, or speaking drill.
 
-## What the private 2.8.0 candidate delivers 🌤️
+## What the private 2.8.1 candidate delivers 🌤️
+
+The 2.8.1 Mother Pilot Polish slice responds to real Samsung use: a shared
+local link creates a separate learner identity, all pronunciation paths speak
+canonical continuous Hebrew (including `בבקשה`), the five First Steps scenes
+use one warmer exact-sense visual grammar, Settings remains reachable in Guided
+mode, and **Finish for today** gives non-technical learners a safe web/PWA
+ending without pretending to close the browser or sign them out.
 
 The first useful interaction happens before registration: a new learner sees and reads **three practical Hebrew words**, then can choose local use, the read-only demo or identity-only Google sign-in. **Guided/A0** is the safe default. Guided keeps the main journey to Today, Words and Help; Explorer exposes more choice; Experienced opens the complete workspace without changing the learner's language level.
 
@@ -324,7 +331,7 @@ Local-first mode remains writable without an online account. Cloud mode requires
 
 ## Full Hebrew dictionary
 
-The package contains a reviewed 144-concept A0/A1 starter layer so useful visual Hebrew works immediately. To install the broader machine-readable Hebrew dictionary:
+The package contains a reviewed 240-concept A0–A2 starter layer so useful visual Hebrew works immediately. To install the broader machine-readable Hebrew dictionary:
 
 ```bash
 source .venv/bin/activate

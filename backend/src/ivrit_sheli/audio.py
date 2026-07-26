@@ -240,7 +240,7 @@ class AudioService:
                 "voice_style": voice_style,
                 "voice_profile": {
                     "language": "he-IL",
-                    "pitch": 0.82 if voice_style == "masculine" else 1.08,
+                    "pitch": 0.9 if voice_style == "masculine" else 1.04,
                 },
                 "degraded_mode": cloud_requested,
                 "message": "Use speechSynthesis in the browser; installed voices vary by device.",
@@ -267,7 +267,7 @@ class AudioService:
                 "voice_style": voice_style,
                 "voice_profile": {
                     "language": "he-IL",
-                    "pitch": 0.82 if voice_style == "masculine" else 1.08,
+                    "pitch": 0.9 if voice_style == "masculine" else 1.04,
                 },
                 "degraded_mode": True,
                 "message": "Cloud voice failed; browser speech remains available.",

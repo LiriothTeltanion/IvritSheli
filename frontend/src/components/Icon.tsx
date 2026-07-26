@@ -33,7 +33,8 @@ export type IconName =
   | 'language'
   | 'play'
   | 'github'
-  | 'logout';
+  | 'logout'
+  | 'power';
 
 interface IconProps extends SVGProps<SVGSVGElement> {
   name: IconName;
@@ -69,6 +70,7 @@ const paths: Record<IconName, React.ReactNode> = {
   play: <path d="m8 5 11 7-11 7Z"/>,
   github: <path d="M12 2.7a9.5 9.5 0 0 0-3 18.5c.5.1.7-.2.7-.5v-1.8c-2.8.6-3.4-1.2-3.4-1.2-.5-1.1-1.1-1.4-1.1-1.4-.9-.6.1-.6.1-.6 1 0 1.5 1 1.5 1 .9 1.5 2.4 1.1 3 .8.1-.7.4-1.1.7-1.3-2.2-.3-4.6-1.1-4.6-4.7 0-1 .4-1.9 1-2.6-.1-.3-.4-1.3.1-2.6 0 0 .8-.3 2.7 1a9.2 9.2 0 0 1 4.9-.1c1.9-1.3 2.7-1 2.7-1 .5 1.3.2 2.3.1 2.6.6.7 1 1.6 1 2.6 0 3.7-2.4 4.5-4.6 4.7.4.3.7.9.7 1.8v2.7c0 .4.2.7.7.5A9.5 9.5 0 0 0 12 2.7Z"/>,
   logout: <><path d="M10 4H5v16h5"/><path d="m14 8 4 4-4 4"/><path d="M18 12H9"/></>,
+  power: <><path d="M12 2v10"/><path d="M6.7 5.8a8 8 0 1 0 10.6 0"/></>,
 };
 
 export function Icon({ name, size = 20, label, ...props }: IconProps): React.JSX.Element {

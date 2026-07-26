@@ -379,6 +379,28 @@ describe('App cloud session flow', () => {
     expect(screen.getAllByRole('button', { name: 'Capture phrase' })[0]).toBeEnabled();
   });
 
+  it('finishes a local visit without logging out and can safely continue', async () => {
+    const fetchMock = routeFetch(localSession);
+    vi.stubGlobal('fetch', fetchMock);
+    const user = userEvent.setup();
+    renderApp();
+
+    await screen.findByText('Your progress is saved');
+    await user.click(screen.getByRole('button', { name: /Open profile menu: Demo Learner/i }));
+    await user.click(screen.getByRole('button', { name: /Finish for today/i }));
+    await user.click(screen.getByRole('button', { name: 'Finish' }));
+
+    expect(screen.getByRole('main', { name: 'Good work today, Demo Learner' })).toHaveFocus();
+    expect(screen.getByRole('heading', { name: 'Good work today, Demo Learner' })).toBeInTheDocument();
+    expect(screen.getByText(/Close this browser tab/)).toBeInTheDocument();
+    expect(fetchMock.mock.calls.some(([input, init]) => (
+      String(input).endsWith('/auth/logout') && (init as RequestInit | undefined)?.method === 'POST'
+    ))).toBe(false);
+
+    await user.click(screen.getByRole('button', { name: 'Keep learning' }));
+    expect(await screen.findByText('Your progress is saved')).toBeInTheDocument();
+  });
+
   it('returns an expired cloud session to the login gate on a private API 401', async () => {
     const fetchMock = vi.fn(async (input: RequestInfo | URL): Promise<Response> => {
       const path = String(input);

@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { useI18n } from '../i18n';
 import type { LearnerMode } from '../types';
+import { FinishVisitDialog } from './FinishVisitDialog';
 import { Icon } from './Icon';
 
 type FocusStatus = 'available' | 'busy';
@@ -16,6 +17,7 @@ interface ProfileMenuProps {
   loggingOut: boolean;
   onOpenSettings: () => void;
   onLogout: () => void;
+  onFinishVisit: () => void;
 }
 
 const FOCUS_STATUS_KEY = 'ivrit-sheli:focus-status';
@@ -39,24 +41,32 @@ export function ProfileMenu({
   loggingOut,
   onOpenSettings,
   onLogout,
+  onFinishVisit,
 }: ProfileMenuProps): React.JSX.Element {
   const { t } = useI18n();
   const menuId = useId();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const finishConfirmationOpenRef = useRef(false);
   const [open, setOpen] = useState(false);
+  const [finishConfirmationOpen, setFinishConfirmationOpen] = useState(false);
   const [focusStatus, setFocusStatus] = useState<FocusStatus>(readFocusStatus);
+
+  useEffect(() => {
+    finishConfirmationOpenRef.current = finishConfirmationOpen;
+  }, [finishConfirmationOpen]);
 
   useEffect(() => {
     if (!open) return;
     const firstItem = menuRef.current?.querySelector<HTMLElement>('button');
     firstItem?.focus();
     const closeOnEscape = (event: KeyboardEvent): void => {
-      if (event.key !== 'Escape') return;
+      if (event.key !== 'Escape' || finishConfirmationOpenRef.current) return;
       setOpen(false);
       triggerRef.current?.focus();
     };
     const closeOnPointer = (event: PointerEvent): void => {
+      if (finishConfirmationOpenRef.current) return;
       const target = event.target;
       if (!(target instanceof Node) || menuRef.current?.contains(target) || triggerRef.current?.contains(target)) return;
       setOpen(false);
@@ -137,6 +147,14 @@ export function ProfileMenu({
           <button type="button" onClick={() => runAndClose(onOpenSettings)}>
             <Icon name="settings" size={18} /> {t('settings')}
           </button>
+          <button
+            type="button"
+            className="profile-menu__finish"
+            onClick={() => setFinishConfirmationOpen(true)}
+          >
+            <Icon name="power" size={18} />
+            <span><strong>{t('finishForToday')}</strong><small>{t('finishForTodayMenuDetail')}</small></span>
+          </button>
           {!localMode && (
             <button type="button" disabled={loggingOut} onClick={() => runAndClose(onLogout)}>
               {loggingOut ? <span className="spinner" /> : <Icon name="logout" size={18} />} {t('logout')}
@@ -144,6 +162,16 @@ export function ProfileMenu({
           )}
         </div>
       )}
+      <FinishVisitDialog
+        open={finishConfirmationOpen}
+        online={online}
+        onCancel={() => setFinishConfirmationOpen(false)}
+        onConfirm={() => {
+          setFinishConfirmationOpen(false);
+          setOpen(false);
+          onFinishVisit();
+        }}
+      />
     </div>
   );
 }

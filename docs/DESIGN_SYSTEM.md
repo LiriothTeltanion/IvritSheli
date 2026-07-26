@@ -1,6 +1,6 @@
 # Design system
 
-## 2.4 Contest Edition visual direction
+## Warm Illustrated Journey visual direction
 
 The default beginner experience is a warm illustrated journey: cream paper-like backgrounds, navy text, teal actions, gold learning highlights and coral speaking/destructive accents. Dark mode is retained for learner choice and advanced workspaces, but the first-run experience is light-first so content hierarchy is familiar to people with limited technical experience.
 
@@ -32,9 +32,19 @@ The frontend includes a small custom inline SVG icon set. Icons inherit `current
 
 ## Word illustrations
 
-The 48 starter concepts use bundled code-native SVG scenes or simple semantic emoji cues. Each cue is selected for recall rather than decoration and is paired with localized Hebrew, English and Spanish alternative text. Illustration colors reuse the warm tokens so high-contrast and theme behavior stay coherent. Images do not load from third-party hosts, track learners or introduce a separate asset license.
+The reviewed layer contains 240 concepts. Five First Steps words use bespoke
+code-native SVG micro-scenes; the other 235 currently combine twelve category
+grammars with semantic emoji cues. Each cue is selected for recall rather than
+decoration and is paired with localized Hebrew, English and Spanish alternative
+text. Illustration colors reuse the warm tokens so high-contrast and theme
+behavior stay coherent. Images do not load from third-party hosts, track
+learners or introduce a separate asset license.
 
 An illustration is never evidence for meaning, grammar or cultural usage. Source-backed text and provenance remain the authority, and unsupported dictionary entries may have no visual.
+
+See [Vocabulary illustration system](VOCABULARY_ILLUSTRATION_SYSTEM.md) for
+the exact-sense starter scenes, current category limitation, and replacement
+order.
 
 ## Motion
 

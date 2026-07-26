@@ -434,7 +434,7 @@ describe('LearningCoreJourney', () => {
     await user.click(screen.getByRole('button', { name: 'Listen in Hebrew' }));
 
     expect(speak).toHaveBeenCalledOnce();
-    expect(speak.mock.calls[0]?.[0]).toMatchObject({ text: 'לוֹמֵד', lang: 'he-IL' });
+    expect(speak.mock.calls[0]?.[0]).toMatchObject({ text: 'לומד', lang: 'he-IL' });
   });
 
   it('hides Hebrew during Corrected retry and requires typed production', async () => {

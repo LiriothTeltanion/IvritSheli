@@ -51,14 +51,16 @@ labels intentionally separate implementation evidence from release evidence:
   applicable test, accessibility and build gates after the final diff.
 
 The root verification pass is complete for the local code, accessibility,
-build, dependency, Docker/PostgreSQL and clean extracted-package boundaries. It
-executed 194 backend, 133 Vitest and 20 Playwright cases with no failures.
-Publication still requires the two-real-Google-account check, the mother pilot
-and the end of the active Devpost judging freeze.
+build, dependency and Docker/PostgreSQL boundaries. It executed 195 backend,
+158 Vitest and 21 Playwright cases with no failures. The final 2.8.1 staged
+package verifier and 277-entry canonical checksum manifest pass; the
+reproducible ZIP and clean extracted archive remain committed-tree gates.
+Publication still requires the two-real-Google-account check, the mother-pilot
+acceptance retest and the OpenAI Build Week winner announcement.
 
 | Research decision now represented in code | Current implementation boundary | Code evidence | Release verification |
 |---|---|---|---|
-| Teach three words before account or configuration | `PreAccountLesson` presents the first three reviewed starter words one at a time, with meaning choices, retry, an example and optional browser speech. `AuthGate` keeps account, local-mode and demo choices behind completion or an explicit skip. The lesson is intentionally ephemeral: it does not claim saved progress, XP or a scored attempt. | `frontend/src/components/PreAccountLesson.tsx`; `frontend/src/components/AuthGate.tsx` | Verified locally in the 133-test Vitest suite |
+| Teach three words before account or configuration | `PreAccountLesson` presents the first three reviewed starter words one at a time, with meaning choices, retry, an example and optional browser speech. `AuthGate` keeps account, local-mode and demo choices behind completion or an explicit skip. The lesson is intentionally ephemeral: it does not claim saved progress, XP or a scored attempt. | `frontend/src/components/PreAccountLesson.tsx`; `frontend/src/components/AuthGate.tsx` | Verified locally in the 158-test Vitest suite |
 | Plain “Before you start” guide | Daily Practice now opens with a trilingual briefing that previews the session's unique concepts, lets the learner hear them, states the goal and provides one start action. Read-only demo status is disclosed before practice begins. | `frontend/src/components/DailyPracticeSession.tsx` | Verified locally in component and browser gates |
 | Progressive visual retrieval cue | Retrieval exercises with a supported `visual_id` initially hide the illustration and expose a labelled “Show visual hint” action. Revealing it increments `hints_used`; unsupported or personal concepts do not receive fabricated art. | `frontend/src/components/DailyPracticeSession.tsx`; `backend/src/ivrit_sheli/local_learning_engine.py` | Verified locally in backend and frontend suites |
 | Linguistically reviewed reading support | The display ladder uses authored `reading_hints` when available. The legacy state name `partial_niqqud` now means “reviewed cue or full reviewed niqqud,” never deletion by character position. Hint-only remains unpointed until reveal, then uses the reviewed cue or full form; entries without reviewed support remain honestly unpointed. | `frontend/src/learningCore.ts`; `frontend/src/components/LearningCoreJourney.tsx`; `backend/src/ivrit_sheli/learning_core.py` | Verified locally in backend and frontend suites |

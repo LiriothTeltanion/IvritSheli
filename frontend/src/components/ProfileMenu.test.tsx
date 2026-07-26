@@ -4,9 +4,14 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { I18nProvider } from '../i18n';
 import { ProfileMenu } from './ProfileMenu';
 
-function renderMenu(online = true): { onOpenSettings: ReturnType<typeof vi.fn>; onLogout: ReturnType<typeof vi.fn> } {
+function renderMenu(online = true, localMode = false): {
+  onOpenSettings: ReturnType<typeof vi.fn>;
+  onLogout: ReturnType<typeof vi.fn>;
+  onFinishVisit: ReturnType<typeof vi.fn>;
+} {
   const onOpenSettings = vi.fn();
   const onLogout = vi.fn();
+  const onFinishVisit = vi.fn();
   render(
     <I18nProvider>
       <ProfileMenu
@@ -15,15 +20,16 @@ function renderMenu(online = true): { onOpenSettings: ReturnType<typeof vi.fn>; 
         workspaceLabel="Personal workspace"
         learnerMode="guided"
         level="A0"
-        localMode={false}
+        localMode={localMode}
         online={online}
         loggingOut={false}
         onOpenSettings={onOpenSettings}
         onLogout={onLogout}
+        onFinishVisit={onFinishVisit}
       />
     </I18nProvider>,
   );
-  return { onOpenSettings, onLogout };
+  return { onOpenSettings, onLogout, onFinishVisit };
 }
 
 describe('ProfileMenu', () => {
@@ -51,5 +57,35 @@ describe('ProfileMenu', () => {
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(trigger).toHaveFocus();
+  });
+
+  it('gives local learners an honest finish action without a meaningless sign out', async () => {
+    const user = userEvent.setup();
+    const { onFinishVisit, onLogout } = renderMenu(true, true);
+
+    await user.click(screen.getByRole('button', { name: /Open profile menu/i }));
+    expect(screen.queryByRole('button', { name: 'Sign out' })).not.toBeInTheDocument();
+    const finish = screen.getByRole('button', { name: /Finish for today/i });
+    await user.click(finish);
+
+    expect(screen.getByRole('alertdialog', { name: 'Finish for today?' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    expect(finish).toHaveFocus();
+    expect(onFinishVisit).not.toHaveBeenCalled();
+    expect(onLogout).not.toHaveBeenCalled();
+  });
+
+  it('keeps cloud sign out separate and confirms finishing exactly once', async () => {
+    const user = userEvent.setup();
+    const { onFinishVisit, onLogout } = renderMenu();
+
+    await user.click(screen.getByRole('button', { name: /Open profile menu/i }));
+    expect(screen.getByRole('button', { name: 'Sign out' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /Finish for today/i }));
+    await user.click(screen.getByRole('button', { name: 'Finish' }));
+
+    expect(onFinishVisit).toHaveBeenCalledOnce();
+    expect(onLogout).not.toHaveBeenCalled();
   });
 });

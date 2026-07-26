@@ -39,9 +39,9 @@ def test_demo_dictionary_is_trilingual_and_clickable(dictionary_store: Dictionar
         "key": "greetings.hello",
         "emoji": "👋",
         "alt": {
-            "en": "A hand waving hello",
-            "es": "Una mano saludando",
-            "he": "יד מנופפת לשלום",
+            "en": "Two neighbors facing each other and waving hello",
+            "es": "Dos vecinos frente a frente saludándose con la mano",
+            "he": "שני שכנים עומדים זה מול זה ומנופפים לשלום",
         },
     }
     assert results[0]["examples"][0]["translation_es"] == "Hola, soy Miriam."

@@ -220,9 +220,9 @@ describe('DictionaryDrawer', () => {
 
     await user.click(await screen.findByRole('button', { name: 'Pronunciation' }));
     const utterance = speak.mock.calls[0]?.[0] as UtteranceStub;
-    expect(utterance.text).toBe('שָׁלוֹם');
+    expect(utterance.text).toBe('שלום');
     expect(utterance.lang).toBe('he-IL');
-    expect(utterance.pitch).toBe(0.82);
+    expect(utterance.pitch).toBe(0.9);
   });
 
   it('stops app-managed audio when the drawer closes', async () => {
