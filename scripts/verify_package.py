@@ -133,6 +133,7 @@ REQUIRED_FILES = (
     "assets/social/ivrit-sheli-social-preview.svg",
     "assets/social/ivrit-sheli-social-preview.png",
     "scripts/docker-entrypoint.sh",
+    "scripts/build_release_archive.py",
     "scripts/export_pwa_starter_content.py",
     "scripts/verify_container_logs.py",
 )

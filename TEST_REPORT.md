@@ -31,8 +31,8 @@ This ledger does **not** promote 2.8.0 to production. The Docker daemon could no
 | pip-audit | No known vulnerabilities |
 | npm production audit | 0 vulnerabilities |
 | Docker Compose configuration | Passed |
-| Source package verifier | Passed / 111 required files |
-| Canonical Git-blob checksum manifest | Passed / 259 files |
+| Source package verifier | Passed / 112 required files |
+| Canonical Git-blob checksum manifest | Passed / 260 files |
 | PostgreSQL 17 integration gate | **Not rerun — Docker daemon unavailable** |
 | Production Docker image/readiness | **Not verified for 2.8** |
 | PostgreSQL backup/restore drill | **Not verified for 2.8** |

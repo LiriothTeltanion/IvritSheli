@@ -137,7 +137,7 @@ The source tree includes:
 - Windows and shell setup, run, doctor, backup and verification launchers.
 - Dockerfile, Compose configuration and Railway configuration.
 - Backend, frontend and Playwright/axe tests.
-- A canonical Git-blob checksum generator.
+- Canonical Git-blob checksum and reproducible ZIP generators.
 
 `IvritSheli-v2.6-local.zip` is retained only as an obsolete historical artifact. It is not the 2.8 candidate and must not be distributed as the current application.
 
@@ -157,7 +157,7 @@ The final 2.8 ZIP and external SHA-256 file have not yet been declared release a
 | Python compileall / offline doctor | Passed / passed |
 | pip-audit / npm production audit | No known vulnerabilities / 0 vulnerabilities |
 | Docker Compose configuration | Passed |
-| Source package verifier / canonical checksums | 111 required files / 259 Git blobs passed |
+| Source package verifier / canonical checksums | 112 required files / 260 Git blobs passed |
 | PostgreSQL 17 / production image / restore drill | Not verified for 2.8 |
 | Two live Google accounts / mother pilot | Not verified |
 
@@ -182,7 +182,7 @@ See `TEST_REPORT.md` for commands, coverage and evidence boundaries.
 
 ## Package and deployment state
 
-The source-quality, test, accessibility, dependency, doctor, build and Compose-configuration gates have passed. The source package verifier passed 111 required-file and packaged-asset checks, and `SHA256SUMS.txt` now records 259 canonical Git-index blobs. Clean extracted-ZIP verification and the external ZIP checksum remain release gates against the final confirmed commit.
+The source-quality, test, accessibility, dependency, doctor, build and Compose-configuration gates have passed. The source package verifier passed 112 required-file and packaged-asset checks, and `SHA256SUMS.txt` now records 260 canonical Git-index blobs. Clean extracted-ZIP verification and the external ZIP checksum remain release gates against the final confirmed commit.
 
 `docker compose config --quiet` passed, but this proves configuration syntax only. Docker Desktop could not initialize its inference-manager listener, and no destructive factory reset was attempted. Therefore the following are not current 2.8 evidence:
 

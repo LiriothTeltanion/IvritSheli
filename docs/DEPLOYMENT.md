@@ -258,14 +258,14 @@ docker compose build
 docker compose up --wait
 ```
 
-Build the ZIP with canonical Git-blob line endings, including on Windows:
+Build the ZIP and its external checksum directly from canonical Git blobs:
 
 ```bash
-git -c core.autocrlf=false -c core.eol=lf archive \
-  --format=zip \
-  --prefix=IvritSheli-v2.8.0/ \
-  --output=IvritSheli-v2.8.0.zip \
-  HEAD
+python scripts/build_release_archive.py \
+  --ref HEAD \
+  --output IvritSheli-v2.8.0.zip \
+  --prefix IvritSheli-v2.8.0 \
+  --checksum-output IvritSheli-v2.8.0.zip.sha256
 ```
 
 Before deploying, create the PostgreSQL backup described below and complete a restore drill against a separate database. Package the candidate only from the final committed tree, verify the extracted archive, and publish its SHA-256 outside the ZIP. Merge, push, tag `v2.8.0`, create the GitHub Release and deploy Railway only after Kevin gives final approval.
