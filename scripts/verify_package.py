@@ -852,17 +852,23 @@ def verify_secret_hygiene() -> list[str]:
 
 
 def git_index_available() -> bool:
-    """Return whether the package is running inside its source Git worktree."""
+    """Return whether the package root is the source Git worktree root."""
     try:
         result = subprocess.run(
-            ["git", "-C", str(ROOT), "rev-parse", "--is-inside-work-tree"],
+            ["git", "-C", str(ROOT), "rev-parse", "--show-toplevel"],
             capture_output=True,
             check=False,
             text=True,
         )
     except OSError:
         return False
-    return result.returncode == 0 and result.stdout.strip() == "true"
+    if result.returncode != 0:
+        return False
+    try:
+        git_root = Path(result.stdout.strip()).resolve()
+    except OSError:
+        return False
+    return git_root == ROOT.resolve()
 
 
 def canonical_file_bytes(relative: str, *, use_index: bool) -> bytes:
