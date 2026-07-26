@@ -274,12 +274,12 @@ Build the ZIP and its external checksum directly from canonical Git blobs:
 ```bash
 python scripts/build_release_archive.py \
   --ref HEAD \
-  --output IvritSheli-v2.8.1.zip \
-  --prefix IvritSheli-v2.8.1 \
-  --checksum-output IvritSheli-v2.8.1.zip.sha256
+  --output IvritSheli-v2.8.2.zip \
+  --prefix IvritSheli-v2.8.2 \
+  --checksum-output IvritSheli-v2.8.2.zip.sha256
 ```
 
-Before deploying, create the PostgreSQL backup described below and complete a restore drill against a separate database. Package the candidate only from the final committed tree, verify the extracted archive, and publish its SHA-256 outside the ZIP. Merge, push, tag `v2.8.1`, create the GitHub Release and deploy Railway only after Kevin gives final approval.
+Before deploying, create the PostgreSQL backup described below and complete a restore drill against a separate database. Package the candidate only from the final committed tree, verify the extracted archive, and publish its SHA-256 outside the ZIP. Merge, push, tag `v2.8.2`, create the GitHub Release and deploy Railway only after Kevin gives final approval.
 
 Verify against the public URL:
 

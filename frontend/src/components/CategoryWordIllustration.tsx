@@ -128,12 +128,20 @@ function SceneMotif({ category }: { category: string }): React.JSX.Element {
           <path className="category-art__line" d="m58 138-9 17m45-17-9 17m45-17-9 17" />
         </>
       );
-    default:
+    case 'nature':
       return (
         <>
           <path className="category-art__hill category-art__hill--back" d="M13 145 70 53l55 92Z" />
           <path className="category-art__hill" d="m69 145 63-108 66 108Z" />
           <path className="category-art__secondary" d="M43 131c1-38 23-60 58-69-2 40-22 63-58 69Zm76 5c5-30 23-48 52-51-5 31-21 49-52 51Z" />
+        </>
+      );
+    default:
+      return (
+        <>
+          <circle className="category-art__surface" cx="102" cy="88" r="58" />
+          <circle className="category-art__primary" cx="102" cy="88" r="39" />
+          <path className="category-art__secondary" d="m102 35 8 16 18 3-13 13 3 18-16-8-16 8 3-18-13-13 18-3Z" />
         </>
       );
   }
@@ -149,9 +157,9 @@ export function CategoryWordIllustration({
   className?: string;
 }): React.JSX.Element {
   const titleId = useId();
-  const categoryCandidate = visual.key.split('.', 1)[0] ?? 'nature';
+  const categoryCandidate = visual.key.split('.', 1)[0] ?? 'neutral';
   const aliasedCategory = categoryAliases[categoryCandidate] ?? categoryCandidate;
-  const category = supportedCategories.has(aliasedCategory) ? aliasedCategory : 'nature';
+  const category = supportedCategories.has(aliasedCategory) ? aliasedCategory : 'neutral';
   const title = visual.alt[locale] || visual.alt.en || visual.alt.es || visual.alt.he;
 
   return (
@@ -161,6 +169,8 @@ export function CategoryWordIllustration({
       role="img"
       aria-labelledby={titleId}
       data-visual-id={visual.key}
+      data-visual-detail="category-fallback"
+      data-visual-fallback="true"
       focusable="false"
     >
       <title id={titleId}>{title}</title>

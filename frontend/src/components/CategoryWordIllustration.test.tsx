@@ -30,7 +30,7 @@ describe('CategoryWordIllustration', () => {
     expect(container.querySelector('.category-art__word-cue')).toHaveTextContent('🌧️');
   });
 
-  it('uses the nature grammar as a safe fallback for future categories', () => {
+  it('uses a neutral grammar instead of an unrelated landscape for future categories', () => {
     const { container } = render(
       <CategoryWordIllustration
         locale="he"
@@ -43,6 +43,7 @@ describe('CategoryWordIllustration', () => {
     );
 
     expect(screen.getByRole('img', { name: 'מושג חדש' })).toBeInTheDocument();
-    expect(container.querySelector('.category-art--nature')).toBeInTheDocument();
+    expect(container.querySelector('.category-art--neutral')).toBeInTheDocument();
+    expect(container.querySelector('[data-visual-fallback="true"]')).toBeInTheDocument();
   });
 });

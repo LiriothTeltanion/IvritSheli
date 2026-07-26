@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } fro
 import { api, ApiError } from '../api';
 import { useI18n } from '../i18n';
 import { useSessionAccess } from '../session';
+import { starterVisualByKey } from '../starterWords';
 import { createHebrewUtterance } from '../voicePreference';
 import type {
   Dashboard,
@@ -16,7 +17,7 @@ import type {
   PracticeStepSubmit,
 } from '../types';
 import { AudioPractice } from './AudioPractice';
-import { CategoryWordIllustration } from './CategoryWordIllustration';
+import { DictionaryVisualCue } from './DictionaryVisualCue';
 import { HebrewText } from './HebrewText';
 import { Icon } from './Icon';
 import { MetricRing } from './MetricRing';
@@ -196,23 +197,9 @@ function translationFor(concept: PracticeConcept, locale: Locale): string {
   return concept.translation_en ?? concept.translation_es ?? '';
 }
 
-const visualEmoji: Record<string, string> = {
-  'greetings.hello': '👋',
-  'greetings.thanks': '🤲',
-  'greetings.yes': '✓',
-};
-
 function visualForConcept(concept: PracticeConcept) {
-  if (!concept.visual_id) return null;
-  return {
-    key: concept.visual_id,
-    emoji: visualEmoji[concept.visual_id] ?? '✦',
-    alt: {
-      en: `Visual clue for ${concept.translation_en ?? concept.hebrew_text}`,
-      es: `Pista visual para ${concept.translation_es ?? concept.hebrew_text}`,
-      he: `רמז חזותי למילה ${concept.hebrew_text}`,
-    },
-  };
+  if (concept.visual) return concept.visual;
+  return concept.visual_id ? starterVisualByKey(concept.visual_id) : null;
 }
 
 export function DailyPracticeSession({
@@ -485,10 +472,11 @@ export function DailyPracticeSession({
           {previewConcepts.map((previewConcept) => (
             <article className="card" key={previewConcept.concept_key}>
               {visualForConcept(previewConcept) && (
-                <CategoryWordIllustration
+                <DictionaryVisualCue
                   visual={visualForConcept(previewConcept)!}
                   locale={locale}
                   className="daily-practice__briefing-art"
+                  size="thumbnail"
                 />
               )}
               <div>
@@ -582,10 +570,11 @@ export function DailyPracticeSession({
       {currentStep?.kind === 'encounter' && concept && (
         <div className="card daily-practice__exercise">
           {currentVisual && (
-            <CategoryWordIllustration
+            <DictionaryVisualCue
               visual={currentVisual}
               locale={locale}
               className="daily-practice__concept-art"
+              size="hero"
             />
           )}
           <HebrewText
@@ -616,7 +605,12 @@ export function DailyPracticeSession({
             </button>
           )}
           {currentVisual && visualHintRevealed && (
-            <CategoryWordIllustration visual={currentVisual} locale={locale} className="daily-practice__hint-art" />
+            <DictionaryVisualCue
+              visual={currentVisual}
+              locale={locale}
+              className="daily-practice__hint-art"
+              size="card"
+            />
           )}
           <div className="daily-practice__actions">
             {wordChoices.map((word) => (
@@ -651,7 +645,12 @@ export function DailyPracticeSession({
             </button>
           )}
           {currentVisual && visualHintRevealed && (
-            <CategoryWordIllustration visual={currentVisual} locale={locale} className="daily-practice__hint-art" />
+            <DictionaryVisualCue
+              visual={currentVisual}
+              locale={locale}
+              className="daily-practice__hint-art"
+              size="card"
+            />
           )}
           <label className="field">
             <span>{strings.answer}</span>

@@ -266,16 +266,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "A green check mark for yes",
-              "es": "Una marca verde para sí",
-              "he": "סימן אישור ירוק למילה כן"
+              "en": "A clear green check meaning yes",
+              "es": "Una marca verde clara que significa sí",
+              "he": "סימן וי ירוק שמשמעו כן"
             },
             "emoji": "✅",
             "key": "greetings.yes"
           },
-          "visual_alt_en": "A green check mark for yes",
-          "visual_alt_es": "Una marca verde para sí",
-          "visual_alt_he": "סימן אישור ירוק למילה כן",
+          "visual_alt_en": "A clear green check meaning yes",
+          "visual_alt_es": "Una marca verde clara que significa sí",
+          "visual_alt_he": "סימן וי ירוק שמשמעו כן",
           "visual_emoji": "✅",
           "visual_key": "greetings.yes"
         }
@@ -285,9 +285,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "A green check mark for yes",
-          "es": "Una marca verde para sí",
-          "he": "סימן אישור ירוק למילה כן"
+          "en": "A clear green check meaning yes",
+          "es": "Una marca verde clara que significa sí",
+          "he": "סימן וי ירוק שמשמעו כן"
         },
         "emoji": "✅",
         "key": "greetings.yes"
@@ -339,16 +339,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "A red cross for no",
-              "es": "Una cruz roja para no",
-              "he": "סימן איקס אדום למילה לא"
+              "en": "A gentle coral cross meaning no",
+              "es": "Una cruz coral amable que significa no",
+              "he": "סימן איקס בצבע אלמוג שמשמעו לא"
             },
             "emoji": "❌",
             "key": "greetings.no"
           },
-          "visual_alt_en": "A red cross for no",
-          "visual_alt_es": "Una cruz roja para no",
-          "visual_alt_he": "סימן איקס אדום למילה לא",
+          "visual_alt_en": "A gentle coral cross meaning no",
+          "visual_alt_es": "Una cruz coral amable que significa no",
+          "visual_alt_he": "סימן איקס בצבע אלמוג שמשמעו לא",
           "visual_emoji": "❌",
           "visual_key": "greetings.no"
         }
@@ -358,9 +358,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "A red cross for no",
-          "es": "Una cruz roja para no",
-          "he": "סימן איקס אדום למילה לא"
+          "en": "A gentle coral cross meaning no",
+          "es": "Una cruz coral amable que significa no",
+          "he": "סימן איקס בצבע אלמוג שמשמעו לא"
         },
         "emoji": "❌",
         "key": "greetings.no"
@@ -412,16 +412,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "A person bowing politely",
-              "es": "Una persona inclinándose con respeto",
-              "he": "אדם קד בנימוס"
+              "en": "A passenger politely asking another person to make space on a city bus",
+              "es": "Un pasajero pide con amabilidad que otra persona le deje pasar en un autobús",
+              "he": "נוסע מבקש בנימוס מאדם אחר לפנות מעבר באוטובוס עירוני"
             },
             "emoji": "🙇",
             "key": "greetings.excuse_me"
           },
-          "visual_alt_en": "A person bowing politely",
-          "visual_alt_es": "Una persona inclinándose con respeto",
-          "visual_alt_he": "אדם קד בנימוס",
+          "visual_alt_en": "A passenger politely asking another person to make space on a city bus",
+          "visual_alt_es": "Un pasajero pide con amabilidad que otra persona le deje pasar en un autobús",
+          "visual_alt_he": "נוסע מבקש בנימוס מאדם אחר לפנות מעבר באוטובוס עירוני",
           "visual_emoji": "🙇",
           "visual_key": "greetings.excuse_me"
         }
@@ -431,9 +431,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "A person bowing politely",
-          "es": "Una persona inclinándose con respeto",
-          "he": "אדם קד בנימוס"
+          "en": "A passenger politely asking another person to make space on a city bus",
+          "es": "Un pasajero pide con amabilidad que otra persona le deje pasar en un autobús",
+          "he": "נוסע מבקש בנימוס מאדם אחר לפנות מעבר באוטובוס עירוני"
         },
         "emoji": "🙇",
         "key": "greetings.excuse_me"
@@ -485,16 +485,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "The sun rising in the morning",
-              "es": "El sol saliendo por la mañana",
-              "he": "השמש זורחת בבוקר"
+              "en": "Two people greet each other over breakfast as the sun rises through a window",
+              "es": "Dos personas se saludan durante el desayuno mientras sale el sol por la ventana",
+              "he": "שני אנשים מברכים זה את זה בארוחת הבוקר כשהשמש זורחת בחלון"
             },
             "emoji": "🌅",
             "key": "greetings.good_morning"
           },
-          "visual_alt_en": "The sun rising in the morning",
-          "visual_alt_es": "El sol saliendo por la mañana",
-          "visual_alt_he": "השמש זורחת בבוקר",
+          "visual_alt_en": "Two people greet each other over breakfast as the sun rises through a window",
+          "visual_alt_es": "Dos personas se saludan durante el desayuno mientras sale el sol por la ventana",
+          "visual_alt_he": "שני אנשים מברכים זה את זה בארוחת הבוקר כשהשמש זורחת בחלון",
           "visual_emoji": "🌅",
           "visual_key": "greetings.good_morning"
         }
@@ -504,9 +504,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "The sun rising in the morning",
-          "es": "El sol saliendo por la mañana",
-          "he": "השמש זורחת בבוקר"
+          "en": "Two people greet each other over breakfast as the sun rises through a window",
+          "es": "Dos personas se saludan durante el desayuno mientras sale el sol por la ventana",
+          "he": "שני אנשים מברכים זה את זה בארוחת הבוקר כשהשמש זורחת בחלון"
         },
         "emoji": "🌅",
         "key": "greetings.good_morning"
@@ -558,16 +558,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "An open door for saying goodbye",
-              "es": "Una puerta abierta para despedirse",
-              "he": "דלת פתוחה לפרידה"
+              "en": "Two friends wave goodbye as one walks toward a departing bus",
+              "es": "Dos amigos se despiden con la mano mientras uno camina hacia un autobús que parte",
+              "he": "שני חברים מנופפים לשלום כשאחד הולך אל אוטובוס שיוצא"
             },
             "emoji": "🚪",
             "key": "greetings.goodbye"
           },
-          "visual_alt_en": "An open door for saying goodbye",
-          "visual_alt_es": "Una puerta abierta para despedirse",
-          "visual_alt_he": "דלת פתוחה לפרידה",
+          "visual_alt_en": "Two friends wave goodbye as one walks toward a departing bus",
+          "visual_alt_es": "Dos amigos se despiden con la mano mientras uno camina hacia un autobús que parte",
+          "visual_alt_he": "שני חברים מנופפים לשלום כשאחד הולך אל אוטובוס שיוצא",
           "visual_emoji": "🚪",
           "visual_key": "greetings.goodbye"
         }
@@ -577,9 +577,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "An open door for saying goodbye",
-          "es": "Una puerta abierta para despedirse",
-          "he": "דלת פתוחה לפרידה"
+          "en": "Two friends wave goodbye as one walks toward a departing bus",
+          "es": "Dos amigos se despiden con la mano mientras uno camina hacia un autobús que parte",
+          "he": "שני חברים מנופפים לשלום כשאחד הולך אל אוטובוס שיוצא"
         },
         "emoji": "🚪",
         "key": "greetings.goodbye"
@@ -1142,16 +1142,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "A small house",
-              "es": "Una casa pequeña",
-              "he": "בית קטן"
+              "en": "A person approaches a whole house in an Israeli neighborhood",
+              "es": "Una persona se acerca a una casa completa en un barrio israelí",
+              "he": "אדם מתקרב לבית שלם בשכונה ישראלית"
             },
             "emoji": "🏠",
             "key": "home.house"
           },
-          "visual_alt_en": "A small house",
-          "visual_alt_es": "Una casa pequeña",
-          "visual_alt_he": "בית קטן",
+          "visual_alt_en": "A person approaches a whole house in an Israeli neighborhood",
+          "visual_alt_es": "Una persona se acerca a una casa completa en un barrio israelí",
+          "visual_alt_he": "אדם מתקרב לבית שלם בשכונה ישראלית",
           "visual_emoji": "🏠",
           "visual_key": "home.house"
         }
@@ -1161,9 +1161,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "A small house",
-          "es": "Una casa pequeña",
-          "he": "בית קטן"
+          "en": "A person approaches a whole house in an Israeli neighborhood",
+          "es": "Una persona se acerca a una casa completa en un barrio israelí",
+          "he": "אדם מתקרב לבית שלם בשכונה ישראלית"
         },
         "emoji": "🏠",
         "key": "home.house"
@@ -1215,16 +1215,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "A door leading into a room",
-              "es": "Una puerta que lleva a una habitación",
-              "he": "דלת שמובילה לחדר"
+              "en": "A cutaway bedroom with four walls, a bed, a desk and a lamp",
+              "es": "Una habitación vista por dentro con cuatro paredes, cama, escritorio y lámpara",
+              "he": "חדר שינה פתוח למבט עם ארבעה קירות, מיטה, שולחן ומנורה"
             },
             "emoji": "🚪",
             "key": "home.room"
           },
-          "visual_alt_en": "A door leading into a room",
-          "visual_alt_es": "Una puerta que lleva a una habitación",
-          "visual_alt_he": "דלת שמובילה לחדר",
+          "visual_alt_en": "A cutaway bedroom with four walls, a bed, a desk and a lamp",
+          "visual_alt_es": "Una habitación vista por dentro con cuatro paredes, cama, escritorio y lámpara",
+          "visual_alt_he": "חדר שינה פתוח למבט עם ארבעה קירות, מיטה, שולחן ומנורה",
           "visual_emoji": "🚪",
           "visual_key": "home.room"
         }
@@ -1234,9 +1234,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "A door leading into a room",
-          "es": "Una puerta que lleva a una habitación",
-          "he": "דלת שמובילה לחדר"
+          "en": "A cutaway bedroom with four walls, a bed, a desk and a lamp",
+          "es": "Una habitación vista por dentro con cuatro paredes, cama, escritorio y lámpara",
+          "he": "חדר שינה פתוח למבט עם ארבעה קירות, מיטה, שולחן ומנורה"
         },
         "emoji": "🚪",
         "key": "home.room"
@@ -1580,16 +1580,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "A key for opening a door",
-              "es": "Una llave para abrir una puerta",
-              "he": "מפתח לפתיחת דלת"
+              "en": "A hand turns a key inside the lock of a front door",
+              "es": "Una mano gira una llave dentro de la cerradura de una puerta principal",
+              "he": "יד מסובבת מפתח בתוך המנעול של דלת הכניסה"
             },
             "emoji": "🔑",
             "key": "home.key"
           },
-          "visual_alt_en": "A key for opening a door",
-          "visual_alt_es": "Una llave para abrir una puerta",
-          "visual_alt_he": "מפתח לפתיחת דלת",
+          "visual_alt_en": "A hand turns a key inside the lock of a front door",
+          "visual_alt_es": "Una mano gira una llave dentro de la cerradura de una puerta principal",
+          "visual_alt_he": "יד מסובבת מפתח בתוך המנעול של דלת הכניסה",
           "visual_emoji": "🔑",
           "visual_key": "home.key"
         }
@@ -1599,9 +1599,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "A key for opening a door",
-          "es": "Una llave para abrir una puerta",
-          "he": "מפתח לפתיחת דלת"
+          "en": "A hand turns a key inside the lock of a front door",
+          "es": "Una mano gira una llave dentro de la cerradura de una puerta principal",
+          "he": "יד מסובבת מפתח בתוך המנעול של דלת הכניסה"
         },
         "emoji": "🔑",
         "key": "home.key"
@@ -1653,16 +1653,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "A drop of water",
-              "es": "Una gota de agua",
-              "he": "טיפת מים"
+              "en": "A kitchen tap fills a transparent glass with clear water",
+              "es": "Un grifo de cocina llena un vaso transparente con agua clara",
+              "he": "ברז מטבח ממלא כוס שקופה במים צלולים"
             },
             "emoji": "💧",
             "key": "food.water"
           },
-          "visual_alt_en": "A drop of water",
-          "visual_alt_es": "Una gota de agua",
-          "visual_alt_he": "טיפת מים",
+          "visual_alt_en": "A kitchen tap fills a transparent glass with clear water",
+          "visual_alt_es": "Un grifo de cocina llena un vaso transparente con agua clara",
+          "visual_alt_he": "ברז מטבח ממלא כוס שקופה במים צלולים",
           "visual_emoji": "💧",
           "visual_key": "food.water"
         }
@@ -1672,9 +1672,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "A drop of water",
-          "es": "Una gota de agua",
-          "he": "טיפת מים"
+          "en": "A kitchen tap fills a transparent glass with clear water",
+          "es": "Un grifo de cocina llena un vaso transparente con agua clara",
+          "he": "ברז מטבח ממלא כוס שקופה במים צלולים"
         },
         "emoji": "💧",
         "key": "food.water"
@@ -2091,16 +2091,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "A bowl of prepared food",
-              "es": "Un plato de comida preparada",
-              "he": "קערת אוכל מוכן"
+              "en": "A prepared meal with a plate, pita, salad and vegetables on the table",
+              "es": "Una comida preparada con plato, pita, ensalada y verduras sobre la mesa",
+              "he": "ארוחה מוכנה עם צלחת, פיתה, סלט וירקות על השולחן"
             },
             "emoji": "🍲",
             "key": "food.food"
           },
-          "visual_alt_en": "A bowl of prepared food",
-          "visual_alt_es": "Un plato de comida preparada",
-          "visual_alt_he": "קערת אוכל מוכן",
+          "visual_alt_en": "A prepared meal with a plate, pita, salad and vegetables on the table",
+          "visual_alt_es": "Una comida preparada con plato, pita, ensalada y verduras sobre la mesa",
+          "visual_alt_he": "ארוחה מוכנה עם צלחת, פיתה, סלט וירקות על השולחן",
           "visual_emoji": "🍲",
           "visual_key": "food.food"
         }
@@ -2110,9 +2110,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "A bowl of prepared food",
-          "es": "Un plato de comida preparada",
-          "he": "קערת אוכל מוכן"
+          "en": "A prepared meal with a plate, pita, salad and vegetables on the table",
+          "es": "Una comida preparada con plato, pita, ensalada y verduras sobre la mesa",
+          "he": "ארוחה מוכנה עם צלחת, פיתה, סלט וירקות על השולחן"
         },
         "emoji": "🍲",
         "key": "food.food"
@@ -2164,16 +2164,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "A hungry face ready to eat",
-              "es": "Una cara con hambre lista para comer",
-              "he": "פנים רעבות שמוכנות לאכול"
+              "en": "A person holds an empty stomach beside an empty plate and imagines food",
+              "es": "Una persona se sostiene el estómago junto a un plato vacío e imagina comida",
+              "he": "אדם מחזיק בבטן ליד צלחת ריקה ומדמיין אוכל"
             },
             "emoji": "😋",
             "key": "food.hungry"
           },
-          "visual_alt_en": "A hungry face ready to eat",
-          "visual_alt_es": "Una cara con hambre lista para comer",
-          "visual_alt_he": "פנים רעבות שמוכנות לאכול",
+          "visual_alt_en": "A person holds an empty stomach beside an empty plate and imagines food",
+          "visual_alt_es": "Una persona se sostiene el estómago junto a un plato vacío e imagina comida",
+          "visual_alt_he": "אדם מחזיק בבטן ליד צלחת ריקה ומדמיין אוכל",
           "visual_emoji": "😋",
           "visual_key": "food.hungry"
         }
@@ -2183,9 +2183,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "A hungry face ready to eat",
-          "es": "Una cara con hambre lista para comer",
-          "he": "פנים רעבות שמוכנות לאכול"
+          "en": "A person holds an empty stomach beside an empty plate and imagines food",
+          "es": "Una persona se sostiene el estómago junto a un plato vacío e imagina comida",
+          "he": "אדם מחזיק בבטן ליד צלחת ריקה ומדמיין אוכל"
         },
         "emoji": "😋",
         "key": "food.hungry"
@@ -3697,16 +3697,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "Two neighbors greeting each other",
-              "es": "Dos vecinos saludándose",
-              "he": "שני שכנים מברכים זה את זה"
+              "en": "Two friends check in and listen to each other on a park bench",
+              "es": "Dos amigos preguntan cómo están y se escuchan en un banco del parque",
+              "he": "שני חברים שואלים לשלומם ומקשיבים זה לזה על ספסל בפארק"
             },
             "emoji": "🙂",
             "key": "greetings.how_are_things"
           },
-          "visual_alt_en": "Two neighbors greeting each other",
-          "visual_alt_es": "Dos vecinos saludándose",
-          "visual_alt_he": "שני שכנים מברכים זה את זה",
+          "visual_alt_en": "Two friends check in and listen to each other on a park bench",
+          "visual_alt_es": "Dos amigos preguntan cómo están y se escuchan en un banco del parque",
+          "visual_alt_he": "שני חברים שואלים לשלומם ומקשיבים זה לזה על ספסל בפארק",
           "visual_emoji": "🙂",
           "visual_key": "greetings.how_are_things"
         }
@@ -3716,9 +3716,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "Two neighbors greeting each other",
-          "es": "Dos vecinos saludándose",
-          "he": "שני שכנים מברכים זה את זה"
+          "en": "Two friends check in and listen to each other on a park bench",
+          "es": "Dos amigos preguntan cómo están y se escuchan en un banco del parque",
+          "he": "שני חברים שואלים לשלומם ומקשיבים זה לזה על ספסל בפארק"
         },
         "emoji": "🙂",
         "key": "greetings.how_are_things"
@@ -3770,16 +3770,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "Two people meeting with a friendly handshake",
-              "es": "Dos personas conociéndose con un apretón de manos",
-              "he": "שני אנשים נפגשים בלחיצת יד ידידותית"
+              "en": "Two people smile and shake hands during their first introduction",
+              "es": "Dos personas sonríen y se dan la mano al presentarse por primera vez",
+              "he": "שני אנשים מחייכים ולוחצים ידיים בהיכרות הראשונה"
             },
             "emoji": "🤝",
             "key": "greetings.nice_to_meet_you"
           },
-          "visual_alt_en": "Two people meeting with a friendly handshake",
-          "visual_alt_es": "Dos personas conociéndose con un apretón de manos",
-          "visual_alt_he": "שני אנשים נפגשים בלחיצת יד ידידותית",
+          "visual_alt_en": "Two people smile and shake hands during their first introduction",
+          "visual_alt_es": "Dos personas sonríen y se dan la mano al presentarse por primera vez",
+          "visual_alt_he": "שני אנשים מחייכים ולוחצים ידיים בהיכרות הראשונה",
           "visual_emoji": "🤝",
           "visual_key": "greetings.nice_to_meet_you"
         }
@@ -3789,9 +3789,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "Two people meeting with a friendly handshake",
-          "es": "Dos personas conociéndose con un apretón de manos",
-          "he": "שני אנשים נפגשים בלחיצת יד ידידותית"
+          "en": "Two people smile and shake hands during their first introduction",
+          "es": "Dos personas sonríen y se dan la mano al presentarse por primera vez",
+          "he": "שני אנשים מחייכים ולוחצים ידיים בהיכרות הראשונה"
         },
         "emoji": "🤝",
         "key": "greetings.nice_to_meet_you"
@@ -4427,16 +4427,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "A clear public bathroom sign",
-              "es": "Una señal clara de baño público",
-              "he": "שלט ברור לשירותים ציבוריים"
+              "en": "A tiled bathroom interior with a sink and a toilet",
+              "es": "El interior de un baño con azulejos, lavabo e inodoro",
+              "he": "חדר שירותים מרוצף עם כיור ואסלה"
             },
             "emoji": "🚻",
             "key": "home.bathroom"
           },
-          "visual_alt_en": "A clear public bathroom sign",
-          "visual_alt_es": "Una señal clara de baño público",
-          "visual_alt_he": "שלט ברור לשירותים ציבוריים",
+          "visual_alt_en": "A tiled bathroom interior with a sink and a toilet",
+          "visual_alt_es": "El interior de un baño con azulejos, lavabo e inodoro",
+          "visual_alt_he": "חדר שירותים מרוצף עם כיור ואסלה",
           "visual_emoji": "🚻",
           "visual_key": "home.bathroom"
         }
@@ -4446,9 +4446,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "A clear public bathroom sign",
-          "es": "Una señal clara de baño público",
-          "he": "שלט ברור לשירותים ציבוריים"
+          "en": "A tiled bathroom interior with a sink and a toilet",
+          "es": "El interior de un baño con azulejos, lavabo e inodoro",
+          "he": "חדר שירותים מרוצף עם כיור ואסלה"
         },
         "emoji": "🚻",
         "key": "home.bathroom"
@@ -5303,16 +5303,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "Israeli shekel coins",
-              "es": "Monedas de séquel israelí",
-              "he": "מטבעות שקל ישראלי"
+              "en": "Hands exchange shekel coins for fruit at an Israeli market",
+              "es": "Unas manos intercambian monedas de séquel por fruta en un mercado israelí",
+              "he": "ידיים מחליפות מטבעות שקל בפירות בשוק ישראלי"
             },
             "emoji": "🪙",
             "key": "shopping.shekel"
           },
-          "visual_alt_en": "Israeli shekel coins",
-          "visual_alt_es": "Monedas de séquel israelí",
-          "visual_alt_he": "מטבעות שקל ישראלי",
+          "visual_alt_en": "Hands exchange shekel coins for fruit at an Israeli market",
+          "visual_alt_es": "Unas manos intercambian monedas de séquel por fruta en un mercado israelí",
+          "visual_alt_he": "ידיים מחליפות מטבעות שקל בפירות בשוק ישראלי",
           "visual_emoji": "🪙",
           "visual_key": "shopping.shekel"
         }
@@ -5322,9 +5322,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "Israeli shekel coins",
-          "es": "Monedas de séquel israelí",
-          "he": "מטבעות שקל ישראלי"
+          "en": "Hands exchange shekel coins for fruit at an Israeli market",
+          "es": "Unas manos intercambian monedas de séquel por fruta en un mercado israelí",
+          "he": "ידיים מחליפות מטבעות שקל בפירות בשוק ישראלי"
         },
         "emoji": "🪙",
         "key": "shopping.shekel"
@@ -5668,16 +5668,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "A shopper checking a price tag",
-              "es": "Una persona mirando una etiqueta de precio",
-              "he": "קונה בודק תג מחיר"
+              "en": "A customer points to a product and asks the market vendor for its price",
+              "es": "Un cliente señala un producto y pregunta su precio al vendedor del mercado",
+              "he": "לקוח מצביע על מוצר ושואל את המוכר בשוק מה המחיר"
             },
             "emoji": "🏷️",
             "key": "shopping.how_much"
           },
-          "visual_alt_en": "A shopper checking a price tag",
-          "visual_alt_es": "Una persona mirando una etiqueta de precio",
-          "visual_alt_he": "קונה בודק תג מחיר",
+          "visual_alt_en": "A customer points to a product and asks the market vendor for its price",
+          "visual_alt_es": "Un cliente señala un producto y pregunta su precio al vendedor del mercado",
+          "visual_alt_he": "לקוח מצביע על מוצר ושואל את המוכר בשוק מה המחיר",
           "visual_emoji": "🏷️",
           "visual_key": "shopping.how_much"
         }
@@ -5687,9 +5687,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "A shopper checking a price tag",
-          "es": "Una persona mirando una etiqueta de precio",
-          "he": "קונה בודק תג מחיר"
+          "en": "A customer points to a product and asks the market vendor for its price",
+          "es": "Un cliente señala un producto y pregunta su precio al vendedor del mercado",
+          "he": "לקוח מצביע על מוצר ושואל את המוכר בשוק מה המחיר"
         },
         "emoji": "🏷️",
         "key": "shopping.how_much"
@@ -8369,16 +8369,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "A sunny open notebook for today",
-              "es": "Un cuaderno abierto y soleado para hoy",
-              "he": "מחברת פתוחה ומוארת להיום"
+              "en": "A hand points to the highlighted current day on a calendar",
+              "es": "Una mano señala el día actual resaltado en un calendario",
+              "he": "יד מצביעה על היום הנוכחי שמודגש בלוח שנה"
             },
             "emoji": "🌞",
             "key": "time.today"
           },
-          "visual_alt_en": "A sunny open notebook for today",
-          "visual_alt_es": "Un cuaderno abierto y soleado para hoy",
-          "visual_alt_he": "מחברת פתוחה ומוארת להיום",
+          "visual_alt_en": "A hand points to the highlighted current day on a calendar",
+          "visual_alt_es": "Una mano señala el día actual resaltado en un calendario",
+          "visual_alt_he": "יד מצביעה על היום הנוכחי שמודגש בלוח שנה",
           "visual_emoji": "🌞",
           "visual_key": "time.today"
         }
@@ -8388,9 +8388,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "A sunny open notebook for today",
-          "es": "Un cuaderno abierto y soleado para hoy",
-          "he": "מחברת פתוחה ומוארת להיום"
+          "en": "A hand points to the highlighted current day on a calendar",
+          "es": "Una mano señala el día actual resaltado en un calendario",
+          "he": "יד מצביעה על היום הנוכחי שמודגש בלוח שנה"
         },
         "emoji": "🌞",
         "key": "time.today"
@@ -8442,16 +8442,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "A sunrise over the horizon",
-              "es": "Un amanecer sobre el horizonte",
-              "he": "זריחה מעל האופק"
+              "en": "An arrow moves from the current calendar page to the next day",
+              "es": "Una flecha avanza de la página actual del calendario al día siguiente",
+              "he": "חץ עובר מדף לוח השנה הנוכחי אל היום הבא"
             },
             "emoji": "🌅",
             "key": "time.tomorrow"
           },
-          "visual_alt_en": "A sunrise over the horizon",
-          "visual_alt_es": "Un amanecer sobre el horizonte",
-          "visual_alt_he": "זריחה מעל האופק",
+          "visual_alt_en": "An arrow moves from the current calendar page to the next day",
+          "visual_alt_es": "Una flecha avanza de la página actual del calendario al día siguiente",
+          "visual_alt_he": "חץ עובר מדף לוח השנה הנוכחי אל היום הבא",
           "visual_emoji": "🌅",
           "visual_key": "time.tomorrow"
         }
@@ -8461,9 +8461,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "A sunrise over the horizon",
-          "es": "Un amanecer sobre el horizonte",
-          "he": "זריחה מעל האופק"
+          "en": "An arrow moves from the current calendar page to the next day",
+          "es": "Una flecha avanza de la página actual del calendario al día siguiente",
+          "he": "חץ עובר מדף לוח השנה הנוכחי אל היום הבא"
         },
         "emoji": "🌅",
         "key": "time.tomorrow"
@@ -8734,16 +8734,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "An hourglass in mid-flow",
-              "es": "Un reloj de arena en marcha",
-              "he": "שעון חול באמצע הזרימה"
+              "en": "A clock and motion lines show a person starting immediately",
+              "es": "Un reloj y líneas de movimiento muestran a una persona empezando de inmediato",
+              "he": "שעון וקווי תנועה מראים אדם שמתחיל מיד"
             },
             "emoji": "⏳",
             "key": "time.now"
           },
-          "visual_alt_en": "An hourglass in mid-flow",
-          "visual_alt_es": "Un reloj de arena en marcha",
-          "visual_alt_he": "שעון חול באמצע הזרימה",
+          "visual_alt_en": "A clock and motion lines show a person starting immediately",
+          "visual_alt_es": "Un reloj y líneas de movimiento muestran a una persona empezando de inmediato",
+          "visual_alt_he": "שעון וקווי תנועה מראים אדם שמתחיל מיד",
           "visual_emoji": "⏳",
           "visual_key": "time.now"
         }
@@ -8753,9 +8753,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "An hourglass in mid-flow",
-          "es": "Un reloj de arena en marcha",
-          "he": "שעון חול באמצע הזרימה"
+          "en": "A clock and motion lines show a person starting immediately",
+          "es": "Un reloj y líneas de movimiento muestran a una persona empezando de inmediato",
+          "he": "שעון וקווי תנועה מראים אדם שמתחיל מיד"
         },
         "emoji": "⏳",
         "key": "time.now"
@@ -9026,16 +9026,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "A thermometer on a hot day",
-              "es": "Un termómetro en un día caluroso",
-              "he": "מדחום ביום חם"
+              "en": "A person sweats under the sun and cools down beside a glass of water at a bus stop",
+              "es": "Una persona suda bajo el sol y se refresca junto a un vaso de agua en una parada de autobús",
+              "he": "אדם מזיע תחת השמש ומצטנן ליד כוס מים בתחנת אוטובוס"
             },
             "emoji": "🥵",
             "key": "weather.hot"
           },
-          "visual_alt_en": "A thermometer on a hot day",
-          "visual_alt_es": "Un termómetro en un día caluroso",
-          "visual_alt_he": "מדחום ביום חם",
+          "visual_alt_en": "A person sweats under the sun and cools down beside a glass of water at a bus stop",
+          "visual_alt_es": "Una persona suda bajo el sol y se refresca junto a un vaso de agua en una parada de autobús",
+          "visual_alt_he": "אדם מזיע תחת השמש ומצטנן ליד כוס מים בתחנת אוטובוס",
           "visual_emoji": "🥵",
           "visual_key": "weather.hot"
         }
@@ -9045,9 +9045,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "A thermometer on a hot day",
-          "es": "Un termómetro en un día caluroso",
-          "he": "מדחום ביום חם"
+          "en": "A person sweats under the sun and cools down beside a glass of water at a bus stop",
+          "es": "Una persona suda bajo el sol y se refresca junto a un vaso de agua en una parada de autobús",
+          "he": "אדם מזיע תחת השמש ומצטנן ליד כוס מים בתחנת אוטובוס"
         },
         "emoji": "🥵",
         "key": "weather.hot"
@@ -9099,16 +9099,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "A person wrapped in a warm coat",
-              "es": "Una persona abrigada con un abrigo",
-              "he": "אדם עטוף במעיל חם"
+              "en": "A person shivers in a scarf under a cold cloud at a bus stop",
+              "es": "Una persona tiembla con bufanda bajo una nube fría en una parada de autobús",
+              "he": "אדם רועד עם צעיף תחת ענן קר בתחנת אוטובוס"
             },
             "emoji": "🥶",
             "key": "weather.cold"
           },
-          "visual_alt_en": "A person wrapped in a warm coat",
-          "visual_alt_es": "Una persona abrigada con un abrigo",
-          "visual_alt_he": "אדם עטוף במעיל חם",
+          "visual_alt_en": "A person shivers in a scarf under a cold cloud at a bus stop",
+          "visual_alt_es": "Una persona tiembla con bufanda bajo una nube fría en una parada de autobús",
+          "visual_alt_he": "אדם רועד עם צעיף תחת ענן קר בתחנת אוטובוס",
           "visual_emoji": "🥶",
           "visual_key": "weather.cold"
         }
@@ -9118,9 +9118,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "A person wrapped in a warm coat",
-          "es": "Una persona abrigada con un abrigo",
-          "he": "אדם עטוף במעיל חם"
+          "en": "A person shivers in a scarf under a cold cloud at a bus stop",
+          "es": "Una persona tiembla con bufanda bajo una nube fría en una parada de autobús",
+          "he": "אדם רועד עם צעיף תחת ענן קר בתחנת אוטובוס"
         },
         "emoji": "🥶",
         "key": "weather.cold"

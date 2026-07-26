@@ -1,31 +1,41 @@
 // Module: dictionary visual cue
-// Purpose: Render exact-sense starter illustrations and safe localized emoji fallbacks.
+// Purpose: Route every reviewed visual through one semantic renderer with an explicit migration fallback.
 
 import type { DictionaryVisual, Locale } from '../types';
-import type { WordIllustrationKind } from '../starterWords';
 import { CategoryWordIllustration } from './CategoryWordIllustration';
-import { WordIllustration } from './WordIllustration';
+import {
+  hasSemanticWordIllustration,
+  SemanticWordIllustration,
+  type SemanticHintStage,
+  type SemanticIllustrationSize,
+} from './SemanticWordIllustration';
 
 interface DictionaryVisualCueProps {
   visual: DictionaryVisual | null | undefined;
   locale: Locale;
   className?: string;
+  size?: SemanticIllustrationSize;
+  hintStage?: SemanticHintStage;
 }
 
-const illustratedKeys: Partial<Record<string, WordIllustrationKind>> = {
-  'greetings.hello': 'greeting',
-  'greetings.thanks': 'gratitude',
-  'greetings.please': 'please',
-  'greetings.yes': 'yes',
-  'greetings.no': 'no',
-};
-
-export function DictionaryVisualCue({ visual, locale, className = '' }: DictionaryVisualCueProps): React.JSX.Element | null {
+export function DictionaryVisualCue({
+  visual,
+  locale,
+  className = '',
+  size = 'card',
+  hintStage = 2,
+}: DictionaryVisualCueProps): React.JSX.Element | null {
   if (!visual) return null;
-  const title = visual.alt[locale] || visual.alt.en || visual.alt.es || visual.alt.he;
-  const illustration = illustratedKeys[visual.key];
-  if (illustration) {
-    return <WordIllustration kind={illustration} title={title} className={className} />;
+  if (hasSemanticWordIllustration(visual.key)) {
+    return (
+      <SemanticWordIllustration
+        visual={visual}
+        locale={locale}
+        className={className}
+        size={size}
+        hintStage={hintStage}
+      />
+    );
   }
   return <CategoryWordIllustration visual={visual} locale={locale} className={className} />;
 }

@@ -91,6 +91,15 @@ STARTER_CONCEPTS: tuple[dict[str, Any], ...] = (
         "translation_en": "hello / peace",
         "translation_es": "hola / paz",
         "visual_id": "greetings.hello",
+        "visual": {
+            "key": "greetings.hello",
+            "emoji": "👋",
+            "alt": {
+                "en": "Two neighbors facing each other and waving hello",
+                "es": "Dos vecinos frente a frente saludándose con la mano",
+                "he": "שני שכנים עומדים זה מול זה ומנופפים לשלום",
+            },
+        },
         "source": "reviewed_starter",
     },
     {
@@ -102,6 +111,15 @@ STARTER_CONCEPTS: tuple[dict[str, Any], ...] = (
         "translation_en": "thank you",
         "translation_es": "gracias",
         "visual_id": "greetings.thanks",
+        "visual": {
+            "key": "greetings.thanks",
+            "emoji": "🙏",
+            "alt": {
+                "en": "Two neighbors sharing a small gift with gratitude",
+                "es": "Dos vecinos compartiendo un pequeño regalo con gratitud",
+                "he": "שני שכנים חולקים מתנה קטנה בהכרת תודה",
+            },
+        },
         "source": "reviewed_starter",
     },
     {
@@ -113,6 +131,15 @@ STARTER_CONCEPTS: tuple[dict[str, Any], ...] = (
         "translation_en": "yes",
         "translation_es": "sí",
         "visual_id": "greetings.yes",
+        "visual": {
+            "key": "greetings.yes",
+            "emoji": "✅",
+            "alt": {
+                "en": "A clear green check meaning yes",
+                "es": "Una marca verde clara que significa sí",
+                "he": "סימן וי ירוק שמשמעו כן",
+            },
+        },
         "source": "reviewed_starter",
     },
 )
@@ -323,6 +350,7 @@ class LocalLearningEngine:
                 "translation_en",
                 "translation_es",
                 "visual_id",
+                "visual",
                 "source",
             )
             if concept.get(key) is not None

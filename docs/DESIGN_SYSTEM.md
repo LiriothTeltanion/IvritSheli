@@ -32,19 +32,22 @@ The frontend includes a small custom inline SVG icon set. Icons inherit `current
 
 ## Word illustrations
 
-The reviewed layer contains 240 concepts. Five First Steps words use bespoke
-code-native SVG micro-scenes; the other 235 currently combine twelve category
-grammars with semantic emoji cues. Each cue is selected for recall rather than
-decoration and is paired with localized Hebrew, English and Spanish alternative
-text. Illustration colors reuse the warm tokens so high-contrast and theme
-behavior stay coherent. Images do not load from third-party hosts, track
-learners or introduce a separate asset license.
+The reviewed layer contains 240 concepts. Twenty-four words use exact semantic
+code-native SVG scenes: five inherited First Steps scenes and nineteen new
+context-rich scenes. The other 216 concepts use explicit category-composition
+and emoji fallbacks rather than being presented as bespoke art. Each cue is
+selected for recall rather than decoration and is paired with localized Hebrew,
+English and Spanish alternative text. The nineteen new scenes can progressively
+reveal context, meaning and anchor layers; the five inherited scenes are
+currently all-or-nothing. Illustration colors reuse the warm tokens so
+high-contrast and theme behavior stay coherent. Images do not load from
+third-party hosts, track learners or introduce a separate asset license.
 
 An illustration is never evidence for meaning, grammar or cultural usage. Source-backed text and provenance remain the authority, and unsupported dictionary entries may have no visual.
 
 See [Vocabulary illustration system](VOCABULARY_ILLUSTRATION_SYSTEM.md) for
-the exact-sense starter scenes, current category limitation, and replacement
-order.
+the exact-scene catalog, progressive-layer boundary, current fallback
+limitation, and replacement order.
 
 ## Motion
 

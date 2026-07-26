@@ -11,8 +11,10 @@ from fastapi.testclient import TestClient
 
 from ivrit_sheli.cloud_repository import CloudLearningRepository
 from ivrit_sheli.cloud_store import MemoryCloudStore
+from ivrit_sheli.dictionary import DEMO_ENTRIES
 from ivrit_sheli.local_learning_engine import (
     CURRICULUM_LESSONS,
+    STARTER_CONCEPTS,
     LocalLearningEngine,
     PracticeConflictError,
 )
@@ -80,7 +82,14 @@ def test_empty_account_gets_three_reviewed_words_and_all_exercise_families() -> 
         if isinstance(step.get("concept"), dict)
     }
     exercise_types = {step["exercise_type"] for step in plan["steps"]}
+    reviewed_visuals = {
+        step["concept"]["visual"]["key"]
+        for step in plan["steps"]
+        if isinstance(step.get("concept"), dict)
+        and isinstance(step["concept"].get("visual"), dict)
+    }
     assert {"שלום", "תודה", "כן"} <= concepts
+    assert {"greetings.hello", "greetings.thanks", "greetings.yes"} <= reviewed_visuals
     assert {
         "visual_meaning",
         "audio_choice",
@@ -90,6 +99,24 @@ def test_empty_account_gets_three_reviewed_words_and_all_exercise_families() -> 
         "spoken_production",
     } <= exercise_types
     assert plan["source"] == "reviewed_starter"
+
+
+def test_daily_practice_starter_visuals_match_dictionary_metadata() -> None:
+    dictionary_visuals = {
+        str(entry["visual_key"]): {
+            "key": entry["visual_key"],
+            "emoji": entry["visual_emoji"],
+            "alt": {
+                "en": entry["visual_alt_en"],
+                "es": entry["visual_alt_es"],
+                "he": entry["visual_alt_he"],
+            },
+        }
+        for entry in DEMO_ENTRIES
+    }
+
+    for concept in STARTER_CONCEPTS:
+        assert concept["visual"] == dictionary_visuals[concept["visual_id"]]
 
 
 def test_learning_engine_prioritizes_due_weak_low_confidence_evidence() -> None:

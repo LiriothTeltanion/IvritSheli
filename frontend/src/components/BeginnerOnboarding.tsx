@@ -5,10 +5,11 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { api } from '../api';
 import { useI18n } from '../i18n';
 import { resolveLearnerMode } from '../learnerMode';
+import { starterWords, starterWordVisual } from '../starterWords';
 import type { LearnerMode, Locale, Profile, VoiceStyle } from '../types';
 import { createHebrewUtterance, persistVoiceStyle, readStoredVoiceStyle } from '../voicePreference';
+import { DictionaryVisualCue } from './DictionaryVisualCue';
 import { Icon } from './Icon';
-import { WordIllustration } from './WordIllustration';
 
 type BeginnerLevel = 'A0' | 'A1' | 'A2';
 type BeginnerGoal = 'daily_life' | 'speaking' | 'travel' | 'medical';
@@ -368,7 +369,7 @@ export function BeginnerOnboarding({ profile, storageKey, onFinished, onSkip }: 
               <p>{t('previewYourLearningCardDetail')}</p>
             </div>
             <div className="onboarding-preview">
-              <WordIllustration kind="greeting" title={t('greetingIllustrationAlt')} />
+              <DictionaryVisualCue visual={starterWordVisual(starterWords[0]!)} locale={draft.locale} size="card" />
               <div className="onboarding-preview__word">
                 <strong lang="he" dir="rtl">{draft.niqqud === 'always' ? 'שָׁלוֹם' : 'שלום'}</strong>
                 {draft.transliteration !== 'hidden' && <span dir="ltr">shalom</span>}

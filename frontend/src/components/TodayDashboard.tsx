@@ -8,15 +8,15 @@ import { useState } from 'react';
 import { useI18n } from '../i18n';
 import { resolveLearnerMode } from '../learnerMode';
 import { useSessionAccess } from '../session';
-import { localizedText, starterWords } from '../starterWords';
+import { localizedText, starterWords, starterWordVisual } from '../starterWords';
 import type { Dashboard } from '../types';
 import { HebrewText } from './HebrewText';
 import { Icon, type IconName } from './Icon';
 import { LearningCoreJourney } from './LearningCoreJourney';
 import { AtlasRegionVocabulary } from './AtlasRegionVocabulary';
+import { DictionaryVisualCue } from './DictionaryVisualCue';
 import { LivingHebrewAtlas, type AtlasRegionId } from './LivingHebrewAtlas';
 import { MetricRing } from './MetricRing';
-import { WordIllustration } from './WordIllustration';
 
 interface TodayDashboardProps {
   dashboard: Dashboard;
@@ -127,7 +127,7 @@ export function TodayDashboard({
           {!readOnly && learnerMode !== 'guided' && <button type="button" className="capture-link" onClick={onCapture}><Icon name="plus" size={17} /> {t('saveAWordYouNeed')}</button>}
         </div>
         <div className="hero-visual guided-word-visual">
-          <WordIllustration kind="greeting" title={localizedText(firstWord.illustrationAlt, locale)} />
+          <DictionaryVisualCue visual={starterWordVisual(firstWord)} locale={locale} size="hero" />
           <div className="guided-word-visual__label">
             <strong lang="he" dir="rtl">{firstWord.word}</strong>
             <span dir="ltr">{firstWord.transliteration}</span>
@@ -202,7 +202,7 @@ export function TodayDashboard({
         <div className="visual-vocabulary__grid">
           {starterWords.map((word) => (
             <button type="button" key={word.id} onClick={() => onWordClick(word.dictionaryWord)} aria-label={t('openDictionaryFor', { word: word.dictionaryWord })}>
-              <WordIllustration kind={word.illustration} title={localizedText(word.illustrationAlt, locale)} />
+              <DictionaryVisualCue visual={starterWordVisual(word)} locale={locale} size="thumbnail" />
               <strong lang="he" dir="rtl">{word.word}</strong>
               <span>{localizedText(word.meaning, locale)}</span>
             </button>

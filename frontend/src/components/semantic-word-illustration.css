@@ -1,0 +1,329 @@
+/* Semantic A0 scenes: exact actions and objects with a shared warm visual grammar. */
+
+.semantic-art {
+  --semantic-ink: #26384a;
+  --semantic-detail-ink: var(--semantic-ink);
+  --semantic-symbol-ink: var(--semantic-ink);
+  --semantic-paper: #fffaf0;
+  --semantic-surface: #fffefa;
+  --semantic-teal: #167b76;
+  --semantic-teal-soft: #cde8df;
+  --semantic-coral: #d96f62;
+  --semantic-gold: #edb94e;
+  --semantic-gold-soft: #f8df9f;
+  --semantic-blue: #4b8ca8;
+  --semantic-green: #659b68;
+  --semantic-green-soft: #b9d49e;
+  --semantic-skin: #c98562;
+  --semantic-hair: #44342e;
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  color: var(--semantic-ink);
+  filter: drop-shadow(0 0.85rem 1.35rem rgba(80, 58, 26, 0.12));
+}
+
+.semantic-art--thumbnail {
+  filter: drop-shadow(0 0.4rem 0.7rem rgba(80, 58, 26, 0.1));
+}
+
+.semantic-art__paper {
+  fill: var(--semantic-paper);
+  stroke: color-mix(in srgb, var(--semantic-ink) 22%, transparent);
+  stroke-width: 2;
+}
+
+.semantic-art__glow {
+  fill: color-mix(in srgb, var(--semantic-gold) 18%, transparent);
+}
+
+.semantic-art__ground {
+  fill: color-mix(in srgb, var(--semantic-teal-soft) 72%, var(--semantic-paper));
+}
+
+.semantic-art__surface { fill: var(--semantic-surface); }
+.semantic-art__teal { fill: var(--semantic-teal); }
+.semantic-art__teal-soft { fill: var(--semantic-teal-soft); }
+.semantic-art__coral { fill: var(--semantic-coral); }
+.semantic-art__gold { fill: var(--semantic-gold); }
+.semantic-art__gold-soft { fill: var(--semantic-gold-soft); }
+.semantic-art__blue { fill: var(--semantic-blue); }
+.semantic-art__green { fill: var(--semantic-green); }
+.semantic-art__green-soft { fill: var(--semantic-green-soft); }
+.semantic-art__hot { fill: #f09b42; }
+.semantic-art__cloud { fill: #cddce5; }
+.semantic-art__wood { fill: #bd8352; }
+.semantic-art__wall { fill: #f2e8d7; }
+.semantic-art__floor { fill: #d6aa76; }
+.semantic-art__metal { fill: #aebdc5; }
+
+.semantic-art__outlined {
+  stroke: color-mix(in srgb, var(--semantic-ink) 76%, transparent);
+  stroke-width: 2.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.semantic-art__ink {
+  fill: var(--semantic-symbol-ink);
+}
+
+.semantic-art__detail,
+.semantic-art__limb,
+.semantic-art__motion,
+.semantic-art__arrow,
+.semantic-art__steam,
+.semantic-art__sun-rays,
+.semantic-art__awning-lines,
+.semantic-art__rain,
+.semantic-art__breath,
+.semantic-art__snowflake,
+.semantic-art__highlight {
+  fill: none;
+  stroke: var(--semantic-detail-ink);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.semantic-art__detail--thin {
+  stroke-width: 2.4;
+  opacity: 0.68;
+}
+
+.semantic-art__clock-hand {
+  stroke-width: 7;
+}
+
+.semantic-art__motion,
+.semantic-art__steam,
+.semantic-art__breath {
+  stroke: var(--semantic-blue);
+  stroke-width: 3.2;
+}
+
+.semantic-art__arrow {
+  stroke: var(--semantic-coral);
+  stroke-width: 5;
+}
+
+.semantic-art__sun-rays {
+  stroke: var(--semantic-gold);
+  stroke-width: 3.5;
+}
+
+.semantic-art__sun-rays--hot {
+  stroke: #e98132;
+}
+
+.semantic-art__rain,
+.semantic-art__snowflake {
+  stroke: var(--semantic-blue);
+  stroke-width: 3.5;
+}
+
+.semantic-art__highlight {
+  stroke: rgba(255, 255, 255, 0.82);
+}
+
+.semantic-art__skin {
+  fill: var(--semantic-skin);
+}
+
+.semantic-art__skin-line {
+  fill: none;
+  stroke: var(--semantic-skin);
+  stroke-width: 7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.semantic-art__hair {
+  fill: var(--semantic-hair);
+  stroke: var(--semantic-ink);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.semantic-art__shirt {
+  stroke: color-mix(in srgb, var(--semantic-ink) 70%, transparent);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+}
+
+.semantic-art__person--teal .semantic-art__shirt { fill: var(--semantic-teal); }
+.semantic-art__person--coral .semantic-art__shirt { fill: var(--semantic-coral); }
+.semantic-art__person--gold .semantic-art__shirt { fill: var(--semantic-gold); }
+.semantic-art__person--blue .semantic-art__shirt { fill: var(--semantic-blue); }
+
+.semantic-art__face {
+  fill: none;
+  stroke: var(--semantic-symbol-ink);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+
+.semantic-art__bubble {
+  stroke-width: 2.4;
+}
+
+.semantic-art__window {
+  fill: #cae8ee;
+  stroke: color-mix(in srgb, var(--semantic-ink) 70%, transparent);
+  stroke-width: 2.5;
+}
+
+.semantic-art__tiles {
+  fill: #eef6f4;
+  stroke: color-mix(in srgb, var(--semantic-blue) 35%, transparent);
+  stroke-width: 1.5;
+}
+
+.semantic-art__glass {
+  fill: color-mix(in srgb, #b8edf4 42%, var(--semantic-surface));
+}
+
+.semantic-art__water {
+  fill: #3f9eb5;
+}
+
+.semantic-art__water-stream {
+  fill: none;
+  stroke: #247a93;
+  stroke-width: 7;
+  stroke-linecap: round;
+}
+
+.semantic-art__water-drop {
+  fill: #68c7d8;
+  stroke: #245f74;
+  stroke-width: 2.5;
+}
+
+.semantic-art__spark {
+  fill: var(--semantic-gold);
+  stroke: color-mix(in srgb, var(--semantic-ink) 32%, transparent);
+  stroke-width: 1.5;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.semantic-art__thought {
+  stroke-width: 2.5;
+}
+
+.semantic-art__handshake {
+  stroke-width: 11;
+}
+
+.semantic-art__awning {
+  fill: var(--semantic-gold);
+}
+
+.semantic-art__awning-lines {
+  stroke: var(--semantic-coral);
+  stroke-width: 7;
+}
+
+.semantic-art__currency {
+  fill: var(--semantic-symbol-ink);
+  font-family: Arial, sans-serif;
+  font-size: 23px;
+  font-weight: 900;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+.semantic-art__currency--small {
+  font-size: 18px;
+}
+
+.semantic-art__scarf {
+  stroke: color-mix(in srgb, var(--semantic-ink) 55%, transparent);
+  stroke-width: 2.5;
+}
+
+:root[data-theme="dark"] .semantic-art {
+  --semantic-ink: #e4edf6;
+  --semantic-detail-ink: #5a8192;
+  --semantic-symbol-ink: #26384a;
+  --semantic-paper: #15283a;
+  --semantic-surface: #f4f8fa;
+  --semantic-teal-soft: #315b58;
+  --semantic-gold-soft: #9b7333;
+  --semantic-green-soft: #486d4b;
+  color-scheme: dark;
+  filter: drop-shadow(0 1rem 1.5rem rgba(0, 0, 0, 0.3));
+}
+
+:root[data-theme="dark"] .semantic-art__wall {
+  fill: #314051;
+}
+
+:root[data-theme="dark"] .semantic-art__floor {
+  fill: #75583d;
+}
+
+:root[data-theme="dark"] .semantic-art__tiles {
+  fill: #263d4c;
+  stroke: rgba(181, 213, 230, 0.3);
+}
+
+:root[data-theme="dark"] .semantic-art__window {
+  fill: #8fc3d0;
+}
+
+:root[data-theme="dark"] .semantic-art__surface.semantic-art__outlined,
+:root[data-theme="dark"] .semantic-art__glass.semantic-art__outlined,
+:root[data-theme="dark"] .semantic-art__metal.semantic-art__outlined,
+:root[data-theme="dark"] .semantic-art__cloud.semantic-art__outlined,
+:root[data-theme="dark"] .semantic-art__window {
+  stroke: #26384a;
+}
+
+@media (prefers-contrast: more) {
+  .semantic-art__paper,
+  .semantic-art__outlined,
+  .semantic-art__window,
+  .semantic-art__hair,
+  .semantic-art__shirt {
+    stroke: currentColor;
+    stroke-width: 4;
+  }
+
+  .semantic-art__detail,
+  .semantic-art__limb,
+  .semantic-art__arrow,
+  .semantic-art__motion,
+  .semantic-art__sun-rays,
+  .semantic-art__rain,
+  .semantic-art__snowflake,
+  .semantic-art__water-stream,
+  .semantic-art__water-drop,
+  .semantic-art__skin-line {
+    stroke: currentColor;
+    stroke-width: 5;
+  }
+
+  .semantic-art__water {
+    fill: currentColor;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .semantic-art__spark {
+    animation: semanticSpark 2.4s ease-in-out infinite alternate;
+  }
+
+  button:hover .semantic-art[data-size="thumbnail"],
+  button:focus-visible .semantic-art[data-size="thumbnail"] {
+    transform: translateY(-2px);
+    transition: transform 180ms ease;
+  }
+}
+
+@keyframes semanticSpark {
+  from { transform: scale(0.9) rotate(-3deg); }
+  to { transform: scale(1.08) rotate(3deg); }
+}

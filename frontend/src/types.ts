@@ -136,6 +136,7 @@ export interface PracticeConcept {
   translation_en?: string;
   translation_es?: string;
   visual_id?: string;
+  visual?: DictionaryVisual;
   source: 'personal' | 'reviewed_starter';
 }
 

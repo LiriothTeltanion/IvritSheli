@@ -3,10 +3,10 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useI18n } from '../i18n';
-import { localizedText, starterWords, type StarterWord } from '../starterWords';
+import { localizedText, starterWords, starterWordVisual, type StarterWord } from '../starterWords';
 import { createHebrewUtterance } from '../voicePreference';
+import { DictionaryVisualCue } from './DictionaryVisualCue';
 import { Icon } from './Icon';
-import { WordIllustration } from './WordIllustration';
 
 interface PreAccountLessonProps {
   onReady: (result: 'completed' | 'skipped') => void;
@@ -135,7 +135,7 @@ export function PreAccountLesson({ onReady }: PreAccountLessonProps): React.JSX.
 
       <article className="pre-account-word">
         <div className="pre-account-word__visual">
-          <WordIllustration kind={current.illustration} title={localizedText(current.illustrationAlt, locale)} />
+          <DictionaryVisualCue visual={starterWordVisual(current)} locale={locale} size="hero" />
         </div>
         <div className="pre-account-word__content">
           <strong lang="he" dir="rtl">{current.word}</strong>

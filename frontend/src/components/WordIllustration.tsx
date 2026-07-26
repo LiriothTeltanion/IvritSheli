@@ -9,6 +9,8 @@ interface WordIllustrationProps {
   title: string;
   className?: string;
   decorative?: boolean;
+  visualId?: string;
+  size?: 'thumbnail' | 'card' | 'hero';
 }
 
 function Scene({ kind }: { kind: WordIllustrationKind }): React.JSX.Element {
@@ -106,7 +108,14 @@ function Scene({ kind }: { kind: WordIllustrationKind }): React.JSX.Element {
   );
 }
 
-export function WordIllustration({ kind, title, className = '', decorative = false }: WordIllustrationProps): React.JSX.Element {
+export function WordIllustration({
+  kind,
+  title,
+  className = '',
+  decorative = false,
+  visualId,
+  size = 'card',
+}: WordIllustrationProps): React.JSX.Element {
   const titleId = useId();
   return (
     <svg
@@ -116,6 +125,9 @@ export function WordIllustration({ kind, title, className = '', decorative = fal
       aria-hidden={decorative ? true : undefined}
       aria-labelledby={decorative ? undefined : titleId}
       data-illustration-kind={kind}
+      data-visual-id={visualId}
+      data-visual-detail="semantic"
+      data-size={size}
       focusable="false"
     >
       {!decorative && <title id={titleId}>{title}</title>}

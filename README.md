@@ -1,7 +1,7 @@
 <div align="center">
   <img src="assets/brand/logo.svg" alt="Ivrit Sheli" width="680" />
 
-  <h1>Ivrit Sheli 2.8.1 — Mother Pilot Polish · העברית שלי</h1>
+  <h1>Ivrit Sheli 2.8.2 — Visual Vocabulary · העברית שלי</h1>
   <p><strong>A beginner-first, evidence-informed Hebrew journey that grows with the learner.</strong></p>
 
   <p>
@@ -25,19 +25,19 @@
   <a href="https://ivritsheli-production.up.railway.app/?lang=en"><strong>🌐 Open the verified Ivrit Sheli 2.4.0 Contest Edition</strong></a>
 </p>
 
-> **Release-candidate boundary:** this checkout is the local, unpublished 2.8.1 candidate. The Railway deployment, public Git tag and GitHub Release intentionally remain on the verified 2.4.0 Contest Edition until the full release gate and formal mother-pilot acceptance retest are approved.
+> **Release-candidate boundary:** this checkout is the local, unpublished 2.8.2 candidate. The Railway deployment, public Git tag and GitHub Release intentionally remain on the verified 2.4.0 Contest Edition until the full release gate and formal mother-pilot acceptance retest are approved.
 
 ### Source and live release truth
 
 | Surface | Verified state |
 |---|---|
-| Current private source checkout | `2.8.1` · Mother Pilot Polish candidate · not deployed or published |
+| Current private source checkout | `2.8.2` · Visual Vocabulary candidate · not deployed or published |
 | Current public deployed application | `2.4.0` |
 | Release implementation commit | `03bf84b9268ff8be528c0fab3c670f9652ee23b0` |
 | Production storage/readiness | PostgreSQL · ready · 48 reviewed dictionary entries |
 | Deployment verification | Successful on 2026-07-21 |
 | Release verification | 151 unique backend tests + 62 frontend tests = 213 passed; main CI and CodeQL passed |
-| Candidate verification | 195 backend + 158 Vitest + 21 Playwright = 374 executed passes; Ruff, strict MyPy, TypeScript, Vite, dependency audits, Docker/PostgreSQL, tenant isolation, disposable backup/restore, the 136-file/277-checksum staged-tree gate and the clean `c9e2762` archive are verified |
+| Candidate verification | 196 backend + 205 Vitest + 21 Playwright = 422 executed passes; Ruff, strict MyPy, TypeScript, Vite, dependency audits, Docker/PostgreSQL, tenant isolation, disposable backup/restore and the 140-file/281-checksum staged-tree gate are verified; the clean `c9e2762` archive remains the historical 2.8.1 checkpoint |
 | GitHub publication | [`v2.4.0`](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.4.0) is the published tag and GitHub Release |
 | Live account evidence | Identity-only Google sign-in, onboarding state and the authenticated session persisted across reload; logout returned to the English landing page and remained signed out after reload |
 | Live judge-path evidence | The English entry link and four-stop read-only guided tour passed production browser checks |
@@ -84,9 +84,27 @@ Most language products make every learner follow the same path. Ivrit Sheli does
 
 The system tracks what you recognize, what you can produce, where you hesitate, which grammar errors repeat, which situations matter, and which learning mode works best. Recommendations are explainable: the app tells you *why* it selected a word, exercise, mission, or speaking drill.
 
-## What the private 2.8.1 candidate delivers 🌤️
+## What the private 2.8.2 candidate delivers 🌤️
 
-The 2.8.1 Mother Pilot Polish slice responds to real Samsung use: a shared
+The 2.8.2 **Visual Vocabulary** slice replaces the most ambiguous beginner
+emoji/category cues with a typed semantic SVG story engine. Twenty-four
+high-impact A0 meanings now have exact scenes built from recurring people,
+objects and actions: water is a glass being filled from a tap; hungry is a
+person holding an empty stomach beside an empty plate; today and tomorrow use
+deliberately contrasting calendar actions; hot and cold mirror the same bus
+stop with different physical evidence. The same reviewed scene is used in
+onboarding, First Steps, Today, the dictionary and daily practice.
+
+The remaining 216 concepts retain an explicitly marked category/emoji fallback
+while semantic coverage expands category by category. The project does not
+claim 240 bespoke illustrations. Each of the 240 concepts still has a stable
+visual identifier and complete English, Spanish and Hebrew alternative text.
+The new renderer supports thumbnail, card and hero sizes. Its nineteen new
+scenes provide progressive `context → meaning → anchor` hint layers without
+network image requests; the five inherited First Steps scenes remain
+all-or-nothing in this candidate.
+
+The inherited 2.8.1 Mother Pilot Polish slice responds to real Samsung use: a shared
 local link creates a separate learner identity, all pronunciation paths speak
 canonical continuous Hebrew (including `בבקשה`), the five First Steps scenes
 use one warmer exact-sense visual grammar, Settings remains reachable in Guided

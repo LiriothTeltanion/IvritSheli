@@ -34,17 +34,47 @@ const CONCEPTS = [
   {
     concept_key: 'starter:shalom', lesson_key: 'a0.greetings', hebrew_text: 'שלום',
     hebrew_with_niqqud: 'שָׁלוֹם', transliteration: 'shalom', translation_en: 'hello',
-    translation_es: 'hola', source: 'reviewed_starter' as const,
+    translation_es: 'hola', visual_id: 'greetings.hello',
+    visual: {
+      key: 'greetings.hello',
+      emoji: '👋',
+      alt: {
+        en: 'Two neighbors facing each other and waving hello',
+        es: 'Dos vecinos frente a frente saludándose con la mano',
+        he: 'שני שכנים עומדים זה מול זה ומנופפים לשלום',
+      },
+    },
+    source: 'reviewed_starter' as const,
   },
   {
     concept_key: 'starter:toda', lesson_key: 'a0.greetings', hebrew_text: 'תודה',
     hebrew_with_niqqud: 'תּוֹדָה', transliteration: 'toda', translation_en: 'thank you',
-    translation_es: 'gracias', source: 'reviewed_starter' as const,
+    translation_es: 'gracias', visual_id: 'greetings.thanks',
+    visual: {
+      key: 'greetings.thanks',
+      emoji: '🙏',
+      alt: {
+        en: 'Two neighbors sharing a small gift with gratitude',
+        es: 'Dos vecinos compartiendo un pequeño regalo con gratitud',
+        he: 'שני שכנים חולקים מתנה קטנה בהכרת תודה',
+      },
+    },
+    source: 'reviewed_starter' as const,
   },
   {
     concept_key: 'starter:ken', lesson_key: 'a0.survival', hebrew_text: 'כן',
     hebrew_with_niqqud: 'כֵּן', transliteration: 'ken', translation_en: 'yes',
-    translation_es: 'sí', source: 'reviewed_starter' as const,
+    translation_es: 'sí', visual_id: 'greetings.yes',
+    visual: {
+      key: 'greetings.yes',
+      emoji: '✅',
+      alt: {
+        en: 'A clear green check meaning yes',
+        es: 'Una marca verde clara que significa sí',
+        he: 'סימן וי ירוק שמשמעו כן',
+      },
+    },
+    source: 'reviewed_starter' as const,
   },
 ];
 
@@ -154,12 +184,38 @@ describe('DailyPracticeSession', () => {
     expect(screen.getByText('shalom')).toBeInTheDocument();
     expect(screen.getByText('toda')).toBeInTheDocument();
     expect(screen.getByText('Recall, listen and speak without penalties for mistakes.')).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Two neighbors facing each other and waving hello' })).toHaveAttribute(
+      'data-visual-id',
+      'greetings.hello',
+    );
 
     await user.click(screen.getByRole('button', { name: 'Start practice' }));
 
     expect(await screen.findByRole('heading', { name: 'Meet the word' })).toBeInTheDocument();
     expect(screen.getByText('Step 1 of 7')).toBeInTheDocument();
     expect(submit).not.toHaveBeenCalled();
+  });
+
+  it('restores reviewed imagery for a persisted pre-2.8.2 plan that only has visual_id', async () => {
+    const legacySteps = STEPS.map((step) => (
+      step.concept
+        ? { ...step, concept: { ...step.concept, visual: undefined } }
+        : step
+    )) as PracticeSession['plan']['steps'];
+    const legacySession = makeSession(0);
+    vi.spyOn(api, 'practiceToday').mockResolvedValue({
+      session: {
+        ...legacySession,
+        plan: { ...legacySession.plan, steps: legacySteps },
+      },
+    });
+    renderSession();
+
+    expect(
+      await screen.findByRole('img', {
+        name: 'Two neighbors facing each other and waving hello',
+      }),
+    ).toHaveAttribute('data-visual-id', 'greetings.hello');
   });
 
   it('reuses the idempotency key after a network failure', async () => {

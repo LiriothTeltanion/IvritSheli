@@ -96,7 +96,7 @@ Every Hebrew token rendered through the shared `HebrewText` component opens the 
 - IPA, audio URLs, and pronunciation fallback.
 - Source and license attribution.
 
-The bundled 240-concept A0–A2 layer also shows a stable visual cue and localized accessible description. Five First Steps words use bespoke exact-sense scenes; the remaining concepts currently use reusable category compositions and semantic emoji cues. Beginner facts appear first; advanced grammar, forms and provenance remain available without crowding the initial view. Visual cues aid memory but are not presented as grammatical evidence. An imported or unsupported word can correctly have no illustration.
+The bundled 240-concept A0–A2 layer also shows a stable visual cue and localized accessible description. Twenty-four words use exact semantic SVG scenes: five inherited First Steps scenes and nineteen new context-rich scenes. The other 216 concepts use explicit category-composition and emoji fallbacks. The nineteen new scenes can progressively reveal context, meaning and anchor layers; the five inherited scenes are currently all-or-nothing. Beginner facts appear first; advanced grammar, forms and provenance remain available without crowding the initial view. Visual cues aid memory but are not presented as grammatical evidence. An imported or unsupported word can correctly have no illustration.
 
 ## Finishing a visit
 

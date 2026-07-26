@@ -1,0 +1,88 @@
+// Module: semantic word illustration tests
+// Purpose: Protect A0 recipe coverage, semantic uniqueness, progressive hints, and accessibility.
+
+import { render, screen } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
+import type { DictionaryVisual } from '../types';
+import {
+  A0_SEMANTIC_VISUAL_KEYS,
+  getA0VisualRecipe,
+  semanticFingerprint,
+} from '../visuals/a0VisualRecipes';
+import { DictionaryVisualCue } from './DictionaryVisualCue';
+import { SemanticWordIllustration } from './SemanticWordIllustration';
+
+function visual(key: string): DictionaryVisual {
+  return {
+    key,
+    emoji: '🧭',
+    alt: {
+      en: `Reviewed scene for ${key}`,
+      es: `Escena revisada para ${key}`,
+      he: `סצנה בדוקה עבור ${key}`,
+    },
+  };
+}
+
+const NEW_SEMANTIC_KEYS = A0_SEMANTIC_VISUAL_KEYS.filter(
+  (key) => !getA0VisualRecipe(key).legacyKind,
+);
+
+describe('SemanticWordIllustration', () => {
+  it('covers 24 high-impact A0 meanings with unique semantic fingerprints', () => {
+    expect(A0_SEMANTIC_VISUAL_KEYS).toHaveLength(24);
+    const fingerprints = A0_SEMANTIC_VISUAL_KEYS.map((key) => semanticFingerprint(getA0VisualRecipe(key)));
+    expect(new Set(fingerprints)).toHaveLength(A0_SEMANTIC_VISUAL_KEYS.length);
+  });
+
+  it.each(A0_SEMANTIC_VISUAL_KEYS)('renders %s with a localized accessible identity', (key) => {
+    const { container } = render(
+      <SemanticWordIllustration visual={visual(key)} locale="es" size="thumbnail" />,
+    );
+    const image = screen.getByRole('img', { name: `Escena revisada para ${key}` });
+    expect(image).toHaveAttribute('viewBox', '0 0 240 180');
+    expect(image).toHaveAttribute('data-visual-id', key);
+    expect(image).toHaveAttribute('data-visual-detail', 'semantic');
+    expect(image).toHaveAttribute('data-size', 'thumbnail');
+    expect(container.querySelector('.category-art__word-cue')).not.toBeInTheDocument();
+  });
+
+  it('adds the exact anchor only at the final progressive hint stage', () => {
+    const { container, rerender } = render(
+      <SemanticWordIllustration visual={visual('food.water')} locale="en" hintStage={1} />,
+    );
+    expect(container.querySelector('[data-visual-layer="context"]')).toBeInTheDocument();
+    expect(container.querySelector('[data-visual-layer="meaning"]')).toBeInTheDocument();
+    expect(container.querySelector('[data-visual-layer="anchor"]')).not.toBeInTheDocument();
+
+    rerender(<SemanticWordIllustration visual={visual('food.water')} locale="en" hintStage={2} />);
+    expect(container.querySelector('[data-visual-layer="anchor"]')).toBeInTheDocument();
+  });
+
+  it.each(NEW_SEMANTIC_KEYS)('renders the reviewed context, meaning, and anchor layers for %s', (key) => {
+    const { container } = render(
+      <SemanticWordIllustration visual={visual(key)} locale="en" hintStage={2} />,
+    );
+    for (const layer of ['context', 'meaning', 'anchor']) {
+      const element = container.querySelector(`[data-visual-layer="${layer}"]`);
+      expect(element).toBeInTheDocument();
+      expect(element?.childElementCount).toBeGreaterThan(0);
+    }
+  });
+
+  it('uses the same renderer for detailed scenes and marks unfinished concepts as fallback', () => {
+    const { container, rerender } = render(
+      <DictionaryVisualCue visual={visual('home.room')} locale="en" />,
+    );
+    expect(container.querySelector('[data-visual-id="home.room"]')).toHaveAttribute(
+      'data-visual-detail',
+      'semantic',
+    );
+
+    rerender(<DictionaryVisualCue visual={visual('family.mother')} locale="en" />);
+    expect(container.querySelector('[data-visual-id="family.mother"]')).toHaveAttribute(
+      'data-visual-fallback',
+      'true',
+    );
+  });
+});

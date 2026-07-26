@@ -495,7 +495,7 @@ export default function App(): React.JSX.Element {
         </div>
         <div className="sidebar-footer">
           <div className="privacy-mini"><Icon name="target" size={17} /><span><strong>{t(`${learnerMode}Mode`)}</strong><small>{t('level')} {profile.cefr_band ?? profile.hebrew_level}</small></span></div>
-          <span className="version-label">v2.8.1 local candidate</span>
+          <span className="version-label">v2.8.2 local candidate</span>
         </div>
       </aside>
 

@@ -75,7 +75,9 @@ describe('BeginnerOnboarding', () => {
     await user.click(screen.getByRole('button', { name: /Continue/i }));
     await user.click(await screen.findByRole('button', { name: /Everyday life/i }));
     await user.click(screen.getByRole('button', { name: /Continue/i }));
-    expect(await screen.findByRole('img', { name: 'Two people greeting each other warmly' })).toBeInTheDocument();
+    expect(await screen.findByRole('img', {
+      name: 'Two neighbors facing each other and waving hello',
+    })).toHaveAttribute('data-visual-id', 'greetings.hello');
     await user.click(screen.getByRole('button', { name: /Start my first lesson/i }));
 
     await waitFor(() => expect(onFinished).toHaveBeenCalledWith(finishedProfile));

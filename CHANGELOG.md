@@ -2,6 +2,46 @@
 
 All notable changes are documented here. Versions follow Semantic Versioning.
 
+## 2.8.2 — Visual Vocabulary — Private candidate
+
+This private slice makes beginner imagery meaning-first instead of
+emoji-dependent. It remains local, untagged, unpushed and unpublished; the
+verified public Railway and GitHub release remains 2.4.0.
+
+### Added
+
+- A typed catalog of 24 high-impact A0 semantic recipes with unique,
+  test-protected scene fingerprints.
+- Nineteen new detailed SVG micro-scenes for greetings, food, home, shopping,
+  time and weather, alongside the five existing First Steps scenes.
+- Reusable people, gestures, objects and setting primitives with `thumbnail`,
+  `card` and `hero` modes.
+- Progressive `context → meaning → anchor` illustration layers in the nineteen
+  new scenes; the five inherited First Steps scenes remain all-or-nothing.
+- Coverage and integration tests ensuring that semantic scenes use localized
+  accessible names and never silently degrade into emoji cues.
+
+### Changed
+
+- Onboarding, First Steps, Today, dictionary results/drawer and Daily Practice
+  now use one key-driven visual renderer.
+- Daily Practice receives reviewed trilingual visual metadata from the local
+  learning engine instead of inventing generic alternative text or a `✦`
+  placeholder.
+- Ambiguous pairs now use deliberately contrasting actions: hello/goodbye,
+  today/tomorrow, house/room, hot/cold and food/hungry.
+- Unknown future categories use a neutral fallback rather than an unrelated
+  nature landscape.
+- The remaining 216 category scenes carry an explicit migration marker; the
+  app does not describe them as bespoke art.
+
+### Verification boundary
+
+- The semantic catalog contains 24 recipes; completing all 240 reviewed
+  concepts remains staged work.
+- SVG scenes are local and deterministic. No generated-image service, external
+  image host or runtime AI is required.
+
 ## 2.8.1 — Mother Pilot Polish — Private candidate
 
 This focused candidate responds to the first real Android pilot. It remains

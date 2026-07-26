@@ -1,7 +1,7 @@
 // Module: First Steps vocabulary
 // Purpose: Provide a small, exact-sense trilingual starter lesson with local visual metadata.
 
-import type { Locale } from './types';
+import type { DictionaryVisual, Locale } from './types';
 
 export type WordIllustrationKind = 'greeting' | 'gratitude' | 'please' | 'yes' | 'no';
 
@@ -20,6 +20,8 @@ export interface StarterWord {
   meaning: LocalizedText;
   exampleHebrew: string;
   exampleTranslation: LocalizedText;
+  visualKey: string;
+  visualEmoji: string;
   illustration: WordIllustrationKind;
   illustrationAlt: LocalizedText;
 }
@@ -38,6 +40,8 @@ export const starterWords: readonly StarterWord[] = [
       es: 'Hola, ¿cómo estás?',
       he: 'ברכת פתיחה יומיומית',
     },
+    visualKey: 'greetings.hello',
+    visualEmoji: '👋',
     illustration: 'greeting',
     illustrationAlt: {
       en: 'Two neighbors facing each other and waving hello',
@@ -58,6 +62,8 @@ export const starterWords: readonly StarterWord[] = [
       es: 'Muchas gracias.',
       he: 'הודיה חמה',
     },
+    visualKey: 'greetings.thanks',
+    visualEmoji: '🙏',
     illustration: 'gratitude',
     illustrationAlt: {
       en: 'Two neighbors sharing a small gift with gratitude',
@@ -78,6 +84,8 @@ export const starterWords: readonly StarterWord[] = [
       es: 'Agua, por favor.',
       he: 'בקשה מנומסת',
     },
+    visualKey: 'greetings.please',
+    visualEmoji: '🤲',
     illustration: 'please',
     illustrationAlt: {
       en: 'Two neighbors politely passing a glass of water',
@@ -98,6 +106,8 @@ export const starterWords: readonly StarterWord[] = [
       es: 'Sí, por favor.',
       he: 'הסכמה מנומסת',
     },
+    visualKey: 'greetings.yes',
+    visualEmoji: '✅',
     illustration: 'yes',
     illustrationAlt: {
       en: 'A clear green check meaning yes',
@@ -118,6 +128,8 @@ export const starterWords: readonly StarterWord[] = [
       es: 'No, gracias.',
       he: 'סירוב מנומס',
     },
+    visualKey: 'greetings.no',
+    visualEmoji: '❌',
     illustration: 'no',
     illustrationAlt: {
       en: 'A gentle coral cross meaning no',
@@ -129,4 +141,20 @@ export const starterWords: readonly StarterWord[] = [
 
 export function localizedText(text: LocalizedText, locale: Locale): string {
   return text[locale];
+}
+
+export function starterWordVisual(word: StarterWord): DictionaryVisual {
+  return {
+    key: word.visualKey,
+    emoji: word.visualEmoji,
+    alt: word.illustrationAlt,
+  };
+}
+
+const STARTER_VISUALS_BY_KEY = new Map(
+  starterWords.map((word) => [word.visualKey, starterWordVisual(word)]),
+);
+
+export function starterVisualByKey(key: string): DictionaryVisual | null {
+  return STARTER_VISUALS_BY_KEY.get(key) ?? null;
 }

@@ -3,10 +3,10 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useI18n } from '../i18n';
-import { localizedText, starterWords, type StarterWord } from '../starterWords';
+import { localizedText, starterWords, starterWordVisual, type StarterWord } from '../starterWords';
 import { createHebrewUtterance } from '../voicePreference';
+import { DictionaryVisualCue } from './DictionaryVisualCue';
 import { Icon } from './Icon';
-import { WordIllustration } from './WordIllustration';
 
 interface FirstStepsLessonProps {
   initialIndex?: number;
@@ -149,7 +149,7 @@ export function FirstStepsLesson({
 
       <article className="visual-word-card card">
         <div className="visual-word-card__scene">
-          <WordIllustration kind={current.illustration} title={localizedText(current.illustrationAlt, locale)} />
+          <DictionaryVisualCue visual={starterWordVisual(current)} locale={locale} size="hero" />
         </div>
         <div className="visual-word-card__content">
           <span className="visual-word-card__eyebrow">{t('lookListenRemember')}</span>
