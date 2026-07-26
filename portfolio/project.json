@@ -2,13 +2,13 @@
   "schema": "ivrit-sheli-portfolio-project-v2",
   "slug": "ivrit-sheli",
   "name": "Ivrit Sheli — העברית שלי",
-  "source_version": "2.6.0",
+  "source_version": "2.8.0",
   "live_version": "2.4.0",
-  "status": "private-pilot-development",
+  "status": "private-release-candidate",
   "default_branch": "main",
   "repository_url": "https://github.com/LiriothTeltanion/IvritSheli",
   "demo_url": "https://ivritsheli-production.up.railway.app",
-  "summary": "An unpublished 2.6 Learning Core for an evidence-informed trilingual Hebrew-learning product; the verified 2.4 Contest Edition remains the public Railway and GitHub release.",
+  "summary": "An unpublished 2.8 Warm Illustrated Learning Journey candidate with beginner-first A0-A2 practice, deterministic personalization and local or account-backed persistence; the verified 2.4 Contest Edition remains the public Railway and GitHub release.",
   "languages": [
     "en",
     "es",
@@ -58,7 +58,23 @@
     "latest_github_release": "v2.4.0",
     "source_version_tagged": false,
     "source_version_github_release_published": false,
-    "release_state": "2.6.0-private-local-2.4.0-live-and-published"
+    "release_state": "2.8.0-private-candidate-2.4.0-live-and-published"
+  },
+  "candidate": {
+    "version": "2.8.0",
+    "published": false,
+    "coverage": "Structured A0-A2 with an explicitly experimental B1/B2 Lab",
+    "reviewed_concepts": 240,
+    "learner_experiences": [
+      "Guided",
+      "Explorer",
+      "Experienced"
+    ],
+    "learning_engine": "Deterministic LocalLearningEngine",
+    "visual_journey_regions": 6,
+    "public_google_scope": "openid profile",
+    "local_mode_without_account": true,
+    "release_gate": "Full verification, two-account isolation check, backup/restore drill and beginner pilot remain required before publication."
   },
   "visual_proof": {
     "state": "live-english-journey-verified",

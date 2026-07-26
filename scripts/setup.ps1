@@ -40,6 +40,10 @@ Push-Location frontend
 try {
     npm ci
     if ($LASTEXITCODE -ne 0) { throw "Could not install frontend dependencies." }
+    if (-not $RuntimeOnly) {
+        npx playwright install chromium
+        if ($LASTEXITCODE -ne 0) { throw "Could not install Chromium for browser tests." }
+    }
 }
 finally {
     Pop-Location

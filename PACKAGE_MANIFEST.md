@@ -1,123 +1,245 @@
-# Ivrit Sheli 2.6.0 Learning Core — Package Manifest
+# Ivrit Sheli 2.8.0 — Private Candidate Package Manifest
 
 ## Release identity
 
 - Product: Ivrit Sheli — העברית שלי
-- Source version: `2.6.0`
-- Current public live source version: `2.4.0`
-- Manifest update date: 2026-07-22
-- Private-pilot consolidated verification: passed locally
-- Verified public baseline date: 2026-07-21
+- Candidate name: Warm Illustrated Learning Journey
+- Source version: `2.8.0`
+- Candidate branch: `codex/ivrit-sheli-v2.8.0`
+- Manifest update date: 2026-07-26
 - Time zone: Asia/Jerusalem
-- Author: Kevin “Lirioth” Cusnir
-- Private-pilot branch: `codex/ivrit-sheli-v2.6.0-learning-core`
+- Author: Kevin Cusnir
+- Creative signature: Lirioth Teltanion
 - Default branch: `main`
 - Application license: MIT
 - Production URL: https://ivritsheli-production.up.railway.app
-- Current verified production release: `2.4.0` on Railway with managed PostgreSQL and 48 reviewed dictionary entries
-- Release implementation commit: `03bf84b9268ff8be528c0fab3c670f9652ee23b0`
+- Current verified public version: `2.4.0`
+- Current public storage: managed PostgreSQL
+- Published implementation commit: `03bf84b9268ff8be528c0fab3c670f9652ee23b0`
 - Latest published Git tag and GitHub Release: `v2.4.0`
-- Private-pilot publication state: `2.6.0` is local, untagged and unpublished
-- Public publication state: `2.4.0` is deployed, tagged and published as a GitHub Release
+- Candidate publication state: `2.8.0` is local, untagged, unpushed and unpublished
+- Publication gate: blocked pending Docker/PostgreSQL, two-account Google and mother-pilot verification
 - Personal signature: `KC ✦ LT` is reserved and excluded from the MIT asset grant
 - Dictionary-derived data: separate Wiktionary/Kaikki attribution and share-alike terms
 - Privacy notice: `PRIVACY.md`
 - Terms of use: `TERMS.md`
 - Machine-readable public source: `portfolio/project.json`
 
-## 2.6 Learning Core scope
+## Candidate purpose
 
-This manifest describes the local 2.6 source candidate without promoting it to a public release. It adds a versioned, server-owned seven-phase learning loop, curriculum and CEFR-aligned profile settings, separate skill evidence, a niqqud support ladder, delayed-retention checkpoints, a transparent Today journey and source-checked learning-science and provenance contracts. It inherits the three learner experiences, Israel-wide visual atlas, 96-concept reviewed starter lexicon, activity log, achievements and provider-subject pilot allowlists preserved in the verified local 2.5 foundation.
+This manifest describes the private 2.8 candidate without promoting it to a public release. The release is designed so a total beginner can open a shared link, learn three words and complete a first guided session without technical assistance, while Explorer and Experienced modes expose progressively richer navigation and learning controls.
 
-The Railway URL, production health evidence, public Git tag and GitHub Release below all remain the verified 2.4.0 record. Google sign-in remains identity-only and does not itself grant Gmail, Drive or Calendar access.
+The candidate provides structured A0–A2 coverage and labels B1/B2 content honestly as an experimental Lab rather than a complete B2 course. The public learning path is deterministic and local; no per-user LLM or cloud-audio call is required. Google sign-in requests identity only through `openid profile` and grants no Gmail, Drive or Calendar access.
 
-## Verified 2.4 capabilities
+The live Railway application, public tag and GitHub Release remain version 2.4.0 until every publication gate is complete and Kevin gives explicit approval.
 
-### Contest judge journey
+## 2.8 functional scope
 
-- A four-stop guided tour inside the synthetic read-only demo with real navigation to ephemeral Illustrated First Steps, dictionary visuals, microphone word intelligence and adaptive-progress views.
-- Deterministic per-visit `?lang=en`, `?lang=es` and `?lang=he` interface overrides that do not replace the learner's persisted language.
-- Tour presentation built on the existing icon, motion, responsive, mobile, RTL and reduced-motion systems without a new visual dependency.
-- Keyed BLAKE2b-256 storage digests for session, CSRF and OAuth-state bearer material, preserving the existing 64-character hexadecimal database contract while intentionally rotating active session hashes on deployment.
-- No new Google Workspace scope, provider, schema or dependency; Google sign-in remains identity-only.
+### Beginner-first learning journey
 
-### Warm illustrated beginner journey inherited from 2.3
+- Three-word learning entry before profile, configuration or account prompts.
+- Guided/A0 default experience.
+- Guided navigation limited to Today, Words and Help.
+- One primary action above the first fold with a permanent Help route.
+- Clear loading, empty, error, offline and network-required states.
+- Accessible profile menu with learner identity, level, mode, real connectivity, focus status, settings and logout.
+- Functional text and Hebrew presentation sized for legibility, 48 px touch targets, keyboard focus and 200% zoom/reflow.
+- Light, dark and high-contrast foundations with no state communicated by color alone.
 
-- Light-first, warm visual language with code-native illustrations and no downloaded stock imagery.
-- Beginner onboarding for interface language, Hebrew level, primary goal and daily pace.
-- A persisted guided-mode preference in Settings; distinct simplified/full-shell behavior remains a candidate follow-up and is not claimed as complete.
-- A first visual lesson covering `שלום`, `תודה`, `בבקשה`, `כן` and `לא`.
-- Persisted onboarding choices, First Steps checkpoint and completion inside the active local or authenticated learner boundary; existing profiles are migrated as completed without losing their exact Hebrew level.
-- EN/ES/HE localization, native RTL, responsive layouts, keyboard-visible focus and stationary reduced-motion behavior.
+### Deterministic learning engine and curriculum
 
-### Reviewed visual dictionary
+- A shared `LocalLearningEngine` used by Today, practice planning, curriculum and progress.
+- Inputs include level, mode, goal, reviewed material, SRS urgency, mistakes, confidence, response time, exposure and difficulty.
+- Outputs include a planned session, next exercise, concise learner-facing reason and reviewed-data-only feedback.
+- A0 alphabet, sounds, essential niqqud and survival language.
+- A1 daily situations, questions and agreement.
+- A2 frequent verbs, tenses and independent daily use.
+- B1/B2 Lab for advanced work, bureaucracy, register and personal material.
+- Exactly 240 reviewed starter concepts: 144 inherited concepts plus 96 reviewed A2 additions.
+- Independent 22-letter, sound-first reading track including final forms.
+- Linguistically defined reading hints; no parity-based niqqud removal.
 
-- Exactly 48 curated A0/A1 concepts: 8 greetings, 7 family, 7 home, 8 food, 6 transport, 6 shopping and 6 health.
-- Stable visual keys and emoji cues with Hebrew, English and Spanish alternative text.
-- Niqqud, romanization, EN/ES meanings and one practical Hebrew example with EN/ES translations and romanization for every curated concept.
-- Broader Hebrew/transliteration/English/Spanish lookup so equivalent beginner searches converge on the same concept.
-- Curated exact matches rank ahead of imported Kaikki/Wiktionary entries without hiding source provenance.
-- Additive upgrade behavior preserves existing dictionary IDs and adds the reviewed starter layer to older demo or imported databases.
+### Persistent daily practice
 
-### Accounts, privacy and continuity
+- Daily flow: encounter, 3–5 retrievals, listening, speaking/manual fallback, reflection and summary.
+- Server-owned `practice_sessions`, `practice_step_events` and `curriculum_progress`.
+- Idempotency keys prevent replayed events from awarding duplicate XP.
+- Explicit completed, failed and unsupported step states.
+- Resumption after reload.
+- Honest microphone-denied, unsupported-browser, lost-network and demo-session states.
+- New data included in export, import, migrations and cloud snapshots.
 
-- Google identity-only sign-in as the beginner-facing option when configured: `openid profile` only, provider-bound single-use state and S256 PKCE.
-- GitHub identity-only sign-in remains available with `read:user`, provider-bound single-use state and S256 PKCE.
-- Provider access, ID and refresh tokens are not persisted; Google and GitHub email addresses are not stored.
-- Google and GitHub identities remain separate rather than being linked by an unverified email match.
-- Authenticated JSON export and explicit two-step account deletion, including learner state and live sessions.
-- Writable private SQLite mode and deterministic read-only synthetic demo remain available without provider credentials.
-- PostgreSQL tenant isolation, forced RLS, CSRF protection, hashed server-side sessions and migration discipline remain in place.
+### Exercises and healthy motivation
 
-### Capabilities retained from 2.2
+- Image to meaning.
+- Audio to choice.
+- Hebrew to meaning.
+- Meaning to Hebrew with a word bank.
+- Cloze or ordering.
+- Spoken production with a manual alternative.
+- Unlimited retries and no hearts, energy, leagues or artificial scarcity.
+- Daily goals based on meaningful learning actions.
+- XP, attendance and mastery stored and presented as separate concepts.
+- Rest-day-aware streak behavior.
+- Optional, accessible celebrations compatible with reduced motion.
 
-- Persistent masculine-style and feminine-style synthetic voice profiles.
-- One-word microphone analysis with transparent transcript/dictionary/enrichment provenance and temporary app-managed uploads.
-- Tenant-scoped saved-vocabulary registry with search, filters, review timing, dates and four-skill mastery.
-- Clickable Hebrew, homograph identity, duplicate prevention and optional Kaikki/Wiktionary import.
-- Offline deterministic coach plus consent-gated cloud AI/audio adapters.
-- Multi-stage non-root Docker image, PostgreSQL 17 Compose stack, Railway configuration, CI and CodeQL.
+### Warm Illustrated Israel Journey
 
-## Credential-dependent capabilities
+- Six original regional scenes: Galilee, Haifa/Carmel, Tel Aviv/Jaffa, Jerusalem, the Dead Sea and the Negev.
+- Twelve category illustration kits.
+- Stable `visual_id` values and trilingual alternative text.
+- Parameterized educational SVG compositions and optimized local WebP region art.
+- Emoji retained only as a fallback.
+- Progressive visual-hint reveal to avoid showing the answer permanently.
+- Lazy-loaded major routes to keep the initial application bundle below the previous warning threshold.
 
-Identity-only Google sign-in is configured and verified in production with `openid profile` only. Onboarding state and the authenticated session persisted across reload; logout returned to the English auth landing page and remained signed out after another reload. Re-login after logout remains unverified. OpenAI AI/embedding/TTS/STT and Google Workspace connector adapters require separate operator credentials, consent, identity allowlists and cost controls; Google sign-in grants no Gmail, Drive or Calendar scope. No real credentials are included in this package.
+### Voice, audio and privacy boundary
 
-## Verified private 2.6 candidate
+- Persisted masculine-style or feminine-style synthetic voice preference.
+- Slow and normal playback speeds.
+- Local browser recording and playback.
+- Transcript comparison only when browser speech recognition is supported.
+- No claim of accent or phoneme evaluation.
+- Cloud AI and cloud audio are disabled in the public 2.8 interface.
+- Existing adapters remain future experiments and require separate credentials, consent, allowlists and cost controls.
 
-- Ordinary backend suite: 179 passed with one credential-gated PostgreSQL skip.
-- Dedicated disposable PostgreSQL 17 gate: 3 passed, contributing the skipped case for 180 unique backend passes.
-- Frontend: 97 passed across 22 files.
-- Total unique automated tests: 277 passed.
-- Ruff and strict MyPy across 27 backend source files: passed.
-- TypeScript, Vite production build, Python compileall and offline doctor: passed.
-- Vite output: JavaScript 473.85 kB / 139.14 kB gzip; CSS 164.67 kB / 30.77 kB gzip.
-- pip-audit: no known vulnerabilities; npm production audit: 0 vulnerabilities.
-- Package verifier: 81 required files and packaged assets passed.
-- Docker Compose configuration and isolated `ivrit-sheli:v2.6-private` image build: passed.
-- Disposable image readiness/version: passed with version 2.6.0 and SQLite storage.
-- Private browser QA: English desktop, 390 px mobile, Hebrew RTL, four visible Learning Core phases, RTL Hebrew input and no console errors/warnings passed.
-- Independent correctness, transparency and privacy review: clean.
+### Phone and PWA behavior
 
-This local evidence does not promote 2.6 to production. The private writer remains isolated from live 2.4 learner data until a backup and controlled single-writer transition are approved. Track and CEFR settings are planning preferences over a shared due queue, and correctness/retention evidence is learner self-report rather than objective language scoring.
+- Direct web access from a WhatsApp link while connected.
+- Optional Add to Home Screen installation.
+- Cached public shell, initial lessons, six region images and reviewed starter dictionary.
+- Read-only cached content remains available offline.
+- Cloud writes explicitly request reconnection rather than pretending to synchronize.
+- Service-worker rules exclude private API, session, profile and token data.
+- The offline dictionary artifact contains exactly 240 unique reviewed entries and no private user fields.
+
+### Accounts and persistence
+
+- Local SQLite development/private mode remains available without an account.
+- PostgreSQL remains the intended production multi-user store.
+- Google sign-in uses `openid profile` only.
+- No Google email, access token, refresh token, Gmail, Drive or Calendar scope is required for the beginner sign-in path.
+- User data remains isolated, exportable and deletable.
+- PostgreSQL row-level security, restricted runtime credentials, CSRF controls, hashed sessions and migration discipline are retained.
+
+## Candidate artifacts
+
+The source tree includes:
+
+- Backend application, migrations, local learning engine, curriculum and practice APIs.
+- Frontend React/TypeScript application with Guided, Explorer and Experienced modes.
+- Six optimized regional WebP illustrations under `frontend/public/illustrations/regions/`.
+- Twelve reusable category illustration kits.
+- `frontend/public/content/starter-dictionary-v2.8.json`, a 558,348-byte public offline dictionary with 240 reviewed entries.
+- PWA manifest and allowlisted service worker.
+- English, Spanish and Hebrew interface strings.
+- API, architecture, deployment, privacy, terms, changelog and competitive-benchmark documentation.
+- Windows and shell setup, run, doctor, backup and verification launchers.
+- Dockerfile, Compose configuration and Railway configuration.
+- Backend, frontend and Playwright/axe tests.
+- A canonical Git-blob checksum generator.
+
+`IvritSheli-v2.6-local.zip` is retained only as an obsolete historical artifact. It is not the 2.8 candidate and must not be distributed as the current application.
+
+The final 2.8 ZIP and external SHA-256 file have not yet been declared release artifacts. They must be generated from the confirmed tree, extracted into a clean directory and verified only after the remaining gates pass.
+
+## Verified private 2.8 candidate
+
+| Verification area | Current result |
+|---|---:|
+| Ordinary backend suite | 194 passed / 1 credential-gated PostgreSQL skip |
+| Frontend Vitest suite | 124 passed / 28 files |
+| Playwright + axe | 20 passed / 22 intentional skips / 0 failed |
+| Directly executed automated passes | 338 passed |
+| Ruff | Passed |
+| Strict MyPy | Passed across 30 backend source files |
+| TypeScript / Vite build | Passed / passed |
+| Python compileall / offline doctor | Passed / passed |
+| pip-audit / npm production audit | No known vulnerabilities / 0 vulnerabilities |
+| Docker Compose configuration | Passed |
+| Source package verifier / canonical checksums | 111 required files / 259 Git blobs passed |
+| PostgreSQL 17 / production image / restore drill | Not verified for 2.8 |
+| Two live Google accounts / mother pilot | Not verified |
+
+The 338 total is 194 backend tests + 124 frontend tests + 20 Playwright cases. The credential-gated backend skip and 22 intentional Playwright matrix skips are not counted as passes.
+
+### Production build output
+
+| Output | Raw | Gzip |
+|---|---:|---:|
+| Main JavaScript | 435.36 kB | 131.88 kB |
+| Main CSS | 184.42 kB | 34.32 kB |
+| LearnPanel JavaScript | 59.40 kB | 15.78 kB |
+| LearnPanel CSS | 4.63 kB | 1.38 kB |
+| Progress JavaScript | 13.02 kB | 3.77 kB |
+| Settings JavaScript | 12.94 kB | 3.39 kB |
+| AICoach JavaScript | 5.39 kB | 1.96 kB |
+| Connector JavaScript | 4.36 kB | 1.50 kB |
+
+The current workstation dictionary may contain additional private/imported records; the reviewed starter layer and packaged offline dictionary remain exactly 240 concepts.
+
+See `TEST_REPORT.md` for commands, coverage and evidence boundaries.
+
+## Package and deployment state
+
+The source-quality, test, accessibility, dependency, doctor, build and Compose-configuration gates have passed. The source package verifier passed 111 required-file and packaged-asset checks, and `SHA256SUMS.txt` now records 259 canonical Git-index blobs. Clean extracted-ZIP verification and the external ZIP checksum remain release gates against the final confirmed commit.
+
+`docker compose config --quiet` passed, but this proves configuration syntax only. Docker Desktop could not initialize its inference-manager listener, and no destructive factory reset was attempted. Therefore the following are not current 2.8 evidence:
+
+- A disposable PostgreSQL 17 administrator/restricted-runtime test.
+- A candidate production image build.
+- Candidate container `/health/ready` and `/version`.
+- A pre-deployment backup or disposable restore.
+
+## Required publication gates
+
+Do not merge, push, tag, publish a GitHub Release or deploy to Railway until:
+
+1. Docker is operational and the PostgreSQL 17 migration, restricted role, RLS and tenant-isolation suite passes.
+2. The production image builds and candidate `/health/ready` and `/version` pass.
+3. A PostgreSQL backup and restoration drill passes.
+4. Two real Google accounts prove identity-only sign-in, tenant isolation and phone/computer progress continuity.
+5. Kevin's mother completes the WhatsApp-link beginner pilot without assistance.
+6. The confirmed tree passes package verification, canonical Git-blob checksums and clean extracted-ZIP verification.
+7. A production backup is created immediately before deployment.
+8. Kevin gives explicit final publication approval.
+
+After 2.8 accepts writes using the new schema, do not roll the application code back to 2.4 unless the matching pre-deployment database backup is restored.
+
+## Historical private 2.6 evidence
+
+This historical checkpoint is retained for traceability and was not rerun as 2.8:
+
+- Ordinary backend: 180 passed, 1 PostgreSQL-gated skip.
+- Dedicated PostgreSQL 17 gate: 3 passed; 181 unique backend passes.
+- Frontend: 107 passed across 24 files.
+- Total unique automated tests: 288 passed.
+- Ruff, strict MyPy across 28 source files, TypeScript and Vite build: passed.
+- Package verifier: 85 required files passed.
+- Private Docker image and disposable readiness/version: passed as 2.6.0.
+- Build output: JavaScript 482.90 kB / 141.70 kB gzip; CSS 169.69 kB / 31.60 kB gzip.
+
+The 2.6 checkpoint was local, untagged and unpublished.
 
 ## Verified public 2.4 baseline
 
-- Backend ordinary suite: 150 passed, 1 credential-gated PostgreSQL skip.
-- Dedicated PostgreSQL 17 gate: 3 passed; two overlap the ordinary suite and one replaces its skip, producing 151 unique backend passes.
+This remains the public evidence and is not relabeled as 2.8:
+
+- Ordinary backend: 150 passed, 1 PostgreSQL-gated skip.
+- Dedicated PostgreSQL 17 gate: 3 passed; 151 unique backend passes.
 - Frontend: 62 passed across 16 files.
 - Total unique automated tests: 213 passed.
-- Ruff: passed.
-- Strict MyPy: passed across 24 backend source files.
-- Python compileall and offline doctor: passed.
-- Pip audit: no known vulnerabilities.
-- TypeScript project check: passed.
-- Vite production build: passed; JavaScript 404.21 kB / 117.97 kB gzip and CSS 122.19 kB / 23.46 kB gzip.
-- npm production audit: 0 vulnerabilities.
-- Package verifier: 66 files passed required-file, strict portfolio/release-drift, JSON, SVG, Railway, secret-hygiene and README-link checks.
-- Production-shaped Docker/Compose smoke: passed with release 2.4.0, PostgreSQL readiness, UID 10001, no migration DSN in the app runtime, OAuth rate limiting and structured-log redaction.
+- Ruff, strict MyPy across 24 source files, TypeScript, Vite, compileall and doctor: passed.
+- pip-audit reported no known vulnerabilities; npm production audit reported 0 vulnerabilities.
+- Package verifier: 66 files passed.
+- Production-image Compose smoke: passed.
+- Railway `/version`: `2.4.0`, environment `production`, storage `postgresql`.
+- Railway `/health/ready`: HTTPS 200 with PostgreSQL and the reviewed 48-entry public dictionary ready.
+- Identity-only Google sign-in, onboarding/session persistence across reload and logout were verified.
+- Git tag and GitHub Release `v2.4.0` are published.
 
-The release implementation at `03bf84b9268ff8be528c0fab3c670f9652ee23b0` deployed successfully on Railway on 2026-07-21. Production reports version 2.4.0, PostgreSQL ready and all 48 reviewed dictionary entries ready. The live English entry, four-stop read-only tour, identity-only Google sign-in, onboarding/session persistence across reload, logout and signed-out persistence after reload passed browser checks. Git tag and GitHub Release `v2.4.0` are published. Re-login after logout, refreshed 2.4 desktop/mobile/RTL/reduced-motion screenshots, two-real-user production isolation, live OpenAI or Google Workspace connector calls and a managed backup restore drill remain explicit operator checks.
+Two-real-user production isolation, live OpenAI/Google Workspace calls and a managed production backup restore were not verified in that historical public run.
 
-None of the 2.4 production observations above are presented as public 2.6 evidence. The v2.5 foundation passed 157 backend and 74 frontend tests before the v2.6 branch was created; the separate private 2.6 results are recorded above without changing the live release.
+## Evidence statement
 
-See `TEST_REPORT.md` for commands, evidence boundaries and the historical production record.
+This manifest separates packaged source, locally executed 2.8 checks, historical private checkpoints, live public evidence and operator-dependent release gates. No passing test or build is presented as proof of an unexecuted deployment, provider integration, real-user pilot or backup restoration.

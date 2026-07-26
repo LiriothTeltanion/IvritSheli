@@ -29,6 +29,9 @@ STATE_TABLES = (
     "reading_support_state",
     "learning_core_attempts",
     "learning_core_idempotency",
+    "practice_sessions",
+    "practice_step_events",
+    "curriculum_progress",
     "user_events",
     "xp_ledger",
     "unlocked_achievements",
@@ -120,6 +123,10 @@ class CloudLearningRepository:
                             if legacy_band in {"A0", "A1", "A2", "B1", "B2", "C1", "C2"}
                             else "A0"
                         )
+                    if table == "profiles" and "text_scale" not in hydrated_row:
+                        hydrated_row["text_scale"] = 1.0
+                    if table == "profiles" and "focus_status" not in hydrated_row:
+                        hydrated_row["focus_status"] = "available"
                     columns = tuple(
                         column for column in hydrated_row if column in allowed_columns
                     )
@@ -275,6 +282,25 @@ class CloudLearningRepository:
 
     def submit_learning_core_attempt(self, payload: dict[str, Any]) -> dict[str, Any]:
         return cast(dict[str, Any], self._write("submit_learning_core_attempt", payload))
+
+    def curriculum_path(self) -> dict[str, Any]:
+        return cast(dict[str, Any], self._read("curriculum_path"))
+
+    def practice_today(self, persist: bool = True) -> dict[str, Any]:
+        if self.seed_demo:
+            return cast(dict[str, Any], self._read("practice_today", False))
+        return cast(dict[str, Any], self._write("practice_today", persist))
+
+    def submit_practice_step(
+        self,
+        session_id: str,
+        step_key: str,
+        payload: dict[str, Any],
+    ) -> dict[str, Any]:
+        return cast(
+            dict[str, Any],
+            self._write("submit_practice_step", session_id, step_key, payload),
+        )
 
     def recommendations(self, limit: int = 8) -> list[dict[str, Any]]:
         return cast(list[dict[str, Any]], self._read("recommendations", limit))

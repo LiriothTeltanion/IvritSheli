@@ -18,7 +18,9 @@ from pytest import MonkeyPatch
 
 import ivrit_sheli.dictionary as dictionary_module
 from ivrit_sheli.dictionary import DEMO_ENTRIES, DICTIONARY_SCHEMA_VERSION, DictionaryStore
+from ivrit_sheli.normalization import normalize_hebrew
 from ivrit_sheli.starter_lexicon_v2 import EXPANDED_STARTER_ENTRIES
+from ivrit_sheli.starter_lexicon_v4 import A2_EXPANSION_ENTRIES
 from ivrit_sheli.starter_lexicon_validation import (
     EXPECTED_STARTER_CATEGORY_COUNTS,
     EXPECTED_STARTER_ENTRY_COUNT,
@@ -27,7 +29,7 @@ from ivrit_sheli.starter_lexicon_validation import (
 
 
 def test_demo_dictionary_is_trilingual_and_clickable(dictionary_store: DictionaryStore) -> None:
-    assert dictionary_store.seed_demo() == 144
+    assert dictionary_store.seed_demo() == 240
     results = dictionary_store.lookup("שָׁלוֹם")
     assert results[0]["word"] == "שלום"
     assert results[0]["senses"][0]["gloss_en"] == "hello"
@@ -68,17 +70,17 @@ def test_hebrew_romanization_english_and_spanish_converge(
         assert result[0]["visual"]["key"] == "greetings.hello"
 
 
-def test_starter_vocabulary_contract_has_96_reviewed_exact_senses(
+def test_starter_vocabulary_contract_has_240_reviewed_exact_senses(
     dictionary_store: DictionaryStore,
 ) -> None:
     expected_categories = Counter(EXPECTED_STARTER_CATEGORY_COUNTS)
     assert len(DEMO_ENTRIES) == EXPECTED_STARTER_ENTRY_COUNT
     assert Counter(str(entry["category"]) for entry in DEMO_ENTRIES) == expected_categories
-    assert len({str(entry["visual_key"]) for entry in DEMO_ENTRIES}) == 144
+    assert len({str(entry["visual_key"]) for entry in DEMO_ENTRIES}) == 240
     validate_starter_vocabulary(DEMO_ENTRIES)
-    assert dictionary_store.seed_demo() == 144
+    assert dictionary_store.seed_demo() == 240
     assert dictionary_store.seed_demo() == 0
-    assert dictionary_store.stats()["entries"] == 144
+    assert dictionary_store.stats()["entries"] == 240
 
     for source_entry in DEMO_ENTRIES:
         card = dictionary_store.lookup(str(source_entry["word"]))[0]
@@ -87,7 +89,7 @@ def test_starter_vocabulary_contract_has_96_reviewed_exact_senses(
         assert card["display_niqqud"] == source_entry["forms"][0]["form"]
         assert card["romanization"]
         assert sense["gloss_en"] and sense["gloss_es"]
-        assert sense["level"] in {"A0", "A1"}
+        assert sense["level"] in {"A0", "A1", "A2"}
         assert sense["category"] in EXPECTED_STARTER_CATEGORY_COUNTS
         assert sense["provenance"]
         assert sense["visual"]["key"] == source_entry["visual_key"]
@@ -103,6 +105,41 @@ def test_v25_additions_leave_unverified_root_and_binyan_unknown() -> None:
     for entry in EXPANDED_STARTER_ENTRIES:
         assert entry["root"] is None
         assert entry["binyan"] is None
+
+
+def test_a2_expansion_is_complete_unique_and_visually_described() -> None:
+    assert len(A2_EXPANSION_ENTRIES) == 96
+    assert len({normalize_hebrew(str(entry["word"])) for entry in DEMO_ENTRIES}) == 240
+    assert len({str(entry["visual_id"]) for entry in A2_EXPANSION_ENTRIES}) == 96
+
+    for entry in A2_EXPANSION_ENTRIES:
+        assert entry["level"] == "A2"
+        assert entry["category"] in EXPECTED_STARTER_CATEGORY_COUNTS
+        assert entry["visual_id"] == entry["visual_key"]
+        assert entry["gloss_en"] and entry["gloss_es"]
+        assert all(
+            entry[field]
+            for field in ("visual_alt_en", "visual_alt_es", "visual_alt_he")
+        )
+        assert len(entry["forms"]) == 1
+        assert len(entry["examples"]) == 1
+        assert all(entry["examples"][0].values())
+
+
+def test_a2_reading_hints_survive_dictionary_seeding(
+    dictionary_store: DictionaryStore,
+) -> None:
+    dictionary_store.seed_demo()
+    contract = dictionary_store.lookup("חוזה")[0]["senses"][0]
+    assert contract["visual_id"] == "housing.contract"
+    assert contract["reading_hints"] == [
+        {
+            "display": "חוֹזֶה",
+            "note_en": "The first vowel is o: kho-ze.",
+            "note_es": "La primera vocal es o: jo-ze.",
+            "note_he": "התנועה הראשונה היא חוֹ: חוֹ־זֶה.",
+        }
+    ]
 
 
 def test_v24_starter_database_expands_without_renumbering_existing_entries(
@@ -123,7 +160,7 @@ def test_v24_starter_database_expands_without_renumbering_existing_entries(
     }
     assert len(original_ids) == 48
 
-    assert dictionary_store.seed_demo() == 96
+    assert dictionary_store.seed_demo() == 192
     assert dictionary_store.seed_demo() == 0
     expanded_ids = {
         str(row["source_key"]): int(row["id"])
@@ -131,7 +168,7 @@ def test_v24_starter_database_expands_without_renumbering_existing_entries(
             "SELECT id, source_key FROM dictionary_entries ORDER BY id"
         ).fetchall()
     }
-    assert len(expanded_ids) == 144
+    assert len(expanded_ids) == 240
     assert all(expanded_ids[source_key] == entry_id for source_key, entry_id in original_ids.items())
 
 
@@ -213,8 +250,8 @@ def test_streamed_jsonl_import_preserves_forms_examples_and_audio(
     assert entry["examples"][0]["translation_es"] is None
     assert entry["visual"] is None
     assert entry["senses"][0]["visual"] is None
-    assert dictionary_store.stats()["entries"] == 145
-    assert dictionary_store.stats()["metadata"]["starter_entries"] == "144"
+    assert dictionary_store.stats()["entries"] == 241
+    assert dictionary_store.stats()["metadata"]["starter_entries"] == "240"
 
 
 def test_kaikki_dictionary_keeps_the_starter_pack_and_ranks_curated_exact_match_first(
@@ -243,12 +280,12 @@ def test_kaikki_dictionary_keeps_the_starter_pack_and_ranks_curated_exact_match_
     assert imported["visual"] is None
     assert dictionary_store.lookup("שלום")[0]["visual"]["key"] == "greetings.hello"
     metadata = dictionary_store.stats()["metadata"]
-    assert metadata["dataset"] == "Kaikki/Wiktionary Hebrew + starter_visual_vocabulary_v2"
+    assert metadata["dataset"] == "Kaikki/Wiktionary Hebrew + starter_visual_vocabulary_v4"
     assert "MIT starter data" in metadata["license"]
-    assert dictionary_store.stats()["entries"] == 145
+    assert dictionary_store.stats()["entries"] == 241
 
     dictionary_store.initialize()
-    assert dictionary_store.stats()["entries"] == 145
+    assert dictionary_store.stats()["entries"] == 241
 
 
 def test_import_skips_non_hebrew_records(dictionary_store: DictionaryStore, tmp_path: Path) -> None:
@@ -322,6 +359,6 @@ def test_schema_v1_starter_database_upgrades_without_changing_existing_entry_id(
     assert upgraded["visual"]["key"] == "greetings.hello"
     assert upgraded["examples"][0]["translation_es"] == "Hola, soy Miriam."
     assert store.stats()["metadata"]["schema_version"] == str(DICTIONARY_SCHEMA_VERSION)
-    assert store.stats()["metadata"]["starter_entries"] == "144"
-    assert store.stats()["entries"] == 144
+    assert store.stats()["metadata"]["starter_entries"] == "240"
+    assert store.stats()["entries"] == 240
     store.close()

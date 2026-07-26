@@ -25,4 +25,10 @@ Google Calendar, Gmail, and Drive are optional read-only integrations. No Google
 
 The Ivrit Sheli application logo, interface previews, icons, and achievement badge SVGs in `assets/` were created for this project and are distributed under the repository's MIT license.
 
+## Bundled research brief
+
+`docs/research/ivrit-sheli-learning-research.pdf` is a commissioned learning-methods brief written for this project and distributed under the repository's MIT license. It is documentation of the evidence base behind the Learning Core, not a third-party publication. The primary studies and provider documentation it cites remain the property of their respective authors and publishers; those works are referenced by link in [`docs/LEARNING_SCIENCE.md`](docs/LEARNING_SCIENCE.md) and are not redistributed here.
+
+## Custom graphics — reserved mark
+
 The personal `KC ✦ LT` signature files at `assets/brand/kc-lt-signature.*` are Kevin Cusnir / Lirioth Teltanion's reserved identity mark. They are excluded from the MIT asset grant: copyright © 2026 Kevin Cusnir, all rights reserved. Repository forks may retain the mark only for accurate attribution and may not use it to imply Kevin's authorship, endorsement, or identity for another product.

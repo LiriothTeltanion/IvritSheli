@@ -86,6 +86,9 @@ def test_fresh_database_bootstraps_to_latest_schema(tmp_path: Path) -> None:
         "reading_support_state",
         "learning_core_attempts",
         "learning_core_idempotency",
+        "practice_sessions",
+        "practice_step_events",
+        "curriculum_progress",
     } <= tables
 
 
@@ -254,6 +257,50 @@ def test_learning_core_migration_preserves_existing_mastery_and_adds_skill_defau
             row["name"] for row in connection.execute("PRAGMA table_info(learning_core_state)")
         }
     assert "state_version" in state_columns
+
+
+def test_daily_practice_migration_preserves_profile_and_adds_accessibility_fields(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "daily-practice-v5.db"
+    with _open(path) as connection:
+        for migration in MIGRATIONS[:5]:
+            connection.executescript(migration.sql)
+        connection.execute(
+            "INSERT INTO app_meta(key, value) VALUES('schema_version', '5')"
+        )
+        connection.execute(
+            """
+            INSERT INTO profiles(
+                id, display_name, learner_mode, curriculum_track, cefr_band,
+                created_at, updated_at
+            ) VALUES(1, 'Returning learner', 'experienced', 'formal_professional', 'B2',
+                     '2026-07-22T00:00:00Z', '2026-07-22T00:00:00Z')
+            """
+        )
+
+    Database(path).initialize()
+
+    with _open(path) as connection:
+        profile = connection.execute(
+            "SELECT display_name, text_scale, focus_status FROM profiles WHERE id = 1"
+        ).fetchone()
+        tables = {
+            row["name"]
+            for row in connection.execute(
+                "SELECT name FROM sqlite_master WHERE type = 'table'"
+            ).fetchall()
+        }
+    assert dict(profile) == {
+        "display_name": "Returning learner",
+        "text_scale": 1.0,
+        "focus_status": "available",
+    }
+    assert {
+        "practice_sessions",
+        "practice_step_events",
+        "curriculum_progress",
+    } <= tables
 
 
 def test_replay_protection_migration_preserves_v4_learning_state(tmp_path: Path) -> None:

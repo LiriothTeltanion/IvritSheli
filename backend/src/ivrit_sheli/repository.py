@@ -16,6 +16,8 @@ from dataclasses import asdict
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, cast
+from uuid import uuid4
+from zoneinfo import ZoneInfo
 
 from ivrit_sheli.database import Database
 from ivrit_sheli.gamification import (
@@ -48,6 +50,10 @@ from ivrit_sheli.learning_core import (
     skill_for_activity,
     transition_phase,
 )
+from ivrit_sheli.local_learning_engine import (
+    LocalLearningEngine,
+    PracticeConflictError,
+)
 from ivrit_sheli.normalization import normalize_hebrew
 from ivrit_sheli.personalization import MasteryState, focus_summary, update_mastery
 from ivrit_sheli.recommendation import RecommendationCandidate, rank_candidates
@@ -58,6 +64,7 @@ PRONUNCIATION_MASTERY_THRESHOLD = 70
 # exceed a small cap; 200 keeps replay/conflict protection durable across a
 # long session while remaining a bounded table.
 LEARNING_CORE_IDEMPOTENCY_RETENTION = 200
+PRACTICE_TIMEZONE = ZoneInfo("Asia/Jerusalem")
 REGISTRY_STATUSES = {"all", "active", "mastered", "needs_review"}
 REGISTRY_DUE_FILTERS = {"all", "due", "upcoming"}
 REGISTRY_SORTS = {
@@ -729,6 +736,334 @@ class LearningRepository:
         finally:
             if should_close:
                 connection.close()
+
+    def curriculum_path(self) -> dict[str, Any]:
+        """Return the deterministic curriculum path with persisted lesson progress."""
+        connection = self.database.connect()
+        should_close = str(self.database.path) != ":memory:"
+        try:
+            profile_row = connection.execute(
+                "SELECT cefr_band, learner_mode FROM profiles WHERE id = 1"
+            ).fetchone()
+            if profile_row is None:
+                raise KeyError("Local profile is not initialized")
+            progress_rows = connection.execute(
+                "SELECT * FROM curriculum_progress ORDER BY lesson_key"
+            ).fetchall()
+            available_concepts = int(
+                connection.execute(
+                    "SELECT COUNT(*) FROM learning_items WHERE archived_at IS NULL"
+                ).fetchone()[0]
+            )
+            return LocalLearningEngine().curriculum_path(
+                dict(profile_row),
+                {str(row["lesson_key"]): dict(row) for row in progress_rows},
+                available_concepts=available_concepts,
+            )
+        finally:
+            if should_close:
+                connection.close()
+
+    def practice_today(self, persist: bool = True) -> dict[str, Any]:
+        """Return or create today's resumable practice plan.
+
+        `persist=False` is reserved for the read-only public demo. It returns the same
+        deterministic starter plan without changing tenant state.
+        """
+        local_date = datetime.now(PRACTICE_TIMEZONE).date().isoformat()
+        if not persist:
+            connection = self.database.connect()
+            should_close = str(self.database.path) != ":memory:"
+            try:
+                plan = self._build_practice_plan(connection)
+                return {
+                    "session": {
+                        "id": f"demo-{local_date}",
+                        "local_date": local_date,
+                        "status": "preview",
+                        "current_step": 0,
+                        "current_step_key": plan["steps"][0]["key"],
+                        "plan": plan,
+                        "events": [],
+                        "daily_goal": {
+                            "target": 5,
+                            "completed": 0,
+                            "achieved": False,
+                        },
+                        "summary": None,
+                        "persisted": False,
+                    }
+                }
+            finally:
+                if should_close:
+                    connection.close()
+
+        with self.database.transaction() as connection:
+            session = connection.execute(
+                """
+                SELECT * FROM practice_sessions
+                WHERE profile_id = 1 AND local_date = ?
+                """,
+                (local_date,),
+            ).fetchone()
+            if session is None:
+                now = iso_now()
+                session_id = uuid4().hex
+                plan = self._build_practice_plan(connection)
+                connection.execute(
+                    """
+                    INSERT INTO practice_sessions(
+                        id, profile_id, local_date, plan_json, current_step,
+                        status, created_at, updated_at
+                    ) VALUES(?, 1, ?, ?, 0, 'active', ?, ?)
+                    """,
+                    (
+                        session_id,
+                        local_date,
+                        json.dumps(
+                            plan,
+                            ensure_ascii=False,
+                            sort_keys=True,
+                            separators=(",", ":"),
+                        ),
+                        now,
+                        now,
+                    ),
+                )
+                session = connection.execute(
+                    "SELECT * FROM practice_sessions WHERE id = ?",
+                    (session_id,),
+                ).fetchone()
+            if session is None:  # pragma: no cover - defensive SQLite boundary
+                raise sqlite3.DatabaseError("SQLite did not return the practice session")
+            return {"session": self._practice_session_payload(connection, session)}
+
+    def submit_practice_step(
+        self,
+        session_id: str,
+        step_key: str,
+        payload: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Persist one current practice step with replay-safe idempotency."""
+        clean_session_id = session_id.strip()
+        clean_step_key = step_key.strip()
+        idempotency_key = str(payload.get("idempotency_key", "")).strip()
+        outcome = str(payload.get("outcome", "")).strip()
+        if not clean_session_id or len(clean_session_id) > 128:
+            raise ValueError("session_id must be between 1 and 128 characters")
+        if not clean_step_key or len(clean_step_key) > 128:
+            raise ValueError("step_key must be between 1 and 128 characters")
+        if not 8 <= len(idempotency_key) <= 128 or any(
+            not (character.isascii() and (character.isalnum() or character in "._:-"))
+            for character in idempotency_key
+        ):
+            raise ValueError(
+                "idempotency_key must be 8-128 ASCII letters, numbers, dots, "
+                "underscores, colons, or hyphens"
+            )
+        if outcome not in {"completed", "failed", "unsupported"}:
+            raise ValueError("outcome must be completed, failed, or unsupported")
+
+        confidence_raw = payload.get("confidence")
+        confidence = int(confidence_raw) if confidence_raw is not None else None
+        response_ms = int(payload.get("response_ms", 0))
+        hints_used = int(payload.get("hints_used", 0))
+        if confidence is not None and not 1 <= confidence <= 5:
+            raise ValueError("confidence must be between 1 and 5")
+        if not 0 <= response_ms <= 3_600_000:
+            raise ValueError("response_ms must be between 0 and 3600000")
+        if not 0 <= hints_used <= 100:
+            raise ValueError("hints_used must be between 0 and 100")
+        for field_name in ("answer_text", "transcript"):
+            field_value = payload.get(field_name)
+            if field_value is not None and len(str(field_value)) > 10_000:
+                raise ValueError(f"{field_name} must not exceed 10000 characters")
+        unsupported_reason_raw = payload.get("unsupported_reason")
+        unsupported_reason = (
+            str(unsupported_reason_raw).strip()
+            if unsupported_reason_raw is not None
+            else None
+        )
+        if outcome == "unsupported" and not unsupported_reason:
+            raise ValueError("unsupported_reason is required for an unsupported step")
+        if unsupported_reason is not None and len(unsupported_reason) > 100:
+            raise ValueError("unsupported_reason must not exceed 100 characters")
+
+        normalized_payload = {
+            "outcome": outcome,
+            "is_correct": payload.get("is_correct"),
+            "confidence": confidence,
+            "response_ms": response_ms,
+            "hints_used": hints_used,
+            "answer_text": payload.get("answer_text"),
+            "transcript": payload.get("transcript"),
+            "unsupported_reason": unsupported_reason,
+        }
+        request_hash = hashlib.sha256(
+            json.dumps(
+                {
+                    "session_id": clean_session_id,
+                    "step_key": clean_step_key,
+                    **normalized_payload,
+                },
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest()
+        with self.database.transaction() as connection:
+            duplicate = connection.execute(
+                """
+                SELECT request_hash, response_json
+                FROM practice_step_events
+                WHERE session_id = ? AND idempotency_key = ?
+                """,
+                (clean_session_id, idempotency_key),
+            ).fetchone()
+            if duplicate is not None:
+                if not hmac.compare_digest(str(duplicate["request_hash"]), request_hash):
+                    raise PracticeConflictError(
+                        "The idempotency key was already used with different practice evidence."
+                    )
+                stored = json.loads(str(duplicate["response_json"]))
+                if not isinstance(stored, dict):
+                    raise sqlite3.DatabaseError(
+                        "Stored practice idempotency response is invalid"
+                    )
+                return {**stored, "duplicate": True}
+
+            session = connection.execute(
+                "SELECT * FROM practice_sessions WHERE id = ?",
+                (clean_session_id,),
+            ).fetchone()
+            if session is None:
+                raise KeyError("Practice session is not available")
+            plan = self._decode_practice_plan(session["plan_json"])
+            current_step = int(session["current_step"])
+            steps = plan["steps"]
+            if str(session["status"]) != "active" or current_step >= len(steps):
+                raise PracticeConflictError("The practice session is already complete.")
+            expected_step = steps[current_step]
+            if clean_step_key != str(expected_step["key"]):
+                raise PracticeConflictError(
+                    f"Expected practice step {expected_step['key']!r}; refresh today's session."
+                )
+
+            engine = LocalLearningEngine()
+            meaningful = engine.is_meaningful_step(expected_step) and outcome != "unsupported"
+            now = iso_now()
+            outcome_json = {
+                **normalized_payload,
+                "meaningful": meaningful,
+            }
+            cursor = connection.execute(
+                """
+                INSERT INTO practice_step_events(
+                    session_id, step_key, idempotency_key, request_hash,
+                    outcome, meaningful, outcome_json, response_json, created_at
+                ) VALUES(?, ?, ?, ?, ?, ?, ?, '{}', ?)
+                """,
+                (
+                    clean_session_id,
+                    clean_step_key,
+                    idempotency_key,
+                    request_hash,
+                    outcome,
+                    int(meaningful),
+                    json.dumps(
+                        outcome_json,
+                        ensure_ascii=False,
+                        sort_keys=True,
+                        separators=(",", ":"),
+                    ),
+                    now,
+                ),
+            )
+            event_id_raw = cursor.lastrowid
+            if event_id_raw is None:
+                raise sqlite3.DatabaseError("SQLite did not return a practice event ID")
+
+            progress_payload = None
+            if meaningful:
+                concept = expected_step.get("concept")
+                lesson_key = (
+                    str(concept.get("lesson_key", "a0.first_sentences"))
+                    if isinstance(concept, dict)
+                    else "a0.first_sentences"
+                )
+                successful = outcome == "completed" and normalized_payload["is_correct"] is not False
+                progress_payload = self._record_curriculum_progress(
+                    connection,
+                    lesson_key=lesson_key,
+                    successful=successful,
+                    updated_at=now,
+                )
+
+            step_completed = outcome == "completed"
+            next_index = current_step + 1 if step_completed else current_step
+            completed = next_index >= len(steps)
+            connection.execute(
+                """
+                UPDATE practice_sessions
+                SET current_step = ?,
+                    status = ?,
+                    updated_at = ?,
+                    completed_at = ?
+                WHERE id = ?
+                """,
+                (
+                    next_index,
+                    "completed" if completed else "active",
+                    now,
+                    now if completed else None,
+                    clean_session_id,
+                ),
+            )
+            updated_session = connection.execute(
+                "SELECT * FROM practice_sessions WHERE id = ?",
+                (clean_session_id,),
+            ).fetchone()
+            if updated_session is None:  # pragma: no cover - defensive SQLite boundary
+                raise sqlite3.DatabaseError("SQLite lost the practice session")
+            response = {
+                "accepted": True,
+                "saved": True,
+                "duplicate": False,
+                "xp_awarded": 0,
+                "next_action": (
+                    "continue"
+                    if step_completed
+                    else "manual_fallback"
+                    if outcome == "unsupported"
+                    else "retry"
+                ),
+                "event": {
+                    "id": int(event_id_raw),
+                    "step_key": clean_step_key,
+                    "outcome": outcome,
+                    "meaningful": meaningful,
+                    "created_at": now,
+                },
+                "curriculum_progress": progress_payload,
+                "session": self._practice_session_payload(connection, updated_session),
+            }
+            connection.execute(
+                """
+                UPDATE practice_step_events
+                SET response_json = ?
+                WHERE id = ?
+                """,
+                (
+                    json.dumps(
+                        response,
+                        ensure_ascii=False,
+                        sort_keys=True,
+                        separators=(",", ":"),
+                    ),
+                    int(event_id_raw),
+                ),
+            )
+            return response
 
     def submit_learning_core_attempt(self, payload: dict[str, Any]) -> dict[str, Any]:
         """Accept evidence for the server-owned activity and advance the learning loop.
@@ -1441,6 +1776,7 @@ class LearningRepository:
                 """
             ).fetchone()
             accuracy = float(recent_accuracy_row["accuracy"] or 0)
+            daily_goal = self._daily_goal_state(connection)
         finally:
             if should_close:
                 connection.close()
@@ -1452,6 +1788,7 @@ class LearningRepository:
                 "new_phrases": 2 if due_count < 12 else 0,
                 "speaking_drills": 1,
                 "estimated_minutes": int(profile["daily_minutes"]),
+                "daily_goal": daily_goal,
             },
             "stats": {
                 "total_items": int(total_items),
@@ -1469,6 +1806,29 @@ class LearningRepository:
                 "translation_en": "I’ll take care of it.",
                 "translation_es": "Me encargaré de eso.",
             },
+        }
+
+    @staticmethod
+    def _daily_goal_state(connection: sqlite3.Connection) -> dict[str, Any]:
+        """Return meaningful daily actions independently from XP and accuracy."""
+        local_date = datetime.now(PRACTICE_TIMEZONE).date().isoformat()
+        row = connection.execute(
+            """
+            SELECT COUNT(e.id) AS completed
+            FROM practice_sessions s
+            LEFT JOIN practice_step_events e
+              ON e.session_id = s.id AND e.meaningful = 1
+            WHERE s.profile_id = 1 AND s.local_date = ?
+            """,
+            (local_date,),
+        ).fetchone()
+        completed = int(row["completed"] if row is not None else 0)
+        target = 5
+        return {
+            "target": target,
+            "completed": min(target, completed),
+            "achieved": completed >= target,
+            "evidence": "meaningful_practice_events",
         }
 
     def export_json(self, destination: Path) -> Path:
@@ -1498,6 +1858,9 @@ class LearningRepository:
             "learning_core_state",
             "reading_support_state",
             "learning_core_attempts",
+            "practice_sessions",
+            "practice_step_events",
+            "curriculum_progress",
             "user_events",
             "xp_ledger",
             "unlocked_achievements",
@@ -1632,6 +1995,8 @@ class LearningRepository:
             "first_steps_completed",
             "curriculum_track",
             "cefr_band",
+            "text_scale",
+            "focus_status",
         }
         clean: dict[str, Any] = {
             key: value for key, value in payload.items() if key in allowed_fields
@@ -1657,6 +2022,13 @@ class LearningRepository:
             clean["cefr_band"] = str(clean["cefr_band"]).upper()
             if clean["cefr_band"] not in CEFR_BANDS:
                 raise ValueError("cefr_band must be one of A0, A1, A2, B1, B2, C1, or C2")
+        if "text_scale" in clean and not 0.8 <= float(clean["text_scale"]) <= 2.0:
+            raise ValueError("text_scale must be between 0.8 and 2.0")
+        if "focus_status" in clean and clean["focus_status"] not in {
+            "available",
+            "busy",
+        }:
+            raise ValueError("focus_status must be available or busy")
         if "cloud_consent" in clean:
             clean["cloud_consent"] = int(bool(clean["cloud_consent"]))
         if "onboarding_step" in clean and not 0 <= int(clean["onboarding_step"]) <= 4:
@@ -2269,6 +2641,226 @@ class LearningRepository:
             ),
         )
         return mastery
+
+    def _build_practice_plan(self, connection: sqlite3.Connection) -> dict[str, Any]:
+        """Build a daily plan from due/important learner items and reviewed fallbacks."""
+        profile = connection.execute(
+            "SELECT cefr_band, learner_mode FROM profiles WHERE id = 1"
+        ).fetchone()
+        if profile is None:
+            raise KeyError("Local profile is not initialized")
+        rows = connection.execute(
+            """
+            SELECT i.id AS item_id,
+                   'item:' || i.id AS concept_key,
+                   CASE
+                       WHEN upper(COALESCE(p.cefr_band, 'A0')) = 'A0'
+                           THEN 'a0.first_sentences'
+                       WHEN upper(p.cefr_band) = 'A1'
+                           THEN 'a1.daily_life'
+                       WHEN upper(p.cefr_band) = 'A2'
+                           THEN 'a2.conversation'
+                       WHEN upper(p.cefr_band) = 'B1'
+                           THEN 'b1.work_laboratory'
+                       ELSE 'b2.personal_laboratory'
+                   END AS lesson_key,
+                   i.hebrew_text,
+                   i.hebrew_with_niqqud,
+                   i.transliteration,
+                   i.translation_en,
+                   i.translation_es,
+                   i.priority,
+                   i.context_label,
+                   r.due_at,
+                   CASE WHEN r.due_at IS NOT NULL AND r.due_at <= ? THEN 1 ELSE 0 END
+                       AS due_now,
+                   COALESCE(evidence.recent_accuracy, 0.5) AS recent_accuracy,
+                   COALESCE(evidence.average_response_ms, 0) AS average_response_ms,
+                   COALESCE(evidence.average_confidence, 3) AS average_confidence,
+                   evidence.mistake_focus,
+                   CASE
+                       WHEN lower(i.context_label) = lower(COALESCE(primary_goal.goal_type, ''))
+                           THEN 1
+                       ELSE 0
+                   END AS goal_alignment,
+                   CASE
+                       WHEN julianday(?) - julianday(i.created_at) BETWEEN 0 AND 7
+                           THEN 1
+                       ELSE 0
+                   END AS fresh,
+                   'personal' AS source
+            FROM learning_items i
+            JOIN profiles p ON p.id = 1
+            LEFT JOIN review_state r ON r.item_id = i.id
+            LEFT JOIN (
+                SELECT item_id,
+                       AVG(is_correct) AS recent_accuracy,
+                       AVG(response_ms) AS average_response_ms,
+                       AVG(confidence) AS average_confidence,
+                       MAX(CASE WHEN is_correct = 0 THEN mistake_category END)
+                           AS mistake_focus
+                FROM attempts
+                GROUP BY item_id
+            ) evidence ON evidence.item_id = i.id
+            LEFT JOIN (
+                SELECT goal_type
+                FROM goals
+                WHERE profile_id = 1 AND is_active = 1
+                ORDER BY weight DESC, goal_type ASC
+                LIMIT 1
+            ) primary_goal ON 1 = 1
+            WHERE i.archived_at IS NULL
+            ORDER BY
+                CASE WHEN r.due_at IS NOT NULL AND r.due_at <= ? THEN 0 ELSE 1 END,
+                i.priority DESC,
+                COALESCE(r.due_at, i.created_at) ASC,
+                i.id ASC
+            LIMIT 12
+            """,
+            (iso_now(), iso_now(), iso_now()),
+        ).fetchall()
+        return LocalLearningEngine().build_daily_plan(
+            dict(profile),
+            [dict(row) for row in rows],
+        )
+
+    @staticmethod
+    def _decode_practice_plan(raw_plan: Any) -> dict[str, Any]:
+        """Validate the minimum persisted practice-plan shape."""
+        try:
+            plan = json.loads(str(raw_plan))
+        except json.JSONDecodeError as error:
+            raise sqlite3.DatabaseError("Stored practice plan is invalid JSON") from error
+        if not isinstance(plan, dict) or not isinstance(plan.get("steps"), list):
+            raise sqlite3.DatabaseError("Stored practice plan is invalid")
+        return cast(dict[str, Any], plan)
+
+    def _practice_session_payload(
+        self,
+        connection: sqlite3.Connection,
+        session: sqlite3.Row,
+    ) -> dict[str, Any]:
+        """Build one safe session response from its persisted plan and events."""
+        plan = self._decode_practice_plan(session["plan_json"])
+        rows = connection.execute(
+            """
+            SELECT id, step_key, outcome, meaningful, outcome_json, created_at
+            FROM practice_step_events
+            WHERE session_id = ?
+            ORDER BY id ASC
+            """,
+            (session["id"],),
+        ).fetchall()
+        events: list[dict[str, Any]] = []
+        for row in rows:
+            outcome_payload = json.loads(str(row["outcome_json"]))
+            events.append(
+                {
+                    "id": int(row["id"]),
+                    "step_key": str(row["step_key"]),
+                    "outcome": str(row["outcome"]),
+                    "meaningful": bool(row["meaningful"]),
+                    "is_correct": (
+                        outcome_payload.get("is_correct")
+                        if isinstance(outcome_payload, dict)
+                        else None
+                    ),
+                    "created_at": str(row["created_at"]),
+                }
+            )
+        current_step = int(session["current_step"])
+        steps = plan["steps"]
+        status = str(session["status"])
+        meaningful_actions = sum(bool(event["meaningful"]) for event in events)
+        daily_goal_target = sum(
+            LocalLearningEngine.is_meaningful_step(step) for step in steps
+        )
+        return {
+            "id": str(session["id"]),
+            "local_date": str(session["local_date"]),
+            "status": status,
+            "current_step": current_step,
+            "current_step_key": (
+                str(steps[current_step]["key"])
+                if status == "active" and current_step < len(steps)
+                else None
+            ),
+            "plan": plan,
+            "events": events,
+            "daily_goal": {
+                "target": daily_goal_target,
+                "completed": min(daily_goal_target, meaningful_actions),
+                "achieved": meaningful_actions >= daily_goal_target,
+            },
+            "summary": (
+                LocalLearningEngine.session_summary(events)
+                if status == "completed"
+                else None
+            ),
+            "persisted": True,
+            "created_at": str(session["created_at"]),
+            "updated_at": str(session["updated_at"]),
+            "completed_at": session["completed_at"],
+        }
+
+    @staticmethod
+    def _record_curriculum_progress(
+        connection: sqlite3.Connection,
+        *,
+        lesson_key: str,
+        successful: bool,
+        updated_at: str,
+    ) -> dict[str, Any]:
+        """Increment meaningful lesson evidence inside the session transaction."""
+        current = connection.execute(
+            "SELECT * FROM curriculum_progress WHERE lesson_key = ?",
+            (lesson_key,),
+        ).fetchone()
+        meaningful_attempts = int(current["meaningful_attempts"]) + 1 if current else 1
+        successful_attempts = (
+            int(current["successful_attempts"]) + int(successful) if current else int(successful)
+        )
+        status = LocalLearningEngine.progress_status(
+            meaningful_attempts,
+            successful_attempts,
+        )
+        completed_at = (
+            str(current["completed_at"])
+            if current is not None and current["completed_at"] is not None
+            else updated_at if status == "completed" else None
+        )
+        connection.execute(
+            """
+            INSERT INTO curriculum_progress(
+                lesson_key, status, meaningful_attempts, successful_attempts,
+                last_practiced_at, completed_at, updated_at
+            ) VALUES(?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(lesson_key) DO UPDATE SET
+                status = excluded.status,
+                meaningful_attempts = excluded.meaningful_attempts,
+                successful_attempts = excluded.successful_attempts,
+                last_practiced_at = excluded.last_practiced_at,
+                completed_at = excluded.completed_at,
+                updated_at = excluded.updated_at
+            """,
+            (
+                lesson_key,
+                status,
+                meaningful_attempts,
+                successful_attempts,
+                updated_at,
+                completed_at,
+                updated_at,
+            ),
+        )
+        return {
+            "lesson_key": lesson_key,
+            "status": status,
+            "meaningful_attempts": meaningful_attempts,
+            "successful_attempts": successful_attempts,
+            "last_practiced_at": updated_at,
+            "completed_at": completed_at,
+        }
 
     def _learning_core_read_model(
         self,

@@ -2,7 +2,7 @@
 
 ## Immediate mode
 
-The seed database contains exactly 96 reviewed A0/A1 visual concepts so useful beginner searches and early journeys work on first launch. The distribution is deliberately balanced across eight Israel-life categories: 12 greetings, 12 family, 12 home, 12 food, 12 transport, 12 shopping, 12 health and 12 places concepts. The places layer includes Jerusalem, Tel Aviv, Haifa, Be'er Sheva and other everyday location vocabulary; the Negev is represented without becoming the only visual setting.
+The seed database contains exactly 144 reviewed A0/A1 visual concepts so useful beginner searches and early journeys work on first launch. The distribution is deliberately balanced across twelve Israel-life categories: 12 greetings, 12 family, 12 home, 12 food, 12 transport, 12 shopping, 12 health, 12 places, 12 numbers, 12 time, 12 weather and 12 nature concepts. The places layer includes Jerusalem, Tel Aviv, Haifa, Be'er Sheva and other everyday location vocabulary; the Negev is represented without becoming the only visual setting.
 
 Every curated concept includes:
 
@@ -63,7 +63,7 @@ Opening a 2.2 demo dictionary expands it to the 48-concept starter layer while p
 
 ## 2.4 to 2.5 upgrade note
 
-Opening a previous database expands the reviewed layer from 48 to 96 concepts. The original source keys and entry IDs remain stable, new entries are inserted only once, and reseeding refreshes reviewed metadata without duplicating senses, forms or examples. A strict validation contract enforces the exact count, balanced categories, required HE/EN/ES content, one niqqud form, one practical example, unique exact-sense and visual identities, and explicit editorial provenance.
+Opening a previous database expands the reviewed layer up to the current 144 concepts. The original source keys and entry IDs remain stable, new entries are inserted only once, and reseeding refreshes reviewed metadata without duplicating senses, forms or examples. A strict validation contract enforces the exact count, balanced categories, required HE/EN/ES content, one niqqud form, one practical example, unique exact-sense and visual identities, and explicit editorial provenance.
 
 ## Data quality
 

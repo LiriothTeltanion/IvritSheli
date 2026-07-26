@@ -38,3 +38,57 @@
     transition: none;
   }
 }
+
+.achievement-celebration {
+  position: relative;
+  overflow: hidden;
+  margin-block: 1rem;
+  padding: 0.85rem 0.95rem;
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--gold) 48%, var(--border));
+  border-radius: 1rem;
+  background:
+    radial-gradient(circle at 10% 15%, color-mix(in srgb, var(--gold) 22%, transparent), transparent 8rem),
+    color-mix(in srgb, var(--surface-soft) 88%, var(--gold) 12%);
+}
+
+.achievement-celebration__spark {
+  color: var(--gold);
+  font-size: 1.5rem;
+  animation: achievement-spark 1.2s ease-in-out infinite alternate;
+}
+
+.achievement-celebration img {
+  width: 2.8rem;
+  height: 2.8rem;
+}
+
+.achievement-celebration div {
+  min-width: 0;
+  display: grid;
+  gap: 0.12rem;
+}
+
+.achievement-celebration small {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.achievement-celebration strong {
+  font-size: 1rem;
+}
+
+@keyframes achievement-spark {
+  to {
+    transform: rotate(10deg) scale(1.15);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .achievement-celebration__spark {
+    animation: none;
+  }
+}

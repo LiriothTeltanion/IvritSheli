@@ -21,6 +21,14 @@ EXPECTED_STARTER_CATEGORY_COUNTS: dict[str, int] = {
     "time": 12,
     "weather": 12,
     "nature": 12,
+    "actions": 12,
+    "communication": 12,
+    "work": 12,
+    "bureaucracy": 12,
+    "autonomy": 12,
+    "housing": 12,
+    "register": 12,
+    "services": 12,
 }
 EXPECTED_STARTER_ENTRY_COUNT = sum(EXPECTED_STARTER_CATEGORY_COUNTS.values())
 HEBREW_START = "\u0590"
@@ -72,7 +80,7 @@ def validate_starter_vocabulary(entries: Sequence[dict[str, Any]]) -> None:
 
         if not _contains_hebrew(word):
             raise ValueError(f"Starter entry {index} word must contain Hebrew text")
-        if level not in {"A0", "A1"}:
+        if level not in {"A0", "A1", "A2"}:
             raise ValueError(f"Starter entry {index} has unsupported level {level}")
         for field in (
             "gloss_en",
@@ -118,6 +126,30 @@ def validate_starter_vocabulary(entries: Sequence[dict[str, Any]]) -> None:
         if visual_key in visual_keys:
             raise ValueError(f"Duplicate starter visual key: {visual_key}")
         visual_keys.add(visual_key)
+        visual_id = entry.get("visual_id", visual_key)
+        if not isinstance(visual_id, str) or visual_id != visual_key:
+            raise ValueError(
+                f"Starter entry {index} visual_id must match its stable visual_key"
+            )
+
+        reading_hints = entry.get("reading_hints", [])
+        if not isinstance(reading_hints, list):
+            raise ValueError(f"Starter entry {index} reading_hints must be a list")
+        for hint in reading_hints:
+            if not isinstance(hint, dict):
+                raise ValueError(f"Starter entry {index} reading hint must be an object")
+            for field in ("display", "note_en", "note_es", "note_he"):
+                value = hint.get(field)
+                if not isinstance(value, str) or not value.strip():
+                    raise ValueError(
+                        f"Starter entry {index} reading hint requires {field}"
+                    )
+            if not _contains_hebrew(str(hint["display"])) or not _contains_hebrew(
+                str(hint["note_he"])
+            ):
+                raise ValueError(
+                    f"Starter entry {index} reading hint requires Hebrew content"
+                )
         source_key = str(entry.get("source_key") or f"builtin:{normalized_word}:{pos}")
         if source_key in source_keys:
             raise ValueError(f"Duplicate starter source key: {source_key}")

@@ -362,6 +362,44 @@ describe('LearningCoreJourney', () => {
     expect(document.querySelector('.learning-transition')).toBeNull();
   });
 
+  it('keeps a failed submit on screen while the learner keeps typing', async () => {
+    const retrievalActivity: LearningCoreActivity = { ...activity, phase: 'retrieval', skill_dimension: 'production' };
+    vi.spyOn(api, 'learningCore').mockResolvedValue({ ...overview, state: { ...state, phase: 'retrieval' } });
+    vi.spyOn(api, 'nextLearningCoreActivity').mockResolvedValue({
+      ...next,
+      activity: retrievalActivity,
+      state: { ...state, phase: 'retrieval' },
+    });
+    vi.spyOn(api, 'submitLearningCoreAttempt').mockRejectedValue(new Error('Network unreachable'));
+    const user = userEvent.setup();
+    renderJourney('explorer');
+
+    await user.type(await screen.findByPlaceholderText('Write what you remember…'), 'learning');
+    await user.click(screen.getByRole('button', { name: 'I remembered — submit recall' }));
+
+    expect(await screen.findByText('Network unreachable')).toBeInTheDocument();
+
+    await user.type(screen.getByPlaceholderText('Write what you remember…'), ' more');
+
+    // The attempt was never saved; hiding that on the next keystroke would mislead.
+    expect(screen.getByText('Network unreachable')).toBeInTheDocument();
+  });
+
+  it('never asks for more evidence once reading support has fully faded', async () => {
+    const unpointedState = { ...state, reading_support: 'unpointed' as const, reading_evidence: { ...state.reading_evidence, evidence_to_advance: 0 } };
+    vi.spyOn(api, 'learningCore').mockResolvedValue({ ...overview, state: unpointedState });
+    vi.spyOn(api, 'nextLearningCoreActivity').mockResolvedValue({
+      ...next,
+      activity: { ...activity, reading_support: 'unpointed' },
+      state: unpointedState,
+    });
+
+    renderJourney('explorer');
+
+    expect(await screen.findByText(/no reading support left to fade/i)).toBeInTheDocument();
+    expect(screen.queryByText(/0 more learner-reported/i)).not.toBeInTheDocument();
+  });
+
   it('shows Hebrew structure immediately only in Experienced mode', async () => {
     vi.spyOn(api, 'learningCore').mockResolvedValue({ ...overview, profile: { ...overview.profile, learner_mode: 'experienced' } });
     vi.spyOn(api, 'nextLearningCoreActivity').mockResolvedValue(next);

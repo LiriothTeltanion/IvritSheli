@@ -107,7 +107,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--learning-core-status",
         action="store_true",
-        help="Print the local v2.6 Learning Core profile, state, skills, and retention evidence.",
+        help="Print the local learning profile, state, skills, and retention evidence.",
     )
     parser.add_argument(
         "--set-curriculum-track",

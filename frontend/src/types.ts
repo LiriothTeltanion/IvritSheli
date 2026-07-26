@@ -5,7 +5,7 @@
 // Notes: Comments in ENGLISH; emojis sparingly.
 
 export type Locale = 'en' | 'es' | 'he';
-export type ViewKey = 'today' | 'learn' | 'coach' | 'progress' | 'connectors' | 'settings';
+export type ViewKey = 'today' | 'learn' | 'coach' | 'progress' | 'connectors' | 'settings' | 'help';
 export type VoiceStyle = 'masculine' | 'feminine';
 export type LearnerMode = 'guided' | 'explorer' | 'experienced';
 export type CurriculumTrack = 'modern_conversation' | 'pointed_reading' | 'formal_professional';
@@ -76,6 +76,166 @@ export interface Profile {
   first_steps_step?: number;
   first_steps_completed?: number | boolean;
   goals?: Goal[];
+}
+
+export type CurriculumCoverage = 'structured' | 'laboratory';
+export type CurriculumProgressStatus = 'not_started' | 'in_progress' | 'completed';
+
+export interface CurriculumLesson {
+  key: string;
+  band: Extract<CefrBand, 'A0' | 'A1' | 'A2' | 'B1' | 'B2'>;
+  coverage: CurriculumCoverage;
+  concept_target: number;
+  title: Record<Locale, string>;
+  unlocked: boolean;
+  progress: {
+    status: CurriculumProgressStatus;
+    meaningful_attempts: number;
+    successful_attempts: number;
+    last_practiced_at: string | null;
+  };
+}
+
+export interface CurriculumPath {
+  contract_version: '2.8';
+  profile: {
+    cefr_band: Extract<CefrBand, 'A0' | 'A1' | 'A2' | 'B1' | 'B2'>;
+    learner_mode: LearnerMode;
+  };
+  coverage: {
+    structured: ['A0', 'A1', 'A2'];
+    laboratory: ['B1', 'B2'];
+    complete_course_claim: false;
+    concept_target: number;
+    available_personal_concepts: number;
+  };
+  lessons: CurriculumLesson[];
+  reading_track: {
+    approach: 'sound_first';
+    base_letters: 22;
+    entries: Array<{ letter: string; name: string; sound: string }>;
+  };
+}
+
+export type PracticeStepKind =
+  | 'encounter'
+  | 'retrieval'
+  | 'listening'
+  | 'speaking'
+  | 'reflection'
+  | 'summary';
+export type PracticeOutcome = 'completed' | 'failed' | 'unsupported';
+
+export interface PracticeConcept {
+  concept_key: string;
+  lesson_key: string;
+  item_id?: number;
+  hebrew_text: string;
+  hebrew_with_niqqud?: string;
+  transliteration?: string;
+  translation_en?: string;
+  translation_es?: string;
+  visual_id?: string;
+  source: 'personal' | 'reviewed_starter';
+}
+
+export interface PracticeStep {
+  key: string;
+  kind: PracticeStepKind;
+  exercise_type:
+    | 'visual_meaning'
+    | 'hebrew_to_meaning'
+    | 'meaning_to_hebrew_word_bank'
+    | 'cloze_order'
+    | 'audio_choice'
+    | 'spoken_production'
+    | 'confidence_reflection'
+    | 'session_summary';
+  required: boolean;
+  meaningful: boolean;
+  reason: string;
+  concept?: PracticeConcept;
+}
+
+export interface PracticePlan {
+  contract_version: '2.8';
+  profile: {
+    cefr_band: Extract<CefrBand, 'A0' | 'A1' | 'A2' | 'B1' | 'B2'>;
+    learner_mode: LearnerMode;
+  };
+  source: 'personal_learning_items' | 'reviewed_starter';
+  reason: string;
+  steps: PracticeStep[];
+}
+
+export interface PracticeEvent {
+  id: number;
+  step_key: string;
+  outcome: PracticeOutcome;
+  meaningful: boolean;
+  is_correct: boolean | null;
+  created_at: string;
+}
+
+export interface PracticeSummary {
+  saved: true;
+  outcomes: Record<PracticeOutcome, number>;
+  meaningful_actions: number;
+  next_action: string;
+}
+
+export interface PracticeSession {
+  id: string;
+  local_date: string;
+  status: 'active' | 'completed' | 'preview';
+  current_step: number;
+  current_step_key: string | null;
+  plan: PracticePlan;
+  events: PracticeEvent[];
+  daily_goal: {
+    target: number;
+    completed: number;
+    achieved: boolean;
+  };
+  summary: PracticeSummary | null;
+  persisted: boolean;
+  created_at?: string;
+  updated_at?: string;
+  completed_at?: string | null;
+}
+
+export interface PracticeToday {
+  session: PracticeSession;
+}
+
+export interface PracticeStepSubmit {
+  idempotency_key: string;
+  outcome: PracticeOutcome;
+  is_correct?: boolean;
+  confidence?: number;
+  response_ms?: number;
+  hints_used?: number;
+  answer_text?: string;
+  transcript?: string;
+  unsupported_reason?: string;
+}
+
+export interface PracticeStepSubmitResponse {
+  accepted: true;
+  saved: true;
+  duplicate: boolean;
+  xp_awarded: number;
+  next_action: 'continue' | 'retry' | 'manual_fallback';
+  event: Pick<PracticeEvent, 'id' | 'step_key' | 'outcome' | 'meaningful' | 'created_at'>;
+  curriculum_progress: {
+    lesson_key: string;
+    status: CurriculumProgressStatus;
+    meaningful_attempts: number;
+    successful_attempts: number;
+    last_practiced_at: string;
+    completed_at: string | null;
+  } | null;
+  session: PracticeSession;
 }
 
 export interface Goal {
@@ -219,6 +379,12 @@ export interface DictionarySense {
   visual_alt_es: string | null;
   visual_alt_he: string | null;
   provenance: string | null;
+  reading_hints?: Array<{
+    display: string;
+    note_en: string;
+    note_es: string;
+    note_he: string;
+  }>;
   visual: DictionaryVisual | null;
 }
 

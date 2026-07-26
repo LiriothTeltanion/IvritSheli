@@ -8,8 +8,10 @@ import { useEffect, useRef, useState } from 'react';
 import { api } from '../api';
 import { useI18n } from '../i18n';
 import { useSessionAccess } from '../session';
-import type { DictionaryEntry } from '../types';
+import type { Dashboard, DictionaryEntry } from '../types';
 import { AudioPractice } from './AudioPractice';
+import { CurriculumPath } from './CurriculumPath';
+import { DailyPracticeSession } from './DailyPracticeSession';
 import { DictionaryVisualCue } from './DictionaryVisualCue';
 import { HebrewText } from './HebrewText';
 import { Icon } from './Icon';
@@ -17,18 +19,20 @@ import { MicWordAnalyzer } from './MicWordAnalyzer';
 import { RegistryPanel } from './RegistryPanel';
 import { ReviewCard } from './ReviewCard';
 
-type LearnTab = 'review' | 'dictionary' | 'audio' | 'collection';
+type LearnTab = 'path' | 'practice' | 'review' | 'dictionary' | 'audio' | 'collection';
 
 export function LearnPanel({
   initialTab = 'review',
   practiceWord,
   cloudAvailable,
+  dashboard,
   onWordClick,
   onRefresh,
 }: {
   initialTab?: LearnTab;
   practiceWord?: string;
   cloudAvailable: boolean;
+  dashboard: Dashboard;
   onWordClick: (word: string, entryId?: number) => void;
   onRefresh: () => void;
 }): React.JSX.Element {
@@ -85,7 +89,9 @@ export function LearnPanel({
     }
   };
 
-  const tabs: Array<{ key: LearnTab; label: string; icon: 'brain' | 'book' | 'mic' | 'language' }> = [
+  const tabs: Array<{ key: LearnTab; label: string; icon: 'brain' | 'book' | 'mic' | 'language' | 'play' | 'target' }> = [
+    { key: 'path', label: t('learningPath'), icon: 'target' },
+    { key: 'practice', label: t('dailyPractice'), icon: 'play' },
     { key: 'review', label: t('review'), icon: 'brain' },
     { key: 'dictionary', label: t('dictionary'), icon: 'book' },
     { key: 'audio', label: t('pronunciation'), icon: 'mic' },
@@ -107,11 +113,20 @@ export function LearnPanel({
 
       {readOnly && tab === 'dictionary' && <div className="demo-inline-notice" role="note"><Icon name="shield" size={16} /> {t('demoDictionaryNotice')} {readOnlyReason}</div>}
       {message && <div className="info-banner"><Icon name="sparkles" size={16} /> {message}</div>}
+      {tab === 'path' && <CurriculumPath onStartPractice={() => setTab('practice')} />}
+      {tab === 'practice' && (
+        <DailyPracticeSession
+          dashboard={dashboard}
+          cloudAvailable={cloudAvailable}
+          onWordClick={onWordClick}
+          onRefresh={onRefresh}
+        />
+      )}
       {tab === 'review' && <ReviewCard active={tab === 'review'} onWordClick={onWordClick} onReviewed={onRefresh} />}
       {tab === 'audio' && (
         <div className="audio-workspace">
-          <AudioPractice initialText={practiceWord ?? 'אני עדיין לומד עברית'} cloudAvailable={cloudAvailable} onWordClick={onWordClick} />
-          <MicWordAnalyzer initialWord={practiceWord ?? ''} cloudAvailable={cloudAvailable} onWordClick={onWordClick} />
+          <AudioPractice initialText={practiceWord ?? 'אני עדיין לומד עברית'} cloudAvailable={false} onWordClick={onWordClick} />
+          <MicWordAnalyzer initialWord={practiceWord ?? ''} cloudAvailable={false} onWordClick={onWordClick} />
         </div>
       )}
       {tab === 'dictionary' && (

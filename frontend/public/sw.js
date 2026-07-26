@@ -4,13 +4,33 @@
 // Date: 2026-07-15 | TZ: Asia/Jerusalem
 // Notes: API responses and user data are deliberately never cached by the service worker.
 
-const CACHE_NAME = 'ivrit-sheli-shell-v2.6.0';
-const CORE_ASSETS = ['/', '/manifest.webmanifest', '/icons/app-icon.svg', '/icons/app-icon-192.png', '/icons/app-icon-512.png'];
+const CACHE_NAME = 'ivrit-sheli-shell-v2.8.0';
+const CORE_ASSETS = [
+  '/',
+  '/manifest.webmanifest',
+  '/icons/app-icon.svg',
+  '/icons/app-icon-192.png',
+  '/icons/app-icon-512.png',
+  '/content/starter-dictionary-v2.8.json',
+  '/illustrations/regions/galilee.webp',
+  '/illustrations/regions/haifa-carmel.webp',
+  '/illustrations/regions/tel-aviv-jaffa.webp',
+  '/illustrations/regions/jerusalem.webp',
+  '/illustrations/regions/dead-sea.webp',
+  '/illustrations/regions/negev.webp',
+];
 const NETWORK_ONLY_PATHS = new Set(['/health/live', '/health/ready', '/version']);
+const PUBLIC_STATIC_PREFIXES = ['/assets/', '/content/', '/icons/', '/illustrations/'];
 
 function canCache(response) {
   const cacheControl = response.headers.get('Cache-Control') || '';
   return response.ok && !cacheControl.toLowerCase().includes('no-store');
+}
+
+function isPublicStaticPath(pathname) {
+  return pathname === '/manifest.webmanifest'
+    || pathname === '/sw.js'
+    || PUBLIC_STATIC_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 }
 
 self.addEventListener('install', (event) => {
@@ -49,6 +69,11 @@ self.addEventListener('fetch', (event) => {
     );
     return;
   }
+
+  // Do not opportunistically cache arbitrary same-origin routes. This allowlist
+  // prevents a future non-API endpoint from accidentally placing user data in
+  // the public application-shell cache.
+  if (!isPublicStaticPath(url.pathname)) return;
 
   event.respondWith(
     caches.match(request).then((cached) => cached || fetch(request).then((response) => {

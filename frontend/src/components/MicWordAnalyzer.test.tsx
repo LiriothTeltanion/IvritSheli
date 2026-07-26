@@ -277,7 +277,7 @@ describe('MicWordAnalyzer', () => {
     expect(toggle).toBeDisabled();
     expect(toggle.closest('label')).toHaveAttribute(
       'title',
-      'Cloud features are unavailable in this deployment.',
+      'Experimental cloud AI and audio are disabled in v2.8.',
     );
   });
 

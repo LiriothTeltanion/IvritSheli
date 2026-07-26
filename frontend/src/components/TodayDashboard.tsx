@@ -13,6 +13,7 @@ import type { Dashboard } from '../types';
 import { HebrewText } from './HebrewText';
 import { Icon, type IconName } from './Icon';
 import { LearningCoreJourney } from './LearningCoreJourney';
+import { AtlasRegionVocabulary } from './AtlasRegionVocabulary';
 import { LivingHebrewAtlas, type AtlasRegionId } from './LivingHebrewAtlas';
 import { MetricRing } from './MetricRing';
 import { WordIllustration } from './WordIllustration';
@@ -135,14 +136,31 @@ export function TodayDashboard({
         </div>
       </section>
 
-      <LearningCoreJourney
-        dashboard={dashboard}
-        learnerMode={learnerMode}
-        onOpenDictionary={onWordClick}
-        onOpenProgress={onOpenProgress}
-        onStartReview={onStart}
-        onRefresh={onRefresh}
-      />
+      {learnerMode === 'guided' ? (
+        <details className="guided-how card">
+          <summary>
+            <span><Icon name="brain" size={19} /><strong>{t('howItWorks')}</strong></span>
+            <small>{t('howItWorksDetail')}</small>
+          </summary>
+          <LearningCoreJourney
+            dashboard={dashboard}
+            learnerMode={learnerMode}
+            onOpenDictionary={onWordClick}
+            onOpenProgress={onOpenProgress}
+            onStartReview={onStart}
+            onRefresh={onRefresh}
+          />
+        </details>
+      ) : (
+        <LearningCoreJourney
+          dashboard={dashboard}
+          learnerMode={learnerMode}
+          onOpenDictionary={onWordClick}
+          onOpenProgress={onOpenProgress}
+          onStartReview={onStart}
+          onRefresh={onRefresh}
+        />
+      )}
 
       <LivingHebrewAtlas
         locale={locale}
@@ -151,6 +169,8 @@ export function TodayDashboard({
         onSelectRegion={setAtlasRegion}
         className="today-living-atlas"
       />
+
+      <AtlasRegionVocabulary region={atlasRegion} onWordClick={onWordClick} />
 
       {readOnly && (
         <section className="demo-tour card" aria-labelledby="demo-tour-title">
@@ -197,7 +217,7 @@ export function TodayDashboard({
         {learnerMode !== 'guided' && <article className="metric-card card"><span className="metric-icon"><Icon name="flame" /></span><div><strong>{dashboard.stats.streak_days}</strong><span>{t('streak')}</span></div><small>{t('restDayGrace')}</small></article>}
       </section>
 
-      <div className="today-main-grid">
+      <div className={`today-main-grid ${learnerMode === 'guided' ? 'today-main-grid--guided' : ''}`}>
         <section className="mission-card card">
           <header><span className="eyebrow"><Icon name="target" size={16} /> {t('todayMission')}</span><span className="mission-xp">+65 XP</span></header>
           <HebrewText text={dashboard.mission.hebrew} onWordClick={onWordClick} className="mission-hebrew" as="h2" />
@@ -206,11 +226,11 @@ export function TodayDashboard({
           <button type="button" className="primary-button" onClick={onStart}><Icon name="target" size={18} /> {t('startMissionPrep')}</button>
         </section>
 
-        <section className="focus-card card">
+        {learnerMode !== 'guided' && <section className="focus-card card">
           <header className="section-heading"><div><span className="eyebrow"><Icon name="brain" size={16} /> {t('focus')}</span><h2>{label(dashboard.focus.focus)}</h2></div></header>
           <p>{focusReason}</p>
           <div className="focus-visual"><MetricRing value={dashboard.stats.mastery_percent} label={t('masterySignal')} size={106} /><div><span>{t('suggestedMode')}</span><strong>{label(dashboard.focus.suggested_exercise)}</strong><button type="button" className="text-button" onClick={onOpenCoach}>{t('openCoach')} <Icon name="chevron" size={15} /></button></div></div>
-        </section>
+        </section>}
       </div>
 
       {learnerMode !== 'guided' && <section className="recommendation-section card">

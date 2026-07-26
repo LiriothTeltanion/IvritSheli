@@ -8,8 +8,21 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { api } from '../api';
 import { I18nProvider } from '../i18n';
-import type { DictionaryEntry } from '../types';
+import type { Dashboard, DictionaryEntry } from '../types';
 import { LearnPanel } from './LearnPanel';
+
+const DASHBOARD = {
+  profile: { id: 1, display_name: 'Kevin', interface_language: 'es', hebrew_level: 'A1', daily_minutes: 10,
+    transliteration_mode: 'hints', niqqud_mode: 'difficult', weekly_rest_day: 5, cloud_consent: 0, learner_mode: 'guided' },
+  today: { due_reviews: 2, new_phrases: 1, speaking_drills: 1, estimated_minutes: 10 },
+  stats: { total_items: 12, recent_accuracy: 78, mastery_percent: 54, streak_days: 2 },
+  xp: { level: 2, current_threshold: 100, next_threshold: 300, xp_in_level: 60, percent: 30, total: 160 },
+  focus: { focus: 'daily_conversation', reason: 'Balanced practice candidate.', suggested_exercise: 'recognition' },
+  recommendations: [], achievements: [],
+  mission: { title: 'Greeting', hebrew: 'שלום', translation_en: 'Hello', translation_es: 'Hola' },
+  dictionary: { entries: 144, senses: 144, forms: 144, examples: 144, sounds: 0, metadata: {} },
+  system: { offline_ready: true, cloud_available: false },
+} as unknown as Dashboard;
 
 const EMPTY_SENSE_METADATA = {
   level: null,
@@ -70,6 +83,7 @@ describe('LearnPanel dictionary identity', () => {
         <LearnPanel
           initialTab="dictionary"
           cloudAvailable={false}
+          dashboard={DASHBOARD}
           onWordClick={onWordClick}
           onRefresh={vi.fn()}
         />
@@ -101,6 +115,7 @@ describe('LearnPanel dictionary identity', () => {
         <LearnPanel
           initialTab="dictionary"
           cloudAvailable={false}
+          dashboard={DASHBOARD}
           onWordClick={vi.fn()}
           onRefresh={vi.fn()}
         />

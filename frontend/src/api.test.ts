@@ -176,6 +176,18 @@ describe('read-only API guard', () => {
     );
   });
 
+  it('reports an explicit reconnect requirement when a persistent write cannot reach the server', async () => {
+    const fetchMock = vi.fn().mockRejectedValue(new TypeError('Network request failed'));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(api.createItem({ hebrew_text: 'שלום' })).rejects.toMatchObject({
+      status: 0,
+      code: 'network_required',
+      message: expect.stringMatching(/network connection is required/i),
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
   it('keeps learning-core phase, mastery, schedule, and XP decisions on the server', async () => {
     document.cookie = 'ivrit_csrf=csrf-learning-core; path=/';
     const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({
@@ -214,5 +226,149 @@ describe('read-only API guard', () => {
       hints_used: 0,
       answer_text: 'hello',
     });
+  });
+
+  it('does not hide a server authentication error behind offline content', async () => {
+    vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      error: {
+        code: 'authentication_required',
+        message: 'Sign in is required.',
+      },
+    }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(api.dictionarySearch('שלום')).rejects.toMatchObject({
+      status: 401,
+      code: 'authentication_required',
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('rejects cached dictionary content that does not match the reviewed 240-entry contract', async () => {
+    const fetchMock = vi.fn()
+      .mockRejectedValueOnce(new TypeError('Network request failed'))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        contract_version: '2.8',
+        content: 'reviewed_starter_dictionary',
+        entry_count: 1,
+        entries: [],
+      }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(api.dictionarySearch('שלום')).rejects.toThrow(/failed contract validation/i);
+  });
+
+  it('falls back to typed cached search, form lookup, and category browsing after network failures', async () => {
+    const offlineEntry = {
+      id: 1,
+      word: 'שלום',
+      normalized_word: 'שלום',
+      display_niqqud: 'שָׁלוֹם',
+      pos: 'interjection',
+      romanization: 'shalom',
+      root: 'שלם',
+      binyan: null,
+      gender: null,
+      level: 'A0',
+      category: 'greetings',
+      visual: {
+        key: 'greetings.hello',
+        emoji: '👋',
+        alt: { en: 'Friendly greeting', es: 'Saludo amable', he: 'ברכה ידידותית' },
+      },
+      etymology: null,
+      source_name: 'Ivrit Sheli reviewed starter vocabulary',
+      source_url: null,
+      license_name: 'MIT application sample data',
+      senses: [{
+        id: 1,
+        gloss_en: 'hello',
+        gloss_es: 'hola',
+        tags: [],
+        topics: [],
+        level: 'A0',
+        category: 'greetings',
+        visual_key: 'greetings.hello',
+        visual_emoji: '👋',
+        visual_alt_en: 'Friendly greeting',
+        visual_alt_es: 'Saludo amable',
+        visual_alt_he: 'ברכה ידידותית',
+        provenance: 'Reviewed',
+        reading_hints: [],
+        visual: {
+          key: 'greetings.hello',
+          emoji: '👋',
+          alt: { en: 'Friendly greeting', es: 'Saludo amable', he: 'ברכה ידידותית' },
+        },
+      }],
+      forms: [{
+        id: 101,
+        form: 'שָׁלוֹם',
+        romanization: 'shalom',
+        tags: ['with-niqqud'],
+      }],
+      examples: [],
+      sounds: [],
+    };
+    const fillerEntries = Array.from({ length: 239 }, (_, index) => {
+      const id = index + 2;
+      const word = `מילה${id}`;
+      const visual = {
+        key: `words.${id}`,
+        emoji: '🔤',
+        alt: { en: `Word ${id}`, es: `Palabra ${id}`, he: `מילה ${id}` },
+      };
+      return {
+        ...offlineEntry,
+        id,
+        word,
+        normalized_word: word,
+        display_niqqud: word,
+        romanization: `mila-${id}`,
+        category: 'other',
+        visual,
+        senses: [{
+          ...offlineEntry.senses[0],
+          id,
+          gloss_en: `word ${id}`,
+          gloss_es: `palabra ${id}`,
+          category: 'other',
+          visual_key: visual.key,
+          visual_alt_en: visual.alt.en,
+          visual_alt_es: visual.alt.es,
+          visual_alt_he: visual.alt.he,
+          visual,
+        }],
+        forms: [],
+      };
+    });
+    const entries = [offlineEntry, ...fillerEntries];
+    const fetchMock = vi.fn()
+      .mockRejectedValueOnce(new TypeError('Network request failed'))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        contract_version: '2.8',
+        content: 'reviewed_starter_dictionary',
+        entry_count: 240,
+        entries,
+      }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }))
+      .mockRejectedValueOnce(new TypeError('Network request failed'))
+      .mockRejectedValueOnce(new TypeError('Network request failed'));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(api.dictionarySearch('hola')).resolves.toEqual([offlineEntry]);
+    await expect(api.dictionaryLookup('שָׁלוֹם')).resolves.toEqual([offlineEntry]);
+    await expect(api.dictionaryBrowse(' GREETINGS ')).resolves.toEqual([offlineEntry]);
+    expect(fetchMock).toHaveBeenNthCalledWith(2, '/content/starter-dictionary-v2.8.json');
+    expect(fetchMock).toHaveBeenCalledTimes(4);
   });
 });

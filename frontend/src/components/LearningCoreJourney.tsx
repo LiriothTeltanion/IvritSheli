@@ -83,6 +83,8 @@ export function LearningCoreJourney({
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<LearningCoreAttemptResponse | null>(null);
   const [feedback, setFeedback] = useState('');
+  // Errors must survive incidental interaction; only per-attempt outcomes are dismissible.
+  const [feedbackIsError, setFeedbackIsError] = useState(false);
   const startedAt = useRef(performance.now());
   const cachedAttempt = useRef<{ intent: string; payload: LearningCoreAttemptRequest } | null>(null);
   const loadGeneration = useRef(0);
@@ -93,6 +95,7 @@ export function LearningCoreJourney({
     setLoadError('');
     setResult(null);
     setFeedback('');
+    setFeedbackIsError(false);
     try {
       let [loadedOverview, loadedNext] = await Promise.all([
         api.learningCore(),
@@ -148,8 +151,10 @@ export function LearningCoreJourney({
   }, [activity?.activity_token]);
 
   const dismissOutcome = (): void => {
-    setFeedback('');
     setResult(null);
+    // A failed submit stays on screen until the learner retries or reloads, so
+    // typing an answer cannot silently hide "this attempt was not saved".
+    if (!feedbackIsError) setFeedback('');
   };
 
   const phases = overview?.curriculum.lesson_phases ?? fallback.overview.curriculum.lesson_phases;
@@ -191,6 +196,7 @@ export function LearningCoreJourney({
   const speakEncounter = (): void => {
     if (!activity || !('speechSynthesis' in window)) {
       setFeedback(t('speechSynthesisUnavailable'));
+      setFeedbackIsError(true);
       return;
     }
     dismissOutcome();
@@ -208,6 +214,7 @@ export function LearningCoreJourney({
     }
     setSubmitting(true);
     setFeedback('');
+    setFeedbackIsError(false);
     try {
       const hintsUsed = assisted || hintRevealed ? 1 : 0;
       const answerText = answer.trim() || null;
@@ -252,6 +259,8 @@ export function LearningCoreJourney({
       } else {
         setFeedback(reason instanceof Error ? reason.message : String(reason));
       }
+      // load() above resets the flag, so this must run after it.
+      setFeedbackIsError(true);
     } finally {
       setSubmitting(false);
     }
@@ -522,7 +531,11 @@ export function LearningCoreJourney({
           })}
         </ol>
         <div className={`reading-evidence-row${pointedUnavailable ? ' is-blocked' : ''}`}>
-          <span>{pointedUnavailable ? copy.pointedUnavailable : copy.readingEvidence(readingEvidence.evidence_to_advance)}</span>
+          <span>{pointedUnavailable
+            ? copy.pointedUnavailable
+            : overview.state.reading_support === 'unpointed'
+              ? copy.readingLadderComplete
+              : copy.readingEvidence(readingEvidence.evidence_to_advance)}</span>
         </div>
         <small><Icon name="shield" size={14} /> {copy.readingHint}</small>
       </div>

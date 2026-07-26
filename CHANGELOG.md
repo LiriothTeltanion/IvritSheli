@@ -2,7 +2,45 @@
 
 All notable changes are documented here. Versions follow Semantic Versioning.
 
-## 2.6.0 — Learning Core — Unreleased
+## 2.8.0 — Warm Illustrated Learning Journey — Release candidate
+
+This candidate remains private and unpublished. The verified Railway deployment, Git tag and GitHub Release remain at 2.4.0 until the complete verification matrix, two-real-account isolation check, backup/restore drill and beginner pilot are approved.
+
+### Added
+
+- A three-word pre-account experience so a complete beginner can learn before choosing local mode, demo access or sign-in.
+- A deterministic `LocalLearningEngine` shared by the curriculum path, daily practice, Today recommendations and progress explanations.
+- A structured A0–A2 path plus an explicitly experimental B1/B2 Lab; the product does not claim complete B2-course coverage or CEFR certification.
+- A 22-letter, sound-first Hebrew reading track that includes final forms and keeps reviewed niqqud/reading hints explicit.
+- Persistent `practice_sessions`, `practice_step_events` and `curriculum_progress` data with resumable steps, idempotent evidence and cloud-snapshot/import/export coverage.
+- The public practice API: `GET /api/v1/practice/today`, `POST /api/v1/practice/{session_id}/steps/{step_key}` and `GET /api/v1/curriculum/path`.
+- Six exercise families across visual meaning, audio choice, Hebrew-to-meaning, word-bank production, cloze/order and speaking with a manual fallback.
+- Exactly 96 additional reviewed A2 concepts, bringing the bundled trilingual starter dictionary to 240 concepts with stable visual identifiers and reviewed reading hints.
+- Six original Israel-region scenes—Galilee, Haifa/Carmel, Tel Aviv/Jaffa, Jerusalem, the Dead Sea and the Negev—and twelve category illustration grammars with trilingual alternative text.
+- Persistent masculine/feminine-style device voice and slow/normal speed preferences, local recording/playback and capability-gated browser transcript comparison.
+- Meaningful-action daily progress, optional accessible celebrations and healthy motivation that keeps XP, attendance and mastery separate.
+- PWA caching for the application shell, region scenes and reviewed starter dictionary while private API responses and learner writes remain uncached.
+
+### Changed
+
+- Guided/A0 is the default experience. Guided navigation prioritizes Today, Words and Help; Explorer and Experienced progressively expose more tools without silently changing language level.
+- Today now emphasizes one primary action, plain-language explanations, actionable empty states, real online/offline status and a permanent Help path.
+- The profile menu exposes the learner's name, level, experience, real network state, device-only Available/Busy preference, Settings and Logout.
+- Minimum text, Hebrew display and touch-target sizing, dark/high-contrast colors, reduced motion and 200% zoom behavior are treated as release requirements.
+- Public learning and recommendation paths are deterministic and require no LLM or cloud audio call. The existing OpenAI adapter remains disabled and experimental for a future explicit privacy/cost review.
+- Google sign-in remains limited to `openid profile`. It does not request Gmail, Drive or Calendar access, and local SQLite mode remains available without an account.
+
+### Release boundary
+
+- Version metadata now identifies the private 2.8.0 source candidate; it does not change the truthful public/live 2.4.0 record.
+- The new learner-snapshot writer must not share production learner-state rows with the 2.4 writer. A verified PostgreSQL backup is required before the first production v2.8 write, and rollback to 2.4 requires restoring that compatible backup.
+- No community, public chat, ranking, league, hearts or energy system is included.
+
+## 2.7.0 — Beginner-first persistence checkpoint — Unpublished
+
+Version 2.7 was a private implementation checkpoint and was never deployed, tagged or published. Its beginner-first entry, Guided/A0 defaults, simplified navigation, accessible profile/network state, deterministic daily planner and resumable session persistence are incorporated into 2.8.
+
+## 2.6.0 — Learning Core — Unpublished
 
 This candidate remains on a private local branch. The public Railway deployment, Git tag and GitHub Release remain at 2.4.0.
 
@@ -16,6 +54,10 @@ This candidate remains on a private local branch. The public Railway deployment,
 - Activity-version checks and bounded idempotent replay protection so a double-click, network retry or stale second device cannot advance two phases.
 - A Today learning journey, CEFR-lite skill map, transparent recommendation rationale and honest 24-hour, 7-day and 30-day insufficient-evidence states.
 - A source-checked learning-science ledger, curriculum specification and Hebrew content-provenance policy.
+- A reviewed starter lexicon of 144 concepts: twelve balanced Israel-life categories, adding numbers, time, weather and nature to the previous eight.
+- A `GET /api/v1/dictionary/browse` endpoint and topic chips in the dictionary drawer, so a learner can explore a whole category instead of only searching a word they already know.
+- A chained **Today's practice** routine that sequences spaced retrieval into guided spoken output with a visible position in the session, so a returning learner has one obvious thing to do instead of a menu of surfaces.
+- Selecting a region on the Israel atlas now opens that place's reviewed vocabulary, turning the map from illustration into a way into the lexicon; it degrades to a notice without breaking the map when the list cannot load.
 
 ### Changed
 
@@ -24,11 +66,24 @@ This candidate remains on a private local branch. The public Railway deployment,
 - Speech practice is presented as transcript-based Recognition match rather than phoneme, accent or clinical pronunciation scoring.
 - Application, Python, npm, browser, PWA, citation and package metadata advance to the private 2.6.0 candidate while all public/live claims stay at 2.4.0.
 
+### Fixed
+
+- The learner-mode assertion in the app test matched two elements once the Learning Core identity block finished loading, so the suite passed or failed depending on machine load; it now targets the persistent topbar chip.
+- The dark-theme atlas card left the brand wordmark near-black on near-black, because the lockup re-declares its own ink variable; the dark theme now covers it.
+- The atlas dark block was keyed on a negated selector while the app defaults to light and writes the theme attribute in an effect, so the card painted dark for the first frame of every cold load.
+- Marker state colours and the high-contrast block assumed the light card, producing washed-out pins and roughly 1.6:1 text in dark theme.
+- The reading ladder told learners at the final rung that "0 more" unassisted successes were needed before support could fade.
+- A failed attempt submission was erased by the next keystroke, hiding from the learner that nothing had been saved.
+- Submitting a delayed review before it is due now returns the same conflict status as every other server-owned state conflict, instead of a generic invalid-request error.
+- The package verifier now requires `starter_lexicon_v3.py`, which `dictionary.py` imports at module load; a package missing it previously passed verification and then failed to boot.
+- `SHA256SUMS.txt` regeneration is wired into the release checklist, `scripts/test-all.sh` and CI linting, closing the process gap that let the manifest drift behind the source tree.
+- Railway deploy overlap is now zero, so an older writer can no longer run beside a Learning Core writer during a release and silently drop the newer snapshot fields.
+
 ### Verification
 
-- The ordinary backend suite passes 179 tests with one credential-gated PostgreSQL skip; the dedicated disposable PostgreSQL 17 gate passes all three cases and contributes the skipped case, producing 180 unique backend passes.
-- The frontend passes 97 tests across 22 files; combined private-candidate evidence is 277 unique automated passes.
-- Ruff, strict MyPy across 27 source files, TypeScript, Vite, compileall, offline doctor, pip-audit, npm production audit, the 81-file package verifier, Docker Compose configuration and an isolated production-image build pass.
+- The ordinary backend suite passes 180 tests with one credential-gated PostgreSQL skip; the dedicated disposable PostgreSQL 17 gate passes all three cases and contributes the skipped case, producing 181 unique backend passes.
+- The frontend passes 107 tests across 24 files; combined private-candidate evidence is 288 unique automated passes.
+- Ruff, strict MyPy across 28 source files, TypeScript, Vite, compileall, offline doctor, pip-audit, npm production audit, the 85-file package verifier, Docker Compose configuration and an isolated production-image build pass.
 - Private browser QA passes English desktop, 390 px mobile, Hebrew RTL, the first four Learning Core phases, RTL Hebrew input and an empty error/warning console. The candidate remains local, untagged, unpushed and undeployed.
 
 ## 2.5.0 — Private Pilot — Unreleased

@@ -16,9 +16,11 @@ interface ReviewCardProps {
   active: boolean;
   onWordClick: (word: string) => void;
   onReviewed: () => void;
+  /** Fires once the queue is exhausted, so a chained session can advance. */
+  onComplete?: (() => void) | undefined;
 }
 
-export function ReviewCard({ active, onWordClick, onReviewed }: ReviewCardProps): React.JSX.Element {
+export function ReviewCard({ active, onWordClick, onReviewed, onComplete }: ReviewCardProps): React.JSX.Element {
   const { locale, label, t } = useI18n();
   const { readOnly, readOnlyReason } = useSessionAccess();
   const [items, setItems] = useState<LearningItem[]>([]);
@@ -44,6 +46,11 @@ export function ReviewCard({ active, onWordClick, onReviewed }: ReviewCardProps)
   }, [index]);
 
   const item = items[index] ?? null;
+
+  useEffect(() => {
+    if (!loading && !item) onComplete?.();
+  }, [loading, item, onComplete]);
+
   const translation = item
     ? locale === 'es'
       ? item.translation_es ?? item.translation_en

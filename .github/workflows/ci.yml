@@ -54,8 +54,12 @@ jobs:
         working-directory: frontend
         run: npm ci
 
+      - name: Install Chromium for browser accessibility tests
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+
       - name: Lint Python
-        run: ruff check backend/src backend/tests scripts/verify_package.py scripts/verify_container_logs.py
+        run: ruff check backend/src backend/tests scripts/
 
       - name: Type-check Python
         run: mypy --config-file backend/pyproject.toml backend/src
@@ -64,7 +68,7 @@ jobs:
         run: pytest backend/tests -q
 
       - name: Compile Python
-        run: python -m compileall -q backend/src scripts/verify_package.py scripts/verify_container_logs.py
+        run: python -m compileall -q backend/src scripts/
 
       - name: Audit Python runtime dependencies
         run: python -m pip_audit -r backend/requirements.txt
@@ -79,6 +83,10 @@ jobs:
       - name: Test frontend
         working-directory: frontend
         run: npm run test:run
+
+      - name: Test responsive and accessible browser journeys
+        working-directory: frontend
+        run: npm run test:e2e
 
       - name: Build frontend
         working-directory: frontend

@@ -1,0 +1,63 @@
+/* Practice motivation: meaningful progress without hearts, scarcity, or punitive pressure. */
+
+.daily-practice__goal {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.daily-practice__goal .metric-ring {
+  flex: 0 0 auto;
+}
+
+.daily-practice__done {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.daily-practice__done::before,
+.daily-practice__done::after {
+  content: '✦';
+  position: absolute;
+  z-index: -1;
+  color: var(--accent-gold, #d99b2b);
+  opacity: 0.28;
+  font-size: clamp(2rem, 7vw, 4.5rem);
+  animation: practice-celebration 1.8s ease-in-out infinite alternate;
+}
+
+.daily-practice__done::before {
+  inset: 0.5rem auto auto 1.2rem;
+}
+
+.daily-practice__done::after {
+  inset: auto 1.2rem 0.5rem auto;
+  animation-delay: -0.9s;
+}
+
+@keyframes practice-celebration {
+  to {
+    opacity: 0.55;
+    transform: translateY(-0.3rem) rotate(8deg) scale(1.08);
+  }
+}
+
+@media (max-width: 540px) {
+  .daily-practice__header {
+    align-items: flex-start;
+  }
+
+  .daily-practice__goal {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .daily-practice__done::before,
+  .daily-practice__done::after {
+    animation: none;
+  }
+}

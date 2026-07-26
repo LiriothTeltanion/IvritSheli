@@ -9,5 +9,5 @@ healthcheckPath = "/health/ready"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 5
-overlapSeconds = 10
+overlapSeconds = 0
 drainingSeconds = 15

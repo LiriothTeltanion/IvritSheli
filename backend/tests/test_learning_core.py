@@ -10,6 +10,7 @@ from typing import Any
 import pytest
 from fastapi.testclient import TestClient
 
+import ivrit_sheli.repository as repository_module
 from ivrit_sheli.cloud_repository import CloudLearningRepository
 from ivrit_sheli.cloud_store import MemoryCloudStore
 from ivrit_sheli.learning_core import (
@@ -21,7 +22,6 @@ from ivrit_sheli.learning_core import (
     skill_for_activity,
     transition_phase,
 )
-import ivrit_sheli.repository as repository_module
 from ivrit_sheli.repository import LearningRepository
 
 _ATTEMPT_SEQUENCE = count(1)
@@ -785,6 +785,40 @@ def test_empty_core_reports_earliest_future_review_without_mutation(
     assert next_payload["state"]["current_item_id"] is None
     assert next_payload["state"]["wait_until"] == future_due
     assert after == before == 0
+
+
+def test_submitting_a_not_yet_due_review_is_a_conflict_not_a_bad_request(
+    repository: LearningRepository,
+) -> None:
+    """A too-early submit is a server-owned scheduling conflict, like a stale token.
+
+    The client distinguishes recoverable state conflicts (reload the activity) from
+    malformed input by status code, so this path must stay on the 409 branch.
+    """
+    item = repository.create_item({"hebrew_text": "מחר", "translation_en": "tomorrow"})
+    # Drive the loop to delayed_review, which is the only phase that parks the
+    # learner behind a wait_until window.
+    for _ in range(4):
+        _submit_core(repository, {"item_id": item["id"], "is_correct": True, "confidence": 4})
+
+    state = repository.learning_core_state()["state"]
+    assert state["phase"] == "delayed_review"
+    assert state["wait_until"] is not None
+
+    activity = repository.next_learning_core_activity()["activity"]
+    assert activity is not None, "a waiting delayed review still describes its activity"
+    assert activity["can_submit"] is False
+
+    with pytest.raises(LearningCoreConflictError):
+        repository.submit_learning_core_attempt(
+            {
+                "item_id": item["id"],
+                "activity_token": activity["activity_token"],
+                "idempotency_key": "not-due-delayed-review-0001",
+                "is_correct": True,
+                "confidence": 4,
+            }
+        )
 
 
 def test_v25_cloud_snapshot_hydrates_and_upgrades_on_next_write() -> None:

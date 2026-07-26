@@ -1,15 +1,15 @@
 <div align="center">
   <img src="assets/brand/logo.svg" alt="Ivrit Sheli" width="680" />
 
-  <h1>Ivrit Sheli 2.6.0 — Learning Core · העברית שלי</h1>
-  <p><strong>An evidence-informed, private-first Hebrew learning journey built for real life.</strong></p>
+  <h1>Ivrit Sheli 2.8.0 — Warm Illustrated Learning Journey · העברית שלי</h1>
+  <p><strong>A beginner-first, evidence-informed Hebrew journey that grows with the learner.</strong></p>
 
   <p>
     <code>Hebrew • English • Spanish</code> ·
     <code>SQLite + PostgreSQL</code> ·
-    <code>Google + GitHub OAuth</code> ·
+    <code>Google identity + local mode</code> ·
     <code>Docker</code> ·
-    <code>AI-optional</code> ·
+    <code>Deterministic learning engine</code> ·
     <code>RTL-native</code> ·
     <code>Accessible motion</code>
   </p>
@@ -26,24 +26,24 @@
   <a href="https://ivritsheli-production.up.railway.app/?lang=en"><strong>🌐 Open the verified Ivrit Sheli 2.4.0 Contest Edition</strong></a>
 </p>
 
-> **Private-pilot boundary:** this checkout is the local, unpublished 2.6.0 Learning Core. The Railway deployment, public Git tag and GitHub Release intentionally remain on the verified 2.4.0 Contest Edition until the private pilot is approved.
+> **Release-candidate boundary:** this checkout is the local, unpublished 2.8.0 candidate. The Railway deployment, public Git tag and GitHub Release intentionally remain on the verified 2.4.0 Contest Edition until the full release gate and beginner pilot are approved.
 
 ### Source and live release truth
 
 | Surface | Verified state |
 |---|---|
-| Current private source checkout | `2.6.0` · local Learning Core branch · not deployed or published |
+| Current private source checkout | `2.8.0` · Warm Illustrated Learning Journey candidate · not deployed or published |
 | Current public deployed application | `2.4.0` |
 | Release implementation commit | `03bf84b9268ff8be528c0fab3c670f9652ee23b0` |
 | Production storage/readiness | PostgreSQL · ready · 48 reviewed dictionary entries |
 | Deployment verification | Successful on 2026-07-21 |
 | Release verification | 151 unique backend tests + 62 frontend tests = 213 passed; main CI and CodeQL passed |
-| Private-pilot verification | v2.6 verified locally: 180 unique backend + 97 frontend = 277 passing automated tests; PostgreSQL 17, audits, package, Docker image and private browser QA passed |
+| Candidate verification | 338 automated checks passed locally: 194 backend, 124 frontend and 20 Playwright/axe cases; Docker/PostgreSQL, two-account Google and mother-pilot gates remain unverified |
 | GitHub publication | [`v2.4.0`](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.4.0) is the published tag and GitHub Release |
 | Live account evidence | Identity-only Google sign-in, onboarding state and the authenticated session persisted across reload; logout returned to the English landing page and remained signed out after reload |
 | Live judge-path evidence | The English entry link and four-stop read-only guided tour passed production browser checks |
-| Remaining boundary | Re-login after logout, live GitHub authorization, live OpenAI/Workspace calls, two-real-user production isolation and backup restoration remain unclaimed |
-| Visual proof | Private v2.6 desktop English, 390 px mobile, Hebrew RTL and phase transitions passed browser QA; README screenshots remain clearly labelled 2.1.x public evidence |
+| Remaining v2.8 release gate | Two-real-account isolation/persistence, backup restoration, extracted-package verification and the beginner pilot remain required before publication |
+| Visual proof | The new region art exists in the private candidate; README screenshots remain clearly labelled 2.1.x public evidence until refreshed v2.8 captures pass the accessibility matrix |
 
 The same conservative fields are available for portfolio/profile tooling in [`portfolio/project.json`](portfolio/project.json).
 
@@ -75,7 +75,29 @@ Most language products make every learner follow the same path. Ivrit Sheli does
 
 The system tracks what you recognize, what you can produce, where you hesitate, which grammar errors repeat, which situations matter, and which learning mode works best. Recommendations are explainable: the app tells you *why* it selected a word, exercise, mission, or speaking drill.
 
-## What changes in the 2.6.0 Learning Core 🧠
+## What the private 2.8.0 candidate delivers 🌤️
+
+The first useful interaction happens before registration: a new learner sees and reads **three practical Hebrew words**, then can choose local use, the read-only demo or identity-only Google sign-in. **Guided/A0** is the safe default. Guided keeps the main journey to Today, Words and Help; Explorer exposes more choice; Experienced opens the complete workspace without changing the learner's language level.
+
+The deterministic `LocalLearningEngine` plans the same learning contract across Today, the curriculum path, daily practice, recommendations and progress. It uses reviewed linguistic content, SRS urgency, mistakes, confidence, response time and exposure history. It does not call an LLM, infer an accent score or turn XP into mastery. The structured path covers **A0, A1 and A2**; **B1/B2 Lab** is clearly experimental material, not a claim of a complete B2 course.
+
+Daily practice is resumable and persisted as:
+
+```text
+encounter → 3–5 retrievals by mode/content → listening → speaking/manual fallback → reflection → summary
+```
+
+Each step records `completed`, `failed` or `unsupported`, while a client idempotency key prevents duplicate evidence. The reviewed starter dictionary now contains **240 trilingual concepts**: the 144-concept A0/A1 foundation plus 96 reviewed A2 concepts. Stable `visual_id` values, trilingual alternative text and reviewed `reading_hints` support visual learning without removing niqqud mechanically.
+
+The interface follows an original six-stop Israel journey—Galilee, Haifa/Carmel, Tel Aviv/Jaffa, Jerusalem, the Dead Sea and the Negev—with warm local artwork, twelve category illustration grammars, progressive visual hints and reduced-motion fallbacks. Persistent masculine/feminine-style browser voice and slow/normal speed preferences support listening practice; local recording and manual fallback remain available without claiming phoneme or accent assessment.
+
+The PWA caches its shell, six region scenes and reviewed starter dictionary, but never caches private API responses. Offline reference browsing remains available after those assets have been cached; cloud writes stop honestly and ask the learner to reconnect. Local SQLite still works without an account. Cloud continuity uses isolated PostgreSQL learner snapshots, while Google sign-in requests only `openid profile`—never Gmail, Drive or Calendar.
+
+## Private 2.7.0 checkpoint — beginner-first continuity
+
+The unpublished v2.7 checkpoint established the three-words-before-account entry, Guided/A0 defaults, the simplified Guided navigation, permanent Help access, real network status and an accessible profile menu. It also introduced the deterministic daily planner, resumable practice tables, curriculum progress, idempotent step events, profile text scaling and focus status. These foundations are incorporated into the current v2.8 candidate; v2.7 was not deployed, tagged or published.
+
+## Historical 2.6.0 Learning Core 🧠
 
 Version 2.6 converts the private-pilot foundation into one explicit learning contract: **contextual encounter → unassisted retrieval → reference feedback/self-correction → corrected retry → delayed review → transfer → reflection**. Exposure, answer reveals, XP and AI output do not count as mastery. The server owns phase transitions and derives the practiced skill, while the interface explains why an activity appeared and when it returns. Correctness and confidence are explicitly learner-reported in this pilot; they are not presented as objective language scoring.
 
@@ -85,7 +107,7 @@ The Today journey and progress map expose honest loading, unavailable, degraded 
 
 Each writable activity also carries a server-owned state token and a bounded idempotency key. Exact retries return the original result without advancing twice; stale tabs or devices receive a conflict and reload the current activity. The private build must remain isolated from the live 2.4 learner-state writer until the backup and single-writer transition in [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) is approved.
 
-The research and content policy are documented in [`docs/LEARNING_SCIENCE.md`](docs/LEARNING_SCIENCE.md), [`docs/LEARNING_CORE_V2_6.md`](docs/LEARNING_CORE_V2_6.md) and [`docs/HEBREW_CONTENT_PROVENANCE.md`](docs/HEBREW_CONTENT_PROVENANCE.md). These documents grade evidence, record licensing boundaries and explicitly reject CEFR certification, opaque AI mastery, engagement-as-learning and unvalidated Hebrew phoneme or accent claims.
+The research and content policy are documented in [`docs/LEARNING_SCIENCE.md`](docs/LEARNING_SCIENCE.md), [`docs/LEARNING_CORE_V2_6.md`](docs/LEARNING_CORE_V2_6.md), [`docs/HEBREW_CONTENT_PROVENANCE.md`](docs/HEBREW_CONTENT_PROVENANCE.md) and the traced [`docs/COMPETITIVE_BENCHMARK_2026.md`](docs/COMPETITIVE_BENCHMARK_2026.md) decision ledger. These documents grade evidence, record licensing boundaries and explicitly reject CEFR certification, opaque AI mastery, engagement-as-learning and unvalidated Hebrew phoneme or accent claims.
 
 ## Foundation completed in the 2.5.0 Private Pilot 🗺️
 
@@ -154,17 +176,17 @@ The public-demo design does not contain Kevin's private learning history: it use
 
 | Area | Included implementation |
 |---|---|
-| Learning | Capture, adaptive reviews, speaking drills, sentence creation, missions, reflections |
-| Personalization | Mastery model, mistake taxonomy, context frequency, confidence, latency, modality preference |
-| AI | Offline deterministic coach plus OpenAI Responses adapter with structured outputs and fallback |
-| Dictionary | 96 reviewed visual A0/A1 concepts, clickable Hebrew everywhere, trilingual meanings/examples, grammar/forms/provenance, learned state and duplicate prevention |
+| Learning | Beginner-first entry, structured A0–A2 path, honest B1/B2 Lab, resumable six-format daily practice, reviews, missions and reflection |
+| Personalization | Shared deterministic `LocalLearningEngine`, SRS urgency, mistake taxonomy, confidence, latency, exposure and explainable selection |
+| AI | The public learning path requires no LLM; the existing OpenAI adapter remains disabled and experimental for a future consent/cost review |
+| Dictionary | 240 reviewed visual A0–A2 concepts, clickable Hebrew, trilingual meanings/examples, grammar/forms/provenance, `visual_id`, reviewed reading hints and learned state |
 | Word registry | Tenant-scoped search, status/due filters, sorting, review history, dates and four-skill mastery |
 | Full lexicon | One-command importer for the current Kaikki/Wiktionary Hebrew JSONL dataset |
-| Audio | Persistent synthetic voice styles, browser/OpenAI TTS, microphone one-word intelligence, consent-gated STT/AI, transparent scoring and ephemeral raw analysis audio |
-| Gamification | XP ledger, levels, streaks, achievements, badges, mission bonuses, anti-grind limits |
-| Integrations | Read-only Google Calendar, Gmail, and Drive adapters; ICS import; explicit consent gates |
+| Audio | Persistent masculine/feminine-style browser voice, slow/normal speed, local recording/playback and transcript comparison only when browser recognition exists |
+| Gamification | XP and mastery kept separate, meaningful daily actions, rest-aware streaks, optional accessible celebrations and achievements without leagues or energy |
+| Integrations | Identity-only Google sign-in (`openid profile`) for cloud continuity; local mode needs no account; Workspace connector adapters are outside the v2.8 public learning flow |
 | Languages | Trilingual interface and content layers: Hebrew, English, Spanish |
-| UI | Warm light-first beginner shell, guided onboarding, first lesson, responsive RTL/LTR layouts, code-native illustrations and reduced-motion support |
+| UI | Warm illustrated Israel journey, three learner experiences, first three words before account, responsive RTL/LTR, high contrast and reduced-motion support |
 | Reliability | FastAPI error handling, request IDs, liveness/readiness/version probes, real PostgreSQL integration tests, CI |
 | Privacy | Local SQLite mode, isolated PostgreSQL tenants, read-only public demo, no analytics, explicit cloud consent |
 
@@ -278,7 +300,7 @@ Local-first mode remains writable without an online account. Cloud mode requires
 
 ## Full Hebrew dictionary
 
-The package contains a reviewed 96-concept A0/A1 starter layer so useful visual Hebrew works immediately. To install the broader machine-readable Hebrew dictionary:
+The package contains a reviewed 144-concept A0/A1 starter layer so useful visual Hebrew works immediately. To install the broader machine-readable Hebrew dictionary:
 
 ```bash
 source .venv/bin/activate
@@ -444,6 +466,7 @@ IvritSheli/
 - [`docs/AUDIO.md`](docs/AUDIO.md) — recording, TTS, STT, scoring, and privacy.
 - [`docs/GAMIFICATION.md`](docs/GAMIFICATION.md) — XP economy, achievements, streaks, and anti-abuse rules.
 - [`docs/PERSONALIZATION.md`](docs/PERSONALIZATION.md) — learner model and explainable recommendations.
+- [`docs/COMPETITIVE_BENCHMARK_2026.md`](docs/COMPETITIVE_BENCHMARK_2026.md) — traced Adopt/Adapt/Avoid/Experiment decisions from competitor research and real beginner feedback.
 - [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md) — colors, icons, animation, RTL, and accessibility.
 - [`docs/CONNECTORS.md`](docs/CONNECTORS.md) — Google/ICS setup and consent rules.
 - [`docs/API.md`](docs/API.md) — endpoint catalog.

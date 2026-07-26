@@ -23,10 +23,11 @@ from ivrit_sheli import __version__
 from ivrit_sheli.normalization import normalize_hebrew
 from ivrit_sheli.starter_lexicon_v2 import EXPANDED_STARTER_ENTRIES
 from ivrit_sheli.starter_lexicon_v3 import LEARNING_EXPANSION_ENTRIES
+from ivrit_sheli.starter_lexicon_v4 import A2_EXPANSION_ENTRIES
 from ivrit_sheli.starter_lexicon_validation import validate_starter_vocabulary
 
 LOGGER = logging.getLogger(__name__)
-DICTIONARY_SCHEMA_VERSION = 2
+DICTIONARY_SCHEMA_VERSION = 3
 DEFAULT_DICTIONARY_URL = "https://kaikki.org/dictionary/Hebrew/kaikki.org-dictionary-Hebrew.jsonl"
 ALLOWED_DOWNLOAD_HOSTS = {"kaikki.org", "www.kaikki.org"}
 STARTER_SOURCE_NAME = "Ivrit Sheli reviewed starter vocabulary"
@@ -74,11 +75,13 @@ CREATE TABLE IF NOT EXISTS dictionary_senses (
     level TEXT,
     category TEXT,
     visual_key TEXT,
+    visual_id TEXT,
     visual_emoji TEXT,
     visual_alt_en TEXT,
     visual_alt_es TEXT,
     visual_alt_he TEXT,
     provenance TEXT,
+    reading_hints_json TEXT NOT NULL DEFAULT '[]',
     tags_json TEXT NOT NULL DEFAULT '[]',
     topics_json TEXT NOT NULL DEFAULT '[]'
 );
@@ -1138,6 +1141,7 @@ DEMO_ENTRIES: tuple[dict[str, Any], ...] = (
 # missing rows.
 DEMO_ENTRIES += EXPANDED_STARTER_ENTRIES
 DEMO_ENTRIES += LEARNING_EXPANSION_ENTRIES
+DEMO_ENTRIES += A2_EXPANSION_ENTRIES
 validate_starter_vocabulary(DEMO_ENTRIES)
 
 
@@ -1250,11 +1254,13 @@ class DictionaryStore:
                 "level TEXT",
                 "category TEXT",
                 "visual_key TEXT",
+                "visual_id TEXT",
                 "visual_emoji TEXT",
                 "visual_alt_en TEXT",
                 "visual_alt_es TEXT",
                 "visual_alt_he TEXT",
                 "provenance TEXT",
+                "reading_hints_json TEXT NOT NULL DEFAULT '[]'",
             ):
                 self._ensure_column(connection, "dictionary_senses", column_definition)
             self._ensure_column(connection, "dictionary_examples", "translation_es TEXT")
@@ -1281,17 +1287,19 @@ class DictionaryStore:
 
     @staticmethod
     def _ensure_column(connection: sqlite3.Connection, table: str, column_definition: str) -> None:
-        """Add one allow-listed schema-v2 column to an older dictionary database."""
+        """Add one allow-listed dictionary column to an older database."""
         allowed_definitions = {
             "dictionary_senses": {
                 "level TEXT",
                 "category TEXT",
                 "visual_key TEXT",
+                "visual_id TEXT",
                 "visual_emoji TEXT",
                 "visual_alt_en TEXT",
                 "visual_alt_es TEXT",
                 "visual_alt_he TEXT",
                 "provenance TEXT",
+                "reading_hints_json TEXT NOT NULL DEFAULT '[]'",
             },
             "dictionary_examples": {"translation_es TEXT"},
         }
@@ -1305,7 +1313,7 @@ class DictionaryStore:
             connection.execute(f"ALTER TABLE {table} ADD COLUMN {column_definition}")
 
     def seed_demo(self) -> int:
-        """Install the reviewed 96-concept visual starter vocabulary.
+        """Install the reviewed 240-concept visual starter vocabulary.
 
         Returns:
             Number of new entries inserted.
@@ -1383,9 +1391,9 @@ class DictionaryStore:
                     """
                     INSERT INTO dictionary_senses(
                         entry_id, sense_order, gloss_en, gloss_es, level, category,
-                        visual_key, visual_emoji, visual_alt_en, visual_alt_es,
-                        visual_alt_he, provenance, tags_json, topics_json
-                    ) VALUES(?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        visual_key, visual_id, visual_emoji, visual_alt_en, visual_alt_es,
+                        visual_alt_he, provenance, reading_hints_json, tags_json, topics_json
+                    ) VALUES(?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
                         entry_id,
@@ -1394,11 +1402,13 @@ class DictionaryStore:
                         entry.get("level"),
                         entry.get("category"),
                         entry.get("visual_key"),
+                        entry.get("visual_id", entry.get("visual_key")),
                         entry.get("visual_emoji"),
                         entry.get("visual_alt_en"),
                         entry.get("visual_alt_es"),
                         entry.get("visual_alt_he"),
                         entry.get("provenance"),
+                        json.dumps(entry.get("reading_hints", []), ensure_ascii=False),
                         json.dumps(["beginner", str(entry.get("level", "")).lower()]),
                         json.dumps([entry.get("category")]),
                     ),
@@ -1441,7 +1451,7 @@ class DictionaryStore:
                 ).fetchall()
             }
             if not non_starter_sources:
-                dataset_name = "starter_visual_vocabulary_v2"
+                dataset_name = "starter_visual_vocabulary_v4"
                 dataset_license = STARTER_LICENSE
                 connection.execute(
                     "INSERT INTO dictionary_meta(key, value) VALUES('source_url', ?) "
@@ -1449,12 +1459,12 @@ class DictionaryStore:
                     (STARTER_SOURCE_URL,),
                 )
             elif non_starter_sources == {"Kaikki / English Wiktionary"}:
-                dataset_name = "Kaikki/Wiktionary Hebrew + starter_visual_vocabulary_v2"
+                dataset_name = "Kaikki/Wiktionary Hebrew + starter_visual_vocabulary_v4"
                 dataset_license = (
                     "Mixed per-entry licenses: MIT starter data; CC BY-SA 4.0 / GFDL Kaikki"
                 )
             else:
-                dataset_name = "mixed_with_starter_visual_vocabulary_v2"
+                dataset_name = "mixed_with_starter_visual_vocabulary_v4"
                 dataset_license = "Mixed dataset; see each entry's license_name"
             connection.execute(
                 "INSERT INTO dictionary_meta(key, value) VALUES('dataset', ?) "
@@ -1733,7 +1743,9 @@ class DictionaryStore:
                 **dict(sense),
                 "tags": json.loads(sense["tags_json"]),
                 "topics": json.loads(sense["topics_json"]),
+                "reading_hints": json.loads(sense["reading_hints_json"]),
             }
+            sense_card.pop("reading_hints_json", None)
             visual_fields = (
                 sense["visual_key"],
                 sense["visual_emoji"],

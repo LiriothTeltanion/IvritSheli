@@ -104,4 +104,14 @@ describe('TodayDashboard product tour', () => {
 
     expect(screen.queryByRole('heading', { name: 'See the complete learning loop' })).not.toBeInTheDocument();
   });
+
+  it('keeps learning-engine details collapsed behind plain-language disclosure in Guided mode', () => {
+    renderDashboard(false, actionSpies());
+
+    const disclosure = screen.getByText('How it works').closest('details');
+    expect(disclosure).not.toBeNull();
+    expect(disclosure).not.toHaveAttribute('open');
+    expect(screen.getByRole('button', { name: /Continue my lesson/i })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Open AI coach/i })).not.toBeInTheDocument();
+  });
 });

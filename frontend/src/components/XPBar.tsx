@@ -17,7 +17,14 @@ export function XPBar({ xp, compact = false }: { xp: XPStatus; compact?: boolean
         <span className="xp-level"><Icon name="sparkles" size={16} /> {t('level')} {xp.level}</span>
         <span>{xp.xp_in_level} / {xp.next_threshold - xp.current_threshold} XP</span>
       </div>
-      <div className="xp-track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(percent)}>
+      <div
+        className="xp-track"
+        role="progressbar"
+        aria-label={`${t('level')} ${xp.level}: ${Math.round(percent)}%`}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={Math.round(percent)}
+      >
         <span className="xp-fill" style={{ width: `${percent}%` }} />
         <span className="xp-glow" style={{ left: `${Math.max(2, percent)}%` }} />
       </div>

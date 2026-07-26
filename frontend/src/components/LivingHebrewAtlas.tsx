@@ -1,7 +1,7 @@
 // Module: Living Hebrew Atlas
 // Purpose: Provide an accessible, Israel-wide illustrated journey surface for location-based Hebrew learning.
 
-import { useId, type CSSProperties } from 'react';
+import { useId } from 'react';
 import type { Locale } from '../types';
 import { IvritSheliBrandLockup } from './IvritSheliBrandLockup';
 import './living-hebrew-atlas.css';
@@ -24,6 +24,8 @@ export interface AtlasRegion {
   id: AtlasRegionId;
   name: LocalizedCopy;
   theme: LocalizedCopy;
+  image: string;
+  imageAlt: LocalizedCopy;
   x: number;
   y: number;
 }
@@ -43,16 +45,17 @@ interface LivingHebrewAtlasBackdropProps {
   className?: string;
 }
 
-type MarkerStyle = CSSProperties & {
-  '--atlas-x': string;
-  '--atlas-y': string;
-};
-
 export const atlasRegions: readonly AtlasRegion[] = [
   {
     id: 'galilee',
     name: { en: 'Galilee', es: 'Galilea', he: 'הגליל' },
     theme: { en: 'Nature and directions', es: 'Naturaleza y direcciones', he: 'טבע וכיוונים' },
+    image: '/illustrations/regions/galilee.webp',
+    imageAlt: {
+      en: 'An illustrated Galilee path overlooking green hills, olive trees, and the Sea of Galilee',
+      es: 'Un sendero ilustrado de Galilea entre colinas verdes, olivos y el mar de Galilea',
+      he: 'שביל מאויר בגליל מול גבעות ירוקות, עצי זית והכנרת',
+    },
     x: 67,
     y: 12,
   },
@@ -60,6 +63,12 @@ export const atlasRegions: readonly AtlasRegion[] = [
     id: 'haifa-carmel',
     name: { en: 'Haifa & Carmel', es: 'Haifa y el Carmelo', he: 'חיפה והכרמל' },
     theme: { en: 'City and coast', es: 'Ciudad y costa', he: 'עיר וחוף' },
+    image: '/illustrations/regions/haifa-carmel.webp',
+    imageAlt: {
+      en: 'An illustrated view from green Mount Carmel across Haifa and its Mediterranean bay',
+      es: 'Una vista ilustrada desde el verde monte Carmelo hacia Haifa y su bahía mediterránea',
+      he: 'מבט מאויר מהכרמל הירוק אל חיפה והמפרץ הים־תיכוני',
+    },
     x: 33,
     y: 26,
   },
@@ -67,6 +76,12 @@ export const atlasRegions: readonly AtlasRegion[] = [
     id: 'tel-aviv-jaffa',
     name: { en: 'Tel Aviv & Jaffa', es: 'Tel Aviv y Jaffa', he: 'תל אביב ויפו' },
     theme: { en: 'Work and social Hebrew', es: 'Trabajo y hebreo social', he: 'עבודה וחיי חברה' },
+    image: '/illustrations/regions/tel-aviv-jaffa.webp',
+    imageAlt: {
+      en: 'An illustrated Mediterranean promenade linking Old Jaffa with the Tel Aviv skyline',
+      es: 'Un paseo mediterráneo ilustrado que une la antigua Jaffa con el perfil de Tel Aviv',
+      he: 'טיילת ים־תיכונית מאוירת המחברת בין יפו העתיקה לקו הרקיע של תל אביב',
+    },
     x: 27,
     y: 45,
   },
@@ -74,6 +89,12 @@ export const atlasRegions: readonly AtlasRegion[] = [
     id: 'jerusalem',
     name: { en: 'Jerusalem', es: 'Jerusalén', he: 'ירושלים' },
     theme: { en: 'Culture and everyday errands', es: 'Cultura y vida cotidiana', he: 'תרבות וסידורים' },
+    image: '/illustrations/regions/jerusalem.webp',
+    imageAlt: {
+      en: 'An illustrated Jerusalem stone lane opening onto layered neighborhoods and olive trees',
+      es: 'Una calle ilustrada de piedra de Jerusalén que se abre a barrios y olivos',
+      he: 'סמטת אבן ירושלמית מאוירת הנפתחת אל שכונות מדורגות ועצי זית',
+    },
     x: 60,
     y: 49,
   },
@@ -81,6 +102,12 @@ export const atlasRegions: readonly AtlasRegion[] = [
     id: 'dead-sea',
     name: { en: 'Dead Sea', es: 'Mar Muerto', he: 'ים המלח' },
     theme: { en: 'Travel and wellbeing', es: 'Viajes y bienestar', he: 'טיולים ובריאות' },
+    image: '/illustrations/regions/dead-sea.webp',
+    imageAlt: {
+      en: 'An illustrated mineral-blue Dead Sea framed by salt formations and desert cliffs',
+      es: 'Un Mar Muerto ilustrado de azul mineral entre formaciones de sal y acantilados',
+      he: 'ים המלח מאויר בגוון כחול מינרלי בין גבישי מלח ומצוקי מדבר',
+    },
     x: 70,
     y: 65,
   },
@@ -88,10 +115,18 @@ export const atlasRegions: readonly AtlasRegion[] = [
     id: 'negev',
     name: { en: 'Negev', es: 'Néguev', he: 'הנגב' },
     theme: { en: 'Community and daily life', es: 'Comunidad y vida diaria', he: 'קהילה וחיי יום־יום' },
+    image: '/illustrations/regions/negev.webp',
+    imageAlt: {
+      en: 'An illustrated Negev sunrise over sandstone ridges, an acacia tree, and a small community',
+      es: 'Un amanecer ilustrado en el Néguev entre crestas de arenisca, una acacia y una comunidad',
+      he: 'זריחה מאוירת בנגב מעל רכסי אבן חול, עץ שיטה ויישוב קטן',
+    },
     x: 49,
     y: 86,
   },
 ] as const;
+
+const defaultAtlasRegion = atlasRegions[0]!;
 
 const atlasCopy: Record<Locale, {
   eyebrow: string;
@@ -232,9 +267,10 @@ export function LivingHebrewAtlasBackdrop({
   activeRegion = 'jerusalem',
   className = '',
 }: LivingHebrewAtlasBackdropProps): React.JSX.Element {
+  const region = atlasRegions.find((candidate) => candidate.id === activeRegion) ?? defaultAtlasRegion;
   return (
     <div className={`ivrit-atlas-backdrop ${className}`.trim()} aria-hidden="true">
-      <AtlasScene activeRegion={activeRegion} />
+      <img src={region.image} alt="" />
     </div>
   );
 }
@@ -255,7 +291,7 @@ export function LivingHebrewAtlas({
   const headingId = useId();
   const copy = atlasCopy[locale];
   const completed = new Set(completedRegions);
-  const activeRegionData = atlasRegions.find((region) => region.id === activeRegion) ?? atlasRegions[0];
+  const activeRegionData = atlasRegions.find((region) => region.id === activeRegion) ?? defaultAtlasRegion;
 
   return (
     <section
@@ -277,14 +313,36 @@ export function LivingHebrewAtlas({
             const status = isActive ? copy.active : isComplete ? copy.complete : copy.ready;
             return (
               <li key={region.id} data-state={isActive ? 'active' : isComplete ? 'complete' : 'ready'}>
-                <span className="ivrit-atlas__region-index" aria-hidden="true">
-                  {isComplete ? '✓' : index + 1}
-                </span>
-                <span className="ivrit-atlas__region-copy">
-                  <strong lang={locale}>{localized(region.name, locale)}</strong>
-                  <small lang={locale}>{localized(region.theme, locale)}</small>
-                </span>
-                <span className="ivrit-atlas__region-status" lang={locale}>{status}</span>
+                {onSelectRegion ? (
+                  <button
+                    type="button"
+                    aria-pressed={isActive}
+                    aria-label={`${copy.select}: ${localized(region.name, locale)} — ${localized(region.theme, locale)}`}
+                    onClick={() => onSelectRegion(region.id)}
+                  >
+                    <img src={region.image} alt="" loading="lazy" />
+                    <span className="ivrit-atlas__region-index" aria-hidden="true">
+                      {isComplete ? '✓' : index + 1}
+                    </span>
+                    <span className="ivrit-atlas__region-copy">
+                      <strong lang={locale}>{localized(region.name, locale)}</strong>
+                      <small lang={locale}>{localized(region.theme, locale)}</small>
+                    </span>
+                    <span className="ivrit-atlas__region-status" lang={locale}>{status}</span>
+                  </button>
+                ) : (
+                  <>
+                    <img src={region.image} alt="" loading="lazy" />
+                    <span className="ivrit-atlas__region-index" aria-hidden="true">
+                      {isComplete ? '✓' : index + 1}
+                    </span>
+                    <span className="ivrit-atlas__region-copy">
+                      <strong lang={locale}>{localized(region.name, locale)}</strong>
+                      <small lang={locale}>{localized(region.theme, locale)}</small>
+                    </span>
+                    <span className="ivrit-atlas__region-status" lang={locale}>{status}</span>
+                  </>
+                )}
               </li>
             );
           })}
@@ -292,38 +350,22 @@ export function LivingHebrewAtlas({
       </div>
 
       <div className="ivrit-atlas__visual" data-testid="living-hebrew-atlas-scene">
-        <AtlasScene activeRegion={activeRegion} />
-        <div className="ivrit-atlas__markers">
-          {atlasRegions.map((region) => {
-            const markerStyle: MarkerStyle = {
-              '--atlas-x': `${region.x}%`,
-              '--atlas-y': `${region.y}%`,
-            };
-            const isActive = region.id === activeRegion;
-            const isComplete = completed.has(region.id);
-            const markerClass = `ivrit-atlas__marker ${isActive ? 'is-active' : ''} ${isComplete ? 'is-complete' : ''}`.trim();
-            if (!onSelectRegion) {
-              return <span key={region.id} className={markerClass} style={markerStyle} aria-hidden="true"><i /></span>;
-            }
-            return (
-              <button
-                key={region.id}
-                type="button"
-                className={markerClass}
-                style={markerStyle}
-                aria-pressed={isActive}
-                aria-label={`${copy.select}: ${localized(region.name, locale)} — ${localized(region.theme, locale)}`}
-                onClick={() => onSelectRegion(region.id)}
-              >
-                <i aria-hidden="true" />
-                <span lang={locale}>{localized(region.name, locale)}</span>
-              </button>
-            );
-          })}
+        <img
+          className="ivrit-atlas__region-art"
+          src={activeRegionData.image}
+          alt={localized(activeRegionData.imageAlt, locale)}
+        />
+        <div className="ivrit-atlas__art-wash" aria-hidden="true" />
+        <div className="ivrit-atlas__mini-map" aria-hidden="true">
+          <AtlasScene activeRegion={activeRegion} />
         </div>
-        <p className="ivrit-atlas__visual-note" lang={locale}>
-          <span aria-hidden="true">✦</span> {activeRegionData ? localized(activeRegionData.theme, locale) : ''}
-        </p>
+        <div className="ivrit-atlas__visual-note">
+          <span aria-hidden="true">✦</span>
+          <p>
+            <strong lang={locale}>{localized(activeRegionData.name, locale)}</strong>
+            <small lang={locale}>{localized(activeRegionData.theme, locale)}</small>
+          </p>
+        </div>
       </div>
     </section>
   );

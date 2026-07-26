@@ -70,6 +70,9 @@ fi
 (
   cd frontend
   npm ci
+  if [[ "${INSTALL_DEV}" == true ]]; then
+    npx playwright install chromium
+  fi
 )
 
 PYTHONPATH=backend/src "${PYTHON_BIN}" -m ivrit_sheli --init --seed

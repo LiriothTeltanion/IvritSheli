@@ -9,8 +9,18 @@ import { api } from '../api';
 import { useI18n } from '../i18n';
 import { useSessionAccess } from '../session';
 import type { VoiceStyle } from '../types';
+import {
+  configureHebrewUtterance,
+  persistVoiceSpeed,
+  persistVoiceStyle,
+  readStoredVoiceSpeed,
+  readStoredVoiceStyle,
+  type VoiceSpeed,
+} from '../voicePreference';
 import { HebrewText } from './HebrewText';
 import { Icon } from './Icon';
+
+export { selectBrowserVoice } from '../voicePreference';
 
 interface RecognitionAlternativeLike { transcript: string; }
 interface RecognitionResultLike { 0: RecognitionAlternativeLike; isFinal: boolean; }
@@ -30,7 +40,6 @@ type SpeechWindow = Window & {
   SpeechRecognition?: RecognitionConstructor;
   webkitSpeechRecognition?: RecognitionConstructor;
 };
-const VOICE_STYLE_STORAGE_KEY = 'ivrit-sheli:voice-style';
 const PRONUNCIATION_CAPTURE_MAX_MS = 15_000;
 
 function stopTracks(stream: MediaStream | null): void {
@@ -44,27 +53,6 @@ function stopRecognition(recognition: RecognitionLike | null): void {
   } catch {
     // Recognition can already be stopped by the browser.
   }
-}
-
-function storedVoiceStyle(): VoiceStyle {
-  try {
-    return window.localStorage.getItem(VOICE_STYLE_STORAGE_KEY) === 'masculine'
-      ? 'masculine'
-      : 'feminine';
-  } catch {
-    return 'feminine';
-  }
-}
-
-export function selectBrowserVoice(
-  voices: SpeechSynthesisVoice[],
-  voiceStyle: VoiceStyle,
-): SpeechSynthesisVoice | undefined {
-  const hebrewVoices = voices
-    .filter((voice) => voice.lang.toLowerCase().startsWith('he'))
-    .sort((left, right) => `${left.lang}|${left.name}|${left.voiceURI}`.localeCompare(`${right.lang}|${right.name}|${right.voiceURI}`));
-  if (hebrewVoices.length === 0) return undefined;
-  return voiceStyle === 'masculine' ? hebrewVoices[hebrewVoices.length - 1] : hebrewVoices[0];
 }
 
 export function AudioPractice({
@@ -83,7 +71,8 @@ export function AudioPractice({
   const [target, setTarget] = useState(initialText);
   const [transcript, setTranscript] = useState('');
   const [cloud, setCloud] = useState(false);
-  const [voiceStyle, setVoiceStyle] = useState<VoiceStyle>(storedVoiceStyle);
+  const [voiceStyle, setVoiceStyle] = useState<VoiceStyle>(readStoredVoiceStyle);
+  const [voiceSpeed, setVoiceSpeed] = useState<VoiceSpeed>(readStoredVoiceSpeed);
   const [acquiring, setAcquiring] = useState(false);
   const [transcribing, setTranscribing] = useState(false);
   const [recording, setRecording] = useState(false);
@@ -180,12 +169,12 @@ export function AudioPractice({
   }, [cloudAvailable]);
 
   useEffect(() => {
-    try {
-      window.localStorage.setItem(VOICE_STYLE_STORAGE_KEY, voiceStyle);
-    } catch {
-      // Device storage can be unavailable in privacy-restricted browser contexts.
-    }
+    persistVoiceStyle(voiceStyle);
   }, [voiceStyle]);
+
+  useEffect(() => {
+    persistVoiceSpeed(voiceSpeed);
+  }, [voiceSpeed]);
 
   const speakBrowser = (text: string): void => {
     if (!('speechSynthesis' in window)) {
@@ -194,11 +183,12 @@ export function AudioPractice({
     }
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'he-IL';
-    utterance.rate = 0.78;
-    utterance.pitch = voiceStyle === 'masculine' ? 0.82 : 1.08;
-    const selectedVoice = selectBrowserVoice(window.speechSynthesis.getVoices(), voiceStyle);
-    if (selectedVoice) utterance.voice = selectedVoice;
+    configureHebrewUtterance(
+      utterance,
+      window.speechSynthesis.getVoices(),
+      voiceStyle,
+      voiceSpeed,
+    );
     window.speechSynthesis.speak(utterance);
   };
 
@@ -220,6 +210,7 @@ export function AudioPractice({
           previousAudio.pause();
         }
         const audio = new Audio(`data:${response.mime_type ?? 'audio/mpeg'};base64,${response.audio_base64}`);
+        audio.playbackRate = voiceSpeed === 'slow' ? 0.82 : 1;
         audioRef.current = audio;
         audio.onended = () => {
           if (
@@ -522,6 +513,23 @@ export function AudioPractice({
         ))}
       </fieldset>
       <p className="voice-style-note"><Icon name="shield" size={15} /> {t('voiceStyleDisclosure')}</p>
+
+      <fieldset className="voice-style-picker voice-speed-picker">
+        <legend>{t('voiceSpeed')}</legend>
+        {(['slow', 'normal'] as const).map((speed) => (
+          <label key={speed} className={`voice-style-option ${voiceSpeed === speed ? 'is-selected' : ''}`}>
+            <input
+              type="radio"
+              name="voice-speed"
+              value={speed}
+              checked={voiceSpeed === speed}
+              onChange={() => setVoiceSpeed(speed)}
+            />
+            <span aria-hidden="true">{speed === 'slow' ? '🐢' : '▶️'}</span>
+            <strong>{t(speed === 'slow' ? 'slowVoiceSpeed' : 'normalVoiceSpeed')}</strong>
+          </label>
+        ))}
+      </fieldset>
 
       <div className="audio-target">
         <label className="field">

@@ -14,10 +14,14 @@ describe('LivingHebrewAtlas', () => {
     expect(screen.getByText('Galilee')).toBeInTheDocument();
     expect(screen.getByText('Haifa & Carmel')).toBeInTheDocument();
     expect(screen.getByText('Tel Aviv & Jaffa')).toBeInTheDocument();
-    expect(screen.getByText('Jerusalem')).toBeInTheDocument();
+    expect(screen.getAllByText('Jerusalem')).toHaveLength(2);
     expect(screen.getByText('Dead Sea')).toBeInTheDocument();
     expect(screen.getByText('Negev')).toBeInTheDocument();
     expect(screen.getByTestId('living-hebrew-atlas-scene')).toHaveAttribute('data-testid', 'living-hebrew-atlas-scene');
+    expect(screen.getByRole('img', { name: /Jerusalem stone lane/i })).toHaveAttribute(
+      'src',
+      '/illustrations/regions/jerusalem.webp',
+    );
   });
 
   it('exposes an accessible region selection callback and active state', () => {
@@ -45,7 +49,7 @@ describe('LivingHebrewAtlas', () => {
 
     const atlas = screen.getByRole('region', { name: 'לומדים עברית דרך מקומות ורגעים מהחיים.' });
     expect(atlas).toHaveAttribute('dir', 'rtl');
-    expect(screen.getAllByText('הגליל')).toHaveLength(2);
+    expect(screen.getByText('הגליל')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /לגלות: ירושלים/ })).toBeInTheDocument();
   });
 

@@ -25,6 +25,13 @@ function safeExternalUrl(value: string | null): string | null {
   }
 }
 
+// The twelve reviewed starter categories, matching
+// EXPECTED_STARTER_CATEGORY_COUNTS in backend starter_lexicon_validation.py.
+const STARTER_CATEGORIES = [
+  'greetings', 'family', 'home', 'food', 'transport', 'shopping',
+  'health', 'places', 'numbers', 'time', 'weather', 'nature',
+] as const;
+
 interface DictionaryDrawerProps {
   word: string | null;
   initialEntryId?: number | undefined;
@@ -43,6 +50,7 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [learnedEntryIds, setLearnedEntryIds] = useState<Set<number>>(() => new Set());
+  const [activeCategory, setActiveCategory] = useState('');
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const mountedRef = useRef(true);
   const requestGenerationRef = useRef(0);
@@ -81,6 +89,7 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
     setEntries([]);
     setSelectedIndex(0);
     setSearch(word);
+    setActiveCategory('');
     api.dictionaryLookup(word)
       .then((result) => {
         if (mountedRef.current && generation === requestGenerationRef.current) {
@@ -110,6 +119,15 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
     : learningStatus === 'needs_review'
       ? t('statusNeedsReview')
       : t('statusActive');
+  const readingHints = entry
+    ? Array.from(
+      new Map(
+        entry.senses
+          .flatMap((sense) => sense.reading_hints ?? [])
+          .map((hint) => [hint.display, hint]),
+      ).values(),
+    )
+    : [];
 
   if (!word) return null;
 
@@ -117,12 +135,34 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
     event.preventDefault();
     if (!search.trim()) return;
     const generation = ++requestGenerationRef.current;
+    setActiveCategory('');
     setLoading(true);
     setError('');
     setEntries([]);
     setSelectedIndex(0);
     try {
       const result = await api.dictionarySearch(search.trim());
+      if (!mountedRef.current || generation !== requestGenerationRef.current) return;
+      setEntries(result);
+      setSelectedIndex(0);
+    } catch (reason) {
+      if (!mountedRef.current || generation !== requestGenerationRef.current) return;
+      setError(reason instanceof Error ? reason.message : String(reason));
+    } finally {
+      if (mountedRef.current && generation === requestGenerationRef.current) setLoading(false);
+    }
+  };
+
+  const browseCategory = async (category: string): Promise<void> => {
+    const generation = ++requestGenerationRef.current;
+    setActiveCategory((current) => (current === category ? '' : category));
+    if (activeCategory === category) return;
+    setLoading(true);
+    setError('');
+    setEntries([]);
+    setSelectedIndex(0);
+    try {
+      const result = await api.dictionaryBrowse(category);
       if (!mountedRef.current || generation !== requestGenerationRef.current) return;
       setEntries(result);
       setSelectedIndex(0);
@@ -235,6 +275,20 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
           <input value={search} onChange={(event) => setSearch(event.target.value)} aria-label={t('searchDictionary')} />
         </form>
 
+        <div className="dictionary-categories" role="group" aria-label={t('browseByCategory')}>
+          {STARTER_CATEGORIES.map((category) => (
+            <button
+              type="button"
+              key={category}
+              className={activeCategory === category ? 'active' : ''}
+              aria-pressed={activeCategory === category}
+              onClick={() => { void browseCategory(category); }}
+            >
+              {label(category)}
+            </button>
+          ))}
+        </div>
+
         {loading && <div className="drawer-state"><span className="spinner" /> {t('loading')}</div>}
         {error && <div className="inline-error">{error}</div>}
         {!loading && !error && entries.length === 0 && <div className="drawer-state">{t('noDefinition')}</div>}
@@ -322,6 +376,23 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
                 </article>
               ))}
             </section>
+
+            {readingHints.length > 0 && (
+              <section className="drawer-section dictionary-reading-hints">
+                <h3>{t('readingSupport')}</h3>
+                <p className="muted-copy">{t('readingSupportDetail')}</p>
+                <ul>
+                  {readingHints.map((hint) => (
+                    <li key={hint.display}>
+                      <strong lang="he" dir="rtl">{hint.display}</strong>
+                      <span lang={locale}>
+                        {locale === 'he' ? hint.note_he : locale === 'es' ? hint.note_es : hint.note_en}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
 
             {entry.examples.length > 0 && (
               <section className="drawer-section dictionary-examples-primary">

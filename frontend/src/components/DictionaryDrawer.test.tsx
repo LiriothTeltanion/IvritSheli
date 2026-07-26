@@ -47,7 +47,20 @@ const ENTRY: DictionaryEntry = {
   source_url: 'https://example.test/hebrew/shalom',
   license_name: 'CC BY-SA',
   senses: [
-    { ...EMPTY_SENSE_METADATA, id: 1, gloss_en: 'peace; hello', gloss_es: 'paz; hola', tags: ['common'], topics: [] },
+    {
+      ...EMPTY_SENSE_METADATA,
+      id: 1,
+      gloss_en: 'peace; hello',
+      gloss_es: 'paz; hola',
+      tags: ['common'],
+      topics: [],
+      reading_hints: [{
+        display: 'שָׁ',
+        note_en: 'The dot above the right side gives a sh sound.',
+        note_es: 'El punto arriba a la derecha produce el sonido sh.',
+        note_he: 'הנקודה למעלה מימין מסמנת את הצליל שׁ.',
+      }],
+    },
     { ...EMPTY_SENSE_METADATA, id: 4, gloss_en: 'goodbye', gloss_es: 'adiós', tags: [], topics: ['greetings'] },
   ],
   forms: [{ id: 2, form: 'שלומות', romanization: 'shalomot', tags: ['plural'] }],
@@ -115,6 +128,8 @@ describe('DictionaryDrawer', () => {
     expect(screen.getByText('paz; hola')).toBeInTheDocument();
     expect(screen.getByText('goodbye')).toBeInTheDocument();
     expect(screen.getByText('adiós')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Reading support' })).toBeInTheDocument();
+    expect(screen.getByText('The dot above the right side gives a sh sound.')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Grammar details' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Pronunciation sources' })).toBeInTheDocument();
     expect(screen.getByText('ʃaˈlom')).toBeInTheDocument();
@@ -150,6 +165,31 @@ describe('DictionaryDrawer', () => {
     expect(await screen.findByText('Learning status: Mastered')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Already in learning/i })).toBeDisabled();
     expect(learn).not.toHaveBeenCalled();
+  });
+
+  it('browses a whole topic and toggles the same chip back off', async () => {
+    vi.spyOn(api, 'dictionaryLookup').mockResolvedValue([ENTRY]);
+    const browse = vi.spyOn(api, 'dictionaryBrowse').mockResolvedValue([
+      { ...ENTRY, id: 180, word: 'גשם', display_niqqud: 'גֶּשֶׁם' },
+    ]);
+    const user = userEvent.setup();
+
+    render(
+      <I18nProvider>
+        <DictionaryDrawer word="שלום" onClose={vi.fn()} onOpenWord={vi.fn()} />
+      </I18nProvider>,
+    );
+
+    const weather = await screen.findByRole('button', { name: 'Weather' });
+    await user.click(weather);
+
+    await waitFor(() => expect(browse).toHaveBeenCalledWith('weather'));
+    expect(weather).toHaveAttribute('aria-pressed', 'true');
+
+    // A second click clears the topic instead of re-requesting it.
+    await user.click(weather);
+    expect(weather).toHaveAttribute('aria-pressed', 'false');
+    expect(browse).toHaveBeenCalledTimes(1);
   });
 
   it('uses the device-wide synthetic voice preference for dictionary playback', async () => {

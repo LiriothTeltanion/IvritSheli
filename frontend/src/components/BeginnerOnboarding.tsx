@@ -45,7 +45,9 @@ const languageOptions: ReadonlyArray<{ code: Locale; name: string; greeting: str
 function defaultDraft(profile: Profile): OnboardingDraft {
   const level: BeginnerLevel = profile.hebrew_level === 'A0' || profile.hebrew_level === 'A1'
     ? profile.hebrew_level
-    : 'A2';
+    : profile.hebrew_level
+      ? 'A2'
+      : 'A0';
   const minutes = profile.daily_minutes <= 5 ? 5 : profile.daily_minutes <= 10 ? 10 : 15;
   const activeGoal = profile.goals?.find((goal) => goal.is_active)?.goal_type;
   const goal: BeginnerGoal = activeGoal === 'speaking' || activeGoal === 'travel' || activeGoal === 'medical'

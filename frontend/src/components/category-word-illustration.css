@@ -1,0 +1,169 @@
+/* Category word illustrations: twelve reusable visual grammars with stable per-word variation. */
+
+.category-art {
+  --category-paper: #fffaf0;
+  --category-surface: #fffdf8;
+  --category-primary: #0f766e;
+  --category-secondary: #d99b2b;
+  --category-ink: #26384a;
+  --category-line: #fffdf8;
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+  filter: drop-shadow(0 0.8rem 1.35rem rgba(23, 32, 51, 0.12));
+}
+
+.category-art--family { --category-primary: #ce6d62; --category-secondary: #397f83; --category-paper: #fff3e6; }
+.category-art--home { --category-primary: #e7b75f; --category-secondary: #4f8b74; --category-paper: #fff7e5; }
+.category-art--food { --category-primary: #ef9b55; --category-secondary: #6f985f; --category-paper: #fff2df; }
+.category-art--transport { --category-primary: #4a88a4; --category-secondary: #f0b04d; --category-paper: #eaf6f5; }
+.category-art--shopping { --category-primary: #c96d75; --category-secondary: #e7aa4e; --category-paper: #fff0ed; }
+.category-art--health { --category-primary: #cf5d65; --category-secondary: #4c9491; --category-paper: #fff1ee; }
+.category-art--places { --category-primary: #b88954; --category-secondary: #3d8585; --category-paper: #f8f0df; }
+.category-art--numbers { --category-primary: #6d75b8; --category-secondary: #d9a33c; --category-paper: #f4f0ff; }
+.category-art--time { --category-primary: #e9b94d; --category-secondary: #3c7e86; --category-paper: #fff7df; }
+.category-art--weather { --category-primary: #6f9fb7; --category-secondary: #eab95b; --category-paper: #eef7fa; }
+.category-art--nature { --category-primary: #6a9765; --category-secondary: #d79a4f; --category-paper: #f0f7e8; }
+
+.category-art__paper {
+  fill: var(--category-paper);
+  stroke: color-mix(in srgb, var(--category-ink) 18%, transparent);
+  stroke-width: 2;
+}
+
+.category-art__glow {
+  fill: color-mix(in srgb, var(--category-secondary) 20%, transparent);
+}
+
+.category-art__primary {
+  fill: var(--category-primary);
+  stroke: color-mix(in srgb, var(--category-ink) 50%, transparent);
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+
+.category-art__secondary {
+  fill: var(--category-secondary);
+  stroke: color-mix(in srgb, var(--category-ink) 38%, transparent);
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+
+.category-art__surface {
+  fill: var(--category-surface);
+  stroke: color-mix(in srgb, var(--category-ink) 28%, transparent);
+  stroke-width: 3;
+}
+
+.category-art__ink {
+  fill: var(--category-ink);
+}
+
+.category-art__line {
+  fill: none;
+  stroke: var(--category-line);
+  stroke-width: 7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.category-art__road {
+  fill: color-mix(in srgb, var(--category-ink) 82%, white);
+}
+
+.category-art__line--road {
+  stroke-width: 5;
+  stroke-dasharray: 10 8;
+}
+
+.category-art__hill {
+  fill: var(--category-primary);
+  stroke: color-mix(in srgb, var(--category-ink) 28%, transparent);
+  stroke-width: 3;
+}
+
+.category-art__hill--back {
+  fill: color-mix(in srgb, var(--category-primary) 58%, white);
+}
+
+.category-art__word-cue circle {
+  fill: rgba(255, 253, 248, 0.94);
+  stroke: color-mix(in srgb, var(--category-ink) 26%, transparent);
+  stroke-width: 2;
+}
+
+.category-art__word-cue text {
+  font-family: "Segoe UI Emoji", "Apple Color Emoji", sans-serif;
+  font-size: 31px;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+.category-art--variant-1 .category-art__word-cue {
+  transform: translate(-111px, 0);
+}
+
+.category-art--variant-2 .category-art__word-cue {
+  transform: translate(-7px, -83px) scale(0.86);
+  transform-origin: 159px 126px;
+}
+
+.category-art--variant-3 .category-art__word-cue {
+  transform: translate(-101px, -82px) scale(0.86);
+  transform-origin: 159px 126px;
+}
+
+:root[data-theme="dark"] .category-art {
+  --category-paper: #15283a;
+  --category-surface: #eef5f7;
+  --category-ink: #dce8f5;
+  --category-line: #f8fbff;
+  filter: drop-shadow(0 0.9rem 1.5rem rgba(0, 0, 0, 0.28));
+}
+
+:root[data-theme="dark"] .category-art__paper {
+  stroke: rgba(202, 221, 240, 0.24);
+}
+
+:root[data-theme="dark"] .category-art__word-cue circle {
+  fill: rgba(9, 21, 34, 0.9);
+  stroke: rgba(220, 232, 245, 0.28);
+}
+
+@media (prefers-contrast: more) {
+  .category-art__paper,
+  .category-art__primary,
+  .category-art__secondary,
+  .category-art__surface,
+  .category-art__word-cue circle {
+    stroke: currentColor;
+    stroke-width: 4;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .category-art__word-cue {
+    transition: transform 180ms ease;
+  }
+
+  button:hover .category-art__word-cue,
+  button:focus-visible .category-art__word-cue {
+    transform: translateY(-3px);
+  }
+
+  button:hover .category-art--variant-1 .category-art__word-cue,
+  button:focus-visible .category-art--variant-1 .category-art__word-cue {
+    transform: translate(-111px, -3px);
+  }
+
+  button:hover .category-art--variant-2 .category-art__word-cue,
+  button:focus-visible .category-art--variant-2 .category-art__word-cue {
+    transform: translate(-7px, -86px) scale(0.86);
+  }
+
+  button:hover .category-art--variant-3 .category-art__word-cue,
+  button:focus-visible .category-art--variant-3 .category-art__word-cue {
+    transform: translate(-101px, -85px) scale(0.86);
+  }
+}

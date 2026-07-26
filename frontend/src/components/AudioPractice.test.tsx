@@ -43,7 +43,7 @@ describe('AudioPractice', () => {
     expect(await screen.findByText('Live speech recognition is unavailable in this browser. Type the transcript instead.')).toBeInTheDocument();
   });
 
-  it('persists the learner-selected synthetic voice style on this device', async () => {
+  it('persists the learner-selected synthetic voice style and speed on this device', async () => {
     const user = userEvent.setup();
     const first = render(
       <I18nProvider>
@@ -52,7 +52,9 @@ describe('AudioPractice', () => {
     );
 
     await user.click(screen.getByRole('radio', { name: /Masculine style/i }));
+    await user.click(screen.getByRole('radio', { name: /^Slow$/i }));
     expect(window.localStorage.getItem('ivrit-sheli:voice-style')).toBe('masculine');
+    expect(window.localStorage.getItem('ivrit-sheli:voice-speed')).toBe('slow');
     first.unmount();
     cleanup();
 
@@ -62,6 +64,7 @@ describe('AudioPractice', () => {
       </I18nProvider>,
     );
     expect(screen.getByRole('radio', { name: /Masculine style/i })).toBeChecked();
+    expect(screen.getByRole('radio', { name: /^Slow$/i })).toBeChecked();
   });
 
   it('selects deterministic Hebrew browser fallbacks for both style profiles', () => {
@@ -152,7 +155,7 @@ describe('AudioPractice', () => {
     expect(toggle).toBeDisabled();
     expect(toggle.closest('label')).toHaveAttribute(
       'title',
-      'Cloud features are unavailable in this deployment.',
+      'Experimental cloud AI and audio are disabled in v2.8.',
     );
   });
 });

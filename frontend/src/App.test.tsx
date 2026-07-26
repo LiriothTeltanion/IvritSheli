@@ -248,10 +248,21 @@ describe('App cloud session flow', () => {
     renderApp();
 
     const navigation = await screen.findByRole('navigation', { name: 'Primary navigation' });
-    const labels = Array.from(navigation.querySelectorAll('button')).map((button) => button.textContent);
+    const labels = Array.from(navigation.querySelectorAll('button')).map((button) => button.querySelector('span')?.textContent);
     expect(labels.some((label) => label?.includes('AI Coach'))).toBe(hasCoach);
     expect(labels.some((label) => label?.includes('Connections'))).toBe(hasConnections);
-    expect(screen.getByText(`${mode === 'guided' ? 'Guided' : mode === 'explorer' ? 'Explorer' : 'Experienced'} mode`)).toBeInTheDocument();
+    if (mode === 'guided') {
+      expect(labels).toEqual(expect.arrayContaining(['Today', 'Words', 'Help']));
+      expect(labels).toHaveLength(3);
+    }
+    // The Learning Core identity block also renders the mode name once it finishes
+    // loading, so this must target the persistent topbar chip rather than the whole
+    // document; a global text query passes or fails depending on load timing.
+    const modeChip = document.querySelector('.learner-mode-chip');
+    expect(modeChip).not.toBeNull();
+    expect(modeChip).toHaveTextContent(
+      `${mode === 'guided' ? 'Guided' : mode === 'explorer' ? 'Explorer' : 'Experienced'} mode`,
+    );
   });
 
   it('localizes the dashboard hero, metrics, actions, and navigation in Hebrew RTL', async () => {
@@ -274,11 +285,12 @@ describe('App cloud session flow', () => {
     const user = userEvent.setup();
     renderApp();
 
-    expect(await screen.findByText('Personal workspace')).toBeInTheDocument();
-    expect(screen.getByText('Your progress is saved')).toBeInTheDocument();
-    expect(screen.getByLabelText('Signed in as Kevin')).toBeInTheDocument();
+    expect(await screen.findByText('Your progress is saved')).toBeInTheDocument();
+    const profileTrigger = screen.getByRole('button', { name: /Open profile menu: Kevin/i });
     expect(screen.getAllByRole('button', { name: 'Capture phrase' })[0]).toBeEnabled();
 
+    await user.click(profileTrigger);
+    expect(screen.getByText('Personal workspace')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Sign out' }));
     expect(await screen.findByRole('heading', { name: 'Your Hebrew. Your progress. Your space.' })).toBeInTheDocument();
   });
@@ -307,7 +319,7 @@ describe('App cloud session flow', () => {
 
     expect((await screen.findAllByText('Local device')).length).toBeGreaterThan(0);
     expect(screen.getByText('Your progress is saved')).toBeInTheDocument();
-    expect(screen.getByLabelText('Signed in as Demo Learner')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Open profile menu: Demo Learner/i })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Sign out' })).not.toBeInTheDocument();
     expect(screen.getAllByRole('button', { name: 'Capture phrase' })[0]).toBeEnabled();
   });

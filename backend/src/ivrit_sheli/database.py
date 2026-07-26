@@ -359,6 +359,64 @@ MIGRATIONS = (
         ON learning_core_idempotency(created_at DESC);
         """,
     ),
+    Migration(
+        version=6,
+        name="persistent_daily_practice",
+        sql="""
+        ALTER TABLE profiles ADD COLUMN text_scale REAL NOT NULL DEFAULT 1.0
+            CHECK (text_scale BETWEEN 0.8 AND 2.0);
+        ALTER TABLE profiles ADD COLUMN focus_status TEXT NOT NULL DEFAULT 'available'
+            CHECK (focus_status IN ('available', 'busy'));
+
+        CREATE TABLE practice_sessions (
+            id TEXT PRIMARY KEY,
+            profile_id INTEGER NOT NULL DEFAULT 1 CHECK (profile_id = 1)
+                REFERENCES profiles(id) ON DELETE CASCADE,
+            local_date TEXT NOT NULL,
+            plan_json TEXT NOT NULL,
+            current_step INTEGER NOT NULL DEFAULT 0 CHECK (current_step >= 0),
+            status TEXT NOT NULL DEFAULT 'active'
+                CHECK (status IN ('active', 'completed', 'abandoned')),
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL,
+            completed_at TEXT,
+            UNIQUE(profile_id, local_date)
+        );
+
+        CREATE INDEX idx_practice_sessions_status_date
+        ON practice_sessions(status, local_date DESC);
+
+        CREATE TABLE practice_step_events (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id TEXT NOT NULL REFERENCES practice_sessions(id) ON DELETE CASCADE,
+            step_key TEXT NOT NULL,
+            idempotency_key TEXT NOT NULL,
+            request_hash TEXT NOT NULL,
+            outcome TEXT NOT NULL CHECK (outcome IN ('completed', 'failed', 'unsupported')),
+            meaningful INTEGER NOT NULL DEFAULT 0 CHECK (meaningful IN (0, 1)),
+            outcome_json TEXT NOT NULL DEFAULT '{}',
+            response_json TEXT NOT NULL DEFAULT '{}',
+            created_at TEXT NOT NULL,
+            UNIQUE(session_id, idempotency_key)
+        );
+
+        CREATE INDEX idx_practice_step_events_session_created
+        ON practice_step_events(session_id, created_at ASC);
+
+        CREATE TABLE curriculum_progress (
+            lesson_key TEXT PRIMARY KEY,
+            status TEXT NOT NULL DEFAULT 'not_started'
+                CHECK (status IN ('not_started', 'in_progress', 'completed')),
+            meaningful_attempts INTEGER NOT NULL DEFAULT 0
+                CHECK (meaningful_attempts >= 0),
+            successful_attempts INTEGER NOT NULL DEFAULT 0
+                CHECK (successful_attempts >= 0),
+            last_practiced_at TEXT,
+            completed_at TEXT,
+            updated_at TEXT NOT NULL
+        );
+        """,
+    ),
 )
 SCHEMA_VERSION = MIGRATIONS[-1].version
 

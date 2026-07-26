@@ -1,6 +1,6 @@
-# Deployment — Ivrit Sheli 2.6 private candidate / 2.4 production
+# Deployment — Ivrit Sheli 2.8 private candidate / 2.4 production
 
-This guide covers the private SQLite installation, the reproducible PostgreSQL Docker stack and the public Railway deployment. Production values belong in a secrets manager or hosting dashboard, never in Git.
+This guide covers the private SQLite installation, the reproducible PostgreSQL Docker stack and the public Railway deployment. Production values belong in a secrets manager or hosting dashboard, never in Git. Version 2.8 is not published: the verified live service, tag and GitHub Release remain at 2.4.0 until every v2.8 release gate is approved.
 
 ## 1. Choose the runtime
 
@@ -226,37 +226,45 @@ Rules:
 - Prefer forward-compatible migrations. Document any irreversible operation.
 - Do not report readiness until PostgreSQL is reachable, the exact packaged revision is active and the direct runtime identity passes every privilege check.
 
-### 2.6 learner-snapshot compatibility boundary
+### 2.8 learner-snapshot compatibility boundary
 
-Version 2.6 adds Learning Core tables and profile columns inside each tenant's serialized cloud snapshot. The current snapshot format identifier remains compatible with the 2.4 reader, but a 2.4 or 2.5 writer serializes only the tables and columns it knows. If an older process writes after 2.6 has stored Learning Core state, it can silently remove the newer Learning Core fields while preserving the older account data.
+Version 2.8 adds Learning Core and daily-practice tables plus profile columns inside each tenant's serialized cloud snapshot: `practice_sessions`, `practice_step_events`, `curriculum_progress`, `text_scale` and `focus_status`. The current snapshot format identifier remains readable through the compatibility layer, but a 2.4 writer serializes only the tables and columns it knows. If an older process writes after 2.8 has stored practice state, it can silently remove the newer fields while preserving older account data.
 
-Therefore the private 2.6 build must not point at the production learner-state database while 2.4 remains live. A future public rollout requires all of the following:
+Therefore the private 2.8 build must not point at the production learner-state database while 2.4 remains live. A future public rollout requires all of the following:
 
-1. Create and verify a database backup before the first 2.6 learner write.
-2. Deploy 2.6 as one controlled writer transition; do not run mixed 2.4/2.5 and 2.6 application replicas against the same learner-state rows.
-3. Verify a disposable account through sign-in, one Learning Core attempt, refresh, logout/re-login and export before broad access.
-4. After any 2.6 write, do not roll the application back to a 2.4/2.5 writer unless the pre-upgrade database backup is restored or a forward-preserving compatibility patch is deployed first.
-5. Keep the private pilot on isolated/local state until that operational procedure is explicitly approved.
+1. Create a PostgreSQL backup and prove it can restore before the first 2.8 learner write.
+2. Deploy 2.8 as one controlled writer transition; do not run mixed 2.4 and 2.8 application replicas against the same learner-state rows.
+3. Verify two real Google accounts through sign-in, one complete daily session, refresh, device change, logout/re-login and export; prove that neither account can access the other's state.
+4. Verify a disposable account's deletion without deleting the owner's account.
+5. After any 2.8 write, do not roll the application back to the 2.4 writer unless the pre-upgrade database backup is restored or a forward-preserving compatibility patch is deployed first.
+6. Keep the private candidate on isolated/local state until that operational procedure and the beginner pilot are explicitly approved.
 
 ## 6. Release verification
 
 Run locally before tagging:
 
 ```bash
-ruff check backend/src backend/tests scripts/verify_package.py
+ruff check backend/src backend/tests scripts/
 mypy --config-file backend/pyproject.toml backend/src
 pytest backend/tests -q
-cd frontend && npm run typecheck && npm run test:run && npm run build && cd ..
+cd frontend && npm run typecheck && npm run test:run && npm run test:e2e && npm run build && cd ..
+python -m pip_audit -r backend/requirements.txt
+cd frontend && npm audit --omit=dev && cd ..
+python -m ivrit_sheli --doctor
+python scripts/generate_checksums.py   # regenerate SHA256SUMS.txt after the final content change
+python scripts/verify_package.py       # fails on any checksum, version or required-file drift
 docker compose config --quiet
 docker compose build
 docker compose up --wait
 ```
 
+Before deploying, create the PostgreSQL backup described below and complete a restore drill against a separate database. Package the candidate only from the final committed tree, verify the extracted archive, and publish its SHA-256 outside the ZIP. Merge, push, tag `v2.8.0`, create the GitHub Release and deploy Railway only after Kevin gives final approval.
+
 Verify against the public URL:
 
 1. `/health/live` is `200` without database details.
 2. `/health/ready` is `200` and confirms the expected mode.
-3. `/version` shows `2.4.0` and the deployed commit.
+3. `/version` shows the exact release being deployed and the deployed commit.
 4. Demo login works and is read-only.
 5. Google login works when configured; GitHub remains a working secondary path when configured; logout revokes each session.
 6. Two distinct users cannot read or modify each other's data.
@@ -264,10 +272,12 @@ Verify against the public URL:
 8. Responses include `X-Request-ID`.
 9. Application logs are JSON and contain no cookie, token, OAuth code or request body.
 10. A Google-sign-in user and a non-allowlisted GitHub user cannot invoke paid cloud AI, cloud audio or Google Workspace previews.
-11. A new learner can finish onboarding, complete the five-word lesson, save a word, refresh, sign out/in and recover the same state.
+11. A new learner can learn the pre-account three words, enter Guided/A0, complete one daily session, save a word, refresh, sign out/in and recover the same state.
 12. Export downloads the authenticated learner state; account deletion remains verified with a disposable identity or the real PostgreSQL boundary test, not by deleting the owner's account.
 13. Desktop, 390 px mobile, Hebrew RTL, reduced-motion, keyboard-only and 200% zoom modes remain usable.
-14. For a 2.6 rollout, prove the learner-snapshot writer transition and rollback/restore boundary above; a green 2.4 readiness check is not sufficient evidence.
+14. Prove cached shell/dictionary/region browsing offline while confirming that cloud writes pause and request reconnection; private API responses must not appear in the service-worker cache.
+15. For a 2.8 rollout, prove the learner-snapshot writer transition and rollback/restore boundary above; a green 2.4 readiness check is not sufficient evidence.
+16. Run the beginner pilot from a WhatsApp link: find the primary action within 30 seconds, learn three words and finish a session without assistance. Record comprehension problems before approval.
 
 ### Current production verification record — 2.4.0 — 2026-07-21
 
@@ -331,6 +341,6 @@ Application rollback and database rollback are separate decisions:
 5. If data restoration is required, preserve the failed database first, then restore into a separate database and validate it before switching URLs.
 6. Record the request IDs, deployed commit, migration revision and timeline.
 
-For 2.6 specifically, an unmodified 2.4/2.5 writer is not a safe rollback target after 2.6 Learning Core state has been written. Restore the verified pre-upgrade backup or first ship a compatibility writer that preserves unknown snapshot tables and columns.
+For 2.8 specifically, an unmodified 2.4 writer is not a safe rollback target after 2.8 Learning Core or daily-practice state has been written. Restore the verified pre-upgrade backup or first ship a compatibility writer that preserves unknown snapshot tables and columns.
 
 The stable local-first mode is the user-facing continuity path if a cloud host is unavailable.

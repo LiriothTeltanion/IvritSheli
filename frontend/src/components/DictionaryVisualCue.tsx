@@ -3,6 +3,7 @@
 
 import type { DictionaryVisual, Locale } from '../types';
 import type { WordIllustrationKind } from '../starterWords';
+import { CategoryWordIllustration } from './CategoryWordIllustration';
 import { WordIllustration } from './WordIllustration';
 
 interface DictionaryVisualCueProps {
@@ -26,9 +27,5 @@ export function DictionaryVisualCue({ visual, locale, className = '' }: Dictiona
   if (illustration) {
     return <WordIllustration kind={illustration} title={title} className={className} />;
   }
-  return (
-    <span className={`dictionary-emoji-visual ${className}`.trim()} role="img" aria-label={title}>
-      <span aria-hidden="true">{visual.emoji}</span>
-    </span>
-  );
+  return <CategoryWordIllustration visual={visual} locale={locale} className={className} />;
 }

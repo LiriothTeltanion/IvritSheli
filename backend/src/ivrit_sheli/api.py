@@ -59,6 +59,7 @@ from ivrit_sheli.learning_core import (
     CurriculumTrack,
     LearningCoreConflictError,
 )
+from ivrit_sheli.local_learning_engine import PracticeConflictError
 from ivrit_sheli.normalization import hebrew_tokens, normalize_hebrew
 from ivrit_sheli.repository import LearningRepository
 from ivrit_sheli.request_limits import (
@@ -212,6 +213,8 @@ class ProfilePayload(StrictModel):
     first_steps_completed: bool | None = None
     curriculum_track: CurriculumTrack | None = None
     cefr_band: CefrBand | None = None
+    text_scale: float | None = Field(default=None, ge=0.8, le=2.0)
+    focus_status: Literal["available", "busy"] | None = None
     goals: list[dict[str, Any]] | None = None
 
 
@@ -230,6 +233,24 @@ class LearningCoreAttemptPayload(StrictModel):
     response_ms: int = Field(default=0, ge=0, le=3_600_000)
     hints_used: int = Field(default=0, ge=0, le=100)
     answer_text: str | None = Field(default=None, max_length=10_000)
+
+
+class PracticeStepPayload(StrictModel):
+    """Validated evidence for the current server-owned daily-practice step."""
+
+    idempotency_key: str = Field(
+        min_length=8,
+        max_length=128,
+        pattern=r"^[A-Za-z0-9._:-]+$",
+    )
+    outcome: Literal["completed", "failed", "unsupported"]
+    is_correct: bool | None = None
+    confidence: int | None = Field(default=None, ge=1, le=5)
+    response_ms: int = Field(default=0, ge=0, le=3_600_000)
+    hints_used: int = Field(default=0, ge=0, le=100)
+    answer_text: str | None = Field(default=None, max_length=10_000)
+    transcript: str | None = Field(default=None, max_length=10_000)
+    unsupported_reason: str | None = Field(default=None, max_length=100)
 
 
 class AITaskPayload(StrictModel):
@@ -1182,6 +1203,30 @@ def register_routes(app: FastAPI) -> None:
         """Persist learner self-report while deriving learning state server-side."""
         return repository_for(request).submit_learning_core_attempt(payload.model_dump())
 
+    @app.get(f"{API_PREFIX}/curriculum/path")
+    def curriculum_path(request: Request) -> dict[str, Any]:
+        """Return the A0-A2 structured path and honestly labelled B1/B2 laboratory."""
+        return repository_for(request).curriculum_path()
+
+    @app.get(f"{API_PREFIX}/practice/today")
+    def practice_today(request: Request) -> dict[str, Any]:
+        """Return or create the current learner's resumable daily practice session."""
+        return repository_for(request).practice_today()
+
+    @app.post(f"{API_PREFIX}/practice/{{session_id}}/steps/{{step_key}}")
+    def submit_practice_step(
+        request: Request,
+        session_id: str,
+        step_key: str,
+        payload: PracticeStepPayload,
+    ) -> dict[str, Any]:
+        """Persist one ordered step; an idempotency replay cannot duplicate evidence."""
+        return repository_for(request).submit_practice_step(
+            session_id,
+            step_key,
+            payload.model_dump(),
+        )
+
     @app.get(f"{API_PREFIX}/items")
     def list_items(
         request: Request,
@@ -1680,6 +1725,13 @@ def register_error_handlers(app: FastAPI, settings: Settings) -> None:
         error: LearningCoreConflictError,
     ) -> JSONResponse:
         return error_response(request, 409, "learning_core_conflict", str(error))
+
+    @app.exception_handler(PracticeConflictError)
+    async def practice_conflict(
+        request: Request,
+        error: PracticeConflictError,
+    ) -> JSONResponse:
+        return error_response(request, 409, "practice_conflict", str(error))
 
     @app.exception_handler(CloudSnapshotLimitError)
     async def cloud_snapshot_limit_error(

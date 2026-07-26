@@ -4,6 +4,9 @@
 
 | Version | Supported |
 |---|---:|
+| 2.8.x | Yes — unreleased private candidate |
+| 2.6.x | No — superseded candidate |
+| 2.5.x | No — superseded candidate |
 | 2.4.x | Yes |
 | 2.3.x | No — superseded candidate |
 | 2.2.x | Yes |

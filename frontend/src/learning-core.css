@@ -1,4 +1,4 @@
-/* v2.6 evidence-based journey: readable surfaces, progressive disclosure, and calm motion. */
+/* Evidence-based journey: readable surfaces, progressive disclosure, and calm motion. */
 
 .cefr-level-chip,
 .learning-core-source,
@@ -13,7 +13,7 @@
 .cefr-level-chip {
   padding: 0.26rem 0.55rem;
   background: color-mix(in srgb, var(--warm-gold, var(--gold)) 14%, var(--surface-solid));
-  color: color-mix(in srgb, var(--warm-gold, var(--gold)) 72%, var(--text));
+  color: var(--text-soft);
   font-size: 0.7rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -449,6 +449,15 @@
 .reading-ladder-panel > ol > li.is-complete { color: var(--warm-teal, var(--teal)); }
 .reading-ladder-panel > ol > li.is-current { border-color: var(--warm-teal, var(--teal)); background: var(--warm-teal-soft, var(--surface-raised)); color: var(--text); }
 .reading-ladder-panel > ol > li.is-current span { background: var(--warm-teal, var(--teal)); color: white; }
+:root[data-theme="dark"] .reading-ladder-panel > ol > li.is-current {
+  border-color: #5eead4;
+  background: #153a36;
+  color: #f4f8ff;
+}
+:root[data-theme="dark"] .reading-ladder-panel > ol > li.is-current span {
+  background: #5eead4;
+  color: #06101c;
+}
 .reading-evidence-row { margin-block-start: 0.8rem; padding: 0.65rem 0.75rem; display: inline-flex; align-items: center; border-radius: 0.7rem; background: var(--surface-raised); color: var(--text-soft); font-size: 0.75rem; }
 .reading-evidence-row.is-blocked { border: 1px solid color-mix(in srgb, var(--warm-gold, var(--gold)) 45%, var(--border)); background: color-mix(in srgb, var(--warm-gold-soft, var(--surface-raised)) 45%, var(--surface-solid)); }
 .reading-ladder-panel > small { margin-block-start: 0.6rem; display: flex; align-items: flex-start; gap: 0.35rem; color: var(--text-muted); line-height: 1.4; }

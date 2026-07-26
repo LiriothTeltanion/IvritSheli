@@ -4,27 +4,29 @@
 // Date: 2026-07-15 | TZ: Asia/Jerusalem
 // Notes: Comments in ENGLISH; emojis sparingly.
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { api, AUTH_REQUIRED_EVENT, configureApiSession } from './api';
 import { localeOverrideFromSearch, useI18n } from './i18n';
 import { resolveLearnerMode } from './learnerMode';
 import { SessionAccessProvider } from './session';
 import type { AuthState, Dashboard, GamificationStatus, LearnerMode, Locale, Profile, ProgressData, ViewKey } from './types';
-import { AICoach } from './components/AICoach';
 import { AuthGate } from './components/AuthGate';
 import { BeginnerOnboarding } from './components/BeginnerOnboarding';
-import { ConnectorPanel } from './components/ConnectorPanel';
 import { DictionaryDrawer } from './components/DictionaryDrawer';
 import { FirstStepsLesson } from './components/FirstStepsLesson';
 import { Icon, type IconName } from './components/Icon';
-import { LearnPanel } from './components/LearnPanel';
-import { ProgressPanel } from './components/ProgressPanel';
+import { ProfileMenu } from './components/ProfileMenu';
 import { QuickCapture } from './components/QuickCapture';
-import { SettingsPanel } from './components/SettingsPanel';
 import { TodayDashboard } from './components/TodayDashboard';
 import { XPBar } from './components/XPBar';
 
-type LearnTab = 'review' | 'dictionary' | 'audio' | 'collection';
+const AICoach = lazy(async () => ({ default: (await import('./components/AICoach')).AICoach }));
+const ConnectorPanel = lazy(async () => ({ default: (await import('./components/ConnectorPanel')).ConnectorPanel }));
+const LearnPanel = lazy(async () => ({ default: (await import('./components/LearnPanel')).LearnPanel }));
+const ProgressPanel = lazy(async () => ({ default: (await import('./components/ProgressPanel')).ProgressPanel }));
+const SettingsPanel = lazy(async () => ({ default: (await import('./components/SettingsPanel')).SettingsPanel }));
+
+type LearnTab = 'practice' | 'review' | 'dictionary' | 'audio' | 'collection';
 interface DictionaryTarget {
   word: string;
   entryId?: number;
@@ -40,7 +42,13 @@ function onboardingStorageKey(auth: AuthState | null, suffix: 'complete' | 'draf
   return `ivrit-sheli:onboarding-v${ONBOARDING_VERSION}:${learnerStorageId(auth)}:${suffix}`;
 }
 
-const navigation: Array<{ key: ViewKey; icon: IconName; labelKey: 'today' | 'learn' | 'coach' | 'progress' | 'connectors' | 'settings' }> = [
+type NavigationItem = {
+  key: ViewKey;
+  icon: IconName;
+  labelKey: 'today' | 'learn' | 'words' | 'coach' | 'progress' | 'connectors' | 'settings' | 'help';
+};
+
+const navigation: NavigationItem[] = [
   { key: 'today', icon: 'home', labelKey: 'today' },
   { key: 'learn', icon: 'book', labelKey: 'learn' },
   { key: 'coach', icon: 'sparkles', labelKey: 'coach' },
@@ -49,9 +57,13 @@ const navigation: Array<{ key: ViewKey; icon: IconName; labelKey: 'today' | 'lea
   { key: 'settings', icon: 'settings', labelKey: 'settings' },
 ];
 
-function navigationForLearnerMode(mode: LearnerMode): typeof navigation {
+function navigationForLearnerMode(mode: LearnerMode): NavigationItem[] {
   if (mode === 'guided') {
-    return navigation.filter((item) => item.key !== 'coach' && item.key !== 'connectors');
+    return [
+      { key: 'today', icon: 'home', labelKey: 'today' },
+      { key: 'learn', icon: 'book', labelKey: 'words' },
+      { key: 'help', icon: 'shield', labelKey: 'help' },
+    ];
   }
   if (mode === 'explorer') {
     return navigation.filter((item) => item.key !== 'connectors');
@@ -371,7 +383,7 @@ export default function App(): React.JSX.Element {
       <aside className="sidebar">
         <div className="brand-lockup">
           <img src="/icons/app-icon.svg" alt="" />
-          <div><strong>{t('appName')}</strong><span>PRIVATE LEARNING CORE 2.6</span></div>
+          <div><strong>{t('appName')}</strong><span>PRIVATE CANDIDATE 2.8</span></div>
         </div>
         <nav className="side-nav" aria-label={t('primaryNavigation')}>
           {visibleNavigation.map((item) => (
@@ -394,7 +406,7 @@ export default function App(): React.JSX.Element {
         </div>
         <div className="sidebar-footer">
           <div className="privacy-mini"><Icon name="shield" size={17} /><span><strong>{auth.demo ? t('demoWorkspace') : localMode ? t('localWorkspace') : t('privateMode')}</strong><small>{auth.demo ? t('readOnlyDemo') : localMode ? t('localFirstStorage') : t('accountStorage')}</small></span></div>
-          <span className="version-label">v2.6.0 private · learning core</span>
+          <span className="version-label">v2.8.0 private candidate</span>
         </div>
       </aside>
 
@@ -411,18 +423,34 @@ export default function App(): React.JSX.Element {
               }}>{code.toUpperCase()}</button>)}
             </div>
             <button type="button" className="icon-button" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} aria-label={t('toggleTheme')}>{theme === 'dark' ? '☀' : '☾'}</button>
-            <button type="button" className="capture-button" onClick={() => setCaptureOpen(true)} disabled={auth.read_only} title={auth.read_only ? t('readOnlyExplanation') : undefined}><Icon name="plus" size={18} /><span>{t('capturePhrase')}</span></button>
-            <div className="session-identity">
-              <button type="button" className="profile-button" onClick={() => setView('settings')} aria-label={`${t('signedInAs')} ${identityName}`}>
-                {auth.user?.avatar_url ? <img src={auth.user.avatar_url} alt="" referrerPolicy="no-referrer" /> : <span>{identityName.slice(0, 1).toUpperCase()}</span>}
-                <i />
+            {learnerMode === 'guided' && (
+              <button type="button" className="topbar-help" onClick={() => setView('help')}>
+                <span aria-hidden="true">?</span>{t('help')}
               </button>
-              <span className={`session-mode ${auth.demo ? 'session-mode--demo' : ''}`}><strong>{identityName}</strong><small>{auth.demo ? t('demoWorkspace') : localMode ? t('localWorkspace') : t('personalWorkspace')}</small></span>
-              {!localMode && (
-                <button type="button" className="session-logout" onClick={() => { void logout(); }} disabled={loggingOut} aria-label={t('logout')} title={t('logout')}>
-                  {loggingOut ? <span className="spinner" /> : <Icon name="logout" size={17} />}
-                </button>
-              )}
+            )}
+            <button
+              type="button"
+              className="capture-button"
+              onClick={() => setCaptureOpen(true)}
+              disabled={auth.read_only}
+              aria-label={t('capturePhrase')}
+              title={auth.read_only ? t('readOnlyExplanation') : undefined}
+            >
+              <Icon name="plus" size={18} /><span>{t('capturePhrase')}</span>
+            </button>
+            <div className="session-identity">
+              <ProfileMenu
+                avatarUrl={auth.user?.avatar_url}
+                identityName={identityName}
+                workspaceLabel={auth.demo ? t('demoWorkspace') : localMode ? t('localWorkspace') : t('personalWorkspace')}
+                learnerMode={learnerMode}
+                level={profile.cefr_band ?? profile.hebrew_level}
+                localMode={localMode}
+                online={online}
+                loggingOut={loggingOut}
+                onOpenSettings={() => setView('settings')}
+                onLogout={() => { void logout(); }}
+              />
             </div>
           </div>
         </header>
@@ -442,6 +470,7 @@ export default function App(): React.JSX.Element {
         {error && <div className="global-error"><Icon name="bug" size={17} /> {error}<button type="button" onClick={() => setError('')} aria-label={t('dismissError')}><Icon name="close" size={15} /></button></div>}
 
         <main className="content" id="main-content">
+          <Suspense fallback={<section className="card skeleton-page" aria-busy="true"><div className="skeleton" /><div className="skeleton" /></section>}>
           {view === 'today' && firstStepsOpen && (
             <FirstStepsLesson
               initialIndex={firstStepsProgress}
@@ -507,7 +536,7 @@ export default function App(): React.JSX.Element {
               firstStepsComplete={firstStepsComplete}
               onWordClick={openDictionary}
               onCapture={() => setCaptureOpen(true)}
-              onStart={() => learnerMode !== 'guided' || firstStepsComplete ? goToLearn('review') : setFirstStepsOpen(true)}
+              onStart={() => learnerMode !== 'guided' || firstStepsComplete ? goToLearn('practice') : setFirstStepsOpen(true)}
               onPreviewFirstSteps={() => {
                 setFirstStepsProgress(0);
                 setFirstStepsOpen(true);
@@ -519,8 +548,8 @@ export default function App(): React.JSX.Element {
               onRefresh={() => { void refreshCore(); }}
             />
           )}
-          {view === 'learn' && <LearnPanel initialTab={learnTab} {...(practiceWord ? { practiceWord } : {})} cloudAvailable={dashboard.system.cloud_available} onWordClick={openDictionary} onRefresh={() => { void refreshCore(); }} />}
-          {view === 'coach' && <AICoach cloudAvailable={dashboard.system.cloud_available} onWordClick={openDictionary} />}
+          {view === 'learn' && <LearnPanel initialTab={learnTab} {...(practiceWord ? { practiceWord } : {})} cloudAvailable={dashboard.system.cloud_available} dashboard={dashboard} onWordClick={openDictionary} onRefresh={() => { void refreshCore(); }} />}
+          {view === 'coach' && <AICoach cloudAvailable={false} onWordClick={openDictionary} />}
           {view === 'progress' && progress && <ProgressPanel progress={progress} gamification={gamification} cefrBand={profile.cefr_band ?? profile.hebrew_level} />}
           {view === 'progress' && !progress && <section className="card skeleton-page"><div className="skeleton" /><div className="skeleton" /></section>}
           {view === 'connectors' && <ConnectorPanel onImported={() => { setToast(t('captured')); void refreshCore(); }} />}
@@ -553,6 +582,27 @@ export default function App(): React.JSX.Element {
               }}
             />
           )}
+          {view === 'help' && (
+            <section className="guided-help card" aria-labelledby="guided-help-title">
+              <span className="warm-kicker">🧭 {t('guidedHelpKicker')}</span>
+              <h1 id="guided-help-title">{t('guidedHelpTitle')}</h1>
+              <p>{t('guidedHelpDetail')}</p>
+              <div className="guided-help__steps">
+                <article><strong>1</strong><span><b>{t('guidedHelpStepOne')}</b><small>{t('guidedHelpStepOneDetail')}</small></span></article>
+                <article><strong>2</strong><span><b>{t('guidedHelpStepTwo')}</b><small>{t('guidedHelpStepTwoDetail')}</small></span></article>
+                <article><strong>3</strong><span><b>{t('guidedHelpStepThree')}</b><small>{t('guidedHelpStepThreeDetail')}</small></span></article>
+              </div>
+              <div className="guided-help__actions">
+                <button type="button" className="primary-button primary-button--large" onClick={() => { setView('today'); setFirstStepsOpen(!firstStepsComplete); }}>
+                  <Icon name="play" size={19} /> {firstStepsComplete ? t('continueMyLesson') : t('startFirstLesson')}
+                </button>
+                <button type="button" className="secondary-button secondary-button--large" onClick={() => goToLearn('dictionary')}>
+                  <Icon name="book" size={19} /> {t('openFriendlyDictionary')}
+                </button>
+              </div>
+            </section>
+          )}
+          </Suspense>
         </main>
       </div>
 

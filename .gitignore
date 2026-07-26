@@ -18,9 +18,15 @@ htmlcov/
 frontend/node_modules/
 frontend/dist/
 frontend/coverage/
+frontend/test-results/
+frontend/playwright-report/
 
 # Local research and verification artifacts
 tmp/
+# Local package archives produced while testing the release bundle.
+IvritSheli-*.zip
+# Local agent/editor tooling configuration; machine-specific, not part of the product.
+.claude/
 
 # Local user data
 data/**/*.db*

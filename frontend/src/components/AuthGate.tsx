@@ -5,8 +5,10 @@
 // Notes: Navigation uses a normal link so OAuth remains keyboard- and browser-friendly.
 
 import { useI18n } from '../i18n';
+import { localizedText, starterWords } from '../starterWords';
 import type { AuthProvider, Locale } from '../types';
 import { Icon } from './Icon';
+import { WordIllustration } from './WordIllustration';
 
 interface AuthGateProps {
   busy: boolean;
@@ -37,7 +39,7 @@ export function AuthGate({ busy, error, onDemo, onRetry, providers }: AuthGatePr
       <header className="auth-header">
         <a className="auth-brand" href="/" aria-label={`${t('appName')} — ${t('home')}`}>
           <img src="/icons/app-icon.svg" alt="" />
-          <span><strong>{t('appName')}</strong><small>PRIVATE LEARNING CORE 2.6</small></span>
+          <span><strong>{t('appName')}</strong><small>PRIVATE CANDIDATE 2.8</small></span>
         </a>
         <div className="auth-header__actions">
           <div className="locale-switch auth-locale" aria-label={t('interfaceLanguage')}>
@@ -50,7 +52,7 @@ export function AuthGate({ busy, error, onDemo, onRetry, providers }: AuthGatePr
               </button>
             ))}
           </div>
-          <span className="auth-version">v2.6.0 private</span>
+          <span className="auth-version">v2.8.0 private</span>
         </div>
       </header>
 
@@ -59,6 +61,24 @@ export function AuthGate({ busy, error, onDemo, onRetry, providers }: AuthGatePr
           <span className="auth-eyebrow"><i aria-hidden="true" /> {t('authEyebrow')}</span>
           <h1>{t('authTitle')}</h1>
           <p className="auth-lead">{t('authSubtitle')}</p>
+
+          <section className="auth-first-words" aria-labelledby="auth-first-words-title">
+            <header>
+              <span className="warm-kicker">🌱 {t('learnBeforeAccount')}</span>
+              <h2 id="auth-first-words-title">{t('tryThreeWords')}</h2>
+              <p>{t('tryThreeWordsDetail')}</p>
+            </header>
+            <div>
+              {starterWords.slice(0, 3).map((word) => (
+                <article key={word.id}>
+                  <WordIllustration kind={word.illustration} title={localizedText(word.illustrationAlt, locale)} />
+                  <strong lang="he" dir="rtl">{word.word}</strong>
+                  <span dir="ltr">{word.transliteration}</span>
+                  <p>{localizedText(word.meaning, locale)}</p>
+                </article>
+              ))}
+            </div>
+          </section>
 
           <div className="auth-capabilities" aria-label={t('workspaceCapabilities')}>
             <span><Icon name="shield" size={17} /> {t('secureSessions')}</span>
@@ -110,6 +130,12 @@ export function AuthGate({ busy, error, onDemo, onRetry, providers }: AuthGatePr
         </article>
 
         <aside className="auth-visual" aria-label={t('learningWorkspacePreview')}>
+          <img
+            className="auth-visual__journey-art"
+            src="/illustrations/regions/jerusalem.webp"
+            alt=""
+            aria-hidden="true"
+          />
           <div className="auth-visual__halo" aria-hidden="true" />
           <div className="auth-preview-card auth-preview-card--main">
             <header><span className="auth-preview-brand">עברית שלי</span><span className="auth-preview-live">{t('secure')}</span></header>

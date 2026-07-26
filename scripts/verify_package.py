@@ -11,8 +11,9 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import subprocess
 import sys
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from xml.etree import ElementTree
 
 try:
@@ -50,31 +51,59 @@ REQUIRED_FILES = (
     "backend/src/ivrit_sheli/cloud_store.py",
     "backend/src/ivrit_sheli/audio.py",
     "backend/src/ivrit_sheli/learning_core.py",
+    "backend/src/ivrit_sheli/local_learning_engine.py",
     "backend/src/ivrit_sheli/repository.py",
     "backend/src/ivrit_sheli/starter_lexicon_v2.py",
+    "backend/src/ivrit_sheli/starter_lexicon_v3.py",
+    "backend/src/ivrit_sheli/starter_lexicon_v4.py",
+    "backend/src/ivrit_sheli/STARTER_LEXICON_V4_NOTES.md",
     "backend/src/ivrit_sheli/starter_lexicon_validation.py",
     "backend/src/ivrit_sheli/db_admin.py",
     "backend/src/ivrit_sheli/request_limits.py",
     "backend/src/ivrit_sheli/structured_logging.py",
+    "backend/tests/test_daily_practice.py",
+    "backend/tests/test_learning_engines.py",
     "frontend/package-lock.json",
+    "frontend/playwright.config.ts",
+    "frontend/e2e/experience.spec.ts",
+    "frontend/e2e/fixtures.ts",
     "frontend/src/App.tsx",
     "frontend/src/components/AuthGate.tsx",
+    "frontend/src/components/AuthGate.test.tsx",
     "frontend/src/components/BeginnerOnboarding.tsx",
     "frontend/src/components/FirstStepsLesson.tsx",
+    "frontend/src/components/CategoryWordIllustration.tsx",
+    "frontend/src/components/CategoryWordIllustration.test.tsx",
+    "frontend/src/components/category-word-illustration.css",
+    "frontend/src/components/CurriculumPath.tsx",
+    "frontend/src/components/CurriculumPath.test.tsx",
+    "frontend/src/components/curriculum-path.css",
     "frontend/src/components/DictionaryVisualCue.tsx",
     "frontend/src/components/MicWordAnalyzer.tsx",
+    "frontend/src/components/ProfileMenu.tsx",
+    "frontend/src/components/ProfileMenu.test.tsx",
     "frontend/src/components/RegistryPanel.tsx",
     "frontend/src/components/IvritSheliBrandLockup.tsx",
     "frontend/src/components/LivingHebrewAtlas.tsx",
+    "frontend/src/components/AtlasRegionVocabulary.tsx",
+    "frontend/src/components/DailyPracticeSession.tsx",
     "frontend/src/components/LearningCoreJourney.tsx",
     "frontend/src/components/LearningSkillMap.tsx",
     "frontend/src/learnerMode.ts",
     "frontend/src/achievement-progress.css",
     "frontend/src/learner-mode.css",
     "frontend/src/v25-private-pilot.css",
+    "frontend/src/components/practice-motivation.css",
     "frontend/src/voicePreference.ts",
     "frontend/src/starterWords.ts",
     "frontend/public/manifest.webmanifest",
+    "frontend/public/content/starter-dictionary-v2.8.json",
+    "frontend/public/illustrations/regions/galilee.webp",
+    "frontend/public/illustrations/regions/haifa-carmel.webp",
+    "frontend/public/illustrations/regions/tel-aviv-jaffa.webp",
+    "frontend/public/illustrations/regions/jerusalem.webp",
+    "frontend/public/illustrations/regions/dead-sea.webp",
+    "frontend/public/illustrations/regions/negev.webp",
     "frontend/public/assets/illustrations/israel-living-atlas-v2.5.webp",
     "docs/ULTIMATE_BUILD_SPEC.md",
     "docs/ARCHITECTURE.md",
@@ -83,6 +112,7 @@ REQUIRED_FILES = (
     "docs/AUDIO.md",
     "docs/GAMIFICATION.md",
     "docs/PERSONALIZATION.md",
+    "docs/COMPETITIVE_BENCHMARK_2026.md",
     "docs/LEARNING_SCIENCE.md",
     "docs/LEARNING_CORE_V2_6.md",
     "docs/HEBREW_CONTENT_PROVENANCE.md",
@@ -103,13 +133,36 @@ REQUIRED_FILES = (
     "assets/social/ivrit-sheli-social-preview.svg",
     "assets/social/ivrit-sheli-social-preview.png",
     "scripts/docker-entrypoint.sh",
+    "scripts/export_pwa_starter_content.py",
     "scripts/verify_container_logs.py",
+)
+
+PUBLIC_REGION_ART = (
+    "frontend/public/illustrations/regions/galilee.webp",
+    "frontend/public/illustrations/regions/haifa-carmel.webp",
+    "frontend/public/illustrations/regions/tel-aviv-jaffa.webp",
+    "frontend/public/illustrations/regions/jerusalem.webp",
+    "frontend/public/illustrations/regions/dead-sea.webp",
+    "frontend/public/illustrations/regions/negev.webp",
 )
 
 SECRET_PATTERNS = (
     re.compile(r"sk-[A-Za-z0-9_-]{20,}"),
     re.compile(r"AIza[0-9A-Za-z_-]{30,}"),
     re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
+)
+FORBIDDEN_PUBLIC_CONTENT_FIELDS = frozenset(
+    {
+        "csrf",
+        "email",
+        "learning_due_state",
+        "learning_item_id",
+        "learning_status",
+        "profile_id",
+        "session_id",
+        "token",
+        "user_id",
+    }
 )
 
 
@@ -140,6 +193,7 @@ def verify_json_files() -> list[str]:
     for relative in (
         "frontend/package.json",
         "frontend/public/manifest.webmanifest",
+        "frontend/public/content/starter-dictionary-v2.8.json",
         "portfolio/project.json",
     ):
         try:
@@ -200,6 +254,7 @@ def verify_portfolio_manifest() -> list[str]:
             "tests",
             "deployment",
             "publication",
+            "candidate",
             "visual_proof",
             "oauth",
             "privacy",
@@ -213,9 +268,9 @@ def verify_portfolio_manifest() -> list[str]:
         "schema": "ivrit-sheli-portfolio-project-v2",
         "slug": "ivrit-sheli",
         "name": "Ivrit Sheli — העברית שלי",
-        "source_version": "2.6.0",
+        "source_version": "2.8.0",
         "live_version": "2.4.0",
-        "status": "private-pilot-development",
+        "status": "private-release-candidate",
         "default_branch": "main",
         "repository_url": "https://github.com/LiriothTeltanion/IvritSheli",
         "demo_url": "https://ivritsheli-production.up.railway.app",
@@ -332,12 +387,50 @@ def verify_portfolio_manifest() -> list[str]:
         "latest_github_release": "v2.4.0",
         "source_version_tagged": False,
         "source_version_github_release_published": False,
-        "release_state": "2.6.0-private-local-2.4.0-live-and-published",
+        "release_state": "2.8.0-private-candidate-2.4.0-live-and-published",
     }
     if publication is not None and publication != expected_publication:
         failures.append(
-            "portfolio/project.json: publication must keep 2.6.0 private and identify "
+            "portfolio/project.json: publication must keep 2.8.0 private and identify "
             "v2.4.0 as the live tagged GitHub Release"
+        )
+
+    candidate, nested_failures = _verify_exact_keys(
+        top_level.get("candidate"),
+        {
+            "version",
+            "published",
+            "coverage",
+            "reviewed_concepts",
+            "learner_experiences",
+            "learning_engine",
+            "visual_journey_regions",
+            "public_google_scope",
+            "local_mode_without_account",
+            "release_gate",
+        },
+        "candidate",
+    )
+    failures.extend(nested_failures)
+    expected_candidate = {
+        "version": "2.8.0",
+        "published": False,
+        "coverage": "Structured A0-A2 with an explicitly experimental B1/B2 Lab",
+        "reviewed_concepts": 240,
+        "learner_experiences": ["Guided", "Explorer", "Experienced"],
+        "learning_engine": "Deterministic LocalLearningEngine",
+        "visual_journey_regions": 6,
+        "public_google_scope": "openid profile",
+        "local_mode_without_account": True,
+        "release_gate": (
+            "Full verification, two-account isolation check, backup/restore drill "
+            "and beginner pilot remain required before publication."
+        ),
+    }
+    if candidate is not None and candidate != expected_candidate:
+        failures.append(
+            "portfolio/project.json: candidate must describe the unpublished "
+            "2.8.0 implementation and its remaining release gate"
         )
 
     visual_proof, nested_failures = _verify_exact_keys(
@@ -435,32 +528,38 @@ def verify_release_truth_drift() -> list[str]:
         "README.md": (
             "Open the verified Ivrit Sheli 2.4.0 Contest Edition",
             "03bf84b9268ff8be528c0fab3c670f9652ee23b0",
-            "Current private source checkout | `2.6.0`",
+            "Current private source checkout | `2.8.0`",
             "Current public deployed application | `2.4.0`",
             "151 unique backend tests + 62 frontend tests = 213 passed",
             "GitHub publication | [`v2.4.0`](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.4.0)",
+            "Two-real-account isolation/persistence, backup restoration, extracted-package verification and the beginner pilot",
         ),
         "TEST_REPORT.md": (
-            "Current private source candidate:** `2.6.0` / local / unpublished",
-            "Private-pilot consolidated verification:** Passed locally",
-            "Total unique automated tests | **277 passed**",
-            "Current live release | `2.4.0` / production / PostgreSQL",
+            "Current private source candidate:** `2.8.0` / local / unpublished",
+            "194 passed",
+            "124 passed",
+            "20 passed",
+            "338 passed",
+            "Current verified production:** `2.4.0` on Railway with PostgreSQL",
             "03bf84b9268ff8be528c0fab3c670f9652ee23b0",
-            "Latest Git tag / GitHub Release | `v2.4.0` / `v2.4.0`",
-            "Live 2.4 deployment | Passed on 2026-07-21",
-            "213 unique passing automated tests",
+            "Git tag and GitHub Release `v2.4.0`",
+            "Docker Desktop",
+            "beginner pilot",
         ),
         "CHANGELOG.md": (
-            "2.6.0 — Learning Core — Unreleased",
-            "Version metadata advances from the unreleased `2.3.0` candidate to `2.4.0`",
-            "48-concept reviewed A0/A1 starter dictionary",
+            "2.8.0 — Warm Illustrated Learning Journey — Release candidate",
+            "Version 2.7 was a private implementation checkpoint",
+            "2.4.0 — Contest Edition — 2026-07-21",
         ),
         "PACKAGE_MANIFEST.md": (
-            "Source version: `2.6.0`",
-            "Current public live source version: `2.4.0`",
-            "Private-pilot publication state: `2.6.0` is local, untagged and unpublished",
+            "Source version: `2.8.0`",
+            "Current verified public version: `2.4.0`",
+            "`2.8.0` is local, untagged, unpushed and unpublished",
             "Latest published Git tag and GitHub Release: `v2.4.0`",
-            "Total unique automated tests: 213 passed",
+            "194 passed",
+            "124 passed",
+            "20 passed",
+            "338 passed",
         ),
         "docs/DEPLOYMENT.md": (
             "Current production verification record — 2.4.0 — 2026-07-21",
@@ -487,8 +586,8 @@ def verify_release_truth_drift() -> list[str]:
             "actively developed public pilot",
         ),
         "CITATION.cff": (
-            "version: 2.6.0",
-            "unpublished Ivrit Sheli 2.6.0 Learning Core private pilot",
+            "version: 2.8.0",
+            "unpublished Ivrit Sheli 2.8.0 Warm Illustrated Learning Journey candidate",
             "verified public v2.4.0 release",
         ),
     }
@@ -507,7 +606,7 @@ def verify_release_truth_drift() -> list[str]:
 
 def verify_source_version_surfaces() -> list[str]:
     """Keep executable and human-facing release versions synchronized."""
-    expected_version = "2.6.0"
+    expected_version = "2.8.0"
     failures: list[str] = []
 
     try:
@@ -540,14 +639,14 @@ def verify_source_version_surfaces() -> list[str]:
             )
 
     expected_fragments = {
-        "backend/src/ivrit_sheli/__init__.py": '__version__ = "2.6.0"',
-        "frontend/index.html": "Ivrit Sheli 2.6",
-        "frontend/public/sw.js": "ivrit-sheli-shell-v2.6.0",
-        "frontend/src/App.tsx": "v2.6.0 private",
-        "frontend/src/components/AuthGate.tsx": "v2.6.0 private",
-        "frontend/src/components/SettingsPanel.tsx": "app_version: '2.6.0'",
-        ".github/ISSUE_TEMPLATE/bug_report.yml": "placeholder: 2.6.0-private",
-        "CITATION.cff": "version: 2.6.0",
+        "backend/src/ivrit_sheli/__init__.py": '__version__ = "2.8.0"',
+        "frontend/index.html": "Ivrit Sheli 2.8",
+        "frontend/public/sw.js": "ivrit-sheli-shell-v2.8.0",
+        "frontend/src/App.tsx": "v2.8.0 private candidate",
+        "frontend/src/components/AuthGate.tsx": "v2.8.0 private",
+        "frontend/src/components/SettingsPanel.tsx": "app_version: '2.8.0'",
+        ".github/ISSUE_TEMPLATE/bug_report.yml": "placeholder: 2.8.0-private",
+        "CITATION.cff": "version: 2.8.0",
     }
     for relative, fragment in expected_fragments.items():
         try:
@@ -558,6 +657,93 @@ def verify_source_version_surfaces() -> list[str]:
         if fragment not in text:
             failures.append(f"{relative}: missing release version fragment {fragment!r}")
 
+    return failures
+
+
+def verify_public_learning_assets() -> list[str]:
+    """Validate the offline starter contract and the six public region scenes."""
+    dictionary_path = (
+        ROOT / "frontend" / "public" / "content" / "starter-dictionary-v2.8.json"
+    )
+    failures: list[str] = []
+    try:
+        payload = json.loads(dictionary_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        return [f"frontend/public/content/starter-dictionary-v2.8.json: {error}"]
+
+    if not isinstance(payload, dict):
+        failures.append("offline starter dictionary must be a JSON object")
+    else:
+        expected_keys = {"content", "contract_version", "entries", "entry_count"}
+        if set(payload) != expected_keys:
+            failures.append(
+                "offline starter dictionary root keys must be "
+                f"{sorted(expected_keys)}, got {sorted(payload)}"
+            )
+        if payload.get("content") != "reviewed_starter_dictionary":
+            failures.append("offline starter dictionary content identifier is invalid")
+        if payload.get("contract_version") != "2.8":
+            failures.append("offline starter dictionary contract_version must be '2.8'")
+        entries = payload.get("entries")
+        if payload.get("entry_count") != 240 or not isinstance(entries, list) or len(entries) != 240:
+            failures.append("offline starter dictionary must contain exactly 240 entries")
+        elif all(isinstance(entry, dict) for entry in entries):
+            entry_ids = [entry.get("id") for entry in entries]
+            words = [entry.get("word") for entry in entries]
+            if len(set(entry_ids)) != 240:
+                failures.append("offline starter dictionary entry IDs must be unique")
+            if len(set(words)) != 240 or not all(
+                isinstance(word, str) and word.strip() for word in words
+            ):
+                failures.append(
+                    "offline starter dictionary Hebrew words must be non-empty and unique"
+                )
+            for index, entry in enumerate(entries):
+                visual = entry.get("visual")
+                alt = visual.get("alt") if isinstance(visual, dict) else None
+                if (
+                    not isinstance(visual, dict)
+                    or not isinstance(visual.get("key"), str)
+                    or not isinstance(alt, dict)
+                    or any(
+                        not isinstance(alt.get(language), str)
+                        or not alt[language].strip()
+                        for language in ("en", "es", "he")
+                    )
+                ):
+                    failures.append(
+                        "offline starter dictionary entry "
+                        f"{index + 1} lacks a visual key or trilingual alt text"
+                    )
+                    break
+        pending: list[tuple[str, object]] = [("payload", payload)]
+        while pending:
+            location, value = pending.pop()
+            if isinstance(value, dict):
+                forbidden = FORBIDDEN_PUBLIC_CONTENT_FIELDS.intersection(value)
+                if forbidden:
+                    failures.append(
+                        f"offline starter dictionary exposes private fields at "
+                        f"{location}: {', '.join(sorted(forbidden))}"
+                    )
+                pending.extend(
+                    (f"{location}.{key}", child) for key, child in value.items()
+                )
+            elif isinstance(value, list):
+                pending.extend(
+                    (f"{location}[{index}]", child)
+                    for index, child in enumerate(value)
+                )
+
+    for relative in PUBLIC_REGION_ART:
+        path = ROOT / relative
+        try:
+            data = path.read_bytes()
+        except OSError as error:
+            failures.append(f"{relative}: {error}")
+            continue
+        if len(data) < 10_000 or data[:4] != b"RIFF" or data[8:12] != b"WEBP":
+            failures.append(f"{relative}: expected a non-empty WebP region illustration")
     return failures
 
 
@@ -601,7 +787,10 @@ def verify_railway_config() -> list[str]:
         return ["railway.toml: missing [deploy] table"]
 
     failures: list[str] = []
-    expected = {"overlapSeconds": 10, "drainingSeconds": 15}
+    # Zero overlap is deliberate from 2.6 onward: docs/DEPLOYMENT.md section 5 documents
+    # that an older writer running beside a Learning Core writer silently drops the newer
+    # snapshot fields, so a brief gap is preferred over a concurrent-writer window.
+    expected = {"overlapSeconds": 0, "drainingSeconds": 15}
     for key, expected_value in expected.items():
         value = deploy.get(key)
         if type(value) is not int:  # bool is also invalid even though it subclasses int.
@@ -662,12 +851,64 @@ def verify_secret_hygiene() -> list[str]:
     return failures
 
 
-def verify_checksum_manifest() -> list[str]:
-    """Validate SHA256SUMS.txt against the files it lists.
+def git_index_available() -> bool:
+    """Return whether the package is running inside its source Git worktree."""
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(ROOT), "rev-parse", "--is-inside-work-tree"],
+            capture_output=True,
+            check=False,
+            text=True,
+        )
+    except OSError:
+        return False
+    return result.returncode == 0 and result.stdout.strip() == "true"
 
-    Every listed file must exist and hash to its recorded digest, and every
-    required package file must be listed, so the manifest cannot drift silently
-    behind source changes the way it did between 2.4.0 and 2.6.
+
+def canonical_file_bytes(relative: str, *, use_index: bool) -> bytes:
+    """Read canonical release bytes for a repository path.
+
+    The index is the release source of truth. This avoids false checksum drift
+    when a checkout uses CRLF working-tree files while the committed blob uses
+    LF. A release archive has no Git metadata, so its extracted bytes are
+    already the canonical package source and are read directly.
+
+    Args:
+        relative: Forward-slash repository path.
+        use_index: Read from the Git index when true, otherwise from the package.
+
+    Returns:
+        Canonical release bytes.
+
+    Raises:
+        OSError: If a package file cannot be read.
+        subprocess.CalledProcessError: If an indexed path is absent.
+    """
+    if use_index:
+        return subprocess.run(
+            ["git", "-C", str(ROOT), "cat-file", "blob", f":{relative}"],
+            capture_output=True,
+            check=True,
+        ).stdout
+    return (ROOT / relative).read_bytes()
+
+
+def indexed_files() -> set[str]:
+    """Return repository paths present in the Git index."""
+    output = subprocess.run(
+        ["git", "-C", str(ROOT), "ls-files", "--cached", "-z"],
+        capture_output=True,
+        check=True,
+    ).stdout.decode("utf-8", errors="surrogateescape")
+    return {path for path in output.split("\0") if path}
+
+
+def verify_checksum_manifest() -> list[str]:
+    """Validate SHA256SUMS.txt against canonical Git-index blobs.
+
+    In a source checkout, every listed path must be present in the index and
+    hash to its recorded digest. In an extracted release archive, listed files
+    are checked directly. Every required package file must also be listed.
 
     Returns:
         Human-readable drift failures.
@@ -681,6 +922,13 @@ def verify_checksum_manifest() -> list[str]:
         return ["SHA256SUMS.txt: missing; run scripts/generate_checksums.py"]
     failures: list[str] = []
     listed: set[str] = set()
+    use_index = git_index_available()
+    tracked: set[str] = set()
+    if use_index:
+        try:
+            tracked = indexed_files()
+        except (OSError, subprocess.CalledProcessError) as error:
+            return [f"SHA256SUMS.txt: cannot read Git index: {error}"]
     for line_number, line in enumerate(
         manifest.read_text(encoding="utf-8").splitlines(), start=1
     ):
@@ -691,14 +939,52 @@ def verify_checksum_manifest() -> list[str]:
         except ValueError:
             failures.append(f"SHA256SUMS.txt:{line_number}: malformed line")
             continue
-        listed.add(relative)
-        path = ROOT / relative
-        if not path.is_file():
-            failures.append(f"SHA256SUMS.txt: listed file is missing: {relative}")
+        if not re.fullmatch(r"[0-9a-f]{64}", digest):
+            failures.append(f"SHA256SUMS.txt:{line_number}: invalid SHA-256 digest")
             continue
-        if hashlib.sha256(path.read_bytes()).hexdigest() != digest:
+        relative_path = PurePosixPath(relative)
+        unsafe_path = (
+            not relative
+            or "\\" in relative
+            or relative_path.is_absolute()
+            or ".." in relative_path.parts
+        )
+        if (
+            unsafe_path
+            or relative == manifest.name
+            or relative in listed
+        ):
             failures.append(
-                f"SHA256SUMS.txt: stale digest for {relative}; run scripts/generate_checksums.py"
+                f"SHA256SUMS.txt:{line_number}: invalid or duplicate path: {relative}"
+            )
+            continue
+        listed.add(relative)
+        if use_index and relative not in tracked:
+            failures.append(
+                f"SHA256SUMS.txt: listed file is not present in the Git index: {relative}"
+            )
+            continue
+        if not use_index and not (ROOT / relative).is_file():
+            failures.append(f"SHA256SUMS.txt: listed package file is missing: {relative}")
+            continue
+        try:
+            actual = hashlib.sha256(
+                canonical_file_bytes(relative, use_index=use_index)
+            ).hexdigest()
+        except (OSError, subprocess.CalledProcessError) as error:
+            source = "indexed" if use_index else "packaged"
+            failures.append(f"SHA256SUMS.txt: cannot read {source} {relative}: {error}")
+            continue
+        if actual != digest:
+            source = "indexed" if use_index else "packaged"
+            action = (
+                "stage the intended release tree, then run "
+                "scripts/generate_checksums.py"
+                if use_index
+                else "rebuild the archive from the verified committed tree"
+            )
+            failures.append(
+                f"SHA256SUMS.txt: stale {source} digest for {relative}; {action}"
             )
     for relative in REQUIRED_FILES:
         if relative not in listed:
@@ -749,6 +1035,7 @@ def main() -> int:
         "invalid_portfolio_manifest": verify_portfolio_manifest(),
         "release_truth_drift": verify_release_truth_drift(),
         "source_version_drift": verify_source_version_surfaces(),
+        "invalid_public_learning_assets": verify_public_learning_assets(),
         "invalid_svg": verify_svg_assets(),
         "invalid_railway_config": verify_railway_config(),
         "invalid_docker_cache_mounts": verify_docker_cache_mounts(),

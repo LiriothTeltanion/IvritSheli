@@ -22,6 +22,7 @@ interface LearningCoreCopy {
   readingLadderTitle: string;
   readingLadderDescription: string;
   readingEvidence: (remaining: number) => string;
+  readingLadderComplete: string;
   readingHint: string;
   pointedUnavailable: string;
   showReadingHint: string;
@@ -128,6 +129,7 @@ const en: LearningCoreCopy = {
   readingLadderTitle: 'Reading-support ladder',
   readingLadderDescription: 'Support fades only after repeated learner-reported evidence—not because XP increased.',
   readingEvidence: (remaining) => remaining === 1 ? '1 more learner-reported unassisted success before support can fade' : `${remaining} more learner-reported unassisted successes before support can fade`,
+  readingLadderComplete: 'You are reading everyday unpointed Hebrew. There is no reading support left to fade.',
   readingHint: 'Niqqud is temporary support. Automatic reduction removes cues mechanically; it is not a judgment about linguistic difficulty or morphology.',
   pointedUnavailable: 'Pointed form unavailable; reading support cannot fade for this item yet.',
   showReadingHint: 'Show niqqud hint',
@@ -175,7 +177,7 @@ const en: LearningCoreCopy = {
   register: 'Register',
   track: 'Track',
   curriculumTitle: 'Learning route',
-  curriculumDescription: 'Save the route you want to prioritize. In v2.6 every route still uses the shared due queue while reviewed curriculum metadata grows.',
+  curriculumDescription: 'Choose the route you want to prioritize. It complements the structured A0–A2 path and uses the same reviewed due queue.',
   tracks: { modern_conversation: 'Modern conversation', pointed_reading: 'Pointed reading', formal_professional: 'Formal & professional' },
   trackDescriptions: {
     modern_conversation: 'Everyday spoken Hebrew for real situations in Israel.',
@@ -238,6 +240,7 @@ const es: LearningCoreCopy = {
   readingLadderTitle: 'Escalera de apoyo para leer',
   readingLadderDescription: 'La ayuda disminuye solo con evidencia repetida reportada por la persona, no porque aumentó el XP.',
   readingEvidence: (remaining) => remaining === 1 ? 'Falta 1 éxito sin ayuda reportado por ti antes de reducir el apoyo' : `Faltan ${remaining} éxitos sin ayuda reportados por ti antes de reducir el apoyo`,
+  readingLadderComplete: 'Ya lees hebreo cotidiano sin niqud. No queda apoyo de lectura por reducir.',
   readingHint: 'El niqqud es una ayuda temporal. La reducción automática quita señales mecánicamente; no evalúa dificultad lingüística ni morfología.',
   pointedUnavailable: 'No hay una forma con niqqud; el apoyo de lectura todavía no puede reducirse para este elemento.',
   showReadingHint: 'Mostrar pista con niqqud',
@@ -285,7 +288,7 @@ const es: LearningCoreCopy = {
   register: 'Registro',
   track: 'Ruta',
   curriculumTitle: 'Ruta de aprendizaje',
-  curriculumDescription: 'Guarda la ruta que quieres priorizar. En v2.6 todas las rutas aún usan la misma cola de repasos mientras crecen los metadatos revisados.',
+  curriculumDescription: 'Elige la ruta que quieres priorizar. Complementa el camino estructurado A0–A2 y usa la misma cola de repasos revisada.',
   tracks: { modern_conversation: 'Conversación moderna', pointed_reading: 'Lectura con niqqud', formal_professional: 'Formal y profesional' },
   trackDescriptions: {
     modern_conversation: 'Hebreo cotidiano hablado para situaciones reales en Israel.',
@@ -348,6 +351,7 @@ const he: LearningCoreCopy = {
   readingLadderTitle: 'סולם תמיכה בקריאה',
   readingLadderDescription: 'התמיכה יורדת רק אחרי ראיות חוזרות בדיווח הלומד, ולא מפני שמספר הנקודות עלה.',
   readingEvidence: (remaining) => remaining === 1 ? 'נדרש עוד דיווח אחד על הצלחה ללא עזרה לפני הפחתת התמיכה' : `נדרשים עוד ${remaining} דיווחים על הצלחה ללא עזרה לפני הפחתת התמיכה`,
+  readingLadderComplete: 'אתם קוראים עברית יומיומית ללא ניקוד. לא נותרה תמיכת קריאה להפחית.',
   readingHint: 'הניקוד הוא עזרה זמנית. ההפחתה האוטומטית מסירה סימנים באופן מכני ואינה שיפוט של קושי לשוני או מורפולוגיה.',
   pointedUnavailable: 'אין צורה מנוקדת זמינה; עדיין אי אפשר להפחית את תמיכת הקריאה בפריט הזה.',
   showReadingHint: 'הצגת רמז ניקוד',
@@ -395,7 +399,7 @@ const he: LearningCoreCopy = {
   register: 'משלב',
   track: 'מסלול',
   curriculumTitle: 'מסלול למידה',
-  curriculumDescription: 'שמרו את המסלול המועדף. בגרסה 2.6 כל המסלולים עדיין משתמשים באותו תור חזרות, בזמן שמטא-נתונים בדוקים מתרחבים.',
+  curriculumDescription: 'בחרו את המסלול המועדף. הוא משלים את המסלול המובנה A0–A2 ומשתמש באותו תור חזרות בדוק.',
   tracks: { modern_conversation: 'שיחה מודרנית', pointed_reading: 'קריאה מנוקדת', formal_professional: 'עברית רשמית ומקצועית' },
   trackDescriptions: {
     modern_conversation: 'עברית מדוברת יומיומית למצבים אמיתיים בישראל.',
