@@ -18,7 +18,7 @@
 - Published implementation commit: `03bf84b9268ff8be528c0fab3c670f9652ee23b0`
 - Latest published Git tag and GitHub Release: `v2.4.0`
 - Candidate publication state: `2.8.0` is local, untagged, unpushed and unpublished
-- Publication gate: blocked pending two-account Google, clean extracted-package and mother-pilot verification, plus the active Devpost judging freeze
+- Publication gate: blocked pending two-account Google and mother-pilot verification, plus the active Devpost judging freeze
 - Personal signature: `KC ✦ LT` is reserved and excluded from the MIT asset grant
 - Dictionary-derived data: separate Wiktionary/Kaikki attribution and share-alike terms
 - Privacy notice: `PRIVACY.md`
@@ -141,7 +141,7 @@ The source tree includes:
 
 `IvritSheli-v2.6-local.zip` is retained only as an obsolete historical artifact. It is not the 2.8 candidate and must not be distributed as the current application.
 
-The final 2.8 ZIP and external SHA-256 file have not yet been declared release artifacts. They must be generated from the confirmed tree, extracted into a clean directory and verified only after the remaining gates pass.
+A reproducible, commit-suffixed local candidate ZIP and external SHA-256 have been generated, extracted into a clean directory and verified. They remain private candidate artifacts—not a GitHub Release—until the external gates pass.
 
 ## Verified private 2.8 candidate
 
@@ -182,7 +182,7 @@ See `TEST_REPORT.md` for commands, coverage and evidence boundaries.
 
 ## Package and deployment state
 
-The source-quality, test, accessibility, dependency, doctor, build and Compose gates have passed. The source package verifier passed 124 required-file and packaged-asset checks, and `SHA256SUMS.txt` records 270 canonical Git-index blobs. Clean extracted-ZIP verification and the external ZIP checksum remain release gates against the final confirmed commit.
+The source-quality, test, accessibility, dependency, doctor, build and Compose gates have passed. The source package verifier passed 124 required-file and packaged-asset checks, and `SHA256SUMS.txt` records 270 canonical Git-index blobs. A commit-suffixed archive was rebuilt from canonical Git blobs, extracted cleanly, reverified and matched its external SHA-256.
 
 Docker Desktop 4.83 / Engine 29.6.2 verified the PostgreSQL 17 migration and restricted role, three database-boundary integration cases, forced RLS, the non-root production-shaped image, healthy `/health/ready` and `/version`, and a disposable backup/restore drill. The restored database retained 2 users, 3 sessions, 0 OAuth states, 2 learner states and its forced-RLS policy. The backup SHA-256 was `A483C8DACC2E0F649139D4139635B28FA88E084A3D3D47F8F9D7148F182E6F62`.
 
@@ -192,10 +192,9 @@ Do not merge, push, tag, publish a GitHub Release or deploy to Railway until:
 
 1. Two real Google accounts prove identity-only sign-in, tenant isolation and phone/computer progress continuity.
 2. Kevin's mother completes the WhatsApp-link beginner pilot without assistance.
-3. The confirmed tree passes clean extracted-ZIP verification and receives an external ZIP checksum.
-4. A production backup is created immediately before deployment.
-5. The OpenAI Build Week judging freeze ends.
-6. Kevin gives explicit final publication approval.
+3. A production backup is created immediately before deployment.
+4. The OpenAI Build Week judging freeze ends.
+5. Kevin gives explicit final publication approval.
 
 After 2.8 accepts writes using the new schema, do not roll the application code back to 2.4 unless the matching pre-deployment database backup is restored.
 

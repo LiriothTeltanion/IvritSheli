@@ -12,7 +12,7 @@
 
 Ivrit Sheli 2.8.0 is a locally verified private candidate for the **Warm Illustrated Learning Journey**. The source, deterministic learning engine, curriculum, daily-session flow, frontend, accessibility matrix and production build pass the checks that can run in the current workstation environment.
 
-This ledger does **not** promote 2.8.0 to production. Docker Desktop, PostgreSQL 17, the production-shaped image, tenant isolation and a disposable backup/restore drill are verified locally. Two-account Google persistence/isolation, clean extracted-package verification and the required beginner pilot with Kevin's mother remain unverified. The live Railway application, Git tag and GitHub Release therefore remain at verified version 2.4.0.
+This ledger does **not** promote 2.8.0 to production. Docker Desktop, PostgreSQL 17, the production-shaped image, tenant isolation, a disposable backup/restore drill and a clean extracted-package check are verified locally. Two-account Google persistence/isolation, the required beginner pilot with Kevin's mother and the end of the active Devpost judging freeze remain external gates. The live Railway application, Git tag and GitHub Release therefore remain at verified version 2.4.0.
 
 ## Verified private 2.8 candidate
 
@@ -33,6 +33,7 @@ This ledger does **not** promote 2.8.0 to production. Docker Desktop, PostgreSQL
 | Docker Compose configuration | Passed |
 | Source package verifier | Passed / 124 required files |
 | Canonical Git-blob checksum manifest | Passed / 270 files |
+| Clean extracted candidate archive | **Passed; package, checksum, Compose and PowerShell launcher checks** |
 | PostgreSQL 17 integration gate | **3 passed with administrator and restricted-runtime roles** |
 | Production Docker image/readiness | **Passed; non-root app and PostgreSQL 17 healthy** |
 | PostgreSQL backup/restore drill | **Passed in a disposable database** |
@@ -144,9 +145,8 @@ Publication remains blocked until all of the following are complete:
 
 1. Use two real Google accounts to verify `openid profile` sign-in, account isolation and progress continuity between phone and computer.
 2. Complete the mother pilot from a WhatsApp link: find the primary action within 30 seconds, learn three words, finish a session without assistance and confirm progress after reload. Cross-device continuity belongs to the two-account hosted gate, not the LAN-only pilot.
-3. Build the final release ZIP from the confirmed commit, verify it after clean extraction and publish its external SHA-256.
-4. Back up production immediately before deployment and verify login, persistence, export and deletion after deployment.
-5. Wait until the OpenAI Build Week judging freeze ends, then obtain explicit final approval before merge, push, tag `v2.8.0`, GitHub Release or Railway deployment.
+3. Back up production immediately before deployment and verify login, persistence, export and deletion after deployment.
+4. Wait until the OpenAI Build Week judging freeze ends, then obtain explicit final approval before merge, push, tag `v2.8.0`, GitHub Release or Railway deployment.
 
 No rollback to the 2.4 application is safe after 2.8 accepts writes using the new schema unless the matching pre-deployment database backup is restored.
 

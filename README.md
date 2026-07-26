@@ -37,11 +37,11 @@
 | Production storage/readiness | PostgreSQL · ready · 48 reviewed dictionary entries |
 | Deployment verification | Successful on 2026-07-21 |
 | Release verification | 151 unique backend tests + 62 frontend tests = 213 passed; main CI and CodeQL passed |
-| Candidate verification | 194 backend + 133 Vitest + 20 Playwright = 347 executed passes; Ruff, strict MyPy, TypeScript, Vite, dependency audits, Docker/PostgreSQL, tenant isolation and a disposable backup/restore drill are verified |
+| Candidate verification | 194 backend + 133 Vitest + 20 Playwright = 347 executed passes; Ruff, strict MyPy, TypeScript, Vite, dependency audits, Docker/PostgreSQL, tenant isolation, disposable backup/restore and clean extracted-package checks are verified |
 | GitHub publication | [`v2.4.0`](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.4.0) is the published tag and GitHub Release |
 | Live account evidence | Identity-only Google sign-in, onboarding state and the authenticated session persisted across reload; logout returned to the English landing page and remained signed out after reload |
 | Live judge-path evidence | The English entry link and four-stop read-only guided tour passed production browser checks |
-| Remaining v2.8 release gate | Two-real-Google-account isolation/persistence, clean extracted-package verification and the beginner pilot remain required before public release |
+| Remaining v2.8 release gate | Two-real-Google-account isolation/persistence, the beginner pilot and the end of the active Devpost judging freeze remain required before public release |
 | Visual proof | The animated journey and desktop/mobile/RTL captures below were generated from the local 2.8.0 candidate after Docker rebuild and direct browser inspection |
 
 The same conservative fields are available for portfolio/profile tooling in

@@ -74,7 +74,7 @@
     "visual_journey_regions": 6,
     "public_google_scope": "openid profile",
     "local_mode_without_account": true,
-    "release_gate": "Two-account isolation check, clean extracted-package verification and beginner pilot remain required before publication."
+    "release_gate": "Two-account isolation check, beginner pilot and the end of the Devpost judging freeze remain required before publication."
   },
   "visual_proof": {
     "state": "local-2.8-candidate-and-live-2.4-verified",

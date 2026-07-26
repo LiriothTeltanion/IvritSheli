@@ -51,10 +51,10 @@ labels intentionally separate implementation evidence from release evidence:
   applicable test, accessibility and build gates after the final diff.
 
 The root verification pass is complete for the local code, accessibility,
-build, dependency and Docker/PostgreSQL boundaries. It executed 194 backend,
-133 Vitest and 20 Playwright cases with no failures. Publication still requires
-the two-real-Google-account check, clean extracted-package verification, the
-mother pilot and the end of the active Devpost judging freeze.
+build, dependency, Docker/PostgreSQL and clean extracted-package boundaries. It
+executed 194 backend, 133 Vitest and 20 Playwright cases with no failures.
+Publication still requires the two-real-Google-account check, the mother pilot
+and the end of the active Devpost judging freeze.
 
 | Research decision now represented in code | Current implementation boundary | Code evidence | Release verification |
 |---|---|---|---|

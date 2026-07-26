@@ -436,8 +436,8 @@ def verify_portfolio_manifest() -> list[str]:
         "public_google_scope": "openid profile",
         "local_mode_without_account": True,
         "release_gate": (
-            "Two-account isolation check, clean extracted-package verification "
-            "and beginner pilot remain required before publication."
+            "Two-account isolation check, beginner pilot and the end of the "
+            "Devpost judging freeze remain required before publication."
         ),
     }
     if candidate is not None and candidate != expected_candidate:
@@ -547,7 +547,7 @@ def verify_release_truth_drift() -> list[str]:
             "Current public deployed application | `2.4.0`",
             "151 unique backend tests + 62 frontend tests = 213 passed",
             "GitHub publication | [`v2.4.0`](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.4.0)",
-            "Two-real-Google-account isolation/persistence, clean extracted-package verification and the beginner pilot",
+            "Two-real-Google-account isolation/persistence, the beginner pilot and the end of the active Devpost judging freeze",
         ),
         "TEST_REPORT.md": (
             "Current private source candidate:** `2.8.0` / local / unpublished",
