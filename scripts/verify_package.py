@@ -987,7 +987,10 @@ def verify_checksum_manifest() -> list[str]:
                 "stage the intended release tree, then run "
                 "scripts/generate_checksums.py"
                 if use_index
-                else "rebuild the archive from the verified committed tree"
+                else (
+                    "rebuild from the verified commit with "
+                    "core.autocrlf=false and core.eol=lf"
+                )
             )
             failures.append(
                 f"SHA256SUMS.txt: stale {source} digest for {relative}; {action}"
