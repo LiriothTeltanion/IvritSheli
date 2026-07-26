@@ -141,7 +141,7 @@ The source tree includes:
 
 `IvritSheli-v2.6-local.zip` is retained only as an obsolete historical artifact. It is not the 2.8 candidate and must not be distributed as the current application.
 
-The reproducible, commit-suffixed 2.8.1 ZIP, external SHA-256 and clean extracted-tree verification remain pending until the final checkpoint tree is committed. Any generated artifacts remain private candidates—not a GitHub Release—until the external gates pass.
+A reproducible private archive was built from implementation checkpoint `c9e2762`, extracted cleanly and passed the 136-file package verifier and Compose parsing. Its external SHA-256 is `535e93aaf3912704aaae56076a2b4e9ef8e47fe9df03bbb0fa996d0707c33ccb`. It remains a private candidate—not a GitHub Release—until the external gates pass.
 
 ## Verified private 2.8 candidate
 
@@ -182,7 +182,7 @@ See `TEST_REPORT.md` for commands, coverage and evidence boundaries.
 
 ## Package and deployment state
 
-The source-quality, test, accessibility, dependency, doctor, build and Compose gates have passed. The final staged-tree package verifier passed 136 required files and `SHA256SUMS.txt` records 277 canonical Git-index blobs. The reproducible ZIP and clean extracted archive remain committed-tree gates.
+The source-quality, test, accessibility, dependency, doctor, build and Compose gates have passed. The final staged-tree package verifier passed 136 required files and `SHA256SUMS.txt` records 277 canonical Git-index blobs. The commit-suffixed `c9e2762` archive passed clean extraction, package verification, Compose parsing and external SHA-256 comparison.
 
 Docker Desktop 4.83 / Engine 29.6.2 verified the PostgreSQL 17 migration and restricted role, three database-boundary integration cases, forced RLS, the non-root production-shaped image, healthy `/health/ready` and `/version`, and a disposable backup/restore drill. The restored database retained 2 users, 3 sessions, 0 OAuth states, 2 learner states and its forced-RLS policy. The backup SHA-256 was `A483C8DACC2E0F649139D4139635B28FA88E084A3D3D47F8F9D7148F182E6F62`.
 

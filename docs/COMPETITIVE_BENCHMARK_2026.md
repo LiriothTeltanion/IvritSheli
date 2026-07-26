@@ -54,7 +54,8 @@ The root verification pass is complete for the local code, accessibility,
 build, dependency and Docker/PostgreSQL boundaries. It executed 195 backend,
 158 Vitest and 21 Playwright cases with no failures. The final 2.8.1 staged
 package verifier and 277-entry canonical checksum manifest pass; the
-reproducible ZIP and clean extracted archive remain committed-tree gates.
+reproducible ZIP for implementation checkpoint `c9e2762` also passed clean
+extraction, package verification, Compose parsing and external SHA comparison.
 Publication still requires the two-real-Google-account check, the mother-pilot
 acceptance retest and the OpenAI Build Week winner announcement.
 

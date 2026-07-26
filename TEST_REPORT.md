@@ -12,7 +12,7 @@
 
 Ivrit Sheli 2.8.1 is a locally verified private candidate for the **Warm Illustrated Learning Journey**. The source, deterministic learning engine, curriculum, daily-session flow, frontend, accessibility matrix and production build pass the checks that can run in the current workstation environment.
 
-This ledger does **not** promote 2.8.1 to production. Docker Desktop, PostgreSQL 17, the production-shaped image, tenant isolation and a disposable backup/restore drill were verified locally for the private 2.8 foundation. The final 2.8.1 staged package and canonical Git-blob checksum manifest pass; the clean extracted archive remains a committed-tree gate. Two-account Google persistence/isolation, the formal mother-pilot acceptance retest and the end of the OpenAI Build Week winner-announcement freeze remain external gates. The live Railway application, Git tag and GitHub Release therefore remain at verified version 2.4.0.
+This ledger does **not** promote 2.8.1 to production. Docker Desktop, PostgreSQL 17, the production-shaped image, tenant isolation and a disposable backup/restore drill were verified locally for the private 2.8 foundation. The final 2.8.1 staged package and canonical Git-blob checksum manifest pass; a commit-suffixed archive of implementation checkpoint `c9e2762` also passed clean extraction, package verification, Compose parsing and external SHA-256 comparison. Two-account Google persistence/isolation, the formal mother-pilot acceptance retest and the end of the OpenAI Build Week winner-announcement freeze remain external gates. The live Railway application, Git tag and GitHub Release therefore remain at verified version 2.4.0.
 
 ## Verified private 2.8 candidate
 
@@ -33,7 +33,7 @@ This ledger does **not** promote 2.8.1 to production. Docker Desktop, PostgreSQL
 | Docker Compose configuration | Passed |
 | Source package verifier | Passed / 136 required files |
 | Canonical Git-blob checksum manifest | Passed / 277 files |
-| Clean extracted candidate archive | Pending final committed-tree build |
+| Clean extracted candidate archive | **Passed for implementation checkpoint `c9e2762`; SHA-256 `535e93aaf3912704aaae56076a2b4e9ef8e47fe9df03bbb0fa996d0707c33ccb`** |
 | PostgreSQL 17 integration gate | **3 passed with administrator and restricted-runtime roles** |
 | Production Docker image/readiness | **Passed; non-root app and PostgreSQL 17 healthy** |
 | PostgreSQL backup/restore drill | **Passed in a disposable database** |
