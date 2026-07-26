@@ -90,7 +90,7 @@ STARTER_CONCEPTS: tuple[dict[str, Any], ...] = (
         "transliteration": "shalom",
         "translation_en": "hello / peace",
         "translation_es": "hola / paz",
-        "visual_id": "greeting-sun",
+        "visual_id": "greetings.hello",
         "source": "reviewed_starter",
     },
     {
@@ -101,7 +101,7 @@ STARTER_CONCEPTS: tuple[dict[str, Any], ...] = (
         "transliteration": "toda",
         "translation_en": "thank you",
         "translation_es": "gracias",
-        "visual_id": "thankful-hands",
+        "visual_id": "greetings.thanks",
         "source": "reviewed_starter",
     },
     {
@@ -112,7 +112,7 @@ STARTER_CONCEPTS: tuple[dict[str, Any], ...] = (
         "transliteration": "ken",
         "translation_en": "yes",
         "translation_es": "sí",
-        "visual_id": "yes-check",
+        "visual_id": "greetings.yes",
         "source": "reviewed_starter",
     },
 )

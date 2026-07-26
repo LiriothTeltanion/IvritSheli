@@ -12,16 +12,16 @@
 
 Ivrit Sheli 2.8.0 is a locally verified private candidate for the **Warm Illustrated Learning Journey**. The source, deterministic learning engine, curriculum, daily-session flow, frontend, accessibility matrix and production build pass the checks that can run in the current workstation environment.
 
-This ledger does **not** promote 2.8.0 to production. The Docker daemon could not start, so the PostgreSQL 17 integration, production-image readiness and backup/restore drills were not rerun for this candidate. Two-account Google persistence/isolation and the required beginner pilot with Kevin's mother also remain unverified. The live Railway application, Git tag and GitHub Release therefore remain at verified version 2.4.0.
+This ledger does **not** promote 2.8.0 to production. Docker Desktop, PostgreSQL 17, the production-shaped image, tenant isolation and a disposable backup/restore drill are verified locally. Two-account Google persistence/isolation, clean extracted-package verification and the required beginner pilot with Kevin's mother remain unverified. The live Railway application, Git tag and GitHub Release therefore remain at verified version 2.4.0.
 
 ## Verified private 2.8 candidate
 
 | Verification area | Current 2.8 result |
 |---|---:|
 | Ordinary backend suite | **194 passed / 1 credential-gated PostgreSQL skip** |
-| Frontend Vitest suite | **124 passed / 28 files** |
+| Frontend Vitest suite | **133 passed / 29 files** |
 | Playwright + axe browser matrix | **20 passed / 22 intentional skips / 0 failed** |
-| Directly executed automated passes | **338 passed** |
+| Directly executed automated passes | **347 passed** |
 | Ruff | Passed |
 | MyPy strict | Passed across 30 backend source files |
 | TypeScript project check | Passed |
@@ -31,15 +31,15 @@ This ledger does **not** promote 2.8.0 to production. The Docker daemon could no
 | pip-audit | No known vulnerabilities |
 | npm production audit | 0 vulnerabilities |
 | Docker Compose configuration | Passed |
-| Source package verifier | Passed / 112 required files |
-| Canonical Git-blob checksum manifest | Passed / 260 files |
-| PostgreSQL 17 integration gate | **Not rerun — Docker daemon unavailable** |
-| Production Docker image/readiness | **Not verified for 2.8** |
-| PostgreSQL backup/restore drill | **Not verified for 2.8** |
+| Source package verifier | Passed / 124 required files |
+| Canonical Git-blob checksum manifest | Passed / 270 files |
+| PostgreSQL 17 integration gate | **3 passed with administrator and restricted-runtime roles** |
+| Production Docker image/readiness | **Passed; non-root app and PostgreSQL 17 healthy** |
+| PostgreSQL backup/restore drill | **Passed in a disposable database** |
 | Two live Google accounts | **Not verified for 2.8** |
 | Required mother pilot | **Not performed** |
 
-The 338 figure is the transparent sum of 194 backend tests, 124 frontend unit/component tests and 20 Playwright browser cases executed for this candidate. The 22 Playwright skips are intentional viewport-independent duplicates in the configured matrix, not failures. The single backend skip requires PostgreSQL administrator and restricted-runtime connection URLs; it is not counted as a pass.
+The 347 figure is the transparent sum of 194 backend tests, 133 frontend unit/component tests and 20 Playwright browser cases executed for this candidate. The 22 Playwright skips are intentional viewport-independent duplicates in the configured matrix, not failures. The single ordinary-backend skip requires PostgreSQL administrator and restricted-runtime connection URLs; the dedicated Docker/PostgreSQL gate passes all three database-boundary cases and is not added again to the 347 total.
 
 ### Commands executed
 
@@ -79,7 +79,7 @@ The offline doctor passed and reported version 2.8.0. The workstation dictionary
 
 ### Frontend and build evidence
 
-TypeScript passed. Vitest passed all 124 tests across 28 files. Coverage includes:
+TypeScript passed. Vitest passed all 133 tests across 29 files. Coverage includes:
 
 - Guided, Explorer and Experienced modes.
 - Three-word beginner entry before account/profile configuration.
@@ -96,13 +96,13 @@ The Vite production build completed without a chunk-size warning:
 
 | Output | Raw | Gzip |
 |---|---:|---:|
-| Main JavaScript | 435.36 kB | 131.88 kB |
-| Main CSS | 184.42 kB | 34.32 kB |
-| LearnPanel JavaScript | 59.40 kB | 15.78 kB |
+| Main JavaScript | 443.13 kB | 133.59 kB |
+| Main CSS | 190.66 kB | 35.25 kB |
+| LearnPanel JavaScript | 64.01 kB | 17.38 kB |
 | LearnPanel CSS | 4.63 kB | 1.38 kB |
-| Progress JavaScript | 13.02 kB | 3.77 kB |
+| Progress JavaScript | 13.19 kB | 3.80 kB |
 | Settings JavaScript | 12.94 kB | 3.39 kB |
-| AICoach JavaScript | 5.39 kB | 1.96 kB |
+| AICoach JavaScript | 5.39 kB | 1.97 kB |
 | Connector JavaScript | 4.36 kB | 1.50 kB |
 
 The 558,348-byte offline starter dictionary contains exactly 240 unique reviewed entries and no user, session, profile or token fields.
@@ -125,36 +125,28 @@ No serious or critical axe violation remained in the executed matrix. This evide
 
 ### Dependency and configuration evidence
 
-`pip-audit` reported no known vulnerabilities in the pinned backend requirements. `npm audit --omit=dev` reported zero production vulnerabilities. `docker compose config --quiet` passed, which verifies Compose syntax and interpolation only.
+`pip-audit` reported no known vulnerabilities in the pinned backend requirements. `npm audit --omit=dev` reported zero production vulnerabilities. `docker compose config --quiet` passed.
 
-Docker Desktop failed while initializing its inference-manager listener:
+Docker Desktop 4.83 with Engine 29.6.2 recovered without a factory reset. The final local gate verified:
 
-```text
-starting services: initializing Inference manager: listening on
-unix://C:/Users/kevin/AppData/Local/Docker/run/dockerInference:
-The filename, directory name, or volume label syntax is incorrect.
-```
+- PostgreSQL 17, Alembic migrations and restricted runtime provisioning.
+- Three real PostgreSQL integration cases covering persistence, tenant isolation and forced RLS denial.
+- A non-root application runtime (`UID/GID 10001`).
+- HTTP 200 from `/health/live`, `/health/ready` and `/version`; readiness reported PostgreSQL and dictionary schema 3 with 244 workstation entries.
+- A backup restored into a disposable database with 2 users, 3 sessions, 0 OAuth states and 2 learner states; forced RLS and its policy survived the restore.
+- Backup SHA-256 `A483C8DACC2E0F649139D4139635B28FA88E084A3D3D47F8F9D7148F182E6F62`.
 
-No factory reset or other destructive Docker operation was attempted. Because the daemon remained unavailable, this ledger makes no 2.8 claim for:
-
-- A PostgreSQL 17 migration and restricted-role run.
-- A production Docker image build.
-- `/health/ready` from the candidate container.
-- A pre-deployment PostgreSQL backup.
-- A backup restoration drill.
+The disposable databases were removed after verification. The original local database and the frozen Railway production database were not modified.
 
 ## Unverified publication gates
 
 Publication remains blocked until all of the following are complete:
 
-1. Restore a working Docker daemon and rerun the PostgreSQL 17 migration, restricted-role, RLS and tenant-isolation gate.
-2. Build the production image and verify `/health/ready` and `/version` from the container.
-3. Create and restore a PostgreSQL backup in a disposable environment.
-4. Use two real Google accounts to verify `openid profile` sign-in, account isolation and progress continuity between phone and computer.
-5. Complete the mother pilot from a WhatsApp link: find the primary action within 30 seconds, learn three words, finish a session without assistance and confirm progress after reload/device change.
-6. Build the final release ZIP from the confirmed commit, verify it after clean extraction and publish its external SHA-256.
-7. Back up production immediately before deployment and verify login, persistence, export and deletion after deployment.
-8. Obtain explicit final approval before merge, push, tag `v2.8.0`, GitHub Release or Railway deployment.
+1. Use two real Google accounts to verify `openid profile` sign-in, account isolation and progress continuity between phone and computer.
+2. Complete the mother pilot from a WhatsApp link: find the primary action within 30 seconds, learn three words, finish a session without assistance and confirm progress after reload. Cross-device continuity belongs to the two-account hosted gate, not the LAN-only pilot.
+3. Build the final release ZIP from the confirmed commit, verify it after clean extraction and publish its external SHA-256.
+4. Back up production immediately before deployment and verify login, persistence, export and deletion after deployment.
+5. Wait until the OpenAI Build Week judging freeze ends, then obtain explicit final approval before merge, push, tag `v2.8.0`, GitHub Release or Railway deployment.
 
 No rollback to the 2.4 application is safe after 2.8 accepts writes using the new schema unless the matching pre-deployment database backup is restored.
 

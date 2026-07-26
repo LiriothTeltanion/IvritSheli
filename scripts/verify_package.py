@@ -25,6 +25,8 @@ ROOT = Path(__file__).resolve().parents[1]
 
 REQUIRED_FILES = (
     "README.md",
+    "AGENTS.md",
+    "START_PRIVATE_PILOT.bat",
     "portfolio/project.json",
     "PACKAGE_MANIFEST.md",
     "TEST_REPORT.md",
@@ -70,6 +72,8 @@ REQUIRED_FILES = (
     "frontend/src/App.tsx",
     "frontend/src/components/AuthGate.tsx",
     "frontend/src/components/AuthGate.test.tsx",
+    "frontend/src/components/PreAccountLesson.tsx",
+    "frontend/src/components/PreAccountLesson.test.tsx",
     "frontend/src/components/BeginnerOnboarding.tsx",
     "frontend/src/components/FirstStepsLesson.tsx",
     "frontend/src/components/CategoryWordIllustration.tsx",
@@ -87,6 +91,7 @@ REQUIRED_FILES = (
     "frontend/src/components/LivingHebrewAtlas.tsx",
     "frontend/src/components/AtlasRegionVocabulary.tsx",
     "frontend/src/components/DailyPracticeSession.tsx",
+    "frontend/src/components/DailyPracticeSession.test.tsx",
     "frontend/src/components/LearningCoreJourney.tsx",
     "frontend/src/components/LearningSkillMap.tsx",
     "frontend/src/learnerMode.ts",
@@ -113,6 +118,7 @@ REQUIRED_FILES = (
     "docs/GAMIFICATION.md",
     "docs/PERSONALIZATION.md",
     "docs/COMPETITIVE_BENCHMARK_2026.md",
+    "docs/PRODUCT_MANIFESTO.md",
     "docs/LEARNING_SCIENCE.md",
     "docs/LEARNING_CORE_V2_6.md",
     "docs/HEBREW_CONTENT_PROVENANCE.md",
@@ -130,9 +136,15 @@ REQUIRED_FILES = (
     "assets/readme/ivrit-sheli-2-dashboard.png",
     "assets/readme/ivrit-sheli-2-mobile.png",
     "assets/readme/ivrit-sheli-2-hebrew-rtl.png",
+    "assets/readme/ivrit-sheli-2.8-dashboard.png",
+    "assets/readme/ivrit-sheli-2.8-hebrew-rtl.png",
+    "assets/readme/ivrit-sheli-2.8-journey.gif",
+    "assets/readme/ivrit-sheli-2.8-mobile.png",
+    "assets/readme/ivrit-sheli-2.8-welcome.png",
     "assets/social/ivrit-sheli-social-preview.svg",
     "assets/social/ivrit-sheli-social-preview.png",
     "scripts/docker-entrypoint.sh",
+    "scripts/start.ps1",
     "scripts/build_release_archive.py",
     "scripts/export_pwa_starter_content.py",
     "scripts/verify_container_logs.py",
@@ -424,7 +436,7 @@ def verify_portfolio_manifest() -> list[str]:
         "public_google_scope": "openid profile",
         "local_mode_without_account": True,
         "release_gate": (
-            "Full verification, two-account isolation check, backup/restore drill "
+            "Two-account isolation check, clean extracted-package verification "
             "and beginner pilot remain required before publication."
         ),
     }
@@ -447,11 +459,13 @@ def verify_portfolio_manifest() -> list[str]:
     )
     failures.extend(nested_failures)
     expected_visual_proof = {
-        "state": "live-english-journey-verified",
+        "state": "local-2.8-candidate-and-live-2.4-verified",
         "social_preview_version": "2.2.0",
-        "readme_screenshot_version": "2.1.x",
-        "readme_screenshots_match_source_version": False,
-        "interactive_browser_qa": "verified-english-entry-and-read-only-tour",
+        "readme_screenshot_version": "2.8.0-local-candidate",
+        "readme_screenshots_match_source_version": True,
+        "interactive_browser_qa": (
+            "local-2.8-desktop-mobile-rtl-dark-contrast-and-live-2.4-judge-path-verified"
+        ),
     }
     if visual_proof is not None and visual_proof != expected_visual_proof:
         failures.append("portfolio/project.json: visual proof must match the verified live English journey")
@@ -533,14 +547,14 @@ def verify_release_truth_drift() -> list[str]:
             "Current public deployed application | `2.4.0`",
             "151 unique backend tests + 62 frontend tests = 213 passed",
             "GitHub publication | [`v2.4.0`](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.4.0)",
-            "Two-real-account isolation/persistence, backup restoration, extracted-package verification and the beginner pilot",
+            "Two-real-Google-account isolation/persistence, clean extracted-package verification and the beginner pilot",
         ),
         "TEST_REPORT.md": (
             "Current private source candidate:** `2.8.0` / local / unpublished",
             "194 passed",
-            "124 passed",
+            "133 passed",
             "20 passed",
-            "338 passed",
+            "347 passed",
             "Current verified production:** `2.4.0` on Railway with PostgreSQL",
             "03bf84b9268ff8be528c0fab3c670f9652ee23b0",
             "Git tag and GitHub Release `v2.4.0`",
@@ -558,9 +572,9 @@ def verify_release_truth_drift() -> list[str]:
             "`2.8.0` is local, untagged, unpushed and unpublished",
             "Latest published Git tag and GitHub Release: `v2.4.0`",
             "194 passed",
-            "124 passed",
+            "133 passed",
             "20 passed",
-            "338 passed",
+            "347 passed",
         ),
         "docs/DEPLOYMENT.md": (
             "Current production verification record — 2.4.0 — 2026-07-21",
@@ -643,8 +657,8 @@ def verify_source_version_surfaces() -> list[str]:
         "backend/src/ivrit_sheli/__init__.py": '__version__ = "2.8.0"',
         "frontend/index.html": "Ivrit Sheli 2.8",
         "frontend/public/sw.js": "ivrit-sheli-shell-v2.8.0",
-        "frontend/src/App.tsx": "v2.8.0 private candidate",
-        "frontend/src/components/AuthGate.tsx": "v2.8.0 private",
+        "frontend/src/App.tsx": "v2.8.0 local candidate",
+        "frontend/src/components/AuthGate.tsx": "v2.8.0 local candidate",
         "frontend/src/components/SettingsPanel.tsx": "app_version: '2.8.0'",
         ".github/ISSUE_TEMPLATE/bug_report.yml": "placeholder: 2.8.0-private",
         "CITATION.cff": "version: 2.8.0",

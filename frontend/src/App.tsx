@@ -383,7 +383,7 @@ export default function App(): React.JSX.Element {
       <aside className="sidebar">
         <div className="brand-lockup">
           <img src="/icons/app-icon.svg" alt="" />
-          <div><strong>{t('appName')}</strong><span>PRIVATE CANDIDATE 2.8</span></div>
+          <div><strong>{t('appName')}</strong><span>LOCAL CANDIDATE 2.8</span></div>
         </div>
         <nav className="side-nav" aria-label={t('primaryNavigation')}>
           {visibleNavigation.map((item) => (
@@ -405,8 +405,8 @@ export default function App(): React.JSX.Element {
           <div className="sidebar-streak"><Icon name="flame" size={18} /><span><strong>{dashboard.stats.streak_days}</strong>{t('streak')}</span></div>
         </div>
         <div className="sidebar-footer">
-          <div className="privacy-mini"><Icon name="shield" size={17} /><span><strong>{auth.demo ? t('demoWorkspace') : localMode ? t('localWorkspace') : t('privateMode')}</strong><small>{auth.demo ? t('readOnlyDemo') : localMode ? t('localFirstStorage') : t('accountStorage')}</small></span></div>
-          <span className="version-label">v2.8.0 private candidate</span>
+          <div className="privacy-mini"><Icon name="target" size={17} /><span><strong>{t(`${learnerMode}Mode`)}</strong><small>{t('level')} {profile.cefr_band ?? profile.hebrew_level}</small></span></div>
+          <span className="version-label">v2.8.0 local candidate</span>
         </div>
       </aside>
 
@@ -550,7 +550,7 @@ export default function App(): React.JSX.Element {
           )}
           {view === 'learn' && <LearnPanel initialTab={learnTab} {...(practiceWord ? { practiceWord } : {})} cloudAvailable={dashboard.system.cloud_available} dashboard={dashboard} onWordClick={openDictionary} onRefresh={() => { void refreshCore(); }} />}
           {view === 'coach' && <AICoach cloudAvailable={false} onWordClick={openDictionary} />}
-          {view === 'progress' && progress && <ProgressPanel progress={progress} gamification={gamification} cefrBand={profile.cefr_band ?? profile.hebrew_level} />}
+          {view === 'progress' && progress && <ProgressPanel progress={progress} gamification={gamification} cefrBand={profile.cefr_band ?? profile.hebrew_level} onStartPractice={() => goToLearn('practice')} />}
           {view === 'progress' && !progress && <section className="card skeleton-page"><div className="skeleton" /><div className="skeleton" /></section>}
           {view === 'connectors' && <ConnectorPanel onImported={() => { setToast(t('captured')); void refreshCore(); }} />}
           {view === 'settings' && (

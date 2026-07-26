@@ -63,4 +63,25 @@ describe('ReviewCard', () => {
     expect(screen.getByRole('button', { name: 'Good' })).toBeEnabled();
     expect(screen.getByRole('button', { name: 'Easy' })).toBeEnabled();
   });
+
+  it('offers daily practice when the review queue is empty', async () => {
+    vi.spyOn(api, 'nextReviews').mockResolvedValue([]);
+    const onStartPractice = vi.fn();
+    const user = userEvent.setup();
+
+    render(
+      <I18nProvider>
+        <ReviewCard
+          active
+          onWordClick={vi.fn()}
+          onReviewed={vi.fn()}
+          onStartPractice={onStartPractice}
+        />
+      </I18nProvider>,
+    );
+
+    await user.click(await screen.findByRole('button', { name: "Today's practice" }));
+
+    expect(onStartPractice).toHaveBeenCalledOnce();
+  });
 });

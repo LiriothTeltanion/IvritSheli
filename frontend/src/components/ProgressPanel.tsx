@@ -17,10 +17,12 @@ export function ProgressPanel({
   progress,
   gamification,
   cefrBand = 'A1',
+  onStartPractice,
 }: {
   progress: ProgressData;
   gamification: GamificationStatus;
   cefrBand?: string;
+  onStartPractice?: (() => void) | undefined;
 }): React.JSX.Element {
   const { label, locale, t } = useI18n();
   const learningCopy = learningCoreCopy(locale);
@@ -146,6 +148,11 @@ export function ProgressPanel({
             <span aria-hidden="true">🪴</span>
             <strong>{t('learningActivityEmptyTitle')}</strong>
             <p>{t('learningActivityEmptyDetail')}</p>
+            {onStartPractice && (
+              <button type="button" className="primary-button" onClick={onStartPractice}>
+                <Icon name="play" size={18} /> {t('dailyPractice')}
+              </button>
+            )}
           </div>
         ) : (
           <ol className="learning-activity-list">

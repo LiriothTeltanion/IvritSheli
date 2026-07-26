@@ -6,6 +6,7 @@ import type {
   LearningCoreNext,
   LearningCoreOverview,
   LearningPhase,
+  ReadingHint,
   LearningSkillDimension,
   ReadingSupport,
 } from './types';
@@ -237,30 +238,14 @@ export function buildLocalLearningCore(
 }
 
 const NIQQUD_PATTERN = /[\u0591-\u05BD\u05BF\u05C1-\u05C2\u05C4-\u05C5\u05C7]/gu;
-const NIQQUD_CHARACTER = /[\u0591-\u05BD\u05BF\u05C1-\u05C2\u05C4-\u05C5\u05C7]/u;
 
 export function removeNiqqud(value: string): string {
   return value.normalize('NFD').replace(NIQQUD_PATTERN, '').normalize('NFC');
 }
 
-export function partialNiqqud(value: string): string {
-  const characters = Array.from(value.normalize('NFD'));
-  const markedConsonants: number[] = [];
-  let consonantIndex = -1;
-  for (const character of characters) {
-    if (/\p{Script=Hebrew}/u.test(character) && !NIQQUD_CHARACTER.test(character)) {
-      consonantIndex += 1;
-    } else if (NIQQUD_CHARACTER.test(character) && consonantIndex >= 0 && !markedConsonants.includes(consonantIndex)) {
-      markedConsonants.push(consonantIndex);
-    }
-  }
-
-  const retainedConsonants = new Set(markedConsonants.filter((_, index) => index % 2 === 0));
-  consonantIndex = -1;
-  return characters.filter((character) => {
-    if (/\p{Script=Hebrew}/u.test(character) && !NIQQUD_CHARACTER.test(character)) consonantIndex += 1;
-    return !NIQQUD_CHARACTER.test(character) || retainedConsonants.has(consonantIndex);
-  }).join('').normalize('NFC');
+function firstReviewedReadingHint(readingHints: readonly ReadingHint[]): string | null {
+  const reviewedHint = readingHints.find((hint) => hint.display.trim().length > 0);
+  return reviewedHint?.display.trim() ?? null;
 }
 
 export function displayHebrewForSupport(
@@ -268,9 +253,12 @@ export function displayHebrewForSupport(
   pointed: string | null,
   support: ReadingSupport,
   hintRevealed: boolean,
+  readingHints: readonly ReadingHint[] = [],
 ): string {
   const source = pointed || plain;
-  if (support === 'full_niqqud' || (support === 'hint_only' && hintRevealed)) return source;
-  if (support === 'partial_niqqud') return partialNiqqud(source);
-  return removeNiqqud(source);
+  const reviewedHint = firstReviewedReadingHint(readingHints);
+  if (support === 'full_niqqud') return source;
+  if (support === 'partial_niqqud') return reviewedHint ?? source;
+  if (support === 'hint_only' && hintRevealed) return reviewedHint ?? source;
+  return removeNiqqud(plain);
 }

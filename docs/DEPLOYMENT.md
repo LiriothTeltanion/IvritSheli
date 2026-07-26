@@ -39,9 +39,20 @@ Useful operations:
 ```bash
 docker compose ps
 docker compose logs --no-log-prefix app
-docker compose run --rm migrate python -m alembic -c backend/alembic.ini current
+docker compose exec -T postgres psql \
+  --username ivrit \
+  --dbname ivrit_sheli \
+  --no-psqlrc \
+  --tuples-only \
+  --no-align \
+  --command "SELECT version_num FROM alembic_version;"
 docker compose down
 ```
+
+The revision query runs inside the local PostgreSQL container and should print
+`20260718_0002`. Do not override the application entrypoint to run arbitrary
+Alembic commands: the entrypoint deliberately removes `MIGRATION_DATABASE_URL`
+from every command except the audited provisioner.
 
 `docker compose down` preserves volumes. Adding `--volumes` destroys the local PostgreSQL and dictionary volumes; use it only when a disposable reset is intentional.
 

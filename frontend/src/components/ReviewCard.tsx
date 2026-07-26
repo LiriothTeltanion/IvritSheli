@@ -18,9 +18,16 @@ interface ReviewCardProps {
   onReviewed: () => void;
   /** Fires once the queue is exhausted, so a chained session can advance. */
   onComplete?: (() => void) | undefined;
+  onStartPractice?: (() => void) | undefined;
 }
 
-export function ReviewCard({ active, onWordClick, onReviewed, onComplete }: ReviewCardProps): React.JSX.Element {
+export function ReviewCard({
+  active,
+  onWordClick,
+  onReviewed,
+  onComplete,
+  onStartPractice,
+}: ReviewCardProps): React.JSX.Element {
   const { locale, label, t } = useI18n();
   const { readOnly, readOnlyReason } = useSessionAccess();
   const [items, setItems] = useState<LearningItem[]>([]);
@@ -96,6 +103,11 @@ export function ReviewCard({ active, onWordClick, onReviewed, onComplete }: Revi
         <span className="success-orb"><Icon name="check" size={28} /></span>
         <h2>{t('sessionComplete')}</h2>
         <p>{t('empty')}</p>
+        {onStartPractice && (
+          <button type="button" className="primary-button" onClick={onStartPractice}>
+            <Icon name="play" size={18} /> {t('dailyPractice')}
+          </button>
+        )}
       </section>
     );
   }

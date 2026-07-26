@@ -132,7 +132,13 @@
   color: #87e3d2;
 }
 
-.hero-dashboard--living-atlas .guided-word-visual {
+.hero-dashboard--living-atlas .guided-word-visual,
+:root[data-theme='dark'] .hero-dashboard--living-atlas .guided-word-visual {
+  color-scheme: light;
+  --warm-navy: #102f3d;
+  --warm-teal: #087f73;
+  --text: #102f3d;
+  --text-soft: #46566b;
   border: 1px solid rgba(255, 255, 255, 0.26);
   background: rgba(255, 253, 248, 0.93);
   box-shadow: 0 1.2rem 3.2rem rgba(3, 16, 26, 0.31);

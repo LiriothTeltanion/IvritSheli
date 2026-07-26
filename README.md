@@ -16,7 +16,6 @@
 
   <p>
     <img src="assets/readme/badge-tests.svg" alt="213 automated tests in the verified public 2.4 baseline" />
-    <img src="assets/readme/badge-private.svg" alt="Local-first private" />
     <img src="assets/readme/badge-trilingual.svg" alt="Hebrew English Spanish" />
     <img src="assets/readme/badge-pwa.svg" alt="Installable PWA" />
   </p>
@@ -38,36 +37,46 @@
 | Production storage/readiness | PostgreSQL · ready · 48 reviewed dictionary entries |
 | Deployment verification | Successful on 2026-07-21 |
 | Release verification | 151 unique backend tests + 62 frontend tests = 213 passed; main CI and CodeQL passed |
-| Candidate verification | 338 automated checks passed locally: 194 backend, 124 frontend and 20 Playwright/axe cases; Docker/PostgreSQL, two-account Google and mother-pilot gates remain unverified |
+| Candidate verification | 194 backend + 133 Vitest + 20 Playwright = 347 executed passes; Ruff, strict MyPy, TypeScript, Vite, dependency audits, Docker/PostgreSQL, tenant isolation and a disposable backup/restore drill are verified |
 | GitHub publication | [`v2.4.0`](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.4.0) is the published tag and GitHub Release |
 | Live account evidence | Identity-only Google sign-in, onboarding state and the authenticated session persisted across reload; logout returned to the English landing page and remained signed out after reload |
 | Live judge-path evidence | The English entry link and four-stop read-only guided tour passed production browser checks |
-| Remaining v2.8 release gate | Two-real-account isolation/persistence, backup restoration, extracted-package verification and the beginner pilot remain required before publication |
-| Visual proof | The new region art exists in the private candidate; README screenshots remain clearly labelled 2.1.x public evidence until refreshed v2.8 captures pass the accessibility matrix |
+| Remaining v2.8 release gate | Two-real-Google-account isolation/persistence, clean extracted-package verification and the beginner pilot remain required before public release |
+| Visual proof | The animated journey and desktop/mobile/RTL captures below were generated from the local 2.8.0 candidate after Docker rebuild and direct browser inspection |
 
-The same conservative fields are available for portfolio/profile tooling in [`portfolio/project.json`](portfolio/project.json).
+The same conservative fields are available for portfolio/profile tooling in
+[`portfolio/project.json`](portfolio/project.json). The creative and product
+principles behind this release live in the
+[`Ivrit Sheli product manifesto`](docs/PRODUCT_MANIFESTO.md).
 
-<picture>
-  <source media="(max-width: 640px)" srcset="assets/readme/ivrit-sheli-2-mobile.png" />
-  <img src="assets/readme/ivrit-sheli-2-dashboard.png" width="100%" alt="Ivrit Sheli 2.1 read-only demo dashboard with adaptive Hebrew learning, focused practice and authenticated cloud controls" />
-</picture>
+<p align="center">
+  <img src="assets/readme/ivrit-sheli-2.8-journey.gif" width="900" alt="Animated Ivrit Sheli 2.8 journey showing the three-word beginner entry, the illustrated Guided dashboard and the Hebrew right-to-left experience" />
+</p>
 
 <details>
-<summary><strong>📱 Open the verified mobile and Hebrew RTL views</strong></summary>
+<summary><strong>🌤️ Open the local 2.8 beginner, mobile and Hebrew RTL views</strong></summary>
 
 <table>
   <tr>
-    <td width="34%" align="center"><strong>Responsive mobile workspace</strong></td>
-    <td width="66%" align="center"><strong>Hebrew right-to-left workspace</strong></td>
+    <td width="50%" align="center"><strong>Learn before account</strong></td>
+    <td width="50%" align="center"><strong>Guided desktop journey</strong></td>
   </tr>
   <tr>
-    <td><img src="assets/readme/ivrit-sheli-2-mobile.png" width="100%" alt="Ivrit Sheli 2.1 mobile demo with the compact navigation and focused-session hero" /></td>
-    <td><img src="assets/readme/ivrit-sheli-2-hebrew-rtl.png" width="100%" alt="Ivrit Sheli 2.1 Hebrew interface rendered right to left with the demo learner workspace" /></td>
+    <td><img src="assets/readme/ivrit-sheli-2.8-welcome.png" width="100%" alt="Ivrit Sheli 2.8 beginner entry teaching shalom before asking the learner to choose an account" /></td>
+    <td><img src="assets/readme/ivrit-sheli-2.8-dashboard.png" width="100%" alt="Ivrit Sheli 2.8 Guided dashboard with an illustrated word card and a warm Israel journey" /></td>
+  </tr>
+  <tr>
+    <td width="34%" align="center"><strong>390 px mobile</strong></td>
+    <td width="66%" align="center"><strong>Hebrew right-to-left</strong></td>
+  </tr>
+  <tr>
+    <td><img src="assets/readme/ivrit-sheli-2.8-mobile.png" width="100%" alt="Ivrit Sheli 2.8 mobile Guided view with one clear lesson action and three-item navigation" /></td>
+    <td><img src="assets/readme/ivrit-sheli-2.8-hebrew-rtl.png" width="100%" alt="Ivrit Sheli 2.8 Hebrew beginner entry rendered right to left" /></td>
   </tr>
 </table>
 </details>
 
-> **Screenshot boundary:** these images show the deployed 2.1.x interface. The 2.4 English entry and read-only guided tour were verified directly in production, but refreshed desktop/mobile/RTL/reduced-motion README captures remain pending.
+> **Screenshot boundary:** these images show the unpublished local 2.8.0 candidate, not the frozen 2.4.0 contest deployment. They are prepared for the future release and will not be pushed while Devpost judging is active.
 
 ## Why this project exists 💙
 
@@ -101,7 +110,7 @@ The unpublished v2.7 checkpoint established the three-words-before-account entry
 
 Version 2.6 converts the private-pilot foundation into one explicit learning contract: **contextual encounter → unassisted retrieval → reference feedback/self-correction → corrected retry → delayed review → transfer → reflection**. Exposure, answer reveals, XP and AI output do not count as mastery. The server owns phase transitions and derives the practiced skill, while the interface explains why an activity appeared and when it returns. Correctness and confidence are explicitly learner-reported in this pilot; they are not presented as objective language scoring.
 
-The learner model now separates curriculum-track preference, a self-selected pragmatic CEFR-aligned planning band and interface experience. **Guided**, **Explorer** and **Experienced** change interaction density without silently changing the planning band. Version 2.6 keeps one shared due queue until items have reviewed track and level metadata; it does not pretend those preferences already provide a complete adaptive syllabus. Skill evidence is tracked across recognition, production, listening, speaking, pointed reading, unpointed reading and contextual transfer. Reading assistance follows a per-concept ladder from full niqqud to mechanically reduced cues, hint-only support and everyday unpointed Hebrew; it advances only after repeated unassisted evidence, restores a rung after a lapse and remains unchanged when a pointed form is unavailable.
+The learner model now separates curriculum-track preference, a self-selected pragmatic CEFR-aligned planning band and interface experience. **Guided**, **Explorer** and **Experienced** change interaction density without silently changing the planning band. Version 2.6 keeps one shared due queue until items have reviewed track and level metadata; it does not pretend those preferences already provide a complete adaptive syllabus. Skill evidence is tracked across recognition, production, listening, speaking, pointed reading, unpointed reading and contextual transfer. Reading assistance follows a per-concept ladder from full niqqud to linguistically reviewed `reading_hints`, hint-only support and everyday unpointed Hebrew; it never removes vowels by character position. The ladder advances only after repeated unassisted evidence, restores a rung after a lapse and remains unchanged when reviewed support is unavailable.
 
 The Today journey and progress map expose honest loading, unavailable, degraded and insufficient-evidence states. Delayed-retention checkpoints at 24 hours, 7 days and 30 days remain empty until enough qualified observations exist. The deterministic local fallback can demonstrate the lesson structure when the new endpoint is unavailable, but it never pretends to save server progress.
 
@@ -199,7 +208,7 @@ The public-demo design does not contain Kevin's private learning history: it use
 3. **Practice** recognition, recall, listening, speaking, cloze, and free production.
 4. **Use** the phrase in a practical mission.
 5. **Reflect** on confidence and outcome.
-6. The private learner model updates recommendations without hiding the logic.
+6. The personal learner model updates recommendations without hiding the logic.
 
 ## Run locally
 
@@ -223,6 +232,21 @@ Keep the launcher window open while using the app. Press `Ctrl+C` in that window
 ```
 
 The default address is `http://127.0.0.1:8000`. If that port is busy, the launcher selects the next available local port and opens the correct address automatically.
+
+### Private phone pilot on the same Wi-Fi 📱
+
+Double-click [`START_PRIVATE_PILOT.bat`](START_PRIVATE_PILOT.bat). It starts the writable local app on the first available port, detects the computer's LAN address and copies a Spanish link for WhatsApp.
+
+During the test:
+
+- Keep this computer, the launcher window and the Wi-Fi connection active.
+- The phone and computer must use the same trusted Wi-Fi network.
+- If Windows Firewall asks, allow Python only on **Private networks**, not Public networks.
+- Progress is stored on this computer; this LAN pilot does not provide Google cross-device continuity.
+- Stop the pilot with `Ctrl+C` when the session ends.
+- Do not expose this temporary HTTP address to the public internet.
+
+The printed link follows the form `http://<computer-LAN-IP>:<port>/?lang=es`. A normal public WhatsApp link with HTTPS and Google persistence will become appropriate only after the Devpost freeze and the two-account production gate.
 
 ### Requirements
 
@@ -318,42 +342,23 @@ PYTHONPATH=backend/src python -m ivrit_sheli \
 
 The importer streams JSONL instead of loading it into memory. Entries retain provenance and license metadata. Every Hebrew token can open the dictionary; inflected forms and roots are cross-linked and clickable. Dictionary-derived content must keep its Wiktionary/Kaikki attribution and share-alike notices; see [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
 
-## AI configuration
+## AI boundary in 2.8
 
-The app is fully usable with `AI_PROVIDER=offline`. Online AI is optional and never receives content without an explicit user action.
+The v2.8 learning journey uses the deterministic local engine and reviewed linguistic data. It requires no API key, makes no per-learner model call and does not send pilot content to an external AI provider.
 
-```bash
-cp .env.example .env
-# Add OPENAI_API_KEY locally; never commit it.
-```
-
-Implemented AI functions:
-
-- Sentence correction with mistake categories.
-- Naturalness and register analysis.
-- Niqqud and transliteration assistance.
-- Grammar, root, and word-family explanation.
-- Personalized exercise generation.
-- Contextual dialogue and role-play.
-- Weekly learning-plan generation.
-- Real-life mission generation.
-- Conversation summarization into learning items.
-- Semantic recommendation support through embeddings.
-- Feedback-aware prompt context from the private learner model.
-
-The OpenAI adapter uses the Responses API with strict structured JSON output. The configured default is `gpt-5.6-luna`, and it remains editable in `.env`. When a provider is unavailable, every endpoint returns a working offline result with `degraded_mode: true` instead of crashing.
+The repository retains consent-gated experimental OpenAI adapter contracts for later development, but the v2.8 interface keeps cloud AI disabled and `ALLOW_CLOUD_PROCESSING=false` remains the safe default. Those adapters are not presented as a released learning capability, and their provider/model configuration must be reviewed against current official documentation before a future opt-in experiment.
 
 ## Audio system
 
-The application supports three layers:
+The v2.8 application supports:
 
-1. **Browser speech synthesis** for zero-key pronunciation playback.
-2. **OpenAI text-to-speech** for generated voice files when configured.
-3. **OpenAI speech-to-text** or browser speech recognition for speaking attempts.
+1. **Browser speech synthesis** for zero-key Hebrew playback.
+2. **Local recording and playback** through the browser media APIs.
+3. **Browser speech recognition when available**, with a manual alternative when it is denied or unsupported.
 
-Choose a persistent masculine-style or feminine-style synthetic profile. Browser playback selects a deterministic installed Hebrew voice plus a pitch fallback; cloud playback maps the style to server-controlled provider voice IDs. These labels describe a synthetic presentation preference, not the identity or gender of a real speaker.
+Choose a persistent masculine-style or feminine-style synthetic profile and slow or normal speed. Browser playback selects a deterministic installed Hebrew voice plus a pitch fallback. These labels describe a synthetic presentation preference, not the identity or gender of a real speaker.
 
-The microphone word-intelligence card accepts one Hebrew word from browser recognition, optional cloud transcription, or manual entry. It returns source-labeled dictionary meanings, translations, grammar, forms and examples, with optional consent-gated AI enrichment. Ivrit Sheli does not receive or retain browser-recognition audio, although the browser or operating-system speech provider's policy may apply. App-managed cloud uploads are deleted after processing; the configured provider's policy remains separate. This analysis cannot award XP or update mastery.
+The microphone word-intelligence card accepts one Hebrew word from supported browser recognition or manual entry, then opens source-labelled dictionary meanings, translations, grammar, forms and examples. It does not claim accent or phoneme assessment, and a transcript cannot award XP or update mastery. Experimental cloud audio adapters remain disabled in the v2.8 pilot.
 
 Recognition match is deliberately transparent. It compares normalized transcription, word coverage, sequence similarity, and omitted/extra words. It does **not** claim phoneme, accent, intelligibility, native-likeness or clinical accuracy.
 

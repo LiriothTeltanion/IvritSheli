@@ -1,20 +1,35 @@
 import { describe, expect, it } from 'vitest';
-import { buildLocalLearningCore, displayHebrewForSupport, partialNiqqud, removeNiqqud } from './learningCore';
+import { buildLocalLearningCore, displayHebrewForSupport, removeNiqqud } from './learningCore';
 import type { Dashboard } from './types';
 
 describe('Hebrew reading-support ladder', () => {
-  it('keeps full niqqud, reduces it for targeted support, and removes it for unpointed reading', () => {
+  it('uses only reviewed reading hints and never removes niqqud mechanically', () => {
     const pointed = 'שָׁלוֹם';
+    const reviewedHint = [{
+      display: 'שָׁלוֹם',
+      note_en: 'Keep the reviewed stress cue.',
+      note_es: 'Conserva la pista de acento revisada.',
+      note_he: 'שומרים על רמז ההטעמה שנבדק.',
+    }];
 
     expect(displayHebrewForSupport('שלום', pointed, 'full_niqqud', false)).toBe(pointed);
-    expect(partialNiqqud(pointed)).not.toBe(pointed);
+    expect(displayHebrewForSupport('שלום', pointed, 'partial_niqqud', false, reviewedHint)).toBe('שָׁלוֹם');
+    expect(displayHebrewForSupport('שלום', pointed, 'partial_niqqud', false)).toBe(pointed);
     expect(removeNiqqud(pointed)).toBe('שלום');
     expect(displayHebrewForSupport('שלום', pointed, 'unpointed', false)).toBe('שלום');
   });
 
-  it('reveals hint-only niqqud without changing the underlying support state', () => {
+  it('reveals a reviewed hint when available and otherwise falls back to full niqqud', () => {
+    const reviewedHint = [{
+      display: 'שָׁלוֹם',
+      note_en: 'Reviewed cue.',
+      note_es: 'Pista revisada.',
+      note_he: 'רמז בדוק.',
+    }];
+
     expect(displayHebrewForSupport('שלום', 'שָׁלוֹם', 'hint_only', false)).toBe('שלום');
     expect(displayHebrewForSupport('שלום', 'שָׁלוֹם', 'hint_only', true)).toBe('שָׁלוֹם');
+    expect(displayHebrewForSupport('שלום', 'שָׁלוֹם', 'hint_only', true, reviewedHint)).toBe('שָׁלוֹם');
   });
 });
 

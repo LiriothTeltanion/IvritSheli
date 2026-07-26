@@ -162,21 +162,26 @@ describe('App cloud session flow', () => {
     expect(screen.getByRole('main')).toHaveAttribute('aria-live', 'polite');
   });
 
-  it('offers Google first, GitHub second, and a demo from the signed-out gate', async () => {
+  it('offers Google first, GitHub second, local setup, and a demo after the beginner lesson', async () => {
     vi.stubGlobal('fetch', routeFetch(anonymous));
     const user = userEvent.setup();
     renderApp();
 
     expect(await screen.findByRole('heading', { name: 'Your Hebrew. Your progress. Your space.' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Your first three Hebrew words' })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /Continue with Google/i })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Skip lesson and choose how to continue' }));
     expect(screen.getByRole('link', { name: /Continue with Google/i })).toHaveAttribute('href', '/api/v1/auth/google/start');
     expect(screen.getByRole('link', { name: /Continue with GitHub/i })).toHaveAttribute('href', '/api/v1/auth/github/start');
+    expect(screen.getByRole('link', { name: /Use local mode on this computer/i })).toHaveAttribute('target', '_blank');
     expect(screen.getByRole('button', { name: 'Explore read-only demo' })).toBeEnabled();
     expect(screen.getByText(/Your chosen provider handles authentication/i)).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'HE' }));
     expect(screen.getByRole('heading', { name: 'העברית שלך. ההתקדמות שלך. המקום שלך.' })).toBeInTheDocument();
     expect(screen.getAllByText('הדרך שלך לעברית').length).toBeGreaterThan(0);
-    expect(screen.getByText('פרטי מהיסוד')).toBeInTheDocument();
+    expect(screen.getByText('עברית שנבנית מהחיים האמיתיים שלך')).toBeInTheDocument();
+    expect(screen.getAllByText('EN · ES · HE + RTL').length).toBeGreaterThan(0);
     expect(screen.getByLabelText('יכולות מרחב הלימוד')).toBeInTheDocument();
     expect(document.documentElement).toHaveAttribute('dir', 'rtl');
 
@@ -193,6 +198,8 @@ describe('App cloud session flow', () => {
     const user = userEvent.setup();
     renderApp();
 
+    await screen.findByRole('heading', { name: 'Your first three Hebrew words' });
+    await user.click(screen.getByRole('button', { name: 'Skip lesson and choose how to continue' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('Service unavailable');
     await user.click(screen.getByRole('button', { name: 'Retry secure connection' }));
     await waitFor(() => expect(screen.queryByRole('alert')).not.toBeInTheDocument());
@@ -205,11 +212,15 @@ describe('App cloud session flow', () => {
     const user = userEvent.setup();
     renderApp();
 
+    await screen.findByRole('heading', { name: 'Your first three Hebrew words' });
+    await user.click(screen.getByRole('button', { name: 'Skip lesson and choose how to continue' }));
     await user.click(await screen.findByRole('button', { name: 'Explore read-only demo' }));
 
     expect((await screen.findAllByText('Seeded read-only demonstration')).length).toBeGreaterThan(0);
     expect(screen.getByText('Read-only')).toBeInTheDocument();
-    expect(screen.getAllByText('Demo workspace').length).toBeGreaterThan(0);
+    await user.click(screen.getByRole('button', { name: /Open profile menu: Demo Learner/i }));
+    expect(screen.getByText('Demo workspace')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /Open profile menu: Demo Learner/i }));
     expect(screen.getByRole('heading', { name: 'See the complete learning loop' })).toBeInTheDocument();
     const captureButtons = screen.getAllByRole('button', { name: 'Capture phrase' });
     expect(captureButtons.length).toBeGreaterThan(0);
@@ -315,11 +326,14 @@ describe('App cloud session flow', () => {
 
   it('preserves writable local-first mode without presenting a meaningless logout', async () => {
     vi.stubGlobal('fetch', routeFetch(localSession));
+    const user = userEvent.setup();
     renderApp();
 
-    expect((await screen.findAllByText('Local device')).length).toBeGreaterThan(0);
-    expect(screen.getByText('Your progress is saved')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Open profile menu: Demo Learner/i })).toBeInTheDocument();
+    expect(await screen.findByText('Your progress is saved')).toBeInTheDocument();
+    const profileTrigger = await screen.findByRole('button', { name: /Open profile menu: Demo Learner/i });
+    await user.click(profileTrigger);
+    expect(screen.getByText('Local device')).toBeInTheDocument();
+    expect(screen.getAllByText('Guided mode').length).toBeGreaterThan(0);
     expect(screen.queryByRole('button', { name: 'Sign out' })).not.toBeInTheDocument();
     expect(screen.getAllByRole('button', { name: 'Capture phrase' })[0]).toBeEnabled();
   });
@@ -336,9 +350,11 @@ describe('App cloud session flow', () => {
       throw new Error(`Unexpected request: ${path}`);
     });
     vi.stubGlobal('fetch', fetchMock);
+    const user = userEvent.setup();
     renderApp();
 
     expect(await screen.findByRole('heading', { name: 'Your Hebrew. Your progress. Your space.' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Skip lesson and choose how to continue' }));
     expect(screen.getByRole('alert')).toHaveTextContent('Your secure session expired. Sign in again to continue.');
   });
 });

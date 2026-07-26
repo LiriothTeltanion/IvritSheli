@@ -72,6 +72,30 @@ describe('RegistryPanel', () => {
     expect(screen.getByRole('progressbar', { name: 'Speaking' })).toHaveAttribute('aria-valuenow', '42');
   });
 
+  it('opens the dictionary when the saved-word collection is empty', async () => {
+    vi.spyOn(api, 'registryItems').mockResolvedValue({
+      items: [],
+      total: 0,
+      summary: { active: 0, mastered: 0, needs_review: 0 },
+      offset: 0,
+      limit: 60,
+      has_more: false,
+      next_offset: null,
+    });
+    const onExploreDictionary = vi.fn();
+    const user = userEvent.setup();
+
+    render(
+      <I18nProvider>
+        <RegistryPanel onWordClick={vi.fn()} onExploreDictionary={onExploreDictionary} />
+      </I18nProvider>,
+    );
+
+    await user.click(await screen.findByRole('button', { name: 'Dictionary' }));
+
+    expect(onExploreDictionary).toHaveBeenCalledOnce();
+  });
+
   it('sends searchable, filterable, and sortable options to the registry API', async () => {
     const registryItems = vi.spyOn(api, 'registryItems').mockResolvedValue(REGISTRY);
     const user = userEvent.setup();

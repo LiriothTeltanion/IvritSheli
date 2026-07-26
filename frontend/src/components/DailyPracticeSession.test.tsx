@@ -144,6 +144,24 @@ describe('DailyPracticeSession', () => {
     expect(screen.getByRole('listitem', { current: 'step' })).toHaveTextContent('Listen');
   });
 
+  it('shows the words and goal before the first step, then begins without writing progress', async () => {
+    vi.spyOn(api, 'practiceToday').mockResolvedValue({ session: makeSession() });
+    const submit = vi.spyOn(api, 'submitPracticeStep');
+    const user = userEvent.setup();
+    renderSession();
+
+    expect(await screen.findByRole('heading', { name: 'Before you start' })).toBeInTheDocument();
+    expect(screen.getByText('shalom')).toBeInTheDocument();
+    expect(screen.getByText('toda')).toBeInTheDocument();
+    expect(screen.getByText('Recall, listen and speak without penalties for mistakes.')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Start practice' }));
+
+    expect(await screen.findByRole('heading', { name: 'Meet the word' })).toBeInTheDocument();
+    expect(screen.getByText('Step 1 of 7')).toBeInTheDocument();
+    expect(submit).not.toHaveBeenCalled();
+  });
+
   it('reuses the idempotency key after a network failure', async () => {
     vi.spyOn(api, 'practiceToday').mockResolvedValue({ session: makeSession() });
     const nextSession = makeSession(1);
@@ -153,6 +171,7 @@ describe('DailyPracticeSession', () => {
     const user = userEvent.setup();
     renderSession();
 
+    await user.click(await screen.findByRole('button', { name: 'Start practice' }));
     await user.click(await screen.findByRole('button', { name: 'Reveal meaning' }));
     await user.click(screen.getByRole('button', { name: 'I met this word' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('Temporary network error');
@@ -214,6 +233,7 @@ describe('DailyPracticeSession', () => {
     renderSession(true);
 
     expect(await screen.findByText(/Preview only/)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Start practice' }));
     await user.click(screen.getByRole('button', { name: 'Reveal meaning' }));
     await user.click(screen.getByRole('button', { name: 'I met this word' }));
 

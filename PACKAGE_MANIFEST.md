@@ -18,7 +18,7 @@
 - Published implementation commit: `03bf84b9268ff8be528c0fab3c670f9652ee23b0`
 - Latest published Git tag and GitHub Release: `v2.4.0`
 - Candidate publication state: `2.8.0` is local, untagged, unpushed and unpublished
-- Publication gate: blocked pending Docker/PostgreSQL, two-account Google and mother-pilot verification
+- Publication gate: blocked pending two-account Google, clean extracted-package and mother-pilot verification, plus the active Devpost judging freeze
 - Personal signature: `KC ✦ LT` is reserved and excluded from the MIT asset grant
 - Dictionary-derived data: separate Wiktionary/Kaikki attribution and share-alike terms
 - Privacy notice: `PRIVACY.md`
@@ -148,32 +148,32 @@ The final 2.8 ZIP and external SHA-256 file have not yet been declared release a
 | Verification area | Current result |
 |---|---:|
 | Ordinary backend suite | 194 passed / 1 credential-gated PostgreSQL skip |
-| Frontend Vitest suite | 124 passed / 28 files |
+| Frontend Vitest suite | 133 passed / 29 files |
 | Playwright + axe | 20 passed / 22 intentional skips / 0 failed |
-| Directly executed automated passes | 338 passed |
+| Directly executed automated passes | 347 passed |
 | Ruff | Passed |
 | Strict MyPy | Passed across 30 backend source files |
 | TypeScript / Vite build | Passed / passed |
 | Python compileall / offline doctor | Passed / passed |
 | pip-audit / npm production audit | No known vulnerabilities / 0 vulnerabilities |
 | Docker Compose configuration | Passed |
-| Source package verifier / canonical checksums | 112 required files / 260 Git blobs passed |
-| PostgreSQL 17 / production image / restore drill | Not verified for 2.8 |
+| Source package verifier / canonical checksums | 124 required files / 270 Git blobs passed |
+| PostgreSQL 17 / production image / restore drill | Passed / passed / passed in a disposable database |
 | Two live Google accounts / mother pilot | Not verified |
 
-The 338 total is 194 backend tests + 124 frontend tests + 20 Playwright cases. The credential-gated backend skip and 22 intentional Playwright matrix skips are not counted as passes.
+The 347 total is 194 backend tests + 133 frontend tests + 20 Playwright cases. The credential-gated backend skip and 22 intentional Playwright matrix skips are not counted as passes. The dedicated three-case PostgreSQL gate passed and is not added again because it exercises the database-boundary cases represented by the ordinary suite and its environment-gated skip.
 
 ### Production build output
 
 | Output | Raw | Gzip |
 |---|---:|---:|
-| Main JavaScript | 435.36 kB | 131.88 kB |
-| Main CSS | 184.42 kB | 34.32 kB |
-| LearnPanel JavaScript | 59.40 kB | 15.78 kB |
+| Main JavaScript | 443.13 kB | 133.59 kB |
+| Main CSS | 190.66 kB | 35.25 kB |
+| LearnPanel JavaScript | 64.01 kB | 17.38 kB |
 | LearnPanel CSS | 4.63 kB | 1.38 kB |
-| Progress JavaScript | 13.02 kB | 3.77 kB |
+| Progress JavaScript | 13.19 kB | 3.80 kB |
 | Settings JavaScript | 12.94 kB | 3.39 kB |
-| AICoach JavaScript | 5.39 kB | 1.96 kB |
+| AICoach JavaScript | 5.39 kB | 1.97 kB |
 | Connector JavaScript | 4.36 kB | 1.50 kB |
 
 The current workstation dictionary may contain additional private/imported records; the reviewed starter layer and packaged offline dictionary remain exactly 240 concepts.
@@ -182,27 +182,20 @@ See `TEST_REPORT.md` for commands, coverage and evidence boundaries.
 
 ## Package and deployment state
 
-The source-quality, test, accessibility, dependency, doctor, build and Compose-configuration gates have passed. The source package verifier passed 112 required-file and packaged-asset checks, and `SHA256SUMS.txt` now records 260 canonical Git-index blobs. Clean extracted-ZIP verification and the external ZIP checksum remain release gates against the final confirmed commit.
+The source-quality, test, accessibility, dependency, doctor, build and Compose gates have passed. The source package verifier passed 124 required-file and packaged-asset checks, and `SHA256SUMS.txt` records 270 canonical Git-index blobs. Clean extracted-ZIP verification and the external ZIP checksum remain release gates against the final confirmed commit.
 
-`docker compose config --quiet` passed, but this proves configuration syntax only. Docker Desktop could not initialize its inference-manager listener, and no destructive factory reset was attempted. Therefore the following are not current 2.8 evidence:
-
-- A disposable PostgreSQL 17 administrator/restricted-runtime test.
-- A candidate production image build.
-- Candidate container `/health/ready` and `/version`.
-- A pre-deployment backup or disposable restore.
+Docker Desktop 4.83 / Engine 29.6.2 verified the PostgreSQL 17 migration and restricted role, three database-boundary integration cases, forced RLS, the non-root production-shaped image, healthy `/health/ready` and `/version`, and a disposable backup/restore drill. The restored database retained 2 users, 3 sessions, 0 OAuth states, 2 learner states and its forced-RLS policy. The backup SHA-256 was `A483C8DACC2E0F649139D4139635B28FA88E084A3D3D47F8F9D7148F182E6F62`.
 
 ## Required publication gates
 
 Do not merge, push, tag, publish a GitHub Release or deploy to Railway until:
 
-1. Docker is operational and the PostgreSQL 17 migration, restricted role, RLS and tenant-isolation suite passes.
-2. The production image builds and candidate `/health/ready` and `/version` pass.
-3. A PostgreSQL backup and restoration drill passes.
-4. Two real Google accounts prove identity-only sign-in, tenant isolation and phone/computer progress continuity.
-5. Kevin's mother completes the WhatsApp-link beginner pilot without assistance.
-6. The confirmed tree passes package verification, canonical Git-blob checksums and clean extracted-ZIP verification.
-7. A production backup is created immediately before deployment.
-8. Kevin gives explicit final publication approval.
+1. Two real Google accounts prove identity-only sign-in, tenant isolation and phone/computer progress continuity.
+2. Kevin's mother completes the WhatsApp-link beginner pilot without assistance.
+3. The confirmed tree passes clean extracted-ZIP verification and receives an external ZIP checksum.
+4. A production backup is created immediately before deployment.
+5. The OpenAI Build Week judging freeze ends.
+6. Kevin gives explicit final publication approval.
 
 After 2.8 accepts writes using the new schema, do not roll the application code back to 2.4 unless the matching pre-deployment database backup is restored.
 

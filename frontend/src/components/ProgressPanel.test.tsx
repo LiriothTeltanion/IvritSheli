@@ -1,7 +1,8 @@
 // Purpose: Keep the learner-facing activity log useful, localized, and free of raw server payloads.
 
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import userEvent from '@testing-library/user-event';
+import { describe, expect, it, vi } from 'vitest';
 import { I18nProvider } from '../i18n';
 import type { GamificationStatus, ProgressData } from '../types';
 import { ProgressPanel } from './ProgressPanel';
@@ -60,6 +61,25 @@ describe('ProgressPanel learning activity log', () => {
 
     expect(screen.getByText('Your learning story starts here')).toBeInTheDocument();
     expect(screen.getByText(/Save a word, complete a review/i)).toBeInTheDocument();
+  });
+
+  it('starts daily practice from an empty learning activity log', async () => {
+    const onStartPractice = vi.fn();
+    const user = userEvent.setup();
+
+    render(
+      <I18nProvider>
+        <ProgressPanel
+          progress={BASE_PROGRESS}
+          gamification={GAMIFICATION}
+          onStartPractice={onStartPractice}
+        />
+      </I18nProvider>,
+    );
+
+    await user.click(screen.getByRole('button', { name: "Today's practice" }));
+
+    expect(onStartPractice).toHaveBeenCalledOnce();
   });
 
   it('renders learning-core evidence without inventing XP', () => {

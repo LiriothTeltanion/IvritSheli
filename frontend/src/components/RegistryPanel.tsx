@@ -34,8 +34,10 @@ const MASTERY_KEYS = ['recognition', 'production', 'listening', 'speaking'] as c
 
 export function RegistryPanel({
   onWordClick,
+  onExploreDictionary,
 }: {
   onWordClick: (word: string) => void;
+  onExploreDictionary?: (() => void) | undefined;
 }): React.JSX.Element {
   const { label, locale, t } = useI18n();
   const [query, setQuery] = useState('');
@@ -207,7 +209,26 @@ export function RegistryPanel({
         </div>
       )}
       {!loading && !error && registry.items.length === 0 && (
-        <p className="registry-empty">{query.trim() ? t('registryEmptySearch') : t('registryEmpty')}</p>
+        <div className="registry-empty">
+          <p>{query.trim() ? t('registryEmptySearch') : t('registryEmpty')}</p>
+          {(query.trim() || status !== 'all' || due !== 'all') ? (
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={() => {
+                setQuery('');
+                setStatus('all');
+                setDue('all');
+              }}
+            >
+              {t('clearFilters')}
+            </button>
+          ) : onExploreDictionary ? (
+            <button type="button" className="primary-button" onClick={onExploreDictionary}>
+              <Icon name="book" size={18} /> {t('dictionary')}
+            </button>
+          ) : null}
+        </div>
       )}
       {!error && registry.has_more && (
         <button

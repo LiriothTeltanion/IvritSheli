@@ -365,6 +365,13 @@ export interface RegistryResponse {
   next_offset: number | null;
 }
 
+export interface ReadingHint {
+  display: string;
+  note_en: string;
+  note_es: string;
+  note_he: string;
+}
+
 export interface DictionarySense {
   id: number;
   gloss_en: string | null;
@@ -379,12 +386,7 @@ export interface DictionarySense {
   visual_alt_es: string | null;
   visual_alt_he: string | null;
   provenance: string | null;
-  reading_hints?: Array<{
-    display: string;
-    note_en: string;
-    note_es: string;
-    note_he: string;
-  }>;
+  reading_hints?: ReadingHint[];
   visual: DictionaryVisual | null;
 }
 
@@ -567,7 +569,9 @@ export type LearningCoreItem = Pick<LearningItem,
   | 'grammatical_gender'
   | 'register_label'
   | 'context_label'
->;
+> & {
+  reading_hints?: ReadingHint[];
+};
 
 export interface LearningCoreActivity {
   item: LearningCoreItem;

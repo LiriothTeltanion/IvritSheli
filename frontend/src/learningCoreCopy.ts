@@ -124,7 +124,7 @@ const en: LearningCoreCopy = {
     pointed_reading: 'Reading with niqqud', unpointed_reading: 'Reading without niqqud', contextual_transfer: 'Real-life transfer',
   },
   readingLevels: {
-    full_niqqud: 'Full niqqud', partial_niqqud: 'Reduced niqqud', hint_only: 'Hint only', unpointed: 'Unpointed',
+    full_niqqud: 'Full niqqud', partial_niqqud: 'Reviewed reading cue', hint_only: 'Hint only', unpointed: 'Unpointed',
   },
   readingLadderTitle: 'Reading-support ladder',
   readingLadderDescription: 'Support fades only after repeated learner-reported evidence—not because XP increased.',
@@ -235,7 +235,7 @@ const es: LearningCoreCopy = {
     pointed_reading: 'Lectura con niqqud', unpointed_reading: 'Lectura sin niqqud', contextual_transfer: 'Uso en la vida real',
   },
   readingLevels: {
-    full_niqqud: 'Niqqud completo', partial_niqqud: 'Niqqud reducido', hint_only: 'Solo como pista', unpointed: 'Sin niqqud',
+    full_niqqud: 'Niqqud completo', partial_niqqud: 'Pista de lectura revisada', hint_only: 'Solo como pista', unpointed: 'Sin niqqud',
   },
   readingLadderTitle: 'Escalera de apoyo para leer',
   readingLadderDescription: 'La ayuda disminuye solo con evidencia repetida reportada por la persona, no porque aumentó el XP.',
@@ -346,7 +346,7 @@ const he: LearningCoreCopy = {
     pointed_reading: 'קריאה מנוקדת', unpointed_reading: 'קריאה ללא ניקוד', contextual_transfer: 'שימוש בחיים האמיתיים',
   },
   readingLevels: {
-    full_niqqud: 'ניקוד מלא', partial_niqqud: 'ניקוד מצומצם', hint_only: 'רמז בלבד', unpointed: 'ללא ניקוד',
+    full_niqqud: 'ניקוד מלא', partial_niqqud: 'רמז קריאה בדוק', hint_only: 'רמז בלבד', unpointed: 'ללא ניקוד',
   },
   readingLadderTitle: 'סולם תמיכה בקריאה',
   readingLadderDescription: 'התמיכה יורדת רק אחרי ראיות חוזרות בדיווח הלומד, ולא מפני שמספר הנקודות עלה.',

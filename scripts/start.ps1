@@ -7,6 +7,9 @@ param(
     [ValidateRange(1024, 65535)]
     [int]$Port = 8000,
 
+    [ValidateSet("127.0.0.1", "0.0.0.0")]
+    [string]$BindAddress = "127.0.0.1",
+
     [switch]$NoBrowser,
 
     [ValidateRange(0, 86400)]
@@ -129,6 +132,33 @@ function Open-IvritBrowser {
     }
 }
 
+function Get-LanIPv4Address {
+    foreach ($NetworkInterface in [System.Net.NetworkInformation.NetworkInterface]::GetAllNetworkInterfaces()) {
+        if (
+            $NetworkInterface.OperationalStatus -ne
+                [System.Net.NetworkInformation.OperationalStatus]::Up -or
+            $NetworkInterface.NetworkInterfaceType -eq
+                [System.Net.NetworkInformation.NetworkInterfaceType]::Loopback
+        ) {
+            continue
+        }
+        $Properties = $NetworkInterface.GetIPProperties()
+        if ($Properties.GatewayAddresses.Count -eq 0) {
+            continue
+        }
+        foreach ($Address in $Properties.UnicastAddresses) {
+            if (
+                $Address.Address.AddressFamily -eq
+                    [System.Net.Sockets.AddressFamily]::InterNetwork -and
+                -not [System.Net.IPAddress]::IsLoopback($Address.Address)
+            ) {
+                return $Address.Address.ToString()
+            }
+        }
+    }
+    return $null
+}
+
 function Wait-ForIvritServer {
     param(
         [Parameter(Mandatory)][System.Diagnostics.Process]$Process,
@@ -154,7 +184,7 @@ try {
     Write-Host "  ║   Ivrit Sheli Ultimate · עברית שלי   ║" -ForegroundColor Cyan
     Write-Host "  ╚══════════════════════════════════════╝" -ForegroundColor DarkCyan
 
-    if (Test-IvritHealth -CandidatePort $Port) {
+    if ($BindAddress -eq "127.0.0.1" -and (Test-IvritHealth -CandidatePort $Port)) {
         $ExistingUrl = "http://127.0.0.1:$Port"
         Write-Host "`n  Ivrit Sheli is already running ✅" -ForegroundColor Green
         Write-Host "  $ExistingUrl" -ForegroundColor White
@@ -193,7 +223,7 @@ try {
     # Keep the one-click experience private and local even if .env contains
     # cloud deployment credentials. Railway and Docker never set this marker.
     $env:IVRIT_LOCAL_ONLY = "true"
-    $env:APP_HOST = "127.0.0.1"
+    $env:APP_HOST = $BindAddress
 
     & $VenvPython -m ivrit_sheli --init --seed
     Assert-NativeSuccess -Action "Local data initialization"
@@ -208,7 +238,7 @@ try {
     $ServerArgs = @(
         "-m", "ivrit_sheli",
         "--serve",
-        "--host", "127.0.0.1",
+        "--host", $BindAddress,
         "--port", "$SelectedPort"
     )
     $Server = Start-Process `
@@ -223,6 +253,26 @@ try {
     $AppUrl = "http://127.0.0.1:$SelectedPort"
     Write-Host "`n  Ivrit Sheli is ready ✅" -ForegroundColor Green
     Write-Host "  $AppUrl" -ForegroundColor White
+    if ($BindAddress -eq "0.0.0.0") {
+        $LanAddress = Get-LanIPv4Address
+        if ($null -ne $LanAddress) {
+            $ShareUrl = "http://$LanAddress`:$SelectedPort/?lang=es"
+            Write-Host "`n  Mother pilot link (same Wi-Fi only):" -ForegroundColor Yellow
+            Write-Host "  $ShareUrl" -ForegroundColor White
+            Write-Host "  If Windows Firewall asks, allow Python on Private networks only." -ForegroundColor DarkGray
+            Write-Host "  The link works while this PC and this window stay open." -ForegroundColor DarkGray
+            try {
+                Set-Clipboard -Value $ShareUrl
+                Write-Host "  Link copied to the clipboard for WhatsApp." -ForegroundColor Green
+            }
+            catch {
+                Write-Host "  Copy the link above into WhatsApp." -ForegroundColor DarkGray
+            }
+        }
+        else {
+            Write-Host "`n  A Wi-Fi address could not be detected. Use the local link above." -ForegroundColor Yellow
+        }
+    }
     if (-not [string]::IsNullOrWhiteSpace($env:APP_DATA_DIR)) {
         Write-Host "  Private data: $env:APP_DATA_DIR" -ForegroundColor DarkGray
     }

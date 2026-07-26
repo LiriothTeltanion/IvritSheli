@@ -40,22 +40,47 @@ unless independently supported. In particular, this ledger does not repeat an
 unverified claim that delaying signup improves conversion by a specific
 percentage.
 
+## Local candidate implementation status
+
+This snapshot describes the local v2.8 candidate on 2026-07-26. The
+labels intentionally separate implementation evidence from release evidence:
+
+- **Code present** means the relevant path was inspected in the current
+  worktree.
+- **Release verified** means the root release owner has run the complete
+  applicable test, accessibility and build gates after the final diff.
+
+The root verification pass is complete for the local code, accessibility,
+build, dependency and Docker/PostgreSQL boundaries. It executed 194 backend,
+133 Vitest and 20 Playwright cases with no failures. Publication still requires
+the two-real-Google-account check, clean extracted-package verification, the
+mother pilot and the end of the active Devpost judging freeze.
+
+| Research decision now represented in code | Current implementation boundary | Code evidence | Release verification |
+|---|---|---|---|
+| Teach three words before account or configuration | `PreAccountLesson` presents the first three reviewed starter words one at a time, with meaning choices, retry, an example and optional browser speech. `AuthGate` keeps account, local-mode and demo choices behind completion or an explicit skip. The lesson is intentionally ephemeral: it does not claim saved progress, XP or a scored attempt. | `frontend/src/components/PreAccountLesson.tsx`; `frontend/src/components/AuthGate.tsx` | Verified locally in the 133-test Vitest suite |
+| Plain “Before you start” guide | Daily Practice now opens with a trilingual briefing that previews the session's unique concepts, lets the learner hear them, states the goal and provides one start action. Read-only demo status is disclosed before practice begins. | `frontend/src/components/DailyPracticeSession.tsx` | Verified locally in component and browser gates |
+| Progressive visual retrieval cue | Retrieval exercises with a supported `visual_id` initially hide the illustration and expose a labelled “Show visual hint” action. Revealing it increments `hints_used`; unsupported or personal concepts do not receive fabricated art. | `frontend/src/components/DailyPracticeSession.tsx`; `backend/src/ivrit_sheli/local_learning_engine.py` | Verified locally in backend and frontend suites |
+| Linguistically reviewed reading support | The display ladder uses authored `reading_hints` when available. The legacy state name `partial_niqqud` now means “reviewed cue or full reviewed niqqud,” never deletion by character position. Hint-only remains unpointed until reveal, then uses the reviewed cue or full form; entries without reviewed support remain honestly unpointed. | `frontend/src/learningCore.ts`; `frontend/src/components/LearningCoreJourney.tsx`; `backend/src/ivrit_sheli/learning_core.py` | Verified locally in backend and frontend suites |
+| Actionable high-value empty states | An exhausted review queue and an empty progress activity log offer Daily Practice. A filtered word collection offers Clear filters; a genuinely empty collection offers Dictionary. This is a targeted improvement, not yet a claim that every empty state in the product has been audited. | `frontend/src/components/ReviewCard.tsx`; `frontend/src/components/ProgressPanel.tsx`; `frontend/src/components/RegistryPanel.tsx`; `frontend/src/components/LearnPanel.tsx` | Verified locally for the targeted states |
+| Larger touch floor on primary learning surfaces | Shared primary/secondary controls and the inspected locale, icon, atlas, dictionary and round-action controls have a 48 px minimum dimension in CSS. | `frontend/src/styles.css` | Verified locally across 390/768/1440 px, keyboard, reduced-motion, dark/light axe and 200% reflow gates |
+
 ## Adopt
 
 | Decision | Ivrit Sheli implementation | Trace |
 |---|---|---|
-| Teach before configuration | Let a new visitor hear and practise three reviewed Hebrew words before profile, level or account questions. Default to Guided/A0. | U1, U2, C1, C2 |
+| Teach before configuration | A new visitor can hear and practise three reviewed Hebrew words before profile, level or account questions. The result is not presented as saved until the learner enters a persistent mode. Guided/A0 remains the default. | U1, U2, C1, C2 |
 | One obvious next action | Guided Today answers “What do I do now?” with one large action. Technical evidence remains inspectable behind one disclosure. | U1, C1, C2 |
 | A guided path with an exit | Make the linear path the Guided default while Explorer and Experienced retain free navigation. Guided is a starting aid, not a cage. | C1, C2 |
-| Plain pre-lesson guide | Show a short “Before you start” card with the words, sounds and goal used in the next lesson. | C2 |
+| Plain pre-lesson guide | Daily Practice starts with a short “Before you start” card containing the lesson's words, optional sounds and goal. | C2 |
 | Personalised practice node | Insert an explicit practice step selected from SRS urgency, mistakes and reviewed curriculum data; explain the reason in plain language. | C1, C2 |
 | Unlimited mistake recovery | Offer a free end-of-session retry of mistakes. Do not block learning after errors. | C2 |
 | Unassisted challenge | Offer an optional no-hint attempt as evidence of retrieval, without calling it CEFR certification or global mastery. | C2 |
 | Sound-first Hebrew reading track | Teach sound value first and letter name second in a separate alphabet/reading path covering 22 letters and final forms. | C2, C3 |
-| Visual retrieval cues | Give reviewed concepts distinguishable visual identities and reveal the image progressively as a hint rather than always exposing the answer. | C3 |
-| Actionable empty states | Every empty state explains the state and offers one useful next action. | U1, C1 |
+| Visual retrieval cues | Supported reviewed concepts have distinguishable visual identities; Daily Practice reveals the image progressively as an optional, recorded hint rather than always exposing the answer. | C3 |
+| Actionable empty states | The review, progress-activity and word-collection empty states now offer a useful next action. Remaining product surfaces still require an explicit empty-state audit. | U1, C1 |
 | Persistent help and reversible actions | Guided mode always exposes labelled Help; risky or confusing actions support cancellation or reversal. | C1 |
-| Accessibility floor | Use plain labels, readable functional text, large Hebrew with niqqud, at least 48 px touch targets and reflow at 200% zoom. Specific pixel choices remain engineering decisions verified in QA. | U1, C1, P1 |
+| Accessibility floor | Shared and inspected learning controls now use a 48 px CSS floor. Plain labels, readable functional text, large Hebrew with niqqud and 200% reflow remain part of the final accessibility matrix rather than inferred from CSS alone. | U1, C1, P1 |
 
 ## Adapt
 
@@ -95,6 +120,12 @@ is recorded. The first gate is an unassisted usability session: open the
 WhatsApp link, find the primary action within 30 seconds, learn three words,
 complete one daily session, reload, and find the saved progress.
 
+None of the experiments in this section is claimed as implemented or
+release-ready in the local v2.8 candidate. In particular, letter tracing,
+licensed real-speaker media and an invited companion remain deliberately
+deferred; they add acquisition, accessibility, consent or moderation work that
+must not be hidden behind a prototype.
+
 | Experiment | Acceptance signal | Stop condition | Trace |
 |---|---|---|---|
 | Finger tracing for Hebrew letters | Improves recognition without blocking keyboard/tap alternatives. | False precision, inaccessible gesture or no observed benefit. | C3, J1 |
@@ -108,17 +139,23 @@ Any pilot result is an `n=1` observation, not general learning evidence.
 
 ## Implementation order
 
-1. **Comprehension and contrast:** simplified Guided Today, plain copy, help,
-   actionable empty states, dark-theme AA checks.
-2. **First success:** three-word pre-account lesson, reversible defaults and
-   persisted text scale.
-3. **Learning path:** deterministic daily planner, reviewed curriculum,
-   personalised practice, mistake recovery and sound-first alphabet track.
-4. **Visual system:** confusability-audited word art and six Israel-region
-   scenes, with progressive hint reveal and reduced-motion support.
-5. **Motivation:** attendance/XP separated from mastery, rest grace, accessible
-   celebrations and a meaningful-session summary.
-6. **Only after the pilot:** evaluate the private companion experiments above.
+1. **Locally verified — comprehension:** simplified Guided navigation, plain
+   copy, help, dark/light accessibility gates and targeted actionable empty
+   states. A complete all-surface empty-state inventory remains future polish.
+2. **Locally verified — first success:** interactive
+   three-word pre-account lesson and persisted text scale. The pre-account
+   lesson remains deliberately unsaved until a persistent mode is chosen.
+3. **Locally verified — learning path:** deterministic daily
+   planner, reviewed curriculum, personalised practice, mistake recovery,
+   sound-first alphabet track and authored `reading_hints`.
+4. **Locally verified — visual system:** Israel-region scenes, concept art,
+   progressive hint reveal and reduced-motion behavior. A real-learner
+   confusability audit remains part of the pilot.
+5. **Locally verified — motivation:** attendance/XP separated
+   from mastery, rest grace, accessible celebrations and a meaningful-session
+   summary.
+6. **Deferred until pilot evidence:** tracing, real-speaker media, mnemonic
+   experiments, attendance dots and any invited-companion capability.
 
 ## Primary and research sources
 

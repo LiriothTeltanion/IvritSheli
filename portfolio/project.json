@@ -74,14 +74,14 @@
     "visual_journey_regions": 6,
     "public_google_scope": "openid profile",
     "local_mode_without_account": true,
-    "release_gate": "Full verification, two-account isolation check, backup/restore drill and beginner pilot remain required before publication."
+    "release_gate": "Two-account isolation check, clean extracted-package verification and beginner pilot remain required before publication."
   },
   "visual_proof": {
-    "state": "live-english-journey-verified",
+    "state": "local-2.8-candidate-and-live-2.4-verified",
     "social_preview_version": "2.2.0",
-    "readme_screenshot_version": "2.1.x",
-    "readme_screenshots_match_source_version": false,
-    "interactive_browser_qa": "verified-english-entry-and-read-only-tour"
+    "readme_screenshot_version": "2.8.0-local-candidate",
+    "readme_screenshots_match_source_version": true,
+    "interactive_browser_qa": "local-2.8-desktop-mobile-rtl-dark-contrast-and-live-2.4-judge-path-verified"
   },
   "oauth": {
     "providers": [

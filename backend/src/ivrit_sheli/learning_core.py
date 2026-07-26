@@ -312,7 +312,10 @@ def activity_rationale(
         )
     support_note = {
         "full_niqqud": " Full niqqud remains visible while independent reading evidence develops.",
-        "partial_niqqud": " A mechanically reduced set of vowel cues remains visible.",
+        "partial_niqqud": (
+            " A reviewed reading cue is shown when available; otherwise full niqqud "
+            "remains visible."
+        ),
         "hint_only": " Niqqud is available as a hint but is no longer shown automatically.",
         "unpointed": " The item is now practiced in everyday unpointed Hebrew.",
     }[support]

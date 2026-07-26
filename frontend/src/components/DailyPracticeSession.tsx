@@ -15,6 +15,7 @@ import type {
   PracticeStepSubmit,
 } from '../types';
 import { AudioPractice } from './AudioPractice';
+import { CategoryWordIllustration } from './CategoryWordIllustration';
 import { HebrewText } from './HebrewText';
 import { Icon } from './Icon';
 import { MetricRing } from './MetricRing';
@@ -69,6 +70,13 @@ const copy = {
     speaking: 'Speak',
     reflectionName: 'Reflect',
     summaryName: 'Summary',
+    beforeStart: 'Before you start',
+    beforeStartDetail: 'Meet today’s words, hear their sounds, then begin one short practice.',
+    todayGoal: 'Today’s goal',
+    todayGoalDetail: 'Recall, listen and speak without penalties for mistakes.',
+    hearWord: 'Hear {word}',
+    beginPractice: 'Start practice',
+    visualHint: 'Show visual hint',
   },
   es: {
     loading: 'Preparando la práctica de hoy…',
@@ -111,6 +119,13 @@ const copy = {
     speaking: 'Hablar',
     reflectionName: 'Reflexionar',
     summaryName: 'Resumen',
+    beforeStart: 'Antes de empezar',
+    beforeStartDetail: 'Conoce las palabras de hoy, escucha sus sonidos y comienza una práctica breve.',
+    todayGoal: 'Objetivo de hoy',
+    todayGoalDetail: 'Recordar, escuchar y hablar sin penalizaciones por equivocarte.',
+    hearWord: 'Escuchar {word}',
+    beginPractice: 'Empezar práctica',
+    visualHint: 'Mostrar pista visual',
   },
   he: {
     loading: 'מכינים את התרגול של היום…',
@@ -153,6 +168,13 @@ const copy = {
     speaking: 'דיבור',
     reflectionName: 'רפלקציה',
     summaryName: 'סיכום',
+    beforeStart: 'לפני שמתחילים',
+    beforeStartDetail: 'מכירים את המילים של היום, שומעים אותן ומתחילים תרגול קצר.',
+    todayGoal: 'המטרה להיום',
+    todayGoalDetail: 'לשלוף, להקשיב ולדבר בלי עונש על טעויות.',
+    hearWord: 'השמעת {word}',
+    beginPractice: 'התחלת התרגול',
+    visualHint: 'הצגת רמז חזותי',
   },
 } satisfies Record<Locale, Record<string, string>>;
 
@@ -173,6 +195,25 @@ function translationFor(concept: PracticeConcept, locale: Locale): string {
   return concept.translation_en ?? concept.translation_es ?? '';
 }
 
+const visualEmoji: Record<string, string> = {
+  'greetings.hello': '👋',
+  'greetings.thanks': '🤲',
+  'greetings.yes': '✓',
+};
+
+function visualForConcept(concept: PracticeConcept) {
+  if (!concept.visual_id) return null;
+  return {
+    key: concept.visual_id,
+    emoji: visualEmoji[concept.visual_id] ?? '✦',
+    alt: {
+      en: `Visual clue for ${concept.translation_en ?? concept.hebrew_text}`,
+      es: `Pista visual para ${concept.translation_es ?? concept.hebrew_text}`,
+      he: `רמז חזותי למילה ${concept.hebrew_text}`,
+    },
+  };
+}
+
 export function DailyPracticeSession({
   dashboard: _dashboard,
   cloudAvailable: _cloudAvailable,
@@ -190,6 +231,8 @@ export function DailyPracticeSession({
   const [answer, setAnswer] = useState('');
   const [revealed, setRevealed] = useState(false);
   const [manualFallback, setManualFallback] = useState(false);
+  const [introDismissed, setIntroDismissed] = useState(false);
+  const [visualHintRevealed, setVisualHintRevealed] = useState(false);
   const [confidence, setConfidence] = useState(3);
   const [online, setOnline] = useState(() => navigator.onLine);
   const attemptKeyRef = useRef<string | null>(null);
@@ -201,6 +244,7 @@ export function DailyPracticeSession({
     try {
       const response = await api.practiceToday();
       setSession(response.session);
+      setIntroDismissed(response.session.current_step > 0 || response.session.events.length > 0);
       setNotice('');
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : strings.loadError);
@@ -228,6 +272,7 @@ export function DailyPracticeSession({
     setAnswer('');
     setRevealed(false);
     setManualFallback(false);
+    setVisualHintRevealed(false);
     setConfidence(3);
     startedAtRef.current = Date.now();
   };
@@ -330,6 +375,16 @@ export function DailyPracticeSession({
         .filter((word): word is string => Boolean(word)),
     )].sort((left, right) => left.localeCompare(right, 'he'));
   }, [session]);
+  const previewConcepts = useMemo(() => {
+    if (!session) return [];
+    const byKey = new Map<string, PracticeConcept>();
+    session.plan.steps.forEach((step) => {
+      if (step.concept && !byKey.has(step.concept.concept_key)) {
+        byKey.set(step.concept.concept_key, step.concept);
+      }
+    });
+    return [...byKey.values()];
+  }, [session]);
 
   if (loading) {
     return <section className="daily-practice card" aria-busy="true"><span className="spinner" /> {strings.loading}</section>;
@@ -372,15 +427,25 @@ export function DailyPracticeSession({
       is_correct: correct,
       answer_text: answer,
       confidence,
+      hints_used: visualHintRevealed ? 1 : 0,
     });
   };
 
   const playListening = (): void => {
-    const text = concept?.hebrew_with_niqqud ?? concept?.hebrew_text;
+    if (concept) speakConcept(concept, true);
+  };
+
+  const speakConcept = (
+    practiceConcept: PracticeConcept,
+    recordUnsupported = false,
+  ): void => {
+    const text = practiceConcept.hebrew_with_niqqud ?? practiceConcept.hebrew_text;
     if (!text || !('speechSynthesis' in window)) {
       setNotice(strings.audioUnavailable);
       setManualFallback(true);
-      void submit('unsupported', { unsupported_reason: 'device_speech_unavailable' });
+      if (recordUnsupported) {
+        void submit('unsupported', { unsupported_reason: 'device_speech_unavailable' });
+      }
       return;
     }
     window.speechSynthesis.cancel();
@@ -389,6 +454,75 @@ export function DailyPracticeSession({
     utterance.rate = 0.78;
     window.speechSynthesis.speak(utterance);
   };
+
+  if (
+    !completed
+    && session.current_step === 0
+    && session.events.length === 0
+    && !introDismissed
+  ) {
+    return (
+      <section className="daily-practice daily-practice__briefing" aria-labelledby="practice-briefing-title">
+        {!session.persisted && (
+          <div className="demo-inline-notice" role="note">
+            <Icon name="shield" size={16} /> {strings.preview}
+          </div>
+        )}
+        <header>
+          <span className="eyebrow"><Icon name="book" size={16} /> {strings.beforeStart}</span>
+          <h2 id="practice-briefing-title">{strings.beforeStart}</h2>
+          <p>{strings.beforeStartDetail}</p>
+        </header>
+        <div className="daily-practice__briefing-words">
+          {previewConcepts.map((previewConcept) => (
+            <article className="card" key={previewConcept.concept_key}>
+              {visualForConcept(previewConcept) && (
+                <CategoryWordIllustration
+                  visual={visualForConcept(previewConcept)!}
+                  locale={locale}
+                  className="daily-practice__briefing-art"
+                />
+              )}
+              <div>
+                <HebrewText
+                  text={previewConcept.hebrew_with_niqqud ?? previewConcept.hebrew_text}
+                  onWordClick={(word) => onWordClick(word, previewConcept.item_id)}
+                  className="daily-practice__briefing-hebrew"
+                  as="h3"
+                />
+                {previewConcept.transliteration && <p dir="ltr">{previewConcept.transliteration}</p>}
+                <strong>{translationFor(previewConcept, locale)}</strong>
+              </div>
+              <button
+                type="button"
+                className="round-action"
+                aria-label={strings.hearWord.replace('{word}', previewConcept.hebrew_text)}
+                onClick={() => speakConcept(previewConcept)}
+              >
+                <Icon name="volume" size={22} />
+              </button>
+            </article>
+          ))}
+        </div>
+        <div className="card daily-practice__briefing-goal">
+          <Icon name="target" size={22} />
+          <div>
+            <strong>{strings.todayGoal}</strong>
+            <p>{strings.todayGoalDetail}</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          className="primary-button primary-button--large"
+          onClick={() => setIntroDismissed(true)}
+        >
+          <Icon name="play" size={18} /> {strings.beginPractice}
+        </button>
+      </section>
+    );
+  }
+
+  const currentVisual = concept ? visualForConcept(concept) : null;
 
   return (
     <section className="daily-practice" aria-labelledby="daily-practice-title">
@@ -439,6 +573,13 @@ export function DailyPracticeSession({
 
       {currentStep?.kind === 'encounter' && concept && (
         <div className="card daily-practice__exercise">
+          {currentVisual && (
+            <CategoryWordIllustration
+              visual={currentVisual}
+              locale={locale}
+              className="daily-practice__concept-art"
+            />
+          )}
           <HebrewText
             text={concept.hebrew_with_niqqud ?? concept.hebrew_text}
             onWordClick={(word) => onWordClick(word, concept.item_id)}
@@ -461,6 +602,14 @@ export function DailyPracticeSession({
         <div className="card daily-practice__exercise">
           <p>{strings.chooseWord}</p>
           <p><strong>{expectedTranslation}</strong></p>
+          {currentVisual && !visualHintRevealed && (
+            <button type="button" className="secondary-button" onClick={() => setVisualHintRevealed(true)}>
+              <Icon name="sparkles" size={18} /> {strings.visualHint}
+            </button>
+          )}
+          {currentVisual && visualHintRevealed && (
+            <CategoryWordIllustration visual={currentVisual} locale={locale} className="daily-practice__hint-art" />
+          )}
           <div className="daily-practice__actions">
             {wordChoices.map((word) => (
               <button
@@ -471,7 +620,11 @@ export function DailyPracticeSession({
                 onClick={() => {
                   const correct = word === concept.hebrew_text;
                   setAnswer(word);
-                  void submit(correct ? 'completed' : 'failed', { is_correct: correct, answer_text: word });
+                  void submit(correct ? 'completed' : 'failed', {
+                    is_correct: correct,
+                    answer_text: word,
+                    hints_used: visualHintRevealed ? 1 : 0,
+                  });
                 }}
               >
                 <span dir="rtl" lang="he">{word}</span>
@@ -484,6 +637,14 @@ export function DailyPracticeSession({
       {currentStep?.kind === 'retrieval' && concept && currentStep.exercise_type !== 'meaning_to_hebrew_word_bank' && (
         <form className="card daily-practice__exercise" onSubmit={submitWrittenAnswer}>
           <p><strong>{currentStep.exercise_type === 'hebrew_to_meaning' ? concept.hebrew_text : expectedTranslation}</strong></p>
+          {currentVisual && !visualHintRevealed && (
+            <button type="button" className="secondary-button" onClick={() => setVisualHintRevealed(true)}>
+              <Icon name="sparkles" size={18} /> {strings.visualHint}
+            </button>
+          )}
+          {currentVisual && visualHintRevealed && (
+            <CategoryWordIllustration visual={currentVisual} locale={locale} className="daily-practice__hint-art" />
+          )}
           <label className="field">
             <span>{strings.answer}</span>
             <input

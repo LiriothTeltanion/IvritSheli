@@ -171,6 +171,7 @@ export function LearningCoreJourney({
       activity.item.hebrew_with_niqqud,
       activity.reading_support,
       hintRevealed,
+      activity.item.reading_hints,
     )
     : '';
   const meaningRecall = currentPhase === 'retrieval' || currentPhase === 'delayed_review';

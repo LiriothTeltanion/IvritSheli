@@ -122,7 +122,7 @@ export function LearnPanel({
           onRefresh={onRefresh}
         />
       )}
-      {tab === 'review' && <ReviewCard active={tab === 'review'} onWordClick={onWordClick} onReviewed={onRefresh} />}
+      {tab === 'review' && <ReviewCard active={tab === 'review'} onWordClick={onWordClick} onReviewed={onRefresh} onStartPractice={() => setTab('practice')} />}
       {tab === 'audio' && (
         <div className="audio-workspace">
           <AudioPractice initialText={practiceWord ?? 'אני עדיין לומד עברית'} cloudAvailable={false} onWordClick={onWordClick} />
@@ -180,7 +180,7 @@ export function LearnPanel({
           {!loading && query && dictionaryResults.length === 0 && <p className="muted-copy">{t('noDefinition')}</p>}
         </section>
       )}
-      {tab === 'collection' && <RegistryPanel onWordClick={onWordClick} />}
+      {tab === 'collection' && <RegistryPanel onWordClick={onWordClick} onExploreDictionary={() => setTab('dictionary')} />}
     </div>
   );
 }
