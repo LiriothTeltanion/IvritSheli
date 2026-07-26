@@ -117,7 +117,7 @@ class LearningRepository:
     def __init__(self, database: Database) -> None:
         self.database = database
 
-    def ensure_default_profile(self, display_name: str = "Kevin") -> None:
+    def ensure_default_profile(self, display_name: str = "Learner") -> None:
         """Create the single local profile and starter goals if absent.
 
         Args:
@@ -128,7 +128,7 @@ class LearningRepository:
 
         Example:
             >>> db = Database(Path(":memory:")); db.initialize()
-            >>> LearningRepository(db).ensure_default_profile("Kevin")
+            >>> LearningRepository(db).ensure_default_profile("Learner")
         """
         now = iso_now()
         with self.database.transaction() as connection:
@@ -1738,7 +1738,7 @@ class LearningRepository:
         Example:
             >>> db = Database(Path(":memory:")); db.initialize(); repo = LearningRepository(db)
             >>> repo.ensure_default_profile(); repo.dashboard()["profile"]["display_name"]
-            'Kevin'
+            'Learner'
         """
         connection = self.database.connect()
         should_close = str(self.database.path) != ":memory:"
@@ -1942,7 +1942,7 @@ class LearningRepository:
         Example:
             >>> db = Database(Path(":memory:")); db.initialize(); repo = LearningRepository(db)
             >>> repo.ensure_default_profile(); repo.get_profile()["display_name"]
-            'Kevin'
+            'Learner'
         """
         connection = self.database.connect()
         should_close = str(self.database.path) != ":memory:"

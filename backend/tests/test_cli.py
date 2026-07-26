@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import sqlite3
 from pathlib import Path
 
 import pytest
@@ -62,3 +63,23 @@ def test_learning_core_cli_updates_and_reports_local_profile(
         "cefr_band": "A1",
         "learner_mode": "explorer",
     }
+
+
+def test_display_name_is_applied_when_a_local_profile_is_first_created(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    learning_db = tmp_path / "learning.db"
+    monkeypatch.setenv("APP_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("APP_DB_PATH", str(learning_db))
+    monkeypatch.setenv("DICTIONARY_DB_PATH", str(tmp_path / "dictionary.db"))
+    monkeypatch.setenv("AI_PROVIDER", "offline")
+    monkeypatch.setenv("ALLOW_CLOUD_PROCESSING", "false")
+
+    assert main(["--init", "--display-name", "Miriam"]) == 0
+
+    with sqlite3.connect(learning_db) as connection:
+        display_name = connection.execute(
+            "SELECT display_name FROM profiles WHERE id = 1"
+        ).fetchone()[0]
+    assert display_name == "Miriam"

@@ -129,7 +129,7 @@ def seed_all(
     repository: LearningRepository,
     dictionary: DictionaryStore,
     *,
-    display_name: str = "Kevin",
+    display_name: str = "Learner",
 ) -> dict[str, int]:
     """Install starter learner content idempotently.
 

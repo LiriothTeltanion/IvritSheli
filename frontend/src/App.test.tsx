@@ -276,6 +276,47 @@ describe('App cloud session flow', () => {
     );
   });
 
+  it('keeps Settings open when Guided mode enters it from the profile menu', async () => {
+    vi.stubGlobal('fetch', routeFetch(githubSession));
+    const user = userEvent.setup();
+    renderApp();
+
+    const navigation = await screen.findByRole('navigation', { name: 'Primary navigation' });
+    expect(navigation.querySelectorAll('button')).toHaveLength(3);
+
+    await user.click(screen.getByRole('button', { name: /Open profile menu: Kevin/i }));
+    await user.click(screen.getByRole('button', { name: 'Settings' }));
+
+    expect(await screen.findByRole('heading', { name: 'Settings' })).toBeInTheDocument();
+    expect(document.querySelector('.topbar-context > span')).toHaveTextContent('Settings');
+    expect(navigation.querySelectorAll('button')).toHaveLength(3);
+  });
+
+  it('gives a fresh local learner three words before the personal setup', async () => {
+    window.history.replaceState({}, '', '/?lang=es');
+    const freshProfile: Profile = {
+      ...profile,
+      display_name: 'Learner',
+      interface_language: 'es',
+      hebrew_level: 'A0',
+      onboarding_step: 0,
+      onboarding_completed: 0,
+      first_steps_step: 0,
+      first_steps_completed: 0,
+    };
+    vi.stubGlobal('fetch', routeFetch(localSession, freshProfile));
+    const user = userEvent.setup();
+    renderApp();
+
+    expect(await screen.findByRole('heading', { name: 'Bienvenida a tu propio camino de hebreo' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Tus primeras tres palabras en hebreo' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Omitir la lección y elegir cómo continuar' }));
+
+    expect(await screen.findByRole('heading', { name: '¿Qué idioma te resulta más fácil?' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /¿Cómo quieres que te llamemos\?/ })).toHaveValue('');
+  });
+
   it('localizes the dashboard hero, metrics, actions, and navigation in Hebrew RTL', async () => {
     localStorage.setItem('ivrit-sheli-locale', 'he');
     vi.stubGlobal('fetch', routeFetch(demoSession));

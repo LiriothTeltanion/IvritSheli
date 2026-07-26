@@ -11,7 +11,7 @@ import { BeginnerOnboarding } from './BeginnerOnboarding';
 
 const PROFILE: Profile = {
   id: 1,
-  display_name: 'New learner',
+  display_name: 'Learner',
   interface_language: 'en',
   hebrew_level: 'A0',
   daily_minutes: 10,
@@ -43,6 +43,7 @@ describe('BeginnerOnboarding', () => {
     );
 
     expect(await screen.findByRole('heading', { name: '¿Qué idioma te resulta más fácil?' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /¿Cómo quieres que te llamemos\?/ })).toHaveValue('');
     expect(screen.getByRole('button', { name: /EspañolBienvenida/i })).toHaveAttribute('aria-pressed', 'true');
     expect(document.documentElement).toHaveAttribute('lang', 'es');
   });
@@ -64,6 +65,7 @@ describe('BeginnerOnboarding', () => {
       </I18nProvider>,
     );
 
+    await user.type(await screen.findByRole('textbox', { name: /What should we call you\?/ }), 'Marta');
     await user.click(await screen.findByRole('button', { name: /Continue/i }));
     expect(await screen.findByRole('heading', { name: 'How much Hebrew do you know?' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Guided mode/i })).toBeInTheDocument();
@@ -79,6 +81,7 @@ describe('BeginnerOnboarding', () => {
     await waitFor(() => expect(onFinished).toHaveBeenCalledWith(finishedProfile));
     expect(updateProfile).toHaveBeenCalledTimes(4);
     expect(updateProfile).toHaveBeenLastCalledWith(expect.objectContaining({
+      display_name: 'Marta',
       hebrew_level: 'A1',
       onboarding_step: 4,
       onboarding_completed: true,

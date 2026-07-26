@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS app_meta (
 
 CREATE TABLE IF NOT EXISTS profiles (
     id INTEGER PRIMARY KEY CHECK (id = 1),
-    display_name TEXT NOT NULL DEFAULT 'Kevin',
+    display_name TEXT NOT NULL DEFAULT 'Learner',
     interface_language TEXT NOT NULL DEFAULT 'en',
     hebrew_level TEXT NOT NULL DEFAULT 'A2',
     daily_minutes INTEGER NOT NULL DEFAULT 18 CHECK (daily_minutes BETWEEN 5 AND 180),

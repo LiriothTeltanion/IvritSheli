@@ -14,6 +14,7 @@ type BeginnerLevel = 'A0' | 'A1' | 'A2';
 type BeginnerGoal = 'daily_life' | 'speaking' | 'travel' | 'medical';
 
 interface OnboardingDraft {
+  displayName: string;
   locale: Locale;
   level: BeginnerLevel;
   minutes: 5 | 10 | 15;
@@ -54,6 +55,7 @@ function defaultDraft(profile: Profile): OnboardingDraft {
     ? activeGoal
     : 'daily_life';
   return {
+    displayName: profile.display_name === 'Learner' ? '' : profile.display_name,
     locale: profile.interface_language,
     level,
     minutes,
@@ -147,6 +149,7 @@ export function BeginnerOnboarding({ profile, storageKey, onFinished, onSkip }: 
   };
 
   const profileUpdate = (onboardingStep: number, completed: boolean): Partial<Profile> => ({
+    display_name: draft.displayName.trim() || profile.display_name,
     interface_language: draft.locale,
     // Returning learners outside the beginner choices must never be silently downgraded.
     hebrew_level: isBeginnerLevel(profile.hebrew_level) ? draft.level : profile.hebrew_level,
@@ -234,6 +237,21 @@ export function BeginnerOnboarding({ profile, storageKey, onFinished, onSkip }: 
               <span className="warm-kicker">👋 {t('welcomeKicker')}</span>
               <h1 id="onboarding-title" ref={headingRef} tabIndex={-1}>{t('chooseComfortLanguage')}</h1>
               <p>{t('chooseComfortLanguageDetail')}</p>
+            </div>
+            <div className="onboarding-name-field">
+              <label htmlFor="onboarding-display-name">{t('preferredName')}</label>
+              <input
+                id="onboarding-display-name"
+                type="text"
+                value={draft.displayName}
+                onChange={(event) => setDraft((current) => ({ ...current, displayName: event.target.value }))}
+                placeholder={t('preferredNamePlaceholder')}
+                autoComplete="name"
+                maxLength={100}
+                aria-describedby="onboarding-display-name-detail"
+                required
+              />
+              <small id="onboarding-display-name-detail">{t('preferredNameDetail')}</small>
             </div>
             <div className="onboarding-choice-grid onboarding-choice-grid--languages">
               {languageOptions.map((option) => (
@@ -382,7 +400,12 @@ export function BeginnerOnboarding({ profile, storageKey, onFinished, onSkip }: 
             <button type="button" className="secondary-button" onClick={() => setStep((current) => current - 1)}>{t('back')}</button>
           ) : <span />}
           {step < 3 ? (
-            <button type="button" className="primary-button primary-button--large" onClick={() => { void advance(); }} disabled={saving}>
+            <button
+              type="button"
+              className="primary-button primary-button--large"
+              onClick={() => { void advance(); }}
+              disabled={saving || (step === 0 && !draft.displayName.trim())}
+            >
               {saving ? <span className="spinner" /> : t('continue')} {!saving && <Icon name="chevron" size={18} />}
             </button>
           ) : (

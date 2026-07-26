@@ -15,6 +15,7 @@ import { BeginnerOnboarding } from './components/BeginnerOnboarding';
 import { DictionaryDrawer } from './components/DictionaryDrawer';
 import { FirstStepsLesson } from './components/FirstStepsLesson';
 import { Icon, type IconName } from './components/Icon';
+import { PreAccountLesson } from './components/PreAccountLesson';
 import { ProfileMenu } from './components/ProfileMenu';
 import { QuickCapture } from './components/QuickCapture';
 import { TodayDashboard } from './components/TodayDashboard';
@@ -42,6 +43,10 @@ function onboardingStorageKey(auth: AuthState | null, suffix: 'complete' | 'draf
   return `ivrit-sheli:onboarding-v${ONBOARDING_VERSION}:${learnerStorageId(auth)}:${suffix}`;
 }
 
+function localWelcomeStorageKey(auth: AuthState | null): string {
+  return `ivrit-sheli:local-welcome-v1:${learnerStorageId(auth)}`;
+}
+
 type NavigationItem = {
   key: ViewKey;
   icon: IconName;
@@ -56,6 +61,8 @@ const navigation: NavigationItem[] = [
   { key: 'connectors', icon: 'link', labelKey: 'connectors' },
   { key: 'settings', icon: 'settings', labelKey: 'settings' },
 ];
+
+const globalUtilityViews = new Set<ViewKey>(['settings']);
 
 function navigationForLearnerMode(mode: LearnerMode): NavigationItem[] {
   if (mode === 'guided') {
@@ -94,6 +101,7 @@ export default function App(): React.JSX.Element {
   const [firstStepsProgress, setFirstStepsProgress] = useState(0);
   const [firstStepsComplete, setFirstStepsComplete] = useState(false);
   const [onboardingRevision, setOnboardingRevision] = useState(0);
+  const [localWelcomeComplete, setLocalWelcomeComplete] = useState(false);
   const [online, setOnline] = useState(navigator.onLine);
   const [theme, setTheme] = useState<'dark' | 'light'>(() => localStorage.getItem('ivrit-sheli-theme') === 'dark' ? 'dark' : 'light');
 
@@ -232,10 +240,19 @@ export default function App(): React.JSX.Element {
     [activeLearnerMode],
   );
   useEffect(() => {
-    if (!visibleNavigation.some((item) => item.key === view)) setView('today');
+    if (
+      !globalUtilityViews.has(view)
+      && !visibleNavigation.some((item) => item.key === view)
+    ) {
+      setView('today');
+    }
   }, [view, visibleNavigation]);
   const pageTitle = useMemo(
-    () => visibleNavigation.find((item) => item.key === view)?.labelKey ?? 'today',
+    () => (
+      visibleNavigation.find((item) => item.key === view)?.labelKey
+      ?? navigation.find((item) => item.key === view)?.labelKey
+      ?? 'today'
+    ),
     [view, visibleNavigation],
   );
 
@@ -332,6 +349,66 @@ export default function App(): React.JSX.Element {
     && !Boolean(profile.onboarding_completed)
     && !onboardingCompleteOnDevice
     && onboardingRevision === 0;
+  const localWelcomeCompleteOnDevice = (() => {
+    try {
+      return window.localStorage.getItem(localWelcomeStorageKey(auth)) === 'true';
+    } catch {
+      return false;
+    }
+  })();
+  const needsLocalWelcome = needsOnboarding
+    && auth.mode === 'local'
+    && Number(profile.onboarding_step || 0) === 0
+    && !localWelcomeComplete
+    && !localWelcomeCompleteOnDevice;
+
+  if (needsLocalWelcome) {
+    return (
+      <main className="beginner-onboarding local-pilot-welcome">
+        <div className="onboarding-glow onboarding-glow--one" aria-hidden="true" />
+        <div className="onboarding-glow onboarding-glow--two" aria-hidden="true" />
+        <header className="onboarding-header">
+          <a className="auth-brand" href="/" aria-label={`${t('appName')} — ${t('home')}`}>
+            <img src="/icons/app-icon.svg" alt="" />
+            <span><strong>{t('appName')}</strong><small>{t('firstSteps')}</small></span>
+          </a>
+          <div className="locale-switch" aria-label={t('interfaceLanguage')}>
+            {(['en', 'es', 'he'] as Locale[]).map((code) => (
+              <button
+                key={code}
+                type="button"
+                className={locale === code ? 'active' : ''}
+                onClick={() => {
+                  window.localStorage.setItem('ivrit-sheli-locale-explicit', 'true');
+                  setLocale(code);
+                }}
+              >
+                {code.toUpperCase()}
+              </button>
+            ))}
+          </div>
+        </header>
+        <section className="onboarding-card local-pilot-welcome__card">
+          <div className="local-pilot-welcome__copy">
+            <span className="warm-kicker">👋 {t('welcomeKicker')}</span>
+            <h1>{t('localPilotWelcomeTitle')}</h1>
+            <p>{t('localPilotWelcomeDetail')}</p>
+          </div>
+          <PreAccountLesson onReady={() => {
+            try {
+              window.localStorage.setItem(localWelcomeStorageKey(auth), 'true');
+            } catch {
+              // The learner can still continue when device storage is unavailable.
+            }
+            setLocalWelcomeComplete(true);
+          }} />
+        </section>
+        <p className="onboarding-reassurance">
+          <Icon name="shield" size={17} /> {t('localPilotStorageNote')}
+        </p>
+      </main>
+    );
+  }
 
   if (needsOnboarding) {
     return (

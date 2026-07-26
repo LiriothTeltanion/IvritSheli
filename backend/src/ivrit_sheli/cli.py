@@ -68,7 +68,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--display-name",
-        default="Kevin",
+        default="Learner",
         help="Local display name used when creating the profile.",
     )
     parser.add_argument(
@@ -144,7 +144,10 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def initialize_services(settings: Settings) -> tuple[
+def initialize_services(
+    settings: Settings,
+    display_name: str = "Learner",
+) -> tuple[
     Database,
     DictionaryStore,
     LearningRepository,
@@ -153,6 +156,7 @@ def initialize_services(settings: Settings) -> tuple[
 
     Args:
         settings: Runtime settings.
+        display_name: Name used only when the local profile is first created.
 
     Returns:
         Database, dictionary, and repository.
@@ -168,7 +172,7 @@ def initialize_services(settings: Settings) -> tuple[
     dictionary = DictionaryStore(settings.dictionary_db_path)
     dictionary.initialize()
     repository = LearningRepository(database)
-    repository.ensure_default_profile()
+    repository.ensure_default_profile(display_name)
     return database, dictionary, repository
 
 
@@ -409,7 +413,10 @@ def main(argv: list[str] | None = None) -> int:
     database: Database | None = None
     dictionary: DictionaryStore | None = None
     try:
-        database, dictionary, repository = initialize_services(settings)
+        database, dictionary, repository = initialize_services(
+            settings,
+            display_name=args.display_name,
+        )
         if args.init:
             print(f"Initialized local data in {settings.data_dir} ✅")
         if args.seed:

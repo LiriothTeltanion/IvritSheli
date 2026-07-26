@@ -2704,6 +2704,11 @@ body { font-size: 16px; line-height: 1.5; }
 .onboarding-step__copy { max-width: 680px; }
 .onboarding-step__copy h1 { margin: 10px 0 9px; color: var(--warm-navy); font-size: clamp(2rem, 5vw, 3.3rem); line-height: 1.05; letter-spacing: -0.045em; }
 .onboarding-step__copy p { margin: 0; color: var(--text-soft); font-size: clamp(1rem, 2vw, 1.15rem); line-height: 1.65; }
+.onboarding-name-field { max-width: 520px; display: grid; gap: 8px; color: var(--text); }
+.onboarding-name-field label { font-weight: 800; }
+.onboarding-name-field input { min-height: 52px; width: 100%; padding: 12px 15px; border: 2px solid var(--border); border-radius: 15px; background: var(--surface-solid); color: var(--text); font: inherit; font-weight: 650; }
+.onboarding-name-field input:focus { border-color: var(--warm-teal); outline: 3px solid color-mix(in srgb, var(--warm-teal) 18%, transparent); outline-offset: 2px; }
+.onboarding-name-field small { color: var(--text-soft); font-size: 0.9rem; font-weight: 500; line-height: 1.5; }
 .onboarding-choice-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
 .choice-card { min-height: 150px; padding: 21px; border: 2px solid var(--border); border-radius: 20px; display: grid; align-content: center; justify-items: start; gap: 8px; background: var(--surface-solid); color: var(--text); text-align: start; cursor: pointer; transition: transform 180ms var(--ease), border-color 180ms ease, background 180ms ease, box-shadow 180ms ease; }
 .choice-card:hover { transform: translateY(-3px); border-color: var(--border-strong); }
@@ -2736,6 +2741,12 @@ body { font-size: 16px; line-height: 1.5; }
 .onboarding-error { margin-top: 20px; padding: 12px; border-radius: 13px; display: flex; gap: 8px; background: var(--warm-coral-soft); color: var(--danger); }
 .onboarding-actions { margin-top: 34px; display: flex; align-items: center; justify-content: space-between; gap: 14px; }
 .onboarding-reassurance { position: relative; z-index: 1; margin: 18px auto 0; display: flex; justify-content: center; align-items: center; gap: 8px; color: var(--text-muted); font-size: 0.88rem; text-align: center; }
+.local-pilot-welcome__card { min-height: 0; display: grid; gap: 28px; }
+.local-pilot-welcome .locale-switch { display: flex; flex: 0 0 auto; }
+.local-pilot-welcome .onboarding-header { flex-wrap: wrap; }
+.local-pilot-welcome__copy { max-width: 700px; }
+.local-pilot-welcome__copy h1 { margin: 10px 0; color: var(--warm-navy); font-size: clamp(2rem, 5vw, 3.3rem); line-height: 1.05; letter-spacing: -0.045em; }
+.local-pilot-welcome__copy p { margin: 0; color: var(--text-soft); font-size: clamp(1rem, 2vw, 1.15rem); line-height: 1.65; }
 
 /* One-task lesson with visual recall and an obvious speaking route. */
 .first-steps-lesson, .first-steps-complete { width: min(1020px, 100%); margin-inline: auto; }

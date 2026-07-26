@@ -10,6 +10,13 @@ param(
     [ValidateSet("127.0.0.1", "0.0.0.0")]
     [string]$BindAddress = "127.0.0.1",
 
+    [string]$DataDirectory = "",
+
+    [ValidateSet("", "en", "es", "he")]
+    [string]$Language = "",
+
+    [switch]$RequirePreferredPort,
+
     [switch]$NoBrowser,
 
     [ValidateRange(0, 86400)]
@@ -32,6 +39,14 @@ $Server = $null
 $ResultCode = 0
 
 Set-Location $RootDir
+
+$ExplicitDataDirectory = -not [string]::IsNullOrWhiteSpace($DataDirectory)
+if ($ExplicitDataDirectory) {
+    $ResolvedDataDirectory = [System.IO.Path]::GetFullPath($DataDirectory)
+    $env:APP_DATA_DIR = $ResolvedDataDirectory
+    $env:APP_DB_PATH = Join-Path $ResolvedDataDirectory "ivrit_sheli.db"
+    $env:DICTIONARY_DB_PATH = Join-Path $ResolvedDataDirectory "hebrew_dictionary.db"
+}
 
 $EnvFileConfiguresData = (
     (Test-Path $EnvFile) -and
@@ -184,10 +199,30 @@ try {
     Write-Host "  ║   Ivrit Sheli Ultimate · עברית שלי   ║" -ForegroundColor Cyan
     Write-Host "  ╚══════════════════════════════════════╝" -ForegroundColor DarkCyan
 
-    if ($BindAddress -eq "127.0.0.1" -and (Test-IvritHealth -CandidatePort $Port)) {
-        $ExistingUrl = "http://127.0.0.1:$Port"
+    if (
+        ($BindAddress -eq "127.0.0.1" -or $RequirePreferredPort) -and
+        (Test-IvritHealth -CandidatePort $Port)
+    ) {
+        $ExistingLanguageQuery = if ([string]::IsNullOrWhiteSpace($Language)) { "" } else { "?lang=$Language" }
+        $ExistingUrl = "http://127.0.0.1:$Port/$ExistingLanguageQuery"
         Write-Host "`n  Ivrit Sheli is already running ✅" -ForegroundColor Green
         Write-Host "  $ExistingUrl" -ForegroundColor White
+        if ($BindAddress -eq "0.0.0.0") {
+            $ExistingLanAddress = Get-LanIPv4Address
+            if ($null -ne $ExistingLanAddress) {
+                $ExistingShareLanguage = if ([string]::IsNullOrWhiteSpace($Language)) { "es" } else { $Language }
+                $ExistingShareUrl = "http://$ExistingLanAddress`:$Port/?lang=$ExistingShareLanguage"
+                Write-Host "`n  Mother pilot link (same Wi-Fi only):" -ForegroundColor Yellow
+                Write-Host "  $ExistingShareUrl" -ForegroundColor White
+                try {
+                    Set-Clipboard -Value $ExistingShareUrl
+                    Write-Host "  Link copied to the clipboard for WhatsApp." -ForegroundColor Green
+                }
+                catch {
+                    Write-Host "  Copy the link above into WhatsApp." -ForegroundColor DarkGray
+                }
+            }
+        }
         Open-IvritBrowser -Url $ExistingUrl
         exit 0
     }
@@ -228,7 +263,15 @@ try {
     & $VenvPython -m ivrit_sheli --init --seed
     Assert-NativeSuccess -Action "Local data initialization"
 
-    $SelectedPort = Find-AvailablePort -PreferredPort $Port
+    if ($RequirePreferredPort -and -not (Test-PortAvailable -CandidatePort $Port)) {
+        throw "Required port $Port is already in use by another process."
+    }
+    $SelectedPort = if ($RequirePreferredPort) {
+        $Port
+    }
+    else {
+        Find-AvailablePort -PreferredPort $Port
+    }
     if ($SelectedPort -ne $Port) {
         Write-Host "  Port $Port is busy; using $SelectedPort instead." -ForegroundColor Yellow
     }
@@ -250,13 +293,15 @@ try {
 
     Wait-ForIvritServer -Process $Server -ServerPort $SelectedPort
 
-    $AppUrl = "http://127.0.0.1:$SelectedPort"
+    $LanguageQuery = if ([string]::IsNullOrWhiteSpace($Language)) { "" } else { "?lang=$Language" }
+    $AppUrl = "http://127.0.0.1:$SelectedPort/$LanguageQuery"
     Write-Host "`n  Ivrit Sheli is ready ✅" -ForegroundColor Green
     Write-Host "  $AppUrl" -ForegroundColor White
     if ($BindAddress -eq "0.0.0.0") {
         $LanAddress = Get-LanIPv4Address
         if ($null -ne $LanAddress) {
-            $ShareUrl = "http://$LanAddress`:$SelectedPort/?lang=es"
+            $ShareLanguage = if ([string]::IsNullOrWhiteSpace($Language)) { "es" } else { $Language }
+            $ShareUrl = "http://$LanAddress`:$SelectedPort/?lang=$ShareLanguage"
             Write-Host "`n  Mother pilot link (same Wi-Fi only):" -ForegroundColor Yellow
             Write-Host "  $ShareUrl" -ForegroundColor White
             Write-Host "  If Windows Firewall asks, allow Python on Private networks only." -ForegroundColor DarkGray
