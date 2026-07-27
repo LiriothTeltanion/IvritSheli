@@ -44,20 +44,60 @@ speakers.
 
 ## Recording
 
-The UI shows permission, recording, processing, success and failure states. Browser-managed speech recognition does not send its audio through Ivrit Sheli, but the browser or operating-system speech service may process or retain it under that vendor's policy. When the learner explicitly chooses cloud transcription, Ivrit Sheli records `audio/webm` where supported and uploads it to the configured provider.
+v2.9 shows explicit `checking`, `requesting_permission`, `recording`,
+`processing`, `success`, `permission_denied`, `invalid_format`, `no_speech`,
+`timeout` and `service_unavailable` states. Remote microphone capture requires
+an HTTPS secure context. Loopback remains valid for desktop development, while
+an ordinary HTTP LAN link supports non-microphone learning only.
 
-Microphone access starts only after the learner presses the record control. Ivrit Sheli deletes its temporary cloud-transcription upload after processing; the configured provider's separate retention policy may still apply. The normal word-analysis flow does not retain audio in learner data.
+Microphone access starts only after the learner presses the record control.
+The primary v2.9 path records a supported browser format and sends at most
+20 seconds / 8 MB over HTTPS to the controlled application server. The request
+envelope is capped separately at 9 MB.
 
-## One-word intelligence
+The server opens the real media container through PyAV, requires decodable
+audio, forces Hebrew, enables VAD and sends the request to a single
+Faster Whisper `small` CPU INT8 worker. It waits at most 45 seconds. A private
+worker copy avoids deleting a file still in active decoding after a timeout;
+both the request upload and worker copy are deleted as soon as their work ends.
 
-The **Record one Hebrew word** flow accepts exactly one Hebrew token from browser recognition, optional cloud transcription, or manual entry. It returns:
+Fallback order:
+
+1. Self-hosted Faster Whisper when configured and ready.
+2. Browser speech recognition when that browser exposes it and the learner
+   accepts the browser/provider policy.
+3. Manual Hebrew input.
+
+The OpenAI STT adapter remains compatibility-only and requires explicit paid
+cloud consent; it is not the primary v2.9 pilot path.
+
+**Save on this device** is optional. It stores the recording only in IndexedDB,
+namespaced to the current learner on that browser. Device audio is excluded
+from SQLite/PostgreSQL learning state, snapshots, exports and logs. Signing out
+does not silently delete personal device files; Settings can list, play,
+delete individually or clear the current learner's recordings, and another
+account cannot see them. Playback uses a short-lived local Blob URL that is
+revoked when the recording disappears or the view closes.
+
+## Transcript understanding and one-word intelligence
+
+The transcript-analysis flow accepts a bounded Hebrew word or phrase. It
+tokenizes up to twelve unique Hebrew tokens and returns only exact local
+dictionary matches plus an explicit unknown-token list. It never invents a
+meaning. A single token receives the richer word-intelligence response:
 
 - Local dictionary meanings in English and Spanish.
 - Niqqud, transliteration, part of speech, grammatical fields, root and binyan when the source actually supplies them.
 - Inflected forms, examples, source and license provenance.
 - Optional consent-gated cloud enrichment, visibly separated from local dictionary facts.
 
-The result records its transcript/dictionary/enrichment provenance. A recognized or typed word cannot award XP, change mastery, or count as verified speaking evidence. Browser/manual local analysis remains available in the seeded read-only demo; cloud transcription and enrichment remain disabled there.
+The result records its transcript/dictionary/transcription provenance.
+Browser-recognized and manually typed words cannot award XP, change mastery or
+count as verified speaking evidence. A self-hosted result may do so only when a
+short-lived HMAC evidence token binds the same learner, provider, target,
+transcript and stable learning item; the database rejects replayed evidence.
+Browser/manual local analysis remains available in the seeded read-only demo;
+cloud enrichment remains disabled there.
 
 ## Recognition match
 
@@ -73,4 +113,9 @@ The historical `/api/v1/audio/pronunciation-score` route remains available for c
 
 ## Privacy
 
-App-managed recordings and transcripts are excluded from structured request logs, and temporary upload files are removed. Browser-managed recognition remains subject to the browser or operating-system speech provider's policy. Audio retention is configurable only for explicit pronunciation attempts; the one-word analyzer always reports `audio_retained: false` and `learning_progress_updated: false`.
+App-managed recordings and transcripts are excluded from structured request
+logs, and temporary upload/worker files are removed. Browser-managed
+recognition remains subject to the browser or operating-system speech
+provider's policy. Server responses explicitly report deletion status.
+Device-only retention is separate from learning evidence and never changes XP,
+mastery or session completion.

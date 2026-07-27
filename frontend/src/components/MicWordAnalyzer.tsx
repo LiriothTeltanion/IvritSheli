@@ -495,7 +495,7 @@ export function MicWordAnalyzer({
   );
 }
 
-function WordResult({
+export function WordResult({
   result,
   locale,
   onWordClick,

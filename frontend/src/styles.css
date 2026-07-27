@@ -578,6 +578,16 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .privacy-list li { display: flex; align-items: center; gap: 8px; color: var(--text-soft); font-size: 10px; }
 .privacy-list svg { color: var(--green); }
 .settings-save-row { display: flex; justify-content: flex-end; align-items: center; gap: 12px; }
+.warning-banner { min-height: 44px; padding: 10px 13px; display: inline-flex; align-items: center; gap: 8px; border: 1px solid color-mix(in srgb, var(--gold) 45%, transparent); border-radius: 12px; background: color-mix(in srgb, var(--gold) 10%, var(--surface-soft)); color: var(--text); line-height: 1.4; }
+.warning-banner svg { flex: 0 0 auto; color: var(--gold); }
+.device-recording-list { margin: 0; padding: 0; display: grid; gap: 12px; list-style: none; }
+.device-recording { padding: 14px; display: grid; gap: 12px; border: 1px solid var(--border); border-radius: 15px; background: var(--surface-soft); }
+.device-recording__heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.device-recording__heading > div { min-width: 0; display: grid; gap: 3px; }
+.device-recording__heading strong { overflow-wrap: anywhere; font: 750 1.2rem/1.4 var(--font-hebrew); }
+.device-recording__heading time, .device-recording__heading > span { color: var(--text-muted); font-size: 0.82rem; }
+.device-recording__player { width: 100%; min-height: 48px; }
+.device-recording__delete { width: fit-content; min-height: 48px; display: inline-flex; align-items: center; gap: 7px; }
 .bug-card form { display: grid; grid-template-columns: minmax(180px, .5fr) minmax(250px, 1fr) auto; align-items: end; gap: 12px; }
 .bug-card textarea { min-height: 70px; }
 
@@ -792,6 +802,8 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .auth-error span { display: grid; gap: 2px; }
 .auth-error small { color: var(--text-soft); }
 .auth-error button { border: 0; background: transparent; color: var(--text); text-decoration: underline; cursor: pointer; font-size: 11px; }
+.auth-notice { margin: 18px 0; padding: 13px; display: flex; align-items: flex-start; gap: 10px; border: 1px solid color-mix(in srgb, var(--gold) 45%, transparent); border-radius: 14px; background: color-mix(in srgb, var(--gold) 10%, var(--surface-soft)); color: var(--text); line-height: 1.5; }
+.auth-notice svg { flex: 0 0 auto; margin-top: 2px; color: var(--gold); }
 .auth-visual { position: relative; min-height: 480px; display: grid; place-items: center; perspective: 1000px; }
 .auth-visual__journey-art {
   position: absolute;

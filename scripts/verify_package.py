@@ -43,15 +43,25 @@ REQUIRED_FILES = (
     "Dockerfile",
     "docker-compose.yml",
     "railway.toml",
+    "railway-staging.toml",
+    "railway-reminders.toml",
     "backend/pyproject.toml",
     "backend/alembic.ini",
     "backend/migrations/versions/20260716_0001_cloud_identity_and_state.py",
     "backend/migrations/versions/20260718_0002_google_identity_and_oauth_provider.py",
+    "backend/migrations/versions/20260727_0003_private_push_subscriptions.py",
+    "backend/migrations/versions/20260727_0004_push_endpoint_ownership.py",
+    "backend/migrations/versions/20260727_0005_safe_push_endpoint_transfer.py",
     "backend/src/ivrit_sheli/api.py",
     "backend/src/ivrit_sheli/auth.py",
     "backend/src/ivrit_sheli/cloud_repository.py",
     "backend/src/ivrit_sheli/cloud_store.py",
     "backend/src/ivrit_sheli/audio.py",
+    "backend/src/ivrit_sheli/self_hosted_speech.py",
+    "backend/src/ivrit_sheli/coach_patterns.py",
+    "backend/src/ivrit_sheli/learner_model.py",
+    "backend/src/ivrit_sheli/local_personal_coach.py",
+    "backend/src/ivrit_sheli/push_notifications.py",
     "backend/src/ivrit_sheli/learning_core.py",
     "backend/src/ivrit_sheli/local_learning_engine.py",
     "backend/src/ivrit_sheli/visual_spotlight.py",
@@ -68,6 +78,10 @@ REQUIRED_FILES = (
     "backend/tests/test_learning_engines.py",
     "backend/tests/test_visual_catalog.py",
     "backend/tests/test_visual_spotlight.py",
+    "backend/tests/test_self_hosted_speech.py",
+    "backend/tests/test_local_personal_coach.py",
+    "backend/tests/test_listening_coach_v29.py",
+    "backend/tests/test_push_notifications.py",
     "frontend/package-lock.json",
     "frontend/playwright.config.ts",
     "frontend/e2e/experience.spec.ts",
@@ -109,6 +123,14 @@ REQUIRED_FILES = (
     "frontend/src/components/WordIllustration.test.tsx",
     "frontend/src/components/AudioPractice.tsx",
     "frontend/src/components/AudioPractice.test.tsx",
+    "frontend/src/components/PersonalCoachCard.tsx",
+    "frontend/src/components/PersonalCoachCard.test.tsx",
+    "frontend/src/components/PersonalizationSettingsCard.tsx",
+    "frontend/src/components/ReminderSettingsCard.tsx",
+    "frontend/src/deviceAudioStorage.ts",
+    "frontend/src/deviceAudioStorage.test.ts",
+    "frontend/src/pushNotifications.ts",
+    "frontend/src/pushNotifications.test.ts",
     "frontend/src/components/DictionaryDrawer.tsx",
     "frontend/src/components/DictionaryDrawer.test.tsx",
     "frontend/src/components/RegistryPanel.tsx",
@@ -173,6 +195,7 @@ REQUIRED_FILES = (
     "assets/social/ivrit-sheli-social-preview.svg",
     "assets/social/ivrit-sheli-social-preview.png",
     "scripts/docker-entrypoint.sh",
+    "scripts/drop_privileges.py",
     "scripts/start.ps1",
     "scripts/build_release_archive.py",
     "scripts/export_pwa_starter_content.py",
@@ -310,7 +333,7 @@ def verify_portfolio_manifest() -> list[str]:
         "schema": "ivrit-sheli-portfolio-project-v2",
         "slug": "ivrit-sheli",
         "name": "Ivrit Sheli — העברית שלי",
-        "source_version": "2.8.3",
+        "source_version": "2.9.0",
         "live_version": "2.4.0",
         "status": "private-release-candidate",
         "default_branch": "main",
@@ -335,6 +358,8 @@ def verify_portfolio_manifest() -> list[str]:
         "PostgreSQL 17",
         "SQLite",
         "Alembic",
+        "Faster Whisper",
+        "Web Push",
         "Docker",
         "Railway",
     ]:
@@ -429,11 +454,11 @@ def verify_portfolio_manifest() -> list[str]:
         "latest_github_release": "v2.4.0",
         "source_version_tagged": False,
         "source_version_github_release_published": False,
-        "release_state": "2.8.3-private-candidate-2.4.0-live-and-published",
+        "release_state": "2.9.0-private-candidate-2.4.0-live-and-published",
     }
     if publication is not None and publication != expected_publication:
         failures.append(
-            "portfolio/project.json: publication must keep 2.8.3 private and identify "
+            "portfolio/project.json: publication must keep 2.9.0 private and identify "
             "v2.4.0 as the live tagged GitHub Release"
         )
 
@@ -446,38 +471,56 @@ def verify_portfolio_manifest() -> list[str]:
             "reviewed_concepts",
             "learner_experiences",
             "learning_engine",
+            "personal_coach",
+            "speech",
+            "reminders",
             "semantic_visual_recipes",
             "category_visual_fallbacks",
             "visual_journey_regions",
             "public_google_scope",
             "local_mode_without_account",
+            "verification",
             "release_gate",
         },
         "candidate",
     )
     failures.extend(nested_failures)
     expected_candidate = {
-        "version": "2.8.3",
+        "version": "2.9.0",
         "published": False,
         "coverage": "Structured A0-A2 with an explicitly experimental B1/B2 Lab",
         "reviewed_concepts": 240,
         "learner_experiences": ["Guided", "Explorer", "Experienced"],
         "learning_engine": "Deterministic LocalLearningEngine",
+        "personal_coach": "Reviewed deterministic LocalPersonalCoach with bounded feedback",
+        "speech": (
+            "Self-hosted Faster Whisper small, Hebrew, CPU INT8, "
+            "20-second private pilot limit"
+        ),
+        "reminders": (
+            "Optional standards-based Web Push with one reminder per "
+            "learner/local day"
+        ),
         "semantic_visual_recipes": 72,
         "category_visual_fallbacks": 168,
         "visual_journey_regions": 6,
         "public_google_scope": "openid profile",
         "local_mode_without_account": True,
+        "verification": (
+            "655 unique automated passes; PostgreSQL 17 RLS/roles, non-root "
+            "Docker readiness, reminder-worker smoke and dependency audits "
+            "passed locally"
+        ),
         "release_gate": (
-            "Two-account isolation, completion of the mother-pilot acceptance "
-            "retest, the OpenAI Build Week winner announcement and Kevin's "
-            "explicit publication approval remain required."
+            "Isolated HTTPS staging, two-account isolation, the 20-word/10-phrase "
+            "speech and reminder mother pilot, and Kevin's explicit publication "
+            "approval remain required."
         ),
     }
     if candidate is not None and candidate != expected_candidate:
         failures.append(
             "portfolio/project.json: candidate must describe the unpublished "
-            "2.8.3 implementation and its remaining release gate"
+            "2.9.0 implementation and its remaining release gate"
         )
 
     visual_proof, nested_failures = _verify_exact_keys(
@@ -493,7 +536,10 @@ def verify_portfolio_manifest() -> list[str]:
     )
     failures.extend(nested_failures)
     expected_visual_proof = {
-        "state": "local-2.8-candidate-and-live-2.4-verified",
+        "state": (
+            "v2.9-private-source-inherits-local-2.8-visual-proof-and-live-"
+            "2.4-remains-verified"
+        ),
         "social_preview_version": "2.2.0",
         "readme_screenshot_version": "2.8.0-local-candidate",
         "readme_screenshots_match_source_version": False,
@@ -579,16 +625,21 @@ def verify_release_truth_drift() -> list[str]:
         "README.md": (
             "Open the verified Ivrit Sheli 2.4.0 Contest Edition",
             "03bf84b9268ff8be528c0fab3c670f9652ee23b0",
-            "Current private source checkout | `2.8.3`",
+            "Current private source checkout | `2.9.0`",
             "Current public deployed application | `2.4.0`",
             "151 unique backend tests + 62 frontend tests = 213 passed",
-            "153-file/294-checksum staged-tree gate",
-            "clean `c9e2762` archive",
+            "655 unique automated passes",
+            "Historical v2.8.3 evidence is preserved",
             "GitHub publication | [`v2.4.0`](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.4.0)",
-            "Two-real-Google-account isolation/persistence, the formal mother-pilot acceptance retest and the end of the active Devpost judging freeze",
+            "20-word/10-phrase Hebrew accuracy pilot",
         ),
         "TEST_REPORT.md": (
-            "Current private source candidate:** `2.8.3` / local / unpublished",
+            "Current private source candidate:** `2.9.0` / local / unpublished",
+            "fresh v2.9 results below were",
+            "291 passed / 1 credential-gated PostgreSQL skip",
+            "337 passed / 37 files",
+            "26 passed / 28 scoped skips / 0 failed",
+            "655 passed",
             "201 passed",
             "310 passed",
             "25 passed",
@@ -603,26 +654,38 @@ def verify_release_truth_drift() -> list[str]:
             "mother-pilot acceptance retest",
         ),
         "CHANGELOG.md": (
+            "2.9.0 — Listening & Personal Coach — Private candidate",
             "2.8.3 — Visual Recognition Expansion — Private candidate",
             "Version 2.7 was a private implementation checkpoint",
             "2.4.0 — Contest Edition — 2026-07-21",
         ),
         "PACKAGE_MANIFEST.md": (
-            "Source version: `2.8.3`",
+            "Source version: `2.9.0`",
             "Current verified public version: `2.4.0`",
-            "`2.8.3` is local, untagged, unpushed and unpublished",
+            "`2.9.0` is private, untagged, unpushed and unpublished",
             "Latest published Git tag and GitHub Release: `v2.4.0`",
-            "201 passed",
-            "310 passed",
-            "25 passed",
-            "536 passed",
-            "153 required files / 294 canonical Git blobs passed",
-            "c9e2762",
+            "Self-hosted Faster Whisper `1.2.1`",
+            "Dedicated `ivrit_sheli_push_worker`",
+            "291 passed / 1 credential-gated PostgreSQL skip",
+            "337 passed / 37 files",
+            "26 passed / 28 scoped skips / 0 failed",
+            "Preserved historical private 2.8.3 baseline",
         ),
         "docs/DEPLOYMENT.md": (
             "Current production verification record — 2.4.0 — 2026-07-21",
             "03bf84b9268ff8be528c0fab3c670f9652ee23b0",
             "Identity-only Google sign-in",
+            "Backend: 291 passed, 1 credential-gated PostgreSQL skip",
+            "Frontend: 337 passed across 37 files",
+            "Playwright/axe: 26 passed, 28 scoped matrix skips, 0 failed",
+        ),
+        "docs/API.md": (
+            "unpublished v2.9 source contract",
+            "Whisper is a separate v2.9 speech path",
+        ),
+        "SECURITY.md": (
+            "2.9.x | Yes — unreleased private candidate",
+            "2.8.x | No — superseded private candidate",
         ),
         "docs/DEMO_DAY.md": (
             "213 passing automated tests",
@@ -644,8 +707,8 @@ def verify_release_truth_drift() -> list[str]:
             "actively developed public pilot",
         ),
         "CITATION.cff": (
-            "version: 2.8.3",
-            "unpublished Ivrit Sheli 2.8.3 Visual Recognition Expansion candidate",
+            "version: 2.9.0",
+            "unpublished Ivrit Sheli 2.9.0 Listening & Personal Coach candidate",
             "verified public v2.4.0 release",
         ),
     }
@@ -659,12 +722,56 @@ def verify_release_truth_drift() -> list[str]:
         for fragment in fragments:
             if fragment not in text:
                 failures.append(f"{relative}: missing release-truth fragment {fragment!r}")
+
+    forbidden_fragments = {
+        "README.md": (
+            "current v2.8 candidate",
+            "v2.8 public learning flow",
+            "## AI boundary in 2.8",
+            "The v2.8 application supports:",
+        ),
+        "TEST_REPORT.md": (
+            "tag `v2.8.3`",
+            "After 2.8 accepts writes",
+            "current 2.8 source evidence",
+            "presented as 2.8 production verification",
+        ),
+        "PACKAGE_MANIFEST.md": (
+            "It is not the 2.8 candidate",
+            "disabled in the public 2.8 interface",
+            "## Verified private 2.8 candidate",
+            "After 2.8 accepts writes",
+            "not relabeled as 2.8",
+            "locally executed 2.8 checks",
+        ),
+        "docs/API.md": (
+            "unpublished 2.8 source contract",
+            "2.8 public learning",
+            "2.8 public release",
+        ),
+        "docs/DEPLOYMENT.md": ("before the first 2.8 learner write",),
+        "docs/VOCABULARY_ILLUSTRATION_SYSTEM.md": (
+            "publishing a 2.8 release",
+        ),
+        "SECURITY.md": ("2.8.x | Yes — unreleased private candidate",),
+    }
+    for relative, fragments in forbidden_fragments.items():
+        try:
+            text = (ROOT / relative).read_text(encoding="utf-8")
+        except OSError as error:
+            failures.append(f"{relative}: {error}")
+            continue
+        for fragment in fragments:
+            if fragment in text:
+                failures.append(
+                    f"{relative}: forbidden stale release-truth fragment {fragment!r}"
+                )
     return failures
 
 
 def verify_source_version_surfaces() -> list[str]:
     """Keep executable and human-facing release versions synchronized."""
-    expected_version = "2.8.3"
+    expected_version = "2.9.0"
     failures: list[str] = []
 
     try:
@@ -697,14 +804,14 @@ def verify_source_version_surfaces() -> list[str]:
             )
 
     expected_fragments = {
-        "backend/src/ivrit_sheli/__init__.py": '__version__ = "2.8.3"',
-        "frontend/index.html": "Ivrit Sheli 2.8",
-        "frontend/public/sw.js": "ivrit-sheli-shell-v2.8.3-visual-r2",
-        "frontend/src/App.tsx": "v2.8.3 local candidate",
-        "frontend/src/components/AuthGate.tsx": "v2.8.3 local candidate",
-        "frontend/src/components/SettingsPanel.tsx": "app_version: '2.8.3'",
-        ".github/ISSUE_TEMPLATE/bug_report.yml": "placeholder: 2.8.3-private",
-        "CITATION.cff": "version: 2.8.3",
+        "backend/src/ivrit_sheli/__init__.py": '__version__ = "2.9.0"',
+        "frontend/index.html": "Ivrit Sheli 2.9",
+        "frontend/public/sw.js": "ivrit-sheli-shell-v2.9.0-listening-coach-r1",
+        "frontend/src/App.tsx": "v2.9.0 private candidate",
+        "frontend/src/components/AuthGate.tsx": "v2.9.0 private candidate",
+        "frontend/src/components/SettingsPanel.tsx": "app_version: '2.9.0'",
+        ".github/ISSUE_TEMPLATE/bug_report.yml": "placeholder: 2.9.0-private",
+        "CITATION.cff": "version: 2.9.0",
     }
     for relative, fragment in expected_fragments.items():
         try:

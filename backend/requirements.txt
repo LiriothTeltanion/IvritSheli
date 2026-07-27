@@ -1,5 +1,5 @@
 # Module: backend runtime requirements
-# Purpose: Pin the dependency set used by the Ivrit Sheli 2.8.3 candidate in cloud and local modes.
+# Purpose: Pin the dependency set used by the Ivrit Sheli 2.9.0 candidate in cloud and local modes.
 # Author: Kevin "Lirioth" Cusnir
 # Date: 2026-07-15 | TZ: Asia/Jerusalem
 fastapi==0.139.0
@@ -10,3 +10,6 @@ python-multipart==0.0.32
 psycopg[binary]==3.3.4
 SQLAlchemy==2.0.51
 alembic==1.18.5
+faster-whisper==1.2.1
+pywebpush==2.3.0
+cryptography==49.0.0

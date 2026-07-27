@@ -1,0 +1,87 @@
+.listening-coach-setting > p {
+  margin: 0;
+  color: var(--text-soft);
+  line-height: 1.6;
+}
+
+.listening-coach-setting__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.listening-coach-setting__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.listening-coach-setting__notice {
+  padding: 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 0.85rem;
+  background: color-mix(in srgb, var(--surface-strong) 82%, transparent);
+}
+
+.listening-coach-setting__status {
+  min-height: 1.4em;
+}
+
+.listening-coach-setting__metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+  margin: 0;
+}
+
+.listening-coach-setting__metrics div {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.9rem;
+}
+
+.listening-coach-setting__metrics dt {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.listening-coach-setting__metrics dd {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+
+.listening-coach-setting details summary {
+  min-height: 48px;
+  cursor: pointer;
+  font-weight: 750;
+}
+
+.listening-coach-setting__feedback-list {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.listening-coach-setting__feedback-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+@media (max-width: 680px) {
+  .listening-coach-setting__grid,
+  .listening-coach-setting__metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .listening-coach-setting__actions > * {
+    width: 100%;
+  }
+}

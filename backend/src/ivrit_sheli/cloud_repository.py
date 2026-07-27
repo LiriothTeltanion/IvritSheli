@@ -32,6 +32,9 @@ STATE_TABLES = (
     "practice_sessions",
     "practice_step_events",
     "curriculum_progress",
+    "learning_feedback",
+    "learner_model_state",
+    "notification_preferences",
     "user_events",
     "xp_ledger",
     "unlocked_achievements",
@@ -311,6 +314,10 @@ class CloudLearningRepository:
     def export_json(self, destination: Path) -> Path:
         return cast(Path, self._read("export_json", destination))
 
+    def import_json(self, source: Path) -> dict[str, Any]:
+        """Atomically restore a portable learner export inside this tenant."""
+        return cast(dict[str, Any], self._write("import_json", source))
+
     def create_bug_report(self, payload: dict[str, Any]) -> dict[str, Any]:
         return cast(dict[str, Any], self._write("create_bug_report", payload))
 
@@ -319,6 +326,52 @@ class CloudLearningRepository:
 
     def update_profile(self, payload: dict[str, Any]) -> dict[str, Any]:
         return cast(dict[str, Any], self._write("update_profile", payload))
+
+    def notification_preferences(self) -> dict[str, Any]:
+        if self.seed_demo:
+            return cast(dict[str, Any], self._read("notification_preferences"))
+        return cast(dict[str, Any], self._write("notification_preferences"))
+
+    def update_notification_preferences(self, payload: dict[str, Any]) -> dict[str, Any]:
+        return cast(
+            dict[str, Any],
+            self._write("update_notification_preferences", payload),
+        )
+
+    def personalization_profile(self) -> dict[str, Any]:
+        if self.seed_demo:
+            return cast(dict[str, Any], self._read("personalization_profile"))
+        return cast(dict[str, Any], self._write("personalization_profile"))
+
+    def coach_learner_context(self) -> dict[str, Any]:
+        if self.seed_demo:
+            return cast(dict[str, Any], self._read("coach_learner_context"))
+        return cast(dict[str, Any], self._write("coach_learner_context"))
+
+    def coach_speaking_target(
+        self,
+        target_text: str,
+        *,
+        source_label: str | None = None,
+    ) -> dict[str, Any]:
+        """Resolve an exact speaking target inside the authenticated tenant."""
+        return cast(
+            dict[str, Any],
+            self._read(
+                "coach_speaking_target",
+                target_text,
+                source_label=source_label,
+            ),
+        )
+
+    def record_learning_feedback(self, payload: dict[str, Any]) -> dict[str, Any]:
+        return cast(
+            dict[str, Any],
+            self._write("record_learning_feedback", payload),
+        )
+
+    def reset_personalization(self) -> dict[str, Any]:
+        return cast(dict[str, Any], self._write("reset_personalization"))
 
     def progress(self) -> dict[str, Any]:
         return cast(dict[str, Any], self._read("progress"))

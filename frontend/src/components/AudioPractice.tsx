@@ -1,14 +1,23 @@
-// Module: audio practice studio
-// Purpose: Play Hebrew, record speech, transcribe it, and show transparent pronunciation feedback.
-// Author: Kevin "Lirioth" Cusnir
-// Date: 2026-07-15 | TZ: Asia/Jerusalem
-// Notes: Comments in ENGLISH; emojis sparingly.
+// Play Hebrew, capture short speech, transcribe it, and report transcript similarity honestly.
 
 import { useEffect, useRef, useState } from 'react';
-import { api } from '../api';
+import { api, ApiError } from '../api';
+import {
+  canStoreDeviceRecordings,
+  MAX_DEVICE_AUDIO_BYTES,
+  saveDeviceRecording,
+} from '../deviceAudioStorage';
 import { useI18n } from '../i18n';
 import { useSessionAccess } from '../session';
-import type { VoiceStyle } from '../types';
+import type {
+  AudioCapabilities,
+  AudioTranscriptionResponse,
+  SpeechTranscriptionMode,
+  TranscriptPhraseAnalysisResult,
+  TranscriptProvider,
+  VoiceStyle,
+  WordAnalysisResult,
+} from '../types';
 import {
   createHebrewUtterance,
   persistVoiceSpeed,
@@ -20,6 +29,7 @@ import {
 } from '../voicePreference';
 import { HebrewText } from './HebrewText';
 import { Icon } from './Icon';
+import { WordResult } from './MicWordAnalyzer';
 
 export { selectBrowserVoice } from '../voicePreference';
 
@@ -41,7 +51,34 @@ type SpeechWindow = Window & {
   SpeechRecognition?: RecognitionConstructor;
   webkitSpeechRecognition?: RecognitionConstructor;
 };
-const PRONUNCIATION_CAPTURE_MAX_MS = 15_000;
+
+export type SpeechInputMode = SpeechTranscriptionMode | 'browser' | 'manual';
+export type CaptureStatus =
+  | 'checking'
+  | 'ready'
+  | 'requesting_permission'
+  | 'recording'
+  | 'processing'
+  | 'success'
+  | 'permission_denied'
+  | 'invalid_format'
+  | 'timeout'
+  | 'service_unavailable'
+  | 'unsupported'
+  | 'no_speech'
+  | 'cancelled';
+
+const CAPTURE_MAX_MS = 20_000;
+const TRANSCRIPTION_TIMEOUT_MS = 45_000;
+const SUPPORTED_UPLOAD_MIME_TYPES = new Set([
+  'audio/flac',
+  'audio/m4a',
+  'audio/mp4',
+  'audio/mpeg',
+  'audio/ogg',
+  'audio/wav',
+  'audio/webm',
+]);
 
 function stopTracks(stream: MediaStream | null): void {
   stream?.getTracks().forEach((track) => track.stop());
@@ -56,6 +93,84 @@ function stopRecognition(recognition: RecognitionLike | null): void {
   }
 }
 
+function browserRecognitionConstructor(): RecognitionConstructor | null {
+  const speechWindow = window as SpeechWindow;
+  return speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition ?? null;
+}
+
+export function isSecureMicrophoneContext(browserWindow: Window = window): boolean {
+  if (typeof browserWindow.isSecureContext === 'boolean') return browserWindow.isSecureContext;
+  const hostname = browserWindow.location.hostname;
+  return hostname === 'localhost' || hostname === '::1' || hostname.startsWith('127.');
+}
+
+export function isSupportedAudioBlob(blob: Blob, maxBytes = MAX_DEVICE_AUDIO_BYTES): boolean {
+  const mime = blob.type.split(';', 1)[0]?.toLowerCase() ?? '';
+  return blob.size > 0 && blob.size <= maxBytes && SUPPORTED_UPLOAD_MIME_TYPES.has(mime);
+}
+
+export function classifyCaptureFailure(reason: unknown): Exclude<CaptureStatus, 'checking' | 'ready' | 'recording' | 'processing' | 'success' | 'cancelled'> {
+  if (reason instanceof DOMException) {
+    if (reason.name === 'NotAllowedError' || reason.name === 'SecurityError') {
+      return 'permission_denied';
+    }
+    if (reason.name === 'AbortError' || reason.name === 'TimeoutError') return 'timeout';
+    if (reason.name === 'NotSupportedError') return 'invalid_format';
+    if (reason.name === 'NotFoundError' || reason.name === 'NotReadableError') return 'unsupported';
+  }
+  if (reason instanceof ApiError) {
+    if (reason.status === 408 || reason.code.includes('timeout')) return 'timeout';
+    if (reason.code.includes('no_speech')) return 'no_speech';
+    if (
+      reason.status === 413
+      || reason.status === 415
+      || reason.code.includes('format')
+      || reason.code.includes('size')
+    ) return 'invalid_format';
+    return 'service_unavailable';
+  }
+  return 'service_unavailable';
+}
+
+function mediaRecorderOptions(): MediaRecorderOptions {
+  const candidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'];
+  for (const mimeType of candidates) {
+    try {
+      if (MediaRecorder.isTypeSupported(mimeType)) return { mimeType };
+    } catch {
+      break;
+    }
+  }
+  return {};
+}
+
+function fallbackCapabilities(): AudioCapabilities {
+  return {
+    secure_context_required: true,
+    self_hosted_available: false,
+    openai_available: false,
+    max_duration_seconds: 20,
+    max_upload_bytes: MAX_DEVICE_AUDIO_BYTES,
+    timeout_seconds: 45,
+    model: null,
+    fallbacks: ['browser', 'manual'],
+  };
+}
+
+function preferredMode(
+  capabilities: AudioCapabilities,
+  secureContext: boolean,
+  mediaRecorderAvailable: boolean,
+  browserRecognitionAvailable: boolean,
+  readOnly: boolean,
+): SpeechInputMode {
+  if (!readOnly && secureContext && mediaRecorderAvailable && capabilities.self_hosted_available) {
+    return 'self_hosted';
+  }
+  if (secureContext && browserRecognitionAvailable) return 'browser';
+  return 'manual';
+}
+
 export function AudioPractice({
   initialText = 'אני עדיין לומד עברית',
   itemId,
@@ -67,39 +182,49 @@ export function AudioPractice({
   onWordClick: (word: string) => void;
   cloudAvailable?: boolean;
 }): React.JSX.Element {
-  const { label, t } = useI18n();
-  const { readOnly, readOnlyReason } = useSessionAccess();
+  const { label, locale, t } = useI18n();
+  const { readOnly, readOnlyReason, recordingOwnerScope } = useSessionAccess();
+  const secureContext = isSecureMicrophoneContext();
+  const mediaRecorderAvailable = Boolean(navigator.mediaDevices?.getUserMedia)
+    && typeof MediaRecorder !== 'undefined';
+  const browserRecognitionAvailable = browserRecognitionConstructor() !== null;
+
   const [target, setTarget] = useState(initialText);
   const [transcript, setTranscript] = useState('');
-  const [cloud, setCloud] = useState(false);
+  const [speechMode, setSpeechMode] = useState<SpeechInputMode>('manual');
+  const [capabilities, setCapabilities] = useState<AudioCapabilities | null>(null);
+  const [capabilityNotice, setCapabilityNotice] = useState('');
+  const [captureStatus, setCaptureStatus] = useState<CaptureStatus>('checking');
   const [voiceStyle, setVoiceStyle] = useState<VoiceStyle>(readStoredVoiceStyle);
   const [voiceSpeed, setVoiceSpeed] = useState<VoiceSpeed>(readStoredVoiceSpeed);
-  const [acquiring, setAcquiring] = useState(false);
-  const [transcribing, setTranscribing] = useState(false);
-  const [recording, setRecording] = useState(false);
   const [loadingVoice, setLoadingVoice] = useState(false);
+  const [saveOnDevice, setSaveOnDevice] = useState(false);
+  const [deviceSaveNotice, setDeviceSaveNotice] = useState('');
+  const [transcriptionDetails, setTranscriptionDetails] = useState<AudioTranscriptionResponse | null>(null);
+  const [wordAnalysis, setWordAnalysis] = useState<WordAnalysisResult | null>(null);
+  const [phraseAnalysis, setPhraseAnalysis] = useState<TranscriptPhraseAnalysisResult | null>(null);
+  const [transcriptAnalysisLoading, setTranscriptAnalysisLoading] = useState(false);
+  const [transcriptAnalysisError, setTranscriptAnalysisError] = useState('');
   const [score, setScore] = useState<Record<string, unknown> | null>(null);
   const [error, setError] = useState('');
+
   const recognitionRef = useRef<RecognitionLike | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<BlobPart[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const transcriptProviderRef = useRef('manual');
+  const transcriptRef = useRef('');
+  const transcriptProviderRef = useRef<TranscriptProvider>('manual');
   const captureTimerRef = useRef<number | null>(null);
+  const transcriptionTimerRef = useRef<number | null>(null);
+  const transcriptionControllerRef = useRef<AbortController | null>(null);
+  const captureStartedAtRef = useRef(0);
   const captureGenerationRef = useRef(0);
   const playGenerationRef = useRef(0);
   const scoreGenerationRef = useRef(0);
+  const transcriptAnalysisGenerationRef = useRef(0);
   const mountedRef = useRef(true);
   const startLockRef = useRef(false);
-  const activeCaptureRef = useRef(false);
-
-  useEffect(() => {
-    setTarget(initialText);
-    setTranscript('');
-    setScore(null);
-    setError('');
-  }, [initialText]);
 
   const clearCaptureTimer = (): void => {
     if (captureTimerRef.current !== null) {
@@ -108,14 +233,17 @@ export function AudioPractice({
     }
   };
 
+  const clearTranscriptionTimer = (): void => {
+    if (transcriptionTimerRef.current !== null) {
+      window.clearTimeout(transcriptionTimerRef.current);
+      transcriptionTimerRef.current = null;
+    }
+  };
+
   const releaseStream = (stream = streamRef.current): void => {
     stopTracks(stream);
     if (streamRef.current === stream) streamRef.current = null;
   };
-
-  const isCurrentCapture = (generation: number): boolean => (
-    mountedRef.current && captureGenerationRef.current === generation
-  );
 
   const detachRecognition = (recognition: RecognitionLike | null, shouldStop: boolean): void => {
     if (!recognition) return;
@@ -141,6 +269,77 @@ export function AudioPractice({
     }
   };
 
+  const isCurrentCapture = (generation: number): boolean => (
+    mountedRef.current && captureGenerationRef.current === generation
+  );
+
+  useEffect(() => {
+    transcriptAnalysisGenerationRef.current += 1;
+    setTarget(initialText);
+    setTranscript('');
+    transcriptRef.current = '';
+    transcriptProviderRef.current = 'manual';
+    setScore(null);
+    setError('');
+    setTranscriptionDetails(null);
+    setWordAnalysis(null);
+    setPhraseAnalysis(null);
+    setTranscriptAnalysisLoading(false);
+    setTranscriptAnalysisError('');
+    setCaptureStatus('ready');
+  }, [initialText]);
+
+  useEffect(() => {
+    let active = true;
+    setCaptureStatus('checking');
+    void api.audioCapabilities()
+      .then((response) => {
+        if (!active) return;
+        setCapabilities(response);
+        setCapabilityNotice('');
+        setSpeechMode(preferredMode(
+          response,
+          secureContext,
+          mediaRecorderAvailable,
+          browserRecognitionAvailable,
+          readOnly,
+        ));
+        setCaptureStatus('ready');
+      })
+      .catch(() => {
+        if (!active) return;
+        const fallback = fallbackCapabilities();
+        setCapabilities(fallback);
+        setCapabilityNotice(t('audioCapabilitiesUnavailable'));
+        setSpeechMode(preferredMode(
+          fallback,
+          secureContext,
+          mediaRecorderAvailable,
+          browserRecognitionAvailable,
+          readOnly,
+        ));
+        setCaptureStatus('ready');
+      });
+    return () => {
+      active = false;
+    };
+  }, [
+    browserRecognitionAvailable,
+    cloudAvailable,
+    mediaRecorderAvailable,
+    readOnly,
+    secureContext,
+    t,
+  ]);
+
+  useEffect(() => {
+    persistVoiceStyle(voiceStyle);
+  }, [voiceStyle]);
+
+  useEffect(() => {
+    persistVoiceSpeed(voiceSpeed);
+  }, [voiceSpeed]);
+
   useEffect(() => {
     mountedRef.current = true;
     return () => {
@@ -148,9 +347,12 @@ export function AudioPractice({
       captureGenerationRef.current += 1;
       playGenerationRef.current += 1;
       scoreGenerationRef.current += 1;
+      transcriptAnalysisGenerationRef.current += 1;
       startLockRef.current = false;
-      activeCaptureRef.current = false;
       clearCaptureTimer();
+      clearTranscriptionTimer();
+      transcriptionControllerRef.current?.abort();
+      transcriptionControllerRef.current = null;
       detachRecognition(recognitionRef.current, true);
       detachRecorder(recorderRef.current, true);
       chunksRef.current = [];
@@ -164,18 +366,6 @@ export function AudioPractice({
       window.speechSynthesis?.cancel();
     };
   }, []);
-
-  useEffect(() => {
-    if (!cloudAvailable) setCloud(false);
-  }, [cloudAvailable]);
-
-  useEffect(() => {
-    persistVoiceStyle(voiceStyle);
-  }, [voiceStyle]);
-
-  useEffect(() => {
-    persistVoiceSpeed(voiceSpeed);
-  }, [voiceSpeed]);
 
   const speakBrowser = (text: string): void => {
     if (!('speechSynthesis' in window)) {
@@ -203,7 +393,7 @@ export function AudioPractice({
     try {
       const response = await api.tts(
         resolveHebrewPronunciation(target).speechText,
-        cloudAvailable && cloud,
+        speechMode === 'openai' && cloudAvailable,
         voiceStyle,
       );
       if (!mountedRef.current || playGenerationRef.current !== playGeneration) return;
@@ -242,68 +432,167 @@ export function AudioPractice({
     }
   };
 
-  const failCapture = (generation: number, message: string): void => {
+  const failCapture = (generation: number, reason: unknown, explicitStatus?: CaptureStatus): void => {
     if (!isCurrentCapture(generation)) return;
     captureGenerationRef.current += 1;
     clearCaptureTimer();
+    clearTranscriptionTimer();
+    transcriptionControllerRef.current?.abort();
+    transcriptionControllerRef.current = null;
     detachRecognition(recognitionRef.current, true);
     detachRecorder(recorderRef.current, true);
     chunksRef.current = [];
     releaseStream();
     startLockRef.current = false;
-    activeCaptureRef.current = false;
-    setAcquiring(false);
-    setTranscribing(false);
-    setRecording(false);
-    setError(message);
+    const status = explicitStatus ?? classifyCaptureFailure(reason);
+    setCaptureStatus(status);
+    setError(reason instanceof ApiError ? reason.message : '');
   };
 
-  const finishCloudRecording = (recorder: MediaRecorder, generation: number): void => {
+  const understandTranscript = async (
+    value = transcriptRef.current,
+    provider = transcriptProviderRef.current,
+  ): Promise<void> => {
+    const cleanTranscript = value.trim();
+    if (!cleanTranscript) return;
+    const generation = ++transcriptAnalysisGenerationRef.current;
+    setTranscriptAnalysisLoading(true);
+    setTranscriptAnalysisError('');
+    setWordAnalysis(null);
+    setPhraseAnalysis(null);
+    try {
+      const result = await api.analyzeTranscript(cleanTranscript, provider);
+      if (mountedRef.current && transcriptAnalysisGenerationRef.current === generation) {
+        if (result.mode === 'word') {
+          setWordAnalysis(result);
+        } else {
+          setPhraseAnalysis(result);
+        }
+      }
+    } catch (reason) {
+      if (mountedRef.current && transcriptAnalysisGenerationRef.current === generation) {
+        setTranscriptAnalysisError(reason instanceof Error ? reason.message : String(reason));
+      }
+    } finally {
+      if (mountedRef.current && transcriptAnalysisGenerationRef.current === generation) {
+        setTranscriptAnalysisLoading(false);
+      }
+    }
+  };
+
+  const processRecordedBlob = async (
+    blob: Blob,
+    durationMs: number,
+    generation: number,
+    mode: SpeechTranscriptionMode,
+  ): Promise<void> => {
+    const serverLimit = capabilities?.max_upload_bytes ?? MAX_DEVICE_AUDIO_BYTES;
+    const maxBytes = Math.min(MAX_DEVICE_AUDIO_BYTES, serverLimit);
+    if (!isSupportedAudioBlob(blob, maxBytes)) {
+      failCapture(generation, new Error(t('audioInvalidFormatOrSize')), 'invalid_format');
+      return;
+    }
+    setCaptureStatus('processing');
+    if (saveOnDevice) {
+      try {
+        await saveDeviceRecording(
+          recordingOwnerScope,
+          { blob, durationMs, targetText: target },
+        );
+        if (isCurrentCapture(generation)) setDeviceSaveNotice(t('deviceRecordingSaved'));
+      } catch {
+        if (isCurrentCapture(generation)) setDeviceSaveNotice(t('deviceRecordingSaveFailed'));
+      }
+    }
+    if (!isCurrentCapture(generation)) return;
+
+    const controller = new AbortController();
+    transcriptionControllerRef.current = controller;
+    const configuredTimeoutMs = Math.min(
+      TRANSCRIPTION_TIMEOUT_MS,
+      Math.max(1, capabilities?.timeout_seconds ?? 45) * 1000,
+    );
+    transcriptionTimerRef.current = window.setTimeout(() => {
+      transcriptionTimerRef.current = null;
+      controller.abort();
+    }, configuredTimeoutMs);
+    try {
+      const response = await api.transcribeAudio(blob, mode, controller.signal, target);
+      if (!isCurrentCapture(generation)) return;
+      clearTranscriptionTimer();
+      transcriptionControllerRef.current = null;
+      const nextTranscript = response.transcript.trim();
+      if (!nextTranscript) {
+        setCaptureStatus('no_speech');
+        setError(t('noSpeechDetected'));
+        return;
+      }
+      transcriptProviderRef.current = response.provider;
+      transcriptRef.current = nextTranscript;
+      setTranscript(nextTranscript);
+      setTranscriptionDetails(response);
+      setCaptureStatus('success');
+      setError('');
+      setWordAnalysis(null);
+      setPhraseAnalysis(null);
+      void understandTranscript(nextTranscript, response.provider);
+    } catch (reason) {
+      if (!isCurrentCapture(generation)) return;
+      if (controller.signal.aborted) {
+        failCapture(generation, new DOMException('Transcription timed out.', 'TimeoutError'), 'timeout');
+      } else {
+        failCapture(generation, reason);
+      }
+      return;
+    } finally {
+      clearTranscriptionTimer();
+      if (transcriptionControllerRef.current === controller) {
+        transcriptionControllerRef.current = null;
+      }
+      if (isCurrentCapture(generation)) startLockRef.current = false;
+    }
+  };
+
+  const finishServerRecording = (
+    recorder: MediaRecorder,
+    generation: number,
+    mode: SpeechTranscriptionMode,
+  ): void => {
     clearCaptureTimer();
     const blob = new Blob(chunksRef.current, { type: recorder.mimeType || 'audio/webm' });
+    const durationMs = Math.min(CAPTURE_MAX_MS, Date.now() - captureStartedAtRef.current);
     chunksRef.current = [];
     detachRecorder(recorder, false);
     releaseStream();
-    activeCaptureRef.current = false;
     if (!isCurrentCapture(generation)) return;
-    setAcquiring(false);
-    setRecording(false);
-    setTranscribing(true);
-
-    void api.transcribeAudio(blob, true)
-      .then((response) => {
-        if (!isCurrentCapture(generation)) return;
-        transcriptProviderRef.current = response.provider;
-        setTranscript(response.transcript);
-      })
-      .catch((reason: unknown) => {
-        if (isCurrentCapture(generation)) {
-          setError(reason instanceof Error ? reason.message : String(reason));
-        }
-      })
-      .finally(() => {
-        if (isCurrentCapture(generation)) {
-          startLockRef.current = false;
-          setTranscribing(false);
-        }
-      });
+    void processRecordedBlob(blob, durationMs, generation, mode);
   };
 
-  const requestCloudRecording = async (generation: number): Promise<void> => {
-    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') {
-      throw new Error(t('microphoneUnsupported'));
+  const requestServerRecording = async (
+    generation: number,
+    mode: SpeechTranscriptionMode,
+  ): Promise<void> => {
+    if (!secureContext) {
+      throw new DOMException('A secure HTTPS context is required.', 'SecurityError');
     }
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') {
+      throw new DOMException('Microphone recording is unsupported.', 'NotFoundError');
+    }
+    setCaptureStatus('requesting_permission');
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        channelCount: 1,
+        echoCancellation: true,
+        noiseSuppression: true,
+      },
+    });
     if (!isCurrentCapture(generation)) {
       stopTracks(stream);
       return;
     }
     streamRef.current = stream;
     chunksRef.current = [];
-    const recorderOptions: MediaRecorderOptions = MediaRecorder.isTypeSupported('audio/webm')
-      ? { mimeType: 'audio/webm' }
-      : {};
-    const recorder = new MediaRecorder(stream, recorderOptions);
+    const recorder = new MediaRecorder(stream, mediaRecorderOptions());
     recorderRef.current = recorder;
     recorder.ondataavailable = (event) => {
       if (isCurrentCapture(generation) && event.data.size > 0) chunksRef.current.push(event.data);
@@ -312,34 +601,35 @@ export function AudioPractice({
       const recorderError = (event as Event & { error?: DOMException }).error;
       failCapture(
         generation,
-        t('microphoneRecordingFailed', { error: recorderError?.message ?? t('unknownError') }),
+        recorderError ?? new Error(t('microphoneRecordingFailed', { error: t('unknownError') })),
       );
     };
-    recorder.onstop = () => finishCloudRecording(recorder, generation);
+    recorder.onstop = () => finishServerRecording(recorder, generation, mode);
     recorder.start(250);
-    activeCaptureRef.current = true;
-    setAcquiring(false);
-    setRecording(true);
+    captureStartedAtRef.current = Date.now();
+    setCaptureStatus('recording');
+    const configuredDurationMs = Math.min(
+      CAPTURE_MAX_MS,
+      Math.max(1, capabilities?.max_duration_seconds ?? 20) * 1000,
+    );
     captureTimerRef.current = window.setTimeout(() => {
       captureTimerRef.current = null;
       if (!isCurrentCapture(generation) || recorder.state !== 'recording') return;
       try {
         recorder.stop();
       } catch (reason) {
-        failCapture(generation, reason instanceof Error ? reason.message : String(reason));
-        return;
+        failCapture(generation, reason);
       }
-      releaseStream();
-      activeCaptureRef.current = false;
-      if (isCurrentCapture(generation)) setRecording(false);
-    }, PRONUNCIATION_CAPTURE_MAX_MS);
+    }, configuredDurationMs);
   };
 
   const startBrowserRecognition = (generation: number): void => {
-    const speechWindow = window as SpeechWindow;
-    const Recognition = speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition;
+    if (!secureContext) {
+      throw new DOMException('A secure HTTPS context is required.', 'SecurityError');
+    }
+    const Recognition = browserRecognitionConstructor();
     if (!Recognition) {
-      throw new Error(t('microphoneUnsupported'));
+      throw new DOMException('Browser speech recognition is unsupported.', 'NotFoundError');
     }
     const recognition = new Recognition();
     recognition.lang = 'he-IL';
@@ -351,99 +641,124 @@ export function AudioPractice({
       for (let index = 0; index < event.results.length; index += 1) {
         next += event.results[index]?.[0]?.transcript ?? '';
       }
-      setTranscript(next.trim());
+      const normalized = next.trim();
       transcriptProviderRef.current = 'browser';
+      transcriptRef.current = normalized;
+      setTranscript(normalized);
+      setWordAnalysis(null);
+      setPhraseAnalysis(null);
+      setTranscriptAnalysisError('');
     };
     recognition.onerror = (event) => {
       if (!isCurrentCapture(generation)) return;
-      clearCaptureTimer();
-      detachRecognition(recognition, false);
-      activeCaptureRef.current = false;
-      startLockRef.current = false;
-      setRecording(false);
-      setError(t('speechRecognitionFailed', { error: event.error ?? t('unknownError') }));
+      const status = event.error === 'not-allowed' || event.error === 'service-not-allowed'
+        ? 'permission_denied'
+        : event.error === 'no-speech'
+          ? 'no_speech'
+          : 'service_unavailable';
+      failCapture(
+        generation,
+        new Error(t('speechRecognitionFailed', { error: event.error ?? t('unknownError') })),
+        status,
+      );
     };
     recognition.onend = () => {
       if (!isCurrentCapture(generation)) return;
       clearCaptureTimer();
       detachRecognition(recognition, false);
-      activeCaptureRef.current = false;
       startLockRef.current = false;
-      setRecording(false);
+      if (transcriptRef.current.trim()) {
+        setCaptureStatus('success');
+        setError('');
+        void understandTranscript(transcriptRef.current, 'browser');
+      } else {
+        setCaptureStatus('no_speech');
+        setError(t('noSpeechDetected'));
+      }
     };
     recognitionRef.current = recognition;
-    activeCaptureRef.current = true;
-    setRecording(true);
-    captureTimerRef.current = window.setTimeout(() => {
-      captureTimerRef.current = null;
-      if (!isCurrentCapture(generation)) return;
-      detachRecognition(recognition, true);
-      activeCaptureRef.current = false;
-      startLockRef.current = false;
-      setRecording(false);
-    }, PRONUNCIATION_CAPTURE_MAX_MS);
+    transcriptRef.current = '';
+    setTranscript('');
+    setCaptureStatus('requesting_permission');
     try {
       recognition.start();
+      setCaptureStatus('recording');
     } catch (reason) {
       detachRecognition(recognition, false);
       throw reason;
     }
+    captureTimerRef.current = window.setTimeout(() => {
+      captureTimerRef.current = null;
+      if (!isCurrentCapture(generation)) return;
+      stopRecognition(recognition);
+    }, CAPTURE_MAX_MS);
   };
 
   const start = async (): Promise<void> => {
-    if (startLockRef.current || activeCaptureRef.current || transcribing) return;
+    if (startLockRef.current || captureStatus === 'processing') return;
+    setError('');
+    setScore(null);
+    setTranscriptionDetails(null);
+    setWordAnalysis(null);
+    setPhraseAnalysis(null);
+    setTranscriptAnalysisLoading(false);
+    setTranscriptAnalysisError('');
+    transcriptAnalysisGenerationRef.current += 1;
+    setDeviceSaveNotice('');
+    if (speechMode === 'manual') {
+      transcriptProviderRef.current = 'manual';
+      setCaptureStatus('ready');
+      document.getElementById('audio-practice-transcript')?.focus();
+      return;
+    }
     startLockRef.current = true;
     const generation = ++captureGenerationRef.current;
     scoreGenerationRef.current += 1;
-    setError('');
-    setScore(null);
+    transcriptRef.current = '';
+    setTranscript('');
     try {
-      if (cloudAvailable && cloud && !readOnly) {
-        setAcquiring(true);
-        await requestCloudRecording(generation);
-      } else {
+      if (speechMode === 'browser') {
         startBrowserRecognition(generation);
+      } else {
+        await requestServerRecording(generation, speechMode);
       }
     } catch (reason) {
-      failCapture(generation, reason instanceof Error ? reason.message : String(reason));
+      failCapture(generation, reason);
     }
   };
 
   const stop = (): void => {
-    if (acquiring) {
-      captureGenerationRef.current += 1;
-      startLockRef.current = false;
-      activeCaptureRef.current = false;
-      clearCaptureTimer();
-      setAcquiring(false);
-      setRecording(false);
-      return;
-    }
     const recognition = recognitionRef.current;
     if (recognition) {
-      captureGenerationRef.current += 1;
       clearCaptureTimer();
-      detachRecognition(recognition, true);
-      startLockRef.current = false;
-      activeCaptureRef.current = false;
+      stopRecognition(recognition);
+      return;
     }
     const recorder = recorderRef.current;
     if (recorder?.state === 'recording') {
       clearCaptureTimer();
+      setCaptureStatus('processing');
       try {
         recorder.stop();
       } catch (reason) {
-        failCapture(
-          captureGenerationRef.current,
-          reason instanceof Error ? reason.message : String(reason),
-        );
+        failCapture(captureGenerationRef.current, reason);
       }
-      releaseStream();
-      activeCaptureRef.current = false;
-    } else if (!recorder) {
-      releaseStream();
     }
-    setRecording(false);
+  };
+
+  const cancelCapture = (): void => {
+    captureGenerationRef.current += 1;
+    clearCaptureTimer();
+    clearTranscriptionTimer();
+    transcriptionControllerRef.current?.abort();
+    transcriptionControllerRef.current = null;
+    detachRecognition(recognitionRef.current, true);
+    detachRecorder(recorderRef.current, true);
+    chunksRef.current = [];
+    releaseStream();
+    startLockRef.current = false;
+    setCaptureStatus('cancelled');
+    setError('');
   };
 
   const scoreAttempt = async (): Promise<void> => {
@@ -455,6 +770,7 @@ export function AudioPractice({
         transcript,
         itemId,
         transcriptProviderRef.current,
+        transcriptionDetails?.evidence_token,
       );
       if (mountedRef.current && scoreGenerationRef.current === scoreGeneration) {
         setScore(result);
@@ -465,6 +781,55 @@ export function AudioPractice({
       }
     }
   };
+
+  const modeAvailability: Record<SpeechInputMode, boolean> = {
+    self_hosted: !readOnly
+      && secureContext
+      && mediaRecorderAvailable
+      && Boolean(capabilities?.self_hosted_available),
+    openai: !readOnly
+      && secureContext
+      && mediaRecorderAvailable
+      && cloudAvailable
+      && Boolean(capabilities?.openai_available),
+    browser: secureContext && browserRecognitionAvailable,
+    manual: true,
+  };
+  const captureActive = captureStatus === 'requesting_permission'
+    || captureStatus === 'recording'
+    || captureStatus === 'processing';
+  const canCancel = captureStatus === 'requesting_permission' || captureStatus === 'recording';
+  const captureButtonLabel = captureStatus === 'requesting_permission'
+    ? t('requestingMicrophone')
+    : captureStatus === 'processing'
+      ? t('transcribingAudio')
+      : captureStatus === 'recording'
+        ? t('stop')
+        : speechMode === 'manual'
+          ? t('typeTranscript')
+          : t('record');
+
+  const statusMessage = ({
+    checking: t('audioChecking'),
+    ready: t('audioReady'),
+    requesting_permission: t('requestingMicrophone'),
+    recording: t('recordingInProgress'),
+    processing: t('transcribingAudio'),
+    success: t('transcriptionSuccess'),
+    permission_denied: t('microphonePermissionDenied'),
+    invalid_format: t('audioInvalidFormatOrSize'),
+    timeout: t('transcriptionTimeout'),
+    service_unavailable: t('transcriptionServiceUnavailable'),
+    unsupported: t('microphoneUnsupported'),
+    no_speech: t('noSpeechDetected'),
+    cancelled: t('captureCancelled'),
+  } satisfies Record<CaptureStatus, string>)[captureStatus];
+  const modeDisclosure = ({
+    self_hosted: t('selfHostedSpeechDisclosure'),
+    openai: t('openAiSpeechDisclosure'),
+    browser: t('browserSpeechDisclosure'),
+    manual: t('manualSpeechDisclosure'),
+  } satisfies Record<SpeechInputMode, string>)[speechMode];
 
   const numericScore = typeof score?.score === 'number' ? score.score : null;
   const feedback = score?.feedback && typeof score.feedback === 'object'
@@ -485,20 +850,51 @@ export function AudioPractice({
           <span className="eyebrow"><Icon name="mic" size={16} /> {t('listeningSpeaking')}</span>
           <h2>{t('pronunciation')}</h2>
         </div>
-        <label
-          className="mini-cloud-toggle"
-          title={!cloudAvailable ? t('cloudUnavailable') : undefined}
-        >
-          <input
-            type="checkbox"
-            checked={cloud}
-            onChange={(event) => setCloud(event.target.checked)}
-            disabled={!cloudAvailable || readOnly || acquiring || recording || transcribing}
-          />
-          <Icon name={cloud ? 'cloud' : 'offline'} size={16} /> {cloud ? t('cloudSpeech') : t('browserVoice')}
-        </label>
       </header>
-      {readOnly && <div className="demo-inline-notice" role="note"><Icon name="shield" size={16} /> {t('demoAudioNotice')} {readOnlyReason}</div>}
+      {readOnly && (
+        <div className="demo-inline-notice" role="note">
+          <Icon name="shield" size={16} /> {t('demoAudioNotice')} {readOnlyReason}
+        </div>
+      )}
+
+      <fieldset className="voice-style-picker">
+        <legend>{t('speechInputMethod')}</legend>
+        {([
+          ['self_hosted', t('selfHostedSpeech')],
+          ['browser', t('browserRecognition')],
+          ['manual', t('manualTranscript')],
+          ...(cloudAvailable ? [['openai', t('openAiSpeech')] as const] : []),
+        ] as Array<readonly [SpeechInputMode, string]>).map(([mode, modeLabel]) => (
+          <label
+            key={mode}
+            className={`voice-style-option ${speechMode === mode ? 'is-selected' : ''}`}
+            title={!modeAvailability[mode] ? t('speechModeUnavailable') : undefined}
+          >
+            <input
+              type="radio"
+              name="speech-input-mode"
+              value={mode}
+              checked={speechMode === mode}
+              disabled={!modeAvailability[mode] || captureActive}
+              onChange={() => {
+                setSpeechMode(mode);
+                setCaptureStatus('ready');
+                setError('');
+                setTranscriptionDetails(null);
+              }}
+            />
+            <Icon name={mode === 'manual' ? 'book' : mode === 'browser' ? 'offline' : 'cloud'} size={19} />
+            <strong>{modeLabel}</strong>
+          </label>
+        ))}
+      </fieldset>
+      <p className="voice-style-note"><Icon name="shield" size={15} /> {modeDisclosure}</p>
+      {!secureContext && (
+        <div className="demo-inline-notice" role="note">
+          <Icon name="shield" size={16} /> {t('microphoneSecureContextRequired')}
+        </div>
+      )}
+      {capabilityNotice && <p className="voice-style-note">{capabilityNotice}</p>}
 
       <fieldset className="voice-style-picker">
         <legend>{t('voiceStyle')}</legend>
@@ -538,13 +934,39 @@ export function AudioPractice({
       <div className="audio-target">
         <label className="field">
           <span>{t('targetPhrase')}</span>
-          <input dir="rtl" lang="he" value={target} onChange={(event) => setTarget(event.target.value)} />
+          <input
+            dir="rtl"
+            lang="he"
+            value={target}
+            onChange={(event) => {
+              setTarget(event.target.value);
+              setTranscriptionDetails(null);
+            }}
+          />
         </label>
         <HebrewText text={target} onWordClick={onWordClick} className="audio-hebrew" as="p" />
-        <div className={`waveform ${recording || loadingVoice ? 'is-active' : ''}`} aria-hidden="true">
-          {Array.from({ length: 22 }, (_, index) => <i key={index} style={{ animationDelay: `${index * 45}ms` }} />)}
+        <div
+          className={`waveform ${captureStatus === 'recording' || loadingVoice ? 'is-active' : ''}`}
+          aria-hidden="true"
+        >
+          {Array.from({ length: 22 }, (_, index) => (
+            <i key={index} style={{ animationDelay: `${index * 45}ms` }} />
+          ))}
         </div>
       </div>
+
+      {(speechMode === 'self_hosted' || speechMode === 'openai') && (
+        <label className="mini-cloud-toggle">
+          <input
+            type="checkbox"
+            checked={saveOnDevice}
+            onChange={(event) => setSaveOnDevice(event.target.checked)}
+            disabled={!canStoreDeviceRecordings() || captureActive}
+          />
+          <Icon name="offline" size={16} /> {t('saveRecordingOnDevice')}
+        </label>
+      )}
+      <p className="voice-style-note">{t('audioLimitNotice')}</p>
 
       <div className="audio-controls">
         <button type="button" className="round-action" onClick={() => { void play(); }} disabled={loadingVoice}>
@@ -553,48 +975,111 @@ export function AudioPractice({
         </button>
         <button
           type="button"
-          className={`record-action ${recording ? 'is-recording' : ''}`}
-          onClick={() => { if (recording || acquiring) stop(); else void start(); }}
-          disabled={transcribing}
-          aria-busy={acquiring || transcribing}
+          className={`record-action ${captureStatus === 'recording' ? 'is-recording' : ''}`}
+          onClick={() => {
+            if (captureStatus === 'recording') stop();
+            else void start();
+          }}
+          disabled={captureStatus === 'checking' || captureStatus === 'processing' || captureStatus === 'requesting_permission'}
+          aria-busy={captureStatus === 'requesting_permission' || captureStatus === 'processing'}
         >
           <span className="record-pulse" />
-          {acquiring || transcribing
+          {captureStatus === 'requesting_permission' || captureStatus === 'processing'
             ? <span className="spinner" />
-            : <Icon name={recording ? 'stop' : 'mic'} size={30} />}
-          <span>
-            {acquiring
-              ? t('requestingMicrophone')
-              : transcribing
-                ? t('transcribingAudio')
-                : recording ? t('stop') : t('record')}
-          </span>
+            : <Icon name={captureStatus === 'recording' ? 'stop' : 'mic'} size={30} />}
+          <span>{captureButtonLabel}</span>
         </button>
-        <button type="button" className="round-action" onClick={() => { void scoreAttempt(); }} disabled={readOnly || !transcript.trim()} title={readOnly ? readOnlyReason : undefined}>
+        <button
+          type="button"
+          className="round-action"
+          onClick={() => { void scoreAttempt(); }}
+          disabled={readOnly || !transcript.trim()}
+          title={readOnly ? readOnlyReason : undefined}
+        >
           <Icon name="target" size={24} />
           <span>{t('score')}</span>
         </button>
       </div>
+      {canCancel && (
+        <button type="button" className="secondary-button" onClick={cancelCapture}>
+          <Icon name="close" size={16} /> {t('cancelRecording')}
+        </button>
+      )}
 
       <div className="mic-word-analyzer__status" aria-live="polite">
-        {acquiring && <p>{t('requestingMicrophone')}</p>}
-        {transcribing && <p>{t('transcribingAudio')}</p>}
+        <p>{statusMessage}</p>
       </div>
 
       <label className="field transcript-field">
         <span>{t('transcript')}</span>
         <textarea
+          id="audio-practice-transcript"
           dir="rtl"
           lang="he"
           value={transcript}
           onChange={(event) => {
+            transcriptAnalysisGenerationRef.current += 1;
             transcriptProviderRef.current = 'manual';
+            transcriptRef.current = event.target.value;
             setTranscript(event.target.value);
+            setTranscriptionDetails(null);
+            setWordAnalysis(null);
+            setPhraseAnalysis(null);
+            setTranscriptAnalysisLoading(false);
+            setTranscriptAnalysisError('');
+            setCaptureStatus(event.target.value.trim() ? 'success' : 'ready');
           }}
           placeholder="התמלול יופיע כאן…"
         />
       </label>
-      {error && <div className="inline-error">{error}</div>}
+      {transcript.trim() && (
+        <button
+          type="button"
+          className="primary-button"
+          disabled={transcriptAnalysisLoading}
+          aria-busy={transcriptAnalysisLoading}
+          onClick={() => { void understandTranscript(); }}
+        >
+          {transcriptAnalysisLoading
+            ? <span className="spinner" />
+            : <Icon name="search" size={18} />}
+          {transcriptAnalysisLoading
+            ? t('understandingTranscript')
+            : t('understandTranscript')}
+        </button>
+      )}
+      {deviceSaveNotice && <p className="voice-style-note" role="status">{deviceSaveNotice}</p>}
+      {transcriptionDetails && (
+        <div className="demo-inline-notice" role="note">
+          <Icon name={transcriptionDetails.audio_deleted ? 'check' : 'shield'} size={16} />
+          {transcriptionDetails.audio_deleted
+            ? t('temporaryAudioDeleted')
+            : t('temporaryAudioDeletionUnconfirmed')}
+          {' '}
+          {t('transcriptionProviderDetail', {
+            provider: transcriptionDetails.provider,
+            model: transcriptionDetails.model,
+          })}
+        </div>
+      )}
+      {error && <div className="inline-error" role="alert">{error}</div>}
+      {transcriptAnalysisError && (
+        <div className="inline-error" role="alert">{transcriptAnalysisError}</div>
+      )}
+      {wordAnalysis && (
+        <WordResult
+          result={wordAnalysis}
+          locale={locale}
+          onWordClick={onWordClick}
+        />
+      )}
+      {phraseAnalysis && (
+        <TranscriptUnderstanding
+          result={phraseAnalysis}
+          locale={locale}
+          onWordClick={onWordClick}
+        />
+      )}
 
       {numericScore !== null && (
         <div className="pronunciation-result stagger-in">
@@ -608,6 +1093,101 @@ export function AudioPractice({
           </div>
         </div>
       )}
+    </section>
+  );
+}
+
+export function TranscriptUnderstanding({
+  result,
+  locale,
+  onWordClick,
+}: {
+  result: TranscriptPhraseAnalysisResult;
+  locale: 'en' | 'es' | 'he';
+  onWordClick: (word: string) => void;
+}): React.JSX.Element {
+  const { t } = useI18n();
+  const knownCount = result.tokens.filter((token) => token.known).length;
+
+  return (
+    <section className="mic-word-result stagger-in" aria-labelledby="transcript-understanding-title">
+      <header className="mic-word-result__hero">
+        <div>
+          <h3 id="transcript-understanding-title">{t('transcriptUnderstandingTitle')}</h3>
+          <p>
+            {t('transcriptUnderstandingSummary', {
+              known: knownCount,
+              total: result.analyzed_token_count,
+            })}
+          </p>
+        </div>
+        <span className="fact-source fact-source--local">{t('localDictionaryFacts')}</span>
+      </header>
+
+      {result.truncated && (
+        <p className="voice-style-note" role="note">
+          {t('transcriptAnalysisTruncated', {
+            shown: result.analyzed_token_count,
+            total: result.total_unique_tokens,
+          })}
+        </p>
+      )}
+
+      <div className="mic-word-result__grid" role="list">
+        {result.tokens.map((token) => {
+          const entry = token.dictionary_matches[0];
+          const meanings = entry?.senses
+            .map((sense) => locale === 'es' ? sense.gloss_es : sense.gloss_en)
+            .filter((meaning): meaning is string => Boolean(meaning))
+            .slice(0, 2) ?? [];
+          return (
+            <article
+              className="mic-word-entry"
+              key={token.normalized_token}
+              role="listitem"
+            >
+              <div className="mic-word-entry__meta">
+                <span className={`fact-source ${token.known ? 'fact-source--local' : 'fact-source--fallback'}`}>
+                  {token.known ? t('exactDictionaryMatch') : t('transcriptTokenUnknown')}
+                </span>
+                {token.occurrence_count > 1 && (
+                  <span>
+                    {t('transcriptOccurrences', { count: token.occurrence_count })}
+                  </span>
+                )}
+              </div>
+              <HebrewText
+                text={token.display_word}
+                onWordClick={onWordClick}
+                className="audio-hebrew"
+                as="h3"
+              />
+              {entry?.romanization && <p>{entry.romanization}</p>}
+              {meanings.length > 0 ? (
+                <ul>
+                  {meanings.map((meaning) => <li key={meaning}>{meaning}</li>)}
+                </ul>
+              ) : (
+                <p>{t('transcriptTokenUnknownDetail')}</p>
+              )}
+              {entry?.source_name && (
+                <p>
+                  <small>{t('source')} · {entry.source_name}</small>
+                </p>
+              )}
+            </article>
+          );
+        })}
+      </div>
+
+      {result.unknown_tokens.length > 0 && (
+        <p className="voice-style-note" role="note">
+          {t('transcriptUnknownSummary', { count: result.unknown_tokens.length })}
+        </p>
+      )}
+      <p className="voice-style-note">
+        <Icon name="shield" size={15} /> {t('wordAnalysisNoXp')}
+      </p>
     </section>
   );
 }

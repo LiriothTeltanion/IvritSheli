@@ -15,9 +15,11 @@ The benchmark answers four questions:
 4. What remains an experiment until a real beginner can complete a session
    without help?
 
-The approved v2.8 direction is A0–A2 structured learning with a clearly labelled
+The approved v2.8 foundation is A0–A2 structured learning with a clearly labelled
 B1/B2 laboratory, a deterministic local learning engine, no bundled paid LLM,
-and no social or community surface before the mother pilot.
+and no social or community surface before the mother pilot. The v2.9 appendix
+below extends that decision ledger to listening, explainable personalization
+and opt-in reminders without changing the social boundary.
 
 ## Traceability and evidence grades
 
@@ -160,6 +162,47 @@ Any pilot result is an `n=1` observation, not general learning evidence.
    summary.
 6. **Deferred until pilot evidence:** tracing, real-speaker media, mnemonic
    experiments, attendance dots and any invited-companion capability.
+
+## v2.9 appendix — Listening & Personal Coach
+
+This appendix records product choices for the private v2.9 candidate. Code
+presence and focused tests do not become public learning evidence until the
+integrated verification and Kevin-and-mother pilot pass.
+
+### Adopt
+
+| Decision | Ivrit Sheli implementation | Reason |
+|---|---|---|
+| Short, user-triggered speaking turns | Maximum 20 seconds with manual fallback | Makes one practice action understandable and bounds privacy/cost. |
+| Immediate transcript visibility | Show normalized transcript and explicit unknown words | Lets the learner inspect what the system heard without pretending it assessed accent. |
+| Explain every recommendation | One primary coach action with “I recommend this because…” | Preserves learner agency and makes adaptation teachable. |
+| Explicit reminder consent | Off by default; timezone, quiet hours and rest day | Supports routine without coercion or hidden engagement pressure. |
+
+### Adapt
+
+| External pattern | Ivrit Sheli adaptation | Boundary |
+|---|---|---|
+| Speech recognition scoring | Transcript-recognition match only | No phoneme, accent, intelligibility or native-likeness claim. |
+| Personalized generated examples | Reviewed dictionary examples and finite reviewed patterns | No runtime LLM Hebrew or unrestricted slot generation. |
+| Multi-device reminders | At most one generic reminder per learner/local day | Several subscriptions must not create several notifications. |
+| Stored voice notes | Optional learner-scoped IndexedDB only | No PostgreSQL audio, snapshot, export or silent cross-account access. |
+
+### Avoid
+
+| Rejected pattern | Reason |
+|---|---|
+| Hearts, energy or notification scarcity | Converts learning support into pressure and blocks unlimited retry. |
+| Opaque “AI knows you” profile | A single feedback action must not redefine the learner or hide its influence. |
+| Sensitive reminder copy | Lock-screen text must not reveal mistakes, personal phrases or health/work context. |
+| Cloud transcript logs or permanent raw audio | Unnecessary for the learning action and conflicts with the private-first promise. |
+
+### Experiment after private acceptance
+
+| Experiment | Acceptance signal | Stop condition |
+|---|---|---|
+| Self-hosted Hebrew word/phrase transcription | At least 80% exact normalized words and 75% phrase coverage across the planned pilot; no lost audio or duplicate progress | High latency, unstable mobile formats or misleading transcript feedback |
+| Gradual coach adaptation | Several feedback events produce small reversible changes that the learner understands | One event causes a large change or examples become less natural/relevant |
+| Web Push routine support | Learner explicitly enables it and receives no more than one private reminder on the correct local day | Duplicate, wrong-time or sensitive lock-screen content |
 
 ## Primary and research sources
 

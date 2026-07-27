@@ -1,0 +1,170 @@
+.personal-coach-card {
+  display: grid;
+  gap: 1.1rem;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 92% 12%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 34%),
+    color-mix(in srgb, var(--surface) 92%, transparent);
+}
+
+.personal-coach-card__heading,
+.personal-coach-card__lesson {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.personal-coach-card__level {
+  min-width: 2.75rem;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  text-align: center;
+  font-weight: 800;
+}
+
+.personal-coach-card__lesson {
+  padding: clamp(1rem, 3vw, 1.5rem);
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--border));
+  border-radius: 1.25rem;
+  background: color-mix(in srgb, var(--surface-strong) 88%, transparent);
+}
+
+.personal-coach-card__hebrew {
+  margin: 0;
+  font-size: clamp(1.8rem, 5vw, 2.65rem);
+  line-height: 1.4;
+}
+
+.personal-coach-card__lesson p,
+.personal-coach-card__reason,
+.personal-coach-card__alternatives p {
+  margin: 0.35rem 0 0;
+}
+
+.personal-coach-card__practice-action {
+  display: grid;
+  justify-items: stretch;
+  gap: 0.45rem;
+  min-width: min(100%, 13.5rem);
+}
+
+.personal-coach-card__speaking-target {
+  color: var(--muted);
+  text-align: center;
+}
+
+.personal-coach-card__speaking-target b {
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.personal-coach-card__reason {
+  padding-inline-start: 0.9rem;
+  border-inline-start: 3px solid var(--accent);
+}
+
+.personal-coach-card__alternatives summary {
+  min-height: 48px;
+  cursor: pointer;
+  font-weight: 750;
+}
+
+.personal-coach-card__alternatives > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.personal-coach-card__alternatives article {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--surface-strong) 78%, transparent);
+}
+
+.personal-coach-card__alternatives article > span {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 750;
+}
+
+.personal-coach-card__alternatives article > strong {
+  font-size: 1.35rem;
+}
+
+.personal-coach-card__feedback {
+  display: grid;
+  gap: 0.65rem;
+  padding-top: 0.35rem;
+  border-top: 1px solid var(--border);
+}
+
+.personal-coach-card__feedback > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.personal-coach-card__feedback button {
+  min-height: 44px;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-strong);
+  color: var(--text);
+  font-weight: 700;
+}
+
+.personal-coach-card__feedback button:hover:not(:disabled) {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.personal-coach-card__feedback form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 0.6rem;
+}
+
+.personal-coach-card__feedback label {
+  display: grid;
+  gap: 0.35rem;
+  font-weight: 700;
+}
+
+.personal-coach-card__feedback input {
+  min-height: 48px;
+}
+
+.personal-coach-card__status {
+  min-height: 1.4em;
+  margin: 0;
+  color: var(--muted);
+}
+
+@media (max-width: 680px) {
+  .personal-coach-card__lesson,
+  .personal-coach-card__heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .personal-coach-card__level {
+    align-self: flex-start;
+  }
+
+  .personal-coach-card__alternatives > div,
+  .personal-coach-card__feedback form {
+    grid-template-columns: 1fr;
+  }
+
+  .personal-coach-card__feedback button,
+  .personal-coach-card__feedback form > button {
+    min-height: 48px;
+  }
+}

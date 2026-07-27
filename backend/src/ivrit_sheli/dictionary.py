@@ -1644,22 +1644,7 @@ class DictionaryStore:
         connection = self.connect()
         should_close = str(self.path) != ":memory:"
         try:
-            rows = connection.execute(
-                """
-                SELECT DISTINCT e.id,
-                    CASE WHEN e.normalized_word = ? THEN 0 ELSE 1 END AS rank,
-                    CASE WHEN EXISTS(
-                        SELECT 1 FROM dictionary_senses curated
-                        WHERE curated.entry_id = e.id AND curated.visual_key IS NOT NULL
-                    ) THEN 1 ELSE 0 END AS curated
-                FROM dictionary_entries e
-                LEFT JOIN dictionary_forms f ON f.entry_id = e.id
-                WHERE e.normalized_word = ? OR f.normalized_form = ?
-                ORDER BY rank, curated DESC, e.pos
-                LIMIT ?
-                """,
-                (normalized, normalized, normalized, limit),
-            ).fetchall()
+            rows = self._exact_lookup_rows(connection, normalized, limit)
             if not rows:
                 # A clicked token may contain a Hebrew prefix such as ו/ב/ל/כ/מ/ש.
                 stripped = (
@@ -1686,6 +1671,59 @@ class DictionaryStore:
         finally:
             if should_close:
                 connection.close()
+
+    def lookup_exact(self, word: str, limit: int = 12) -> list[dict[str, Any]]:
+        """Resolve only a registered Hebrew headword or inflected form.
+
+        Unlike :meth:`lookup`, this method never strips a possible Hebrew prefix.
+        It is intended for transcript analysis where an inferred match would make
+        an unknown spoken token appear to be a reviewed dictionary fact.
+
+        Args:
+            word: Hebrew token to resolve.
+            limit: Maximum homographs or parts of speech.
+
+        Returns:
+            Exact dictionary cards in deterministic order.
+
+        Raises:
+            ValueError: If the normalized token is empty.
+        """
+        normalized = normalize_hebrew(word)
+        if not normalized:
+            raise ValueError("word is required")
+        connection = self.connect()
+        should_close = str(self.path) != ":memory:"
+        try:
+            rows = self._exact_lookup_rows(connection, normalized, limit)
+            return [self._entry_card(connection, int(row["id"])) for row in rows]
+        finally:
+            if should_close:
+                connection.close()
+
+    @staticmethod
+    def _exact_lookup_rows(
+        connection: sqlite3.Connection,
+        normalized: str,
+        limit: int,
+    ) -> list[sqlite3.Row]:
+        """Return exact headword/form rows without prefix inference."""
+        return connection.execute(
+            """
+            SELECT DISTINCT e.id,
+                CASE WHEN e.normalized_word = ? THEN 0 ELSE 1 END AS rank,
+                CASE WHEN EXISTS(
+                    SELECT 1 FROM dictionary_senses curated
+                    WHERE curated.entry_id = e.id AND curated.visual_key IS NOT NULL
+                ) THEN 1 ELSE 0 END AS curated
+            FROM dictionary_entries e
+            LEFT JOIN dictionary_forms f ON f.entry_id = e.id
+            WHERE e.normalized_word = ? OR f.normalized_form = ?
+            ORDER BY rank, curated DESC, e.pos
+            LIMIT ?
+            """,
+            (normalized, normalized, normalized, limit),
+        ).fetchall()
 
     def get(self, entry_id: int) -> dict[str, Any]:
         """Return one complete entry card.

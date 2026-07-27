@@ -25,16 +25,30 @@ x-runtime-environment: &runtime-environment
   GOOGLE_AUTH_CLIENT_ID: ${GOOGLE_AUTH_CLIENT_ID:-}
   GOOGLE_AUTH_CLIENT_SECRET: ${GOOGLE_AUTH_CLIENT_SECRET:-}
   GOOGLE_AUTH_REDIRECT_URI: ${GOOGLE_AUTH_REDIRECT_URI:-http://localhost:8000/api/v1/auth/google/callback}
+  SELF_HOSTED_SPEECH_ENABLED: ${SELF_HOSTED_SPEECH_ENABLED:-false}
+  WHISPER_PRELOAD_ON_START: ${WHISPER_PRELOAD_ON_START:-false}
+  WHISPER_MODEL: small
+  WHISPER_MODEL_CACHE_DIR: /app/data/models/faster-whisper
+  WHISPER_DEVICE: cpu
+  WHISPER_COMPUTE_TYPE: int8
+  WHISPER_LANGUAGE: he
+  WHISPER_TIMEOUT_SECONDS: "45"
+  WHISPER_MAX_DURATION_SECONDS: "20"
+  MAX_AUDIO_UPLOAD_BODY_BYTES: "9437184"
+  PUSH_NOTIFICATIONS_ENABLED: "false"
+  VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
+  PUSH_ENCRYPTION_KEY: ${PUSH_ENCRYPTION_KEY:-local-push-encryption-key-change-before-deploy}
 
 x-migration-environment: &migration-environment
   <<: *runtime-environment
   MIGRATION_DATABASE_URL: postgresql://ivrit:local-development-only@postgres:5432/ivrit_sheli
+  PUSH_DATABASE_URL: postgresql://ivrit_sheli_push_worker:local-push-worker-only@postgres:5432/ivrit_sheli
 
 services:
   volume-init:
     build: .
     user: "0:0"
-    command: ["sh", "-c", "chown -R 10001:10001 /app/data"]
+    command: ["volume-init"]
     volumes:
       - ivrit_data:/app/data
     restart: "no"
@@ -79,6 +93,8 @@ services:
       test:
         - CMD
         - python
+        - /app/scripts/drop_privileges.py
+        - python
         - -c
         - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=3)
       interval: 15s
@@ -88,6 +104,20 @@ services:
     volumes:
       - ivrit_data:/app/data
     restart: unless-stopped
+
+  push-reminders:
+    profiles: ["reminders"]
+    build: .
+    environment:
+      PUSH_DATABASE_URL: postgresql://ivrit_sheli_push_worker:local-push-worker-only@postgres:5432/ivrit_sheli
+      PUSH_ENCRYPTION_KEY: local-push-encryption-key-change-before-deploy
+      VAPID_PRIVATE_KEY: local-placeholder-not-a-deployable-vapid-key
+      VAPID_SUBJECT: mailto:local@example.test
+    command: ["python", "-m", "ivrit_sheli.push_notifications"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: "no"
 
 volumes:
   postgres_data:

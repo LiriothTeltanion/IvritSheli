@@ -273,6 +273,25 @@ export async function installApiFixtures(
       await json(route, { results: [dictionaryEntry] });
       return;
     }
+    if (path === '/audio/capabilities') {
+      await json(route, {
+        secure_context_required: true,
+        secure_context: true,
+        public_base_url: 'https://ivrit-staging.example',
+        self_hosted_available: true,
+        self_hosted_status: 'ready',
+        openai_available: false,
+        max_duration_seconds: 20,
+        max_upload_bytes: 8 * 1024 * 1024,
+        timeout_seconds: 45,
+        model: 'small',
+        language: 'he',
+        fallbacks: ['browser', 'manual'],
+        audio_retention: 'device_only',
+        details: {},
+      });
+      return;
+    }
 
     await json(route, {
       error: {

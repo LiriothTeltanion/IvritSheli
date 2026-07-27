@@ -1,6 +1,11 @@
-# Deployment — Ivrit Sheli 2.8 private candidate / 2.4 production
+# Deployment — Ivrit Sheli 2.9 private candidate / 2.4 production
 
-This guide covers the private SQLite installation, the reproducible PostgreSQL Docker stack and the public Railway deployment. Production values belong in a secrets manager or hosting dashboard, never in Git. Version 2.8 is not published: the verified live service, tag and GitHub Release remain at 2.4.0 until every v2.8 release gate is approved.
+This guide covers the private SQLite installation, the reproducible PostgreSQL
+Docker stack, a separate v2.9 HTTPS staging design and the frozen public
+Railway deployment. Production values belong in a secrets manager or hosting
+dashboard, never in Git. Version 2.9 is not published: the verified live
+service, tag, GitHub Release and Devpost entry remain at 2.4.0 until every v2.9
+release gate is approved.
 
 ## 1. Choose the runtime
 
@@ -9,6 +14,8 @@ This guide covers the private SQLite installation, the reproducible PostgreSQL D
 | Private Windows app | `./scripts/start.ps1` | Local SQLite | Not required |
 | Development | `./scripts/run-dev.ps1` or `./scripts/run-dev.sh` | Local SQLite | Optional |
 | Production-shaped local stack | `docker compose up --build` | PostgreSQL 17 + dictionary volume | Required; demo works without OAuth keys |
+| Private v2.9 staging web | `railway-staging.toml` | Isolated PostgreSQL + model volume | Google/GitHub test clients |
+| Private reminder cron | `railway-reminders.toml` | Push tables only through dedicated role | No browser identity; no public domain |
 | Public release | Railway Dockerfile deployment | Managed PostgreSQL | Google and/or GitHub OAuth + read-only demo |
 
 ## 2. Run the PostgreSQL Docker stack
@@ -50,7 +57,7 @@ docker compose down
 ```
 
 The revision query runs inside the local PostgreSQL container and should print
-`20260718_0002`. Do not override the application entrypoint to run arbitrary
+`20260727_0005`. Do not override the application entrypoint to run arbitrary
 Alembic commands: the entrypoint deliberately removes `MIGRATION_DATABASE_URL`
 from every command except the audited provisioner.
 
@@ -67,6 +74,7 @@ The ownership initializer is intentionally idempotent. It changes only the mount
 | `APP_ENV` | `production` |
 | `DATABASE_URL` | Restricted URL whose username is exactly `ivrit_sheli_runtime` |
 | `MIGRATION_DATABASE_URL` | Administrator URL used only by the pre-deploy provisioner |
+| `PUSH_DATABASE_URL` | Dedicated `ivrit_sheli_push_worker` URL; configure only on the reminder service and migration provisioner, never on the web runtime |
 | `AUTH_REQUIRED` | `true` |
 | `DEBUG` | `false`; production startup rejects debug responses |
 | `SESSION_SECRET` | At least 32 cryptographically random characters |
@@ -110,13 +118,44 @@ Each provider is optional as a set, but partial credentials fail startup. When a
 | `MAX_CLOUD_SNAPSHOT_BYTES` | `4194304` (4 MiB serialized UTF-8 learner snapshot, checked before persistence) |
 | `MAX_REQUEST_BODY_BYTES` | `1048576` (1 MiB default) |
 | `MAX_ICS_UPLOAD_BODY_BYTES` | `6291456` (6 MiB multipart envelope; file remains limited to 5 MiB) |
-| `MAX_AUDIO_UPLOAD_BODY_BYTES` | `27262976` (26 MiB multipart envelope; file remains limited to 25 MiB) |
+| `MAX_AUDIO_UPLOAD_BODY_BYTES` | `9437184` (9 MiB multipart envelope; decoded speech file remains limited to 8 MiB and 20 seconds) |
 | `SESSION_COOKIE_NAME` | `ivrit_session` |
 | `BUILD_COMMIT` | Immutable Git commit SHA |
 | `AI_PROVIDER` | `offline` for the public demo |
 | `ALLOW_CLOUD_PROCESSING` | `false` unless an explicit, reviewed cloud-AI policy is enabled |
 | `APP_DATA_DIR` | `/app/data` |
 | `DICTIONARY_DB_PATH` | `/app/data/hebrew_dictionary.db` |
+
+### v2.9 speech and reminder staging variables
+
+Web staging:
+
+| Variable | Staging value |
+|---|---|
+| `SELF_HOSTED_SPEECH_ENABLED` | `true` |
+| `WHISPER_PRELOAD_ON_START` | `true`; startup fails before readiness if the model cannot load |
+| `WHISPER_MODEL` | `small` |
+| `WHISPER_MODEL_CACHE_DIR` | `/app/data/models/faster-whisper` on a persistent volume; allocate at least 2 GB for staging headroom |
+| `WHISPER_DEVICE` | `cpu` |
+| `WHISPER_COMPUTE_TYPE` | `int8` |
+| `WHISPER_LANGUAGE` | `he` |
+| `WHISPER_TIMEOUT_SECONDS` | `45` |
+| `WHISPER_MAX_DURATION_SECONDS` | `20` |
+| `PUSH_NOTIFICATIONS_ENABLED` | `true` only after HTTPS, VAPID and the pilot consent UI are configured |
+| `VAPID_PUBLIC_KEY` | Public VAPID application-server key |
+| `PUSH_ENCRYPTION_KEY` | Independent random secret; web needs it only to encrypt/manage the current learner's subscription |
+
+Reminder cron only:
+
+| Variable | Cron value |
+|---|---|
+| `PUSH_DATABASE_URL` | Direct URL for exactly `ivrit_sheli_push_worker` |
+| `PUSH_ENCRYPTION_KEY` | Same sealed encryption secret as staging web |
+| `VAPID_PRIVATE_KEY` | Sealed private VAPID signing key |
+| `VAPID_SUBJECT` | Operator `mailto:` or HTTPS contact URI |
+
+Do not give `DATABASE_URL` or `MIGRATION_DATABASE_URL` to the cron. Do not give
+`PUSH_DATABASE_URL` or the VAPID private key to the web service.
 
 ### Provider allowlists
 
@@ -143,15 +182,18 @@ python -c "import secrets; print(secrets.token_urlsafe(48))"
 
 Do not print deployed secrets in CI or support logs.
 
-## 4. Railway deployment
+## 4. Railway deployment and private v2.9 staging
 
-The repository includes a root `Dockerfile` and `railway.toml`. Railway builds the image, runs the idempotent Alembic/role provisioner in a pre-deploy container, checks `/health/ready`, and starts the new container only after the check passes.
+The repository includes the frozen production-oriented `railway.toml` plus
+`railway-staging.toml` and `railway-reminders.toml`. Select each custom file in
+the matching Railway service settings. Never point the existing public v2.4
+service at a private-candidate config.
 
 The migration URL and runtime URL must use different PostgreSQL users on the same host, port and database. The provisioner requires the migration login to be a superuser or have `CREATEROLE`; it checks this instead of assuming a hosting provider grants it. It creates or repairs the direct `ivrit_sheli_runtime` login as `NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOREPLICATION NOBYPASSRLS`, removes every role membership so `SET ROLE` cannot become an escalation path, grants only the required schema/table operations, revokes public schema creation, and verifies a fresh restricted connection. Readiness fails when the app uses an administrator URL, a privilege flag or role membership is unsafe, or the database is not at the packaged Alembic head.
 
 Railway pre-deploy commands run in a separate container but receive the same service variables as the web container. The committed start command therefore pins the audited entrypoint, which removes `MIGRATION_DATABASE_URL` before executing Uvicorn or any non-migration command. A custom dashboard start command must not bypass that wrapper.
 
-### Project setup
+### Public project setup — unchanged v2.4 boundary
 
 1. Create a Railway project from the GitHub repository.
 2. Add a PostgreSQL service in the same project.
@@ -176,6 +218,33 @@ healthcheckPath = "/health/ready"
 The service must bind to `0.0.0.0` and Railway's injected `PORT`; the container entrypoint handles both. PostgreSQL passwords placed inside a URI must be percent-encoded when they contain reserved URI characters. `python -c "import secrets; print(secrets.token_urlsafe(36))"` produces a URL-safe runtime value.
 
 Changing the runtime password while an old deployment overlaps a new one invalidates new connections from the old container. For a planned rotation, disable overlap for that deployment or use a staged second login; ordinary releases reuse the same runtime password.
+
+### Separate v2.9 staging setup
+
+1. Create a distinct Railway staging environment/project and a new PostgreSQL
+   database. Do not reuse production learner rows.
+2. Create a staging web service from the private branch and set its config path
+   to `/railway-staging.toml`.
+3. Mount a persistent volume of at least 2 GB at `/app/data`; the verified
+   `small` model cache alone uses 486,213,474 bytes (463.7 MiB). The pre-deploy
+   container cannot populate it because Railway does not mount volumes or
+   preserve filesystem changes during pre-deploy.
+4. Configure the required production-safe web variables, staging Google OAuth
+   client, `SELF_HOSTED_SPEECH_ENABLED=true` and
+   `WHISPER_PRELOAD_ON_START=true`.
+5. Configure a distinct staging domain and exact callbacks. Google remains
+   `openid profile`; do not add Gmail, Drive or Calendar scopes.
+6. Run the migration provisioner with administrator, runtime and Push-worker
+   URLs so it creates and verifies both restricted roles.
+7. Create a second private service from the same branch, set config path to
+   `/railway-reminders.toml`, give it no public domain, and provide only the
+   cron variables listed above.
+8. Require `/health/ready`, `/version` and
+   `/api/v1/audio/capabilities` (`self_hosted_status=ready`) before the pilot.
+
+Railway cron schedules use UTC, have a five-minute minimum and skip a run while
+the prior one remains active. `python -m ivrit_sheli.push_notifications`
+performs one bounded pass, closes its connection and exits.
 
 ### Google OAuth Web client
 
@@ -237,17 +306,22 @@ Rules:
 - Prefer forward-compatible migrations. Document any irreversible operation.
 - Do not report readiness until PostgreSQL is reachable, the exact packaged revision is active and the direct runtime identity passes every privilege check.
 
-### 2.8 learner-snapshot compatibility boundary
+### 2.9 learner-snapshot compatibility boundary
 
-Version 2.8 adds Learning Core and daily-practice tables plus profile columns inside each tenant's serialized cloud snapshot: `practice_sessions`, `practice_step_events`, `curriculum_progress`, `text_scale` and `focus_status`. The current snapshot format identifier remains readable through the compatibility layer, but a 2.4 writer serializes only the tables and columns it knows. If an older process writes after 2.8 has stored practice state, it can silently remove the newer fields while preserving older account data.
+Version 2.9 includes the v2.8 Learning Core/daily-practice fields and adds
+`learning_feedback`, `learner_model_state` and notification preferences inside
+each tenant's serialized learning snapshot. Push subscriptions remain separate
+PostgreSQL credentials and are never serialized. A 2.4 writer knows none of
+these additions and can silently remove newer learner fields while preserving
+older account data.
 
-Therefore the private 2.8 build must not point at the production learner-state database while 2.4 remains live. A future public rollout requires all of the following:
+Therefore the private v2.9 build must not point at the production learner-state database while 2.4 remains live. A future public rollout requires all of the following:
 
-1. Create a PostgreSQL backup and prove it can restore before the first 2.8 learner write.
-2. Deploy 2.8 as one controlled writer transition; do not run mixed 2.4 and 2.8 application replicas against the same learner-state rows.
+1. Create a PostgreSQL backup and prove it can restore before the first v2.9 learner write.
+2. Deploy v2.9 as one controlled writer transition; do not run mixed 2.4 and v2.9 application replicas against the same learner-state rows.
 3. Verify two real Google accounts through sign-in, one complete daily session, refresh, device change, logout/re-login and export; prove that neither account can access the other's state.
 4. Verify a disposable account's deletion without deleting the owner's account.
-5. After any 2.8 write, do not roll the application back to the 2.4 writer unless the pre-upgrade database backup is restored or a forward-preserving compatibility patch is deployed first.
+5. After any v2.9 write, do not roll the application back to the 2.4 writer unless the pre-upgrade database backup is restored or a forward-preserving compatibility patch is deployed first.
 6. Keep the private candidate on isolated/local state until that operational procedure and the mother-pilot acceptance retest are explicitly approved.
 
 ## 6. Release verification
@@ -269,17 +343,44 @@ docker compose build
 docker compose up --wait
 ```
 
+Current private v2.9 worktree evidence:
+
+- Backend: 291 passed, 1 credential-gated PostgreSQL skip.
+- Frontend: 337 passed across 37 files.
+- Playwright/axe: 26 passed, 28 scoped matrix skips, 0 failed.
+- Ruff, strict MyPy, TypeScript, compileall, offline doctor, Vite build and
+  Compose configuration: passed.
+- pip-audit and the npm production audit: 0 known vulnerabilities.
+
+Faster Whisper `small` preloaded in 50.508 seconds; the 7-file cache totals
+486,213,474 bytes (463.7 MiB). A real CTranslate2 inference on one second of
+silence reached the expected no-speech response and confirmed temporary-file
+deletion. The disposable PostgreSQL 17 gate passed all three cases, including
+the credential-gated RLS/least-privilege case and safe endpoint transfer
+migration `20260727_0005`. The non-root production image migrated an existing
+volume and passed live, ready and version checks; the zero-due reminder worker
+and structured-log privacy validator also passed. The source package verifier
+and 321 canonical Git-index checksums pass. Hebrew recognition accuracy,
+isolated HTTPS staging, two-real-account Google isolation and the
+Kevin-and-mother speech pilot remain pending. None of the local results changes
+public v2.4.
+
 Build the ZIP and its external checksum directly from canonical Git blobs:
 
 ```bash
 python scripts/build_release_archive.py \
   --ref HEAD \
-  --output IvritSheli-v2.8.3.zip \
-  --prefix IvritSheli-v2.8.3 \
-  --checksum-output IvritSheli-v2.8.3.zip.sha256
+  --output IvritSheli-v2.9.0.zip \
+  --prefix IvritSheli-v2.9.0 \
+  --checksum-output IvritSheli-v2.9.0.zip.sha256
 ```
 
-Before deploying, create the PostgreSQL backup described below and complete a restore drill against a separate database. Package the candidate only from the final committed tree, verify the extracted archive, and publish its SHA-256 outside the ZIP. Merge, push, tag `v2.8.3`, create the GitHub Release and deploy Railway only after Kevin gives final approval.
+Before deploying, create the PostgreSQL backup described below and complete a
+restore drill against a separate database. Package the candidate only from the
+final committed tree and verify the extracted archive. During the private
+pilot, do not merge, push, tag `v2.9.0`, create a GitHub Release, alter Devpost
+or replace public Railway. Those actions require a separate final review and
+Kevin's explicit approval.
 
 Verify against the public URL:
 
@@ -297,8 +398,11 @@ Verify against the public URL:
 12. Export downloads the authenticated learner state; account deletion remains verified with a disposable identity or the real PostgreSQL boundary test, not by deleting the owner's account.
 13. Desktop, 390 px mobile, Hebrew RTL, reduced-motion, keyboard-only and 200% zoom modes remain usable.
 14. Prove cached shell/dictionary/region browsing offline while confirming that cloud writes pause and request reconnection; private API responses must not appear in the service-worker cache.
-15. For a 2.8 rollout, prove the learner-snapshot writer transition and rollback/restore boundary above; a green 2.4 readiness check is not sufficient evidence.
+15. For a v2.9 rollout, prove the learner-snapshot writer transition, Push-role boundary and rollback/restore boundary above; a green 2.4 readiness check is not sufficient evidence.
 16. Complete the mother-pilot acceptance retest from a WhatsApp link: find the primary action within 30 seconds, learn three words and finish a session without assistance. Record comprehension problems before approval.
+17. Test microphone granted/denied, insecure HTTP, silence, invalid format, cancellation, timeout, Android, iPhone/PWA and manual fallback.
+18. Run the planned 20-word/10-phrase pilot; record exact normalized coverage and median latency without inventing results.
+19. Enable reminders explicitly on at least two devices and prove at most one private message per learner/local day, including quiet hours, rest day and an expired subscription.
 
 ### Current production verification record — 2.4.0 — 2026-07-21
 
@@ -362,6 +466,9 @@ Application rollback and database rollback are separate decisions:
 5. If data restoration is required, preserve the failed database first, then restore into a separate database and validate it before switching URLs.
 6. Record the request IDs, deployed commit, migration revision and timeline.
 
-For 2.8 specifically, an unmodified 2.4 writer is not a safe rollback target after 2.8 Learning Core or daily-practice state has been written. Restore the verified pre-upgrade backup or first ship a compatibility writer that preserves unknown snapshot tables and columns.
+For v2.9 specifically, an unmodified 2.4 writer is not a safe rollback target
+after v2.9 learning state has been written. Restore the verified pre-upgrade
+backup or first ship a compatibility writer that preserves unknown snapshot
+tables and columns.
 
 The stable local-first mode is the user-facing continuity path if a cloud host is unavailable.

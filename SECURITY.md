@@ -4,7 +4,8 @@
 
 | Version | Supported |
 |---|---:|
-| 2.8.x | Yes — unreleased private candidate |
+| 2.9.x | Yes — unreleased private candidate |
+| 2.8.x | No — superseded private candidate |
 | 2.6.x | No — superseded candidate |
 | 2.5.x | No — superseded candidate |
 | 2.4.x | Yes |
@@ -68,7 +69,9 @@ Do not access another person's data, persist access, degrade the public demo or 
 - Authenticated mutations require CSRF verification.
 - Browser responses set a restrictive Content Security Policy, same-origin opener/resource isolation, anti-framing, no-sniff, referrer and permissions policies. The API-docs route narrowly permits its documentation CDN and inline Swagger bootstrap while the application shell remains same-origin for executable code.
 - Production responses advertise HTTPS-only transport with HSTS. API, authentication and operational JSON responses use `Cache-Control: no-store`; fingerprinted frontend assets and the PWA service worker keep their independent cache behavior.
-- Uploaded audio is limited to 25 MB and an allow-list of filename extensions. The current release does not claim MIME or magic-byte content inspection.
+- v2.9 speech uploads are limited to an 8-MB file inside a 9-MB request envelope and 20 measured seconds. The server allow-lists formats, opens the actual media container through PyAV, requires an audio stream and deletes both request and worker copies; filename extension alone is not treated as proof of content.
+- Self-hosted Faster Whisper is bounded to one CPU INT8 transcription, Hebrew language, VAD and a 45-second request deadline. A timed-out worker retains its private copy only until decoding stops, then deletes it before releasing the slot.
+- Web Push endpoints are restricted to supported provider hosts and checked after DNS resolution to reject loopback, private, link-local, reserved and metadata destinations. Subscription documents are encrypted with an independent key.
 - The frontend receives no database, OAuth client, AI provider or connector secrets.
 
 ### Observability and privacy
@@ -76,6 +79,7 @@ Do not access another person's data, persist access, degrade the public demo or 
 - Production logs are structured JSON; completed HTTP-request events include request IDs, while startup and other process-level records may not.
 - Authorization headers, cookies, OAuth codes, session material, tokens, secrets and password-like fields are redacted.
 - Request and response bodies are not logged.
+- Transcript text, raw audio, Push endpoints and decrypted Push subscription documents are never logged.
 - Error responses expose a correlation ID, not stack traces.
 - Liveness does not disclose database details; readiness is intentionally dependency-aware.
 
@@ -97,6 +101,8 @@ Never commit live or non-placeholder values for:
 - Google sign-in OAuth client secrets.
 - `DATABASE_URL` restricted runtime credentials.
 - `MIGRATION_DATABASE_URL` administrator credentials.
+- `PUSH_DATABASE_URL` credentials for the dedicated no-login-member Push worker role.
+- `PUSH_ENCRYPTION_KEY` and the VAPID private key.
 - AI or Google API credentials.
 - Database dumps or learner exports.
 
@@ -110,7 +116,7 @@ Production values belong in the host's sealed secret store. Rotate a secret imme
 2. Use HTTPS and `SESSION_COOKIE_SECURE=true`.
 3. Generate a unique `SESSION_SECRET` of at least 32 characters.
 4. Restrict `PUBLIC_BASE_URL`, `ALLOWED_ORIGINS`, and every configured Google/GitHub callback to the exact public domain.
-5. Store both database URLs and provider credentials as sealed variables; never give the web process the migration URL.
+5. Store database URLs and provider credentials as sealed variables; never give the web process the migration URL or the cron service the administrator/runtime URLs.
 6. Run `python -m ivrit_sheli.db_admin migrate` as the separate pre-deploy step.
 7. Require `/health/ready` before routing traffic.
 8. Run the real PostgreSQL integration suite and production image build in CI.
@@ -119,6 +125,8 @@ Production values belong in the host's sealed secret store. Rotate a secret imme
 11. Keep provider allowlists empty unless each GitHub login or provider ID was verified.
 12. Configure cost limits, backups and a tested restore procedure.
 13. Record the deployed commit in `BUILD_COMMIT` (or Railway's automatic commit SHA fallback).
+14. Preload the pinned Whisper model on the persistent staging model volume and verify `/api/v1/audio/capabilities` reports `ready` before the speech pilot.
+15. Run the reminder process as a terminating cron with only `PUSH_DATABASE_URL`; verify one-per-learner daily delivery and expired-subscription cleanup.
 
 ## Dependency and incident response
 

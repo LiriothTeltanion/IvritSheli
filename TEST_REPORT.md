@@ -1,22 +1,69 @@
-# Ivrit Sheli 2.8.3 — Private Candidate Verification Ledger
+# Ivrit Sheli 2.9.0 — Private Candidate Verification Ledger
 
-- **Ledger update date:** 2026-07-26
+- **Ledger update date:** 2026-07-27
 - **Time zone:** Asia/Jerusalem
-- **Current private source candidate:** `2.8.3` / local / unpublished
-- **Candidate branch:** `codex/ivrit-sheli-v2.8.3-visual-recognition`
+- **Current private source candidate:** `2.9.0` / local / unpublished
+- **Candidate branch:** `codex/ivrit-sheli-v2.9.0-listening-coach`
 - **Current verified production:** `2.4.0` on Railway with PostgreSQL
 - **Published release implementation commit:** `03bf84b9268ff8be528c0fab3c670f9652ee23b0`
 - **Publication decision:** Blocked pending the operator and pilot gates listed below
 
 ## Current status
 
-Ivrit Sheli 2.8.3 is a locally verified private candidate for the **Warm Illustrated Learning Journey**. The source, deterministic learning engine, curriculum, 72-scene semantic visual engine, daily-session flow, frontend, accessibility matrix and production build pass the checks that can run in the current workstation environment.
+Ivrit Sheli 2.9.0 is an implementation-in-progress private candidate for
+**Listening & Personal Coach**. It preserves the verified v2.8.3 visual
+foundation and adds self-hosted Hebrew transcription, deterministic transcript
+understanding, bounded personal coaching, learner feedback, learner-scoped
+device recordings and optional Web Push.
 
-This ledger does **not** promote 2.8.3 to production. The current production-shaped Docker image and its PostgreSQL-backed readiness were reverified for 2.8.3. Tenant isolation and a disposable backup/restore drill remain verified foundation evidence from the preceding private 2.8 gate and were not repeated for this visual-only increment. The final 2.8.3 staged package and canonical Git-blob checksum manifest pass. A commit-suffixed archive of historical 2.8.1 implementation checkpoint `c9e2762` also passed clean extraction, package verification, Compose parsing and external SHA-256 comparison; it is not the current 2.8.3 package. Two-account Google persistence/isolation, the formal 12-scene mother-pilot recognition test and the end of the OpenAI Build Week winner-announcement freeze remain external gates. The live Railway application, Git tag and GitHub Release therefore remain at verified version 2.4.0.
+This ledger does **not** promote v2.9 to production. Historical v2.8.3 results
+below remain useful regression evidence, but they are not counted as proof for
+the new speech, coach, Push or privacy paths. The fresh v2.9 results below were
+executed against the current reviewed worktree; the remaining external,
+database, packaging and pilot gates stay explicit. The live Railway application,
+Git tag, GitHub Release and Devpost entry therefore remain at verified version
+2.4.0.
 
-## Verified private 2.8 candidate
+## Current v2.9 verification status
 
-| Verification area | Current 2.8 result |
+| Verification area | v2.9 result |
+|---|---:|
+| Focused implementation tests | Covered by the complete backend and frontend suites |
+| Complete backend suite | **291 passed / 1 credential-gated PostgreSQL skip** |
+| Complete frontend suite | **337 passed / 37 files** |
+| Playwright + axe matrix | **26 passed / 28 scoped skips / 0 failed** |
+| Unique directly executed automated passes | **655 passed**: 291 backend + 337 frontend + 26 browser + 1 additional credential-gated PostgreSQL case |
+| Ruff / strict MyPy / TypeScript | Passed / passed across 37 source files / passed |
+| Compileall / offline doctor | Passed / passed as source version `2.9.0` |
+| Vite production build | Passed |
+| Dependency audits | pip-audit: 0 known vulnerabilities / npm production audit: 0 vulnerabilities |
+| PostgreSQL 17 role/isolation tests | **3 passed in a disposable PostgreSQL 17 instance; one case is additional to the ordinary suite** |
+| Docker Compose configuration | Passed |
+| Production-shaped Docker/readiness | **Passed; existing volume migrated `0004 → 0005`, web runs as UID/GID 10001, `/health/live`, `/health/ready` and `/version` pass** |
+| Reminder worker / structured-log privacy | **Passed with zero due subscriptions / 13 JSON records validated with deployment secrets forbidden** |
+| Faster Whisper model preload/inference | **Passed: `small` preloaded in 50.508 s; 1-second silence reached expected no-speech path and confirmed temporary deletion** |
+| HTTPS staging | Not deployed |
+| Two-real-account Google isolation | Not run |
+| 20-word/10-phrase Kevin-and-mother Hebrew accuracy pilot | Not run |
+| Canonical source verification | **321 canonical Git-index checksums generated; package verifier passed** |
+| Public release/deployment | Not authorized; remains v2.4.0 |
+
+The downloaded Faster Whisper cache contains 7 files totaling 486,213,474
+bytes (463.7 MiB). The silence inference verifies model loading, CTranslate2
+execution, expected no-speech handling and temporary-file cleanup. It does not
+measure Hebrew word or phrase accuracy.
+
+The real PostgreSQL gate caught and then verified the fix for an RLS edge case
+when the same browser Push endpoint moves from one signed-in learner to
+another. Migration `20260727_0005` now performs that transfer through a
+tenant-checked `SECURITY DEFINER` function owned by a dedicated no-login,
+no-bypass-RLS role. The old owner cannot read or delete the transferred row,
+the endpoint remains globally unique, and the runtime role gains no table-wide
+visibility.
+
+## Preserved v2.8.3 baseline evidence — not v2.9 verification
+
+| Verification area | Historical 2.8.3 result |
 |---|---:|
 | Ordinary backend suite | **201 passed / 1 credential-gated PostgreSQL skip** |
 | Frontend Vitest suite | **310 passed / 34 files** |
@@ -159,9 +206,9 @@ Publication remains blocked until all of the following are complete:
 1. Use two real Google accounts to verify `openid profile` sign-in, account isolation and progress continuity between phone and computer.
 2. Complete the mother-pilot acceptance retest after the first Samsung session exposed onboarding, profile-isolation and Settings-navigation defects: find the primary action within 30 seconds, learn three words, finish a session without assistance and confirm progress after reload. Cross-device continuity belongs to the two-account hosted gate, not the LAN-only pilot.
 3. Back up production immediately before deployment and verify login, persistence, export and deletion after deployment.
-4. Wait until the OpenAI Build Week judging freeze ends, then obtain explicit final approval before merge, push, tag `v2.8.3`, GitHub Release or Railway deployment.
+4. Wait until the OpenAI Build Week judging freeze ends, then obtain explicit final approval before merge, push, tag `v2.9.0`, GitHub Release or Railway deployment.
 
-No rollback to the 2.4 application is safe after 2.8 accepts writes using the new schema unless the matching pre-deployment database backup is restored.
+No rollback to the 2.4 application is safe after v2.9 accepts writes using the new schema unless the matching pre-deployment database backup is restored.
 
 ## Historical private 2.6 checkpoint
 
@@ -184,7 +231,7 @@ The 2.6 candidate was local, untagged and unpublished. `IvritSheli-v2.6-local.zi
 
 ## Verified public 2.4 baseline
 
-The following remains the current public evidence; none of it is presented as 2.8 production verification:
+The following remains the current public evidence; none of it is presented as v2.9 production verification:
 
 | Verification area | Verified public 2.4 result |
 |---|---:|
@@ -209,4 +256,4 @@ Re-login after logout, two-real-user production isolation, live OpenAI/Google Wo
 
 ## Reliability statement
 
-Passing tests and local checks materially reduce risk but do not prove defect-free software. This report deliberately separates current 2.8 source evidence, historical private checkpoints, live-production evidence and credential-, device- or operator-dependent gates.
+Passing tests and local checks materially reduce risk but do not prove defect-free software. This report deliberately separates current v2.9 source evidence, historical private checkpoints, live-production evidence and credential-, device- or operator-dependent gates.

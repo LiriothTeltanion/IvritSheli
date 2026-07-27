@@ -2,13 +2,13 @@
   "schema": "ivrit-sheli-portfolio-project-v2",
   "slug": "ivrit-sheli",
   "name": "Ivrit Sheli — העברית שלי",
-  "source_version": "2.8.3",
+  "source_version": "2.9.0",
   "live_version": "2.4.0",
   "status": "private-release-candidate",
   "default_branch": "main",
   "repository_url": "https://github.com/LiriothTeltanion/IvritSheli",
   "demo_url": "https://ivritsheli-production.up.railway.app",
-  "summary": "An unpublished 2.8.3 Visual Recognition Expansion candidate with beginner-first A0-A2 practice, 72 exact semantic scenes, centralized Hebrew pronunciation, deterministic personalization and local or account-backed persistence; the verified 2.4 Contest Edition remains public.",
+  "summary": "An unpublished 2.9.0 Listening & Personal Coach candidate with beginner-first A0-A2 practice, 72 exact semantic scenes, self-hosted Hebrew transcription, deterministic reviewed coaching, gradual personalization and optional private reminders; the verified 2.4 Contest Edition remains public.",
   "languages": [
     "en",
     "es",
@@ -22,6 +22,8 @@
     "PostgreSQL 17",
     "SQLite",
     "Alembic",
+    "Faster Whisper",
+    "Web Push",
     "Docker",
     "Railway"
   ],
@@ -58,10 +60,10 @@
     "latest_github_release": "v2.4.0",
     "source_version_tagged": false,
     "source_version_github_release_published": false,
-    "release_state": "2.8.3-private-candidate-2.4.0-live-and-published"
+    "release_state": "2.9.0-private-candidate-2.4.0-live-and-published"
   },
   "candidate": {
-    "version": "2.8.3",
+    "version": "2.9.0",
     "published": false,
     "coverage": "Structured A0-A2 with an explicitly experimental B1/B2 Lab",
     "reviewed_concepts": 240,
@@ -71,15 +73,19 @@
       "Experienced"
     ],
     "learning_engine": "Deterministic LocalLearningEngine",
+    "personal_coach": "Reviewed deterministic LocalPersonalCoach with bounded feedback",
+    "speech": "Self-hosted Faster Whisper small, Hebrew, CPU INT8, 20-second private pilot limit",
+    "reminders": "Optional standards-based Web Push with one reminder per learner/local day",
     "semantic_visual_recipes": 72,
     "category_visual_fallbacks": 168,
     "visual_journey_regions": 6,
     "public_google_scope": "openid profile",
     "local_mode_without_account": true,
-    "release_gate": "Two-account isolation, completion of the mother-pilot acceptance retest, the OpenAI Build Week winner announcement and Kevin's explicit publication approval remain required."
+    "verification": "655 unique automated passes; PostgreSQL 17 RLS/roles, non-root Docker readiness, reminder-worker smoke and dependency audits passed locally",
+    "release_gate": "Isolated HTTPS staging, two-account isolation, the 20-word/10-phrase speech and reminder mother pilot, and Kevin's explicit publication approval remain required."
   },
   "visual_proof": {
-    "state": "local-2.8-candidate-and-live-2.4-verified",
+    "state": "v2.9-private-source-inherits-local-2.8-visual-proof-and-live-2.4-remains-verified",
     "social_preview_version": "2.2.0",
     "readme_screenshot_version": "2.8.0-local-candidate",
     "readme_screenshots_match_source_version": false,

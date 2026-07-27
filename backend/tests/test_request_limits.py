@@ -180,10 +180,11 @@ def test_declared_and_streamed_bodies_are_bounded_with_upload_overrides(
             "/api/v1/audio/stt",
             files={"file": ("sample.webm", b"a" * 256, "audio/webm")},
         )
-        # The offline provider intentionally declines STT, but the route-specific body
-        # allowance lets the request reach that provider boundary instead of returning 413.
-        assert allowed_upload.status_code == 400
-        assert allowed_upload.json()["error"]["code"] == "invalid_request"
+        # The unavailable self-hosted worker is reported explicitly, but the
+        # route-specific allowance lets the request reach that provider boundary
+        # instead of returning 413.
+        assert allowed_upload.status_code == 503
+        assert allowed_upload.json()["error"]["code"] == "audio_service_unavailable"
         oversized_upload = client.post(
             "/api/v1/audio/stt",
             files={"file": ("sample.webm", b"a" * 2200, "audio/webm")},
@@ -287,8 +288,20 @@ def test_container_entrypoint_preserves_raw_peer_and_never_trusts_xff() -> None:
     entrypoint = (ROOT_DIR / "scripts" / "docker-entrypoint.sh").read_text(
         encoding="utf-8"
     )
+    dockerfile = (ROOT_DIR / "Dockerfile").read_text(encoding="utf-8")
+    privilege_helper = (
+        ROOT_DIR / "scripts" / "drop_privileges.py"
+    ).read_text(encoding="utf-8")
     assert "--no-proxy-headers" in entrypoint
     assert "--forwarded-allow-ips" not in entrypoint
+    assert "chown -R 10001:10001 /app/data" in entrypoint
+    assert "drop_privileges.py /app/scripts/docker-entrypoint.sh" in entrypoint
+    assert "unset MIGRATION_DATABASE_URL" in entrypoint
+    assert "unset PUSH_DATABASE_URL" in entrypoint
+    assert "USER root" in dockerfile
+    assert "os.setgid(RUNTIME_GID)" in privilege_helper
+    assert "os.setuid(RUNTIME_UID)" in privilege_helper
+    assert "os.execvp(selected[0], selected)" in privilege_helper
 
 
 def test_oversized_body_is_rejected_before_session_database_work(tmp_path: Path) -> None:

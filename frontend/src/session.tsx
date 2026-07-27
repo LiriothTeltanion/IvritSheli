@@ -6,26 +6,37 @@
 
 import { createContext, useContext, type ReactNode } from 'react';
 
-interface SessionAccess {
+export interface SessionAccess {
   readOnly: boolean;
   readOnlyReason: string;
   localMode: boolean;
+  recordingOwnerScope: string;
 }
 
 const SessionAccessContext = createContext<SessionAccess>({
   readOnly: false,
   readOnlyReason: '',
   localMode: false,
+  recordingOwnerScope: 'local:device',
 });
 
 export function SessionAccessProvider({
   readOnly,
   readOnlyReason,
   localMode,
+  recordingOwnerScope = 'local:device',
   children,
-}: SessionAccess & { children: ReactNode }): React.JSX.Element {
+}: Omit<SessionAccess, 'recordingOwnerScope'> & {
+  recordingOwnerScope?: string;
+  children: ReactNode;
+}): React.JSX.Element {
   return (
-    <SessionAccessContext.Provider value={{ readOnly, readOnlyReason, localMode }}>
+    <SessionAccessContext.Provider value={{
+      readOnly,
+      readOnlyReason,
+      localMode,
+      recordingOwnerScope,
+    }}>
       {children}
     </SessionAccessContext.Provider>
   );

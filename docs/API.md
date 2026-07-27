@@ -1,6 +1,6 @@
-# API catalog — Ivrit Sheli 2.8 private candidate
+# API catalog — Ivrit Sheli 2.9 private candidate
 
-This document describes the unpublished 2.8 source contract. The verified public Railway service remains on 2.4.0 until the 2.8 release gate is approved.
+This document describes the unpublished v2.9 source contract. The verified public Railway service remains on 2.4.0 until every v2.9 release gate is approved.
 
 Application base path: `/api/v1`
 
@@ -147,22 +147,75 @@ The 2.8 reviewed starter dictionary contains 240 trilingual A0–A2 concepts. It
 | `POST` | `/api/v1/ai/weekly-plan` |
 | `POST` | `/api/v1/ai/enrich-item` |
 
-Offline deterministic results require no external service. The 2.8 public learning, daily-practice, dictionary and recommendation paths use the deterministic local engine and do not require these AI routes. Online processing remains an experimental adapter: it requires server configuration, `ALLOW_CLOUD_PROCESSING=true`, an explicit request with cloud consent and—in production cloud mode—a matching identity allowlist. It must remain disabled for the 2.8 public release unless a later privacy/cost review explicitly changes that boundary. Cloud TTS/STT uses the same paid-provider gate.
+Offline deterministic learning, daily-practice, dictionary, transcript-analysis
+and recommendation paths require no external AI service. Self-hosted Faster
+Whisper is a separate v2.9 speech path and does not require an OpenAI key.
+Online OpenAI processing remains an experimental adapter: it requires server
+configuration, `ALLOW_CLOUD_PROCESSING=true`, an explicit request with cloud
+consent and—in production cloud mode—a matching identity allowlist. It remains
+disabled for the private v2.9 candidate unless a later privacy/cost review
+explicitly changes that boundary. OpenAI TTS/STT uses the same paid-provider
+gate; self-hosted STT does not.
 
 ## Audio
 
 | Method | Route |
 |---|---|
+| `GET` | `/api/v1/audio/capabilities` |
 | `POST` | `/api/v1/audio/tts` |
 | `POST` | `/api/v1/audio/stt` |
+| `POST` | `/api/v1/audio/transcript-analysis` |
 | `POST` | `/api/v1/audio/word-analysis` |
 | `POST` | `/api/v1/audio/pronunciation-score` |
 
-Uploads are bounded by the request envelope, decoded file size and filename-extension allowlist. MIME and magic-byte validation remain an explicit limitation in 2.4. App-managed audio and transcripts are excluded from structured request logs.
+`GET /audio/capabilities` reports secure-context requirements, the configured
+HTTPS public origin, self-hosted model state, 20-second/8-MB/45-second limits,
+available fallbacks and device-only retention. The browser's
+`window.isSecureContext` remains authoritative for actual capture.
 
-`POST /audio/tts` accepts `voice_style: "masculine" | "feminine"`; clients cannot inject arbitrary provider voice IDs. The 2.8 interface persists masculine/feminine-style browser voice plus slow/normal playback speed on the device and prefers local browser speech. `POST /audio/word-analysis` accepts exactly one Hebrew transcript plus client-reported `browser`, `openai`, or `manual` provenance. The server does not present the client report as independently verified. Its local path is a non-mutating dictionary analysis and is available to the read-only demo. Cloud enrichment remains outside the public 2.8 path. Word analysis never updates XP or mastery.
+`POST /audio/stt` accepts `mode=self_hosted|openai`; the legacy
+`cloud_requested` field remains accepted for older clients. The self-hosted
+path validates the real media container, forces Hebrew, enables VAD and
+serializes one Faster Whisper CPU INT8 inference. Responses include transcript,
+normalized text, provider, model, duration, latency, warnings and server-file
+deletion confirmation. Errors distinguish busy, unavailable, timeout,
+no-speech and invalid input. Uploads use a 9-MB envelope, 8-MB file and
+20-second duration ceiling.
+
+`POST /audio/transcript-analysis` accepts up to 4,000 characters, extracts at
+most twelve unique Hebrew tokens and returns exact local dictionary matches
+plus explicit unknown tokens. It performs no AI inference. A one-token result
+is compatible with the detailed word analysis. `POST /audio/word-analysis`
+accepts client-reported `browser`, `self_hosted`, `openai`, or `manual`
+provenance; that report is never presented as independently verified.
+
+`POST /audio/tts` accepts `voice_style: "masculine" | "feminine"`; clients cannot inject arbitrary provider voice IDs. The interface persists masculine/feminine-style browser voice plus slow/normal playback speed on the device and prefers local browser speech. Word/transcript analysis never updates XP or mastery.
 
 The historical `pronunciation-score` route name remains for v2.6 compatibility. Its response declares `assessment_type: "transcript_recognition_match"`; the value compares the expected text with a recognized transcript and is not a phoneme, accent, intelligibility, native-likeness or clinical assessment.
+
+## Coach, feedback and optional reminders
+
+| Method | Route |
+|---|---|
+| `POST` | `/api/v1/coach/examples` |
+| `POST` | `/api/v1/learning/feedback` |
+| `GET` | `/api/v1/personalization/profile` |
+| `POST` | `/api/v1/personalization/reset` |
+| `GET` | `/api/v1/notifications/push/capabilities` |
+| `GET` | `/api/v1/notifications/preferences` |
+| `PUT` | `/api/v1/notifications/preferences` |
+| `POST` | `/api/v1/notifications/push/subscription` |
+| `DELETE` | `/api/v1/notifications/push/subscription` |
+
+Coach examples come only from a reviewed dictionary source or reviewed local
+pattern and include level, register, context, translations and provenance.
+Feedback is idempotent, bounded and included with adaptive state in learner
+exports. Personalization reset preserves vocabulary, sessions and progress.
+
+Push is authenticated, CSRF-protected and opt-in. Subscription documents are
+encrypted separately and excluded from learner exports/snapshots. The worker
+enforces local timezone, rest day, quiet hours and one delivery per learner per
+local date even when several devices are subscribed.
 
 ## Gamification and missions
 

@@ -15,7 +15,6 @@ import { DailyPracticeSession } from './DailyPracticeSession';
 import { DictionaryVisualCue } from './DictionaryVisualCue';
 import { HebrewText } from './HebrewText';
 import { Icon } from './Icon';
-import { MicWordAnalyzer } from './MicWordAnalyzer';
 import { RegistryPanel } from './RegistryPanel';
 import { ReviewCard } from './ReviewCard';
 
@@ -23,14 +22,17 @@ type LearnTab = 'path' | 'practice' | 'review' | 'dictionary' | 'audio' | 'colle
 
 export function LearnPanel({
   initialTab = 'review',
-  practiceWord,
+  practiceTarget,
   cloudAvailable,
   dashboard,
   onWordClick,
   onRefresh,
 }: {
   initialTab?: LearnTab;
-  practiceWord?: string;
+  practiceTarget?: {
+    text: string;
+    itemId?: number;
+  };
   cloudAvailable: boolean;
   dashboard: Dashboard;
   onWordClick: (word: string, entryId?: number) => void;
@@ -125,8 +127,14 @@ export function LearnPanel({
       {tab === 'review' && <ReviewCard active={tab === 'review'} onWordClick={onWordClick} onReviewed={onRefresh} onStartPractice={() => setTab('practice')} />}
       {tab === 'audio' && (
         <div className="audio-workspace">
-          <AudioPractice initialText={practiceWord ?? 'אני עדיין לומד עברית'} cloudAvailable={false} onWordClick={onWordClick} />
-          <MicWordAnalyzer initialWord={practiceWord ?? ''} cloudAvailable={false} onWordClick={onWordClick} />
+          <AudioPractice
+            initialText={practiceTarget?.text ?? 'אני עדיין לומד עברית'}
+            {...(practiceTarget?.itemId === undefined
+              ? {}
+              : { itemId: practiceTarget.itemId })}
+            cloudAvailable={cloudAvailable}
+            onWordClick={onWordClick}
+          />
         </div>
       )}
       {tab === 'dictionary' && (

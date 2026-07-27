@@ -1,0 +1,12 @@
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+startCommand = "/app/scripts/docker-entrypoint.sh python -m ivrit_sheli.push_notifications"
+cronSchedule = "*/5 * * * *"
+restartPolicyType = "NEVER"
+
+# Configure this as a private Railway cron service with no public domain.
+# It receives PUSH_DATABASE_URL for the dedicated ivrit_sheli_push_worker role,
+# never MIGRATION_DATABASE_URL or the web runtime DATABASE_URL.

@@ -9,6 +9,7 @@ Notes: Minimal deps; comments in ENGLISH; emojis sparingly.
 from __future__ import annotations
 
 import json
+import wave
 from pathlib import Path
 from typing import Any
 
@@ -258,6 +259,7 @@ def test_verified_pronunciation_updates_linked_mastery_xp_and_events_atomically(
         "תודה רבה",
         provider="server-test",
         verified_speech_evidence=True,
+        evidence_key="speech:test-verified-pronunciation",
     )
 
     assert scored["linked_item_id"] == item["id"]
@@ -314,8 +316,12 @@ def test_fake_cloud_audio_can_synthesize_and_transcribe(tmp_path: Path) -> None:
     database.initialize()
     provider = FakeAudioProvider()
     service = AudioService(settings, database, provider=provider)  # type: ignore[arg-type]
-    recording = tmp_path / "voice.webm"
-    recording.write_bytes(b"valid audio placeholder")
+    recording = tmp_path / "voice.wav"
+    with wave.open(str(recording), "wb") as wav_file:
+        wav_file.setnchannels(1)
+        wav_file.setsampwidth(2)
+        wav_file.setframerate(8_000)
+        wav_file.writeframes(b"\0\0" * 8_000)
     try:
         tts = service.tts("שלום", cloud_requested=True, voice_style="masculine")
         assert tts["provider"] == "openai"
@@ -343,7 +349,7 @@ def test_audio_validation_rejects_empty_unknown_and_oversized_files(tmp_path: Pa
     oversized = tmp_path / "large.wav"
     with oversized.open("wb") as handle:
         handle.truncate(MAX_AUDIO_BYTES + 1)
-    with pytest.raises(ValueError, match="25 MB"):
+    with pytest.raises(ValueError, match="8 MB"):
         validate_audio_file(oversized)
 
 

@@ -2,6 +2,52 @@
 
 All notable changes are documented here. Versions follow Semantic Versioning.
 
+## 2.9.0 — Listening & Personal Coach — Private candidate
+
+This private candidate connects short Hebrew speech practice, deterministic
+transcript understanding, explainable coaching and optional reminders. It
+preserves the 2.8.3 Warm Illustrated Israel Journey. It is not tagged, pushed
+or deployed to the public Railway/Devpost surface; verified production remains
+2.4.0.
+
+### Added
+
+- Self-hosted Faster Whisper `small` transcription with Hebrew forced, CPU
+  INT8, VAD, one inference slot, a 45-second timeout and 20-second/8-MB limits.
+- Explicit permission, recording, processing, no-speech, timeout, unavailable,
+  browser-fallback and manual-fallback states.
+- Deterministic transcript analysis using reviewed dictionary entries, without
+  AI-generated meanings.
+- A reviewed trilingual coach pattern library with easy, level-appropriate and
+  moderate-challenge examples plus concise recommendation reasons.
+- Bounded learner feedback and inspectable/resettable personalization state.
+- Opt-in Web Push preferences, encrypted endpoint documents, one-per-learner
+  daily delivery claims and a dedicated least-privilege cron boundary.
+- Learner-scoped IndexedDB recordings and device-side deletion controls.
+- Separate Railway staging-web and reminder-cron configuration files.
+
+### Changed
+
+- Today offers one primary coach action and at most two optional suggestions.
+- Audio capabilities disclose secure-context requirements, service readiness,
+  exact limits, fallbacks and retention behavior.
+- Portable learner exports include feedback and adaptive profile state, while
+  Push subscriptions and device audio remain deliberately excluded.
+- The private pilot uses a separate v2.9 data directory so earlier mother-pilot
+  evidence is preserved.
+
+### Verification boundary
+
+- The integrated local candidate passes 291 backend, 337 frontend, 26 browser
+  and one additional credential-gated PostgreSQL case: 655 unique automated
+  passes. The non-root Docker image, migration `20260727_0005`, readiness,
+  reminder-worker smoke and structured-log privacy checks also pass.
+- The source package verifier and 321 canonical Git-index checksums pass.
+  HTTPS staging latency and the 20-word/10-phrase Kevin-and-mother pilot remain
+  required before publication.
+- No public tag, GitHub Release, Railway replacement or Devpost edit is
+  authorized by this candidate work.
+
 ## 2.8.3 — Visual Recognition Expansion — Private candidate
 
 This private slice expands meaning-first illustration coverage from 24 to 72

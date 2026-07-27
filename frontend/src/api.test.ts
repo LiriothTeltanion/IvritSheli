@@ -98,18 +98,27 @@ describe('read-only API guard', () => {
     })));
     vi.stubGlobal('fetch', fetchMock);
 
-    await api.transcribeAudio(new Blob(['audio'], { type: 'audio/mp4' }));
+    await api.transcribeAudio(
+      new Blob(['audio'], { type: 'audio/mp4' }),
+      'self_hosted',
+      undefined,
+      'שלום',
+    );
     const uploadInit = fetchMock.mock.calls[0]?.[1] as RequestInit;
     const uploadedFile = (uploadInit.body as FormData).get('file') as File;
     expect(uploadedFile.name).toBe('hebrew-recording.mp4');
+    expect(fetchMock.mock.calls[0]?.[0]).toBe(
+      '/api/v1/audio/stt?mode=self_hosted&cloud_requested=false&language=he&target_text=%D7%A9%D7%9C%D7%95%D7%9D',
+    );
 
-    await api.pronunciationScore('שלום', 'שלום', 7, 'openai');
+    await api.pronunciationScore('שלום', 'שלום', 7, 'openai', 'signed-evidence');
     const scoreInit = fetchMock.mock.calls[1]?.[1] as RequestInit;
     expect(JSON.parse(String(scoreInit.body))).toEqual({
       target_text: 'שלום',
       transcript: 'שלום',
       item_id: 7,
       provider: 'openai',
+      evidence_token: 'signed-evidence',
     });
   });
 
@@ -138,6 +147,27 @@ describe('read-only API guard', () => {
     });
   });
 
+  it('requests deterministic transcript understanding without a cloud flag', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      mode: 'phrase',
+      tokens: [],
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await api.analyzeTranscript('שלום עולם', 'self_hosted');
+
+    expect(fetchMock).toHaveBeenCalledWith('/api/v1/audio/transcript-analysis', expect.objectContaining({
+      method: 'POST',
+      body: JSON.stringify({
+        transcript: 'שלום עולם',
+        transcript_provider: 'self_hosted',
+      }),
+    }));
+  });
+
   it('allows non-mutating local word analysis in a read-only demo', async () => {
     const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({}), {
       status: 200,
@@ -151,6 +181,22 @@ describe('read-only API guard', () => {
     expect(fetchMock).toHaveBeenCalledWith('/api/v1/audio/word-analysis', expect.objectContaining({
       method: 'POST',
     }));
+  });
+
+  it('allows non-mutating local transcript understanding in a read-only demo', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({}), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+    configureApiSession({ read_only: true });
+
+    await api.analyzeTranscript('שלום עולם', 'manual');
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/v1/audio/transcript-analysis',
+      expect.objectContaining({ method: 'POST' }),
+    );
   });
 
   it('sends bounded registry page offsets beyond 500 items', async () => {

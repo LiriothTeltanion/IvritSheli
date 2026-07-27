@@ -96,6 +96,25 @@ def production_cloud_settings(
     return Settings.from_env(values)
 
 
+def test_push_web_configuration_does_not_require_cron_private_key(
+    tmp_path: Path,
+) -> None:
+    settings = production_cloud_settings(
+        tmp_path,
+        {
+            "PUSH_NOTIFICATIONS_ENABLED": "true",
+            "VAPID_PUBLIC_KEY": "public-application-server-key",
+            "PUSH_ENCRYPTION_KEY": "push-encryption-secret-at-least-32-characters",
+            "VAPID_PRIVATE_KEY": "",
+            "VAPID_SUBJECT": "",
+        },
+    )
+
+    assert settings.push_notifications_enabled is True
+    assert settings.vapid_public_key == "public-application-server-key"
+    assert settings.vapid_private_key == ""
+
+
 def login_github(client: TestClient, code: str = "one") -> None:
     """Complete the deterministic fake browser OAuth flow."""
     started = client.get(
@@ -251,6 +270,16 @@ def test_cloud_requires_auth_and_demo_is_seeded_read_only(tmp_path: Path) -> Non
         assert local_word_analysis.status_code == 200
         assert local_word_analysis.json()["word"] == "שלום"
         assert local_word_analysis.json()["provenance"]["audio_retained"] is False
+        local_transcript_analysis = client.post(
+            "/api/v1/audio/transcript-analysis",
+            json={"transcript": "שלום תודה", "transcript_provider": "manual"},
+        )
+        assert local_transcript_analysis.status_code == 200
+        assert local_transcript_analysis.json()["mode"] == "phrase"
+        assert (
+            local_transcript_analysis.json()["provenance"]["lookup"]
+            == "exact_registered_headword_or_form"
+        )
         cloud_word_analysis = client.post(
             "/api/v1/audio/word-analysis",
             json={
@@ -644,13 +673,13 @@ def test_operational_endpoints_report_version_storage_and_readiness(tmp_path: Pa
             oauth_client=FakeGitHubOAuth(),
         )
     ) as client:
-        assert client.get("/health/live").json()["version"] == "2.8.3"
+        assert client.get("/health/live").json()["version"] == "2.9.0"
         ready = client.get("/health/ready")
         assert ready.status_code == 200
         assert ready.json()["checks"]["postgresql"] is True
         assert ready.json()["checks"]["dictionary_details"]["mode"] == "shared_cloud"
         version = client.get("/version").json()
-        assert version["version"] == "2.8.3"
+        assert version["version"] == "2.9.0"
         assert version["storage"] == "postgresql"
 
 

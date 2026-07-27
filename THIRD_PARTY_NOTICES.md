@@ -17,6 +17,29 @@ The source code that downloads, normalizes, indexes, and displays dictionary dat
 
 OpenAI is an optional external service. No OpenAI code, model weights, or credentials are distributed. Users provide their own API key and remain responsible for applicable service terms and costs.
 
+## Self-hosted speech runtime
+
+The private v2.9 candidate can download and run the following components:
+
+- `faster-whisper 1.2.1`, MIT License.
+- CTranslate2, MIT License.
+- `Systran/faster-whisper-small`, a CTranslate2 conversion of the OpenAI
+  Whisper small model, MIT License. Model files are downloaded to the
+  configured private cache and are not committed to this repository.
+- OpenAI Whisper code and model weights, MIT License.
+
+Preserve the applicable copyright and license notices if distributing an image
+or offline bundle that includes the model or runtime.
+
+## Web Push and subscription encryption
+
+- `pywebpush 2.3.0`, Mozilla Public License 2.0.
+- `cryptography 49.0.0`, Apache License 2.0 or BSD 3-Clause.
+
+Browser Push services are operated by their respective browser/platform
+providers and remain subject to those providers' terms. This repository does
+not distribute VAPID keys or live Push subscriptions.
+
 ## Google Workspace
 
 Google Calendar, Gmail, and Drive are optional read-only integrations. No Google credentials are distributed. Users configure their own OAuth application and consent scopes.

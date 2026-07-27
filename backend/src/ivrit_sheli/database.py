@@ -417,6 +417,65 @@ MIGRATIONS = (
         );
         """,
     ),
+    Migration(
+        version=7,
+        name="listening_coach_personalization",
+        sql="""
+        CREATE TABLE learning_feedback (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            feedback_key TEXT NOT NULL UNIQUE,
+            request_hash TEXT NOT NULL,
+            target_type TEXT NOT NULL
+                CHECK (target_type IN ('example', 'recommendation', 'exercise', 'coach_card')),
+            target_key TEXT NOT NULL,
+            useful INTEGER CHECK (useful IN (-1, 0, 1)),
+            difficulty TEXT
+                CHECK (difficulty IN ('too_easy', 'right', 'too_hard')),
+            relevance TEXT
+                CHECK (relevance IN ('not_relevant', 'relevant')),
+            note TEXT,
+            context_json TEXT NOT NULL DEFAULT '{}',
+            created_at TEXT NOT NULL
+        );
+
+        CREATE INDEX idx_learning_feedback_target_created
+        ON learning_feedback(target_type, target_key, created_at DESC);
+
+        CREATE TABLE learner_model_state (
+            profile_id INTEGER PRIMARY KEY DEFAULT 1 CHECK (profile_id = 1)
+                REFERENCES profiles(id) ON DELETE CASCADE,
+            revision INTEGER NOT NULL DEFAULT 0 CHECK (revision >= 0),
+            feedback_count INTEGER NOT NULL DEFAULT 0 CHECK (feedback_count >= 0),
+            state_json TEXT NOT NULL DEFAULT '{}',
+            updated_at TEXT NOT NULL
+        );
+
+        CREATE TABLE notification_preferences (
+            profile_id INTEGER PRIMARY KEY DEFAULT 1 CHECK (profile_id = 1)
+                REFERENCES profiles(id) ON DELETE CASCADE,
+            enabled INTEGER NOT NULL DEFAULT 0 CHECK (enabled IN (0, 1)),
+            preferred_time TEXT NOT NULL DEFAULT '19:00',
+            timezone TEXT NOT NULL DEFAULT 'Asia/Jerusalem',
+            quiet_hours_start TEXT NOT NULL DEFAULT '22:00',
+            quiet_hours_end TEXT NOT NULL DEFAULT '08:00',
+            max_daily INTEGER NOT NULL DEFAULT 1 CHECK (max_daily = 1),
+            last_sent_local_date TEXT,
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL
+        );
+        """,
+    ),
+    Migration(
+        version=8,
+        name="speech_evidence_idempotency",
+        sql="""
+        ALTER TABLE audio_attempts ADD COLUMN evidence_key TEXT;
+
+        CREATE UNIQUE INDEX idx_audio_attempts_evidence_key
+        ON audio_attempts(evidence_key)
+        WHERE evidence_key IS NOT NULL;
+        """,
+    ),
 )
 SCHEMA_VERSION = MIGRATIONS[-1].version
 

@@ -1,6 +1,6 @@
-# Architecture — Ivrit Sheli 2.8 Warm Illustrated Learning Journey
+# Architecture — Ivrit Sheli 2.9 Listening & Personal Coach
 
-Ivrit Sheli 2.8 keeps two deliberate runtime modes. The local SQLite application remains the simplest private installation and requires no account; cloud mode adds authenticated multi-user continuity without duplicating or weakening the learning engine. The verified public deployment remains 2.4.0 while this 2.8 source is an unpublished candidate.
+Ivrit Sheli 2.9 keeps two deliberate runtime modes. The local SQLite application remains the simplest private installation and requires no account; cloud mode adds authenticated multi-user continuity without duplicating or weakening the learning engine. The verified public deployment remains 2.4.0 while this 2.9 source is an unpublished candidate.
 
 ## System shape
 
@@ -9,12 +9,14 @@ Browser: React 19 + TypeScript + PWA + EN/ES/HE + RTL
                          │
                          │ same-origin HTTPS + secure session cookie
                          ▼
-Ivrit Sheli 2.8 FastAPI application
+Ivrit Sheli 2.9 FastAPI application
   ├── Google OIDC / GitHub OAuth + provider-bound PKCE state
   ├── signed-in / deterministic demo session boundary
   ├── CSRF verification for authenticated mutations
   ├── request-ID and structured JSON logging middleware
   ├── deterministic LocalLearningEngine + persistent daily practice
+  ├── reviewed LocalPersonalCoach + bounded learner model
+  ├── Faster Whisper short-audio worker (optional, one CPU slot)
   ├── learning, recommendation and healthy-motivation engines
   ├── AI, audio and connector provider routers
   └── liveness, readiness and immutable version probes
@@ -25,7 +27,16 @@ Ivrit Sheli 2.8 FastAPI application
   users · sessions · OAuth state      Hebrew dictionary + FTS
   one JSONB learner state per user
   Alembic migrations + tenant RLS
+
+Private terminating reminder cron
+  └── dedicated push-worker role → encrypted Push subscriptions only
 ```
+
+One browser Push endpoint has one current learner owner. Migration
+`20260727_0005` transfers that association through a tenant-checked
+`SECURITY DEFINER` function owned by a dedicated no-login, no-bypass-RLS role.
+The web runtime receives execute permission on that one function, not
+cross-tenant table visibility.
 
 The PWA caches only the application shell, reviewed starter dictionary and six region scenes. Service-worker routing deliberately bypasses `/api/`, OAuth and private learner data. A disconnected cloud learner can browse previously cached reference content, but writes stop and request reconnection; local SQLite remains the full no-account development/private mode.
 
@@ -51,7 +62,20 @@ The mature learning domain already has broad test coverage against SQLite. Cloud
 
 This gives the release two mutually reinforcing application controls: every query carries an explicit `user_id`, and PostgreSQL row-level security checks the transaction's tenant context. The runtime role is responsible for setting that context, so RLS protects against missing or incorrect predicates but is not presented as an independent barrier to SQL injection or compromise of the runtime credential. PostgreSQL is the durable cloud system of record; in-memory SQLite is only a compatibility execution layer.
 
-AI interactions, pronunciation attempts and connector state use the same locked tenant execution boundary; they do not fall back to the process-wide local database in cloud mode. Retained cloud TTS files are rejected. Upload temporaries use random names and normal completion removes them; abrupt process termination can leave remnants in the persistent private directory until an operator removes them. Cloud exports are removed after a completed response.
+AI interactions, pronunciation attempts, coach feedback, adaptive learner state
+and connector state use the same locked tenant execution boundary; they do not
+fall back to the process-wide local database in cloud mode. Retained cloud TTS
+files are rejected. Speech uploads use random request and worker names. The
+request file is deleted after the response path; a timed-out worker deletes its
+private copy when decoding actually ends before releasing the single slot.
+Cloud exports are removed after a completed response.
+
+Push subscriptions are deliberately outside the learner snapshot. PostgreSQL
+stores their encrypted document, keyed endpoint digest and preferences under
+the authenticated user, while account deletion cascades them. The web runtime
+can manage only the current user's subscription. A separate
+`ivrit_sheli_push_worker` role can claim due deliveries across users but has no
+learner-state, session or OAuth privileges.
 
 ## Authentication and session flow
 
@@ -111,13 +135,31 @@ Submitting one review remains atomic:
 
 In cloud mode the entire resulting learner snapshot is written beneath the same tenant row lock, preventing lost updates from concurrent requests.
 
+### Listening and coach transactions
+
+Self-hosted transcription is not learning evidence. The API validates the
+media, stages a worker copy and invokes one shared Faster Whisper `small` model
+with Hebrew forced, VAD and CPU INT8. Typed results distinguish busy,
+unavailable, timeout and no-speech. Transcript analysis performs bounded exact
+dictionary lookups only. It cannot award XP or speaking mastery.
+
+`LocalPersonalCoach` reads the reviewed dictionary, reviewed pattern library
+and bounded learner context. It emits three traceable example bands and a
+plain-language reason. `learning_feedback` stores one idempotent response per
+card/dimension. `learner_model_state` applies small clamped updates and can be
+reset independently from vocabulary, sessions and curriculum evidence.
+
+Device-retained audio does not enter this server architecture. IndexedDB stores
+it under `local:device` or `cloud:<user-id>`; legacy unscoped files remain
+hidden until explicitly cleared.
+
 Connector import builds its validated list first and creates up to 50 selected phrases inside one hydrate, tenant mutation and snapshot cycle. Synchronous PostgreSQL, SQLite and provider work runs through Starlette's bounded worker threadpool; session resolution is explicitly offloaded from the request middleware, so dependency work cannot block the ASGI event loop or liveness handling.
 
 ## Observability contract
 
 Production logs are one JSON object per line. Every record has `timestamp`, `level`, `logger`, and `message`. Completed HTTP-request events additionally carry `event`, `request_id`, `method`, route template, status, duration, version, commit, environment, and a privacy-safe user correlation value when available; process-level records contain only the relevant subset.
 
-The formatter recursively redacts credentials, cookies, authorization headers, OAuth codes, tokens, secrets and password-like fields. Request and response bodies are not logged. `X-Request-ID` is accepted when safe or generated by the server, returned in the response header and included in errors.
+The formatter recursively redacts credentials, cookies, authorization headers, OAuth codes, tokens, secrets and password-like fields. Request and response bodies, transcripts, raw audio and Push endpoints are not logged. `X-Request-ID` is accepted when safe or generated by the server, returned in the response header and included in errors.
 
 | Probe | Purpose | Database dependency |
 |---|---|---:|
@@ -134,7 +176,7 @@ The formatter recursively redacts credentials, cookies, authorization headers, O
 - Pure engines contain algorithms and have no network dependency.
 - Providers wrap external APIs and never leak provider-specific response shapes upward.
 - The frontend never receives provider, database or OAuth client secrets.
-- Public 2.8 learning and recommendations are deterministic and require no external AI or audio provider. Existing cloud adapters remain disabled/experimental unless a later explicit privacy and cost review enables them.
+- v2.9 learning, transcript understanding and recommendations are deterministic and require no external AI provider. Self-hosted speech is optional infrastructure; browser/manual fallbacks preserve the learning path. Existing cloud AI/audio adapters remain disabled/experimental unless a later explicit privacy and cost review enables them.
 - Google login requests only `openid profile`; it never grants Gmail, Drive or Calendar access. Separate connector credentials cannot widen the sign-in session.
 - Beginner onboarding choices, guided-mode preference, First Steps checkpoint and lesson completion are learner-profile state, so they follow the local database or locked tenant snapshot boundary. In authenticated PostgreSQL mode that continuity follows the learner account across sessions; each word save/review and checkpoint update remains a separate validated request rather than one server-side lesson transaction.
 
@@ -152,7 +194,10 @@ The formatter recursively redacts credentials, cookies, authorization headers, O
 | OAuth state reaches the other provider callback | Provider mismatch fails safely; no session is created |
 | AI provider unavailable | Offline provider result with a degraded-mode label |
 | Dictionary unavailable | Startup or the affected dictionary request fails; no dictionaryless runtime fallback is claimed |
-| Audio provider unavailable | Browser TTS or text-only practice |
+| Self-hosted speech unavailable/busy | Browser recognition when available or manual text; no speech evidence is fabricated |
+| Self-hosted speech timeout | `504` typed response; worker copy is deleted when decoding ends and the slot remains unavailable until then |
+| Push endpoint expires | The affected subscription is disabled; the learner session continues |
+| Reminder cron overlaps | Learner-level claim prevents a duplicate; Railway skips a still-running prior cron execution |
 | Microphone denied or unsupported | Explicit unsupported step plus manual production fallback; no speech evidence is fabricated |
 | Network lost in cloud mode | Cached reference content remains readable; writes pause and request reconnection |
 | Duplicate practice submission | Stored response is replayed; evidence and XP are not duplicated |
@@ -165,11 +210,12 @@ The formatter recursively redacts credentials, cookies, authorization headers, O
 
 - Docker runs as the unprivileged `ivrit` user.
 - Docker Compose gives the administrator URL only to a one-shot provisioner; the app receives only the restricted URL.
+- The reminder cron receives only `PUSH_DATABASE_URL` for the dedicated Push role; it never receives `MIGRATION_DATABASE_URL` or the web runtime URL.
 - Railway runs the idempotent Alembic/role provisioner as a pre-deploy command, then its pinned serve wrapper removes `MIGRATION_DATABASE_URL` before Uvicorn and waits for `/health/ready`.
 - Every application connection authenticates directly as `ivrit_sheli_runtime`, which cannot create databases or roles, create objects in `public`, inherit privileges, replicate, bypass RLS or `SET ROLE` through a retained membership.
 - Readiness requires the exact packaged Alembic head and verifies both `SESSION_USER` and `CURRENT_USER` are the restricted login.
 - Production uses one same-origin HTTPS hostname; CORS is allow-listed to that origin.
 - Horizontal replicas are safe for session/state access, but migrations must remain a separate pre-deploy step.
-- The private 2.8 learner snapshot adds fields and tables that an unmodified 2.4 writer does not preserve. Do not mix those writers against one production state store or roll back after 2.8 writes without restoring a verified compatible backup; see `DEPLOYMENT.md`.
+- The private 2.9 learner snapshot and Push schema add fields and tables that an unmodified 2.4 writer does not preserve. Do not mix those writers against one production state store or roll back after 2.9 writes without restoring a verified compatible backup; see `DEPLOYMENT.md`.
 
 See [DEPLOYMENT.md](DEPLOYMENT.md) for the exact operational procedure and [API.md](API.md) for the public contract.

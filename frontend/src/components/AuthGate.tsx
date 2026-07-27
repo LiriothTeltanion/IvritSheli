@@ -13,6 +13,7 @@ import { PreAccountLesson } from './PreAccountLesson';
 interface AuthGateProps {
   busy: boolean;
   error: string;
+  notice?: string;
   onDemo: () => void;
   onRetry: () => void;
   providers: AuthProvider[];
@@ -26,7 +27,14 @@ const creatorLinks = {
   terms: 'https://github.com/LiriothTeltanion/IvritSheli/blob/main/TERMS.md',
 } as const;
 
-export function AuthGate({ busy, error, onDemo, onRetry, providers }: AuthGateProps): React.JSX.Element {
+export function AuthGate({
+  busy,
+  error,
+  notice = '',
+  onDemo,
+  onRetry,
+  providers,
+}: AuthGateProps): React.JSX.Element {
   const { locale, setLocale, t } = useI18n();
   const [showAccessChoices, setShowAccessChoices] = useState(false);
   const googleAvailable = providers.includes('google');
@@ -41,7 +49,7 @@ export function AuthGate({ busy, error, onDemo, onRetry, providers }: AuthGatePr
       <header className="auth-header">
         <a className="auth-brand" href="/" aria-label={`${t('appName')} — ${t('home')}`}>
           <img src="/icons/app-icon.svg" alt="" />
-          <span><strong>{t('appName')}</strong><small>LOCAL CANDIDATE 2.8</small></span>
+          <span><strong>{t('appName')}</strong><small>PRIVATE CANDIDATE 2.9</small></span>
         </a>
         <div className="auth-header__actions">
           <div className="locale-switch auth-locale" aria-label={t('interfaceLanguage')}>
@@ -54,7 +62,7 @@ export function AuthGate({ busy, error, onDemo, onRetry, providers }: AuthGatePr
               </button>
             ))}
           </div>
-          <span className="auth-version">v2.8.3 local candidate</span>
+          <span className="auth-version">v2.9.0 private candidate</span>
         </div>
       </header>
 
@@ -63,6 +71,12 @@ export function AuthGate({ busy, error, onDemo, onRetry, providers }: AuthGatePr
           <span className="auth-eyebrow"><i aria-hidden="true" /> {t('authEyebrow')}</span>
           <h1>{t('authTitle')}</h1>
           <p className="auth-lead">{t('authSubtitle')}</p>
+          {notice && (
+            <div className="auth-notice" role="status">
+              <Icon name="shield" size={19} />
+              <span>{notice}</span>
+            </div>
+          )}
 
           <PreAccountLesson onReady={() => setShowAccessChoices(true)} />
 

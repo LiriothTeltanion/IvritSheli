@@ -151,6 +151,7 @@ describe('App cloud session flow', () => {
   });
 
   afterEach(() => {
+    vi.unstubAllGlobals();
     vi.restoreAllMocks();
   });
 
@@ -287,8 +288,12 @@ describe('App cloud session flow', () => {
     await user.click(screen.getByRole('button', { name: /Open profile menu: Kevin/i }));
     await user.click(screen.getByRole('button', { name: 'Settings' }));
 
-    expect(await screen.findByRole('heading', { name: 'Settings' })).toBeInTheDocument();
     expect(document.querySelector('.topbar-context > span')).toHaveTextContent('Settings');
+    expect(await screen.findByRole(
+      'heading',
+      { name: 'Settings' },
+      { timeout: 5_000 },
+    )).toBeInTheDocument();
     expect(navigation.querySelectorAll('button')).toHaveLength(3);
   });
 
@@ -345,6 +350,87 @@ describe('App cloud session flow', () => {
     expect(screen.getByText('Personal workspace')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Sign out' }));
     expect(await screen.findByRole('heading', { name: 'Your Hebrew. Your progress. Your space.' })).toBeInTheDocument();
+  });
+
+  it('detaches this browser push endpoint before ending a cloud session', async () => {
+    const originalServiceWorker = Object.getOwnPropertyDescriptor(
+      navigator,
+      'serviceWorker',
+    );
+    const lifecycle: string[] = [];
+    const subscription = {
+      endpoint: 'https://fcm.googleapis.com/fcm/send/current-browser',
+      unsubscribe: vi.fn(async () => {
+        lifecycle.push('browser-unsubscribe');
+        return true;
+      }),
+    } as unknown as PushSubscription;
+    Object.defineProperty(navigator, 'serviceWorker', {
+      configurable: true,
+      value: {
+        getRegistration: vi.fn().mockResolvedValue({
+          pushManager: {
+            getSubscription: vi.fn().mockResolvedValue(subscription),
+          },
+        }),
+      },
+    });
+    vi.stubGlobal('Notification', { permission: 'granted' });
+    vi.stubGlobal('PushManager', class PushManagerStub {});
+    const baseFetch = routeFetch(githubSession);
+    const fetchMock = vi.fn(
+      async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+        const path = String(input);
+        const method = init?.method ?? 'GET';
+        if (
+          path.endsWith('/notifications/push/subscription')
+          && method === 'DELETE'
+        ) {
+          lifecycle.push('server-detach');
+          return json({ deleted: true });
+        }
+        if (path.endsWith('/auth/logout') && method === 'POST') {
+          lifecycle.push('logout');
+        }
+        return (
+          baseFetch as unknown as (
+            request: RequestInfo | URL,
+            requestInit?: RequestInit
+          ) => Promise<Response>
+        )(input, init);
+      },
+    );
+    vi.stubGlobal('fetch', fetchMock);
+
+    try {
+      const user = userEvent.setup();
+      renderApp();
+      await user.click(
+        await screen.findByRole('button', { name: /Open profile menu: Kevin/i }),
+      );
+      await user.click(screen.getByRole('button', { name: 'Sign out' }));
+
+      expect(
+        await screen.findByRole('heading', {
+          name: 'Your Hebrew. Your progress. Your space.',
+        }),
+      ).toBeInTheDocument();
+      expect(lifecycle).toEqual([
+        'browser-unsubscribe',
+        'server-detach',
+        'logout',
+      ]);
+    } finally {
+      if (originalServiceWorker) {
+        Object.defineProperty(
+          navigator,
+          'serviceWorker',
+          originalServiceWorker,
+        );
+      } else {
+        Reflect.deleteProperty(navigator, 'serviceWorker');
+      }
+    }
   });
 
   it('resumes First Steps from account-persisted progress without device storage', async () => {

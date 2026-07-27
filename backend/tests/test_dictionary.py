@@ -54,6 +54,16 @@ def test_lookup_resolves_a_niqqud_form(dictionary_store: DictionaryStore) -> Non
     assert results[0]["display_niqqud"] == "בּוֹקֶר טוֹב"
 
 
+def test_exact_lookup_never_infers_a_stripped_hebrew_prefix(
+    dictionary_store: DictionaryStore,
+) -> None:
+    dictionary_store.seed_demo()
+
+    assert dictionary_store.lookup("ושלום")[0]["word"] == "שלום"
+    assert dictionary_store.lookup_exact("ושלום") == []
+    assert dictionary_store.lookup_exact("שָׁלוֹם")[0]["word"] == "שלום"
+
+
 def test_dictionary_search_supports_english_and_spanish(dictionary_store: DictionaryStore) -> None:
     dictionary_store.seed_demo()
     assert dictionary_store.search("thank you")[0]["word"] == "תודה"

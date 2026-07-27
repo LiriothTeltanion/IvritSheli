@@ -307,6 +307,107 @@ def test_word_analysis_returns_provenance_without_awarding_progress(
     assert client.get("/api/v1/progress").json()["modalities"] == []
 
 
+def test_transcript_analysis_resolves_phrase_tokens_without_inventing_meanings(
+    client: TestClient,
+) -> None:
+    xp_before = client.get("/api/v1/gamification/status").json()["xp"]["total"]
+
+    response = client.post(
+        "/api/v1/audio/transcript-analysis",
+        json={
+            "transcript": "שלום, תודה חדקרן שלום",
+            "transcript_provider": "self_hosted",
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["mode"] == "phrase"
+    assert [row["normalized_token"] for row in payload["tokens"]] == [
+        "שלום",
+        "תודה",
+        "חדקרן",
+    ]
+    assert payload["tokens"][0]["occurrence_count"] == 2
+    assert payload["tokens"][0]["dictionary_matches"][0]["word"] == "שלום"
+    assert payload["tokens"][1]["dictionary_matches"][0]["word"] == "תודה"
+    assert payload["tokens"][2]["dictionary_matches"] == []
+    assert payload["unknown_tokens"] == ["חדקרן"]
+    assert payload["truncated"] is False
+    assert payload["provenance"] == {
+        "transcript": "client_reported_self_hosted_transcription",
+        "dictionary": "local_dictionary",
+        "lookup": "exact_registered_headword_or_form",
+        "enrichment": None,
+        "audio_retained": False,
+        "learning_progress_updated": False,
+    }
+    assert client.get("/api/v1/gamification/status").json()["xp"]["total"] == xp_before
+
+
+def test_transcript_analysis_one_word_is_word_analysis_compatible(
+    client: TestClient,
+) -> None:
+    response = client.post(
+        "/api/v1/audio/transcript-analysis",
+        json={
+            "transcript": "שָׁלוֹם!",
+            "transcript_provider": "browser",
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["mode"] == "word"
+    assert payload["word"] == "שלום"
+    assert payload["display_word"] == "שָׁלוֹם"
+    assert payload["dictionary_matches"][0]["word"] == "שלום"
+    assert payload["enrichment"] is None
+    assert payload["transcript_provider"] == "browser"
+
+
+def test_transcript_analysis_is_bounded_and_uses_exact_matches_only(
+    client: TestClient,
+) -> None:
+    unique_tokens = [
+        "אב",
+        "גד",
+        "הו",
+        "זח",
+        "טי",
+        "כל",
+        "מנ",
+        "סע",
+        "פצ",
+        "קר",
+        "שת",
+        "אג",
+        "בד",
+    ]
+    response = client.post(
+        "/api/v1/audio/transcript-analysis",
+        json={"transcript": " ".join(unique_tokens), "transcript_provider": "manual"},
+    )
+    prefixed = client.post(
+        "/api/v1/audio/transcript-analysis",
+        json={"transcript": "ושלום", "transcript_provider": "manual"},
+    )
+    latin_only = client.post(
+        "/api/v1/audio/transcript-analysis",
+        json={"transcript": "shalom", "transcript_provider": "manual"},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["analyzed_token_count"] == 12
+    assert response.json()["total_unique_tokens"] == 13
+    assert response.json()["token_limit"] == 12
+    assert response.json()["truncated"] is True
+    assert prefixed.status_code == 200
+    assert prefixed.json()["tokens"][0]["known"] is False
+    assert prefixed.json()["dictionary_matches"] == []
+    assert latin_only.status_code == 400
+
+
 def test_word_analysis_requires_exactly_one_hebrew_word(client: TestClient) -> None:
     phrase = client.post(
         "/api/v1/audio/word-analysis",

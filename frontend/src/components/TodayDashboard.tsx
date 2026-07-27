@@ -17,6 +17,7 @@ import { AtlasRegionVocabulary } from './AtlasRegionVocabulary';
 import { DictionaryVisualCue } from './DictionaryVisualCue';
 import { LivingHebrewAtlas, type AtlasRegionId } from './LivingHebrewAtlas';
 import { MetricRing } from './MetricRing';
+import { PersonalCoachCard } from './PersonalCoachCard';
 
 interface TodayDashboardProps {
   dashboard: Dashboard;
@@ -26,7 +27,7 @@ interface TodayDashboardProps {
   onStart: () => void;
   onPreviewFirstSteps: () => void;
   onOpenDictionary: () => void;
-  onOpenAudio: () => void;
+  onOpenAudio: (hebrew?: string, itemId?: number) => void;
   onOpenProgress: () => void;
   onOpenCoach: () => void;
   onRefresh: () => void;
@@ -246,6 +247,16 @@ export function TodayDashboard({
           ))}
         </div>
       </section>
+
+      {dashboard.coach_card && (
+        <PersonalCoachCard
+          card={dashboard.coach_card}
+          locale={locale}
+          readOnly={readOnly}
+          onPractice={onOpenAudio}
+          onWordClick={onWordClick}
+        />
+      )}
 
       <section className={`metric-grid metric-grid--${learnerMode}`}>
         <article className="metric-card card"><span className="metric-icon"><Icon name="book" /></span><div><strong>{dashboard.today.due_reviews}</strong><span>{t('dueReviews')}</span></div><small>{t('adaptiveQueue')}</small></article>

@@ -6,8 +6,10 @@
 
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { api, AUTH_REQUIRED_EVENT, configureApiSession } from './api';
+import { deviceRecordingOwnerScope } from './deviceAudioStorage';
 import { localeOverrideFromSearch, useI18n } from './i18n';
 import { resolveLearnerMode } from './learnerMode';
+import { unsubscribeFromDailyPractice } from './pushNotifications';
 import { SessionAccessProvider } from './session';
 import type { AuthState, Dashboard, GamificationStatus, LearnerMode, Locale, Profile, ProgressData, ViewKey } from './types';
 import { AuthGate } from './components/AuthGate';
@@ -92,12 +94,16 @@ export default function App(): React.JSX.Element {
   const [auth, setAuth] = useState<AuthState | null>(null);
   const [authChecking, setAuthChecking] = useState(true);
   const [authError, setAuthError] = useState('');
+  const [authNotice, setAuthNotice] = useState('');
   const [demoBusy, setDemoBusy] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [toast, setToast] = useState('');
-  const [practiceWord, setPracticeWord] = useState<string | undefined>();
+  const [practiceTarget, setPracticeTarget] = useState<{
+    text: string;
+    itemId?: number;
+  }>();
   const [firstStepsOpen, setFirstStepsOpen] = useState(false);
   const [firstStepsProgress, setFirstStepsProgress] = useState(0);
   const [firstStepsComplete, setFirstStepsComplete] = useState(false);
@@ -155,6 +161,7 @@ export default function App(): React.JSX.Element {
       return;
     }
     setLoading(true);
+    setAuthNotice('');
     void refreshCore();
   }, [auth?.authenticated, refreshCore]);
   useEffect(() => {
@@ -275,6 +282,11 @@ export default function App(): React.JSX.Element {
   const logout = async (): Promise<void> => {
     setLoggingOut(true);
     try {
+      try {
+        await unsubscribeFromDailyPractice();
+      } catch {
+        // Push cleanup is best effort; it must never trap the learner in a session.
+      }
       const nextAuth = await api.logout();
       configureApiSession(nextAuth);
       setAuth(nextAuth);
@@ -306,6 +318,7 @@ export default function App(): React.JSX.Element {
       <AuthGate
         busy={demoBusy}
         error={authError}
+        notice={authNotice}
         providers={auth?.auth_providers ?? ['github']}
         onDemo={() => { void startDemo(); }}
         onRetry={() => { void checkAuth(); }}
@@ -451,6 +464,10 @@ export default function App(): React.JSX.Element {
   const localMode = auth.mode === 'local';
   const learnerMode = activeLearnerMode;
   const identityName = localMode ? profile.display_name : auth.user?.display_name ?? profile.display_name;
+  const recordingOwnerScope = deviceRecordingOwnerScope({
+    mode: auth.mode,
+    ...(auth.user?.id ? { userId: auth.user.id } : {}),
+  });
 
   if (visitFinished) {
     return (
@@ -463,7 +480,12 @@ export default function App(): React.JSX.Element {
   }
 
   return (
-    <SessionAccessProvider readOnly={auth.read_only} readOnlyReason={t('readOnlyExplanation')} localMode={localMode}>
+    <SessionAccessProvider
+      readOnly={auth.read_only}
+      readOnlyReason={t('readOnlyExplanation')}
+      localMode={localMode}
+      recordingOwnerScope={recordingOwnerScope}
+    >
     <div className={`app-shell learner-mode--${learnerMode} ${auth.demo ? 'is-demo' : ''}`} data-learner-mode={learnerMode}>
       <div className="ambient ambient--one" aria-hidden="true" />
       <div className="ambient ambient--two" aria-hidden="true" />
@@ -472,7 +494,7 @@ export default function App(): React.JSX.Element {
       <aside className="sidebar">
         <div className="brand-lockup">
           <img src="/icons/app-icon.svg" alt="" />
-          <div><strong>{t('appName')}</strong><span>LOCAL CANDIDATE 2.8</span></div>
+          <div><strong>{t('appName')}</strong><span>PRIVATE CANDIDATE 2.9</span></div>
         </div>
         <nav className="side-nav" aria-label={t('primaryNavigation')}>
           {visibleNavigation.map((item) => (
@@ -495,7 +517,7 @@ export default function App(): React.JSX.Element {
         </div>
         <div className="sidebar-footer">
           <div className="privacy-mini"><Icon name="target" size={17} /><span><strong>{t(`${learnerMode}Mode`)}</strong><small>{t('level')} {profile.cefr_band ?? profile.hebrew_level}</small></span></div>
-          <span className="version-label">v2.8.3 local candidate</span>
+          <span className="version-label">v2.9.0 private candidate</span>
         </div>
       </aside>
 
@@ -596,7 +618,7 @@ export default function App(): React.JSX.Element {
                 void refreshCore();
               }}
               onPracticeWord={(word) => {
-                setPracticeWord(word);
+                setPracticeTarget({ text: word });
                 setFirstStepsOpen(false);
                 goToLearn('audio');
               }}
@@ -632,13 +654,20 @@ export default function App(): React.JSX.Element {
                 setFirstStepsOpen(true);
               }}
               onOpenDictionary={() => goToLearn('dictionary')}
-              onOpenAudio={() => goToLearn('audio')}
+              onOpenAudio={(hebrew, itemId) => {
+                setPracticeTarget(
+                  hebrew
+                    ? { text: hebrew, ...(itemId === undefined ? {} : { itemId }) }
+                    : undefined,
+                );
+                goToLearn('audio');
+              }}
               onOpenProgress={() => setView('progress')}
               onOpenCoach={() => setView('coach')}
               onRefresh={() => { void refreshCore(); }}
             />
           )}
-          {view === 'learn' && <LearnPanel initialTab={learnTab} {...(practiceWord ? { practiceWord } : {})} cloudAvailable={dashboard.system.cloud_available} dashboard={dashboard} onWordClick={openDictionary} onRefresh={() => { void refreshCore(); }} />}
+          {view === 'learn' && <LearnPanel initialTab={learnTab} {...(practiceTarget ? { practiceTarget } : {})} cloudAvailable={dashboard.system.cloud_available} dashboard={dashboard} onWordClick={openDictionary} onRefresh={() => { void refreshCore(); }} />}
           {view === 'coach' && <AICoach cloudAvailable={false} onWordClick={openDictionary} />}
           {view === 'progress' && progress && <ProgressPanel progress={progress} gamification={gamification} cefrBand={profile.cefr_band ?? profile.hebrew_level} onStartPractice={() => goToLearn('practice')} />}
           {view === 'progress' && !progress && <section className="card skeleton-page"><div className="skeleton" /><div className="skeleton" /></section>}
@@ -653,7 +682,7 @@ export default function App(): React.JSX.Element {
                 setToast(message);
                 void refreshCore();
               }}
-              onAccountDeleted={(nextAuth) => {
+              onAccountDeleted={(nextAuth, localCleanupWarning) => {
                 try {
                   window.localStorage.removeItem(onboardingStorageKey(auth, 'complete'));
                   window.localStorage.removeItem(onboardingStorageKey(auth, 'draft'));
@@ -662,6 +691,7 @@ export default function App(): React.JSX.Element {
                   // Account data is already deleted server-side.
                 }
                 configureApiSession(nextAuth);
+                setAuthNotice(localCleanupWarning ?? '');
                 setAuth(nextAuth);
                 setDashboard(null);
                 setProfile(null);

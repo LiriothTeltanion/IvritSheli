@@ -26,6 +26,7 @@ from ivrit_sheli.migrations import MIGRATION_HEAD
 
 DEMO_USER_ID = "00000000-0000-4000-8000-000000000042"
 RUNTIME_DATABASE_ROLE = "ivrit_sheli_runtime"
+PUSH_WORKER_DATABASE_ROLE = "ivrit_sheli_push_worker"
 OAUTH_PROVIDERS = frozenset({"github", "google"})
 StateResult = TypeVar("StateResult")
 
@@ -128,6 +129,18 @@ class CloudStore(Protocol):
     def upsert_github_user(self, profile: dict[str, Any]) -> AuthUser: ...
     def upsert_google_user(self, profile: dict[str, Any]) -> AuthUser: ...
     def delete_user(self, user_id: str) -> None: ...
+    def upsert_push_subscription(
+        self,
+        user_id: str,
+        endpoint_hash: str,
+        subscription_ciphertext: str,
+        preferences: dict[str, Any],
+        expires_at: datetime | None,
+    ) -> dict[str, Any]: ...
+    def delete_push_subscription(self, user_id: str, endpoint_hash: str) -> bool: ...
+    def update_push_subscription_preferences(
+        self, user_id: str, preferences: dict[str, Any]
+    ) -> None: ...
     def create_session(
         self,
         user_id: str,
@@ -179,6 +192,7 @@ class MemoryCloudStore:
         self._session_sequence = 0
         self._oauth_states: dict[str, tuple[str, str, str, datetime]] = {}
         self._states: dict[str, dict[str, Any]] = {}
+        self._push_subscriptions: dict[tuple[str, str], dict[str, Any]] = {}
 
     def close(self) -> None:
         """Memory storage has no external resources."""
@@ -264,6 +278,79 @@ class MemoryCloudStore:
                 for key, record in self._sessions.items()
                 if record[0] != user_id
             }
+            self._push_subscriptions = {
+                key: record
+                for key, record in self._push_subscriptions.items()
+                if key[0] != user_id
+            }
+
+    def upsert_push_subscription(
+        self,
+        user_id: str,
+        endpoint_hash: str,
+        subscription_ciphertext: str,
+        preferences: dict[str, Any],
+        expires_at: datetime | None,
+    ) -> dict[str, Any]:
+        """Store an encrypted test subscription without exposing endpoint material."""
+        with self._lock:
+            if user_id not in self._users:
+                raise KeyError("User is not available")
+            now = utc_now()
+            key = (user_id, endpoint_hash)
+            for existing_key in tuple(self._push_subscriptions):
+                if existing_key[1] == endpoint_hash and existing_key != key:
+                    self._push_subscriptions.pop(existing_key)
+            existing = self._push_subscriptions.get(key, {})
+            record = {
+                "user_id": user_id,
+                "endpoint_hash": endpoint_hash,
+                "subscription_ciphertext": subscription_ciphertext,
+                "enabled": bool(preferences.get("enabled", False)),
+                "locale": str(preferences.get("locale", "en")),
+                "timezone": str(preferences.get("timezone", "Asia/Jerusalem")),
+                "preferred_time": str(preferences.get("preferred_time", "19:00")),
+                "weekly_rest_day": int(preferences.get("weekly_rest_day", 5)),
+                "quiet_hours_start": str(preferences.get("quiet_hours_start", "22:00")),
+                "quiet_hours_end": str(preferences.get("quiet_hours_end", "08:00")),
+                "last_sent_local_date": existing.get("last_sent_local_date"),
+                "failure_count": int(existing.get("failure_count", 0)),
+                "expires_at": expires_at,
+                "created_at": existing.get("created_at", now),
+                "updated_at": now,
+            }
+            self._push_subscriptions[key] = record
+            return {
+                "active": record["enabled"],
+                "created_at": record["created_at"].isoformat(),
+                "updated_at": record["updated_at"].isoformat(),
+            }
+
+    def delete_push_subscription(self, user_id: str, endpoint_hash: str) -> bool:
+        """Delete only the requesting tenant's matching subscription."""
+        with self._lock:
+            return self._push_subscriptions.pop((user_id, endpoint_hash), None) is not None
+
+    def update_push_subscription_preferences(
+        self, user_id: str, preferences: dict[str, Any]
+    ) -> None:
+        """Synchronize reminder scheduling fields across one tenant's subscriptions."""
+        with self._lock:
+            for (stored_user_id, _endpoint_hash), record in self._push_subscriptions.items():
+                if stored_user_id != user_id:
+                    continue
+                for key in (
+                    "enabled",
+                    "locale",
+                    "timezone",
+                    "preferred_time",
+                    "weekly_rest_day",
+                    "quiet_hours_start",
+                    "quiet_hours_end",
+                ):
+                    if key in preferences:
+                        record[key] = preferences[key]
+                record["updated_at"] = utc_now()
 
     def create_test_user(self, name: str) -> AuthUser:
         """Create a non-provider user for focused ownership tests."""
@@ -598,6 +685,105 @@ class PostgresCloudStore:
             ).fetchone()
         if row is None:
             raise KeyError("User is not available")
+
+    def upsert_push_subscription(
+        self,
+        user_id: str,
+        endpoint_hash: str,
+        subscription_ciphertext: str,
+        preferences: dict[str, Any],
+        expires_at: datetime | None,
+    ) -> dict[str, Any]:
+        """Upsert one encrypted push subscription inside its tenant RLS context."""
+        UUID(user_id)
+        with self._tenant_connection(user_id) as connection:
+            connection.execute(
+                "SELECT set_config('app.push_endpoint_hash', %s, true)",
+                (endpoint_hash,),
+            )
+            row = connection.execute(
+                """
+                SELECT active, created_at_value, updated_at_value
+                FROM public.upsert_push_subscription_for_current_user(
+                    %s::uuid, %s::uuid, %s::char(64), %s, %s, %s, %s,
+                    %s::time, %s::smallint, %s::time, %s::time, %s
+                )
+                """,
+                (
+                    str(uuid4()),
+                    user_id,
+                    endpoint_hash,
+                    subscription_ciphertext,
+                    bool(preferences.get("enabled", False)),
+                    str(preferences.get("locale", "en")),
+                    str(preferences.get("timezone", "Asia/Jerusalem")),
+                    str(preferences.get("preferred_time", "19:00")),
+                    int(preferences.get("weekly_rest_day", 5)),
+                    str(preferences.get("quiet_hours_start", "22:00")),
+                    str(preferences.get("quiet_hours_end", "08:00")),
+                    expires_at,
+                ),
+            ).fetchone()
+            connection.execute(
+                """
+                INSERT INTO push_delivery_state(user_id)
+                VALUES(%s)
+                ON CONFLICT(user_id) DO NOTHING
+                """,
+                (user_id,),
+            )
+        if row is None:
+            raise RuntimeError("PostgreSQL did not return the push subscription")
+        return {
+            "active": bool(row["active"]),
+            "created_at": row["created_at_value"].isoformat(),
+            "updated_at": row["updated_at_value"].isoformat(),
+        }
+
+    def delete_push_subscription(self, user_id: str, endpoint_hash: str) -> bool:
+        """Delete only a matching subscription owned by the current tenant."""
+        UUID(user_id)
+        with self._tenant_connection(user_id) as connection:
+            row = connection.execute(
+                """
+                DELETE FROM push_subscriptions
+                WHERE user_id = %s AND endpoint_hash = %s
+                RETURNING id
+                """,
+                (user_id, endpoint_hash),
+            ).fetchone()
+        return row is not None
+
+    def update_push_subscription_preferences(
+        self, user_id: str, preferences: dict[str, Any]
+    ) -> None:
+        """Synchronize scheduling policy for every active device owned by one learner."""
+        UUID(user_id)
+        with self._tenant_connection(user_id) as connection:
+            connection.execute(
+                """
+                UPDATE push_subscriptions
+                SET enabled = %s,
+                    locale = %s,
+                    timezone = %s,
+                    preferred_time = %s::time,
+                    weekly_rest_day = %s,
+                    quiet_hours_start = %s::time,
+                    quiet_hours_end = %s::time,
+                    updated_at = NOW()
+                WHERE user_id = %s
+                """,
+                (
+                    bool(preferences.get("enabled", False)),
+                    str(preferences.get("locale", "en")),
+                    str(preferences.get("timezone", "Asia/Jerusalem")),
+                    str(preferences.get("preferred_time", "19:00")),
+                    int(preferences.get("weekly_rest_day", 5)),
+                    str(preferences.get("quiet_hours_start", "22:00")),
+                    str(preferences.get("quiet_hours_end", "08:00")),
+                    user_id,
+                ),
+            )
 
     def _ensure_state(self, user_id: str) -> None:
         with self._tenant_connection(user_id) as connection:

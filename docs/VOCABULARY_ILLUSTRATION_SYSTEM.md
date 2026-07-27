@@ -150,4 +150,4 @@ in-memory score and makes no claim about recognition quality by itself.
   70% for abstract time/greeting concepts.
 - Treat repeated confusion as a redesign requirement, not learner failure.
 - Record the tested scene keys and qualitative confusion notes before
-  publishing a 2.8 release.
+  publishing the v2.9 candidate or any later release.

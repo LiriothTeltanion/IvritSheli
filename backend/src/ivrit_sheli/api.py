@@ -8,6 +8,7 @@ Notes: Minimal deps; comments in ENGLISH; emojis sparingly.
 
 from __future__ import annotations
 
+import asyncio
 import hmac
 import logging
 import re
@@ -56,25 +57,43 @@ from ivrit_sheli.config import Settings
 from ivrit_sheli.connectors import ConnectorError, ConnectorService, ContextPreview
 from ivrit_sheli.database import Database
 from ivrit_sheli.dictionary import DICTIONARY_SCHEMA_VERSION, DictionaryStore
+from ivrit_sheli.learner_model import CONTEXT_KEYS
 from ivrit_sheli.learning_core import (
     CefrBand,
     CurriculumTrack,
     LearningCoreConflictError,
 )
 from ivrit_sheli.local_learning_engine import PracticeConflictError
+from ivrit_sheli.local_personal_coach import build_examples
 from ivrit_sheli.normalization import hebrew_tokens, normalize_hebrew
-from ivrit_sheli.repository import LearningRepository
+from ivrit_sheli.push_notifications import (
+    encrypt_subscription,
+    endpoint_hash,
+    validate_subscription,
+)
+from ivrit_sheli.repository import (
+    MAX_PORTABLE_IMPORT_BYTES,
+    LearningRepository,
+)
 from ivrit_sheli.request_limits import (
     AuthRateLimitMiddleware,
     RequestBodyLimitMiddleware,
     RequestBodyTooLarge,
     SlidingWindowLimiter,
 )
+from ivrit_sheli.speech_evidence import SpeechEvidenceSigner
 from ivrit_sheli.structured_logging import configure_json_logging, privacy_user_hash
 from ivrit_sheli.visual_spotlight import build_visual_spotlight
 
 LOGGER = logging.getLogger(__name__)
 API_PREFIX = "/api/v1"
+MAX_TRANSCRIPT_ANALYSIS_TOKENS = 12
+TRANSCRIPT_PROVENANCE_BY_PROVIDER = {
+    "browser": "client_reported_browser_recognition",
+    "self_hosted": "client_reported_self_hosted_transcription",
+    "openai": "client_reported_cloud_transcription",
+    "manual": "client_reported_manual_entry",
+}
 APP_CONTENT_SECURITY_POLICY = "; ".join(
     (
         "default-src 'self'",
@@ -117,7 +136,12 @@ DOCS_CONTENT_SECURITY_POLICY = (
     )
 )
 NO_STORE_OPERATIONAL_PATHS = frozenset({"/health/live", "/health/ready", "/version"})
-DEMO_SAFE_POST_PATHS = frozenset({f"{API_PREFIX}/audio/word-analysis"})
+DEMO_SAFE_POST_PATHS = frozenset(
+    {
+        f"{API_PREFIX}/audio/transcript-analysis",
+        f"{API_PREFIX}/audio/word-analysis",
+    }
+)
 
 
 class CloudFeatureForbiddenError(RuntimeError):
@@ -280,14 +304,85 @@ class PronunciationPayload(StrictModel):
     transcript: str = Field(min_length=1, max_length=4000)
     item_id: int | None = Field(default=None, ge=1)
     provider: str = Field(default="browser", max_length=80)
+    evidence_token: str | None = Field(default=None, min_length=20, max_length=2000)
 
 
 class WordAnalysisPayload(StrictModel):
     """One transcript selected for dictionary and optional cloud enrichment."""
 
     transcript: str = Field(min_length=1, max_length=200)
-    transcript_provider: Literal["browser", "openai", "manual"] = "manual"
+    transcript_provider: Literal["browser", "self_hosted", "openai", "manual"] = "manual"
     cloud_requested: bool = False
+
+
+class TranscriptAnalysisPayload(StrictModel):
+    """A bounded transcript resolved only against exact sourced dictionary records."""
+
+    transcript: str = Field(min_length=1, max_length=4000)
+    transcript_provider: Literal["browser", "self_hosted", "openai", "manual"] = "manual"
+
+
+class NotificationPreferencesPayload(StrictModel):
+    """Opt-in reminder schedule with a hard maximum of one message per day."""
+
+    enabled: bool | None = None
+    preferred_time: str | None = Field(default=None, min_length=5, max_length=5)
+    timezone: str | None = Field(default=None, min_length=1, max_length=100)
+    quiet_hours_start: str | None = Field(default=None, min_length=5, max_length=5)
+    quiet_hours_end: str | None = Field(default=None, min_length=5, max_length=5)
+
+
+class PushSubscriptionKeysPayload(StrictModel):
+    """Browser-generated Web Push encryption keys."""
+
+    p256dh: str = Field(min_length=1, max_length=512)
+    auth: str = Field(min_length=1, max_length=256)
+
+
+class PushSubscriptionPayload(StrictModel):
+    """One browser subscription; raw endpoint material is encrypted immediately."""
+
+    endpoint: str = Field(min_length=1, max_length=2_048)
+    expiration_time: float | None = Field(default=None, ge=0)
+    keys: PushSubscriptionKeysPayload
+    enable_reminders: bool = True
+
+
+class PushSubscriptionDeletePayload(StrictModel):
+    """Identify one device subscription for owner-scoped deletion."""
+
+    endpoint: str = Field(min_length=1, max_length=2_048)
+
+
+class CoachExamplesPayload(StrictModel):
+    """Select a reviewed dictionary concept for deterministic personalized examples."""
+
+    dictionary_entry_id: int | None = Field(default=None, ge=1)
+    word: str | None = Field(default=None, min_length=1, max_length=200)
+
+
+class LearningFeedbackPayload(StrictModel):
+    """Explicit, idempotent feedback for one coach or recommendation surface."""
+
+    feedback_key: str = Field(
+        min_length=8,
+        max_length=128,
+        pattern=r"^[A-Za-z0-9._:-]+$",
+    )
+    target_type: Literal["example", "recommendation", "exercise", "coach_card"]
+    target_key: str = Field(min_length=1, max_length=200)
+    useful: bool | None = None
+    difficulty: Literal[
+        "too_easy",
+        "appropriate",
+        "too_difficult",
+        "right",
+        "too_hard",
+    ] | None = None
+    relevant: bool | None = None
+    context: str | None = Field(default=None, max_length=40)
+    pattern_id: str | None = Field(default=None, max_length=100)
+    note: str | None = Field(default=None, max_length=500)
 
 
 class GooglePreviewPayload(StrictModel):
@@ -363,6 +458,7 @@ class Services:
     connectors: ConnectorService
     cloud_store: CloudStore
     auth: AuthService
+    speech_evidence: SpeechEvidenceSigner
 
 
 def build_services(
@@ -430,6 +526,7 @@ def build_services(
             oauth_client,
             google_oauth_client,
         ),
+        speech_evidence=SpeechEvidenceSigner(settings.session_secret or None),
     )
 
 
@@ -465,6 +562,29 @@ def create_app(
             oauth_client,
             google_oauth_client,
         )
+        stale_worker_files_deleted = await asyncio.to_thread(
+            app.state.services.audio.self_hosted_provider.sweep_stale_worker_files
+        )
+        if stale_worker_files_deleted:
+            LOGGER.info(
+                "Stale private speech worker files deleted",
+                extra={
+                    "event": "speech.stale_workers_deleted",
+                    "count": stale_worker_files_deleted,
+                },
+            )
+        if runtime_settings.whisper_preload_on_start:
+            preload_result = await asyncio.to_thread(
+                app.state.services.audio.self_hosted_provider.preload
+            )
+            LOGGER.info(
+                "Self-hosted speech model preloaded",
+                extra={
+                    "event": "speech.model_preloaded",
+                    "model": preload_result["model"],
+                    "load_latency_ms": preload_result["load_latency_ms"],
+                },
+            )
         LOGGER.info(
             "Ivrit Sheli API initialized",
             extra={
@@ -570,6 +690,7 @@ def create_app(
         route_limits={
             f"{API_PREFIX}/audio/stt": runtime_settings.max_audio_upload_body_bytes,
             (f"{API_PREFIX}/connectors/ics/preview"): runtime_settings.max_ics_upload_body_bytes,
+            f"{API_PREFIX}/import": runtime_settings.max_import_upload_body_bytes,
         },
     )
     app.add_middleware(
@@ -689,6 +810,14 @@ def repository_for(
     return container.repository
 
 
+def _speech_evidence_subject(request: Request) -> str:
+    """Return the authenticated tenant or this local app instance as token owner."""
+    identity = getattr(request.state, "session_identity", None)
+    if identity is not None:
+        return f"user:{identity.user.id}"
+    return "local:installation"
+
+
 def _production_cloud_feature_allowed(
     request: Request,
     feature: Literal["cloud_ai", "google_connectors"],
@@ -759,6 +888,23 @@ def _with_dictionary_learning_state(
             }
         )
     return decorated
+
+
+def _with_coach_speaking_target(
+    repository: LearningRepository | CloudLearningRepository,
+    examples: dict[str, Any],
+) -> dict[str, Any]:
+    """Attach one exact concept target without trusting a client-supplied item link."""
+    concept = cast(dict[str, Any], examples["concept"])
+    target_text = str(concept.get("niqqud") or concept["hebrew"])
+    source_key = str(concept.get("source_key") or "").strip() or None
+    return {
+        **examples,
+        "speaking_target": repository.coach_speaking_target(
+            target_text,
+            source_label=source_key,
+        ),
+    }
 
 
 def _dictionary_readiness(container: Services) -> dict[str, Any]:
@@ -1113,7 +1259,17 @@ def register_routes(app: FastAPI) -> None:
         dictionary_check = _dictionary_readiness(container)
         dictionary_ready = bool(dictionary_check["ready"])
         database_ready = container.cloud_store.ready() if container.settings.cloud_mode else True
-        ready = dictionary_ready and database_ready
+        speech_status = container.audio.self_hosted_provider.capabilities()["status"]
+        speech_ready: bool | str = (
+            speech_status == "ready"
+            if container.settings.whisper_preload_on_start
+            else "not_required"
+        )
+        ready = (
+            dictionary_ready
+            and database_ready
+            and speech_ready is not False
+        )
         return JSONResponse(
             status_code=200 if ready else 503,
             content={
@@ -1125,6 +1281,7 @@ def register_routes(app: FastAPI) -> None:
                     "postgresql": database_ready
                     if container.settings.cloud_mode
                     else "not_configured",
+                    "self_hosted_speech": speech_ready,
                 },
                 "request_id": request.state.request_id,
             },
@@ -1168,7 +1325,8 @@ def register_routes(app: FastAPI) -> None:
 
     @app.get(f"{API_PREFIX}/dashboard")
     def dashboard(request: Request) -> dict[str, Any]:
-        payload = repository_for(request).dashboard()
+        repository = repository_for(request)
+        payload = repository.dashboard()
         container = services(request)
         payload["dictionary"] = container.dictionary.stats()
         profile = payload.get("profile", {})
@@ -1186,11 +1344,80 @@ def register_routes(app: FastAPI) -> None:
             for recommendation in payload.get("recommendations", ())
             if isinstance(recommendation, dict) and recommendation.get("label")
         )
-        payload["visual_spotlight"] = build_visual_spotlight(
+        visual_spotlight = build_visual_spotlight(
             container.dictionary,
             seed=spotlight_seed,
             preferred_words=recommendation_words,
         )
+        payload["visual_spotlight"] = visual_spotlight
+        payload["coach_card"] = None
+        if visual_spotlight:
+            try:
+                concept = container.dictionary.get(
+                    int(visual_spotlight[0]["entry_id"])
+                )
+                first_sense = concept["senses"][0] if concept.get("senses") else {}
+                learner = repository.coach_learner_context()
+                examples = _with_coach_speaking_target(
+                    repository,
+                    build_examples(
+                        {
+                            **concept,
+                            "translation_en": first_sense.get("gloss_en"),
+                            "translation_es": first_sense.get("gloss_es"),
+                            "source_key": f"dictionary:{concept['id']}",
+                        },
+                        profile=learner,
+                        dictionary_examples=concept.get("examples", []),
+                        learner_state=learner["learner_state"],
+                    ),
+                )
+                current = next(
+                    example
+                    for example in examples["examples"]
+                    if example["band"] == "current"
+                )
+                payload["coach_card"] = {
+                    "concept": examples["concept"],
+                    "speaking_target": examples["speaking_target"],
+                    "primary_action": current,
+                    "suggestions": [
+                        example
+                        for example in examples["examples"]
+                        if example["band"] != "current"
+                    ][:2],
+                    "reason": examples["reason"],
+                    "evidence": {
+                        "level": examples["evidence"]["level"],
+                        "mode": examples["evidence"]["mode"],
+                        "signals_used": examples["evidence"]["signals_used"],
+                        "free_form_generation": False,
+                    },
+                    "feedback_target": {
+                        "target_type": "coach_card",
+                        "target_key": (
+                            f"{datetime.now(ZoneInfo('Asia/Jerusalem')).date().isoformat()}:"
+                            f"dictionary:{concept['id']}:{current['source_id']}"
+                        ),
+                        "context": (
+                            current["contexts"][0]
+                            if (
+                                current["contexts"]
+                                and current["contexts"][0] in CONTEXT_KEYS
+                            )
+                            else None
+                        ),
+                        "pattern_id": (
+                            current["source_id"]
+                            if current["source_kind"] == "reviewed_pattern"
+                            else None
+                        ),
+                    },
+                }
+            except (KeyError, StopIteration, ValueError):
+                # The dashboard remains usable if an imported dictionary entry lacks
+                # the reviewed trilingual data required by the local coach.
+                payload["coach_card"] = None
         payload["system"] = {
             "offline_ready": not container.settings.cloud_mode,
             "cloud_available": bool(
@@ -1207,7 +1434,145 @@ def register_routes(app: FastAPI) -> None:
 
     @app.put(f"{API_PREFIX}/profile")
     def update_profile(request: Request, payload: ProfilePayload) -> dict[str, Any]:
-        return repository_for(request).update_profile(payload.model_dump(exclude_none=True))
+        repository = repository_for(request)
+        updated = repository.update_profile(payload.model_dump(exclude_none=True))
+        identity = getattr(request.state, "session_identity", None)
+        if identity is not None and not identity.user.is_demo:
+            preferences = repository.notification_preferences()
+            services(request).cloud_store.update_push_subscription_preferences(
+                identity.user.id,
+                {
+                    **preferences,
+                    "weekly_rest_day": updated["weekly_rest_day"],
+                    "locale": updated["interface_language"],
+                },
+            )
+        return updated
+
+    @app.get(f"{API_PREFIX}/notifications/push/capabilities")
+    def push_capabilities(request: Request) -> dict[str, Any]:
+        """Expose only public Web Push configuration and truthful availability."""
+        container = services(request)
+        settings = container.settings
+        identity = getattr(request.state, "session_identity", None)
+        configured = bool(
+            getattr(settings, "push_notifications_enabled", False)
+            and getattr(settings, "vapid_public_key", "")
+        )
+        secure_origin = settings.public_base_url.startswith("https://")
+        eligible_identity = bool(
+            settings.cloud_mode
+            and identity is not None
+            and not identity.user.is_demo
+        )
+        available = configured and secure_origin and eligible_identity
+        return {
+            "available": available,
+            "configured": configured,
+            "secure_context_required": True,
+            "secure_origin": secure_origin,
+            "authenticated_account_required": True,
+            "requires_opt_in": True,
+            "max_daily": 1,
+            "vapid_public_key": (
+                getattr(settings, "vapid_public_key", "") if available else None
+            ),
+            "fallback": "in_app",
+        }
+
+    @app.get(f"{API_PREFIX}/notifications/preferences")
+    def notification_preferences(request: Request) -> dict[str, Any]:
+        """Return quiet reminder defaults without exposing device subscriptions."""
+        return repository_for(request).notification_preferences()
+
+    @app.put(f"{API_PREFIX}/notifications/preferences")
+    def update_notification_preferences(
+        request: Request,
+        payload: NotificationPreferencesPayload,
+    ) -> dict[str, Any]:
+        """Persist explicit consent and synchronize cloud device schedules."""
+        repository = repository_for(request)
+        clean = payload.model_dump(exclude_none=True)
+        if clean.get("enabled") and not push_capabilities(request)["available"]:
+            raise ValueError(
+                "Push reminders require an authenticated account on a configured HTTPS server"
+            )
+        updated = repository.update_notification_preferences(clean)
+        identity = getattr(request.state, "session_identity", None)
+        if identity is not None and not identity.user.is_demo:
+            profile = repository.get_profile()
+            services(request).cloud_store.update_push_subscription_preferences(
+                identity.user.id,
+                {
+                    **updated,
+                    "weekly_rest_day": profile["weekly_rest_day"],
+                    "locale": profile["interface_language"],
+                },
+            )
+        return updated
+
+    @app.post(f"{API_PREFIX}/notifications/push/subscription", status_code=201)
+    def subscribe_push(
+        request: Request,
+        payload: PushSubscriptionPayload,
+    ) -> dict[str, Any]:
+        """Encrypt and save one browser subscription for its authenticated owner."""
+        capability = push_capabilities(request)
+        if not capability["available"]:
+            raise ValueError(
+                "Web Push is unavailable; use in-app practice until HTTPS push is configured"
+            )
+        identity = getattr(request.state, "session_identity", None)
+        if identity is None or identity.user.is_demo:
+            raise ValueError("A personal cloud account is required for reminders")
+        container = services(request)
+        subscription = validate_subscription(
+            {
+                "endpoint": payload.endpoint,
+                "expirationTime": payload.expiration_time,
+                "keys": payload.keys.model_dump(),
+            }
+        )
+        encryption_secret = container.settings.push_encryption_key
+        repository = repository_for(request)
+        preferences = repository.update_notification_preferences(
+            {"enabled": payload.enable_reminders}
+        )
+        profile = repository.get_profile()
+        stored = container.cloud_store.upsert_push_subscription(
+            identity.user.id,
+            endpoint_hash(subscription.endpoint, encryption_secret),
+            encrypt_subscription(subscription, encryption_secret),
+            {
+                **preferences,
+                "weekly_rest_day": profile["weekly_rest_day"],
+                "locale": profile["interface_language"],
+            },
+            subscription.expiration_time,
+        )
+        return {
+            "saved": True,
+            **stored,
+            "max_daily": 1,
+            "audio_or_vocabulary_in_message": False,
+        }
+
+    @app.delete(f"{API_PREFIX}/notifications/push/subscription")
+    def unsubscribe_push(
+        request: Request,
+        payload: PushSubscriptionDeletePayload,
+    ) -> dict[str, Any]:
+        """Remove only the requesting account's matching device subscription."""
+        identity = getattr(request.state, "session_identity", None)
+        if identity is None or identity.user.is_demo:
+            raise ValueError("A personal cloud account is required for reminders")
+        container = services(request)
+        encryption_secret = container.settings.push_encryption_key
+        deleted = container.cloud_store.delete_push_subscription(
+            identity.user.id,
+            endpoint_hash(payload.endpoint, encryption_secret),
+        )
+        return {"deleted": deleted}
 
     @app.get(f"{API_PREFIX}/learning-core")
     def learning_core_state(request: Request) -> dict[str, Any]:
@@ -1313,6 +1678,60 @@ def register_routes(app: FastAPI) -> None:
     @app.get(f"{API_PREFIX}/progress")
     def progress(request: Request) -> dict[str, Any]:
         return repository_for(request).progress()
+
+    @app.post(f"{API_PREFIX}/coach/examples")
+    def coach_examples(
+        request: Request,
+        payload: CoachExamplesPayload,
+    ) -> dict[str, Any]:
+        """Build three reviewed examples without sending learner data to an LLM."""
+        if payload.dictionary_entry_id is None and payload.word is None:
+            raise ValueError("dictionary_entry_id or word is required")
+        dictionary = services(request).dictionary
+        if payload.dictionary_entry_id is not None:
+            concept = dictionary.get(payload.dictionary_entry_id)
+        else:
+            matches = dictionary.lookup(str(payload.word))
+            if not matches:
+                raise KeyError(f"Dictionary entry not found for {payload.word}")
+            concept = matches[0]
+        first_sense = concept["senses"][0] if concept.get("senses") else {}
+        concept_for_coach = {
+            **concept,
+            "translation_en": first_sense.get("gloss_en"),
+            "translation_es": first_sense.get("gloss_es"),
+            "source_key": f"dictionary:{concept['id']}",
+        }
+        learner = repository_for(request).coach_learner_context()
+        return _with_coach_speaking_target(
+            repository_for(request),
+            build_examples(
+                concept_for_coach,
+                profile=learner,
+                dictionary_examples=concept.get("examples", []),
+                learner_state=learner["learner_state"],
+            ),
+        )
+
+    @app.post(f"{API_PREFIX}/learning/feedback")
+    def learning_feedback(
+        request: Request,
+        payload: LearningFeedbackPayload,
+    ) -> dict[str, Any]:
+        """Persist explicit feedback and make only one bounded learner-model update."""
+        return repository_for(request).record_learning_feedback(
+            payload.model_dump(exclude_none=True)
+        )
+
+    @app.get(f"{API_PREFIX}/personalization/profile")
+    def personalization_profile(request: Request) -> dict[str, Any]:
+        """Expose exactly what the local coach has learned and why."""
+        return repository_for(request).personalization_profile()
+
+    @app.post(f"{API_PREFIX}/personalization/reset")
+    def reset_personalization(request: Request) -> dict[str, Any]:
+        """Reset derived weights without deleting vocabulary, sessions, or mastery."""
+        return repository_for(request).reset_personalization()
 
     @app.get(f"{API_PREFIX}/dictionary/search")
     def dictionary_search(
@@ -1428,6 +1847,39 @@ def register_routes(app: FastAPI) -> None:
             name=f"ai_{task_name}",
         )
 
+    @app.get(f"{API_PREFIX}/audio/capabilities")
+    def audio_capabilities(request: Request) -> dict[str, Any]:
+        """Return the speech service contract without loading the Whisper model."""
+        raw = services(request).audio.capabilities()
+        self_hosted = cast(dict[str, Any], raw["self_hosted"])
+        openai = cast(dict[str, Any], raw["openai"])
+        limits = cast(dict[str, Any], raw["limits"])
+        hostname = request.url.hostname or ""
+        configured_secure_origin = services(request).settings.public_base_url.startswith(
+            "https://"
+        )
+        secure_context = (
+            configured_secure_origin
+            or request.url.scheme == "https"
+            or hostname in {"localhost", "127.0.0.1", "::1"}
+        )
+        return {
+            "secure_context_required": True,
+            "secure_context": secure_context,
+            "public_base_url": services(request).settings.public_base_url,
+            "self_hosted_available": bool(self_hosted["available"]),
+            "self_hosted_status": self_hosted["status"],
+            "openai_available": bool(openai["configured"]),
+            "max_duration_seconds": limits["max_duration_seconds"],
+            "max_upload_bytes": limits["max_bytes"],
+            "timeout_seconds": self_hosted["timeout_seconds"],
+            "model": self_hosted["model"],
+            "language": "he",
+            "fallbacks": ["browser", "manual"],
+            "audio_retention": "device_only",
+            "details": raw,
+        }
+
     @app.post(f"{API_PREFIX}/audio/tts")
     def tts(request: Request, payload: TTSPayload) -> dict[str, Any]:
         repository = repository_for(request)
@@ -1459,11 +1911,20 @@ def register_routes(app: FastAPI) -> None:
     def stt(
         request: Request,
         file: Annotated[UploadFile, File()],
+        mode: Annotated[
+            Literal["self_hosted", "openai"] | None,
+            Query(),
+        ] = None,
         cloud_requested: Annotated[bool, Query()] = False,
         language: Annotated[str, Query(max_length=10)] = "he",
+        target_text: Annotated[
+            str | None,
+            Query(min_length=1, max_length=4000),
+        ] = None,
     ) -> dict[str, Any]:
         repository = repository_for(request)
-        if cloud_requested:
+        selected_mode = mode or ("openai" if cloud_requested else "self_hosted")
+        if selected_mode == "openai":
             _require_production_cloud_feature(request, "cloud_ai")
             _require_cloud_processing_consent(repository, "cloud speech-to-text")
         suffix = Path(file.filename or "recording.webm").suffix.lower() or ".webm"
@@ -1476,24 +1937,141 @@ def register_routes(app: FastAPI) -> None:
                 while chunk := file.file.read(1024 * 1024):
                     written += len(chunk)
                     if written > MAX_AUDIO_BYTES:
-                        raise ValueError("Audio upload exceeds 25 MB")
+                        raise ValueError("Audio upload exceeds 8 MB")
                     handle.write(chunk)
             if isinstance(repository, CloudLearningRepository):
-                return repository.run_with_database(
+                result = repository.run_with_database(
                     lambda database: AudioService(services(request).settings, database).transcribe(
                         temporary,
                         cloud_requested=cloud_requested,
+                        mode=selected_mode,
                         language=language,
                         delete_after=True,
                     ),
                     write=False,
                 )
-            return services(request).audio.transcribe(
-                temporary, cloud_requested=cloud_requested, language=language, delete_after=True
-            )
+            else:
+                result = services(request).audio.transcribe(
+                    temporary,
+                    cloud_requested=cloud_requested,
+                    mode=selected_mode,
+                    language=language,
+                    delete_after=True,
+                )
+            transcript = str(result.get("transcript", "")).strip()
+            response: dict[str, Any] = {
+                **result,
+                "normalized_text": str(
+                    result.get("normalized_text") or normalize_hebrew(transcript)
+                ),
+                "duration_seconds": result.get("duration_seconds"),
+                "latency_ms": int(result.get("latency_ms", 0)),
+                "warnings": list(result.get("warnings", [])),
+                "audio_deleted": bool(result.get("audio_deleted", False)),
+            }
+            if target_text is not None and transcript:
+                grant = services(request).speech_evidence.issue(
+                    subject=_speech_evidence_subject(request),
+                    provider=str(result.get("provider", selected_mode)),
+                    target_text=target_text,
+                    transcript=transcript,
+                )
+                response["evidence_token"] = grant.token
+                response["evidence_expires_at"] = grant.expires_at
+            return response
         finally:
             temporary.unlink(missing_ok=True)
             file.file.close()
+
+    @app.post(f"{API_PREFIX}/audio/transcript-analysis")
+    def transcript_analysis(
+        request: Request,
+        payload: TranscriptAnalysisPayload,
+    ) -> dict[str, Any]:
+        """Explain Hebrew transcript tokens using exact sourced dictionary data only."""
+        extracted_tokens = hebrew_tokens(payload.transcript)
+        ordered_tokens: list[dict[str, Any]] = []
+        token_by_normalized: dict[str, dict[str, Any]] = {}
+        valid_token_count = 0
+        for raw_token in extracted_tokens:
+            normalized_token = normalize_hebrew(raw_token)
+            if (
+                not normalized_token
+                or re.search(r"[\u05D0-\u05EA]", normalized_token) is None
+            ):
+                continue
+            valid_token_count += 1
+            existing = token_by_normalized.get(normalized_token)
+            if existing is not None:
+                existing["occurrence_count"] = int(existing["occurrence_count"]) + 1
+                continue
+            record = {
+                "token": raw_token,
+                "normalized_token": normalized_token,
+                "occurrence_count": 1,
+            }
+            token_by_normalized[normalized_token] = record
+            ordered_tokens.append(record)
+
+        if not ordered_tokens:
+            raise ValueError("Transcript must contain at least one Hebrew word")
+
+        analyzed_tokens: list[dict[str, Any]] = []
+        for token_record in ordered_tokens[:MAX_TRANSCRIPT_ANALYSIS_TOKENS]:
+            matches = services(request).dictionary.lookup_exact(
+                str(token_record["token"]),
+                limit=6,
+            )
+            first_entry = matches[0] if matches else None
+            analyzed_tokens.append(
+                {
+                    **token_record,
+                    "known": bool(matches),
+                    "display_word": (
+                        str(first_entry.get("display_niqqud") or token_record["token"])
+                        if first_entry
+                        else str(token_record["token"])
+                    ),
+                    "dictionary_matches": matches,
+                }
+            )
+
+        provenance = {
+            "transcript": TRANSCRIPT_PROVENANCE_BY_PROVIDER[payload.transcript_provider],
+            "dictionary": "local_dictionary",
+            "lookup": "exact_registered_headword_or_form",
+            "enrichment": None,
+            "audio_retained": False,
+            "learning_progress_updated": False,
+        }
+        response: dict[str, Any] = {
+            "mode": "word" if valid_token_count == 1 else "phrase",
+            "transcript": payload.transcript.strip(),
+            "normalized_text": normalize_hebrew(payload.transcript),
+            "transcript_provider": payload.transcript_provider,
+            "tokens": analyzed_tokens,
+            "unknown_tokens": [
+                str(analyzed_token["normalized_token"])
+                for analyzed_token in analyzed_tokens
+                if not analyzed_token["known"]
+            ],
+            "total_unique_tokens": len(ordered_tokens),
+            "analyzed_token_count": len(analyzed_tokens),
+            "token_limit": MAX_TRANSCRIPT_ANALYSIS_TOKENS,
+            "truncated": len(ordered_tokens) > MAX_TRANSCRIPT_ANALYSIS_TOKENS,
+            "provenance": provenance,
+        }
+        if valid_token_count == 1:
+            word_token = analyzed_tokens[0]
+            response.update(
+                {
+                    "word": word_token["normalized_token"],
+                    "display_word": word_token["display_word"],
+                    "dictionary_matches": word_token["dictionary_matches"],
+                    "enrichment": None,
+                }
+            )
+        return response
 
     @app.post(f"{API_PREFIX}/audio/word-analysis")
     def word_analysis(request: Request, payload: WordAnalysisPayload) -> dict[str, Any]:
@@ -1551,11 +2129,9 @@ def register_routes(app: FastAPI) -> None:
                 "dictionary_matches": matches,
                 "enrichment": enrichment,
                 "provenance": {
-                    "transcript": {
-                        "browser": "client_reported_browser_recognition",
-                        "openai": "client_reported_cloud_transcription",
-                        "manual": "client_reported_manual_entry",
-                    }[payload.transcript_provider],
+                    "transcript": TRANSCRIPT_PROVENANCE_BY_PROVIDER[
+                        payload.transcript_provider
+                    ],
                     "dictionary": "local_dictionary",
                     "enrichment": enrichment_source,
                     "audio_retained": False,
@@ -1573,6 +2149,17 @@ def register_routes(app: FastAPI) -> None:
     @app.post(f"{API_PREFIX}/audio/pronunciation-score")
     def pronunciation_score(request: Request, payload: PronunciationPayload) -> dict[str, Any]:
         repository = repository_for(request)
+        evidence_key: str | None = None
+        if payload.evidence_token is not None:
+            evidence_id = services(request).speech_evidence.verify(
+                payload.evidence_token,
+                subject=_speech_evidence_subject(request),
+                provider=payload.provider,
+                target_text=payload.target_text,
+                transcript=payload.transcript,
+            )
+            evidence_key = f"speech:{evidence_id}"
+        evidence_verified = evidence_key is not None
         if isinstance(repository, CloudLearningRepository):
             return repository.run_with_database(
                 lambda database: AudioService(services(request).settings, database).score(
@@ -1580,7 +2167,8 @@ def register_routes(app: FastAPI) -> None:
                     payload.transcript,
                     item_id=payload.item_id,
                     provider=payload.provider,
-                    verified_speech_evidence=False,
+                    verified_speech_evidence=evidence_verified,
+                    evidence_key=evidence_key,
                 ),
                 write=True,
             )
@@ -1589,7 +2177,8 @@ def register_routes(app: FastAPI) -> None:
             payload.transcript,
             item_id=payload.item_id,
             provider=payload.provider,
-            verified_speech_evidence=False,
+            verified_speech_evidence=evidence_verified,
+            evidence_key=evidence_key,
         )
 
     @app.get(f"{API_PREFIX}/gamification/status")
@@ -1720,6 +2309,61 @@ def register_routes(app: FastAPI) -> None:
             background=background,
         )
 
+    @app.post(f"{API_PREFIX}/import")
+    def import_data(
+        request: Request,
+        file: Annotated[UploadFile, File()],
+        confirm_replace: Annotated[bool, Query()] = False,
+    ) -> dict[str, Any]:
+        """Restore one portable learner backup only after explicit confirmation."""
+        if not confirm_replace:
+            raise ValueError(
+                "Set confirm_replace=true to replace this account's learner data"
+            )
+        suffix = Path(file.filename or "ivrit-sheli-export.json").suffix.lower()
+        if suffix != ".json":
+            raise ValueError("Learner import must be a .json export")
+        temporary = (
+            services(request).settings.data_dir
+            / "private"
+            / f"import-{uuid4().hex}.json"
+        )
+        written = 0
+        try:
+            with temporary.open("wb") as handle:
+                while chunk := file.file.read(1024 * 1024):
+                    written += len(chunk)
+                    if written > MAX_PORTABLE_IMPORT_BYTES:
+                        raise ValueError("Learner import exceeds 32 MB")
+                    handle.write(chunk)
+            repository = repository_for(request)
+            result = repository.import_json(temporary)
+            preferences = repository.notification_preferences()
+            identity = getattr(request.state, "session_identity", None)
+            if (
+                isinstance(repository, CloudLearningRepository)
+                and identity is not None
+            ):
+                profile = repository.get_profile()
+                services(request).cloud_store.update_push_subscription_preferences(
+                    identity.user.id,
+                    {
+                        **preferences,
+                        "enabled": False,
+                        "locale": profile["interface_language"],
+                        "weekly_rest_day": profile["weekly_rest_day"],
+                    },
+                )
+            return {
+                **result,
+                "source": "uploaded_backup",
+                "notification_preferences": preferences,
+                "reauthorization_required": True,
+            }
+        finally:
+            temporary.unlink(missing_ok=True)
+            file.file.close()
+
 
 def register_error_handlers(app: FastAPI, settings: Settings) -> None:
     """Install consistent, request-ID-aware JSON error responses.
@@ -1846,7 +2490,15 @@ def register_error_handlers(app: FastAPI, settings: Settings) -> None:
 
     @app.exception_handler(AudioProviderError)
     async def audio_error(request: Request, error: AudioProviderError) -> JSONResponse:
-        return error_response(request, 502, "audio_provider_error", str(error))
+        response = error_response(
+            request,
+            error.status_code,
+            error.code,
+            str(error),
+        )
+        if error.retry_after is not None:
+            response.headers["Retry-After"] = str(error.retry_after)
+        return response
 
     @app.exception_handler(sqlite3.Error)
     async def database_error(request: Request, error: sqlite3.Error) -> JSONResponse:

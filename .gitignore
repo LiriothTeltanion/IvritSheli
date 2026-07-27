@@ -37,6 +37,7 @@ data/**/*.sqlite*
 *.sqlite-shm
 data/audio/*
 data/private/*
+data/models/*
 data/imports/*.jsonl
 data/imports/*.jsonl.gz
 data/backups/*

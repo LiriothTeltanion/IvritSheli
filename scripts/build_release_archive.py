@@ -112,7 +112,7 @@ def main() -> int:
     parser.add_argument("--output", type=Path, required=True, help="New ZIP path.")
     parser.add_argument(
         "--prefix",
-        default="IvritSheli-v2.8.3",
+        default="IvritSheli-v2.9.0",
         help="Top-level directory stored inside the ZIP.",
     )
     parser.add_argument(

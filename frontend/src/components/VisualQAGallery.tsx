@@ -153,7 +153,7 @@ export function VisualQAGallery(): React.JSX.Element {
     <main className="visual-qa">
       <header className="visual-qa__hero">
         <div>
-          <span>Ivrit Sheli v2.8.3 · local only</span>
+          <span>Ivrit Sheli v2.9.0 · private candidate</span>
           <h1>Visual Recognition QA</h1>
           <p>72 exact semantic scenes · thumbnail, card and hero comparison</p>
         </div>

@@ -23,17 +23,64 @@ from ivrit_sheli.config import Settings
 from ivrit_sheli.database import Database
 from ivrit_sheli.normalization import pronunciation_breakdown
 from ivrit_sheli.repository import LearningRepository
+from ivrit_sheli.self_hosted_speech import (
+    MAX_SPEECH_AUDIO_BYTES,
+    SUPPORTED_SPEECH_SUFFIXES,
+    SelfHostedSpeechBusy,
+    SelfHostedSpeechError,
+    SelfHostedSpeechNoSpeech,
+    SelfHostedSpeechProvider,
+    SelfHostedSpeechTimeout,
+    SelfHostedSpeechUnavailable,
+    probe_audio_duration,
+    shared_self_hosted_speech_provider,
+    validate_speech_input,
+)
 
 LOGGER = logging.getLogger(__name__)
 OPENAI_TRANSCRIPTIONS_URL = "https://api.openai.com/v1/audio/transcriptions"
 OPENAI_SPEECH_URL = "https://api.openai.com/v1/audio/speech"
-SUPPORTED_AUDIO_SUFFIXES = {".flac", ".mp3", ".mp4", ".mpeg", ".mpga", ".m4a", ".ogg", ".wav", ".webm"}
-MAX_AUDIO_BYTES = 25 * 1024 * 1024
+SUPPORTED_AUDIO_SUFFIXES = SUPPORTED_SPEECH_SUFFIXES
+MAX_AUDIO_BYTES = MAX_SPEECH_AUDIO_BYTES
 VoiceStyle = Literal["masculine", "feminine"]
+TranscriptionMode = Literal["self_hosted", "openai"]
 
 
 class AudioProviderError(RuntimeError):
-    """Raised when a cloud audio provider cannot complete a request."""
+    """Raised when a configured audio provider cannot complete a request."""
+
+    status_code = 502
+    code = "audio_provider_error"
+    retry_after: int | None = None
+
+
+class AudioServiceUnavailable(AudioProviderError):
+    """Raised when the requested speech runtime is disabled or missing."""
+
+    status_code = 503
+    code = "audio_service_unavailable"
+
+
+class AudioServiceBusy(AudioProviderError):
+    """Raised when the bounded local worker is already processing audio."""
+
+    status_code = 503
+    code = "audio_service_busy"
+    retry_after = 3
+
+
+class AudioTranscriptionTimeout(AudioProviderError):
+    """Raised when speech recognition exceeds its request deadline."""
+
+    status_code = 504
+    code = "audio_transcription_timeout"
+
+
+class AudioNoSpeech(AudioProviderError):
+    """Raised when valid audio contains no recognizable Hebrew speech."""
+
+    status_code = 422
+    code = "audio_no_speech"
 
 
 class OpenAIAudioProvider:
@@ -188,10 +235,35 @@ class AudioService:
         settings: Settings,
         database: Database,
         provider: OpenAIAudioProvider | None = None,
+        self_hosted_provider: SelfHostedSpeechProvider | None = None,
     ) -> None:
         self.settings = settings
         self.database = database
         self.provider = provider or OpenAIAudioProvider(settings)
+        self.self_hosted_provider = (
+            self_hosted_provider or shared_self_hosted_speech_provider(settings)
+        )
+
+    def capabilities(self) -> dict[str, Any]:
+        """Describe server speech and client fallbacks without loading a model."""
+
+        return {
+            "self_hosted": self.self_hosted_provider.capabilities(),
+            "openai": {
+                "configured": bool(
+                    self.settings.allow_cloud_processing
+                    and self.settings.openai_api_key
+                ),
+                "model": self.settings.openai_transcribe_model,
+                "requires_explicit_action": True,
+            },
+            "limits": {
+                "max_bytes": MAX_AUDIO_BYTES,
+                "max_duration_seconds": self.settings.whisper_max_duration_seconds,
+            },
+            "fallbacks": ["browser_speech_recognition", "manual_input"],
+            "audio_retention": "device_only",
+        }
 
     def tts(
         self,
@@ -302,7 +374,8 @@ class AudioService:
         self,
         audio_path: Path,
         *,
-        cloud_requested: bool,
+        cloud_requested: bool = False,
+        mode: TranscriptionMode | None = None,
         language: str = "he",
         delete_after: bool = True,
     ) -> dict[str, Any]:
@@ -310,7 +383,9 @@ class AudioService:
 
         Args:
             audio_path: Temporary local file.
-            cloud_requested: Explicit user request.
+            cloud_requested: Legacy explicit request for the OpenAI mode.
+            mode: Self-hosted or OpenAI transcription mode. When omitted, the
+                method preserves the previous explicit-cloud client behavior.
             language: ISO language hint.
             delete_after: Delete temporary input after processing.
 
@@ -324,16 +399,66 @@ class AudioService:
         Example:
             Actual network behavior is covered by fake-provider tests.
         """
-        validate_audio_file(audio_path)
+        selected_mode: TranscriptionMode = mode or "openai"
+        result: dict[str, Any]
+        duration_seconds: float | None = None
+        audio_deleted = False
         try:
-            if not cloud_requested:
-                raise ValueError("Cloud transcription requires an explicit user action")
-            if not self.settings.allow_cloud_processing:
-                raise ValueError("Cloud processing is disabled in server settings")
-            return self.provider.transcribe(audio_path, language=language)
+            validate_audio_file(audio_path)
+            if selected_mode == "self_hosted":
+                try:
+                    result = self.self_hosted_provider.transcribe(
+                        audio_path,
+                        language=language,
+                    )
+                except SelfHostedSpeechUnavailable as error:
+                    raise AudioServiceUnavailable(str(error)) from error
+                except SelfHostedSpeechBusy as error:
+                    raise AudioServiceBusy(str(error)) from error
+                except SelfHostedSpeechTimeout as error:
+                    raise AudioTranscriptionTimeout(str(error)) from error
+                except SelfHostedSpeechNoSpeech as error:
+                    raise AudioNoSpeech(str(error)) from error
+                except SelfHostedSpeechError as error:
+                    raise AudioProviderError(str(error)) from error
+            elif selected_mode == "openai":
+                duration_seconds = validate_speech_input(
+                    audio_path,
+                    duration_probe=probe_audio_duration,
+                    max_duration_seconds=self.settings.whisper_max_duration_seconds,
+                )
+                if not cloud_requested:
+                    raise ValueError(
+                        "OpenAI transcription requires an explicit user action"
+                    )
+                if not self.settings.allow_cloud_processing:
+                    raise ValueError("Cloud processing is disabled in server settings")
+                result = self.provider.transcribe(audio_path, language=language)
+            else:
+                raise ValueError(f"Unsupported transcription mode: {selected_mode}")
         finally:
             if delete_after:
-                audio_path.unlink(missing_ok=True)
+                audio_deleted = _delete_temporary_audio(audio_path)
+                if not audio_deleted:
+                    raise AudioProviderError(
+                        "Temporary speech audio could not be deleted safely"
+                    )
+        worker_audio_deleted = bool(result.get("worker_audio_deleted", True))
+        if selected_mode == "self_hosted" and not worker_audio_deleted:
+            raise AudioProviderError(
+                "Private speech worker audio could not be deleted safely"
+            )
+        return {
+            **result,
+            "duration_seconds": result.get(
+                "duration_seconds",
+                round(duration_seconds, 3)
+                if duration_seconds is not None
+                else None,
+            ),
+            "mode": selected_mode,
+            "audio_deleted": audio_deleted and worker_audio_deleted,
+        }
 
     def score(
         self,
@@ -344,6 +469,7 @@ class AudioService:
         provider: str = "browser",
         retained_path: str | None = None,
         verified_speech_evidence: bool = False,
+        evidence_key: str | None = None,
     ) -> dict[str, Any]:
         """Score and store transparent transcript-similarity practice.
 
@@ -379,6 +505,7 @@ class AudioService:
             item_id=item_id,
             retained_path=retained_path,
             verified_speech_evidence=verified_speech_evidence,
+            evidence_key=evidence_key,
         )
         return {
             **learning_update,
@@ -395,6 +522,20 @@ class AudioService:
                 "speech quality."
             ),
         }
+
+
+def _delete_temporary_audio(path: Path) -> bool:
+    """Delete one private temporary recording with short Windows-safe retries."""
+    for delay in (0.0, 0.05, 0.2):
+        if delay:
+            time.sleep(delay)
+        try:
+            path.unlink(missing_ok=True)
+        except OSError:
+            continue
+        if not path.exists():
+            return True
+    return not path.exists()
 
 
 def validate_audio_file(path: Path) -> None:
@@ -421,7 +562,7 @@ def validate_audio_file(path: Path) -> None:
     if size <= 0:
         raise ValueError("Audio file is empty")
     if size > MAX_AUDIO_BYTES:
-        raise ValueError("Audio file exceeds the 25 MB provider limit")
+        raise ValueError("Audio file exceeds the 8 MB speech limit")
 
 
 def pronunciation_feedback(

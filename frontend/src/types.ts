@@ -28,7 +28,120 @@ export type LearningSkillDimension =
   | 'contextual_transfer';
 export type ReadingSupport = 'full_niqqud' | 'partial_niqqud' | 'hint_only' | 'unpointed';
 export type LearningEvidenceKind = 'exposure' | 'assisted' | 'unassisted' | 'correction_uptake';
-export type TranscriptProvider = 'browser' | 'openai' | 'manual';
+export type TranscriptProvider = 'browser' | 'self_hosted' | 'openai' | 'manual';
+export type SpeechTranscriptionMode = 'self_hosted' | 'openai';
+
+export interface AudioCapabilities {
+  secure_context_required: boolean;
+  secure_context?: boolean;
+  public_base_url?: string | null;
+  self_hosted_available: boolean;
+  openai_available: boolean;
+  max_duration_seconds: number;
+  max_upload_bytes: number;
+  timeout_seconds: number;
+  model: string | null;
+  fallbacks: Array<'browser' | 'manual'>;
+}
+
+export interface AudioTranscriptionResponse {
+  transcript: string;
+  normalized_text: string;
+  provider: 'self_hosted' | 'openai';
+  model: string;
+  duration_seconds: number | null;
+  latency_ms: number;
+  warnings: string[];
+  audio_deleted: boolean;
+  evidence_token?: string;
+  evidence_expires_at?: number;
+}
+
+export interface PushCapabilities {
+  available: boolean;
+  vapid_public_key: string | null;
+}
+
+export interface PushSubscriptionPayload {
+  endpoint: string;
+  expiration_time: number | null;
+  keys: {
+    p256dh: string;
+    auth: string;
+  };
+}
+
+export type CoachExampleBand = 'easy' | 'current' | 'stretch';
+
+export interface CoachExample {
+  band: CoachExampleBand;
+  hebrew: string;
+  translation_en: string;
+  translation_es: string;
+  romanization: string;
+  source_kind: 'dictionary' | 'reviewed_pattern';
+  source_id: string;
+  provenance: string;
+  contexts: string[];
+  registers: string[];
+  grammar: string[];
+  kind: 'usage' | 'practice_frame';
+  difficulty: number;
+}
+
+export interface CoachCard {
+  concept: {
+    hebrew: string;
+    niqqud: string;
+    translation_en: string;
+    translation_es: string;
+    source_key: string;
+  };
+  speaking_target: {
+    text: string;
+    normalized_text: string;
+    learning_item_id: number | null;
+    concept_key: string | null;
+    link_resolution: 'exact_source' | 'unique_exact_text' | null;
+  };
+  primary_action: CoachExample;
+  suggestions: CoachExample[];
+  reason: Record<Locale, string>;
+  evidence: {
+    level: string;
+    mode: string;
+    signals_used: string[];
+    free_form_generation: false;
+  };
+  feedback_target: {
+    target_type: 'coach_card';
+    target_key: string;
+    context: string | null;
+    pattern_id: string | null;
+  };
+}
+
+export interface LearningFeedbackRequest {
+  feedback_key: string;
+  target_type: 'example' | 'recommendation' | 'exercise' | 'coach_card';
+  target_key: string;
+  useful?: boolean;
+  difficulty?: 'too_easy' | 'appropriate' | 'too_difficult';
+  relevant?: boolean;
+  context?: string | null;
+  pattern_id?: string | null;
+  note?: string;
+}
+
+export interface NotificationPreferences {
+  enabled: 0 | 1 | boolean;
+  preferred_time: string;
+  timezone: string;
+  quiet_hours_start: string;
+  quiet_hours_end: string;
+  max_daily: 1;
+  last_sent_local_date: string | null;
+}
 export type AuthProvider = 'google' | 'github';
 
 export interface AuthUser {
@@ -293,6 +406,7 @@ export interface Dashboard {
    * older local servers and previously cached dashboard responses.
    */
   visual_spotlight?: VisualSpotlightEntry[];
+  coach_card?: CoachCard | null;
   achievements: Array<Record<string, unknown>>;
   mission: {
     title: string;
@@ -504,14 +618,52 @@ export interface WordAnalysisResult {
   provenance: {
     transcript:
       | 'client_reported_browser_recognition'
+      | 'client_reported_self_hosted_transcription'
       | 'client_reported_cloud_transcription'
       | 'client_reported_manual_entry';
     dictionary: 'local_dictionary';
+    lookup?: 'exact_registered_headword_or_form';
     enrichment: 'cloud_ai' | 'offline_fallback' | null;
     audio_retained: false;
     learning_progress_updated: false;
   };
 }
+
+export interface TranscriptTokenAnalysis {
+  token: string;
+  normalized_token: string;
+  display_word: string;
+  occurrence_count: number;
+  known: boolean;
+  dictionary_matches: DictionaryEntry[];
+}
+
+interface TranscriptAnalysisShared {
+  transcript: string;
+  normalized_text: string;
+  transcript_provider: TranscriptProvider;
+  tokens: TranscriptTokenAnalysis[];
+  unknown_tokens: string[];
+  total_unique_tokens: number;
+  analyzed_token_count: number;
+  token_limit: number;
+  truncated: boolean;
+  provenance: WordAnalysisResult['provenance'] & {
+    lookup: 'exact_registered_headword_or_form';
+  };
+}
+
+export type TranscriptWordAnalysisResult = WordAnalysisResult
+  & TranscriptAnalysisShared
+  & { mode: 'word' };
+
+export interface TranscriptPhraseAnalysisResult extends TranscriptAnalysisShared {
+  mode: 'phrase';
+}
+
+export type TranscriptAnalysisResult =
+  | TranscriptWordAnalysisResult
+  | TranscriptPhraseAnalysisResult;
 
 export interface Achievement {
   key: string;

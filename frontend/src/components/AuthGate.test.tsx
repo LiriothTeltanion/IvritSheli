@@ -74,4 +74,25 @@ describe('AuthGate beginner preview', () => {
     expect(onDemo).toHaveBeenCalledOnce();
     expect(localStorage).toHaveLength(0);
   });
+
+  it('shows a post-deletion local cleanup warning separately from authentication errors', () => {
+    render(
+      <I18nProvider>
+        <AuthGate
+          busy={false}
+          error=""
+          notice="Your account was deleted, but local recordings remain on this device."
+          providers={['google']}
+          onDemo={vi.fn()}
+          onRetry={vi.fn()}
+        />
+      </I18nProvider>,
+    );
+
+    expect(
+      screen.getByText('Your account was deleted, but local recordings remain on this device.')
+        .closest('[role="status"]'),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
 });

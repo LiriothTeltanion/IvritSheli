@@ -152,6 +152,38 @@ test.describe('keyboard and accessibility', () => {
   }
 });
 
+test.describe('listening and privacy fallbacks', () => {
+  test('microphone denial keeps manual Hebrew input available', async ({ page }, testInfo) => {
+    desktopOnly(testInfo.project.name);
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, 'mediaDevices', {
+        configurable: true,
+        value: {
+          getUserMedia: () => Promise.reject(
+            new DOMException('Permission denied for E2E', 'NotAllowedError'),
+          ),
+        },
+      });
+    });
+    await openWorkspace(page, { mode: 'experienced' });
+
+    await page.getByRole('button', { name: /^Learn(?:\s+\d+)?$/ }).click();
+    await page.getByRole('button', { name: 'Pronunciation', exact: true }).click();
+    await expect(page.getByText('Ready for a word or short phrase.')).toBeVisible();
+    await page.getByRole('button', { name: 'Record', exact: true }).click();
+
+    await expect(page.getByText(/Microphone permission was denied/)).toBeVisible();
+    const manualMode = page.getByRole('radio', { name: 'Type manually' });
+    await manualMode.focus();
+    await page.keyboard.press('Space');
+    await expect(manualMode).toBeChecked();
+    const transcript = page.getByRole('textbox', { name: 'Transcript', exact: true });
+    await transcript.fill('שלום אמא');
+    await expect(transcript).toHaveValue('שלום אמא');
+    await expect(page.getByRole('button', { name: 'Understand transcript' })).toBeEnabled();
+  });
+});
+
 test.describe('visual recognition expansion', () => {
   test('renders all 72 exact scenes across the configured viewport and display preferences', async ({ page }, testInfo) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });

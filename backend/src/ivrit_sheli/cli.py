@@ -105,6 +105,14 @@ def build_parser() -> argparse.ArgumentParser:
         help="Export portable learner data without provider secrets.",
     )
     parser.add_argument(
+        "--import-json",
+        type=Path,
+        help=(
+            "Atomically replace learner data from an Ivrit Sheli portable export; "
+            "OAuth, sessions, provider secrets, and push endpoints are never imported."
+        ),
+    )
+    parser.add_argument(
         "--learning-core-status",
         action="store_true",
         help="Print the local learning profile, state, skills, and retention evidence.",
@@ -386,6 +394,7 @@ def main(argv: list[str] | None = None) -> int:
             args.download_dictionary,
             args.dictionary_jsonl,
             args.export_json,
+            args.import_json,
             args.learning_core_status,
             args.set_curriculum_track,
             args.set_cefr_band,
@@ -455,6 +464,12 @@ def main(argv: list[str] | None = None) -> int:
         if args.export_json:
             destination = repository.export_json(args.export_json)
             print(f"Exported learner data to {destination} ✅")
+        if args.import_json:
+            result = repository.import_json(args.import_json)
+            print(
+                "Restored "
+                f"{result['rows_restored']} learner rows from {result['source']} ✅"
+            )
 
         profile_updates = {
             key: value

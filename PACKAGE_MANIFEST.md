@@ -1,12 +1,12 @@
-# Ivrit Sheli 2.8.3 — Visual Recognition Expansion Package Manifest
+# Ivrit Sheli 2.9.0 — Listening & Personal Coach Package Manifest
 
 ## Release identity
 
 - Product: Ivrit Sheli — העברית שלי
-- Candidate name: Visual Recognition Expansion
-- Source version: `2.8.3`
-- Candidate branch: `codex/ivrit-sheli-v2.8.3-visual-recognition`
-- Manifest update date: 2026-07-26
+- Candidate name: Listening & Personal Coach
+- Source version: `2.9.0`
+- Candidate branch: `codex/ivrit-sheli-v2.9.0-listening-coach`
+- Manifest update date: 2026-07-27
 - Time zone: Asia/Jerusalem
 - Author: Kevin Cusnir
 - Creative signature: Lirioth Teltanion
@@ -17,8 +17,8 @@
 - Current public storage: managed PostgreSQL
 - Published implementation commit: `03bf84b9268ff8be528c0fab3c670f9652ee23b0`
 - Latest published Git tag and GitHub Release: `v2.4.0`
-- Candidate publication state: `2.8.3` is local, untagged, unpushed and unpublished
-- Publication gate: blocked pending two-account Google isolation, completion of the mother-pilot acceptance retest, the OpenAI Build Week winner announcement and Kevin's explicit publication approval
+- Candidate publication state: `2.9.0` is private, untagged, unpushed and unpublished
+- Publication gate: blocked pending fresh v2.9 verification, isolated HTTPS staging, two-account Google isolation, the speech/reminder mother pilot and Kevin's explicit publication approval
 - Personal signature: `KC ✦ LT` is reserved and excluded from the MIT asset grant
 - Dictionary-derived data: separate Wiktionary/Kaikki attribution and share-alike terms
 - Privacy notice: `PRIVACY.md`
@@ -27,7 +27,12 @@
 
 ## Candidate purpose
 
-This manifest describes the private 2.8.3 candidate without promoting it to a public release. It retains the beginner-first journey and mother-pilot fixes, visibly redesigns all 24 foundation scenes, then adds 48 more for 72 exact A0 scenes. All 72 support progressive visual-hint layers. The remaining 168 reviewed concepts retain an explicitly marked category/emoji fallback while their semantic scenes are replaced in later focused passes.
+This manifest describes the private v2.9 candidate without promoting it to a
+public release. It retains the complete v2.8.3 beginner-first visual foundation
+and adds bounded Hebrew transcription, deterministic transcript understanding,
+an explainable personal coach, learner feedback and optional private Web Push.
+The 72 exact A0 semantic scenes and 168 explicit fallbacks are unchanged in
+this release slice.
 
 Today receives up to six exact-scene recommendations from the deterministic
 `visual_spotlight` contract. A localhost/private-LAN QA gallery compares every
@@ -36,7 +41,44 @@ requires external image hosting, runtime AI or a learner-facing paid service.
 
 The candidate provides structured A0–A2 coverage and labels B1/B2 content honestly as an experimental Lab rather than a complete B2 course. The public learning path is deterministic and local; no per-user LLM or cloud-audio call is required. Google sign-in requests identity only through `openid profile` and grants no Gmail, Drive or Calendar access.
 
-The live Railway application, public tag and GitHub Release remain version 2.4.0 until every publication gate is complete and Kevin gives explicit approval.
+The live Railway application, public tag, GitHub Release and Devpost entry
+remain version 2.4.0 until every publication gate is complete and Kevin gives
+explicit approval.
+
+## 2.9 functional scope
+
+### Listening and transcript understanding
+
+- Self-hosted Faster Whisper `1.2.1`, multilingual `small`, Hebrew forced,
+  CPU INT8, VAD and one concurrent transcription.
+- Maximum 20-second, 8-MB recordings with a 45-second service deadline.
+- Typed unavailable, busy, timeout, no-speech and invalid-input responses.
+- Temporary server audio deletion across success, error and timeout paths.
+- Optional learner-scoped IndexedDB retention only on the current device.
+- Browser recognition and manual input as explicit fallbacks.
+- Dictionary-backed token analysis with honest provenance and no invented
+  translation, accent or phoneme claims.
+
+### Explainable personal coach
+
+- Three reviewed examples per concept: easy, current-level and moderate stretch.
+- Existing reviewed dictionary examples take priority over reviewed patterns.
+- Inputs include level, known words, mistakes, confidence, response latency,
+  repetitions, goal and learner feedback.
+- Bounded, gradual and reversible weights.
+- One primary Today action and at most two optional suggestions.
+- Review, export and non-destructive reset of adaptive profile state.
+
+### Optional reminders and isolation
+
+- Explicit opt-in only; disabled by default.
+- Generic private message, local timezone, quiet hours, weekly rest and at most
+  one reminder per learner per local day.
+- Encrypted Push subscription documents isolated per PostgreSQL learner.
+- Push data excluded from learner exports and learning snapshots.
+- Dedicated `ivrit_sheli_push_worker` database role and terminating cron
+  process; migration and web-runtime credentials are not reused.
+- Separate private staging configuration; production v2.4 remains frozen.
 
 ## 2.8 functional scope
 
@@ -107,7 +149,7 @@ The live Railway application, public tag and GitHub Release remain version 2.4.0
 - Local browser recording and playback.
 - Transcript comparison only when browser speech recognition is supported.
 - No claim of accent or phoneme evaluation.
-- Cloud AI and cloud audio are disabled in the public 2.8 interface.
+- Cloud AI and paid cloud audio are disabled in the inherited private 2.8 interface.
 - Existing adapters remain future experiments and require separate credentials, consent, allowlists and cost controls.
 
 ### Phone and PWA behavior
@@ -146,13 +188,39 @@ The source tree includes:
 - Backend, frontend and Playwright/axe tests.
 - Canonical Git-blob checksum and reproducible ZIP generators.
 
-`IvritSheli-v2.6-local.zip` is retained only as an obsolete historical artifact. It is not the 2.8 candidate and must not be distributed as the current application.
+`IvritSheli-v2.6-local.zip` is retained only as an obsolete historical artifact. It is not the current v2.9 candidate and must not be distributed as the current application.
 
 A reproducible private archive was built from the historical 2.8.1 implementation checkpoint `c9e2762`, extracted cleanly and passed its 136-file package verifier and Compose parsing. Its external SHA-256 is `535e93aaf3912704aaae56076a2b4e9ef8e47fe9df03bbb0fa996d0707c33ccb`. It is preserved as historical evidence, not presented as the current 2.8.3 package or a GitHub Release.
 
-## Verified private 2.8 candidate
+## Current private v2.9 candidate verification
 
-| Verification area | Current result |
+| Verification area | Current v2.9 result |
+|---|---:|
+| Complete backend suite | **291 passed / 1 credential-gated PostgreSQL skip** |
+| Complete frontend suite | **337 passed / 37 files** |
+| Playwright + axe | **26 passed / 28 scoped skips / 0 failed** |
+| Unique directly executed automated passes | **655 passed** |
+| Ruff | Passed |
+| Strict MyPy | Passed across 37 backend source files |
+| TypeScript / Vite build | Passed / passed |
+| Python compileall / offline doctor | Passed / passed as source version `2.9.0` |
+| pip-audit / npm production audit | 0 known vulnerabilities / 0 vulnerabilities |
+| Docker Compose configuration | Passed |
+| PostgreSQL 17 role/isolation | **3 passed in disposable PostgreSQL 17; one credential-gated case adds unique coverage beyond the ordinary suite** |
+| Faster Whisper preload/inference | Passed: `small` preloaded in 50.508 s; 1-second silence reached expected no-speech path and confirmed temporary deletion |
+| Production image/readiness | **Passed; non-root UID/GID 10001, existing volume migrated to `20260727_0005`, live/ready/version healthy** |
+| Reminder worker / log privacy | **Zero-due cron smoke passed / 13 structured JSON records passed forbidden-secret validation** |
+| HTTPS staging / two-account Google isolation | Not deployed / not run |
+| Kevin-and-mother Hebrew accuracy pilot | Not run |
+| Canonical source verification | **321 canonical Git-index checksums generated; package verifier passed** |
+
+These local results do not promote v2.9 or change the frozen v2.4 production
+service. The 28 Playwright skips are scoped matrix duplicates; they are not
+failures or additional passes.
+
+## Preserved historical private 2.8.3 baseline
+
+| Verification area | Historical 2.8.3 result |
 |---|---:|
 | Ordinary backend suite | 201 passed / 1 credential-gated PostgreSQL skip |
 | Frontend Vitest suite | 310 passed / 34 files |
@@ -174,17 +242,17 @@ The 536 total is 201 backend tests + 310 frontend tests + 25 Playwright cases. T
 
 | Output | Raw | Gzip |
 |---|---:|---:|
-| Main JavaScript | 451.88 kB | 123.38 kB |
-| Main CSS | 207.40 kB | 38.14 kB |
-| Visual QA JavaScript | 6.22 kB | 2.23 kB |
+| Main JavaScript | 465.06 kB | 127.25 kB |
+| Main CSS | 211.85 kB | 38.85 kB |
+| Visual QA JavaScript | 6.23 kB | 2.24 kB |
 | Visual QA CSS | 4.73 kB | 1.32 kB |
-| LearnPanel JavaScript | 63.91 kB | 17.35 kB |
+| LearnPanel JavaScript | 66.83 kB | 18.22 kB |
 | LearnPanel CSS | 4.63 kB | 1.38 kB |
 | Progress JavaScript | 13.21 kB | 3.82 kB |
-| Settings JavaScript | 12.98 kB | 3.40 kB |
+| Settings JavaScript | 25.72 kB | 7.29 kB |
 | AICoach JavaScript | 5.42 kB | 1.98 kB |
-| Connector JavaScript | 4.39 kB | 1.51 kB |
-| i18n JavaScript | 103.53 kB | 33.47 kB |
+| Connector JavaScript | 4.39 kB | 1.52 kB |
+| i18n JavaScript | 119.33 kB | 40.20 kB |
 
 The current workstation dictionary may contain additional private/imported records; the reviewed starter layer and packaged offline dictionary remain exactly 240 concepts.
 
@@ -192,14 +260,30 @@ See `TEST_REPORT.md` for commands, coverage and evidence boundaries.
 
 ## Package and deployment state
 
-The 2.8.3 source-quality, test, accessibility, dependency, doctor, build,
-Compose, source-package and canonical-checksum gates pass. The production-shaped
-2.8.3 image was rebuilt and its live, ready and version endpoints were
-reverified against PostgreSQL 17. The commit-suffixed `c9e2762` archive remains
-verified historical 2.8.1 evidence; a new 2.8.3 distributable archive is
-intentionally deferred until publication approval.
+The current v2.9 source-quality, disposable PostgreSQL 17, production-image,
+readiness, reminder-worker and structured-log gates listed above pass. The
+source package verifier and 321 canonical Git-index checksums also pass. Faster
+Whisper `small` preloaded in 50.508 seconds; its
+486,213,474-byte (463.7 MiB), 7-file cache and one-second silence inference
+verified CTranslate2 execution, expected no-speech handling and temporary-file
+deletion. Hebrew recognition accuracy, isolated HTTPS staging, two-account
+Google isolation and the speech/reminder mother pilot remain unverified. No
+current v2.9 distributable archive or deployment is claimed.
 
-Docker Desktop 4.83 / Engine 29.6.2 verified the PostgreSQL 17 migration and restricted role, three database-boundary integration cases, forced RLS, the non-root production-shaped image, healthy `/health/ready` and `/version`, and a disposable backup/restore drill. The restored database retained 2 users, 3 sessions, 0 OAuth states, 2 learner states and its forced-RLS policy. The backup SHA-256 was `A483C8DACC2E0F649139D4139635B28FA88E084A3D3D47F8F9D7148F182E6F62`.
+The production-shaped v2.8.3 image and its live, ready and version endpoints
+were historically reverified against PostgreSQL 17. The commit-suffixed
+`c9e2762` archive remains verified historical v2.8.1 evidence, not a v2.9
+package or GitHub Release.
+
+The historical Docker Desktop 4.83 / Engine 29.6.2 gate verified the PostgreSQL
+17 migration and restricted role, three database-boundary integration cases,
+forced RLS, the non-root production-shaped image, healthy `/health/ready` and
+`/version`, and a disposable backup/restore drill. The restored database
+retained 2 users, 3 sessions, 0 OAuth states, 2 learner states and its
+forced-RLS policy. The backup SHA-256 was
+`A483C8DACC2E0F649139D4139635B28FA88E084A3D3D47F8F9D7148F182E6F62`.
+This is retained as historical v2.8 evidence and is not relabeled as a v2.9
+database or image verification.
 
 ## Required publication gates
 
@@ -211,11 +295,11 @@ Do not merge, push, tag, publish a GitHub Release or deploy to Railway until:
 4. The OpenAI Build Week judging freeze ends.
 5. Kevin gives explicit final publication approval.
 
-After 2.8 accepts writes using the new schema, do not roll the application code back to 2.4 unless the matching pre-deployment database backup is restored.
+After v2.9 accepts writes using the new schema, do not roll the application code back to 2.4 unless the matching pre-deployment database backup is restored.
 
 ## Historical private 2.6 evidence
 
-This historical checkpoint is retained for traceability and was not rerun as 2.8:
+This historical checkpoint is retained for traceability and was not rerun or relabeled as v2.9:
 
 - Ordinary backend: 180 passed, 1 PostgreSQL-gated skip.
 - Dedicated PostgreSQL 17 gate: 3 passed; 181 unique backend passes.
@@ -230,7 +314,7 @@ The 2.6 checkpoint was local, untagged and unpublished.
 
 ## Verified public 2.4 baseline
 
-This remains the public evidence and is not relabeled as 2.8:
+This remains the public evidence and is not relabeled as v2.9:
 
 - Ordinary backend: 150 passed, 1 PostgreSQL-gated skip.
 - Dedicated PostgreSQL 17 gate: 3 passed; 151 unique backend passes.
@@ -249,4 +333,7 @@ Two-real-user production isolation, live OpenAI/Google Workspace calls and a man
 
 ## Evidence statement
 
-This manifest separates packaged source, locally executed 2.8 checks, historical private checkpoints, live public evidence and operator-dependent release gates. No passing test or build is presented as proof of an unexecuted deployment, provider integration, real-user pilot or backup restoration.
+This manifest separates current v2.9 source checks, preserved v2.8 and earlier
+private checkpoints, live public v2.4 evidence and operator-dependent release
+gates. No passing test or build is presented as proof of an unexecuted
+deployment, provider integration, real-user pilot or backup restoration.

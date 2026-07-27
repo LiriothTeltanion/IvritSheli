@@ -124,6 +124,20 @@ class Settings:
         openai_tts_voice: Voice identifier.
         openai_tts_voice_masculine: Provider voice mapped to the masculine style profile.
         openai_tts_voice_feminine: Provider voice mapped to the feminine style profile.
+        self_hosted_speech_enabled: Whether the private Faster Whisper worker is enabled.
+        whisper_preload_on_start: Whether startup must load the model before readiness.
+        whisper_model: Multilingual Faster Whisper model identifier.
+        whisper_model_cache_dir: Private model cache outside learner exports.
+        whisper_device: Inference device for the v2.9 worker.
+        whisper_compute_type: CTranslate2 compute type for the worker.
+        whisper_language: Forced learning language.
+        whisper_timeout_seconds: Per-request transcription deadline.
+        whisper_max_duration_seconds: Maximum accepted recording duration.
+        push_notifications_enabled: Whether opt-in Web Push is exposed.
+        vapid_public_key: Public application-server key sent to subscribed browsers.
+        vapid_private_key: Private signing key used only by the reminder worker.
+        vapid_subject: VAPID contact URI.
+        push_encryption_key: Separate key for encrypted subscription documents.
         dicta_nakdan_url: Optional Dicta-compatible endpoint.
         google_client_id: Optional OAuth client ID.
         google_client_secret: Optional OAuth client secret.
@@ -159,6 +173,20 @@ class Settings:
     openai_tts_voice: str = "coral"
     openai_tts_voice_masculine: str = "onyx"
     openai_tts_voice_feminine: str = "coral"
+    self_hosted_speech_enabled: bool = False
+    whisper_preload_on_start: bool = False
+    whisper_model: str = "small"
+    whisper_model_cache_dir: Path | None = None
+    whisper_device: str = "cpu"
+    whisper_compute_type: str = "int8"
+    whisper_language: str = "he"
+    whisper_timeout_seconds: int = 45
+    whisper_max_duration_seconds: float = 20.0
+    push_notifications_enabled: bool = False
+    vapid_public_key: str = ""
+    vapid_private_key: str = ""
+    vapid_subject: str = ""
+    push_encryption_key: str = ""
     dicta_nakdan_url: str = ""
     google_client_id: str = ""
     google_client_secret: str = ""
@@ -192,7 +220,8 @@ class Settings:
     max_cloud_snapshot_bytes: int = 4_194_304
     max_request_body_bytes: int = 1_048_576
     max_ics_upload_body_bytes: int = 6_291_456
-    max_audio_upload_body_bytes: int = 27_262_976
+    max_audio_upload_body_bytes: int = 9_437_184
+    max_import_upload_body_bytes: int = 33_554_432
     github_client_id: str = ""
     github_client_secret: str = ""
     github_redirect_uri: str = "http://127.0.0.1:8000/api/v1/auth/github/callback"
@@ -269,6 +298,14 @@ class Settings:
             db_path = (root_dir / db_path).resolve()
         if str(dictionary_path) != ":memory:" and not dictionary_path.is_absolute():
             dictionary_path = (root_dir / dictionary_path).resolve()
+        whisper_cache_value = value("WHISPER_MODEL_CACHE_DIR", "").strip()
+        whisper_model_cache_dir = (
+            Path(whisper_cache_value).expanduser()
+            if whisper_cache_value
+            else data_dir / "models" / "faster-whisper"
+        )
+        if not whisper_model_cache_dir.is_absolute():
+            whisper_model_cache_dir = (root_dir / whisper_model_cache_dir).resolve()
 
         app_env = value("APP_ENV", "development").strip().lower()
         if app_env not in SUPPORTED_APP_ENVS:
@@ -328,6 +365,30 @@ class Settings:
             openai_tts_voice_feminine=value(
                 "OPENAI_TTS_VOICE_FEMININE", "coral"
             ),
+            self_hosted_speech_enabled=parse_bool(
+                values.get("SELF_HOSTED_SPEECH_ENABLED"), False
+            ),
+            whisper_preload_on_start=parse_bool(
+                values.get("WHISPER_PRELOAD_ON_START"), False
+            ),
+            whisper_model=value("WHISPER_MODEL", "small").strip(),
+            whisper_model_cache_dir=whisper_model_cache_dir,
+            whisper_device=value("WHISPER_DEVICE", "cpu").strip().lower(),
+            whisper_compute_type=value(
+                "WHISPER_COMPUTE_TYPE", "int8"
+            ).strip().lower(),
+            whisper_language=value("WHISPER_LANGUAGE", "he").strip().lower(),
+            whisper_timeout_seconds=int(value("WHISPER_TIMEOUT_SECONDS", "45")),
+            whisper_max_duration_seconds=float(
+                value("WHISPER_MAX_DURATION_SECONDS", "20")
+            ),
+            push_notifications_enabled=parse_bool(
+                values.get("PUSH_NOTIFICATIONS_ENABLED"), False
+            ),
+            vapid_public_key=value("VAPID_PUBLIC_KEY", "").strip(),
+            vapid_private_key=value("VAPID_PRIVATE_KEY", "").strip(),
+            vapid_subject=value("VAPID_SUBJECT", "").strip(),
+            push_encryption_key=value("PUSH_ENCRYPTION_KEY", "").strip(),
             dicta_nakdan_url=value("DICTA_NAKDAN_URL", ""),
             google_client_id=value("GOOGLE_CLIENT_ID", ""),
             google_client_secret=value("GOOGLE_CLIENT_SECRET", ""),
@@ -389,7 +450,10 @@ class Settings:
                 value("MAX_ICS_UPLOAD_BODY_BYTES", "6291456")
             ),
             max_audio_upload_body_bytes=int(
-                value("MAX_AUDIO_UPLOAD_BODY_BYTES", "27262976")
+                value("MAX_AUDIO_UPLOAD_BODY_BYTES", "9437184")
+            ),
+            max_import_upload_body_bytes=int(
+                value("MAX_IMPORT_UPLOAD_BODY_BYTES", "33554432")
             ),
             github_client_id=value("GITHUB_CLIENT_ID", ""),
             github_client_secret=value("GITHUB_CLIENT_SECRET", ""),
@@ -542,6 +606,47 @@ class Settings:
             raise ValueError("GitHub sign-in requires both client ID and client secret")
         if bool(self.google_auth_client_id) != bool(self.google_auth_client_secret):
             raise ValueError("Google sign-in requires both client ID and client secret")
+        if self.whisper_model != "small":
+            raise ValueError("WHISPER_MODEL must be small for the v2.9 speech worker")
+        if self.whisper_device != "cpu":
+            raise ValueError("WHISPER_DEVICE must be cpu for the v2.9 speech worker")
+        if self.whisper_compute_type != "int8":
+            raise ValueError(
+                "WHISPER_COMPUTE_TYPE must be int8 for the v2.9 speech worker"
+            )
+        if self.whisper_language != "he":
+            raise ValueError("WHISPER_LANGUAGE must be he")
+        if self.whisper_preload_on_start and not self.self_hosted_speech_enabled:
+            raise ValueError(
+                "WHISPER_PRELOAD_ON_START requires SELF_HOSTED_SPEECH_ENABLED=true"
+            )
+        if not 1 <= self.whisper_timeout_seconds <= 45:
+            raise ValueError("WHISPER_TIMEOUT_SECONDS must be between 1 and 45")
+        if not 1 <= self.whisper_max_duration_seconds <= 20:
+            raise ValueError(
+                "WHISPER_MAX_DURATION_SECONDS must be between 1 and 20"
+            )
+        if self.push_notifications_enabled:
+            if not self.cloud_mode or not self.auth_required:
+                raise ValueError(
+                    "Web Push requires authenticated PostgreSQL cloud mode"
+                )
+            if not self.public_base_url.startswith("https://"):
+                raise ValueError("Web Push requires an HTTPS PUBLIC_BASE_URL")
+            if not self.vapid_public_key:
+                raise ValueError("Web Push requires VAPID_PUBLIC_KEY")
+            if bool(self.vapid_private_key) != bool(self.vapid_subject):
+                raise ValueError(
+                    "VAPID_PRIVATE_KEY and VAPID_SUBJECT must be configured together"
+                )
+            if self.vapid_subject and not self.vapid_subject.startswith(
+                ("mailto:", "https://")
+            ):
+                raise ValueError("VAPID_SUBJECT must be a mailto: or HTTPS URI")
+            if len(self.push_encryption_key) < 32:
+                raise ValueError(
+                    "PUSH_ENCRYPTION_KEY must contain at least 32 characters"
+                )
         if not 60 <= self.session_ttl_seconds <= 31_536_000:
             raise ValueError("SESSION_TTL_SECONDS must be between 60 and 31536000")
         if not 0 <= self.session_retention_seconds <= 31_536_000:
@@ -609,6 +714,7 @@ class Settings:
             "MAX_REQUEST_BODY_BYTES": self.max_request_body_bytes,
             "MAX_ICS_UPLOAD_BODY_BYTES": self.max_ics_upload_body_bytes,
             "MAX_AUDIO_UPLOAD_BODY_BYTES": self.max_audio_upload_body_bytes,
+            "MAX_IMPORT_UPLOAD_BODY_BYTES": self.max_import_upload_body_bytes,
         }
         for name, limit in request_limits.items():
             if not 1 <= limit <= 104_857_600:
@@ -703,6 +809,8 @@ class Settings:
         self.data_dir.mkdir(parents=True, exist_ok=True)
         for child in ("backups", "imports", "audio", "private"):
             (self.data_dir / child).mkdir(parents=True, exist_ok=True)
+        if self.self_hosted_speech_enabled and self.whisper_model_cache_dir is not None:
+            self.whisper_model_cache_dir.mkdir(parents=True, exist_ok=True)
 
 
 def _origin(url: str) -> str:

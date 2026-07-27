@@ -6,12 +6,79 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { api } from '../api';
+import {
+  canStoreDeviceRecordings,
+  deleteAllDeviceRecordings,
+  deleteDeviceRecording,
+  listDeviceRecordings,
+  type DeviceRecording,
+} from '../deviceAudioStorage';
 import { useI18n } from '../i18n';
 import { learningCoreCopy } from '../learningCoreCopy';
 import { resolveLearnerMode } from '../learnerMode';
 import { useSessionAccess } from '../session';
 import type { AuthState, CefrBand, CurriculumTrack, LearnerMode, Locale, Profile } from '../types';
 import { Icon } from './Icon';
+import { PersonalizationSettingsCard } from './PersonalizationSettingsCard';
+import { ReminderSettingsCard } from './ReminderSettingsCard';
+
+function DeviceRecordingPlayback({
+  recording,
+  createdAt,
+  deleting,
+  playbackLabel,
+  deleteLabel,
+  onDelete,
+}: {
+  recording: DeviceRecording;
+  createdAt: string;
+  deleting: boolean;
+  playbackLabel: string;
+  deleteLabel: string;
+  onDelete: () => void;
+}): React.JSX.Element {
+  const [sourceUrl, setSourceUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof URL.createObjectURL !== 'function') return;
+    const nextSourceUrl = URL.createObjectURL(recording.audio);
+    setSourceUrl(nextSourceUrl);
+    return () => {
+      URL.revokeObjectURL(nextSourceUrl);
+    };
+  }, [recording.audio]);
+
+  return (
+    <li className="device-recording">
+      <div className="device-recording__heading">
+        <div>
+          <strong lang="he" dir="rtl">{recording.target_text}</strong>
+          <time dateTime={recording.created_at}>{createdAt}</time>
+        </div>
+        <span>{(recording.duration_ms / 1_000).toFixed(1)} s</span>
+      </div>
+      {sourceUrl && (
+        <audio
+          className="device-recording__player"
+          controls
+          preload="metadata"
+          src={sourceUrl}
+          aria-label={playbackLabel}
+        />
+      )}
+      <button
+        type="button"
+        className="danger-outline-button device-recording__delete"
+        onClick={onDelete}
+        disabled={deleting}
+        aria-label={deleteLabel}
+      >
+        {deleting ? <span className="spinner" /> : <Icon name="close" size={16} />}
+        {deleteLabel}
+      </button>
+    </li>
+  );
+}
 
 export function SettingsPanel({
   profile,
@@ -22,11 +89,11 @@ export function SettingsPanel({
   profile: Profile;
   onSaved: (profile: Profile, message: string) => void;
   provider?: string;
-  onAccountDeleted: (auth: AuthState) => void;
+  onAccountDeleted: (auth: AuthState, localCleanupWarning?: string) => void;
 }): React.JSX.Element {
   const { locale, setLocale, t } = useI18n();
   const learningCopy = learningCoreCopy(locale);
-  const { readOnly, readOnlyReason, localMode } = useSessionAccess();
+  const { readOnly, readOnlyReason, localMode, recordingOwnerScope } = useSessionAccess();
   const [draft, setDraft] = useState<Profile>(profile);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
@@ -35,6 +102,10 @@ export function SettingsPanel({
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteUnderstood, setDeleteUnderstood] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [deviceRecordings, setDeviceRecordings] = useState<DeviceRecording[] | null>(null);
+  const [clearingDeviceRecordings, setClearingDeviceRecordings] = useState(false);
+  const [deletingDeviceRecordingId, setDeletingDeviceRecordingId] = useState<string | null>(null);
+  const [deviceAudioWarning, setDeviceAudioWarning] = useState('');
   const deleteTriggerRef = useRef<HTMLButtonElement>(null);
   const keepAccountRef = useRef<HTMLButtonElement>(null);
   const learnerMode = resolveLearnerMode(draft);
@@ -46,6 +117,24 @@ export function SettingsPanel({
   useEffect(() => {
     if (deleteOpen) keepAccountRef.current?.focus();
   }, [deleteOpen]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setDeviceRecordings(null);
+    if (!canStoreDeviceRecordings()) {
+      return;
+    }
+    void listDeviceRecordings(recordingOwnerScope)
+      .then((recordings) => {
+        if (!cancelled) setDeviceRecordings(recordings);
+      })
+      .catch(() => {
+        if (!cancelled) setDeviceRecordings(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [recordingOwnerScope]);
 
   const closeDeleteDialog = (): void => {
     setDeleteOpen(false);
@@ -92,13 +181,57 @@ export function SettingsPanel({
     if (!deleteUnderstood) return;
     setDeleting(true);
     setMessage('');
+    setDeviceAudioWarning('');
+    let localCleanupWarning = '';
     try {
+      if (canStoreDeviceRecordings()) {
+        try {
+          await deleteAllDeviceRecordings(recordingOwnerScope);
+          setDeviceRecordings([]);
+        } catch {
+          localCleanupWarning = t('deviceAudioCleanupAfterAccountDeletion');
+        }
+      }
       const nextAuth = await api.deleteAccount();
-      onAccountDeleted(nextAuth);
+      if (localCleanupWarning) setDeviceAudioWarning(localCleanupWarning);
+      if (localCleanupWarning) {
+        onAccountDeleted(nextAuth, localCleanupWarning);
+      } else {
+        onAccountDeleted(nextAuth);
+      }
     } catch (reason) {
       setMessage(reason instanceof Error ? reason.message : String(reason));
     } finally {
       setDeleting(false);
+    }
+  };
+
+  const clearDeviceRecordings = async (): Promise<void> => {
+    setClearingDeviceRecordings(true);
+    setMessage('');
+    try {
+      const deleted = await deleteAllDeviceRecordings(recordingOwnerScope);
+      setDeviceRecordings([]);
+      setMessage(t('deviceAudioCleared', { count: deleted }));
+    } catch {
+      setMessage(t('deviceAudioClearFailed'));
+    } finally {
+      setClearingDeviceRecordings(false);
+    }
+  };
+
+  const removeDeviceRecording = async (recordingId: string): Promise<void> => {
+    setDeletingDeviceRecordingId(recordingId);
+    setMessage('');
+    try {
+      const deleted = await deleteDeviceRecording(recordingOwnerScope, recordingId);
+      if (!deleted) throw new Error('The recording is no longer available.');
+      setDeviceRecordings((current) => current?.filter((recording) => recording.id !== recordingId) ?? current);
+      setMessage(t('deviceRecordingDeleted'));
+    } catch {
+      setMessage(t('deviceRecordingDeleteFailed'));
+    } finally {
+      setDeletingDeviceRecordingId(null);
     }
   };
 
@@ -112,7 +245,7 @@ export function SettingsPanel({
         diagnostics: {
           user_agent: navigator.userAgent,
           viewport: `${window.innerWidth}x${window.innerHeight}`,
-          app_version: '2.8.3',
+          app_version: '2.9.0',
           online: navigator.onLine,
           locale,
           route: window.location.pathname,
@@ -282,9 +415,80 @@ export function SettingsPanel({
             <li><Icon name="check" size={15} /> {t('selectedTextRedacted')}</li>
           </ul>
         </section>
+
+        <ReminderSettingsCard
+          locale={locale}
+          readOnly={readOnly}
+          localMode={localMode}
+        />
+
+        <PersonalizationSettingsCard
+          locale={locale}
+          readOnly={readOnly}
+        />
+
+        <section className="card settings-card" aria-labelledby="device-audio-title">
+          <header className="section-heading">
+            <div>
+              <span className="eyebrow"><Icon name="mic" size={15} /> {t('deviceOnly')}</span>
+              <h2 id="device-audio-title">{t('deviceAudioTitle')}</h2>
+            </div>
+          </header>
+          <p>{t('deviceAudioDetail')}</p>
+          <p role="status">
+            {deviceRecordings === null
+              ? t('deviceAudioStorageUnavailable')
+              : deviceRecordings.length === 0
+                ? t('deviceAudioEmpty')
+                : t('deviceAudioCount', { count: deviceRecordings.length })}
+          </p>
+          {deviceRecordings && deviceRecordings.length > 0 && (
+            <ul className="device-recording-list">
+              {deviceRecordings.map((recording) => {
+                const createdAt = new Date(recording.created_at);
+                const formattedCreatedAt = Number.isNaN(createdAt.getTime())
+                  ? recording.created_at
+                  : new Intl.DateTimeFormat(locale, {
+                    dateStyle: 'medium',
+                    timeStyle: 'short',
+                  }).format(createdAt);
+                return (
+                  <DeviceRecordingPlayback
+                    key={recording.id}
+                    recording={recording}
+                    createdAt={formattedCreatedAt}
+                    deleting={deletingDeviceRecordingId === recording.id}
+                    playbackLabel={t('playDeviceRecording', { target: recording.target_text })}
+                    deleteLabel={t('deleteDeviceRecording', { target: recording.target_text })}
+                    onDelete={() => { void removeDeviceRecording(recording.id); }}
+                  />
+                );
+              })}
+            </ul>
+          )}
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={() => { void clearDeviceRecordings(); }}
+            disabled={
+              deviceRecordings === null
+              || deviceRecordings.length === 0
+              || clearingDeviceRecordings
+              || deletingDeviceRecordingId !== null
+            }
+          >
+            <Icon name="close" size={17} />
+            {clearingDeviceRecordings ? t('clearingDeviceAudio') : t('clearDeviceAudio')}
+          </button>
+        </section>
       </div>
 
       <div className="settings-save-row">
+        {deviceAudioWarning && (
+          <span className="warning-banner" role="alert">
+            <Icon name="shield" size={16} /> {deviceAudioWarning}
+          </span>
+        )}
         {message && <span className="info-banner"><Icon name="check" size={16} /> {message}</span>}
         <button type="button" className="primary-button" onClick={() => { void save(); }} disabled={readOnly || saving} title={readOnly ? readOnlyReason : undefined}>
           {saving ? <span className="spinner" /> : <Icon name="check" size={17} />} {t('save')}

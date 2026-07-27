@@ -124,9 +124,21 @@ PYTHONPATH=backend/src .venv/bin/python -m ivrit_sheli --download-dictionary
 
 The importer streams the file, tolerates malformed records, stores provenance, and rebuilds the local search database.
 
-## 5. AI coach
+## 5. Personal coach and optional AI
 
-The coach provides ten separate, schema-bound tools:
+The v2.9 Personal Coach works locally and deterministically. Today shows one
+primary practice sentence, up to two optional alternatives and **I recommend
+this because…**. Its Hebrew comes from a reviewed dictionary example or a
+reviewed pattern—not a live language model.
+
+You can tell it whether a suggestion was useful, too easy/appropriate/too hard
+and relevant/not relevant. Changes are deliberately gradual. Open
+**Settings → Personalization** to inspect the adaptive profile or reset only
+those inferred preferences; saved words, sessions and progress remain.
+
+### Experimental online AI tools
+
+The separate experimental AI adapter provides ten schema-bound tools:
 
 1. Sentence analysis.
 2. Correction.
@@ -139,7 +151,8 @@ The coach provides ten separate, schema-bound tools:
 9. Niqqud assistance.
 10. Transliteration assistance.
 
-Offline mode is always available and deterministic. To use OpenAI enrichment:
+The public learning path does not require these tools. To use OpenAI
+enrichment in a private installation:
 
 1. Copy `.env.example` to `.env`.
 2. Add `OPENAI_API_KEY` locally.
@@ -156,17 +169,37 @@ The audio studio supports:
 - Browser Hebrew speech synthesis.
 - Browser speech recognition when available.
 - Microphone recording through `MediaRecorder`.
+- Self-hosted Faster Whisper Hebrew transcription when the HTTPS server enables it.
 - Optional OpenAI text-to-speech.
-- Optional OpenAI speech-to-text.
+- Compatibility-only OpenAI speech-to-text.
 - Transparent transcript-based Recognition match.
 - Persistent masculine-style or feminine-style synthetic voice selection.
-- One-word microphone analysis with dictionary facts, translations, grammar, forms, uses and examples.
+- Word and phrase transcript understanding through exact dictionary matches.
 
 Recognition match combines normalized transcript similarity, target-word coverage, missing words, and extra words. It is a practice signal, not a phoneme, accent, intelligibility, native-likeness or clinical assessment. When live browser recognition is unavailable, type the transcript manually and compare it normally.
 
 The voice labels are style choices, not claims about a real speaker's identity. Browser voices depend on the device; configured cloud profiles use server-controlled provider IDs.
 
-For word analysis, press **Record word**, say exactly one Hebrew word, and review the local dictionary result. You can type the word manually if browser recognition is unavailable. Optional cloud transcription/enrichment requires server configuration, your stored consent, and an explicit cloud selection. Ivrit Sheli does not receive or store browser-recognition audio, though the browser or operating-system speech service's policy may apply. App-managed cloud uploads are deleted after processing, while the configured provider's policy remains separate. Sources are labeled, and the result cannot change XP or mastery. The public demo permits browser/manual local analysis but keeps cloud processing disabled.
+For analysis, press **Record**, say a Hebrew word or short phrase, then choose
+**Understand transcript**. One word opens complete local dictionary facts;
+phrases show known token cards and explicit unknown words. No missing meaning
+is invented. You can type Hebrew manually when microphone permission,
+self-hosted speech or browser recognition is unavailable.
+
+Remote phones require an HTTPS staging/production link for microphone capture.
+An `http://<PC-IP>` same-Wi-Fi link remains useful for the rest of the app but
+is not a secure browser context. Recordings are limited to 20 seconds / 8 MB;
+server copies are deleted after processing. Selecting **Save on this device**
+keeps the audio only under this learner in the current browser. It never enters
+cloud progress or exports and cannot award XP or mastery.
+
+### Optional reminders
+
+Reminders begin disabled. In **Settings → Reminders**, enable them explicitly,
+choose a local time, timezone, rest day and quiet hours, then accept the
+browser/PWA notification prompt. Ivrit Sheli sends at most one generic private
+reminder per local day. Disable the preference or browser subscription at any
+time. iPhone support requires the installed PWA and platform Push support.
 
 ## 7. XP, levels, streaks, and achievements
 
@@ -198,13 +231,28 @@ PYTHONPATH=backend/src .venv/bin/python -m ivrit_sheli \
   --export-json data/backups/my-hebrew-backup.json
 ```
 
-Secrets, OAuth tokens, raw private uploads, and temporary audio are excluded from exports. Full-disk encryption is recommended for strong protection because an app-level PIN alone is not database encryption.
+Feedback and the inspectable adaptive profile are included in portable
+learning exports. Secrets, OAuth tokens, Push delivery subscriptions, raw
+private uploads, device-only recordings and temporary server audio are
+excluded. Full-disk encryption is recommended for strong protection because an
+app-level PIN alone is not database encryption.
 
 ### Hosted accounts
 
 When the public service has a provider configured, choose Google for the beginner-facing identity-only flow or GitHub as the secondary option. The sign-in screen shows only providers available on the server. Google requests `openid profile`; GitHub requests `read:user`. The app stores the provider ID, display name, picture and GitHub login when applicable, but not provider passwords, bearer tokens or email addresses.
 
-Use **Settings → Export my data** to download your current learner state. To permanently remove a hosted account, open the danger section, choose **Delete account**, read the warning and confirm the second step. This deletes the Ivrit Sheli identity, sessions and learner state; it does not delete the separate Google or GitHub account. The shared read-only demo cannot be deleted. See `PRIVACY.md` and `TERMS.md` before using the hosted pilot.
+Use **Settings → Export my data** to download your current learner state.
+Settings also lists only recordings saved for the active learner in this
+browser and can play, delete individually or clear them. To permanently remove a hosted account, open the
+danger section, choose **Delete account**, read the warning and confirm the
+second step. This deletes the Ivrit Sheli identity, sessions, learner state and
+Push subscriptions and clears this learner's recordings from the current
+browser. If browser storage cleanup fails, server-side account deletion still
+finishes and the signed-out screen explains how to clear that device's site
+data manually. It cannot reach recordings saved in another browser/device and
+does not delete the separate Google or GitHub account. The shared read-only demo
+cannot be deleted. See `PRIVACY.md` and `TERMS.md` before using the hosted
+pilot.
 
 ## 10. Diagnostics and recovery
 

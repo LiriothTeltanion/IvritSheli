@@ -7,7 +7,10 @@
 import type {
   AIResponse,
   ApiErrorShape,
+  AudioCapabilities,
+  AudioTranscriptionResponse,
   AuthState,
+  CoachExample,
   ConnectorState,
   CurriculumPath,
   Dashboard,
@@ -17,8 +20,12 @@ import type {
   LearningCoreAttemptResponse,
   LearningCoreNext,
   LearningCoreOverview,
+  LearningFeedbackRequest,
   LearningItem,
+  NotificationPreferences,
   Profile,
+  PushCapabilities,
+  PushSubscriptionPayload,
   PracticeStepSubmit,
   PracticeStepSubmitResponse,
   PracticeToday,
@@ -27,6 +34,8 @@ import type {
   RegistryResponse,
   RegistrySort,
   RegistryStatusFilter,
+  SpeechTranscriptionMode,
+  TranscriptAnalysisResult,
   TranscriptProvider,
   VoiceStyle,
   WordAnalysisResult,
@@ -53,6 +62,7 @@ const allowedReadOnlyWrites = new Set([
   '/auth/demo',
   '/auth/logout',
   // This POST is a bounded, non-mutating dictionary lookup. Cloud use still requires consent.
+  '/audio/transcript-analysis',
   '/audio/word-analysis',
 ]);
 
@@ -394,6 +404,45 @@ export const api = {
   ): Promise<Record<string, unknown>> =>
     request(`/reviews/${itemId}`, { method: 'POST', body: JSON.stringify(payload) }),
   progress: (): Promise<ProgressData> => request('/progress'),
+  coachExamples: (
+    selection: { dictionary_entry_id?: number; word?: string },
+  ): Promise<{
+    concept: Record<string, string>;
+    examples: CoachExample[];
+    reason: Record<'en' | 'es' | 'he', string>;
+    evidence: Record<string, unknown>;
+  }> =>
+    request('/coach/examples', {
+      method: 'POST',
+      body: JSON.stringify(selection),
+    }),
+  learningFeedback: (
+    feedback: LearningFeedbackRequest,
+  ): Promise<{
+    replayed: boolean;
+    state: Record<string, unknown>;
+    changes: Record<string, number>;
+    reasons: Record<'en' | 'es' | 'he', string[]>;
+  }> =>
+    request('/learning/feedback', {
+      method: 'POST',
+      body: JSON.stringify(feedback),
+    }),
+  personalizationProfile: (): Promise<{
+    state: Record<string, unknown>;
+    recent_feedback: Array<Record<string, unknown>>;
+    transparency: Record<string, unknown>;
+  }> => request('/personalization/profile'),
+  resetPersonalization: (): Promise<{
+    state: Record<string, unknown>;
+    feedback_history_retained: boolean;
+    vocabulary_retained: boolean;
+    sessions_retained: boolean;
+    progress_retained: boolean;
+  }> =>
+    request('/personalization/reset', {
+      method: 'POST',
+    }),
   gamification: (): Promise<GamificationStatus> => request('/gamification/status'),
   dictionaryLookup: async (word: string): Promise<DictionaryEntry[]> => {
     try {
@@ -469,7 +518,14 @@ export const api = {
         retain: false,
       }),
     }),
-  transcribeAudio: async (blob: Blob, cloudRequested = true): Promise<{ transcript: string; provider: string }> => {
+  audioCapabilities: (): Promise<AudioCapabilities> =>
+    request('/audio/capabilities'),
+  transcribeAudio: async (
+    blob: Blob,
+    modeOrLegacyCloud: SpeechTranscriptionMode | boolean = 'self_hosted',
+    signal?: AbortSignal,
+    targetText?: string,
+  ): Promise<AudioTranscriptionResponse> => {
     const extensionByMime: Record<string, string> = {
       'audio/flac': 'flac',
       'audio/m4a': 'm4a',
@@ -481,12 +537,25 @@ export const api = {
     };
     const mime = blob.type.split(';', 1)[0]?.toLowerCase() ?? '';
     const extension = extensionByMime[mime] ?? 'webm';
+    const mode: SpeechTranscriptionMode = typeof modeOrLegacyCloud === 'boolean'
+      ? (modeOrLegacyCloud ? 'openai' : 'self_hosted')
+      : modeOrLegacyCloud;
     const form = new FormData();
     form.append('file', blob, `hebrew-recording.${extension}`);
-    return request(`/audio/stt?cloud_requested=${String(cloudRequested)}&language=he`, {
-      method: 'POST',
-      body: form,
+    const query = new URLSearchParams({
+      mode,
+      cloud_requested: String(mode === 'openai'),
+      language: 'he',
     });
+    if (targetText) query.set('target_text', targetText);
+    return request(
+      `/audio/stt?${query.toString()}`,
+      {
+        method: 'POST',
+        body: form,
+        ...(signal ? { signal } : {}),
+      },
+    );
   },
   analyzeSpokenWord: (
     transcript: string,
@@ -501,11 +570,23 @@ export const api = {
         cloud_requested: cloudRequested,
       }),
     }),
+  analyzeTranscript: (
+    transcript: string,
+    transcriptProvider: TranscriptProvider,
+  ): Promise<TranscriptAnalysisResult> =>
+    request('/audio/transcript-analysis', {
+      method: 'POST',
+      body: JSON.stringify({
+        transcript,
+        transcript_provider: transcriptProvider,
+      }),
+    }),
   pronunciationScore: (
     targetText: string,
     transcript: string,
     itemId?: number,
     provider = 'browser',
+    evidenceToken?: string,
   ): Promise<Record<string, unknown>> =>
     request('/audio/pronunciation-score', {
       method: 'POST',
@@ -514,7 +595,31 @@ export const api = {
         transcript,
         ...(itemId === undefined ? {} : { item_id: itemId }),
         provider,
+        ...(evidenceToken ? { evidence_token: evidenceToken } : {}),
       }),
+    }),
+  pushCapabilities: (): Promise<PushCapabilities> =>
+    request('/notifications/push/capabilities'),
+  notificationPreferences: (): Promise<NotificationPreferences> =>
+    request('/notifications/preferences'),
+  updateNotificationPreferences: (
+    preferences: Partial<NotificationPreferences>,
+  ): Promise<NotificationPreferences> =>
+    request('/notifications/preferences', {
+      method: 'PUT',
+      body: JSON.stringify(preferences),
+    }),
+  savePushSubscription: (
+    subscription: PushSubscriptionPayload,
+  ): Promise<{ saved: true; active: boolean }> =>
+    request('/notifications/push/subscription', {
+      method: 'POST',
+      body: JSON.stringify(subscription),
+    }),
+  deletePushSubscription: (endpoint: string): Promise<{ deleted: boolean }> =>
+    request('/notifications/push/subscription', {
+      method: 'DELETE',
+      body: JSON.stringify({ endpoint }),
     }),
   connectors: async (): Promise<ConnectorState[]> => {
     const response = await request<{ connectors: ConnectorState[] }>('/connectors');

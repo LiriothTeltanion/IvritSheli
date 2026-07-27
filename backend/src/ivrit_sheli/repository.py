@@ -27,6 +27,7 @@ from ivrit_sheli.gamification import (
     level_progress,
     xp_for_action,
 )
+from ivrit_sheli.learner_model import apply_feedback, reset_learner_model
 from ivrit_sheli.learning_core import (
     CEFR_BANDS,
     CONTRACT_VERSION,
@@ -75,6 +76,32 @@ REGISTRY_SORTS = {
     "saved_desc",
     "mastery_desc",
 }
+PORTABLE_EXPORT_FORMAT = "ivrit-sheli-export-v1"
+PORTABLE_EXPORT_TABLES = (
+    "profiles",
+    "goals",
+    "learning_items",
+    "review_state",
+    "attempts",
+    "skill_mastery",
+    "learning_core_state",
+    "reading_support_state",
+    "learning_core_attempts",
+    "practice_sessions",
+    "practice_step_events",
+    "curriculum_progress",
+    "learning_feedback",
+    "learner_model_state",
+    "notification_preferences",
+    "user_events",
+    "xp_ledger",
+    "unlocked_achievements",
+    "missions",
+    "audio_attempts",
+)
+MAX_PORTABLE_IMPORT_BYTES = 32 * 1024 * 1024
+MAX_PORTABLE_IMPORT_ROWS = 250_000
+PORTABLE_IMPORT_RESET_ONLY_TABLES = ("learning_core_idempotency",)
 
 
 def utc_now() -> datetime:
@@ -1539,6 +1566,7 @@ class LearningRepository:
         item_id: int | None = None,
         retained_path: str | None = None,
         verified_speech_evidence: bool = False,
+        evidence_key: str | None = None,
     ) -> dict[str, Any]:
         """Atomically store pronunciation history and trusted learning signals.
 
@@ -1552,6 +1580,12 @@ class LearningRepository:
         normalized_target = normalize_hebrew(target_text)
         if not normalized_target:
             raise ValueError("Pronunciation target must contain Hebrew text")
+        if verified_speech_evidence and not evidence_key:
+            raise ValueError("Verified speech evidence requires an idempotency key")
+        if evidence_key is not None and not verified_speech_evidence:
+            raise ValueError("Speech evidence keys require verified server evidence")
+        if evidence_key is not None and not 1 <= len(evidence_key) <= 120:
+            raise ValueError("Speech evidence key is invalid")
 
         now = iso_now()
         provider_name = provider.strip() or "unknown"
@@ -1561,6 +1595,49 @@ class LearningRepository:
             else f"unverified:{provider_name.removeprefix('unverified:')}"
         )
         with self.database.transaction() as connection:
+            if evidence_key is not None:
+                replay = connection.execute(
+                    """
+                    SELECT id, item_id, target_text, transcript, score, provider
+                    FROM audio_attempts
+                    WHERE evidence_key = ?
+                    """,
+                    (evidence_key,),
+                ).fetchone()
+                if replay is not None:
+                    if (
+                        replay["target_text"] != target_text
+                        or replay["transcript"] != transcript
+                        or int(replay["score"]) != score
+                        or replay["provider"] != stored_provider
+                    ):
+                        raise ValueError(
+                            "Speech evidence was already used for a different attempt"
+                        )
+                    replay_item_id = (
+                        int(replay["item_id"])
+                        if replay["item_id"] is not None
+                        else None
+                    )
+                    replay_correct = (
+                        int(replay["score"]) >= PRONUNCIATION_MASTERY_THRESHOLD
+                        if replay_item_id is not None
+                        else None
+                    )
+                    current_xp = self._total_xp(connection)
+                    return {
+                        "attempt_id": int(replay["id"]),
+                        "linked_item_id": replay_item_id,
+                        "learning_updated": replay_item_id is not None,
+                        "evidence_verified": True,
+                        "is_correct": replay_correct,
+                        "mastery": None,
+                        "xp_awarded": 0,
+                        "xp": level_progress(current_xp),
+                        "new_achievements": [],
+                        "mastery_threshold": PRONUNCIATION_MASTERY_THRESHOLD,
+                        "replayed": True,
+                    }
             linked_item_id = self._resolve_pronunciation_item(
                 connection,
                 normalized_target=normalized_target,
@@ -1571,8 +1648,8 @@ class LearningRepository:
                 """
                 INSERT INTO audio_attempts(
                     item_id, target_text, transcript, score, breakdown_json,
-                    provider, retained_path, created_at
-                ) VALUES(?, ?, ?, ?, ?, ?, ?, ?)
+                    provider, retained_path, evidence_key, created_at
+                ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     linked_item_id,
@@ -1582,6 +1659,7 @@ class LearningRepository:
                     json.dumps(breakdown, ensure_ascii=False),
                     stored_provider,
                     retained_path,
+                    evidence_key,
                     now,
                 ),
             )
@@ -1667,6 +1745,7 @@ class LearningRepository:
             "xp": level_progress(xp_after),
             "new_achievements": [asdict(item) for item in newly_unlocked],
             "mastery_threshold": PRONUNCIATION_MASTERY_THRESHOLD,
+            "replayed": False,
         }
 
     def recommendations(self, limit: int = 8) -> list[dict[str, Any]]:
@@ -1848,36 +1927,17 @@ class LearningRepository:
             >>> repo.ensure_default_profile(); repo.export_json(Path('/tmp/ivrit-export.json')).exists()
             True
         """
-        tables = (
-            "profiles",
-            "goals",
-            "learning_items",
-            "review_state",
-            "attempts",
-            "skill_mastery",
-            "learning_core_state",
-            "reading_support_state",
-            "learning_core_attempts",
-            "practice_sessions",
-            "practice_step_events",
-            "curriculum_progress",
-            "user_events",
-            "xp_ledger",
-            "unlocked_achievements",
-            "missions",
-            "audio_attempts",
-        )
         connection = self.database.connect()
         should_close = str(self.database.path) != ":memory:"
         try:
             payload = {
-                "format": "ivrit-sheli-export-v1",
+                "format": PORTABLE_EXPORT_FORMAT,
                 "exported_at": iso_now(),
                 "tables": {
                     table: [
                         dict(row) for row in connection.execute(f"SELECT * FROM {table}").fetchall()
                     ]
-                    for table in tables
+                    for table in PORTABLE_EXPORT_TABLES
                 },
             }
         finally:
@@ -1886,6 +1946,135 @@ class LearningRepository:
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
         return destination.resolve()
+
+    def import_json(self, source: Path) -> dict[str, Any]:
+        """Atomically restore one portable learner export.
+
+        The restore replaces only the explicit learner tables included in the
+        portable format. Schema metadata, OAuth identities, sessions, provider
+        credentials, push endpoints, bug reports, and connector tokens are
+        deliberately outside the import boundary.
+        """
+        if not source.exists() or not source.is_file():
+            raise FileNotFoundError(f"Learner export not found: {source}")
+        source_size = source.stat().st_size
+        if source_size <= 0:
+            raise ValueError("Learner export is empty")
+        if source_size > MAX_PORTABLE_IMPORT_BYTES:
+            raise ValueError("Learner export exceeds the 32 MB restore limit")
+        try:
+            payload = json.loads(source.read_text(encoding="utf-8"))
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
+            raise ValueError("Learner export is not valid UTF-8 JSON") from error
+        if not isinstance(payload, dict) or payload.get("format") != PORTABLE_EXPORT_FORMAT:
+            raise ValueError(f"Learner export must use {PORTABLE_EXPORT_FORMAT}")
+        tables = payload.get("tables")
+        if not isinstance(tables, dict):
+            raise ValueError("Learner export tables must be an object")
+        unknown_tables = set(tables) - set(PORTABLE_EXPORT_TABLES)
+        if unknown_tables:
+            raise ValueError(
+                "Learner export contains unsupported tables: "
+                + ", ".join(sorted(str(table) for table in unknown_tables))
+            )
+
+        prepared: dict[str, list[dict[str, Any]]] = {}
+        total_rows = 0
+        connection = self.database.connect()
+        should_close = str(self.database.path) != ":memory:"
+        try:
+            for table in PORTABLE_EXPORT_TABLES:
+                raw_rows = tables.get(table, [])
+                if not isinstance(raw_rows, list):
+                    raise ValueError(f"Learner export table {table} must be an array")
+                allowed_columns = {
+                    str(row["name"])
+                    for row in connection.execute(
+                        f"PRAGMA table_info({table})"
+                    ).fetchall()
+                }
+                clean_rows: list[dict[str, Any]] = []
+                for raw_row in raw_rows:
+                    if not isinstance(raw_row, dict) or not raw_row:
+                        raise ValueError(
+                            f"Learner export table {table} contains an invalid row"
+                        )
+                    unknown_columns = set(raw_row) - allowed_columns
+                    if unknown_columns:
+                        raise ValueError(
+                            f"Learner export table {table} contains unsupported columns: "
+                            + ", ".join(sorted(str(column) for column in unknown_columns))
+                        )
+                    if any(
+                        not isinstance(value, (str, int, float, bool, type(None)))
+                        for value in raw_row.values()
+                    ):
+                        raise ValueError(
+                            f"Learner export table {table} contains a non-scalar value"
+                        )
+                    clean_rows.append(dict(raw_row))
+                total_rows += len(clean_rows)
+                if total_rows > MAX_PORTABLE_IMPORT_ROWS:
+                    raise ValueError("Learner export exceeds the 250000-row restore limit")
+                prepared[table] = clean_rows
+
+            connection.execute("BEGIN IMMEDIATE")
+            connection.execute("PRAGMA defer_foreign_keys = ON")
+            try:
+                for table in PORTABLE_IMPORT_RESET_ONLY_TABLES:
+                    connection.execute(f"DELETE FROM {table}")
+                for table in reversed(PORTABLE_EXPORT_TABLES):
+                    connection.execute(f"DELETE FROM {table}")
+                for table in PORTABLE_EXPORT_TABLES:
+                    for row in prepared[table]:
+                        columns = tuple(row)
+                        placeholders = ", ".join("?" for _ in columns)
+                        column_sql = ", ".join(columns)
+                        connection.execute(
+                            f"INSERT INTO {table}({column_sql}) VALUES({placeholders})",
+                            tuple(row[column] for column in columns),
+                        )
+                profile = connection.execute(
+                    "SELECT id FROM profiles WHERE id = 1"
+                ).fetchone()
+                if profile is None:
+                    raise ValueError("Learner export must contain profile id 1")
+                reminder_reset_at = iso_now()
+                connection.execute(
+                    """
+                    INSERT INTO notification_preferences(
+                        profile_id, enabled, preferred_time, timezone,
+                        quiet_hours_start, quiet_hours_end, max_daily,
+                        created_at, updated_at
+                    ) VALUES(1, 0, '19:00', 'Asia/Jerusalem', '22:00', '08:00', 1, ?, ?)
+                    ON CONFLICT(profile_id) DO UPDATE SET
+                        enabled = 0,
+                        updated_at = excluded.updated_at
+                    """,
+                    (reminder_reset_at, reminder_reset_at),
+                )
+                foreign_key_error = connection.execute(
+                    "PRAGMA foreign_key_check"
+                ).fetchone()
+                if foreign_key_error is not None:
+                    raise ValueError("Learner export violates relational integrity")
+                connection.commit()
+            except Exception:
+                connection.rollback()
+                raise
+        finally:
+            if should_close:
+                connection.close()
+        return {
+            "format": PORTABLE_EXPORT_FORMAT,
+            "source": str(source.resolve()),
+            "tables_restored": len(PORTABLE_EXPORT_TABLES),
+            "rows_restored": total_rows,
+            "personalization_restored": True,
+            "push_subscriptions_restored": False,
+            "reminders_enabled": False,
+            "reauthorization_required": True,
+        }
 
     def create_bug_report(self, payload: dict[str, Any]) -> dict[str, Any]:
         """Store a privacy-conscious local bug report.
@@ -2094,6 +2283,458 @@ class LearningRepository:
                     ),
                 )
         return self.get_profile()
+
+    def notification_preferences(self) -> dict[str, Any]:
+        """Return the learner's opt-in reminder policy, creating safe defaults lazily."""
+        now = iso_now()
+        with self.database.transaction() as connection:
+            connection.execute(
+                """
+                INSERT OR IGNORE INTO notification_preferences(
+                    profile_id, enabled, preferred_time, timezone,
+                    quiet_hours_start, quiet_hours_end, max_daily,
+                    created_at, updated_at
+                ) VALUES(1, 0, '19:00', 'Asia/Jerusalem', '22:00', '08:00', 1, ?, ?)
+                """,
+                (now, now),
+            )
+            row = connection.execute(
+                "SELECT * FROM notification_preferences WHERE profile_id = 1"
+            ).fetchone()
+        if row is None:
+            raise sqlite3.DatabaseError("Notification preferences could not be initialized")
+        return dict(row)
+
+    def update_notification_preferences(self, payload: dict[str, Any]) -> dict[str, Any]:
+        """Validate and persist a quiet, maximum-once-daily reminder policy."""
+        allowed = {
+            "enabled",
+            "preferred_time",
+            "timezone",
+            "quiet_hours_start",
+            "quiet_hours_end",
+        }
+        clean = {key: value for key, value in payload.items() if key in allowed}
+        for time_field in ("preferred_time", "quiet_hours_start", "quiet_hours_end"):
+            if time_field in clean:
+                clean[time_field] = self._validate_clock_time(str(clean[time_field]), time_field)
+        if "timezone" in clean:
+            timezone_name = str(clean["timezone"]).strip()
+            try:
+                ZoneInfo(timezone_name)
+            except (KeyError, ValueError) as error:
+                raise ValueError("timezone must be a valid IANA timezone") from error
+            clean["timezone"] = timezone_name
+        if "enabled" in clean:
+            clean["enabled"] = int(bool(clean["enabled"]))
+
+        self.notification_preferences()
+        if clean:
+            with self.database.transaction() as connection:
+                columns = ", ".join(f"{key} = ?" for key in clean)
+                connection.execute(
+                    f"""
+                    UPDATE notification_preferences
+                    SET {columns}, updated_at = ?
+                    WHERE profile_id = 1
+                    """,
+                    (*clean.values(), iso_now()),
+                )
+        return self.notification_preferences()
+
+    def personalization_profile(self) -> dict[str, Any]:
+        """Return the derived coach model and a reviewable recent-feedback summary."""
+        with self.database.transaction() as connection:
+            state = self._ensure_learner_model_state(connection)
+            recent = [
+                {
+                    **dict(row),
+                    "useful": (
+                        None if row["useful"] is None else bool(row["useful"])
+                    ),
+                    "relevant": (
+                        None
+                        if row["relevance"] is None
+                        else row["relevance"] == "relevant"
+                    ),
+                    "context": json.loads(row["context_json"]),
+                }
+                for row in connection.execute(
+                    """
+                    SELECT feedback_key, target_type, target_key, useful,
+                           difficulty, relevance, note, context_json, created_at
+                    FROM learning_feedback
+                    ORDER BY created_at DESC, id DESC
+                    LIMIT 50
+                    """
+                ).fetchall()
+            ]
+        return {
+            "state": state,
+            "recent_feedback": recent,
+            "transparency": {
+                "model": "bounded-deterministic-v1",
+                "free_form_generation": False,
+                "single_response_can_dominate": False,
+                "difficulty_delta_limit": 0.08,
+                "context_weight_delta_limit": 0.06,
+                "reset_deletes_learning_progress": False,
+            },
+        }
+
+    def coach_learner_context(self) -> dict[str, Any]:
+        """Return one bounded evidence snapshot for deterministic example selection."""
+        with self.database.transaction() as connection:
+            profile = connection.execute(
+                "SELECT * FROM profiles WHERE id = 1"
+            ).fetchone()
+            if profile is None:
+                raise KeyError("Local profile is not initialized")
+            goals = [
+                str(row["goal_type"])
+                for row in connection.execute(
+                    """
+                    SELECT goal_type
+                    FROM goals
+                    WHERE profile_id = 1 AND is_active = 1
+                    ORDER BY weight DESC, goal_type
+                    LIMIT 10
+                    """
+                ).fetchall()
+            ]
+            known_words = [
+                str(row["hebrew_text"])
+                for row in connection.execute(
+                    """
+                    SELECT i.hebrew_text
+                    FROM learning_items i
+                    LEFT JOIN review_state r ON r.item_id = i.id
+                    LEFT JOIN skill_mastery m ON m.concept_key = 'item:' || i.id
+                    WHERE i.archived_at IS NULL
+                      AND (
+                          COALESCE(r.repetitions, 0) > 0
+                          OR COALESCE(m.observations, 0) > 0
+                          OR EXISTS (
+                              SELECT 1
+                              FROM attempts a
+                              WHERE a.item_id = i.id
+                          )
+                          OR EXISTS (
+                              SELECT 1
+                              FROM learning_core_attempts lca
+                              WHERE lca.item_id = i.id
+                          )
+                      )
+                    ORDER BY i.updated_at DESC, i.id DESC
+                    LIMIT 500
+                    """
+                ).fetchall()
+            ]
+            error_counts = {
+                str(row["mistake_category"]): int(row["count"])
+                for row in connection.execute(
+                    """
+                    SELECT mistake_category, COUNT(*) AS count
+                    FROM attempts
+                    WHERE mistake_category IS NOT NULL
+                    GROUP BY mistake_category
+                    """
+                ).fetchall()
+            }
+            performance = connection.execute(
+                """
+                WITH evidence AS (
+                    SELECT confidence, response_ms
+                    FROM attempts
+                    UNION ALL
+                    SELECT confidence, response_ms
+                    FROM learning_core_attempts
+                    WHERE evidence_kind IN ('unassisted', 'correction_uptake')
+                )
+                SELECT AVG(confidence) AS confidence,
+                       AVG(response_ms) AS response_ms
+                FROM evidence
+                """
+            ).fetchone()
+            repetitions = int(
+                connection.execute(
+                    "SELECT COALESCE(SUM(repetitions), 0) FROM review_state"
+                ).fetchone()[0]
+            )
+            learner_state = self._ensure_learner_model_state(connection)
+        return {
+            "level": str(profile["cefr_band"]),
+            "mode": str(profile["learner_mode"]),
+            "goals": goals,
+            "known_words": known_words,
+            "error_counts": error_counts,
+            "confidence": round(float(performance["confidence"] or 3), 2),
+            "response_ms": round(float(performance["response_ms"] or 4_000)),
+            "repetitions": repetitions,
+            "learner_state": learner_state,
+        }
+
+    def coach_speaking_target(
+        self,
+        target_text: str,
+        *,
+        source_label: str | None = None,
+    ) -> dict[str, Any]:
+        """Resolve an exact, server-derived learning-item link for coach speech.
+
+        A dictionary source identity wins when it resolves to exactly one active
+        item with the same normalized Hebrew. Otherwise, a unique exact-text
+        match may be used. Ambiguous or absent matches remain deliberately
+        unlinked; pronunciation evidence can still be recorded without changing
+        mastery.
+        """
+        normalized_target = normalize_hebrew(target_text)
+        if not normalized_target:
+            raise ValueError("Coach speaking target must contain Hebrew text")
+        normalized_source = str(source_label or "").strip()
+        with self.database.transaction() as connection:
+            if normalized_source:
+                source_matches = connection.execute(
+                    """
+                    SELECT id
+                    FROM learning_items
+                    WHERE source_label = ?
+                      AND normalized_text = ?
+                      AND archived_at IS NULL
+                    ORDER BY id
+                    LIMIT 2
+                    """,
+                    (normalized_source, normalized_target),
+                ).fetchall()
+                if len(source_matches) == 1:
+                    return {
+                        "text": target_text,
+                        "normalized_text": normalized_target,
+                        "learning_item_id": int(source_matches[0]["id"]),
+                        "concept_key": normalized_source,
+                        "link_resolution": "exact_source",
+                    }
+
+            exact_matches = connection.execute(
+                """
+                SELECT id
+                FROM learning_items
+                WHERE normalized_text = ? AND archived_at IS NULL
+                ORDER BY id
+                LIMIT 2
+                """,
+                (normalized_target,),
+            ).fetchall()
+            linked_item_id = (
+                int(exact_matches[0]["id"]) if len(exact_matches) == 1 else None
+            )
+        return {
+            "text": target_text,
+            "normalized_text": normalized_target,
+            "learning_item_id": linked_item_id,
+            "concept_key": normalized_source or None,
+            "link_resolution": (
+                "unique_exact_text" if linked_item_id is not None else None
+            ),
+        }
+
+    def record_learning_feedback(self, payload: dict[str, Any]) -> dict[str, Any]:
+        """Record idempotent explicit feedback and apply one bounded model update."""
+        feedback_key = str(payload.get("feedback_key", "")).strip()
+        target_type = str(payload.get("target_type", "")).strip()
+        target_key = str(payload.get("target_key", "")).strip()
+        if not feedback_key or not target_key:
+            raise ValueError("feedback_key and target_key are required")
+        if target_type not in {"example", "recommendation", "exercise", "coach_card"}:
+            raise ValueError("target_type is not supported")
+        note_value = payload.get("note")
+        note = str(note_value).strip() if note_value is not None else None
+        if note is not None and len(note) > 500:
+            raise ValueError("note must not exceed 500 characters")
+        difficulty_aliases = {
+            "too_easy": "too_easy",
+            "appropriate": "right",
+            "right": "right",
+            "too_difficult": "too_hard",
+            "too_hard": "too_hard",
+        }
+        raw_difficulty = payload.get("difficulty")
+        difficulty = (
+            difficulty_aliases.get(str(raw_difficulty))
+            if raw_difficulty is not None
+            else None
+        )
+        if raw_difficulty is not None and difficulty is None:
+            raise ValueError("difficulty must be too_easy, appropriate, or too_difficult")
+        context = str(payload.get("context", "")).strip() or None
+        pattern_id = str(payload.get("pattern_id", "")).strip() or None
+        feedback_data = {
+            "useful": payload.get("useful"),
+            "difficulty": difficulty,
+            "relevant": payload.get("relevant"),
+            "context": context,
+            "pattern_id": pattern_id,
+            "note": note,
+        }
+        canonical = {
+            "target_type": target_type,
+            "target_key": target_key,
+            **feedback_data,
+        }
+        request_hash = hashlib.sha256(
+            json.dumps(
+                canonical,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest()
+        now = iso_now()
+        with self.database.transaction() as connection:
+            existing = connection.execute(
+                """
+                SELECT request_hash
+                FROM learning_feedback
+                WHERE feedback_key = ?
+                """,
+                (feedback_key,),
+            ).fetchone()
+            state = self._ensure_learner_model_state(connection)
+            if existing is not None:
+                if not hmac.compare_digest(str(existing["request_hash"]), request_hash):
+                    raise ValueError(
+                        "feedback_key was already used for a different response"
+                    )
+                return {
+                    "feedback_key": feedback_key,
+                    "replayed": True,
+                    "state": state,
+                    "changes": {},
+                    "reasons": {
+                        "en": ["This feedback was already recorded."],
+                        "es": ["Este feedback ya estaba registrado."],
+                        "he": ["המשוב הזה כבר נשמר."],
+                    },
+                }
+
+            update = apply_feedback(state, feedback_data)
+            cursor = connection.execute(
+                """
+                INSERT INTO learning_feedback(
+                    feedback_key, request_hash, target_type, target_key,
+                    useful, difficulty, relevance, note, context_json, created_at
+                ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    feedback_key,
+                    request_hash,
+                    target_type,
+                    target_key,
+                    (
+                        None
+                        if payload.get("useful") is None
+                        else int(bool(payload["useful"]))
+                    ),
+                    difficulty,
+                    (
+                        None
+                        if payload.get("relevant") is None
+                        else (
+                            "relevant"
+                            if bool(payload["relevant"])
+                            else "not_relevant"
+                        )
+                    ),
+                    note,
+                    json.dumps(
+                        {"context": context, "pattern_id": pattern_id},
+                        ensure_ascii=False,
+                    ),
+                    now,
+                ),
+            )
+            connection.execute(
+                """
+                UPDATE learner_model_state
+                SET revision = revision + 1,
+                    feedback_count = ?,
+                    state_json = ?,
+                    updated_at = ?
+                WHERE profile_id = 1
+                """,
+                (
+                    int(update["state"]["feedback_count"]),
+                    json.dumps(update["state"], ensure_ascii=False, sort_keys=True),
+                    now,
+                ),
+            )
+            feedback_id = cursor.lastrowid
+        return {
+            "id": feedback_id,
+            "feedback_key": feedback_key,
+            "replayed": False,
+            **update,
+        }
+
+    def reset_personalization(self) -> dict[str, Any]:
+        """Reset only derived coach weights; vocabulary and evidence remain untouched."""
+        clean_state = reset_learner_model().to_dict()
+        now = iso_now()
+        with self.database.transaction() as connection:
+            self._ensure_learner_model_state(connection)
+            connection.execute(
+                """
+                UPDATE learner_model_state
+                SET revision = revision + 1,
+                    feedback_count = 0,
+                    state_json = ?,
+                    updated_at = ?
+                WHERE profile_id = 1
+                """,
+                (json.dumps(clean_state, sort_keys=True), now),
+            )
+        return {
+            "state": clean_state,
+            "feedback_history_retained": True,
+            "vocabulary_retained": True,
+            "sessions_retained": True,
+            "progress_retained": True,
+        }
+
+    @staticmethod
+    def _ensure_learner_model_state(connection: sqlite3.Connection) -> dict[str, Any]:
+        """Create and decode one bounded derived learner model."""
+        row = connection.execute(
+            "SELECT * FROM learner_model_state WHERE profile_id = 1"
+        ).fetchone()
+        if row is None:
+            now = iso_now()
+            clean = reset_learner_model().to_dict()
+            connection.execute(
+                """
+                INSERT INTO learner_model_state(
+                    profile_id, revision, feedback_count, state_json, updated_at
+                ) VALUES(1, 0, 0, ?, ?)
+                """,
+                (json.dumps(clean, sort_keys=True), now),
+            )
+            return clean
+        try:
+            state = json.loads(row["state_json"])
+        except (TypeError, json.JSONDecodeError) as error:
+            raise sqlite3.DatabaseError("Learner model state is invalid JSON") from error
+        if not isinstance(state, dict):
+            raise sqlite3.DatabaseError("Learner model state must be a JSON object")
+        return cast(dict[str, Any], state)
+
+    @staticmethod
+    def _validate_clock_time(value: str, field_name: str) -> str:
+        """Normalize a 24-hour ``HH:MM`` value used by notification scheduling."""
+        try:
+            parsed = datetime.strptime(value.strip(), "%H:%M")
+        except ValueError as error:
+            raise ValueError(f"{field_name} must use 24-hour HH:MM format") from error
+        return parsed.strftime("%H:%M")
 
     def progress(self) -> dict[str, Any]:
         """Return mastery, accuracy, error, and activity trends.

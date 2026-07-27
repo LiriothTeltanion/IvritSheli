@@ -5,6 +5,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { api } from '../api';
+import * as deviceAudioStorage from '../deviceAudioStorage';
 import { I18nProvider } from '../i18n';
 import { SessionAccessProvider } from '../session';
 import type { AuthState, Profile } from '../types';
@@ -38,11 +39,29 @@ const ANONYMOUS: AuthState = {
   auth_providers: ['google', 'github'],
   capabilities: { cloud_learning: true, ai: false, audio_scoring: false, connectors: false, local_first: false },
 };
+const ORIGINAL_CREATE_OBJECT_URL = Object.getOwnPropertyDescriptor(URL, 'createObjectURL');
+const ORIGINAL_REVOKE_OBJECT_URL = Object.getOwnPropertyDescriptor(URL, 'revokeObjectURL');
 
-function renderSettings(access: { readOnly: boolean; localMode: boolean }, onAccountDeleted = vi.fn()): void {
-  render(
+function restoreUrlMethod(name: 'createObjectURL' | 'revokeObjectURL', descriptor?: PropertyDescriptor): void {
+  if (descriptor) {
+    Object.defineProperty(URL, name, descriptor);
+    return;
+  }
+  Reflect.deleteProperty(URL, name);
+}
+
+function renderSettings(
+  access: { readOnly: boolean; localMode: boolean },
+  onAccountDeleted = vi.fn(),
+): ReturnType<typeof render> {
+  return render(
     <I18nProvider>
-      <SessionAccessProvider readOnly={access.readOnly} readOnlyReason="Demo" localMode={access.localMode}>
+      <SessionAccessProvider
+        readOnly={access.readOnly}
+        readOnlyReason="Demo"
+        localMode={access.localMode}
+        recordingOwnerScope={access.localMode ? 'local:device' : 'cloud:42'}
+      >
         <SettingsPanel profile={PROFILE} provider="google" onSaved={vi.fn()} onAccountDeleted={onAccountDeleted} />
       </SessionAccessProvider>
     </I18nProvider>,
@@ -53,6 +72,8 @@ describe('SettingsPanel account data controls', () => {
   afterEach(() => {
     localStorage.clear();
     vi.restoreAllMocks();
+    restoreUrlMethod('createObjectURL', ORIGINAL_CREATE_OBJECT_URL);
+    restoreUrlMethod('revokeObjectURL', ORIGINAL_REVOKE_OBJECT_URL);
   });
 
   it('shows export only for a writable cloud account', () => {
@@ -85,11 +106,135 @@ describe('SettingsPanel account data controls', () => {
     await user.click(screen.getByRole('button', { name: 'Delete my account' }));
     const deleteForever = screen.getByRole('button', { name: 'Delete forever' });
     expect(deleteForever).toBeDisabled();
-    await user.click(screen.getByRole('checkbox', { name: /all of my Ivrit Sheli data/i }));
+    await user.click(screen.getByRole('checkbox', { name: /account data and its recordings/i }));
     await user.click(deleteForever);
 
     await waitFor(() => expect(deleteAccount).toHaveBeenCalledOnce());
     expect(onAccountDeleted).toHaveBeenCalledWith(ANONYMOUS);
+  });
+
+  it('shows and clears only the active learner device recordings', async () => {
+    const recording = {
+      id: 'recording-1',
+      owner_scope: 'cloud:42',
+      target_text: 'שלום',
+      mime_type: 'audio/webm',
+      duration_ms: 1_000,
+      created_at: '2026-07-27T00:00:00.000Z',
+      audio: new Blob(['audio'], { type: 'audio/webm' }),
+    };
+    vi.spyOn(deviceAudioStorage, 'canStoreDeviceRecordings').mockReturnValue(true);
+    vi.spyOn(deviceAudioStorage, 'listDeviceRecordings').mockResolvedValue([recording]);
+    const deleteDeviceAudio = vi.spyOn(deviceAudioStorage, 'deleteAllDeviceRecordings')
+      .mockResolvedValue(1);
+    const user = userEvent.setup();
+
+    renderSettings({ readOnly: false, localMode: false });
+
+    expect(await screen.findByText('Recordings saved for this account on this device: 1.')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Delete my recordings from this device' }));
+
+    await waitFor(() => expect(deleteDeviceAudio).toHaveBeenCalledWith('cloud:42'));
+    expect(screen.getByText('1 device recordings deleted.')).toBeInTheDocument();
+    expect(screen.getByText('No voice recordings are saved for this account on this device.')).toBeInTheDocument();
+  });
+
+  it('plays an owner-scoped recording locally, revokes its object URL, and deletes only that recording', async () => {
+    const recording = {
+      id: 'recording-1',
+      owner_scope: 'cloud:42',
+      target_text: 'שלום',
+      mime_type: 'audio/webm',
+      duration_ms: 1_250,
+      created_at: '2026-07-27T00:00:00.000Z',
+      audio: new Blob(['local-audio'], { type: 'audio/webm' }),
+    };
+    const createObjectUrl = vi.fn(() => 'blob:ivrit-sheli-recording-1');
+    const revokeObjectUrl = vi.fn();
+    Object.defineProperty(URL, 'createObjectURL', {
+      configurable: true,
+      value: createObjectUrl,
+    });
+    Object.defineProperty(URL, 'revokeObjectURL', {
+      configurable: true,
+      value: revokeObjectUrl,
+    });
+    vi.spyOn(deviceAudioStorage, 'canStoreDeviceRecordings').mockReturnValue(true);
+    vi.spyOn(deviceAudioStorage, 'listDeviceRecordings').mockResolvedValue([recording]);
+    const deleteRecording = vi.spyOn(deviceAudioStorage, 'deleteDeviceRecording').mockResolvedValue(true);
+    const user = userEvent.setup();
+
+    const { unmount } = renderSettings({ readOnly: false, localMode: false });
+
+    const player = await screen.findByLabelText('Play saved recording for שלום');
+    expect(player).toHaveAttribute('src', 'blob:ivrit-sheli-recording-1');
+    expect(createObjectUrl).toHaveBeenCalledWith(recording.audio);
+
+    await user.click(screen.getByRole('button', { name: 'Delete saved recording for שלום' }));
+
+    await waitFor(() => expect(deleteRecording).toHaveBeenCalledWith('cloud:42', 'recording-1'));
+    expect(screen.queryByLabelText('Play saved recording for שלום')).not.toBeInTheDocument();
+    expect(screen.getByText('The saved recording was deleted from this device.')).toBeInTheDocument();
+    expect(revokeObjectUrl).toHaveBeenCalledWith('blob:ivrit-sheli-recording-1');
+    unmount();
+  });
+
+  it('clears only the signed-in account device recordings before deleting the account', async () => {
+    const deleteDeviceAudio = vi.spyOn(deviceAudioStorage, 'deleteAllDeviceRecordings')
+      .mockResolvedValue(2);
+    vi.spyOn(deviceAudioStorage, 'canStoreDeviceRecordings').mockReturnValue(true);
+    vi.spyOn(deviceAudioStorage, 'listDeviceRecordings').mockResolvedValue([]);
+    const deleteAccount = vi.spyOn(api, 'deleteAccount').mockResolvedValue(ANONYMOUS);
+    const user = userEvent.setup();
+
+    render(
+      <I18nProvider>
+        <SessionAccessProvider
+          readOnly={false}
+          readOnlyReason=""
+          localMode={false}
+          recordingOwnerScope="cloud:42"
+        >
+          <SettingsPanel
+            profile={PROFILE}
+            provider="google"
+            onSaved={vi.fn()}
+            onAccountDeleted={vi.fn()}
+          />
+        </SessionAccessProvider>
+      </I18nProvider>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Delete my account' }));
+    await user.click(screen.getByRole('checkbox', { name: /account data and its recordings/i }));
+    await user.click(screen.getByRole('button', { name: 'Delete forever' }));
+
+    await waitFor(() => expect(deleteAccount).toHaveBeenCalledOnce());
+    expect(deleteDeviceAudio).toHaveBeenCalledWith('cloud:42');
+    expect(deleteDeviceAudio.mock.invocationCallOrder[0]).toBeLessThan(
+      deleteAccount.mock.invocationCallOrder[0] ?? Number.POSITIVE_INFINITY,
+    );
+  });
+
+  it('deletes the server account and reports a separate warning when local recording cleanup fails', async () => {
+    vi.spyOn(deviceAudioStorage, 'canStoreDeviceRecordings').mockReturnValue(true);
+    vi.spyOn(deviceAudioStorage, 'listDeviceRecordings').mockResolvedValue([]);
+    vi.spyOn(deviceAudioStorage, 'deleteAllDeviceRecordings')
+      .mockRejectedValue(new Error('device locked'));
+    const deleteAccount = vi.spyOn(api, 'deleteAccount').mockResolvedValue(ANONYMOUS);
+    const onAccountDeleted = vi.fn();
+    const user = userEvent.setup();
+
+    renderSettings({ readOnly: false, localMode: false }, onAccountDeleted);
+
+    await user.click(screen.getByRole('button', { name: 'Delete my account' }));
+    await user.click(screen.getByRole('checkbox', { name: /account data and its recordings/i }));
+    await user.click(screen.getByRole('button', { name: 'Delete forever' }));
+
+    const cleanupWarning = 'Your account was deleted, but this browser could not remove its local recordings. Clear this site’s browser data on this device to remove them.';
+    await waitFor(() => expect(deleteAccount).toHaveBeenCalledOnce());
+    expect(onAccountDeleted).toHaveBeenCalledWith(ANONYMOUS, cleanupWarning);
+    expect(await screen.findByRole('alert')).toHaveTextContent(cleanupWarning);
   });
 
   it('moves focus into the deletion dialog and restores it after Escape cancellation', async () => {
