@@ -1,11 +1,11 @@
-# Deployment — Ivrit Sheli 2.9 private candidate / 2.4 production
+# Deployment — Ivrit Sheli 2.9.1 private candidate / 2.4.0 production
 
 This guide covers the private SQLite installation, the reproducible PostgreSQL
-Docker stack, a separate v2.9 HTTPS staging design and the frozen public
+Docker stack, a separate 2.9.1 HTTPS staging design and the frozen public
 Railway deployment. Production values belong in a secrets manager or hosting
-dashboard, never in Git. Version 2.9 is not published: the verified live
-service, tag, GitHub Release and Devpost entry remain at 2.4.0 until every v2.9
-release gate is approved.
+dashboard, never in Git. Version 2.9.1 dated 2026-07-27 is not published: the
+verified live service, tag, GitHub Release and Devpost entry remain at 2.4.0
+dated 2026-07-21 until every 2.9.1 release gate is approved.
 
 ## 1. Choose the runtime
 
@@ -14,7 +14,7 @@ release gate is approved.
 | Private Windows app | `./scripts/start.ps1` | Local SQLite | Not required |
 | Development | `./scripts/run-dev.ps1` or `./scripts/run-dev.sh` | Local SQLite | Optional |
 | Production-shaped local stack | `docker compose up --build` | PostgreSQL 17 + dictionary volume | Required; demo works without OAuth keys |
-| Private v2.9 staging web | `railway-staging.toml` | Isolated PostgreSQL + model volume | Google/GitHub test clients |
+| Private 2.9.1 staging web dated 2026-07-27 | `railway-staging.toml` | Isolated PostgreSQL + model volume | Google/GitHub test clients |
 | Private reminder cron | `railway-reminders.toml` | Push tables only through dedicated role | No browser identity; no public domain |
 | Public release | Railway Dockerfile deployment | Managed PostgreSQL | Google and/or GitHub OAuth + read-only demo |
 
@@ -126,7 +126,7 @@ Each provider is optional as a set, but partial credentials fail startup. When a
 | `APP_DATA_DIR` | `/app/data` |
 | `DICTIONARY_DB_PATH` | `/app/data/hebrew_dictionary.db` |
 
-### v2.9 speech and reminder staging variables
+### 2.9.1 speech and reminder staging variables — 2026-07-27
 
 Web staging:
 
@@ -182,18 +182,18 @@ python -c "import secrets; print(secrets.token_urlsafe(48))"
 
 Do not print deployed secrets in CI or support logs.
 
-## 4. Railway deployment and private v2.9 staging
+## 4. Railway deployment and private 2.9.1 staging — 2026-07-27
 
 The repository includes the frozen production-oriented `railway.toml` plus
 `railway-staging.toml` and `railway-reminders.toml`. Select each custom file in
-the matching Railway service settings. Never point the existing public v2.4
-service at a private-candidate config.
+the matching Railway service settings. Never point the existing public 2.4.0
+service dated 2026-07-21 at a private-candidate config.
 
 The migration URL and runtime URL must use different PostgreSQL users on the same host, port and database. The provisioner requires the migration login to be a superuser or have `CREATEROLE`; it checks this instead of assuming a hosting provider grants it. It creates or repairs the direct `ivrit_sheli_runtime` login as `NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOREPLICATION NOBYPASSRLS`, removes every role membership so `SET ROLE` cannot become an escalation path, grants only the required schema/table operations, revokes public schema creation, and verifies a fresh restricted connection. Readiness fails when the app uses an administrator URL, a privilege flag or role membership is unsafe, or the database is not at the packaged Alembic head.
 
 Railway pre-deploy commands run in a separate container but receive the same service variables as the web container. The committed start command therefore pins the audited entrypoint, which removes `MIGRATION_DATABASE_URL` before executing Uvicorn or any non-migration command. A custom dashboard start command must not bypass that wrapper.
 
-### Public project setup — unchanged v2.4 boundary
+### Public project setup — unchanged 2.4.0 boundary — 2026-07-21
 
 1. Create a Railway project from the GitHub repository.
 2. Add a PostgreSQL service in the same project.
@@ -219,7 +219,7 @@ The service must bind to `0.0.0.0` and Railway's injected `PORT`; the container 
 
 Changing the runtime password while an old deployment overlaps a new one invalidates new connections from the old container. For a planned rotation, disable overlap for that deployment or use a staged second login; ordinary releases reuse the same runtime password.
 
-### Separate v2.9 staging setup
+### Separate 2.9.1 staging setup — 2026-07-27
 
 1. Create a distinct Railway staging environment/project and a new PostgreSQL
    database. Do not reuse production learner rows.
@@ -306,22 +306,26 @@ Rules:
 - Prefer forward-compatible migrations. Document any irreversible operation.
 - Do not report readiness until PostgreSQL is reachable, the exact packaged revision is active and the direct runtime identity passes every privilege check.
 
-### 2.9 learner-snapshot compatibility boundary
+### 2.9.1 learner-snapshot compatibility boundary — 2026-07-27
 
-Version 2.9 includes the v2.8 Learning Core/daily-practice fields and adds
+Version 2.9.1 includes the v2.8 Learning Core/daily-practice fields (historical
+date not re-verified in this slice), the 2.9.0 coach/reminder fields dated
+2026-07-27 and the new `alphabet_progress` and
+`alphabet_attempts` tables inside each tenant's serialized learning snapshot.
+The 2.9.0 baseline adds
 `learning_feedback`, `learner_model_state` and notification preferences inside
 each tenant's serialized learning snapshot. Push subscriptions remain separate
-PostgreSQL credentials and are never serialized. A 2.4 writer knows none of
-these additions and can silently remove newer learner fields while preserving
-older account data.
+PostgreSQL credentials and are never serialized. A 2.4.0 writer dated
+2026-07-21 knows none of these additions and can silently remove newer learner
+fields while preserving older account data.
 
-Therefore the private v2.9 build must not point at the production learner-state database while 2.4 remains live. A future public rollout requires all of the following:
+Therefore the private 2.9.1 build must not point at the production learner-state database while 2.4.0 remains live. A future public rollout requires all of the following:
 
-1. Create a PostgreSQL backup and prove it can restore before the first v2.9 learner write.
-2. Deploy v2.9 as one controlled writer transition; do not run mixed 2.4 and v2.9 application replicas against the same learner-state rows.
+1. Create a PostgreSQL backup and prove it can restore before the first 2.9.1 learner write.
+2. Deploy 2.9.1 as one controlled writer transition; do not run mixed 2.4.0 and 2.9.1 application replicas against the same learner-state rows.
 3. Verify two real Google accounts through sign-in, one complete daily session, refresh, device change, logout/re-login and export; prove that neither account can access the other's state.
 4. Verify a disposable account's deletion without deleting the owner's account.
-5. After any v2.9 write, do not roll the application back to the 2.4 writer unless the pre-upgrade database backup is restored or a forward-preserving compatibility patch is deployed first.
+5. After any 2.9.1 write, do not roll the application back to the 2.4.0 writer unless the pre-upgrade database backup is restored or a forward-preserving compatibility patch is deployed first.
 6. Keep the private candidate on isolated/local state until that operational procedure and the mother-pilot acceptance retest are explicitly approved.
 
 ## 6. Release verification
@@ -343,7 +347,9 @@ docker compose build
 docker compose up --wait
 ```
 
-Current private v2.9 worktree evidence:
+Current private 2.9.1 worktree evidence dated 2026-07-27 is pending. The
+following results belong to the inherited 2.9.0 baseline dated 2026-07-27 and
+must not be relabelled as 2.9.1 proof:
 
 - Backend: 291 passed, 1 credential-gated PostgreSQL skip.
 - Frontend: 337 passed across 37 files.
@@ -363,22 +369,22 @@ and structured-log privacy validator also passed. The source package verifier
 and 321 canonical Git-index checksums pass. Hebrew recognition accuracy,
 isolated HTTPS staging, two-real-account Google isolation and the
 Kevin-and-mother speech pilot remain pending. None of the local results changes
-public v2.4.
+public 2.4.0 dated 2026-07-21.
 
 Build the ZIP and its external checksum directly from canonical Git blobs:
 
 ```bash
 python scripts/build_release_archive.py \
   --ref HEAD \
-  --output IvritSheli-v2.9.0.zip \
-  --prefix IvritSheli-v2.9.0 \
-  --checksum-output IvritSheli-v2.9.0.zip.sha256
+  --output IvritSheli-v2.9.1.zip \
+  --prefix IvritSheli-v2.9.1 \
+  --checksum-output IvritSheli-v2.9.1.zip.sha256
 ```
 
 Before deploying, create the PostgreSQL backup described below and complete a
 restore drill against a separate database. Package the candidate only from the
 final committed tree and verify the extracted archive. During the private
-pilot, do not merge, push, tag `v2.9.0`, create a GitHub Release, alter Devpost
+pilot, do not merge, push, tag `v2.9.1`, create a GitHub Release, alter Devpost
 or replace public Railway. Those actions require a separate final review and
 Kevin's explicit approval.
 
@@ -398,11 +404,12 @@ Verify against the public URL:
 12. Export downloads the authenticated learner state; account deletion remains verified with a disposable identity or the real PostgreSQL boundary test, not by deleting the owner's account.
 13. Desktop, 390 px mobile, Hebrew RTL, reduced-motion, keyboard-only and 200% zoom modes remain usable.
 14. Prove cached shell/dictionary/region browsing offline while confirming that cloud writes pause and request reconnection; private API responses must not appear in the service-worker cache.
-15. For a v2.9 rollout, prove the learner-snapshot writer transition, Push-role boundary and rollback/restore boundary above; a green 2.4 readiness check is not sufficient evidence.
-16. Complete the mother-pilot acceptance retest from a WhatsApp link: find the primary action within 30 seconds, learn three words and finish a session without assistance. Record comprehension problems before approval.
-17. Test microphone granted/denied, insecure HTTP, silence, invalid format, cancellation, timeout, Android, iPhone/PWA and manual fallback.
-18. Run the planned 20-word/10-phrase pilot; record exact normalized coverage and median latency without inventing results.
-19. Enable reminders explicitly on at least two devices and prove at most one private message per learner/local day, including quiet hours, rest day and an expired subscription.
+15. Verify the 22-base-letter/5-final-form catalog, all three Alphabet Studio experiences, stale-token/idempotent attempts, demo read-only state, export/import, old-snapshot hydration and two-account alphabet isolation.
+16. For a 2.9.1 rollout, prove the learner-snapshot writer transition, Push-role boundary and rollback/restore boundary above; a green 2.4.0 readiness check is not sufficient evidence.
+17. Complete the mother-pilot acceptance retest from a WhatsApp link: find the primary action within 30 seconds, learn three words and finish a session without assistance. Record comprehension problems before approval.
+18. Test microphone granted/denied, insecure HTTP, silence, invalid format, cancellation, timeout, Android, iPhone/PWA and manual fallback.
+19. Run the planned 20-word/10-phrase pilot; record exact normalized coverage and median latency without inventing results.
+20. Enable reminders explicitly on at least two devices and prove at most one private message per learner/local day, including quiet hours, rest day and an expired subscription.
 
 ### Current production verification record — 2.4.0 — 2026-07-21
 
@@ -466,9 +473,9 @@ Application rollback and database rollback are separate decisions:
 5. If data restoration is required, preserve the failed database first, then restore into a separate database and validate it before switching URLs.
 6. Record the request IDs, deployed commit, migration revision and timeline.
 
-For v2.9 specifically, an unmodified 2.4 writer is not a safe rollback target
-after v2.9 learning state has been written. Restore the verified pre-upgrade
-backup or first ship a compatibility writer that preserves unknown snapshot
-tables and columns.
+For 2.9.1 dated 2026-07-27 specifically, an unmodified 2.4.0 writer dated
+2026-07-21 is not a safe rollback target after 2.9.1 learning state has been
+written. Restore the verified pre-upgrade backup or first ship a compatibility
+writer that preserves unknown snapshot tables and columns.
 
 The stable local-first mode is the user-facing continuity path if a cloud host is unavailable.

@@ -1,8 +1,8 @@
 <div align="center">
   <img src="assets/brand/logo.svg" alt="Ivrit Sheli" width="680" />
 
-  <h1>Ivrit Sheli 2.9.0 — Listening & Personal Coach · העברית שלי</h1>
-  <p><strong>Speak, understand and practice Hebrew in a journey that adapts gradually to you.</strong></p>
+  <h1>Ivrit Sheli 2.9.1 — Hebrew Alphabet Studio · העברית שלי</h1>
+  <p><strong>See, hear, recognize and use living Hebrew in a journey that adapts gradually to you.</strong></p>
 
   <p>
     <code>Hebrew • English • Spanish</code> ·
@@ -10,6 +10,7 @@
     <code>Google identity + local mode</code> ·
     <code>Docker</code> ·
     <code>Deterministic learning engine</code> ·
+    <code>22-letter Alphabet Studio</code> ·
     <code>Private Faster Whisper</code> ·
     <code>Explainable coach</code> ·
     <code>RTL-native</code> ·
@@ -24,26 +25,29 @@
 </div>
 
 <p align="center">
-  <a href="https://ivritsheli-production.up.railway.app/?lang=en"><strong>🌐 Open the verified Ivrit Sheli 2.4.0 Contest Edition</strong></a>
+  <a href="https://ivritsheli-production.up.railway.app/?lang=en"><strong>🌐 Open the verified Ivrit Sheli 2.4.0 Contest Edition — 2026-07-21</strong></a>
 </p>
 
-> **Release-candidate boundary:** this checkout is the private, unpublished 2.9.0 candidate. The production Railway deployment, public Git tag, GitHub Release and Devpost submission intentionally remain on the verified 2.4.0 Contest Edition. v2.9 will use a separate HTTPS staging service and isolated PostgreSQL data only after local verification; it will not replace production without pilot evidence and Kevin's explicit approval.
+> **Release-candidate boundary:** this checkout is the private, unpublished **2.9.1 Hebrew Alphabet Studio candidate dated 2026-07-27**. The production Railway deployment, public Git tag, GitHub Release and Devpost submission intentionally remain on the verified **2.4.0 Contest Edition dated 2026-07-21**. The private candidate will use a separate HTTPS staging service and isolated PostgreSQL data only after fresh verification; it will not replace production without pilot evidence and Kevin's explicit approval.
 
 ### Source and live release truth
 
 | Surface | Verified state |
 |---|---|
-| Current private source checkout | `2.9.0` · Listening & Personal Coach candidate · not deployed or published |
-| Current public deployed application | `2.4.0` |
+| Current private source checkout | `2.9.1` · Hebrew Alphabet Studio candidate · 2026-07-27 · not deployed or published |
+| Current public deployed application | `2.4.0` · Contest Edition · verified 2026-07-21 |
 | Release implementation commit | `03bf84b9268ff8be528c0fab3c670f9652ee23b0` |
 | Production storage/readiness | PostgreSQL · ready · 48 reviewed dictionary entries |
 | Deployment verification | Successful on 2026-07-21 |
 | Release verification | 151 unique backend tests + 62 frontend tests = 213 passed; main CI and CodeQL passed |
-| Candidate verification | 291 backend tests, 337 frontend tests and 26 Playwright/axe cases passed; the disposable PostgreSQL 17 gate adds one unique credential-gated case, for **655 unique automated passes**. The ordinary backend run skipped only that database-gated case, and Playwright skipped 28 scoped matrix duplicates. Ruff, strict MyPy across 37 files, TypeScript, compileall, doctor, the production build, Compose, PostgreSQL RLS/roles, the non-root Docker image, container-log privacy and both dependency audits pass. Historical v2.8.3 evidence is preserved separately and is not reused as proof for v2.9. |
-| GitHub publication | [`v2.4.0`](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.4.0) is the published tag and GitHub Release |
+| Candidate verification | **Locally verified on 2026-07-27:** 310 backend tests, 353 frontend tests, 32 Playwright/axe cases and one additional live PostgreSQL 17 case = **696 unique automated passes**. Ruff, strict MyPy across 38 source files, TypeScript, compileall, doctor, production build, dependency audits, Compose and a healthy non-root 2.9.1 Docker runtime passed. The source verifier, 327 canonical Git-index checksums and an extracted 328-blob canonical package also passed. |
+| GitHub publication | [`v2.4.0`](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.4.0), dated 2026-07-21, is the published tag and GitHub Release |
 | Live account evidence | Identity-only Google sign-in, onboarding state and the authenticated session persisted across reload; logout returned to the English landing page and remained signed out after reload |
 | Live judge-path evidence | The English entry link and four-stop read-only guided tour passed production browser checks |
-| Remaining v2.9 release gate | Isolated HTTPS staging with at least 2 GB for Whisper, two-real-account persistence, 20-word/10-phrase Hebrew accuracy pilot, reminder consent checks, mother-pilot acceptance and explicit publication approval |
+| Remaining 2.9.1 release gate | Guided, Explorer and Experienced pilot review; isolated HTTPS staging with at least 2 GB for Whisper; two-real-account persistence; 20-word/10-phrase Hebrew accuracy pilot; reminder consent checks; mother-pilot acceptance; and explicit publication approval |
+
+Historical v2.8.3 evidence is preserved below as regression context; it is not
+presented as current v2.9.1 verification dated 2026-07-27.
 | Visual proof | The animated journey and desktop/mobile/RTL captures below were generated from the local 2.8.0 candidate after Docker rebuild and direct browser inspection |
 
 The same conservative fields are available for portfolio/profile tooling in
@@ -78,7 +82,7 @@ principles behind this release live in the
 </table>
 </details>
 
-> **Screenshot boundary:** these images show the inherited unpublished 2.8 visual foundation, not the frozen 2.4.0 contest deployment and not yet the final v2.9 listening UI. Updated v2.9 screenshots will be captured only after the candidate passes visual and mobile review.
+> **Screenshot boundary:** these images show the inherited unpublished 2.8 visual foundation (historical date not re-verified in this slice), not the frozen 2.4.0 Contest Edition dated 2026-07-21 and not yet the final 2.9.1 Alphabet Studio UI dated 2026-07-27. Updated captures will be added only after the candidate passes visual and mobile review.
 
 ## Why this project exists 💙
 
@@ -86,9 +90,47 @@ Most language products make every learner follow the same path. Ivrit Sheli does
 
 The system tracks what you recognize, what you can produce, where you hesitate, which grammar errors repeat, which situations matter, and which learning mode works best. Recommendations are explainable: the app tells you *why* it selected a word, exercise, mission, or speaking drill.
 
-## What the private 2.9.0 candidate adds 🎙️
+## What the private 2.9.1 candidate adds — 2026-07-27 🔤
 
-v2.9 joins listening practice and explainable personalization into one normal
+**Hebrew Alphabet Studio** turns the former compact reading-track reference
+into an integrated learning surface. Hebrew has **22 base letters**. Five of
+those letters—כ, מ, נ, פ and צ—use a different positional form at the end of a
+word: ך, ם, ן, ף and ץ. The studio therefore teaches **22 letters plus 5 final
+forms**, never the inaccurate claim that Hebrew has 27 letters.
+
+Every reviewed unit connects the written form to its pointed Hebrew name,
+mainstream Modern Israeli pronunciation, a practical niqqud example,
+transliteration, trilingual explanation and dictionary entry. The studio
+handles the sound-changing forms בּ/ב, כּ/כ and פּ/פ, the distinct שׁ/שׂ
+values, vowel-marker uses of א/ה/ו/י and pronunciation variants without
+presenting one community's tradition as the only Hebrew. Approximate Latin
+transliteration is a learner aid, not an exact phonetic measurement.
+
+The same persistent alphabet progress appears in all three experiences:
+
+- **Guided** recommends one next letter and one clear recognition action.
+- **Explorer** opens the complete letter grid, final-form relationships,
+  examples and common visual/sound confusions.
+- **Experienced** provides a compact reference with reviewed pronunciation
+  detail while preserving the same evidence history.
+
+Alphabet practice is connected to Today, the A0 curriculum path, progress,
+the dictionary and the existing voice preference. Browser speech synthesis
+speaks the pointed letter name or a complete example word; it may vary by
+device and installed voice. The app does **not** grade an isolated consonant,
+claim phoneme-level accuracy or turn a TTS voice into a pronunciation
+authority. Recognition evidence and progress persist in local SQLite or the
+authenticated learner's isolated PostgreSQL snapshot, and participate in
+portable export/import. Older snapshots that do not contain alphabet tables
+continue with empty alphabet progress rather than losing vocabulary or
+sessions.
+
+The reviewed contract, teaching decisions and source boundaries are documented
+in [`docs/HEBREW_ALPHABET_STUDIO.md`](docs/HEBREW_ALPHABET_STUDIO.md).
+
+## What the private 2.9.0 baseline added — 2026-07-27 🎙️
+
+Version 2.9.0 joins listening practice and explainable personalization into one normal
 learning flow:
 
 ```text
@@ -134,10 +176,10 @@ role can access only the Push tables; the web runtime and migration
 administrator credentials are not reused.
 
 The private staging design is documented in
-[`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md). The public v2.4 deployment is
+[`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md). The public 2.4.0 deployment dated 2026-07-21 is
 intentionally unchanged.
 
-## Visual foundation inherited from 2.8.3 🌤️
+## Visual foundation inherited from 2.8.3 — date not re-verified 🌤️
 
 The 2.8.3 **Visual Recognition Expansion** gives 72 frequent concepts their
 own semantic SVG scene: all 24 foundation scenes were visibly redesigned and
@@ -185,11 +227,11 @@ The interface follows an original six-stop Israel journey—Galilee, Haifa/Carme
 
 The PWA caches its shell, six region scenes and reviewed starter dictionary, but never caches private API responses. Offline reference browsing remains available after those assets have been cached; cloud writes stop honestly and ask the learner to reconnect. Local SQLite still works without an account. Cloud continuity uses isolated PostgreSQL learner snapshots, while Google sign-in requests only `openid profile`—never Gmail, Drive or Calendar.
 
-## Private 2.7.0 checkpoint — beginner-first continuity
+## Private 2.7.0 checkpoint — date not re-verified — beginner-first continuity
 
-The unpublished v2.7 checkpoint established the three-words-before-account entry, Guided/A0 defaults, the simplified Guided navigation, permanent Help access, real network status and an accessible profile menu. It also introduced the deterministic daily planner, resumable practice tables, curriculum progress, idempotent step events, profile text scaling and focus status. These foundations passed through v2.8 and are incorporated into the current v2.9 candidate; v2.7 was not deployed, tagged or published.
+The unpublished v2.7 checkpoint (date not re-verified) established the three-words-before-account entry, Guided/A0 defaults, the simplified Guided navigation, permanent Help access, real network status and an accessible profile menu. It also introduced the deterministic daily planner, resumable practice tables, curriculum progress, idempotent step events, profile text scaling and focus status. These foundations passed through v2.8 (date not re-verified) and are incorporated into the current 2.9.1 candidate dated 2026-07-27; v2.7 was not deployed, tagged or published.
 
-## Historical 2.6.0 Learning Core 🧠
+## Historical 2.6.0 Learning Core — date not re-verified 🧠
 
 Version 2.6 converts the private-pilot foundation into one explicit learning contract: **contextual encounter → unassisted retrieval → reference feedback/self-correction → corrected retry → delayed review → transfer → reflection**. Exposure, answer reveals, XP and AI output do not count as mastery. The server owns phase transitions and derives the practiced skill, while the interface explains why an activity appeared and when it returns. Correctness and confidence are explicitly learner-reported in this pilot; they are not presented as objective language scoring.
 
@@ -276,7 +318,7 @@ The public-demo design does not contain Kevin's private learning history: it use
 | Full lexicon | One-command importer for the current Kaikki/Wiktionary Hebrew JSONL dataset |
 | Audio | Self-hosted Faster Whisper transcription for short Hebrew speech over HTTPS, persistent masculine/feminine-style browser voice, slow/normal playback, learner-scoped device recording, browser recognition and manual fallbacks, and honest transcript comparison |
 | Gamification | XP and mastery kept separate, meaningful daily actions, rest-aware streaks, optional accessible celebrations and achievements without leagues or energy |
-| Integrations | Identity-only Google sign-in (`openid profile`) for cloud continuity; local mode needs no account; Workspace connector adapters remain outside the private v2.9 learning flow |
+| Integrations | Identity-only Google sign-in (`openid profile`) for cloud continuity; local mode needs no account; Workspace connector adapters remain outside the private 2.9.1 learning flow dated 2026-07-27 |
 | Languages | Trilingual interface and content layers: Hebrew, English, Spanish |
 | UI | Warm illustrated Israel journey, three learner experiences, first three words before account, responsive RTL/LTR, high contrast and reduced-motion support |
 | Reliability | FastAPI error handling, request IDs, liveness/readiness/version probes, real PostgreSQL integration tests, CI |
@@ -425,15 +467,15 @@ PYTHONPATH=backend/src python -m ivrit_sheli \
 
 The importer streams JSONL instead of loading it into memory. Entries retain provenance and license metadata. Every Hebrew token can open the dictionary; inflected forms and roots are cross-linked and clickable. Dictionary-derived content must keep its Wiktionary/Kaikki attribution and share-alike notices; see [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
 
-## Cloud AI boundary in 2.9
+## Cloud AI boundary in 2.9.1 — 2026-07-27
 
-The v2.9 learning journey uses the deterministic local engine, reviewed linguistic data and a reviewed personal-coach pattern library. It requires no API key, makes no per-learner LLM call and does not send pilot learning content to an external AI provider.
+The 2.9.1 learning journey uses the deterministic local engine, reviewed linguistic data and a reviewed personal-coach pattern library. It requires no API key, makes no per-learner LLM call and does not send pilot learning content to an external AI provider.
 
-The repository retains consent-gated experimental OpenAI adapter contracts for later development, but the v2.9 interface keeps cloud AI disabled and `ALLOW_CLOUD_PROCESSING=false` remains the safe default. Those adapters are not presented as a released learning capability, and their provider/model configuration must be reviewed against current official documentation before a future opt-in experiment.
+The repository retains consent-gated experimental OpenAI adapter contracts for later development, but the 2.9.1 interface keeps cloud AI disabled and `ALLOW_CLOUD_PROCESSING=false` remains the safe default. Those adapters are not presented as a released learning capability, and their provider/model configuration must be reviewed against current official documentation before a future opt-in experiment.
 
 ## Audio system
 
-The private v2.9 candidate supports:
+The private 2.9.1 candidate dated 2026-07-27 supports:
 
 1. **Browser speech synthesis** for zero-key Hebrew playback.
 2. **Local recording and playback** through the browser media APIs.
@@ -442,7 +484,7 @@ The private v2.9 candidate supports:
 
 Choose a persistent masculine-style or feminine-style synthetic profile and slow or normal speed. Browser playback selects a deterministic installed Hebrew voice plus a pitch fallback. These labels describe a synthetic presentation preference, not the identity or gender of a real speaker.
 
-The microphone practice card can analyze one Hebrew word or a short transcript from self-hosted transcription, supported browser recognition or manual entry, then opens only source-labelled dictionary meanings, translations, grammar, forms and examples. It does not claim accent or phoneme assessment. Browser-recognized and manual transcripts remain history-only; only a short-lived server-signed Faster Whisper result tied to the same learner, provider, target, transcript and stable learning item may update speaking evidence or XP, with replay protection. The experimental OpenAI audio adapter remains disabled by default in the v2.9 pilot.
+The microphone practice card can analyze one Hebrew word or a short transcript from self-hosted transcription, supported browser recognition or manual entry, then opens only source-labelled dictionary meanings, translations, grammar, forms and examples. It does not claim accent or phoneme assessment. Browser-recognized and manual transcripts remain history-only; only a short-lived server-signed Faster Whisper result tied to the same learner, provider, target, transcript and stable learning item may update speaking evidence or XP, with replay protection. The experimental OpenAI audio adapter remains disabled by default in the 2.9.1 pilot.
 
 Recognition match is deliberately transparent. It compares normalized transcription, word coverage, sequence similarity, and omitted/extra words. It does **not** claim phoneme, accent, intelligibility, native-likeness or clinical accuracy.
 
@@ -498,7 +540,20 @@ Available track preferences are `modern_conversation`, `pointed_reading` and `fo
 
 ## Test everything
 
-The locally verified 2.4.0 source passes **151 unique backend tests + 62 frontend tests = 213 passing automated tests**. The ordinary backend run reports 150 passed and one credential-gated PostgreSQL skip; the dedicated PostgreSQL 17 gate passes all three database-boundary tests, two already represented in the ordinary suite and one replacing that skip. Ruff, strict MyPy across 24 source files, compileall, offline doctor, pip-audit, TypeScript, Vite, npm production audit, package verification and the production-shaped Docker/Compose smoke all pass locally. Separately, Railway production reports 2.4.0 with PostgreSQL and all 48 reviewed dictionary entries ready; the English judge path, identity-only Google sign-in, onboarding/session persistence across reload and logout were verified in a normal browser.
+The private 2.9.1 candidate dated 2026-07-27 has **696 unique automated
+passes**: 310 backend + 353 frontend + 32 Playwright/axe + one additional live
+PostgreSQL 17 case. Ruff, strict MyPy across 38 source files, TypeScript,
+compileall, offline doctor, the production build, dependency audits, Docker
+Compose and a healthy non-root Docker runtime reporting 2.9.1 also passed.
+The source verifier, 327 canonical Git-index checksums and an extracted
+328-blob canonical package also passed. This remains private-candidate evidence,
+not a publication claim.
+
+The public 2.4.0 baseline remains separately verified at **151 unique backend
+tests + 62 frontend tests = 213 passed**. Railway production still reports
+2.4.0 with PostgreSQL and all 48 reviewed dictionary entries ready; the English
+judge path, identity-only Google sign-in, onboarding/session persistence across
+reload and logout were verified in a normal browser.
 
 ```bash
 ./scripts/test-all.sh
@@ -550,6 +605,7 @@ IvritSheli/
 
 - [`docs/ULTIMATE_BUILD_SPEC.md`](docs/ULTIMATE_BUILD_SPEC.md) — complete product instructions and acceptance criteria.
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — boundaries, data flow, schema, and failure modes.
+- [`docs/HEBREW_ALPHABET_STUDIO.md`](docs/HEBREW_ALPHABET_STUDIO.md) — 22-letter/5-final-form teaching, pronunciation, persistence, accessibility and provenance contract.
 - [`docs/AI_ENGINE.md`](docs/AI_ENGINE.md) — provider design, schemas, fallback, and learner feedback loop.
 - [`docs/DICTIONARY.md`](docs/DICTIONARY.md) — import pipeline, clickable Hebrew, provenance, and licensing.
 - [`docs/AUDIO.md`](docs/AUDIO.md) — recording, TTS, STT, scoring, and privacy.

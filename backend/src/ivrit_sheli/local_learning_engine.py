@@ -11,6 +11,8 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any, Literal
 
+from ivrit_sheli.hebrew_alphabet import public_alphabet_units
+
 PRACTICE_CONTRACT_VERSION = "2.8"
 CURRICULUM_CONTRACT_VERSION = "2.8"
 
@@ -157,14 +159,36 @@ class LocalLearningEngine:
         progress: Mapping[str, Mapping[str, Any]],
         *,
         available_concepts: int,
+        alphabet_summary: Mapping[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Return the stable A0-A2 path and honestly labelled B1/B2 laboratory."""
         raw_band = str(profile.get("cefr_band", "A0")).upper()
         band = raw_band if raw_band in _BAND_ORDER else "A0"
         mode = str(profile.get("learner_mode", "guided"))
+        alphabet = dict(alphabet_summary or {})
         lessons: list[dict[str, Any]] = []
         for lesson in CURRICULUM_LESSONS:
             lesson_progress = dict(progress.get(lesson.key, {}))
+            lesson_concept_target = lesson.concept_target
+            if lesson.key == "a0.sounds" and alphabet:
+                practiced = int(alphabet.get("practiced_units", 0))
+                mastered = int(alphabet.get("mastered_units", 0))
+                total_forms = max(1, int(alphabet.get("total_forms", 27)))
+                lesson_progress = {
+                    "status": (
+                        "not_started"
+                        if practiced == 0 and mastered == 0
+                        else "completed"
+                        if mastered >= total_forms
+                        else "in_progress"
+                    ),
+                    "meaningful_attempts": practiced,
+                    "successful_attempts": mastered,
+                    "units_practiced": practiced,
+                    "units_mastered": mastered,
+                    "unit_target": total_forms,
+                    "last_practiced_at": alphabet.get("last_practiced_at"),
+                }
             unlocked = _BAND_ORDER[lesson.band] <= _BAND_ORDER[band]
             if lesson.coverage == "laboratory":
                 unlocked = unlocked and mode in {"explorer", "experienced"}
@@ -173,7 +197,7 @@ class LocalLearningEngine:
                     "key": lesson.key,
                     "band": lesson.band,
                     "coverage": lesson.coverage,
-                    "concept_target": lesson.concept_target,
+                    "concept_target": lesson_concept_target,
                     "title": {
                         "en": lesson.title_en,
                         "es": lesson.title_es,
@@ -189,6 +213,21 @@ class LocalLearningEngine:
                             lesson_progress.get("successful_attempts", 0)
                         ),
                         "last_practiced_at": lesson_progress.get("last_practiced_at"),
+                        **(
+                            {
+                                "units_practiced": int(
+                                    lesson_progress.get("units_practiced", 0)
+                                ),
+                                "units_mastered": int(
+                                    lesson_progress.get("units_mastered", 0)
+                                ),
+                                "unit_target": int(
+                                    lesson_progress.get("unit_target", 27)
+                                ),
+                            }
+                            if lesson.key == "a0.sounds" and alphabet
+                            else {}
+                        ),
                     },
                 }
             )
@@ -206,7 +245,11 @@ class LocalLearningEngine:
             "reading_track": {
                 "approach": "sound_first",
                 "base_letters": 22,
+                "final_forms": 5,
+                "total_forms": 27,
                 "entries": list(HEBREW_READING_TRACK),
+                "units": public_alphabet_units(),
+                "progress": alphabet,
             },
         }
 

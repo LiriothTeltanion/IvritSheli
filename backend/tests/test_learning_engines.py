@@ -109,6 +109,8 @@ def test_recommendations_rank_deterministically() -> None:
 def test_xp_levels_and_soft_caps_are_predictable() -> None:
     assert xp_for_action(XPAction.CORRECT_REVIEW) == 10
     assert xp_for_action(XPAction.CORRECT_REVIEW, earned_today_for_action=300) == 2
+    assert xp_for_action(XPAction.ALPHABET_PRACTICE, earned_today_for_action=55) == 5
+    assert xp_for_action(XPAction.ALPHABET_PRACTICE, earned_today_for_action=60) == 0
     assert level_from_xp(400) == 3
     assert level_progress(50)["percent"] == 50.0
 

@@ -32,6 +32,8 @@ STATE_TABLES = (
     "practice_sessions",
     "practice_step_events",
     "curriculum_progress",
+    "alphabet_progress",
+    "alphabet_attempts",
     "learning_feedback",
     "learner_model_state",
     "notification_preferences",
@@ -288,6 +290,31 @@ class CloudLearningRepository:
 
     def curriculum_path(self) -> dict[str, Any]:
         return cast(dict[str, Any], self._read("curriculum_path"))
+
+    def alphabet_catalog(self, letter_key: str | None = None) -> dict[str, Any]:
+        """Return tenant alphabet progress or a truthful read-only demo preview."""
+        return cast(
+            dict[str, Any],
+            self._read(
+                "alphabet_catalog",
+                letter_key,
+                can_save=not self.seed_demo,
+            ),
+        )
+
+    def submit_alphabet_attempt(
+        self,
+        letter_key: str,
+        payload: dict[str, Any],
+    ) -> dict[str, Any]:
+        if self.seed_demo:
+            raise ValueError(
+                "The shared demonstration is read-only; sign in to save alphabet progress"
+            )
+        return cast(
+            dict[str, Any],
+            self._write("submit_alphabet_attempt", letter_key, payload),
+        )
 
     def practice_today(self, persist: bool = True) -> dict[str, Any]:
         if self.seed_demo:

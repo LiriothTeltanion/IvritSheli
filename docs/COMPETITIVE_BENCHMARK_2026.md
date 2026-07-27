@@ -44,7 +44,9 @@ percentage.
 
 ## Local candidate implementation status
 
-This snapshot describes the local v2.8 candidate on 2026-07-26. The
+The original snapshot describes the local v2.8 candidate on 2026-07-26.
+The private 2.9.1 Alphabet Studio extension dated 2026-07-27 is recorded as a
+new implementation slice without rewriting that historical verification. The
 labels intentionally separate implementation evidence from release evidence:
 
 - **Code present** means the relevant path was inspected in the current
@@ -63,6 +65,7 @@ acceptance retest and the OpenAI Build Week winner announcement.
 
 | Research decision now represented in code | Current implementation boundary | Code evidence | Release verification |
 |---|---|---|---|
+| Integrated sound-first alphabet | The private 2.9.1 slice turns the former compact 22-entry reference into Alphabet Studio: 22 base letters plus 5 positional final forms, one evidence history across Guided/Explorer/Experienced, reviewed names/sound contexts/examples, Today/curriculum/dictionary/audio/progress integration and persistent idempotent retrieval attempts. It does not call the final forms separate letters or claim isolated-phoneme scoring. | `backend/src/ivrit_sheli/hebrew_alphabet.py`; `backend/src/ivrit_sheli/api.py`; `frontend/src/components/AlphabetStudio.tsx`; `docs/HEBREW_ALPHABET_STUDIO.md` | **Pending** fresh 2.9.1 backend/frontend/accessibility/build/Docker/package gates and beginner review |
 | Teach three words before account or configuration | `PreAccountLesson` presents the first three reviewed starter words one at a time, with meaning choices, retry, an example and optional browser speech. `AuthGate` keeps account, local-mode and demo choices behind completion or an explicit skip. The lesson is intentionally ephemeral: it does not claim saved progress, XP or a scored attempt. | `frontend/src/components/PreAccountLesson.tsx`; `frontend/src/components/AuthGate.tsx` | Verified locally in the 310-test Vitest suite |
 | Plain “Before you start” guide | Daily Practice now opens with a trilingual briefing that previews the session's unique concepts, lets the learner hear them, states the goal and provides one start action. Read-only demo status is disclosed before practice begins. | `frontend/src/components/DailyPracticeSession.tsx` | Verified locally in component and browser gates |
 | Progressive visual retrieval cue | Retrieval exercises with a supported `visual_id` initially hide the illustration and expose a labelled “Show visual hint” action. Revealing it increments `hints_used`; unsupported or personal concepts do not receive fabricated art. | `frontend/src/components/DailyPracticeSession.tsx`; `backend/src/ivrit_sheli/local_learning_engine.py` | Verified locally in backend and frontend suites |
@@ -163,9 +166,29 @@ Any pilot result is an `n=1` observation, not general learning evidence.
 6. **Deferred until pilot evidence:** tracing, real-speaker media, mnemonic
    experiments, attendance dots and any invited-companion capability.
 
-## v2.9 appendix — Listening & Personal Coach
+## 2.9.1 appendix — Hebrew Alphabet Studio — 2026-07-27
 
-This appendix records product choices for the private v2.9 candidate. Code
+This slice implements the earlier **sound-first Hebrew reading track** decision
+as an integrated studio while preserving the public 2.4.0 Contest Edition dated
+2026-07-21.
+
+| Classification | Decision | Product boundary |
+|---|---|---|
+| Adopt | Teach the 22 base letters through sound and one useful reviewed word, then connect five positional final forms to their base letters. | Never call the 27 written-form units “27 letters.” |
+| Adapt | Use a focused Guided next-letter action, an Explorer grid and an Experienced compact reference over one persistent evidence history. | Mode changes presentation density, not the learner's level or recorded truth. |
+| Adapt | Reuse saved browser voice style/speed for pointed names and whole example words. | TTS is a synthetic playback aid, not canonical phonetic evidence. |
+| Adapt | Record idempotent recognition attempts and revisit letters over time. | Exposure, playback and one correct tap do not establish mastery. |
+| Avoid | Add a fourth Guided top-level destination, mandatory tracing, microphone grading of isolated consonants or heritage-pronunciation judgement. | Preserve beginner clarity, accessibility and truthful scoring. |
+| Experiment later | Touch/mouse/keyboard tracing and licensed real-speaker clips. | Require cross-input accessibility, provenance, consent and beginner evidence first. |
+
+Implementation is present as a private candidate. Fresh 2.9.1
+backend/frontend/accessibility/build/Docker/package verification and a beginner
+recognition review remain pending.
+
+## 2.9.0 appendix — Listening & Personal Coach — 2026-07-27
+
+This appendix records product choices for the private 2.9.0 candidate dated
+2026-07-27. Code
 presence and focused tests do not become public learning evidence until the
 integrated verification and Kevin-and-mother pilot pass.
 

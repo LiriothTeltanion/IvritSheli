@@ -22,6 +22,43 @@ On a new browser profile, the app first teaches three useful words before asking
 
 The pre-account preview teaches `שלום`, `תודה` and `בבקשה`. The optional First Steps collection then expands that foundation with `כן` and `לא`. Each card combines an exact code-native scene, niqqud, romanization, a localized meaning, a practical example and pronunciation. Saved words, submitted practice and navigation checkpoints use the active learner profile, so an authenticated learner can recover progress after signing in again.
 
+### Hebrew Alphabet Studio — private 2.9.1 candidate — 2026-07-27
+
+Open **Learn**, then **Alphabet**. You can also continue the recommended next
+letter from Today or open the alphabet summary inside the A0 curriculum path.
+Guided keeps its simple Today, Words and Help top-level navigation; Alphabet is
+integrated inside Learn instead of adding another main destination.
+
+Hebrew has **22 base letters**. Five—כ, מ, נ, פ and צ—change shape at the end
+of a word: ך, ם, ן, ף and ץ. The studio displays 27 written-form units, but it
+does not call them 27 letters.
+
+For each unit:
+
+1. inspect the large written form and its pointed Hebrew name;
+2. choose **Hear name** to play the name with your saved voice style and speed;
+3. read the EN/ES/HE sound explanation;
+4. choose **Hear example** for a complete reviewed Hebrew word;
+5. open that example in the dictionary when you want meaning, grammar and
+   related forms; and
+6. answer the recognition prompt before the app records retrieval evidence.
+
+Guided recommends one next letter and keeps the full grid secondary. Explorer
+opens the grid, final forms and common confusions. Experienced provides a more
+compact reference. Switching mode does not erase or duplicate progress.
+
+Browser speech depends on the Hebrew voices installed on the device. If
+playback is unavailable, the written name, transliteration, sound explanation
+and recognition activity remain usable. The studio does not score one isolated
+consonant with the microphone and does not claim accent or phoneme assessment.
+
+Local learners keep alphabet progress in their SQLite profile. Authenticated
+learners keep it inside their isolated PostgreSQL learner snapshot, so it can
+continue across devices. The shared demo can explore the studio but cannot
+claim that progress was saved. See
+[HEBREW_ALPHABET_STUDIO.md](HEBREW_ALPHABET_STUDIO.md) for the complete
+learning, pronunciation and provenance contract.
+
 ### Development mode
 
 Run the setup script, then start the development launcher:

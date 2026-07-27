@@ -27,6 +27,20 @@ from ivrit_sheli.gamification import (
     level_progress,
     xp_for_action,
 )
+from ivrit_sheli.hebrew_alphabet import (
+    ALPHABET_CONTENT_REVISION,
+    ALPHABET_CONTRACT_VERSION,
+    ALPHABET_EDITORIAL_STATUS,
+    BASE_ALPHABET,
+    FINAL_FORMS,
+    HEBREW_ALPHABET,
+    AlphabetConflictError,
+    alphabet_facts,
+    alphabet_unit,
+    build_alphabet_activity,
+    public_alphabet_units,
+    public_source_references,
+)
 from ivrit_sheli.learner_model import apply_feedback, reset_learner_model
 from ivrit_sheli.learning_core import (
     CEFR_BANDS,
@@ -90,6 +104,8 @@ PORTABLE_EXPORT_TABLES = (
     "practice_sessions",
     "practice_step_events",
     "curriculum_progress",
+    "alphabet_progress",
+    "alphabet_attempts",
     "learning_feedback",
     "learner_model_state",
     "notification_preferences",
@@ -786,10 +802,573 @@ class LearningRepository:
                 dict(profile_row),
                 {str(row["lesson_key"]): dict(row) for row in progress_rows},
                 available_concepts=available_concepts,
+                alphabet_summary=self._alphabet_summary(connection),
             )
         finally:
             if should_close:
                 connection.close()
+
+    def alphabet_catalog(
+        self,
+        letter_key: str | None = None,
+        *,
+        can_save: bool = True,
+    ) -> dict[str, Any]:
+        """Return the reviewed alphabet, persisted progress, and one safe activity."""
+        connection = self.database.connect()
+        should_close = str(self.database.path) != ":memory:"
+        try:
+            profile = connection.execute(
+                "SELECT cefr_band, learner_mode FROM profiles WHERE id = 1"
+            ).fetchone()
+            if profile is None:
+                raise KeyError("Local profile is not initialized")
+            summary = self._alphabet_summary(connection, include_by_key=True)
+            selected_key = (
+                alphabet_unit(letter_key).key
+                if letter_key is not None
+                else str(summary["recommended_key"])
+            )
+            activity = self._alphabet_activity(
+                connection,
+                selected_key,
+                can_submit=can_save,
+            )
+            return {
+                "contract_version": ALPHABET_CONTRACT_VERSION,
+                "content_revision": ALPHABET_CONTENT_REVISION,
+                "editorial_status": ALPHABET_EDITORIAL_STATUS,
+                "source_refs": public_source_references(),
+                "facts": alphabet_facts(),
+                "profile": {
+                    "cefr_band": str(profile["cefr_band"]),
+                    "learner_mode": str(profile["learner_mode"]),
+                },
+                "units": public_alphabet_units(),
+                "progress": {
+                    "can_save": can_save,
+                    "persistence": "persisted" if can_save else "read_only_preview",
+                    **summary,
+                },
+                "recommended_key": summary["recommended_key"],
+                "next_activity": activity,
+            }
+        finally:
+            if should_close:
+                connection.close()
+
+    def submit_alphabet_attempt(
+        self,
+        letter_key: str,
+        payload: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Persist one server-graded alphabet attempt with replay protection."""
+        unit = alphabet_unit(letter_key)
+        activity_token = str(payload.get("activity_token", "")).strip()
+        idempotency_key = str(payload.get("idempotency_key", "")).strip()
+        answer_key = str(payload.get("answer_key", "")).strip().casefold()
+        confidence = int(payload.get("confidence", 3))
+        response_ms = int(payload.get("response_ms", 0))
+        hints_used = int(payload.get("hints_used", 0))
+        if len(activity_token) != 64 or any(
+            character not in "0123456789abcdef" for character in activity_token
+        ):
+            raise ValueError("activity_token must be 64 lowercase hexadecimal characters")
+        if not 8 <= len(idempotency_key) <= 128 or any(
+            not (character.isascii() and (character.isalnum() or character in "._:-"))
+            for character in idempotency_key
+        ):
+            raise ValueError(
+                "idempotency_key must be 8-128 ASCII letters, numbers, dots, "
+                "underscores, colons, or hyphens"
+            )
+        if not answer_key or len(answer_key) > 64:
+            raise ValueError("answer_key must identify one offered alphabet option")
+        if not 1 <= confidence <= 5:
+            raise ValueError("confidence must be between 1 and 5")
+        if not 0 <= response_ms <= 3_600_000:
+            raise ValueError("response_ms must be between 0 and 3600000")
+        if not 0 <= hints_used <= 100:
+            raise ValueError("hints_used must be between 0 and 100")
+
+        normalized_payload = {
+            "letter_key": unit.key,
+            "activity_token": activity_token,
+            "answer_key": answer_key,
+            "confidence": confidence,
+            "response_ms": response_ms,
+            "hints_used": hints_used,
+        }
+        request_hash = hashlib.sha256(
+            json.dumps(
+                normalized_payload,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest()
+
+        with self.database.transaction() as connection:
+            duplicate = connection.execute(
+                """
+                SELECT request_hash, response_json
+                FROM alphabet_attempts
+                WHERE idempotency_key = ?
+                """,
+                (idempotency_key,),
+            ).fetchone()
+            if duplicate is not None:
+                if not hmac.compare_digest(str(duplicate["request_hash"]), request_hash):
+                    raise AlphabetConflictError(
+                        "The idempotency key was already used for different alphabet evidence."
+                    )
+                stored = json.loads(str(duplicate["response_json"]))
+                if not isinstance(stored, dict):
+                    raise sqlite3.DatabaseError(
+                        "Stored alphabet idempotency response is invalid"
+                    )
+                return self._alphabet_replay_response(connection, stored)
+
+            current_activity = self._alphabet_activity(
+                connection,
+                unit.key,
+                can_submit=True,
+            )
+            expected_token = str(current_activity["activity_token"])
+            if not hmac.compare_digest(expected_token, activity_token):
+                raise AlphabetConflictError(
+                    "This alphabet activity is stale; refresh it before submitting."
+                )
+            option_keys = {
+                str(option["key"])
+                for option in current_activity["options"]
+                if isinstance(option, dict)
+            }
+            if answer_key not in option_keys:
+                raise ValueError("answer_key was not one of the offered alphabet options")
+
+            progress = self._alphabet_progress_row(connection, unit.key)
+            exercise_type = str(current_activity["exercise_type"])
+            is_correct = answer_key == unit.key
+            prior_success = connection.execute(
+                """
+                SELECT 1
+                FROM alphabet_attempts
+                WHERE letter_key = ? AND exercise_type = ? AND is_correct = 1
+                LIMIT 1
+                """,
+                (unit.key, exercise_type),
+            ).fetchone()
+            now = iso_now()
+            recognition_successes = int(progress["recognition_successes"])
+            sound_successes = int(progress["sound_successes"])
+            word_successes = int(progress["word_successes"])
+            total_failures = int(progress["total_failures"])
+            if is_correct:
+                if exercise_type in {
+                    "letter_recognition",
+                    "final_form_pair",
+                    "review",
+                }:
+                    recognition_successes += 1
+                elif exercise_type == "sound_choice":
+                    sound_successes += 1
+                elif exercise_type == "word_spotting":
+                    word_successes += 1
+            else:
+                total_failures += 1
+
+            first_practiced_at = progress["first_practiced_at"]
+            if is_correct and first_practiced_at is None:
+                first_practiced_at = now
+            previously_practiced = int(progress["review_count"]) > 0
+            requirements_met = (
+                recognition_successes >= 2
+                and sound_successes >= 2
+                and word_successes >= 1
+            )
+            cross_day_review = bool(
+                first_practiced_at
+                and datetime.fromisoformat(str(first_practiced_at))
+                .astimezone(PRACTICE_TIMEZONE)
+                .date()
+                < datetime.now(PRACTICE_TIMEZONE).date()
+            )
+            previous_stage = str(progress["stage"])
+            if requirements_met and cross_day_review and is_correct:
+                stage = "mastered"
+            elif is_correct:
+                stage = "practiced"
+            elif previous_stage == "mastered":
+                stage = "practiced"
+            elif previous_stage == "practiced":
+                stage = previous_stage
+            else:
+                stage = "learning" if previously_practiced or not is_correct else "new"
+            next_review_at = (
+                (utc_now() + timedelta(days=7 if stage == "mastered" else 1)).isoformat(
+                    timespec="seconds"
+                )
+                if is_correct
+                else now
+            )
+            revision = int(progress["revision"]) + 1
+            connection.execute(
+                """
+                INSERT INTO alphabet_progress(
+                    letter_key, stage, recognition_successes, sound_successes,
+                    word_successes, total_failures, review_count,
+                    first_practiced_at, last_practiced_at, next_review_at,
+                    revision, updated_at
+                ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(letter_key) DO UPDATE SET
+                    stage = excluded.stage,
+                    recognition_successes = excluded.recognition_successes,
+                    sound_successes = excluded.sound_successes,
+                    word_successes = excluded.word_successes,
+                    total_failures = excluded.total_failures,
+                    review_count = excluded.review_count,
+                    first_practiced_at = excluded.first_practiced_at,
+                    last_practiced_at = excluded.last_practiced_at,
+                    next_review_at = excluded.next_review_at,
+                    revision = excluded.revision,
+                    updated_at = excluded.updated_at
+                """,
+                (
+                    unit.key,
+                    stage,
+                    recognition_successes,
+                    sound_successes,
+                    word_successes,
+                    total_failures,
+                    int(progress["review_count"]) + 1,
+                    first_practiced_at,
+                    now,
+                    next_review_at,
+                    revision,
+                    now,
+                ),
+            )
+            cursor = connection.execute(
+                """
+                INSERT INTO alphabet_attempts(
+                    letter_key, exercise_type, prompt_key, answer_key, is_correct,
+                    confidence, response_ms, hints_used, idempotency_key,
+                    request_hash, activity_token, response_json, created_at
+                ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '{}', ?)
+                """,
+                (
+                    unit.key,
+                    exercise_type,
+                    current_activity["prompt_key"],
+                    answer_key,
+                    int(is_correct),
+                    confidence,
+                    response_ms,
+                    hints_used,
+                    idempotency_key,
+                    request_hash,
+                    activity_token,
+                    now,
+                ),
+            )
+            attempt_id_raw = cursor.lastrowid
+            if attempt_id_raw is None:
+                raise sqlite3.DatabaseError("SQLite did not return an alphabet attempt ID")
+            attempt_id = int(attempt_id_raw)
+            xp_awarded = 0
+            if is_correct and prior_success is None:
+                xp_awarded = self._award_xp(
+                    connection,
+                    XPAction.ALPHABET_PRACTICE,
+                    "alphabet_attempt",
+                    str(attempt_id),
+                )
+            unlocked = self._unlock_achievements(connection, now) if is_correct else []
+            updated_summary = self._alphabet_summary(connection, include_by_key=True)
+            next_letter_key = str(updated_summary["recommended_key"])
+            replay_facts = {
+                "contract_version": ALPHABET_CONTRACT_VERSION,
+                "attempt_id": attempt_id,
+                "letter_key": unit.key,
+                "exercise_type": exercise_type,
+                "is_correct": is_correct,
+                "expected_key": unit.key,
+                "saved": True,
+                "xp_awarded": xp_awarded,
+                "achievements_unlocked": [
+                    {
+                        "key": achievement.key,
+                        "title": {
+                            "en": achievement.title_en,
+                            "es": achievement.title_es,
+                            "he": achievement.title_he,
+                        },
+                    }
+                    for achievement in unlocked
+                ],
+            }
+            response = {
+                **replay_facts,
+                "idempotent_replay": False,
+                "letter_progress": updated_summary["by_key"][unit.key],
+                "progress": {
+                    "can_save": True,
+                    "persistence": "persisted",
+                    **updated_summary,
+                },
+                "next_activity": self._alphabet_activity(
+                    connection,
+                    next_letter_key,
+                    can_submit=True,
+                ),
+            }
+            connection.execute(
+                "UPDATE alphabet_attempts SET response_json = ? WHERE id = ?",
+                (
+                    json.dumps(
+                        replay_facts,
+                        ensure_ascii=False,
+                        sort_keys=True,
+                        separators=(",", ":"),
+                    ),
+                    attempt_id,
+                ),
+            )
+            return response
+
+    def _alphabet_replay_response(
+        self,
+        connection: sqlite3.Connection,
+        stored: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Combine immutable attempt facts with current compact learner state."""
+        fact_keys = (
+            "contract_version",
+            "attempt_id",
+            "letter_key",
+            "exercise_type",
+            "is_correct",
+            "expected_key",
+            "saved",
+            "xp_awarded",
+            "achievements_unlocked",
+        )
+        if any(key not in stored for key in fact_keys):
+            raise sqlite3.DatabaseError(
+                "Stored alphabet idempotency facts are incomplete"
+            )
+        letter_key = alphabet_unit(str(stored["letter_key"])).key
+        current_summary = self._alphabet_summary(connection, include_by_key=True)
+        next_letter_key = str(current_summary["recommended_key"])
+        return {
+            **{key: stored[key] for key in fact_keys},
+            "idempotent_replay": True,
+            "letter_progress": current_summary["by_key"][letter_key],
+            "progress": {
+                "can_save": True,
+                "persistence": "persisted",
+                **current_summary,
+            },
+            "next_activity": self._alphabet_activity(
+                connection,
+                next_letter_key,
+                can_submit=True,
+            ),
+        }
+
+    @staticmethod
+    def _alphabet_progress_row(
+        connection: sqlite3.Connection,
+        letter_key: str,
+    ) -> dict[str, Any]:
+        """Return stored counters or a non-persisted zero-value row."""
+        row = connection.execute(
+            "SELECT * FROM alphabet_progress WHERE letter_key = ?",
+            (letter_key,),
+        ).fetchone()
+        if row is not None:
+            return dict(row)
+        return {
+            "letter_key": letter_key,
+            "stage": "new",
+            "recognition_successes": 0,
+            "sound_successes": 0,
+            "word_successes": 0,
+            "total_failures": 0,
+            "review_count": 0,
+            "first_practiced_at": None,
+            "last_practiced_at": None,
+            "next_review_at": None,
+            "revision": 0,
+            "updated_at": None,
+        }
+
+    def _alphabet_activity(
+        self,
+        connection: sqlite3.Connection,
+        letter_key: str,
+        *,
+        can_submit: bool,
+    ) -> dict[str, Any]:
+        """Build one reconstructable activity and its SHA-256 concurrency token."""
+        progress = self._alphabet_progress_row(connection, letter_key)
+        activity = build_alphabet_activity(letter_key, progress)
+        token_payload = {
+            "contract_version": ALPHABET_CONTRACT_VERSION,
+            "letter_key": activity["letter_key"],
+            "exercise_type": activity["exercise_type"],
+            "prompt_key": activity["prompt_key"],
+            "sound_key": activity.get("sound_key"),
+            "option_keys": [
+                option["key"]
+                for option in activity["options"]
+                if isinstance(option, dict)
+            ],
+            "revision": int(progress["revision"]),
+        }
+        token = hashlib.sha256(
+            json.dumps(
+                token_payload,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest()
+        return {
+            **activity,
+            "activity_token": token,
+            "token_kind": "sha256_concurrency_token",
+            "can_submit": can_submit,
+        }
+
+    def _alphabet_summary(
+        self,
+        connection: sqlite3.Connection,
+        *,
+        include_by_key: bool = False,
+    ) -> dict[str, Any]:
+        """Summarize real alphabet evidence without converting XP into mastery."""
+        stored_rows = {
+            str(row["letter_key"]): dict(row)
+            for row in connection.execute(
+                "SELECT * FROM alphabet_progress ORDER BY updated_at DESC"
+            ).fetchall()
+            if str(row["letter_key"]) in {unit.key for unit in HEBREW_ALPHABET}
+        }
+        by_key = {
+            unit.key: self._alphabet_progress_row(connection, unit.key)
+            for unit in HEBREW_ALPHABET
+        }
+        practiced_keys = {
+            key
+            for key, progress in by_key.items()
+            if progress["stage"] in {"practiced", "mastered"}
+        }
+        mastered_keys = {
+            key for key, progress in by_key.items() if progress["stage"] == "mastered"
+        }
+        total_attempts = sum(int(progress["review_count"]) for progress in by_key.values())
+        correct_attempts_row = connection.execute(
+            """
+            SELECT COUNT(*)
+            FROM alphabet_attempts
+            WHERE is_correct = 1 AND letter_key IN (
+                SELECT letter_key FROM alphabet_progress
+            )
+            """
+        ).fetchone()
+        correct_attempts = int(correct_attempts_row[0] if correct_attempts_row else 0)
+        now = iso_now()
+        due_started = [
+            unit
+            for unit in HEBREW_ALPHABET
+            if (
+                unit.key in stored_rows
+                and (
+                    stored_rows[unit.key]["next_review_at"] is None
+                    or str(stored_rows[unit.key]["next_review_at"]) <= now
+                )
+            )
+        ]
+        new_units = [unit for unit in HEBREW_ALPHABET if unit.key not in stored_rows]
+        remaining = [
+            unit
+            for unit in HEBREW_ALPHABET
+            if by_key[unit.key]["stage"] != "mastered"
+        ]
+        recommended_unit = (
+            min(
+                due_started,
+                key=lambda unit: (
+                    str(by_key[unit.key]["next_review_at"] or ""),
+                    int(by_key[unit.key]["review_count"]),
+                    unit.order,
+                ),
+            )
+            if due_started
+            else (
+                new_units[0]
+                if new_units
+                else (
+                    min(
+                        remaining,
+                        key=lambda unit: (
+                            str(by_key[unit.key]["next_review_at"] or ""),
+                            unit.order,
+                        ),
+                    )
+                    if remaining
+                    else HEBREW_ALPHABET[0]
+                )
+            )
+        )
+        public_recommended = recommended_unit.to_dict()
+        summary: dict[str, Any] = {
+            "base_letters": len(BASE_ALPHABET),
+            "final_forms": len(FINAL_FORMS),
+            "total_forms": len(HEBREW_ALPHABET),
+            "practiced_units": len(practiced_keys),
+            "mastered_units": len(mastered_keys),
+            "completion_percent": round(
+                len(practiced_keys) / len(HEBREW_ALPHABET) * 100
+            ),
+            "practiced_base_letters": sum(
+                unit.key in practiced_keys for unit in BASE_ALPHABET
+            ),
+            "practiced_final_forms": sum(
+                unit.key in practiced_keys for unit in FINAL_FORMS
+            ),
+            "total_attempts": total_attempts,
+            "correct_attempts": correct_attempts,
+            "accuracy": (
+                round(correct_attempts / total_attempts, 4)
+                if total_attempts
+                else 0.0
+            ),
+            "last_practiced_at": max(
+                (
+                    str(progress["last_practiced_at"])
+                    for progress in by_key.values()
+                    if progress["last_practiced_at"] is not None
+                ),
+                default=None,
+            ),
+            "recommended_key": recommended_unit.key,
+            "recommended": {
+                key: public_recommended[key]
+                for key in (
+                    "key",
+                    "letter",
+                    "name",
+                    "name_niqqud",
+                    "example",
+                )
+            },
+        }
+        if include_by_key:
+            summary["by_key"] = by_key
+        return summary
 
     def practice_today(self, persist: bool = True) -> dict[str, Any]:
         """Return or create today's resumable practice plan.
@@ -1856,6 +2435,7 @@ class LearningRepository:
             ).fetchone()
             accuracy = float(recent_accuracy_row["accuracy"] or 0)
             daily_goal = self._daily_goal_state(connection)
+            alphabet_summary = self._alphabet_summary(connection)
         finally:
             if should_close:
                 connection.close()
@@ -1879,6 +2459,7 @@ class LearningRepository:
             "focus": focus_summary(error_counts),
             "recommendations": self.recommendations(5),
             "achievements": achievements,
+            "alphabet_summary": alphabet_summary,
             "mission": {
                 "title": "Use one confident workplace phrase",
                 "hebrew": "אני אטפל בזה",
@@ -1890,16 +2471,41 @@ class LearningRepository:
     @staticmethod
     def _daily_goal_state(connection: sqlite3.Connection) -> dict[str, Any]:
         """Return meaningful daily actions independently from XP and accuracy."""
-        local_date = datetime.now(PRACTICE_TIMEZONE).date().isoformat()
+        local_now = datetime.now(PRACTICE_TIMEZONE)
+        local_date = local_now.date().isoformat()
+        local_start = local_now.replace(
+            hour=0,
+            minute=0,
+            second=0,
+            microsecond=0,
+        )
+        next_local_start = local_start + timedelta(days=1)
+        utc_start = local_start.astimezone(timezone.utc).isoformat(
+            timespec="seconds"
+        )
+        utc_end = next_local_start.astimezone(timezone.utc).isoformat(
+            timespec="seconds"
+        )
         row = connection.execute(
             """
-            SELECT COUNT(e.id) AS completed
-            FROM practice_sessions s
-            LEFT JOIN practice_step_events e
-              ON e.session_id = s.id AND e.meaningful = 1
-            WHERE s.profile_id = 1 AND s.local_date = ?
+            SELECT
+                (
+                    SELECT COUNT(e.id)
+                    FROM practice_sessions s
+                    JOIN practice_step_events e
+                      ON e.session_id = s.id AND e.meaningful = 1
+                    WHERE s.profile_id = 1 AND s.local_date = ?
+                )
+                +
+                (
+                    SELECT COUNT(a.id)
+                    FROM alphabet_attempts a
+                    WHERE a.is_correct = 1
+                      AND a.created_at >= ?
+                      AND a.created_at < ?
+                ) AS completed
             """,
-            (local_date,),
+            (local_date, utc_start, utc_end),
         ).fetchone()
         completed = int(row["completed"] if row is not None else 0)
         target = 5
@@ -1907,7 +2513,7 @@ class LearningRepository:
             "target": target,
             "completed": min(target, completed),
             "achieved": completed >= target,
-            "evidence": "meaningful_practice_events",
+            "evidence": "meaningful_practice_and_alphabet_events",
         }
 
     def export_json(self, destination: Path) -> Path:
@@ -2915,6 +3521,7 @@ class LearningRepository:
                 "activity": [dict(row) for row in activity_rows],
                 "activity_log": activity_log,
                 "mastery": [dict(row) for row in mastery_rows],
+                "alphabet": self._alphabet_summary(connection),
                 "retention_checkpoints": self._retention_checkpoints(connection),
                 "streak_days": self._calculate_streak(connection),
             }
@@ -4088,6 +4695,35 @@ class LearningRepository:
                     "SELECT COUNT(DISTINCT json_extract(payload_json, '$.locale')) FROM user_events WHERE event_type = 'locale_used'"
                 ).fetchone()[0]
             ),
+            "alphabet_practiced_units": int(
+                connection.execute(
+                    """
+                    SELECT COUNT(*)
+                    FROM alphabet_progress
+                    WHERE stage IN ('practiced', 'mastered')
+                    """
+                ).fetchone()[0]
+            ),
+            "alphabet_base_letters_practiced": int(
+                connection.execute(
+                    """
+                    SELECT COUNT(*)
+                    FROM alphabet_progress
+                    WHERE stage IN ('practiced', 'mastered')
+                      AND letter_key NOT LIKE 'final_%'
+                    """
+                ).fetchone()[0]
+            ),
+            "alphabet_final_forms_practiced": int(
+                connection.execute(
+                    """
+                    SELECT COUNT(*)
+                    FROM alphabet_progress
+                    WHERE stage IN ('practiced', 'mastered')
+                      AND letter_key LIKE 'final_%'
+                    """
+                ).fetchone()[0]
+            ),
             "streak_days": self._calculate_streak(connection),
         }
 
@@ -4123,6 +4759,10 @@ class LearningRepository:
                     SELECT DISTINCT substr(created_at, 1, 10) AS day
                     FROM learning_core_attempts
                     WHERE evidence_kind IN ('unassisted', 'correction_uptake')
+                    UNION
+                    SELECT DISTINCT substr(created_at, 1, 10) AS day
+                    FROM alphabet_attempts
+                    WHERE is_correct = 1
                 )
                 ORDER BY day DESC
                 """

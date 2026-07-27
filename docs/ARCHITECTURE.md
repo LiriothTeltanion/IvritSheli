@@ -1,6 +1,10 @@
-# Architecture — Ivrit Sheli 2.9 Listening & Personal Coach
+# Architecture — Ivrit Sheli 2.9.1 Hebrew Alphabet Studio — 2026-07-27
 
-Ivrit Sheli 2.9 keeps two deliberate runtime modes. The local SQLite application remains the simplest private installation and requires no account; cloud mode adds authenticated multi-user continuity without duplicating or weakening the learning engine. The verified public deployment remains 2.4.0 while this 2.9 source is an unpublished candidate.
+Ivrit Sheli 2.9.1 dated 2026-07-27 keeps two deliberate runtime modes. The
+local SQLite application remains the simplest private installation and requires
+no account; cloud mode adds authenticated multi-user continuity without
+duplicating or weakening the learning engine. The verified public deployment
+remains 2.4.0 dated 2026-07-21 while this source is an unpublished candidate.
 
 ## System shape
 
@@ -9,12 +13,13 @@ Browser: React 19 + TypeScript + PWA + EN/ES/HE + RTL
                          │
                          │ same-origin HTTPS + secure session cookie
                          ▼
-Ivrit Sheli 2.9 FastAPI application
+Ivrit Sheli 2.9.1 FastAPI application
   ├── Google OIDC / GitHub OAuth + provider-bound PKCE state
   ├── signed-in / deterministic demo session boundary
   ├── CSRF verification for authenticated mutations
   ├── request-ID and structured JSON logging middleware
   ├── deterministic LocalLearningEngine + persistent daily practice
+  ├── reviewed 22-letter Alphabet Studio + persistent retrieval evidence
   ├── reviewed LocalPersonalCoach + bounded learner model
   ├── Faster Whisper short-audio worker (optional, one CPU slot)
   ├── learning, recommendation and healthy-motivation engines
@@ -111,9 +116,19 @@ Google sign-in requests `openid profile` only. The separate Google Workspace con
 
 Learning Core 2.6 adds a second server-owned transaction boundary for lesson evidence. GET requests expose curriculum/state and derive the next activity without writing. A submitted attempt accepts only bounded learner self-report; the server derives the active phase, skill dimension, reading support, transition and schedule. An activity concurrency token rejects stale state, and an idempotency key returns the stored response for an exact retry without advancing twice. Exposure, reveal, reference-feedback acknowledgement and reflection do not update mastery. Corrected retry, delayed recall and transfer remain distinct evidence types. XP is not accepted by this endpoint and cannot reduce reading support.
 
-The seven phases are encounter, retrieval, reference feedback (internally `focused_feedback`), corrected retry, delayed review, transfer and reflection. Version 2.8 replaces the earlier mechanical niqqud reduction with authored per-concept `reading_hints`: a concept shows complete reviewed niqqud, an authored hint or no niqqud. It never deletes marks by character parity. Older local databases and cloud snapshots receive conservative defaults while preserving prior level, learner mode, review and four-skill history.
+The seven phases are encounter, retrieval, reference feedback (internally
+`focused_feedback`), corrected retry, delayed review, transfer and reflection.
+Version 2.8 (historical date not re-verified in this slice) replaces the earlier
+mechanical niqqud reduction with authored per-concept `reading_hints`: a concept
+shows complete reviewed niqqud, an authored hint or no niqqud. It never deletes
+marks by character parity. Older local databases and cloud snapshots receive
+conservative defaults while preserving prior level, learner mode, review and
+four-skill history.
 
-Version 2.8 adds a simpler daily-session transaction on top of that evidence foundation. `LocalLearningEngine` deterministically ranks reviewed concepts from profile level/mode/goal, SRS urgency, mistakes, confidence, latency, exposure and difficulty. It emits a stable plan:
+That historical 2.8 foundation adds a simpler daily-session transaction on top
+of the evidence model. `LocalLearningEngine` deterministically ranks reviewed
+concepts from profile level/mode/goal, SRS urgency, mistakes, confidence,
+latency, exposure and difficulty. It emits a stable plan:
 
 ```text
 encounter → 3–5 retrievals by mode/content → listening → speaking/manual fallback → reflection → summary
@@ -122,6 +137,30 @@ encounter → 3–5 retrievals by mode/content → listening → speaking/manual
 `practice_sessions` owns the plan, current step, status and timestamps. `practice_step_events` stores an outcome (`completed`, `failed` or `unsupported`) under a unique idempotency key. `curriculum_progress` stores conservative lesson state and meaningful-attempt dates. Exact retries replay the stored result; conflicting or out-of-order writes fail without duplicating evidence or XP. Unsupported microphone/browser states remain explicit, and the manual fallback never becomes a claimed pronunciation assessment.
 
 The curriculum contract returns structured A0–A2 coverage, an explicitly experimental B1/B2 Lab and a sound-first track for 22 base Hebrew letters plus final forms. It reports `complete_course_claim: false`. The reviewed dictionary provides 240 A0–A2 concepts with stable visual identifiers, trilingual alternative text and authored reading hints. Missing reviewed hints cause full niqqud or no niqqud—not mechanical mark deletion.
+
+### Alphabet Studio transactions
+
+Version 2.9.1 adds one reviewed alphabet catalog shared by Today, Learn,
+curriculum, dictionary links and progress. The domain distinguishes 22 base
+letters from five positional final forms while exposing 27 written-form units.
+The existing `reading_track.entries` compatibility list remains exactly 22.
+
+`GET /api/v1/alphabet` derives the learner's recommendation and current
+recognition activity without writing. An optional stable `letter_key` selects
+one catalog unit. `POST /api/v1/alphabet/{letter_key}/attempt` accepts an
+activity concurrency checksum, idempotency key, selected answer and bounded
+optional confidence/latency/hint evidence. The server reconstructs the current
+activity and derives correctness; it never accepts client-authored mastery,
+stage, XP or `is_correct`.
+
+Additive SQLite schema migration 9 creates `alphabet_progress` for conservative
+per-letter evidence/scheduling and `alphabet_attempts` for the immutable
+attempt, request digest and original response under a unique idempotency key.
+Exact retries replay the stored result; conflicting content or stale activity
+state fails before another evidence row is created. Both tables participate in
+portable export/import and the locked tenant snapshot. Older snapshots that
+omit them hydrate with empty alphabet state without altering existing
+vocabulary, sessions or profile data.
 
 Submitting one review remains atomic:
 
@@ -176,7 +215,12 @@ The formatter recursively redacts credentials, cookies, authorization headers, O
 - Pure engines contain algorithms and have no network dependency.
 - Providers wrap external APIs and never leak provider-specific response shapes upward.
 - The frontend never receives provider, database or OAuth client secrets.
-- v2.9 learning, transcript understanding and recommendations are deterministic and require no external AI provider. Self-hosted speech is optional infrastructure; browser/manual fallbacks preserve the learning path. Existing cloud AI/audio adapters remain disabled/experimental unless a later explicit privacy and cost review enables them.
+- The 2.9.0 learning, transcript-understanding and recommendation foundation
+  dated 2026-07-27 is deterministic and requires no external AI provider.
+  Self-hosted speech is optional infrastructure; browser/manual fallbacks
+  preserve the learning path. Existing cloud AI/audio adapters remain
+  disabled/experimental unless a later explicit privacy and cost review enables
+  them.
 - Google login requests only `openid profile`; it never grants Gmail, Drive or Calendar access. Separate connector credentials cannot widen the sign-in session.
 - Beginner onboarding choices, guided-mode preference, First Steps checkpoint and lesson completion are learner-profile state, so they follow the local database or locked tenant snapshot boundary. In authenticated PostgreSQL mode that continuity follows the learner account across sessions; each word save/review and checkpoint update remains a separate validated request rather than one server-side lesson transaction.
 
@@ -216,6 +260,10 @@ The formatter recursively redacts credentials, cookies, authorization headers, O
 - Readiness requires the exact packaged Alembic head and verifies both `SESSION_USER` and `CURRENT_USER` are the restricted login.
 - Production uses one same-origin HTTPS hostname; CORS is allow-listed to that origin.
 - Horizontal replicas are safe for session/state access, but migrations must remain a separate pre-deploy step.
-- The private 2.9 learner snapshot and Push schema add fields and tables that an unmodified 2.4 writer does not preserve. Do not mix those writers against one production state store or roll back after 2.9 writes without restoring a verified compatible backup; see `DEPLOYMENT.md`.
+- The private 2.9.1 learner snapshot dated 2026-07-27 and Push schema add fields
+  and tables that an unmodified 2.4.0 writer dated 2026-07-21 does not preserve.
+  Do not mix those writers against one production state store or roll back
+  after 2.9.1 writes without restoring a verified compatible backup; see
+  `DEPLOYMENT.md`.
 
 See [DEPLOYMENT.md](DEPLOYMENT.md) for the exact operational procedure and [API.md](API.md) for the public contract.

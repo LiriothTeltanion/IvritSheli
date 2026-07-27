@@ -64,6 +64,7 @@ REQUIRED_FILES = (
     "backend/src/ivrit_sheli/push_notifications.py",
     "backend/src/ivrit_sheli/learning_core.py",
     "backend/src/ivrit_sheli/local_learning_engine.py",
+    "backend/src/ivrit_sheli/hebrew_alphabet.py",
     "backend/src/ivrit_sheli/visual_spotlight.py",
     "backend/src/ivrit_sheli/repository.py",
     "backend/src/ivrit_sheli/starter_lexicon_v2.py",
@@ -76,6 +77,7 @@ REQUIRED_FILES = (
     "backend/src/ivrit_sheli/structured_logging.py",
     "backend/tests/test_daily_practice.py",
     "backend/tests/test_learning_engines.py",
+    "backend/tests/test_alphabet_studio.py",
     "backend/tests/test_visual_catalog.py",
     "backend/tests/test_visual_spotlight.py",
     "backend/tests/test_self_hosted_speech.py",
@@ -99,6 +101,9 @@ REQUIRED_FILES = (
     "frontend/src/components/CurriculumPath.tsx",
     "frontend/src/components/CurriculumPath.test.tsx",
     "frontend/src/components/curriculum-path.css",
+    "frontend/src/components/AlphabetStudio.tsx",
+    "frontend/src/components/AlphabetStudio.test.tsx",
+    "frontend/src/components/alphabet-studio.css",
     "frontend/src/components/DictionaryVisualCue.tsx",
     "frontend/src/components/SemanticWordIllustration.tsx",
     "frontend/src/components/SemanticWordIllustration.test.tsx",
@@ -172,6 +177,7 @@ REQUIRED_FILES = (
     "docs/PRODUCT_MANIFESTO.md",
     "docs/LEARNING_SCIENCE.md",
     "docs/LEARNING_CORE_V2_6.md",
+    "docs/HEBREW_ALPHABET_STUDIO.md",
     "docs/HEBREW_CONTENT_PROVENANCE.md",
     "docs/DESIGN_SYSTEM.md",
     "docs/CONNECTORS.md",
@@ -333,7 +339,7 @@ def verify_portfolio_manifest() -> list[str]:
         "schema": "ivrit-sheli-portfolio-project-v2",
         "slug": "ivrit-sheli",
         "name": "Ivrit Sheli — העברית שלי",
-        "source_version": "2.9.0",
+        "source_version": "2.9.1",
         "live_version": "2.4.0",
         "status": "private-release-candidate",
         "default_branch": "main",
@@ -454,11 +460,11 @@ def verify_portfolio_manifest() -> list[str]:
         "latest_github_release": "v2.4.0",
         "source_version_tagged": False,
         "source_version_github_release_published": False,
-        "release_state": "2.9.0-private-candidate-2.4.0-live-and-published",
+        "release_state": "2.9.1-private-candidate-2.4.0-live-and-published",
     }
     if publication is not None and publication != expected_publication:
         failures.append(
-            "portfolio/project.json: publication must keep 2.9.0 private and identify "
+            "portfolio/project.json: publication must keep 2.9.1 private and identify "
             "v2.4.0 as the live tagged GitHub Release"
         )
 
@@ -477,6 +483,9 @@ def verify_portfolio_manifest() -> list[str]:
             "semantic_visual_recipes",
             "category_visual_fallbacks",
             "visual_journey_regions",
+            "alphabet_base_letters",
+            "alphabet_final_forms",
+            "alphabet_progress_persistent",
             "public_google_scope",
             "local_mode_without_account",
             "verification",
@@ -486,7 +495,7 @@ def verify_portfolio_manifest() -> list[str]:
     )
     failures.extend(nested_failures)
     expected_candidate = {
-        "version": "2.9.0",
+        "version": "2.9.1",
         "published": False,
         "coverage": "Structured A0-A2 with an explicitly experimental B1/B2 Lab",
         "reviewed_concepts": 240,
@@ -504,12 +513,15 @@ def verify_portfolio_manifest() -> list[str]:
         "semantic_visual_recipes": 72,
         "category_visual_fallbacks": 168,
         "visual_journey_regions": 6,
+        "alphabet_base_letters": 22,
+        "alphabet_final_forms": 5,
+        "alphabet_progress_persistent": True,
         "public_google_scope": "openid profile",
         "local_mode_without_account": True,
         "verification": (
-            "655 unique automated passes; PostgreSQL 17 RLS/roles, non-root "
-            "Docker readiness, reminder-worker smoke and dependency audits "
-            "passed locally"
+            "Locally verified on 2026-07-27 with 696 unique automated passes, "
+            "327 canonical Git-index checksums and an extracted 328-blob "
+            "canonical package"
         ),
         "release_gate": (
             "Isolated HTTPS staging, two-account isolation, the 20-word/10-phrase "
@@ -520,7 +532,7 @@ def verify_portfolio_manifest() -> list[str]:
     if candidate is not None and candidate != expected_candidate:
         failures.append(
             "portfolio/project.json: candidate must describe the unpublished "
-            "2.9.0 implementation and its remaining release gate"
+            "2.9.1 implementation and its remaining release gate"
         )
 
     visual_proof, nested_failures = _verify_exact_keys(
@@ -537,7 +549,7 @@ def verify_portfolio_manifest() -> list[str]:
     failures.extend(nested_failures)
     expected_visual_proof = {
         "state": (
-            "v2.9-private-source-inherits-local-2.8-visual-proof-and-live-"
+            "v2.9.1-private-source-inherits-local-2.8-visual-proof-and-live-"
             "2.4-remains-verified"
         ),
         "social_preview_version": "2.2.0",
@@ -625,17 +637,25 @@ def verify_release_truth_drift() -> list[str]:
         "README.md": (
             "Open the verified Ivrit Sheli 2.4.0 Contest Edition",
             "03bf84b9268ff8be528c0fab3c670f9652ee23b0",
-            "Current private source checkout | `2.9.0`",
+            "Current private source checkout | `2.9.1`",
             "Current public deployed application | `2.4.0`",
             "151 unique backend tests + 62 frontend tests = 213 passed",
-            "655 unique automated passes",
+            "696 unique automated passes",
+            "327 canonical Git-index checksums",
+            "extracted 328-blob canonical package",
             "Historical v2.8.3 evidence is preserved",
             "GitHub publication | [`v2.4.0`](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.4.0)",
             "20-word/10-phrase Hebrew accuracy pilot",
         ),
         "TEST_REPORT.md": (
-            "Current private source candidate:** `2.9.0` / local / unpublished",
-            "fresh v2.9 results below were",
+            "Current private source candidate:** `2.9.1` / local / unpublished",
+            "fresh v2.9.1 results",
+            "310 passed / 1 credential-gated PostgreSQL skip",
+            "353 passed",
+            "32 passed / 40 project-scoped skips / 0 failed",
+            "696 passed",
+            "327 canonical Git-index checksums",
+            "reproducible 328-blob ZIP construction",
             "291 passed / 1 credential-gated PostgreSQL skip",
             "337 passed / 37 files",
             "26 passed / 28 scoped skips / 0 failed",
@@ -650,22 +670,25 @@ def verify_release_truth_drift() -> list[str]:
             "Current verified production:** `2.4.0` on Railway with PostgreSQL",
             "03bf84b9268ff8be528c0fab3c670f9652ee23b0",
             "Git tag and GitHub Release `v2.4.0`",
-            "Docker Desktop",
             "mother-pilot acceptance retest",
         ),
         "CHANGELOG.md": (
-            "2.9.0 — Listening & Personal Coach — Private candidate",
+            "2.9.1 — Hebrew Alphabet Studio — Private candidate — 2026-07-27",
             "2.8.3 — Visual Recognition Expansion — Private candidate",
             "Version 2.7 was a private implementation checkpoint",
             "2.4.0 — Contest Edition — 2026-07-21",
         ),
         "PACKAGE_MANIFEST.md": (
-            "Source version: `2.9.0`",
+            "Source version: `2.9.1`",
             "Current verified public version: `2.4.0`",
-            "`2.9.0` is private, untagged, unpushed and unpublished",
+            "`2.9.1` dated 2026-07-27 is private, untagged, unpushed and unpublished",
             "Latest published Git tag and GitHub Release: `v2.4.0`",
             "Self-hosted Faster Whisper `1.2.1`",
             "Dedicated `ivrit_sheli_push_worker`",
+            "310 passed / 1 credential-gated PostgreSQL skip",
+            "353 passed",
+            "32 passed / 40 project-scoped skips / 0 failed",
+            "696 passed",
             "291 passed / 1 credential-gated PostgreSQL skip",
             "337 passed / 37 files",
             "26 passed / 28 scoped skips / 0 failed",
@@ -680,8 +703,8 @@ def verify_release_truth_drift() -> list[str]:
             "Playwright/axe: 26 passed, 28 scoped matrix skips, 0 failed",
         ),
         "docs/API.md": (
-            "unpublished v2.9 source contract",
-            "Whisper is a separate v2.9 speech path",
+            "unpublished 2.9.1 source contract",
+            "Whisper is a separate 2.9.0 speech path dated 2026-07-27",
         ),
         "SECURITY.md": (
             "2.9.x | Yes — unreleased private candidate",
@@ -707,8 +730,8 @@ def verify_release_truth_drift() -> list[str]:
             "actively developed public pilot",
         ),
         "CITATION.cff": (
-            "version: 2.9.0",
-            "unpublished Ivrit Sheli 2.9.0 Listening & Personal Coach candidate",
+            "version: 2.9.1",
+            "unpublished Ivrit Sheli 2.9.1 Hebrew Alphabet Studio candidate dated 2026-07-27",
             "verified public v2.4.0 release",
         ),
     }
@@ -771,7 +794,7 @@ def verify_release_truth_drift() -> list[str]:
 
 def verify_source_version_surfaces() -> list[str]:
     """Keep executable and human-facing release versions synchronized."""
-    expected_version = "2.9.0"
+    expected_version = "2.9.1"
     failures: list[str] = []
 
     try:
@@ -804,14 +827,14 @@ def verify_source_version_surfaces() -> list[str]:
             )
 
     expected_fragments = {
-        "backend/src/ivrit_sheli/__init__.py": '__version__ = "2.9.0"',
+        "backend/src/ivrit_sheli/__init__.py": '__version__ = "2.9.1"',
         "frontend/index.html": "Ivrit Sheli 2.9",
-        "frontend/public/sw.js": "ivrit-sheli-shell-v2.9.0-listening-coach-r1",
-        "frontend/src/App.tsx": "v2.9.0 private candidate",
-        "frontend/src/components/AuthGate.tsx": "v2.9.0 private candidate",
-        "frontend/src/components/SettingsPanel.tsx": "app_version: '2.9.0'",
-        ".github/ISSUE_TEMPLATE/bug_report.yml": "placeholder: 2.9.0-private",
-        "CITATION.cff": "version: 2.9.0",
+        "frontend/public/sw.js": "ivrit-sheli-shell-v2.9.1-alphabet-studio-r1",
+        "frontend/src/App.tsx": "v2.9.1 private candidate",
+        "frontend/src/components/AuthGate.tsx": "v2.9.1 private candidate",
+        "frontend/src/components/SettingsPanel.tsx": "app_version: '2.9.1'",
+        ".github/ISSUE_TEMPLATE/bug_report.yml": "placeholder: 2.9.1-private",
+        "CITATION.cff": "version: 2.9.1",
     }
     for relative, fragment in expected_fragments.items():
         try:

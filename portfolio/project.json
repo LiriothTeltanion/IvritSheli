@@ -2,13 +2,13 @@
   "schema": "ivrit-sheli-portfolio-project-v2",
   "slug": "ivrit-sheli",
   "name": "Ivrit Sheli — העברית שלי",
-  "source_version": "2.9.0",
+  "source_version": "2.9.1",
   "live_version": "2.4.0",
   "status": "private-release-candidate",
   "default_branch": "main",
   "repository_url": "https://github.com/LiriothTeltanion/IvritSheli",
   "demo_url": "https://ivritsheli-production.up.railway.app",
-  "summary": "An unpublished 2.9.0 Listening & Personal Coach candidate with beginner-first A0-A2 practice, 72 exact semantic scenes, self-hosted Hebrew transcription, deterministic reviewed coaching, gradual personalization and optional private reminders; the verified 2.4 Contest Edition remains public.",
+  "summary": "An unpublished 2.9.1 Hebrew Alphabet Studio candidate with 22 reviewed base letters, 5 positional final forms, beginner-first A0-A2 practice, semantic visuals, private Hebrew transcription and deterministic coaching; the verified 2.4 Contest Edition remains public.",
   "languages": [
     "en",
     "es",
@@ -60,10 +60,10 @@
     "latest_github_release": "v2.4.0",
     "source_version_tagged": false,
     "source_version_github_release_published": false,
-    "release_state": "2.9.0-private-candidate-2.4.0-live-and-published"
+    "release_state": "2.9.1-private-candidate-2.4.0-live-and-published"
   },
   "candidate": {
-    "version": "2.9.0",
+    "version": "2.9.1",
     "published": false,
     "coverage": "Structured A0-A2 with an explicitly experimental B1/B2 Lab",
     "reviewed_concepts": 240,
@@ -79,13 +79,16 @@
     "semantic_visual_recipes": 72,
     "category_visual_fallbacks": 168,
     "visual_journey_regions": 6,
+    "alphabet_base_letters": 22,
+    "alphabet_final_forms": 5,
+    "alphabet_progress_persistent": true,
     "public_google_scope": "openid profile",
     "local_mode_without_account": true,
-    "verification": "655 unique automated passes; PostgreSQL 17 RLS/roles, non-root Docker readiness, reminder-worker smoke and dependency audits passed locally",
+    "verification": "Locally verified on 2026-07-27 with 696 unique automated passes, 327 canonical Git-index checksums and an extracted 328-blob canonical package",
     "release_gate": "Isolated HTTPS staging, two-account isolation, the 20-word/10-phrase speech and reminder mother pilot, and Kevin's explicit publication approval remain required."
   },
   "visual_proof": {
-    "state": "v2.9-private-source-inherits-local-2.8-visual-proof-and-live-2.4-remains-verified",
+    "state": "v2.9.1-private-source-inherits-local-2.8-visual-proof-and-live-2.4-remains-verified",
     "social_preview_version": "2.2.0",
     "readme_screenshot_version": "2.8.0-local-candidate",
     "readme_screenshots_match_source_version": false,

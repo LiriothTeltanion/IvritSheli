@@ -6,6 +6,7 @@
 
 export type Locale = 'en' | 'es' | 'he';
 export type ViewKey = 'today' | 'learn' | 'coach' | 'progress' | 'connectors' | 'settings' | 'help';
+export type LearnTab = 'path' | 'alphabet' | 'practice' | 'review' | 'dictionary' | 'audio' | 'collection';
 export type VoiceStyle = 'masculine' | 'feminine';
 export type LearnerMode = 'guided' | 'explorer' | 'experienced';
 export type CurriculumTrack = 'modern_conversation' | 'pointed_reading' | 'formal_professional';
@@ -230,6 +231,185 @@ export interface CurriculumPath {
   };
 }
 
+export type AlphabetProgressStage = 'new' | 'learning' | 'practiced' | 'mastered';
+export type AlphabetExerciseType =
+  | 'letter_recognition'
+  | 'sound_choice'
+  | 'final_form_pair'
+  | 'word_spotting'
+  | 'review';
+
+export interface LocalizedText {
+  en: string;
+  es: string;
+  he: string;
+}
+
+export interface AlphabetSound {
+  key: string;
+  form: string;
+  ipa: string;
+  approximation: LocalizedText;
+  context: LocalizedText;
+  usage: 'common' | 'contextual' | 'heritage';
+}
+
+export interface AlphabetExample {
+  word: string;
+  niqqud: string;
+  transliteration: string;
+  meaning: LocalizedText;
+  dictionary_query?: string;
+}
+
+export interface AlphabetUnit {
+  key: string;
+  content_revision: string;
+  editorial_status: 'reviewed';
+  order: number;
+  letter: string;
+  base_key: string;
+  is_final: boolean;
+  name: LocalizedText;
+  name_niqqud: string;
+  transliteration: string;
+  tts_text: string;
+  explanation: LocalizedText;
+  sounds: AlphabetSound[];
+  example: AlphabetExample;
+  source_refs: string[];
+  visual_confusions: string[];
+  sound_confusions: string[];
+  confusions: string[];
+  sources: string[];
+}
+
+export interface AlphabetSourceReference {
+  id: string;
+  title: string;
+  url: string;
+}
+
+export interface AlphabetUnitProgress {
+  letter_key: string;
+  stage: AlphabetProgressStage;
+  recognition_successes: number;
+  sound_successes: number;
+  word_successes: number;
+  total_failures: number;
+  review_count: number;
+  next_review_at: string | null;
+  revision: number;
+}
+
+export interface AlphabetProgress {
+  can_save: boolean;
+  persistence: 'persisted' | 'read_only_preview';
+  practiced_units: number;
+  mastered_units: number;
+  completion_percent: number;
+  practiced_base_letters: number;
+  practiced_final_forms: number;
+  total_attempts: number;
+  correct_attempts: number;
+  accuracy: number;
+  last_practiced_at: string | null;
+  by_key: Record<string, AlphabetUnitProgress>;
+}
+
+export interface AlphabetActivityOption {
+  key: string;
+  letter: string;
+  name: LocalizedText;
+}
+
+export interface AlphabetNextActivity {
+  letter_key: string;
+  exercise_type: AlphabetExerciseType;
+  prompt_key: string;
+  prompt: LocalizedText;
+  options: AlphabetActivityOption[];
+  activity_token: string;
+  token_kind: 'sha256_concurrency_token';
+  can_submit: boolean;
+}
+
+export interface AlphabetCatalog {
+  contract_version: '2.9.1';
+  content_revision: string;
+  editorial_status: 'reviewed';
+  source_refs: AlphabetSourceReference[];
+  facts: {
+    base_letters: 22;
+    final_forms: 5;
+    total_forms: 27;
+    direction: 'rtl';
+    has_case: false;
+    letter_count_note: LocalizedText;
+    niqqud_role: LocalizedText;
+    pronunciation_scope: LocalizedText;
+  };
+  profile: {
+    cefr_band: string;
+    learner_mode: LearnerMode;
+  };
+  units: AlphabetUnit[];
+  progress: AlphabetProgress;
+  recommended_key: string;
+  next_activity: AlphabetNextActivity;
+}
+
+export interface AlphabetAttemptRequest {
+  activity_token: string;
+  idempotency_key: string;
+  answer_key: string;
+  confidence?: number;
+  response_ms?: number;
+  hints_used?: number;
+}
+
+export interface AlphabetAttemptResponse {
+  contract_version: '2.9.1';
+  idempotent_replay: boolean;
+  attempt_id: number;
+  letter_key: string;
+  exercise_type: AlphabetExerciseType;
+  expected_key: string;
+  is_correct: boolean;
+  saved: true;
+  xp_awarded: number;
+  achievements_unlocked: Array<{
+    key: string;
+    title: LocalizedText;
+  }>;
+  letter_progress: AlphabetUnitProgress;
+  progress: AlphabetProgress;
+  next_activity: AlphabetNextActivity;
+}
+
+export interface AlphabetDashboardSummary {
+  base_letters: 22;
+  final_forms: 5;
+  total_forms: 27;
+  practiced_units: number;
+  mastered_units: number;
+  completion_percent: number;
+  practiced_base_letters: number;
+  practiced_final_forms: number;
+  total_attempts: number;
+  correct_attempts: number;
+  accuracy: number;
+  last_practiced_at: string | null;
+  recommended_key: string;
+  recommended: {
+    key: string;
+    letter: string;
+    name: LocalizedText;
+    name_niqqud: string;
+    example: AlphabetExample;
+  };
+}
+
 export type PracticeStepKind =
   | 'encounter'
   | 'retrieval'
@@ -406,6 +586,11 @@ export interface Dashboard {
    * older local servers and previously cached dashboard responses.
    */
   visual_spotlight?: VisualSpotlightEntry[];
+  /**
+   * Persisted alphabet-learning summary. Optional for compatibility with
+   * v2.9.0 servers and cached dashboard payloads.
+   */
+  alphabet_summary?: AlphabetDashboardSummary;
   coach_card?: CoachCard | null;
   achievements: Array<Record<string, unknown>>;
   mission: {
@@ -849,6 +1034,7 @@ export interface ProgressData {
   activity_log?: ActivityLogEntry[];
   mastery: Array<Record<string, unknown>>;
   streak_days: number;
+  alphabet?: AlphabetDashboardSummary;
   retention_checkpoints?: RetentionCheckpoint[];
 }
 

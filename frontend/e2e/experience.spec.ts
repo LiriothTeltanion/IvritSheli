@@ -57,6 +57,92 @@ test.describe('language, direction, and learner depth', () => {
   }
 });
 
+test.describe('integrated Hebrew Alphabet Studio', () => {
+  for (const mode of ['guided', 'explorer', 'experienced'] as LearnerMode[]) {
+    test(`${mode} can open all 22 letters and five positional final forms`, async ({ page }, testInfo) => {
+      desktopOnly(testInfo.project.name);
+      await openWorkspace(page, { mode });
+
+      await page.getByRole('button', {
+        name: mode === 'guided' ? /^Words(?:\s+\d+)?$/ : /^Learn(?:\s+\d+)?$/,
+      }).click();
+      await page.getByRole('button', { name: 'Alphabet', exact: true }).click();
+
+      await expect(page.getByRole('heading', { name: /Learn every shape through sound/i })).toBeVisible();
+      await expect(page.locator('.alphabet-grid__letter')).toHaveCount(27);
+      await expect(page.getByText(/22 letters and 5 positional final forms/i)).toBeVisible();
+      const dimensions = await page.evaluate(() => ({
+        clientWidth: document.documentElement.clientWidth,
+        scrollWidth: document.documentElement.scrollWidth,
+      }));
+      expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth + 1);
+      const foundations = page.locator('.alphabet-foundations');
+      if (mode === 'guided') {
+        await expect(foundations).not.toHaveAttribute('open', '');
+      } else {
+        await expect(foundations).toHaveAttribute('open', '');
+      }
+
+      const activity = page.getByRole('group', { name: 'Which letter is Alef?' });
+      await expect(activity).not.toContainText('Alef');
+      await activity.getByRole('button', { name: 'Option 1: א' }).click();
+      await expect(page.getByText('Correct. This practice was saved.')).toBeVisible();
+    });
+  }
+
+  test('Today routes directly to the reviewed recommended letter', async ({ page }, testInfo) => {
+    mobileOnly(testInfo.project.name);
+    await openWorkspace(page, { mode: 'guided' });
+
+    await expect(page.getByRole('heading', { name: /Continue with/ })).toContainText('אָלֶף');
+    const alphabetCta = page.getByRole('button', { name: 'Open Alphabet Studio' });
+    await alphabetCta.focus();
+    await page.keyboard.press('Enter');
+    await expect(page.getByRole('heading', { name: /Learn every shape through sound/i })).toBeVisible();
+    await expect(page.locator('.alphabet-letter__glyph')).toContainText('א');
+  });
+
+  test('reflows in Hebrew RTL with reduced motion and 200% text scaling', async ({ page }, testInfo) => {
+    mobileOnly(testInfo.project.name);
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await openWorkspace(page, { mode: 'guided', locale: 'he' });
+
+    await page.locator('.bottom-nav > button').nth(1).click();
+    await page.getByRole('button', { name: 'אלפבית', exact: true }).click();
+    await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
+    await expect(page.locator('.alphabet-studio')).toBeVisible();
+    await page.evaluate(() => {
+      document.documentElement.style.fontSize = '200%';
+    });
+
+    const dimensions = await page.evaluate(() => ({
+      clientWidth: document.documentElement.clientWidth,
+      scrollWidth: document.documentElement.scrollWidth,
+    }));
+    expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth + 1);
+    const transitionDuration = await page.locator('.alphabet-grid__letter').first().evaluate(
+      (element) => getComputedStyle(element).transitionDuration,
+    );
+    expect(Number.parseFloat(transitionDuration)).toBeLessThanOrEqual(0.001);
+  });
+
+  test('has no serious or critical axe violations in the dark Experienced studio', async ({ page }, testInfo) => {
+    desktopOnly(testInfo.project.name);
+    await openWorkspace(page, { mode: 'experienced', theme: 'dark' });
+
+    await page.getByRole('button', { name: /^Learn(?:\s+\d+)?$/ }).click();
+    await page.getByRole('button', { name: 'Alphabet', exact: true }).click();
+    const results = await new AxeBuilder({ page })
+      .include('.alphabet-studio')
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+      .analyze();
+    const blockingViolations = results.violations.filter(
+      (violation) => violation.impact === 'serious' || violation.impact === 'critical',
+    );
+    expect(blockingViolations, JSON.stringify(blockingViolations, null, 2)).toEqual([]);
+  });
+});
+
 test.describe('personal display preferences', () => {
   for (const theme of ['light', 'dark'] as const) {
     test(`${theme} theme persists on the document root`, async ({ page }, testInfo) => {

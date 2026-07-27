@@ -45,7 +45,7 @@ def test_schema_v8_contains_personalization_notifications_and_speech_evidence(
         ).fetchall()
     }
 
-    assert SCHEMA_VERSION == 8
+    assert SCHEMA_VERSION == 9
     assert version is not None and int(version["value"]) == SCHEMA_VERSION
     assert {
         "learning_feedback",

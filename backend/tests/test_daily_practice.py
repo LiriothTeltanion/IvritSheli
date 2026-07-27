@@ -244,7 +244,7 @@ def test_daily_session_enforces_order_and_completes_with_persisted_summary(
         "target": 5,
         "completed": 5,
         "achieved": True,
-        "evidence": "meaningful_practice_events",
+        "evidence": "meaningful_practice_and_alphabet_events",
     }
     assert response["xp_awarded"] == 0
 

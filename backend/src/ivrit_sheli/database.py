@@ -476,6 +476,59 @@ MIGRATIONS = (
         WHERE evidence_key IS NOT NULL;
         """,
     ),
+    Migration(
+        version=9,
+        name="hebrew_alphabet_studio",
+        sql="""
+        CREATE TABLE alphabet_progress (
+            letter_key TEXT PRIMARY KEY,
+            stage TEXT NOT NULL DEFAULT 'new'
+                CHECK (stage IN ('new', 'learning', 'practiced', 'mastered')),
+            recognition_successes INTEGER NOT NULL DEFAULT 0
+                CHECK (recognition_successes >= 0),
+            sound_successes INTEGER NOT NULL DEFAULT 0
+                CHECK (sound_successes >= 0),
+            word_successes INTEGER NOT NULL DEFAULT 0
+                CHECK (word_successes >= 0),
+            total_failures INTEGER NOT NULL DEFAULT 0
+                CHECK (total_failures >= 0),
+            review_count INTEGER NOT NULL DEFAULT 0
+                CHECK (review_count >= 0),
+            first_practiced_at TEXT,
+            last_practiced_at TEXT,
+            next_review_at TEXT,
+            revision INTEGER NOT NULL DEFAULT 0 CHECK (revision >= 0),
+            updated_at TEXT NOT NULL
+        );
+
+        CREATE INDEX idx_alphabet_progress_review
+        ON alphabet_progress(stage, next_review_at);
+
+        CREATE TABLE alphabet_attempts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            letter_key TEXT NOT NULL,
+            exercise_type TEXT NOT NULL CHECK (exercise_type IN (
+                'letter_recognition', 'sound_choice', 'final_form_pair',
+                'word_spotting', 'review'
+            )),
+            prompt_key TEXT NOT NULL,
+            answer_key TEXT NOT NULL,
+            is_correct INTEGER NOT NULL CHECK (is_correct IN (0, 1)),
+            confidence INTEGER NOT NULL CHECK (confidence BETWEEN 1 AND 5),
+            response_ms INTEGER NOT NULL DEFAULT 0
+                CHECK (response_ms BETWEEN 0 AND 3600000),
+            hints_used INTEGER NOT NULL DEFAULT 0 CHECK (hints_used BETWEEN 0 AND 100),
+            idempotency_key TEXT NOT NULL UNIQUE,
+            request_hash TEXT NOT NULL,
+            activity_token TEXT NOT NULL,
+            response_json TEXT NOT NULL DEFAULT '{}',
+            created_at TEXT NOT NULL
+        );
+
+        CREATE INDEX idx_alphabet_attempts_letter_created
+        ON alphabet_attempts(letter_key, created_at DESC);
+        """,
+    ),
 )
 SCHEMA_VERSION = MIGRATIONS[-1].version
 

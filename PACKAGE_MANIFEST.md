@@ -1,11 +1,11 @@
-# Ivrit Sheli 2.9.0 — Listening & Personal Coach Package Manifest
+# Ivrit Sheli 2.9.1 — Hebrew Alphabet Studio Package Manifest
 
 ## Release identity
 
 - Product: Ivrit Sheli — העברית שלי
-- Candidate name: Listening & Personal Coach
-- Source version: `2.9.0`
-- Candidate branch: `codex/ivrit-sheli-v2.9.0-listening-coach`
+- Candidate name: Hebrew Alphabet Studio
+- Source version: `2.9.1`
+- Candidate branch: `codex/ivrit-sheli-v2.9.1-alphabet-studio`
 - Manifest update date: 2026-07-27
 - Time zone: Asia/Jerusalem
 - Author: Kevin Cusnir
@@ -13,12 +13,12 @@
 - Default branch: `main`
 - Application license: MIT
 - Production URL: https://ivritsheli-production.up.railway.app
-- Current verified public version: `2.4.0`
+- Current verified public version: `2.4.0` — 2026-07-21
 - Current public storage: managed PostgreSQL
 - Published implementation commit: `03bf84b9268ff8be528c0fab3c670f9652ee23b0`
-- Latest published Git tag and GitHub Release: `v2.4.0`
-- Candidate publication state: `2.9.0` is private, untagged, unpushed and unpublished
-- Publication gate: blocked pending fresh v2.9 verification, isolated HTTPS staging, two-account Google isolation, the speech/reminder mother pilot and Kevin's explicit publication approval
+- Latest published Git tag and GitHub Release: `v2.4.0` — 2026-07-21
+- Candidate publication state: `2.9.1` dated 2026-07-27 is private, untagged, unpushed and unpublished
+- Publication gate: blocked pending isolated HTTPS staging, two-account Google isolation, the speech/reminder mother pilot and Kevin's explicit publication approval
 - Personal signature: `KC ✦ LT` is reserved and excluded from the MIT asset grant
 - Dictionary-derived data: separate Wiktionary/Kaikki attribution and share-alike terms
 - Privacy notice: `PRIVACY.md`
@@ -27,10 +27,12 @@
 
 ## Candidate purpose
 
-This manifest describes the private v2.9 candidate without promoting it to a
-public release. It retains the complete v2.8.3 beginner-first visual foundation
-and adds bounded Hebrew transcription, deterministic transcript understanding,
-an explainable personal coach, learner feedback and optional private Web Push.
+This manifest describes the private 2.9.1 candidate dated 2026-07-27 without
+promoting it to a public release. It retains the complete 2.9.0 Listening &
+Personal Coach baseline dated 2026-07-27 and the v2.8.3 beginner-first visual
+foundation (historical date not re-verified in this slice), then integrates a
+persistent, trilingual Hebrew Alphabet Studio across all three learner
+experiences.
 The 72 exact A0 semantic scenes and 168 explicit fallbacks are unchanged in
 this release slice.
 
@@ -42,10 +44,37 @@ requires external image hosting, runtime AI or a learner-facing paid service.
 The candidate provides structured A0–A2 coverage and labels B1/B2 content honestly as an experimental Lab rather than a complete B2 course. The public learning path is deterministic and local; no per-user LLM or cloud-audio call is required. Google sign-in requests identity only through `openid profile` and grants no Gmail, Drive or Calendar access.
 
 The live Railway application, public tag, GitHub Release and Devpost entry
-remain version 2.4.0 until every publication gate is complete and Kevin gives
-explicit approval.
+remain version 2.4.0 dated 2026-07-21 until every publication gate is complete
+and Kevin gives explicit approval.
 
-## 2.9 functional scope
+## 2.9.1 functional scope — 2026-07-27
+
+### Integrated Hebrew Alphabet Studio
+
+- Exactly 22 base Hebrew letters plus the 5 positional final forms ך, ם, ן, ף
+  and ץ. The product never describes these 27 written-form units as 27 letters.
+- Stable reviewed catalog entries with pointed Hebrew names, trilingual
+  explanations, mainstream Modern Israeli sound guidance, examples with
+  niqqud, transliteration, meanings, dictionary queries and provenance.
+- Explicit treatment of בּ/ב, כּ/כ, פּ/פ and שׁ/שׂ, plus reviewed notes for
+  vowel-marker uses and pronunciation variation.
+- One shared evidence history presented differently in Guided, Explorer and
+  Experienced modes.
+- Integration with Today, A0 curriculum, progress, dictionary lookup and the
+  existing browser voice style/speed preferences.
+- Persistent alphabet progress and idempotent attempts in local SQLite and
+  authenticated PostgreSQL learner snapshots.
+- Additive SQLite schema migration 9 creates `alphabet_progress` and
+  `alphabet_attempts`; cloud mode serializes both through the existing tenant
+  snapshot boundary rather than adding shared learner rows.
+- Alphabet state included in portable export/import, cloud account deletion
+  and snapshot isolation.
+- Browser TTS speaks pointed letter names and complete example words. It is not
+  used to claim isolated-phoneme, accent or native-likeness scoring.
+- The legacy 22-entry `reading_track.entries` remains available for older
+  clients; enriched clients receive explicit counts and unit data.
+
+## Inherited 2.9.0 functional scope — 2026-07-27
 
 ### Listening and transcript understanding
 
@@ -188,13 +217,45 @@ The source tree includes:
 - Backend, frontend and Playwright/axe tests.
 - Canonical Git-blob checksum and reproducible ZIP generators.
 
-`IvritSheli-v2.6-local.zip` is retained only as an obsolete historical artifact. It is not the current v2.9 candidate and must not be distributed as the current application.
+`IvritSheli-v2.6-local.zip` (historical date not re-verified in this slice) is
+retained only as an obsolete historical artifact. It is not the current 2.9.1
+candidate dated 2026-07-27 and must not be distributed as the current
+application.
 
-A reproducible private archive was built from the historical 2.8.1 implementation checkpoint `c9e2762`, extracted cleanly and passed its 136-file package verifier and Compose parsing. Its external SHA-256 is `535e93aaf3912704aaae56076a2b4e9ef8e47fe9df03bbb0fa996d0707c33ccb`. It is preserved as historical evidence, not presented as the current 2.8.3 package or a GitHub Release.
+A reproducible private archive was built from the historical 2.8.1
+implementation checkpoint `c9e2762` (date not re-verified in this slice),
+extracted cleanly and passed its 136-file package verifier and Compose parsing.
+Its external SHA-256 is
+`535e93aaf3912704aaae56076a2b4e9ef8e47fe9df03bbb0fa996d0707c33ccb`.
+It is preserved as historical evidence, not presented as the current 2.8.3
+package (date not re-verified in this slice) or a GitHub Release.
 
-## Current private v2.9 candidate verification
+## Current private 2.9.1 candidate verification — 2026-07-27
 
-| Verification area | Current v2.9 result |
+| Verification area | Current 2.9.1 result |
+|---|---:|
+| Alphabet catalog, API, persistence, migration, export and snapshot compatibility | Passed in the complete backend suite |
+| Complete backend suite | **310 passed / 1 credential-gated PostgreSQL skip** |
+| Complete frontend suite | **353 passed** |
+| Playwright + axe | **32 passed / 40 project-scoped skips / 0 failed** |
+| Additional unique live PostgreSQL 17 case | **1 passed** |
+| Unique directly executed automated passes | **696 passed** |
+| Ruff / strict MyPy / TypeScript | Passed / passed across 38 backend source files / passed |
+| Python compileall / offline doctor | Passed / passed as source version `2.9.1` |
+| Vite production build | Passed |
+| pip-audit / npm production audit | 0 known vulnerabilities / 0 vulnerabilities |
+| Docker Compose / production-shaped runtime | Passed / healthy as 2.9.1, PostgreSQL 17, non-root UID/GID 10001 |
+| Canonical checksums / extracted package | Passed: 327 canonical Git-index checksums, reproducible 328-blob ZIP construction, extracted-package verifier and extracted Compose parsing |
+| Human letter-recognition pilot | Not run |
+
+The current 696 total is 310 backend + 353 frontend + 32 browser + one
+additional live PostgreSQL case. The ordinary credential-gated skip and 40
+project-scoped browser skips are not counted as passes. Historical passing
+results remain below as inherited regression evidence.
+
+## Inherited private 2.9.0 verification — 2026-07-27
+
+| Verification area | Inherited 2.9.0 result |
 |---|---:|
 | Complete backend suite | **291 passed / 1 credential-gated PostgreSQL skip** |
 | Complete frontend suite | **337 passed / 37 files** |
@@ -214,9 +275,9 @@ A reproducible private archive was built from the historical 2.8.1 implementatio
 | Kevin-and-mother Hebrew accuracy pilot | Not run |
 | Canonical source verification | **321 canonical Git-index checksums generated; package verifier passed** |
 
-These local results do not promote v2.9 or change the frozen v2.4 production
-service. The 28 Playwright skips are scoped matrix duplicates; they are not
-failures or additional passes.
+These inherited results do not promote 2.9.1 or change the frozen 2.4.0
+production service dated 2026-07-21. The 28 Playwright skips are scoped matrix
+duplicates; they are not failures or additional passes.
 
 ## Preserved historical private 2.8.3 baseline
 
@@ -242,13 +303,13 @@ The 536 total is 201 backend tests + 310 frontend tests + 25 Playwright cases. T
 
 | Output | Raw | Gzip |
 |---|---:|---:|
-| Main JavaScript | 465.06 kB | 127.25 kB |
-| Main CSS | 211.85 kB | 38.85 kB |
-| Visual QA JavaScript | 6.23 kB | 2.24 kB |
+| Main JavaScript | 467.66 kB | 127.97 kB |
+| Main CSS | 215.90 kB | 39.49 kB |
+| Visual QA JavaScript | 6.24 kB | 2.26 kB |
 | Visual QA CSS | 4.73 kB | 1.32 kB |
-| LearnPanel JavaScript | 66.83 kB | 18.22 kB |
-| LearnPanel CSS | 4.63 kB | 1.38 kB |
-| Progress JavaScript | 13.21 kB | 3.82 kB |
+| LearnPanel JavaScript | 92.40 kB | 25.97 kB |
+| LearnPanel CSS | 19.30 kB | 3.71 kB |
+| Progress JavaScript | 15.55 kB | 4.52 kB |
 | Settings JavaScript | 25.72 kB | 7.29 kB |
 | AICoach JavaScript | 5.42 kB | 1.98 kB |
 | Connector JavaScript | 4.39 kB | 1.52 kB |
@@ -260,20 +321,25 @@ See `TEST_REPORT.md` for commands, coverage and evidence boundaries.
 
 ## Package and deployment state
 
-The current v2.9 source-quality, disposable PostgreSQL 17, production-image,
-readiness, reminder-worker and structured-log gates listed above pass. The
-source package verifier and 321 canonical Git-index checksums also pass. Faster
-Whisper `small` preloaded in 50.508 seconds; its
+The new 2.9.1 Alphabet Studio source dated 2026-07-27 completed its backend,
+frontend, browser/accessibility, static-analysis, build, audit, Compose,
+PostgreSQL 17 and production-shaped Docker runtime gates. Its source verifier,
+327 canonical Git-index checksums, reproducible 328-blob ZIP construction,
+extracted-package verifier and extracted Compose parsing also passed. The
+inherited 2.9.0 source package verifier and 321 canonical Git-index checksums
+remain historical evidence only. Faster Whisper `small`
+preloaded in 50.508 seconds in that 2.9.0 gate; its
 486,213,474-byte (463.7 MiB), 7-file cache and one-second silence inference
 verified CTranslate2 execution, expected no-speech handling and temporary-file
 deletion. Hebrew recognition accuracy, isolated HTTPS staging, two-account
-Google isolation and the speech/reminder mother pilot remain unverified. No
-current v2.9 distributable archive or deployment is claimed.
+Google isolation and the speech/reminder mother pilot remain unverified. The
+verified archive is a private artifact, not a GitHub Release or deployment.
 
 The production-shaped v2.8.3 image and its live, ready and version endpoints
 were historically reverified against PostgreSQL 17. The commit-suffixed
-`c9e2762` archive remains verified historical v2.8.1 evidence, not a v2.9
-package or GitHub Release.
+`c9e2762` archive remains verified historical v2.8.1 evidence (date not
+re-verified in this slice), not a 2.9.1 package dated 2026-07-27 or GitHub
+Release.
 
 The historical Docker Desktop 4.83 / Engine 29.6.2 gate verified the PostgreSQL
 17 migration and restricted role, three database-boundary integration cases,
@@ -295,7 +361,9 @@ Do not merge, push, tag, publish a GitHub Release or deploy to Railway until:
 4. The OpenAI Build Week judging freeze ends.
 5. Kevin gives explicit final publication approval.
 
-After v2.9 accepts writes using the new schema, do not roll the application code back to 2.4 unless the matching pre-deployment database backup is restored.
+After 2.9.1 accepts writes using the new schema, do not roll the application
+code back to 2.4.0 dated 2026-07-21 unless the matching pre-deployment database
+backup is restored.
 
 ## Historical private 2.6 evidence
 
@@ -312,9 +380,9 @@ This historical checkpoint is retained for traceability and was not rerun or rel
 
 The 2.6 checkpoint was local, untagged and unpublished.
 
-## Verified public 2.4 baseline
+## Verified public 2.4.0 baseline — 2026-07-21
 
-This remains the public evidence and is not relabeled as v2.9:
+This remains the public evidence and is not relabelled as 2.9.1:
 
 - Ordinary backend: 150 passed, 1 PostgreSQL-gated skip.
 - Dedicated PostgreSQL 17 gate: 3 passed; 151 unique backend passes.
@@ -333,7 +401,10 @@ Two-real-user production isolation, live OpenAI/Google Workspace calls and a man
 
 ## Evidence statement
 
-This manifest separates current v2.9 source checks, preserved v2.8 and earlier
-private checkpoints, live public v2.4 evidence and operator-dependent release
-gates. No passing test or build is presented as proof of an unexecuted
-deployment, provider integration, real-user pilot or backup restoration.
+This manifest separates locally verified 2.9.1 source/runtime checks dated
+2026-07-27, completed private packaging checks, inherited 2.9.0 evidence dated
+2026-07-27, preserved v2.8 and earlier private checkpoints whose dates were not
+re-verified in this slice, live public 2.4.0 evidence dated 2026-07-21 and
+operator-dependent release gates. No passing test or build is presented as
+proof of an unexecuted deployment, provider integration, real-user pilot or
+backup restoration.

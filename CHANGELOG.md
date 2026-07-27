@@ -2,13 +2,69 @@
 
 All notable changes are documented here. Versions follow Semantic Versioning.
 
-## 2.9.0 — Listening & Personal Coach — Private candidate
+## 2.9.1 — Hebrew Alphabet Studio — Private candidate — 2026-07-27
+
+This private candidate integrates Hebrew letter learning into the existing
+Today, curriculum, dictionary, audio and progress journey. It teaches the
+accurate structure of **22 base letters plus 5 positional final forms**, not
+27 letters. It remains local, untagged, unpushed and unpublished; the verified
+public Railway, Git tag, GitHub Release and Devpost entry remain on **2.4.0
+Contest Edition dated 2026-07-21**.
+
+### Added
+
+- A reviewed trilingual alphabet catalog with stable keys, pointed Hebrew
+  names, mainstream Modern Israeli sound guidance, practical niqqud examples,
+  dictionary queries, final-form relationships and visual/sound confusion
+  groups.
+- A dedicated Alphabet Studio inside Learn, available to Guided, Explorer and
+  Experienced learners without expanding Guided's three-item top-level
+  navigation.
+- Guided next-letter focus, Explorer full-grid discovery and Experienced
+  compact reference views over one shared evidence history.
+- Persistent per-letter recognition evidence and idempotent alphabet attempts
+  in local SQLite and isolated PostgreSQL learner snapshots.
+- A Today continuation card, curriculum-path summary and alphabet progress
+  contribution.
+- Browser speech controls for the pointed letter name and reviewed example
+  word, using the learner's saved synthetic voice style and speed.
+
+### Changed
+
+- The legacy 22-row reading-track response remains available for older clients,
+  while the enriched alphabet contract reports 22 base letters, 5 final forms
+  and 27 written-form units explicitly.
+- Portable export/import and cloud snapshot hydration include alphabet progress
+  and attempts. Older snapshots or exports with no alphabet records hydrate
+  with empty alphabet progress while preserving vocabulary, sessions and
+  profile state.
+- Letter practice distinguishes transliteration from pronunciation and presents
+  mainstream Modern Israeli forms alongside reviewed variation notes.
+
+### Truth and verification boundary
+
+- Browser TTS is a playback aid whose exact voice and realization depend on the
+  device. The candidate does not claim isolated-phoneme, accent or
+  native-likeness scoring.
+- Local verification passed on 2026-07-27: 310 backend tests plus one
+  additional live PostgreSQL 17 case, 353 frontend tests and 32 Playwright/axe
+  cases = 696 unique automated passes. Ruff, strict MyPy across 38 source
+  files, TypeScript, compileall, doctor, production build, dependency audits,
+  Compose and a healthy non-root Docker runtime reporting 2.9.1 passed.
+- The source verifier, 327 canonical Git-index checksums, reproducible 328-blob
+  ZIP construction, extracted-package verifier and extracted Compose parsing
+  passed. Historical 2.9.0 results dated 2026-07-27 are preserved separately
+  rather than relabelled as 2.9.1 evidence.
+- No public tag, GitHub Release, Railway replacement or Devpost edit is
+  authorized by this private work.
+
+## 2.9.0 — Listening & Personal Coach — Private candidate — 2026-07-27
 
 This private candidate connects short Hebrew speech practice, deterministic
 transcript understanding, explainable coaching and optional reminders. It
-preserves the 2.8.3 Warm Illustrated Israel Journey. It is not tagged, pushed
-or deployed to the public Railway/Devpost surface; verified production remains
-2.4.0.
+preserves the 2.8.3 Warm Illustrated Israel Journey (historical date not
+re-verified in this slice). It is not tagged, pushed or deployed to the public
+Railway/Devpost surface; verified production remains 2.4.0 dated 2026-07-21.
 
 ### Added
 

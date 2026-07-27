@@ -49,7 +49,7 @@ export function AuthGate({
       <header className="auth-header">
         <a className="auth-brand" href="/" aria-label={`${t('appName')} — ${t('home')}`}>
           <img src="/icons/app-icon.svg" alt="" />
-          <span><strong>{t('appName')}</strong><small>PRIVATE CANDIDATE 2.9</small></span>
+          <span><strong>{t('appName')}</strong><small>PRIVATE CANDIDATE 2.9.1</small></span>
         </a>
         <div className="auth-header__actions">
           <div className="locale-switch auth-locale" aria-label={t('interfaceLanguage')}>
@@ -62,7 +62,7 @@ export function AuthGate({
               </button>
             ))}
           </div>
-          <span className="auth-version">v2.9.0 private candidate</span>
+          <span className="auth-version">v2.9.1 private candidate · 2026-07-27</span>
         </div>
       </header>
 

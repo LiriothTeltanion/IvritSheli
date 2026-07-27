@@ -1,6 +1,8 @@
-# API catalog — Ivrit Sheli 2.9 private candidate
+# API catalog — Ivrit Sheli 2.9.1 private candidate — 2026-07-27
 
-This document describes the unpublished v2.9 source contract. The verified public Railway service remains on 2.4.0 until every v2.9 release gate is approved.
+This document describes the unpublished 2.9.1 source contract dated
+2026-07-27. The verified public Railway service remains on 2.4.0 dated
+2026-07-21 until every 2.9.1 release gate is approved.
 
 Application base path: `/api/v1`
 
@@ -75,6 +77,8 @@ The hosting platform should route traffic only when `/health/ready` returns `200
 | `GET` | `/api/v1/recommendations` |
 | `GET` | `/api/v1/progress` |
 | `GET` | `/api/v1/curriculum/path` |
+| `GET` | `/api/v1/alphabet?letter_key=...` |
+| `POST` | `/api/v1/alphabet/{letter_key}/attempt` |
 | `GET` | `/api/v1/practice/today` |
 | `POST` | `/api/v1/practice/{session_id}/steps/{step_key}` |
 | `GET` | `/api/v1/export` |
@@ -86,7 +90,7 @@ Generic `POST /items` accepts learner-facing provenance labels such as `manual` 
 
 The profile contract persists onboarding state, learner experience, curriculum-track preference, a self-selected pragmatic CEFR-aligned planning band, `text_scale` and `focus_status`. Experience mode (`guided`, `explorer`, or `experienced`) changes interface guidance without silently changing that band; Guided/A0 is the beginner-safe default. `focus_status` is a learner/device preference, not a social-presence feature. The registry returns persisted learner items with transparent `active`, `mastered`, or `needs_review` status; due/upcoming state; review count; learned and latest-activity dates; and modality-specific mastery. Search, filters, and sorting run inside the resolved tenant only.
 
-## Learning Core 2.6
+## Learning Core 2.6 — historical date not re-verified
 
 | Method | Route | Purpose |
 |---|---|---|
@@ -98,7 +102,7 @@ The attempt payload accepts `item_id`, the current server-issued `activity_token
 
 Core correctness, mastery signals and retention checkpoints identify their source as `learner_self_report`; v2.6 does not present them as objective scoring. Exposure, reference-feedback acknowledgement, answer reveals and reflection cannot increase mastery. Retention is reported only inside explicit target windows: 18–54 hours for the `24h` checkpoint, 120–240 hours for `7d`, and 504–1080 hours for `30d`; out-of-window attempts are not relabeled. The shared read-only demonstration may inspect the two GET routes but cannot submit an attempt.
 
-## Curriculum path and persistent daily practice 2.8
+## Curriculum path and persistent daily practice 2.8 — historical date not re-verified
 
 | Method | Route | Purpose |
 |---|---|---|
@@ -113,6 +117,60 @@ The daily plan is deterministic and uses only reviewed linguistic data plus stor
 Each step payload supplies an `outcome` of `completed`, `failed` or `unsupported`, a client-generated idempotency key and bounded optional evidence. An exact replay returns the previously stored result without duplicating progress or XP. A conflicting retry or out-of-order step returns `409`, after which the client reloads the authoritative session. Unsupported microphone/browser states remain explicit and can use the manual fallback; they are never relabelled as successful speech evidence.
 
 The shared demonstration can preview the practice plan but cannot write progress. Local SQLite persists sessions without an account. In cloud mode `practice_sessions`, `practice_step_events` and `curriculum_progress` travel inside the isolated PostgreSQL learner snapshot and are included in export/import.
+
+## Hebrew Alphabet Studio 2.9.1 — 2026-07-27
+
+| Method | Route | Purpose |
+|---|---|---|
+| `GET` | `/api/v1/alphabet?letter_key={stable_key}` | Return the reviewed trilingual catalog, learner progress, recommendation and current recognition activity. `letter_key` optionally selects one stable catalog unit. |
+| `POST` | `/api/v1/alphabet/{letter_key}/attempt` | Submit one bounded recognition answer for the current server-derived activity. |
+
+The GET response's `facts` object states `base_letters: 22`, `final_forms: 5`
+and `total_forms: 27`. `total_forms` counts written-form units; it does not
+claim that Hebrew has 27 letters. The 27 catalog units include 22 base letters
+and the word-final forms ך, ם, ן, ף and ץ. Each reviewed unit exposes localized
+names/explanations, pointed playback text, contextual sound values, one
+reviewed example, base/final relationship, visual/sound confusions and source
+metadata. Profile/mode context, aggregate progress, recommended letter and
+next activity are learner-scoped.
+
+The optional `letter_key` must be a catalog key. An unknown key returns a
+bounded validation/not-found error rather than fabricating a letter. The
+existing `GET /curriculum/path` compatibility view keeps
+`reading_track.entries` at exactly 22 base entries; new counts, units and
+progress are additive.
+
+The attempt payload is:
+
+```json
+{
+  "activity_token": "64-character concurrency checksum",
+  "idempotency_key": "client-generated stable retry key",
+  "answer_key": "selected option key",
+  "confidence": 4,
+  "response_ms": 2100,
+  "hints_used": 0
+}
+```
+
+`confidence`, `response_ms` and `hints_used` are optional bounded evidence.
+The client does not submit `is_correct`, mastery, stage, interval or XP.
+The server reconstructs the current activity from the reviewed catalog,
+validates the SHA-256 activity token and derives correctness from
+`answer_key`. The token is a concurrency checksum, not a credential; normal
+session, tenant and CSRF controls still authorize the request.
+
+An exact retry with the same idempotency key returns the stored outcome without
+duplicating an attempt or progress. Reusing the key with different content or
+submitting a stale token returns a conflict and the client reloads the
+authoritative activity. Local mode persists `alphabet_progress` and
+`alphabet_attempts` in SQLite. Cloud mode includes both tables in the locked,
+isolated PostgreSQL learner snapshot. Portable export/import includes both
+tables.
+
+The shared demo GET sets `progress.persistence: "read_only_preview"` and
+`progress.can_save: false`. Existing read-only middleware rejects the POST with
+`403`; clients must not claim that a demo answer was saved.
 
 ## Dictionary
 
@@ -149,13 +207,14 @@ The 2.8 reviewed starter dictionary contains 240 trilingual A0–A2 concepts. It
 
 Offline deterministic learning, daily-practice, dictionary, transcript-analysis
 and recommendation paths require no external AI service. Self-hosted Faster
-Whisper is a separate v2.9 speech path and does not require an OpenAI key.
+Whisper is a separate 2.9.0 speech path dated 2026-07-27 and does not require
+an OpenAI key.
 Online OpenAI processing remains an experimental adapter: it requires server
 configuration, `ALLOW_CLOUD_PROCESSING=true`, an explicit request with cloud
 consent and—in production cloud mode—a matching identity allowlist. It remains
-disabled for the private v2.9 candidate unless a later privacy/cost review
-explicitly changes that boundary. OpenAI TTS/STT uses the same paid-provider
-gate; self-hosted STT does not.
+disabled for the private 2.9.1 candidate dated 2026-07-27 unless a later
+privacy/cost review explicitly changes that boundary. OpenAI TTS/STT uses the
+same paid-provider gate; self-hosted STT does not.
 
 ## Audio
 

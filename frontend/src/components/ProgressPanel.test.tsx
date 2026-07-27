@@ -82,6 +82,57 @@ describe('ProgressPanel learning activity log', () => {
     expect(onStartPractice).toHaveBeenCalledOnce();
   });
 
+  it('keeps alphabet progress separate and opens the integrated studio', async () => {
+    const onOpenAlphabet = vi.fn();
+    const user = userEvent.setup();
+
+    render(
+      <I18nProvider>
+        <ProgressPanel
+          progress={{
+            ...BASE_PROGRESS,
+            alphabet: {
+              base_letters: 22,
+              final_forms: 5,
+              total_forms: 27,
+              practiced_units: 6,
+              mastered_units: 2,
+              completion_percent: 22,
+              practiced_base_letters: 5,
+              practiced_final_forms: 1,
+              total_attempts: 10,
+              correct_attempts: 8,
+              accuracy: 0.8,
+              last_practiced_at: '2026-07-27T12:00:00Z',
+              recommended_key: 'bet',
+              recommended: {
+                key: 'bet',
+                letter: 'ב',
+                name: { en: 'Bet', es: 'Bet', he: 'בֵּית' },
+                name_niqqud: 'בֵּית',
+                example: {
+                  word: 'בית',
+                  niqqud: 'בַּיִת',
+                  transliteration: 'bayit',
+                  meaning: { en: 'house', es: 'casa', he: 'בית' },
+                  dictionary_query: 'בית',
+                },
+              },
+            },
+          }}
+          gamification={GAMIFICATION}
+          onOpenAlphabet={onOpenAlphabet}
+        />
+      </I18nProvider>,
+    );
+
+    expect(screen.getByRole('heading', { name: 'Your alphabet' })).toBeInTheDocument();
+    expect(screen.getByText('6/27')).toBeInTheDocument();
+    expect(screen.getByText('5/22')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Open Alphabet Studio' }));
+    expect(onOpenAlphabet).toHaveBeenCalledOnce();
+  });
+
   it('renders learning-core evidence without inventing XP', () => {
     render(
       <I18nProvider>

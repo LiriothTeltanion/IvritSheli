@@ -31,6 +31,7 @@ class XPAction(str, Enum):
     WEEKLY_PLAN = "weekly_plan"
     NEW_CAPTURE = "new_capture"
     DICTIONARY_EXPLORE = "dictionary_explore"
+    ALPHABET_PRACTICE = "alphabet_practice"
 
 
 BASE_XP: Mapping[XPAction, int] = {
@@ -43,12 +44,14 @@ BASE_XP: Mapping[XPAction, int] = {
     XPAction.WEEKLY_PLAN: 100,
     XPAction.NEW_CAPTURE: 8,
     XPAction.DICTIONARY_EXPLORE: 3,
+    XPAction.ALPHABET_PRACTICE: 6,
 }
 
 DAILY_SOFT_CAPS: Mapping[XPAction, int] = {
     XPAction.NEW_CAPTURE: 80,
     XPAction.DICTIONARY_EXPLORE: 30,
     XPAction.CORRECT_REVIEW: 300,
+    XPAction.ALPHABET_PRACTICE: 60,
 }
 
 
@@ -190,6 +193,46 @@ ACHIEVEMENTS: tuple[AchievementDefinition, ...] = (
     AchievementDefinition(
         "trilingual", "locales_used", 3, 90, "Three-Language Mind", "Mente trilingüe", "חשיבה תלת־לשונית", "assets/badges/polyglot.svg"
     ),
+    AchievementDefinition(
+        "alphabet_first",
+        "alphabet_practiced_units",
+        1,
+        20,
+        "First Letter",
+        "Primera letra",
+        "האות הראשונה",
+        "assets/badges/explorer.svg",
+    ),
+    AchievementDefinition(
+        "alphabet_base_22",
+        "alphabet_base_letters_practiced",
+        22,
+        120,
+        "Alphabet Navigator",
+        "Navegante del alfabeto",
+        "מנווטים באלף־בית",
+        "assets/badges/explorer.svg",
+    ),
+    AchievementDefinition(
+        "alphabet_finals_5",
+        "alphabet_final_forms_practiced",
+        5,
+        60,
+        "Final Form Finder",
+        "Explorador de formas finales",
+        "מגלים אותיות סופיות",
+        "assets/badges/explorer.svg",
+    ),
+    AchievementDefinition(
+        "alphabet_all_27",
+        "alphabet_practiced_units",
+        27,
+        100,
+        "Twenty-Seven Forms",
+        "Veintisiete formas",
+        "עשרים ושבע צורות",
+        "assets/badges/explorer.svg",
+    ),
 )
 
 
@@ -220,6 +263,9 @@ def xp_for_action(
 
     base = BASE_XP[action]
     cap = DAILY_SOFT_CAPS.get(action)
+    if action is XPAction.ALPHABET_PRACTICE and cap is not None:
+        remaining = max(0, cap - earned_today_for_action)
+        return min(remaining, max(0, round(base * multiplier)))
     if cap and earned_today_for_action >= cap:
         multiplier *= 0.25
     elif cap and earned_today_for_action >= cap * 0.75:

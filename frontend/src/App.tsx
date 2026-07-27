@@ -11,7 +11,7 @@ import { localeOverrideFromSearch, useI18n } from './i18n';
 import { resolveLearnerMode } from './learnerMode';
 import { unsubscribeFromDailyPractice } from './pushNotifications';
 import { SessionAccessProvider } from './session';
-import type { AuthState, Dashboard, GamificationStatus, LearnerMode, Locale, Profile, ProgressData, ViewKey } from './types';
+import type { AuthState, Dashboard, GamificationStatus, LearnerMode, LearnTab, Locale, Profile, ProgressData, ViewKey } from './types';
 import { AuthGate } from './components/AuthGate';
 import { BeginnerOnboarding } from './components/BeginnerOnboarding';
 import { DictionaryDrawer } from './components/DictionaryDrawer';
@@ -30,7 +30,6 @@ const LearnPanel = lazy(async () => ({ default: (await import('./components/Lear
 const ProgressPanel = lazy(async () => ({ default: (await import('./components/ProgressPanel')).ProgressPanel }));
 const SettingsPanel = lazy(async () => ({ default: (await import('./components/SettingsPanel')).SettingsPanel }));
 
-type LearnTab = 'practice' | 'review' | 'dictionary' | 'audio' | 'collection';
 interface DictionaryTarget {
   word: string;
   entryId?: number;
@@ -494,7 +493,7 @@ export default function App(): React.JSX.Element {
       <aside className="sidebar">
         <div className="brand-lockup">
           <img src="/icons/app-icon.svg" alt="" />
-          <div><strong>{t('appName')}</strong><span>PRIVATE CANDIDATE 2.9</span></div>
+          <div><strong>{t('appName')}</strong><span>PRIVATE CANDIDATE 2.9.1</span></div>
         </div>
         <nav className="side-nav" aria-label={t('primaryNavigation')}>
           {visibleNavigation.map((item) => (
@@ -517,7 +516,7 @@ export default function App(): React.JSX.Element {
         </div>
         <div className="sidebar-footer">
           <div className="privacy-mini"><Icon name="target" size={17} /><span><strong>{t(`${learnerMode}Mode`)}</strong><small>{t('level')} {profile.cefr_band ?? profile.hebrew_level}</small></span></div>
-          <span className="version-label">v2.9.0 private candidate</span>
+          <span className="version-label">v2.9.1 private candidate · 2026-07-27</span>
         </div>
       </aside>
 
@@ -654,6 +653,7 @@ export default function App(): React.JSX.Element {
                 setFirstStepsOpen(true);
               }}
               onOpenDictionary={() => goToLearn('dictionary')}
+              onOpenAlphabet={() => goToLearn('alphabet')}
               onOpenAudio={(hebrew, itemId) => {
                 setPracticeTarget(
                   hebrew
@@ -669,7 +669,7 @@ export default function App(): React.JSX.Element {
           )}
           {view === 'learn' && <LearnPanel initialTab={learnTab} {...(practiceTarget ? { practiceTarget } : {})} cloudAvailable={dashboard.system.cloud_available} dashboard={dashboard} onWordClick={openDictionary} onRefresh={() => { void refreshCore(); }} />}
           {view === 'coach' && <AICoach cloudAvailable={false} onWordClick={openDictionary} />}
-          {view === 'progress' && progress && <ProgressPanel progress={progress} gamification={gamification} cefrBand={profile.cefr_band ?? profile.hebrew_level} onStartPractice={() => goToLearn('practice')} />}
+          {view === 'progress' && progress && <ProgressPanel progress={progress} gamification={gamification} cefrBand={profile.cefr_band ?? profile.hebrew_level} onStartPractice={() => goToLearn('practice')} onOpenAlphabet={() => goToLearn('alphabet')} />}
           {view === 'progress' && !progress && <section className="card skeleton-page"><div className="skeleton" /><div className="skeleton" /></section>}
           {view === 'connectors' && <ConnectorPanel onImported={() => { setToast(t('captured')); void refreshCore(); }} />}
           {view === 'settings' && (

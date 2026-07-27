@@ -18,11 +18,13 @@ export function ProgressPanel({
   gamification,
   cefrBand = 'A1',
   onStartPractice,
+  onOpenAlphabet,
 }: {
   progress: ProgressData;
   gamification: GamificationStatus;
   cefrBand?: string;
   onStartPractice?: (() => void) | undefined;
+  onOpenAlphabet?: (() => void) | undefined;
 }): React.JSX.Element {
   const { label, locale, t } = useI18n();
   const learningCopy = learningCoreCopy(locale);
@@ -34,6 +36,38 @@ export function ProgressPanel({
     : 0;
   const maxMistakes = Math.max(1, ...progress.mistakes.map((item) => item.count));
   const maxActivity = Math.max(1, ...progress.activity.map((item) => item.attempts));
+  const alphabetCopy = locale === 'es'
+    ? {
+        eyebrow: 'Lectura hebrea',
+        title: 'Tu alfabeto',
+        detail: 'Las 22 letras base y las 5 formas finales se practican por separado de la fluidez y la pronunciación.',
+        practiced: 'formas practicadas',
+        mastered: 'formas dominadas',
+        base: 'letras base practicadas',
+        finals: 'formas finales practicadas',
+        action: 'Abrir estudio del alfabeto',
+      }
+    : locale === 'he'
+      ? {
+          eyebrow: 'קריאה בעברית',
+          title: 'האלפבית שלך',
+          detail: 'מתרגלים את 22 אותיות הבסיס ואת 5 הצורות הסופיות בנפרד משטף ומהגייה.',
+          practiced: 'צורות שתורגלו',
+          mastered: 'צורות שנלמדו היטב',
+          base: 'אותיות בסיס שתורגלו',
+          finals: 'צורות סופיות שתורגלו',
+          action: 'פתיחת סטודיו האלפבית',
+        }
+      : {
+          eyebrow: 'Hebrew reading',
+          title: 'Your alphabet',
+          detail: 'The 22 base letters and 5 final forms are practiced separately from fluency and pronunciation.',
+          practiced: 'forms practiced',
+          mastered: 'forms mastered',
+          base: 'base letters practiced',
+          finals: 'final forms practiced',
+          action: 'Open Alphabet Studio',
+        };
   const activityLog = progress.activity_log ?? [];
   const eventTitle = (type: string): string => {
     if (type === 'item_created') return t('activityItemCreated');
@@ -76,6 +110,30 @@ export function ProgressPanel({
       </section>
 
       <LearningSkillMap progress={progress} cefrBand={cefrBand} />
+
+      {progress.alphabet && (
+        <section className="alphabet-progress-card card" aria-labelledby="progress-alphabet-title">
+          <div className="alphabet-progress-card__glyphs" lang="he" dir="rtl" aria-hidden="true">
+            <span>א</span><span>ת</span><span>ץ</span>
+          </div>
+          <div className="alphabet-progress-card__copy">
+            <span className="eyebrow"><Icon name="language" size={16} /> {alphabetCopy.eyebrow}</span>
+            <h2 id="progress-alphabet-title">{alphabetCopy.title}</h2>
+            <p>{alphabetCopy.detail}</p>
+            <div className="alphabet-progress-card__metrics">
+              <span><b>{progress.alphabet.practiced_units}/27</b>{alphabetCopy.practiced}</span>
+              <span><b>{progress.alphabet.mastered_units}/27</b>{alphabetCopy.mastered}</span>
+              <span><b>{progress.alphabet.practiced_base_letters}/22</b>{alphabetCopy.base}</span>
+              <span><b>{progress.alphabet.practiced_final_forms}/5</b>{alphabetCopy.finals}</span>
+            </div>
+          </div>
+          {onOpenAlphabet && (
+            <button type="button" className="secondary-button" onClick={onOpenAlphabet}>
+              <Icon name="language" size={17} /> {alphabetCopy.action}
+            </button>
+          )}
+        </section>
+      )}
 
       <div className="progress-grid">
         <section className="card analytics-card">

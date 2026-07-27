@@ -6,6 +6,9 @@
 
 import type {
   AIResponse,
+  AlphabetAttemptRequest,
+  AlphabetAttemptResponse,
+  AlphabetCatalog,
   ApiErrorShape,
   AudioCapabilities,
   AudioTranscriptionResponse,
@@ -342,6 +345,16 @@ export const api = {
     body: JSON.stringify({ confirm: true }),
   }),
   dashboard: (): Promise<Dashboard> => request('/dashboard'),
+  alphabet: (letterKey?: string): Promise<AlphabetCatalog> =>
+    request(`/alphabet${letterKey ? `?letter_key=${encodeURIComponent(letterKey)}` : ''}`),
+  submitAlphabetAttempt: (
+    letterKey: string,
+    payload: AlphabetAttemptRequest,
+  ): Promise<AlphabetAttemptResponse> =>
+    request(`/alphabet/${encodeURIComponent(letterKey)}/attempt`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
   curriculumPath: (): Promise<CurriculumPath> => request('/curriculum/path'),
   practiceToday: (): Promise<PracticeToday> => request('/practice/today'),
   submitPracticeStep: (

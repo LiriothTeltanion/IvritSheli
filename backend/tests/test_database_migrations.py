@@ -89,6 +89,8 @@ def test_fresh_database_bootstraps_to_latest_schema(tmp_path: Path) -> None:
         "practice_sessions",
         "practice_step_events",
         "curriculum_progress",
+        "alphabet_progress",
+        "alphabet_attempts",
     } <= tables
 
 
@@ -349,6 +351,52 @@ def test_replay_protection_migration_preserves_v4_learning_state(tmp_path: Path)
         "state_version": 0,
     }
     assert replay_table is not None
+    assert version == str(SCHEMA_VERSION)
+
+
+def test_alphabet_migration_preserves_v8_profile_and_adds_empty_evidence_tables(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "listening-coach-v8.db"
+    with _open(path) as connection:
+        for migration in MIGRATIONS[:8]:
+            connection.executescript(migration.sql)
+        connection.execute(
+            "INSERT INTO app_meta(key, value) VALUES('schema_version', '8')"
+        )
+        connection.execute(
+            """
+            INSERT INTO profiles(
+                id, display_name, interface_language, hebrew_level,
+                created_at, updated_at
+            ) VALUES(1, 'Preserved learner', 'es', 'A1',
+                     '2026-07-27T00:00:00+00:00',
+                     '2026-07-27T00:00:00+00:00')
+            """
+        )
+
+    Database(path).initialize()
+
+    with _open(path) as connection:
+        profile = connection.execute(
+            "SELECT display_name, interface_language, hebrew_level FROM profiles"
+        ).fetchone()
+        progress_count = connection.execute(
+            "SELECT COUNT(*) FROM alphabet_progress"
+        ).fetchone()[0]
+        attempts_count = connection.execute(
+            "SELECT COUNT(*) FROM alphabet_attempts"
+        ).fetchone()[0]
+        version = connection.execute(
+            "SELECT value FROM app_meta WHERE key = 'schema_version'"
+        ).fetchone()[0]
+
+    assert dict(profile) == {
+        "display_name": "Preserved learner",
+        "interface_language": "es",
+        "hebrew_level": "A1",
+    }
+    assert progress_count == attempts_count == 0
     assert version == str(SCHEMA_VERSION)
 
 

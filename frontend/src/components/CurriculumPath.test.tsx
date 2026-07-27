@@ -59,11 +59,12 @@ describe('CurriculumPath', () => {
   it('separates the structured course from the advanced laboratory and starts practice', async () => {
     vi.spyOn(api, 'curriculumPath').mockResolvedValue(PATH);
     const onStartPractice = vi.fn();
+    const onOpenAlphabet = vi.fn();
     const user = userEvent.setup();
 
     render(
       <I18nProvider>
-        <CurriculumPath onStartPractice={onStartPractice} />
+        <CurriculumPath onStartPractice={onStartPractice} onOpenAlphabet={onOpenAlphabet} />
       </I18nProvider>,
     );
 
@@ -74,6 +75,8 @@ describe('CurriculumPath', () => {
 
     await user.click(screen.getByRole('button', { name: "Start today’s practice" }));
     expect(onStartPractice).toHaveBeenCalledOnce();
+    await user.click(screen.getByRole('button', { name: 'Open Alphabet Studio' }));
+    expect(onOpenAlphabet).toHaveBeenCalledOnce();
   });
 
   it('offers a retry after an unavailable response', async () => {
@@ -84,7 +87,7 @@ describe('CurriculumPath', () => {
 
     render(
       <I18nProvider>
-        <CurriculumPath onStartPractice={vi.fn()} />
+        <CurriculumPath onStartPractice={vi.fn()} onOpenAlphabet={vi.fn()} />
       </I18nProvider>,
     );
 

@@ -7,8 +7,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { api } from '../api';
 import { useI18n } from '../i18n';
+import { resolveLearnerMode } from '../learnerMode';
 import { useSessionAccess } from '../session';
-import type { Dashboard, DictionaryEntry } from '../types';
+import type { Dashboard, DictionaryEntry, LearnTab } from '../types';
+import { AlphabetStudio } from './AlphabetStudio';
 import { AudioPractice } from './AudioPractice';
 import { CurriculumPath } from './CurriculumPath';
 import { DailyPracticeSession } from './DailyPracticeSession';
@@ -17,8 +19,6 @@ import { HebrewText } from './HebrewText';
 import { Icon } from './Icon';
 import { RegistryPanel } from './RegistryPanel';
 import { ReviewCard } from './ReviewCard';
-
-type LearnTab = 'path' | 'practice' | 'review' | 'dictionary' | 'audio' | 'collection';
 
 export function LearnPanel({
   initialTab = 'review',
@@ -91,8 +91,10 @@ export function LearnPanel({
     }
   };
 
+  const alphabetLabel = locale === 'he' ? 'אלפבית' : locale === 'es' ? 'Alfabeto' : 'Alphabet';
   const tabs: Array<{ key: LearnTab; label: string; icon: 'brain' | 'book' | 'mic' | 'language' | 'play' | 'target' }> = [
     { key: 'path', label: t('learningPath'), icon: 'target' },
+    { key: 'alphabet', label: alphabetLabel, icon: 'language' },
     { key: 'practice', label: t('dailyPractice'), icon: 'play' },
     { key: 'review', label: t('review'), icon: 'brain' },
     { key: 'dictionary', label: t('dictionary'), icon: 'book' },
@@ -115,7 +117,14 @@ export function LearnPanel({
 
       {readOnly && tab === 'dictionary' && <div className="demo-inline-notice" role="note"><Icon name="shield" size={16} /> {t('demoDictionaryNotice')} {readOnlyReason}</div>}
       {message && <div className="info-banner"><Icon name="sparkles" size={16} /> {message}</div>}
-      {tab === 'path' && <CurriculumPath onStartPractice={() => setTab('practice')} />}
+      {tab === 'path' && <CurriculumPath onStartPractice={() => setTab('practice')} onOpenAlphabet={() => setTab('alphabet')} />}
+      {tab === 'alphabet' && (
+        <AlphabetStudio
+          learnerMode={resolveLearnerMode(dashboard.profile)}
+          onWordClick={onWordClick}
+          onProgress={onRefresh}
+        />
+      )}
       {tab === 'practice' && (
         <DailyPracticeSession
           dashboard={dashboard}

@@ -52,6 +52,34 @@ const dashboard: Dashboard = {
       },
     },
   })),
+  alphabet_summary: {
+    base_letters: 22,
+    final_forms: 5,
+    total_forms: 27,
+    practiced_units: 3,
+    mastered_units: 1,
+    completion_percent: 11,
+    practiced_base_letters: 3,
+    practiced_final_forms: 0,
+    total_attempts: 6,
+    correct_attempts: 5,
+    accuracy: 0.8333,
+    last_practiced_at: '2026-07-27T12:00:00Z',
+    recommended_key: 'alef',
+    recommended: {
+      key: 'alef',
+      letter: 'א',
+      name: { en: 'Alef', es: 'Álef', he: 'אָלֶף' },
+      name_niqqud: 'אָלֶף',
+      example: {
+        word: 'אבא',
+        niqqud: 'אַבָּא',
+        transliteration: 'aba',
+        meaning: { en: 'dad', es: 'papá', he: 'אב' },
+        dictionary_query: 'אבא',
+      },
+    },
+  },
   achievements: [],
   mission: {
     title: 'Greeting',
@@ -70,6 +98,7 @@ function actionSpies() {
     onStart: vi.fn<() => void>(),
     onPreviewFirstSteps: vi.fn<() => void>(),
     onOpenDictionary: vi.fn<() => void>(),
+    onOpenAlphabet: vi.fn<() => void>(),
     onOpenAudio: vi.fn<() => void>(),
     onOpenProgress: vi.fn<() => void>(),
     onOpenCoach: vi.fn<() => void>(),
@@ -95,6 +124,7 @@ function renderDashboard(
           onStart={actions.onStart}
           onPreviewFirstSteps={actions.onPreviewFirstSteps}
           onOpenDictionary={actions.onOpenDictionary}
+          onOpenAlphabet={actions.onOpenAlphabet}
           onOpenAudio={actions.onOpenAudio}
           onOpenProgress={actions.onOpenProgress}
           onOpenCoach={actions.onOpenCoach}
@@ -155,6 +185,16 @@ describe('TodayDashboard product tour', () => {
 
     await user.click(screen.getByRole('button', { name: 'Open dictionary for לחם' }));
     expect(actions.onWordClick).toHaveBeenCalledWith('לחם');
+  });
+
+  it('opens the integrated alphabet studio from the recommended Today letter', async () => {
+    const actions = actionSpies();
+    const user = userEvent.setup();
+    renderDashboard(false, actions);
+
+    expect(screen.getByRole('heading', { name: /Continue with/ })).toHaveTextContent('אָלֶף');
+    await user.click(screen.getByRole('button', { name: 'Open Alphabet Studio' }));
+    expect(actions.onOpenAlphabet).toHaveBeenCalledOnce();
   });
 
   it('keeps six exact compatibility scenes when an older dashboard omits the spotlight', () => {

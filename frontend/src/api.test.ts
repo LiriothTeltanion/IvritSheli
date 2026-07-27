@@ -147,6 +147,43 @@ describe('read-only API guard', () => {
     });
   });
 
+  it('addresses alphabet practice by stable letter key and sends only server-verifiable evidence', async () => {
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response(JSON.stringify({}), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    })));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await api.alphabet('alef');
+    await api.submitAlphabetAttempt('alef', {
+      activity_token: 'a'.repeat(64),
+      idempotency_key: 'alphabet-attempt-1',
+      answer_key: 'alef',
+      response_ms: 850,
+      hints_used: 0,
+    });
+
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      1,
+      '/api/v1/alphabet?letter_key=alef',
+      expect.objectContaining({ credentials: 'include' }),
+    );
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      2,
+      '/api/v1/alphabet/alef/attempt',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({
+          activity_token: 'a'.repeat(64),
+          idempotency_key: 'alphabet-attempt-1',
+          answer_key: 'alef',
+          response_ms: 850,
+          hints_used: 0,
+        }),
+      }),
+    );
+  });
+
   it('requests deterministic transcript understanding without a cloud flag', async () => {
     const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({
       mode: 'phrase',

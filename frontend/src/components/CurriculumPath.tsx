@@ -26,6 +26,7 @@ const copy = {
     completed: 'Completed',
     alphabet: 'Sound-first Hebrew reading track',
     alphabetDetail: 'Meet the 22 base letters by sound before adding more reading support.',
+    openAlphabet: 'Open Alphabet Studio',
     personal: 'personal words available',
   },
   es: {
@@ -45,6 +46,7 @@ const copy = {
     completed: 'Completado',
     alphabet: 'Ruta de lectura: primero el sonido',
     alphabetDetail: 'Conoce las 22 letras base por su sonido antes de añadir más apoyo de lectura.',
+    openAlphabet: 'Abrir el estudio del alfabeto',
     personal: 'palabras personales disponibles',
   },
   he: {
@@ -64,11 +66,18 @@ const copy = {
     completed: 'הושלם',
     alphabet: 'מסלול קריאה שמתחיל בצליל',
     alphabetDetail: 'מכירים את 22 אותיות הבסיס דרך הצליל לפני שמוסיפים תמיכות קריאה.',
+    openAlphabet: 'פתיחת סטודיו האלפבית',
     personal: 'מילים אישיות זמינות',
   },
 } satisfies Record<Locale, Record<string, string>>;
 
-export function CurriculumPath({ onStartPractice }: { onStartPractice: () => void }): React.JSX.Element {
+export function CurriculumPath({
+  onStartPractice,
+  onOpenAlphabet,
+}: {
+  onStartPractice: () => void;
+  onOpenAlphabet: () => void;
+}): React.JSX.Element {
   const { locale } = useI18n();
   const strings = copy[locale];
   const [path, setPath] = useState<CurriculumPathData | null>(null);
@@ -167,6 +176,11 @@ export function CurriculumPath({ onStartPractice }: { onStartPractice: () => voi
           <div><strong>{strings.alphabet}</strong><small>{strings.alphabetDetail}</small></div>
           <Icon name="chevron" size={18} />
         </summary>
+        <div className="curriculum-reading__action">
+          <button type="button" className="secondary-button" onClick={onOpenAlphabet}>
+            <Icon name="language" size={17} /> {strings.openAlphabet}
+          </button>
+        </div>
         <ol>
           {path.reading_track.entries.map((entry) => (
             <li key={entry.letter}>

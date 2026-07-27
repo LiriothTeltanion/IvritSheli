@@ -1,22 +1,31 @@
 # Hebrew content sourcing and provenance
 
-**Status:** v2.9.0 content policy
+**Status:** v2.9.1 content policy — private candidate dated 2026-07-27
 
 **Last source review:** 2026-07-27
 
 IvritSheli uses external resources to verify facts and design curricula; it does not treat public web access as permission to copy. Every imported definition, example, image, recording, corpus excerpt, translation, or CEFR descriptor must have an explicit source and reuse basis before it enters a distributable dataset.
 
-The 72 exact semantic scenes in v2.8.3 are original local SVG compositions
+The 72 exact semantic scenes in v2.8.3 (historical date not re-verified in this
+slice) are original local SVG compositions
 implemented in this repository. Their EN/ES/HE descriptions are versioned with
 the reviewed lexicon. The remaining 168 concepts are explicitly presented as
 category/emoji fallbacks rather than bespoke illustrations.
 
-The v2.9 personal coach introduces no open-ended production Hebrew. Its
-dictionary examples are eligible only from the reviewed starter source or an
-entry explicitly marked `product_reviewed`. Its pattern library is Ivrit Sheli
-editorial content with fixed Hebrew, allowed slots, level, context, register,
-EN/ES translations and a stable source identifier. Searchable imported
-dictionary content is not automatically coach-approved.
+The 2.9.0 personal coach dated 2026-07-27 introduces no open-ended production
+Hebrew. Its dictionary examples are eligible only from the reviewed starter
+source or an entry explicitly marked `product_reviewed`. Its pattern library is
+Ivrit Sheli editorial content with fixed Hebrew, allowed slots, level, context,
+register, EN/ES translations and a stable source identifier. Searchable
+imported dictionary content is not automatically coach-approved.
+
+The 2.9.1 Hebrew Alphabet Studio adds a separate reviewed catalog of 22 base
+letters and 5 positional final forms. Each unit must preserve its stable key,
+pointed Hebrew name, sound context, final-form relationship, example,
+translation, dictionary query, source IDs and content revision. Alphabet facts
+do not authorize copied charts, recordings or source prose. Explanations and
+examples remain original Ivrit Sheli editorial content with separate linguistic
+and pedagogical review.
 
 ## Source hierarchy
 
@@ -35,6 +44,11 @@ An authoritative linguistic source can establish a fact; it does not automatical
 | Source | Appropriate use | Boundary before import or publication |
 |---|---|---|
 | [Academy of the Hebrew Language: Overview of Hebrew](https://eng.hebrew-academy.org.il/overview-of-hebrew/) | Root-pattern structure, consonant/vowel relationship, niqqud history, broad grammatical orientation. | Reference and fact-checking only unless a specific page's reuse terms allow more. Write original explanations and link to the source. |
+| [Academy of the Hebrew Language: Final letters](https://hebrew-academy.org.il/category/%D7%90%D7%95%D7%AA%D7%99%D7%95%D7%AA-%D7%A1%D7%95%D7%A4%D7%99%D7%95%D7%AA/) | Official Hebrew reference category for positional final-letter questions. | Reference only; record the exact article used for any more specific decision. The category URL does not grant bulk-copy permission. |
+| [Academy of the Hebrew Language: Orthography](https://eng.hebrew-academy.org.il/our-work/language-decisions/orthography/) | Vocalized/unvocalized spelling, niqqud context and modern vav/yod vowel-indicator guidance. | Reference and fact-checking only. Store original explanations and link to the exact rule when one governs a catalog form. |
+| [University of Texas at Austin: Hebrew Consonants](https://hebrew.laits.utexas.edu/drupal/themes/hebrewgrid/bh/bhonline/grammar/consonants.pdf) | Cross-check 22 symbols, Modern Hebrew ב/כ/פ pairs, שׁ/שׂ and the five positional final forms. | Copyrighted educational reference; do not redistribute the chart, prose or exercises. Its Biblical-Hebrew framing requires Modern Israeli facts to be checked against contemporary sources. |
+| [University of Cambridge: The Modern Hebrew Alphabet](https://www.mmll.cam.ac.uk/files/the_modern_hebrew_alphabet.pdf) | Modern Hebrew letter order, names, core sounds and the five final forms. | Reference/fact-checking chart. Do not copy its layout or instructional wording; Ivrit Sheli explanations, examples and visual treatment remain original. |
+| [Academy terminology: סוֹפִית](https://terms.hebrew-academy.org.il/munnah/53146_1/%D7%A1%D7%95%D6%B9%D7%A4%D6%B4%D7%99%D7%AA) | Verify official terminology associated with `סופית`; use alongside a direct alphabet reference for the five positional forms. | Terminology reference only. It does not by itself license copied dictionary content or establish the complete alphabet curriculum. |
 | [Academy language decisions](https://eng.hebrew-academy.org.il/our-work/language-decisions/) | Standard orthography, punctuation, transliteration, grammar, and approved terminology. | Record the decision URL and review date. Do not scrape or republish the terminology database without permission or a compatible license. |
 | [Historical Dictionary Project](https://eng.hebrew-academy.org.il/our-work/historical-dictionary-project/) and [Ma'agarim database and terms](https://maagarim.hebrew-academy.org.il/) | Historical meaning, attestation, genre, and lexical-development research for advanced content. | Ma'agarim states that rights are reserved, use is for study/research, and commercial use requires prior written permission. It is **reference-only** for IvritSheli until written permission covers the intended use. |
 | [HUJI Corpus of Spoken Hebrew](https://en-digitalhumanities.huji.ac.il/hcsh-huji-corpus-spoken-hebrew/) | Research into contemporary conversation, discourse, interaction, and prosody; candidate frequency/register validation. | The project page identifies recordings/transcripts but does not provide a broad application redistribution license and states all rights reserved. Do not import audio or transcripts until access and reuse terms are documented in writing. |
@@ -83,6 +97,7 @@ Missing licensing information resolves to `reference_only`, never to assumed per
 
 | Content field | Minimum evidence before canonical publication |
 |---|---|
+| Alphabet name, order, sound and final-form relationship | Cross-check a direct Modern Hebrew alphabet reference and an Academy source where applicable. Distinguish mainstream Israeli realization, contextual sound value and heritage variation; never count five final shapes as separate letters. |
 | Pointed and unpointed spelling | Academy decision, compatible reviewed lexicon, or qualified editorial review. Store both original and normalized forms without discarding niqqud. |
 | Root, pattern, binyan, gender, number, inflection | Reviewed linguistic source for the exact sense/form. Homographs cannot borrow morphology from another sense. |
 | English and Spanish meaning | Original IvritSheli translation with bilingual review, or a compatible licensed source. Record whether it is literal, functional, or contextual. |
@@ -110,7 +125,7 @@ Missing licensing information resolves to `reference_only`, never to assumed per
 
 AI may assist steps 2-5, but its output remains `ai_candidate`. It cannot authorize a license, establish a canonical fact, or serve as the only naturalness review.
 
-### v2.9 coach release gate
+### 2.9.0 coach release gate — 2026-07-27
 
 Before a new coach pattern can move into the reviewed runtime library:
 
@@ -122,6 +137,23 @@ Before a new coach pattern can move into the reviewed runtime library:
 6. test that no unreviewed imported dictionary example can enter the result;
 7. include the example in a human pilot before using it as a public quality
    claim.
+
+### 2.9.1 Alphabet Studio release gate — 2026-07-27
+
+Before an alphabet unit can move into the reviewed runtime catalog:
+
+1. verify its order, base/final identity and pointed Hebrew name;
+2. separate mainstream Modern Israeli guidance from historical or
+   community-specific realizations;
+3. verify every niqqud example, transliteration and EN/ES/HE meaning;
+4. ensure the example actually contains the target written form in the stated
+   context;
+5. attach stable source IDs, retrieval dates and original-editorial status;
+6. test the playback text without treating browser TTS as linguistic evidence;
+7. verify that its visual and sound confusion groups are pedagogically useful;
+   and
+8. include the unit in beginner recognition review before making a public
+   usability claim.
 
 ## Corpus and quotation safeguards
 

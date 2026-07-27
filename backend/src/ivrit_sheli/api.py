@@ -57,6 +57,7 @@ from ivrit_sheli.config import Settings
 from ivrit_sheli.connectors import ConnectorError, ConnectorService, ContextPreview
 from ivrit_sheli.database import Database
 from ivrit_sheli.dictionary import DICTIONARY_SCHEMA_VERSION, DictionaryStore
+from ivrit_sheli.hebrew_alphabet import AlphabetConflictError
 from ivrit_sheli.learner_model import CONTEXT_KEYS
 from ivrit_sheli.learning_core import (
     CefrBand,
@@ -278,6 +279,29 @@ class PracticeStepPayload(StrictModel):
     answer_text: str | None = Field(default=None, max_length=10_000)
     transcript: str | None = Field(default=None, max_length=10_000)
     unsupported_reason: str | None = Field(default=None, max_length=100)
+
+
+class AlphabetAttemptPayload(StrictModel):
+    """One answer to the current server-owned alphabet activity."""
+
+    activity_token: str = Field(
+        min_length=64,
+        max_length=64,
+        pattern=r"^[a-f0-9]{64}$",
+    )
+    idempotency_key: str = Field(
+        min_length=8,
+        max_length=128,
+        pattern=r"^[A-Za-z0-9._:-]+$",
+    )
+    answer_key: str = Field(
+        min_length=1,
+        max_length=64,
+        pattern=r"^[a-z_]+$",
+    )
+    confidence: int = Field(default=3, ge=1, le=5)
+    response_ms: int = Field(default=0, ge=0, le=3_600_000)
+    hints_used: int = Field(default=0, ge=0, le=100)
 
 
 class AITaskPayload(StrictModel):
@@ -1597,6 +1621,26 @@ def register_routes(app: FastAPI) -> None:
         """Return the A0-A2 structured path and honestly labelled B1/B2 laboratory."""
         return repository_for(request).curriculum_path()
 
+    @app.get(f"{API_PREFIX}/alphabet")
+    def alphabet_catalog(
+        request: Request,
+        letter_key: str | None = Query(default=None, min_length=1, max_length=64),
+    ) -> dict[str, Any]:
+        """Return all reviewed forms, learner progress, and one next activity."""
+        return repository_for(request).alphabet_catalog(letter_key)
+
+    @app.post(f"{API_PREFIX}/alphabet/{{letter_key}}/attempt")
+    def submit_alphabet_attempt(
+        request: Request,
+        letter_key: str,
+        payload: AlphabetAttemptPayload,
+    ) -> dict[str, Any]:
+        """Grade server-side and persist one replay-safe alphabet attempt."""
+        return repository_for(request).submit_alphabet_attempt(
+            letter_key,
+            payload.model_dump(),
+        )
+
     @app.get(f"{API_PREFIX}/practice/today")
     def practice_today(request: Request) -> dict[str, Any]:
         """Return or create the current learner's resumable daily practice session."""
@@ -2400,6 +2444,13 @@ def register_error_handlers(app: FastAPI, settings: Settings) -> None:
         error: PracticeConflictError,
     ) -> JSONResponse:
         return error_response(request, 409, "practice_conflict", str(error))
+
+    @app.exception_handler(AlphabetConflictError)
+    async def alphabet_conflict(
+        request: Request,
+        error: AlphabetConflictError,
+    ) -> JSONResponse:
+        return error_response(request, 409, "alphabet_conflict", str(error))
 
     @app.exception_handler(CloudSnapshotLimitError)
     async def cloud_snapshot_limit_error(

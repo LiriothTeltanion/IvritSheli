@@ -27,6 +27,7 @@ interface TodayDashboardProps {
   onStart: () => void;
   onPreviewFirstSteps: () => void;
   onOpenDictionary: () => void;
+  onOpenAlphabet: () => void;
   onOpenAudio: (hebrew?: string, itemId?: number) => void;
   onOpenProgress: () => void;
   onOpenCoach: () => void;
@@ -41,6 +42,7 @@ export function TodayDashboard({
   onStart,
   onPreviewFirstSteps,
   onOpenDictionary,
+  onOpenAlphabet,
   onOpenAudio,
   onOpenProgress,
   onOpenCoach,
@@ -50,6 +52,35 @@ export function TodayDashboard({
   const { readOnly } = useSessionAccess();
   const [atlasRegion, setAtlasRegion] = useState<AtlasRegionId>('jerusalem');
   const learnerMode = resolveLearnerMode(dashboard.profile);
+  const alphabetCopy = locale === 'es'
+    ? {
+        eyebrow: 'Tu próximo paso de lectura',
+        start: 'Empieza con',
+        continue: 'Continúa con',
+        detail: 'Reconoce la forma, escucha el nombre y conéctala con una palabra real.',
+        counts: '22 letras base + 5 formas finales',
+        practiced: 'formas practicadas',
+        open: 'Abrir estudio del alfabeto',
+      }
+    : locale === 'he'
+      ? {
+          eyebrow: 'הצעד הבא שלך בקריאה',
+          start: 'מתחילים עם',
+          continue: 'ממשיכים עם',
+          detail: 'מזהים את הצורה, שומעים את שם האות ומקשרים אותה למילה אמיתית.',
+          counts: '22 אותיות בסיס + 5 צורות סופיות',
+          practiced: 'צורות שתורגלו',
+          open: 'פתיחת סטודיו האלפבית',
+        }
+      : {
+          eyebrow: 'Your next reading step',
+          start: 'Start with',
+          continue: 'Continue with',
+          detail: 'Recognize the shape, hear its name, and connect it to a real word.',
+          counts: '22 base letters + 5 final forms',
+          practiced: 'forms practiced',
+          open: 'Open Alphabet Studio',
+        };
   const missionTranslation = locale === 'es' ? dashboard.mission.translation_es : dashboard.mission.translation_en;
   const fallbackSpotlight: VisualSpotlightEntry[] = starterWords.map((word, index) => ({
     entry_id: -(index + 1),
@@ -198,6 +229,37 @@ export function TodayDashboard({
           onStartReview={onStart}
           onRefresh={onRefresh}
         />
+      )}
+
+      {dashboard.alphabet_summary && (
+        <section className="today-alphabet-card card" aria-labelledby="today-alphabet-title">
+          <div className="today-alphabet-card__glyph" lang="he" dir="rtl" aria-hidden="true">
+            {dashboard.alphabet_summary.recommended.letter}
+          </div>
+          <div className="today-alphabet-card__copy">
+            <span className="eyebrow"><Icon name="language" size={16} /> {alphabetCopy.eyebrow}</span>
+            <h2 id="today-alphabet-title">
+              {dashboard.alphabet_summary.practiced_units > 0 ? alphabetCopy.continue : alphabetCopy.start}{' '}
+              <b lang="he" dir="rtl">{dashboard.alphabet_summary.recommended.name_niqqud}</b>
+            </h2>
+            <p>{alphabetCopy.detail}</p>
+            <div>
+              <span>{alphabetCopy.counts}</span>
+              <span>
+                <b>{dashboard.alphabet_summary.practiced_units}/{dashboard.alphabet_summary.total_forms}</b>{' '}
+                {alphabetCopy.practiced}
+              </span>
+            </div>
+          </div>
+          <div className="today-alphabet-card__example">
+            <span lang="he" dir="rtl">{dashboard.alphabet_summary.recommended.example.niqqud}</span>
+            <small dir="ltr">{dashboard.alphabet_summary.recommended.example.transliteration}</small>
+            <p>{dashboard.alphabet_summary.recommended.example.meaning[locale]}</p>
+          </div>
+          <button type="button" className="primary-button" onClick={onOpenAlphabet}>
+            <Icon name="language" size={18} /> {alphabetCopy.open}
+          </button>
+        </section>
       )}
 
       <LivingHebrewAtlas
