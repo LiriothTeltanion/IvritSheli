@@ -1,8 +1,13 @@
-# API catalog — Ivrit Sheli 2.9.1 private candidate — 2026-07-27
+# 2.10.0 source-contract note — 2026-08-10
 
-This document describes the unpublished 2.9.1 source contract dated
+This unpublished 2.10.0 consolidation inherits the 2.9.2 API surface without broadening public permissions. Google public sign-in remains **identity-only** (`openid profile`). The primary change is visual/release consistency: all 240 reviewed starter concepts now resolve to exact semantic scenes, while the verified public deployment remains 2.4.0.
+
+# API catalog — Ivrit Sheli 2.9.2 private candidate — 2026-07-28
+
+This document describes the unpublished 2.9.2 source contract dated
+2026-07-28. It inherits the 2.9.1 Hebrew Alphabet Studio contract dated
 2026-07-27. The verified public Railway service remains on 2.4.0 dated
-2026-07-21 until every 2.9.1 release gate is approved.
+2026-07-21 until every 2.9.2 release gate is approved.
 
 Application base path: `/api/v1`
 
@@ -35,11 +40,20 @@ The production frontend and API share one HTTPS origin. JSON responses include a
     "login": null,
     "avatar_url": "https://lh3.googleusercontent.com/..."
   },
-  "auth_providers": ["google", "github"]
+  "auth_providers": ["google", "github"],
+  "local_companion_url": null
 }
 ```
 
 `auth_providers` lists only the sign-in methods configured by the server, so the frontend does not present a provider that cannot complete. Google users have `login: null`; GitHub users may have a login. The providers are separate identities and are not auto-linked by email. Google sign-in requests only `openid profile`; GitHub requests identity-only `read:user`. Neither callback persists provider bearer tokens or email addresses.
+
+`local_companion_url` is normally `null`. A development server may expose an
+exact loopback HTTP origin such as `http://127.0.0.1:8001` so a read-only
+Docker demo can link to the writable local SQLite workspace on the same
+computer. Configuration rejects paths, credentials, query strings,
+non-loopback hosts and every non-empty production value. This field is a local
+navigation hint, not an identity provider, cloud session or authorization
+bypass.
 
 The session bearer is an `HttpOnly` cookie. A separate readable CSRF cookie is echoed as `X-CSRF-Token` by the same-origin frontend for authenticated mutations. Demo sessions can read seeded learner data but receive `403 demo_read_only` on private mutations. Demo and logout POSTs require `application/json` and reject cross-site Origin/Fetch Metadata. Logout accepts an exact allow-listed Origin or, when Origin is absent, the active session's double-submit CSRF proof.
 

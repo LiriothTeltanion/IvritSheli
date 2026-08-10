@@ -99,11 +99,8 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .grid-noise { position: fixed; inset: 0; pointer-events: none; z-index: -2; opacity: 0.32; background-image: linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px); background-size: 42px 42px; mask-image: radial-gradient(circle at 50% 30%, black, transparent 78%); }
 
 .sidebar { position: sticky; top: 0; height: 100vh; padding: 24px 18px; display: flex; flex-direction: column; background: color-mix(in srgb, var(--bg-deep) 88%, transparent); backdrop-filter: blur(24px); border-inline-end: 1px solid var(--border); z-index: 20; }
-.brand-lockup { display: flex; align-items: center; gap: 12px; padding: 4px 10px 24px; }
-.brand-lockup img { width: 46px; height: 46px; filter: drop-shadow(0 8px 18px rgba(32, 209, 181, .2)); }
-.brand-lockup div { display: grid; gap: 2px; }
-.brand-lockup strong { font-size: 18px; letter-spacing: -.02em; }
-.brand-lockup span { color: var(--teal); font-size: 9px; font-weight: 800; letter-spacing: .23em; }
+.brand-lockup { display: grid; gap: 6px; padding: 4px 10px 24px; }
+.brand-lockup > span:last-child { color: var(--teal); font-size: 9px; font-weight: 800; letter-spacing: .18em; }
 .side-nav { display: grid; gap: 6px; }
 .side-nav button { position: relative; width: 100%; border: 0; background: transparent; padding: 13px 14px; display: flex; align-items: center; gap: 13px; border-radius: 14px; color: var(--text-soft); cursor: pointer; font-weight: 660; text-align: start; transition: background .22s var(--ease), color .22s, transform .22s; }
 .side-nav button::before { content: ""; position: absolute; inset-inline-start: -18px; width: 3px; height: 0; border-radius: 0 8px 8px 0; background: var(--teal); box-shadow: 0 0 16px var(--teal); transition: height .25s var(--ease); }
@@ -130,7 +127,6 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .topbar-context strong { overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
 .topbar-actions { display: flex; align-items: center; gap: 10px; }
 .mobile-brand { display: none; align-items: center; gap: 8px; }
-.mobile-brand img { width: 34px; }
 .network-chip { display: flex; align-items: center; gap: 6px; padding: 7px 9px; border: 1px solid var(--border); border-radius: 99px; color: var(--green); font-size: 10px; text-transform: uppercase; letter-spacing: .09em; }
 .network-chip.is-offline { color: var(--gold); }
 .locale-switch { display: flex; padding: 3px; border: 1px solid var(--border); background: var(--surface-soft); border-radius: 10px; }
@@ -601,10 +597,17 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 
 /* App states */
 .app-loading, .fatal-error { min-height: 100vh; padding: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--teal) 10%, transparent), transparent 34%), var(--bg-deep); }
-.loading-mark { position: relative; width: 120px; height: 120px; display: grid; place-items: center; border-radius: 50%; background: var(--surface); color: var(--teal); }
-.loading-mark span { font: 700 66px/1 var(--font-hebrew); }
-.loading-mark i { position: absolute; inset: -12px; border: 1px solid color-mix(in srgb, var(--teal) 28%, transparent); border-radius: 50%; animation: orbitSpin 2.5s linear infinite; }
-.loading-mark i:nth-of-type(2) { inset: -25px; border-style: dashed; animation-direction: reverse; animation-duration: 4s; }
+.loading-wordmark {
+  --ivrit-wordmark-gap: 0.5rem;
+  padding: 22px 27px 17px;
+  border: 1px solid var(--border-strong);
+  border-radius: 24px;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  box-shadow: 0 24px 70px color-mix(in srgb, var(--brand-signature) 14%, transparent);
+  animation: logoBreathe 2.6s var(--ease) infinite alternate;
+}
+.loading-wordmark .ivrit-wordmark__latin { font-size: 2.1rem; }
+.loading-wordmark .ivrit-wordmark__signature { font-size: 2.15rem; }
 .app-loading h1 { margin: 35px 0 4px; }
 .app-loading p, .fatal-error p { color: var(--text-soft); }
 .loading-track { width: min(260px, 80vw); height: 4px; margin-top: 15px; overflow: hidden; border-radius: 99px; background: var(--surface-hover); }
@@ -780,10 +783,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .auth-header, .auth-footer, .auth-stage { position: relative; z-index: 1; width: min(1240px, 100%); margin-inline: auto; }
 .auth-header { min-height: 104px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
 .auth-brand { display: flex; align-items: center; gap: 12px; color: var(--text); text-decoration: none; }
-.auth-brand img { width: 48px; height: 48px; filter: drop-shadow(0 9px 22px rgba(32, 209, 181, .24)); }
-.auth-brand span { display: grid; gap: 2px; }
-.auth-brand strong { font-size: 18px; letter-spacing: -.025em; }
-.auth-brand small { color: var(--teal); font-size: 8px; font-weight: 850; letter-spacing: .26em; }
+.auth-brand > small { color: var(--teal); font-size: 8px; font-weight: 850; letter-spacing: .22em; }
 .auth-header__actions { display: flex; align-items: center; gap: 13px; }
 .auth-locale { background: rgba(255,255,255,.025); }
 .auth-version { padding: 7px 10px; border: 1px solid var(--border); border-radius: 99px; color: var(--text-muted); font-size: 10px; letter-spacing: .08em; }
@@ -833,7 +833,6 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .auth-preview-card--main { position: relative; z-index: 2; width: min(390px, 83vw); min-height: 305px; padding: 25px; border-radius: 27px; transform: rotateY(-7deg) rotateX(3deg); animation: authCardFloat 6s var(--ease) infinite alternate; }
 [dir="rtl"] .auth-preview-card--main { transform: rotateY(7deg) rotateX(3deg); }
 .auth-preview-card--main header, .auth-preview-card--main footer { display: flex; align-items: center; justify-content: space-between; }
-.auth-preview-brand { color: var(--teal); font-family: var(--font-hebrew); font-weight: 760; }
 .auth-preview-live { padding: 5px 7px; border-radius: 99px; background: color-mix(in srgb, var(--green) 12%, transparent); color: var(--green); font-size: 8px; font-weight: 850; letter-spacing: .12em; }
 .auth-preview-word { margin-top: 57px; font: 750 32px/1.2 var(--font-hebrew); letter-spacing: -.02em; }
 .auth-preview-card--main p { margin: 8px 0 31px; color: var(--text-muted); }
@@ -867,12 +866,19 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .demo-banner > span { min-width: 0; display: grid; gap: 1px; }
 .demo-banner strong { font-size: 11px; }
 .demo-banner small { overflow: hidden; max-width: 760px; color: var(--text-muted); font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
-.demo-banner a { margin-inline-start: auto; padding: 7px 10px; border: 1px solid color-mix(in srgb, var(--gold) 28%, transparent); border-radius: 9px; display: inline-flex; align-items: center; gap: 6px; color: var(--text); text-decoration: none; font-size: 10px; white-space: nowrap; }
+.demo-banner a,
+.demo-banner button { margin-inline-start: auto; padding: 7px 10px; border: 1px solid color-mix(in srgb, var(--gold) 28%, transparent); border-radius: 9px; display: inline-flex; align-items: center; gap: 6px; background: transparent; color: var(--text); text-decoration: none; font-size: 10px; white-space: nowrap; cursor: pointer; }
 .demo-inline-notice { margin: 0 0 18px; padding: 11px 13px; border: 1px solid color-mix(in srgb, var(--gold) 25%, transparent); border-radius: 12px; display: flex; align-items: flex-start; gap: 9px; background: color-mix(in srgb, var(--gold) 6%, transparent); color: var(--text-soft); font-size: 11px; line-height: 1.5; }
 .demo-inline-notice svg { flex: 0 0 auto; margin-top: 1px; color: var(--gold); }
 button:disabled, input:disabled, textarea:disabled, select:disabled { cursor: not-allowed; opacity: .56; }
 .fatal-error__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
 
+@keyframes logoBreathe {
+  to {
+    transform: translateY(-4px);
+    box-shadow: 0 30px 82px color-mix(in srgb, var(--brand-signature) 20%, transparent);
+  }
+}
 @keyframes authCardFloat { to { transform: rotateY(-3deg) rotateX(1deg) translateY(-10px); } }
 [dir="rtl"] .auth-preview-card--main { animation-name: authCardFloatRtl; }
 @keyframes authCardFloatRtl { to { transform: rotateY(3deg) rotateX(1deg) translateY(-10px); } }
@@ -896,8 +902,7 @@ button:disabled, input:disabled, textarea:disabled, select:disabled { cursor: no
 
 @media (max-width: 680px) {
   .auth-gate { padding-inline: 16px; }
-  .auth-brand img { width: 41px; height: 41px; }
-  .auth-brand strong { font-size: 15px; }
+  .auth-brand > small { display: none; }
   .auth-version { display: none; }
   .auth-stage { gap: 20px; padding-top: 25px; }
   .auth-copy h1 { margin-top: 14px; font-size: clamp(40px, 12vw, 54px); }
@@ -916,8 +921,8 @@ button:disabled, input:disabled, textarea:disabled, select:disabled { cursor: no
   .auth-footer { align-items: flex-start; flex-direction: column; justify-content: center; gap: 4px; padding-block: 13px; }
   .demo-banner { padding-inline: 14px; }
   .demo-banner small { display: none; }
-  .demo-banner a { width: 34px; height: 34px; padding: 0; justify-content: center; }
-  .demo-banner a { font-size: 0; }
+  .demo-banner a,
+  .demo-banner button { min-width: 34px; height: 34px; padding: 0 8px; justify-content: center; }
   .topbar .session-logout { width: 36px; height: 36px; }
 }
 
@@ -1065,13 +1070,13 @@ body {
   inset-inline: -6px auto;
 }
 
-.brand-lockup img {
+.brand-lockup .ivrit-wordmark {
   transition: transform var(--motion-base) var(--ease), filter var(--motion-base) ease;
 }
 
-.brand-lockup:hover img {
+.brand-lockup:hover .ivrit-wordmark {
   transform: rotate(-3deg) scale(1.04);
-  filter: drop-shadow(0 10px 25px color-mix(in srgb, var(--teal) 28%, transparent));
+  filter: drop-shadow(0 10px 25px color-mix(in srgb, var(--brand-signature) 22%, transparent));
 }
 
 .side-nav {
@@ -2276,8 +2281,8 @@ button.registry-card__status:active {
 }
 
 /* Accessible metadata sizing: compact information stays readable at 100–200% zoom. */
-.brand-lockup span,
-.auth-brand small,
+.brand-lockup > span:last-child,
+.auth-brand > small,
 .eyebrow,
 .network-chip,
 .mission-xp,
@@ -2526,7 +2531,7 @@ button.registry-card__status:active {
     animation: none !important;
   }
 
-  .brand-lockup:hover img,
+  .brand-lockup:hover .ivrit-wordmark,
   .side-nav button:hover,
   .side-nav button:active,
   .icon-button:hover,

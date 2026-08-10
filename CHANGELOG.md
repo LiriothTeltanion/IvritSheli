@@ -2,6 +2,171 @@
 
 All notable changes are documented here. Versions follow Semantic Versioning.
 
+## 2.10.0 — Validation addendum — Private candidate — 2026-08-10
+
+Version stays **2.10.0**. This candidate was never tagged, deployed or
+published, so these are fixes to the same unreleased candidate rather than a new
+one, and no version surface moves.
+
+The consolidation was assembled in an environment with no package registry, so
+neither Vitest, the Vite build, Playwright nor the complete backend suite ever
+ran against it. Running them on the reference Windows machine found four defects
+the artifact checks could not see.
+
+### Fixed
+
+- **Reduced motion no longer dismantles the artwork.** `premium-polish.css`
+  applied `transform: none !important` to `.semantic-art[data-motion-profile] *`.
+  In SVG `transform` is a presentation attribute that any CSS declaration
+  outranks, so the rule did not still the illustrations — it collapsed sixty
+  positioning transforms across fourteen scene modules onto the origin. Speech
+  bubbles, calendars, solar heaters, stamps, pens, the miniature family tree and
+  the counting hand all fell apart for exactly the visitors who asked for less
+  motion. Reduced motion now stops animation and leaves geometry alone.
+- **Removed a duplicate perpetual motion layer.** The four recipe profiles were
+  declared twice: once in `semantic-word-illustration.css`, correctly gated
+  behind `:hover`/`:focus-visible` and `prefers-reduced-motion: no-preference`,
+  and again in `premium-polish.css` as `infinite alternate` with no gate, so all
+  240 illustrations animated permanently. Half of that duplicate also targeted
+  `.semantic-art__prop` and `.semantic-art__accent`, which exist nowhere in the
+  scene modules, leaving the largest template family animating nothing. Motion
+  now lives only in the semantic layer, on intent.
+- **A solid black band across 24 cards.** `CommunicationScenes` and
+  `RegisterScenes` painted their ground with `semantic-art__ground`, which
+  deliberately declares no paint of its own and reads a gradient the scene frame
+  supplies. With no `fill` attribute SVG fell back to its default black. Both
+  now use `semantic-art__floor`, as the other nineteen scene modules do.
+- **An unpainted handshake.** `communication.agree` drew its clasp with
+  `semantic-art__handshake`, a width-only modifier, so it rendered as a black
+  shape between the two figures. It now carries skin paint and a shaded side,
+  and the modifier — which no longer had a single user — is gone from the
+  stylesheet.
+- **Three tests that the consolidation had left behind.** The exact-scene
+  tripwire still asserted 204 keys against a 240-key catalogue; the art-class
+  guard caught the unpainted handshake; and `App.test.tsx` still asserted auth
+  copy that the 2.10 rewrite had replaced.
+
+### Changed
+
+- The auth privacy line states again that no password is created or stored,
+  in all three languages. The 2.10 copy pass removed framework jargon from that
+  sentence and took a decision-relevant privacy fact with it.
+- The seven dictionary categories added since 2.9 — work, services, housing,
+  communication, autonomy, register and actions — have trilingual labels. Until
+  now the Spanish and Hebrew dictionary rendered their English slugs.
+- `postcss`, `nanoid` and `undici` patched within their existing ranges; no
+  major dependency moved. `npm audit` reports zero across the whole tree, and
+  production carried zero throughout: react, react-dom and scheduler are the
+  only non-development packages in the lockfile.
+
+### Added
+
+- `frontend/src/locales/localeParity.test.ts` — the guard the trilingual split
+  needed and did not ship with: identical key sets, no empty message in any
+  language, and matching `{placeholder}` sets across all three.
+- The art-class guard now reads the stylesheet with `@media` blocks removed.
+  Paint that only exists inside `prefers-contrast: more` is not paint the
+  ordinary visitor gets, and counting it is precisely what let the black ground
+  band pass three checks unnoticed.
+
+## 2.10.0 — Visual Language Consolidation — Private candidate — 2026-08-10
+
+This private consolidation pauses feature growth and brings the product, visual
+system and release evidence back into one coherent baseline. The public Railway
+deployment, Git tag, GitHub Release and Devpost entry remain frozen on the
+verified **2.4.0 Contest Edition dated 2026-07-21**.
+
+### Added
+
+- Exact meaning-first semantic scenes for all 36 previously uncovered A2
+  communication, autonomy and social-register concepts.
+- Full **240/240 exact-scene coverage** across the reviewed A0–A2 starter
+  dictionary; reviewed starter concepts no longer depend on category/emoji
+  fallbacks.
+- Recipe-driven motion profiles for object, direction, exchange and time/quantity
+  scenes, with a strict reduced-motion stationary path.
+- A typed frontend release identity module so learner-facing candidate labels no
+  longer drift independently across the shell, auth gate, QA gallery and exports.
+- `docs/VISUAL_BIBLE.md` with the product's illustration, motion, accessibility
+  and generative-art rules.
+- `frontend/src/premium-polish.css`, a reversible refinement layer for stronger
+  depth, region-art presentation, clearer hierarchy and mobile ergonomics.
+- A refreshed repository-facing Ivrit Sheli logo plus reusable standalone and monochrome brand marks aligned with the 2.9.2 in-app wordmark instead of the obsolete `ULTIMATE` identity.
+- The trilingual catalog split into dedicated EN/ES/HE modules (606 keys each), plus dedicated connectivity/theme hooks, reducing the provider shell and `App.tsx` responsibilities.
+- `docs/ARCHITECTURE_CONSOLIDATION.md`, documenting completed safe refactors and the backend decomposition gate that should wait for the full PostgreSQL/runtime suite.
+
+### Changed
+
+- The visual spotlight rotations and visual QA contract now cover all 240 exact
+  scenes.
+- Release verification derives the private source version from executable
+  metadata rather than duplicating a stale candidate number across verifier
+  code.
+- Checksum generation now supports both Git worktrees and clean extracted source
+  packages, making the package verifier usable on the exact artifact handed to a
+  reviewer.
+- Learner-facing authentication copy reduces framework/database language in the
+  primary journey while retaining technical details in documentation and
+  settings.
+
+### Verification boundary
+
+- The previous 2.9.2 **699-pass** local gate remains historical evidence; it is
+  not relabelled as 2.10.0 evidence.
+- The 2.10.0 package/source-consistency gate is refreshed in this artifact. The
+  full backend/frontend/Playwright/PostgreSQL/Docker suite, updated screenshots
+  and human visual-recognition pilot must be rerun before publication.
+- No public deployment, tag, release or Devpost mutation is authorized by this
+  private consolidation.
+
+## 2.9.2 — Brand & Private Access — Private candidate — 2026-07-28
+
+This focused private candidate gives Ivrit Sheli one coherent wordmark and
+makes the difference between a shared read-only demo, a writable local
+workspace and configured cloud identity explicit. It remains local, untagged,
+unpushed and unpublished; the verified public Railway deployment, Git tag,
+GitHub Release and Devpost entry remain on **2.4.0 Contest Edition dated
+2026-07-21**.
+
+### Added
+
+- A reusable accessible wordmark with `Ivrit` in a clear Latin face and `שלי`
+  immediately beside it in red Hebrew handwriting, backed by a locally served
+  OFL font.
+- A development-only `local_companion_url` authentication capability for an
+  exact loopback origin, allowing the Docker demo to offer a direct path to
+  the writable SQLite workspace on the same computer.
+- Regression coverage for the local-companion contract and for hiding
+  unconfigured OAuth providers.
+
+### Changed
+
+- Loading, authentication, onboarding, desktop/mobile navigation and learning
+  surfaces now share the same brand component instead of assembling unrelated
+  text and icon treatments.
+- The PWA icon, manifest and shell-cache identity now match the new brand.
+- Google and GitHub sign-in controls appear only when their server-side OAuth
+  provider is genuinely configured. The interface no longer fabricates a
+  provider fallback.
+- A shared demo stays read-only and tenant-safe. The new local link is a
+  development convenience, not a passwordless cloud-owner bypass, and
+  production rejects non-empty local-companion configuration.
+- The mother-pilot launcher now reuses one stable private data directory and
+  port `8129`, so a computer restart no longer creates a second learner space.
+
+### Truth and verification boundary
+
+- The 2026-07-28 local repository gate passed: 312 backend tests, 355 frontend
+  tests and 32 Playwright/axe cases (**699 automated passes**), plus Ruff,
+  strict MyPy across 38 source files, TypeScript, production build, doctor,
+  Docker Compose and Python/npm dependency audits with zero known
+  vulnerabilities. One environment-gated PostgreSQL integration test and 40
+  intentionally inapplicable Playwright project cases were skipped.
+- Packaging/checksum regeneration, isolated live PostgreSQL/OAuth verification
+  and human pilot acceptance remain pending before any release claim.
+- No public tag, GitHub Release, Railway replacement, README screenshot update
+  or Devpost edit is authorized by this private work.
+
 ## 2.9.1 — Hebrew Alphabet Studio — Private candidate — 2026-07-27
 
 This private candidate integrates Hebrew letter learning into the existing

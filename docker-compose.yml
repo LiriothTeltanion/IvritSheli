@@ -15,6 +15,7 @@ x-runtime-environment: &runtime-environment
   SESSION_TTL_SECONDS: 604800
   PUBLIC_BASE_URL: http://localhost:8000
   ALLOWED_ORIGINS: http://localhost:8000
+  LOCAL_COMPANION_URL: ${LOCAL_COMPANION_URL:-http://127.0.0.1:8001}
   AI_PROVIDER: ${AI_PROVIDER:-offline}
   OPENAI_API_KEY: ${OPENAI_API_KEY:-}
   ALLOW_CLOUD_PROCESSING: ${ALLOW_CLOUD_PROCESSING:-false}

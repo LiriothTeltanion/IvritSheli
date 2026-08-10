@@ -95,6 +95,37 @@ def test_local_only_launcher_marker_overrides_cloud_credentials(tmp_path: Path) 
     assert settings.auth_providers == ()
 
 
+def test_development_local_companion_requires_an_exact_loopback_origin(
+    tmp_path: Path,
+) -> None:
+    base = {
+        "APP_ENV": "development",
+        "APP_DATA_DIR": str(tmp_path / "state"),
+        "APP_DB_PATH": str(tmp_path / "state" / "app.db"),
+        "DICTIONARY_DB_PATH": str(tmp_path / "state" / "dict.db"),
+    }
+
+    settings = Settings.from_env(
+        {**base, "LOCAL_COMPANION_URL": "http://127.0.0.1:8001/"}
+    )
+    assert settings.local_companion_url == "http://127.0.0.1:8001"
+
+    with pytest.raises(ValueError, match="exact loopback HTTP origin"):
+        Settings.from_env(
+            {**base, "LOCAL_COMPANION_URL": "https://example.test/local"}
+        )
+
+    invalid_values = (
+        "http://127.0.0.1",
+        "http://user@127.0.0.1:8001",
+        "http://127.0.0.1:8001/workspace",
+        "http://127.0.0.1:99999",
+    )
+    for invalid_value in invalid_values:
+        with pytest.raises(ValueError, match="exact loopback HTTP origin"):
+            Settings.from_env({**base, "LOCAL_COMPANION_URL": invalid_value})
+
+
 def test_hebrew_normalization_is_niqqud_and_punctuation_insensitive() -> None:
     assert strip_niqqud("שָׁלוֹם") == "שלום"
     assert normalize_hebrew("  שָׁלוֹם!  ") == "שלום"

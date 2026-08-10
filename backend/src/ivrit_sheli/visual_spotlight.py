@@ -20,6 +20,67 @@ SPOTLIGHT_ROTATIONS: tuple[tuple[str, ...], ...] = (
     ("פארק", "בית ספר", "שקל", "כמה זה עולה", "היום", "מחר"),
     ("עכשיו", "שעה", "דקה", "יום", "שבוע", "חודש"),
     ("שנה", "אתמול", "בוקר", "ערב", "חם", "קר"),
+    # Counting words: each now has an exact scene that can be counted, so they
+    # belong in the spotlight rotation like every other reviewed scene.
+    ("אחת", "שתיים", "שלוש", "ארבע", "חמש", "שש"),
+    ("שבע", "שמונה", "תשע", "עשר", "מאה", "מספר"),
+    # Nature: each landscape is built on its own silhouette so the six of them
+    # stay distinguishable, which is what earns them a place in the rotation.
+    ("מדבר", "הר", "עץ", "פרח", "טבע", "גינה"),
+    ("ציפור", "כלב", "חתול", "נחל", "שדה", "יער"),
+    # Weather, minus חם and קר which already rotate above. Five apiece rather
+    # than six: the rotation length is free, only the flattened set is checked.
+    ("שמש", "גשם", "רוח", "ענן", "שמיים"),
+    ("חורף", "קיץ", "מזג אוויר", "חמסין", "מטרייה"),
+    # Transport: the four vehicles are separated by proportion and by what
+    # stands next to them, so they earn separate rotation slots.
+    ("אוטובוס", "רכבת", "מונית", "תחנה", "כרטיס", "רחוב"),
+    ("אופניים", "רכב", "נהג", "מפה", "ימינה", "שמאלה"),
+    # Health.
+    ("רופא", "תרופה", "כאב", "חולה", "בריא", "עזרה"),
+    ("בית מרקחת", "קופת חולים", "תור", "מרשם", "אלרגיה", "אמבולנס"),
+    # Shopping: the five money words are separated by what each scene is about
+    # — a bagful, a tag, one coin against a gem, notes offered, a card.
+    ("חנות", "כסף", "מחיר", "זול", "יקר"),
+    ("לקנות", "קבלה", "מזומן", "כרטיס אשראי", "מידה"),
+    # The last four home and place words, which completes exact art for every
+    # word the starter dictionary carries a scene for.
+    ("מקלחת", "מקרר", "מלון", "בית כנסת"),
+    # Verbs: the first category of abstract words to get exact art.
+    ("לקום", "ללכת", "לבוא", "לעשות", "לעבוד", "ללמוד"),
+    ("לקרוא", "לכתוב", "לדבר", "להקשיב", "לחכות", "לבחור"),
+    # Work: the first A2 category to get exact art. The three words that put
+    # people in a workplace are told apart by what stands between them — a
+    # calendar, a shared document, a service counter.
+    ("עבודה", "משרד", "פגישה", "משימה", "פרויקט", "צוות"),
+    ("מנהל", "לקוח", "הודעה", "דואר אלקטרוני", "הפסקה", "משכורת"),
+    # Services. The pairs at risk of collapsing into one drawing are kept
+    # apart by what each scene is about, not by its label: the clinic is a
+    # consulting room because the health fund already owns the facade, and
+    # the hotline keeps a queue of waiting calls that customer service lacks.
+    ("סופרמרקט", "דואר", "ספרייה", "מרפאה", "מיון", "מוקד"),
+    ("משטרה", "חשבונית", "הזמנה", "משלוח", "שירות לקוחות", "שעות פתיחה"),
+    # Housing. The four building words look at one from four distances, and
+    # תקלה and תיקון are the same water heater broken and then mended, which
+    # is what teaches the difference between the two.
+    ("דירה", "שכונה", "קומה", "מעלית", "חוזה", "בעל דירה"),
+    ("שכר דירה", "ארנונה", "ועד בית", "תקלה", "תיקון", "כתובת"),
+    # Bureaucracy. Seven of the twelve are a piece of paper, so each is drawn
+    # as the thing only it has — an empty form, a bundle in a folder, a hand
+    # still writing, money moving both ways.
+    ("תעודת זהות", "דרכון", "טופס", "מסמך", "חתימה", "חשבון"),
+    ("בנק", "ביטוח", "עירייה", "משרד הפנים", "רישיון", "פקיד"),
+    # Communication: practical speech acts now have exact art instead of a
+    # category bubble, so Today can recommend them honestly.
+    ("להבין", "להסביר", "לשאול", "לענות", "לבקש", "להציע"),
+    ("להסכים", "לא להסכים", "לחזור", "להודיע", "לשלוח", "לקבל"),
+    # Autonomy: phrase-level survival language, including grammatical-gender
+    # pairs whose visual markers differ by shape rather than colour alone.
+    ("אפשר", "אי אפשר", "איפה אפשר", "מתי אפשר", "אני צריך עזרה", "אני צריכה עזרה"),
+    ("יש לי", "אין לי", "אני מחפש", "אני מחפשת", "אני לא מבין", "אני לא מבינה"),
+    # Register: tone and social fluency complete the 240-scene catalog.
+    ("לדעתי", "תודה רבה", "בשמחה", "אין בעיה", "רגע בבקשה", "אפשר לעזור"),
+    ("כדאי", "חשוב", "בטח", "אולי", "אני מסכים", "אני מסכימה"),
 )
 EXACT_VISUAL_WORDS = frozenset(
     word for rotation in SPOTLIGHT_ROTATIONS for word in rotation

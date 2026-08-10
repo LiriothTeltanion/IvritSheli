@@ -1,3 +1,7 @@
+# 2.10.0 private-candidate note — 2026-08-10
+
+The private visual QA gallery now derives and renders **all 240 exact semantic scenes**. The prior 72-scene references below are historical milestones from 2.8.3. In the current candidate, reviewed starter concepts no longer use category/emoji fallbacks. The full 390/768/1440, light/dark, Hebrew RTL, reduced-motion and 200% reflow matrix must be rerun before publication.
+
 # Ivrit Sheli Ultimate — User Guide
 
 ## 1. First launch
@@ -135,7 +139,7 @@ Every Hebrew token rendered through the shared `HebrewText` component opens the 
 
 The bundled 240-concept A0–A2 layer also shows a stable visual cue and localized accessible description. Seventy-two frequent concepts use exact semantic SVG scenes; all support progressive `context`, `meaning` and `anchor` layers. The remaining 168 concepts use explicit category-composition and emoji fallbacks. Today features up to six exact scenes selected from the learner's recommendations before deterministic exact-scene backfill. Dictionary results use a simplified thumbnail, while the drawer uses a larger hero scene. Beginner facts appear first; advanced grammar, forms and provenance remain available without crowding the initial view. Visual cues aid memory but are not presented as grammatical evidence. An imported or unsupported word can correctly have no illustration.
 
-For visual review on the same PC or private Wi-Fi, append `?visualQa=1` to the local pilot URL. The private QA gallery compares all 72 exact scenes at three sizes and offers a seeded five-second recognition check. It is unavailable on a public hostname and does not persist a learner score.
+For visual review on the same PC or private Wi-Fi, append `?visualQa=1` to the local pilot URL. The private QA gallery compares all 240 exact scenes at three sizes and offers a seeded five-second recognition check. It is unavailable on a public hostname and does not persist a learner score.
 
 ## Finishing a visit
 

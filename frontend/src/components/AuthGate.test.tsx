@@ -75,6 +75,31 @@ describe('AuthGate beginner preview', () => {
     expect(localStorage).toHaveLength(0);
   });
 
+  it('links directly to the configured writable companion without inventing OAuth providers', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <I18nProvider>
+        <AuthGate
+          busy={false}
+          error=""
+          providers={[]}
+          localCompanionUrl="http://127.0.0.1:8001"
+          onDemo={vi.fn()}
+          onRetry={vi.fn()}
+        />
+      </I18nProvider>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Skip lesson and choose how to continue' }));
+    const localLink = screen.getByRole('link', { name: /Use local mode on this computer/i });
+    expect(localLink).toHaveAttribute('href', 'http://127.0.0.1:8001');
+    expect(localLink).not.toHaveAttribute('target');
+    expect(screen.getByText('Opens your writable private workspace directly on this computer.')).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /Continue with Google/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /Continue with GitHub/i })).not.toBeInTheDocument();
+  });
+
   it('shows a post-deletion local cleanup warning separately from authentication errors', () => {
     render(
       <I18nProvider>

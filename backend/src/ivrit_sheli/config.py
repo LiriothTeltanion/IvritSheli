@@ -146,6 +146,7 @@ class Settings:
         google_auth_client_id: Optional Google sign-in OAuth client ID.
         google_auth_client_secret: Optional Google sign-in OAuth client secret.
         google_auth_redirect_uri: Exact Google sign-in callback URI.
+        local_companion_url: Optional loopback URL for the writable desktop workspace.
 
     Example:
         >>> settings = Settings.from_env({"APP_PORT": "9000"})
@@ -226,6 +227,7 @@ class Settings:
     github_client_secret: str = ""
     github_redirect_uri: str = "http://127.0.0.1:8000/api/v1/auth/github/callback"
     public_base_url: str = "http://127.0.0.1:8000"
+    local_companion_url: str = ""
     allowed_origins: tuple[str, ...] = (
         "http://localhost:5173",
         "http://127.0.0.1:5173",
@@ -462,6 +464,7 @@ class Settings:
                 f"{public_base_url}/api/v1/auth/github/callback",
             ).strip().rstrip("/"),
             public_base_url=public_base_url,
+            local_companion_url=value("LOCAL_COMPANION_URL", "").strip().rstrip("/"),
             allowed_origins=allowed_origins,
             build_commit=(
                 value("BUILD_COMMIT", "").strip()
@@ -725,6 +728,27 @@ class Settings:
             )
         if self.app_env == "production" and self.debug:
             raise ValueError("Production DEBUG must be false")
+        if self.local_companion_url:
+            companion = urlparse(self.local_companion_url)
+            try:
+                companion_port = companion.port
+            except ValueError as error:
+                raise ValueError(
+                    "LOCAL_COMPANION_URL is development-only and must be an exact loopback HTTP origin"
+                ) from error
+            invalid_companion = (
+                self.app_env == "production"
+                or companion.scheme != "http"
+                or companion.hostname not in {"127.0.0.1", "localhost", "::1"}
+                or companion.username is not None
+                or companion.password is not None
+                or companion_port is None
+                or _origin(self.local_companion_url) != self.local_companion_url
+            )
+            if invalid_companion:
+                raise ValueError(
+                    "LOCAL_COMPANION_URL is development-only and must be an exact loopback HTTP origin"
+                )
         if self.app_env == "production" and not self.auth_required:
             raise ValueError("Production requires authentication")
         if self.app_env == "production" and self.auth_required:

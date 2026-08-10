@@ -37,6 +37,7 @@ $DependencyStamp = Join-Path $RootDir ".venv\ivrit-sheli-runtime.sha256"
 $EnvFile = Join-Path $RootDir ".env"
 $Server = $null
 $ResultCode = 0
+$UsingExistingServer = $false
 
 Set-Location $RootDir
 
@@ -196,13 +197,14 @@ function Wait-ForIvritServer {
 try {
     Write-Host "" 
     Write-Host "  ╔══════════════════════════════════════╗" -ForegroundColor DarkCyan
-    Write-Host "  ║   Ivrit Sheli Ultimate · עברית שלי   ║" -ForegroundColor Cyan
+    Write-Host "  ║       Ivrit · שלי · v2.10.0          ║" -ForegroundColor Cyan
     Write-Host "  ╚══════════════════════════════════════╝" -ForegroundColor DarkCyan
 
     if (
         ($BindAddress -eq "127.0.0.1" -or $RequirePreferredPort) -and
         (Test-IvritHealth -CandidatePort $Port)
     ) {
+        $UsingExistingServer = $true
         $ExistingLanguageQuery = if ([string]::IsNullOrWhiteSpace($Language)) { "" } else { "?lang=$Language" }
         $ExistingUrl = "http://127.0.0.1:$Port/$ExistingLanguageQuery"
         Write-Host "`n  Ivrit Sheli is already running ✅" -ForegroundColor Green
@@ -357,7 +359,12 @@ finally {
             Stop-Process -Id $Server.Id -ErrorAction SilentlyContinue
         }
     }
-    Write-Host "  Ivrit Sheli is stopped. Your progress remains saved locally. 💙" -ForegroundColor DarkCyan
+    if ($UsingExistingServer) {
+        Write-Host "  The existing Ivrit Sheli server remains running. 💙" -ForegroundColor DarkCyan
+    }
+    else {
+        Write-Host "  Ivrit Sheli is stopped. Your progress remains saved locally. 💙" -ForegroundColor DarkCyan
+    }
 }
 
 exit $ResultCode

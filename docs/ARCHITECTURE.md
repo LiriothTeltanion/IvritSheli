@@ -1,3 +1,7 @@
+# 2.10.0 consolidation note — 2026-08-10
+
+The private 2.10.0 candidate preserves the 2.9.x runtime architecture while consolidating visual and release boundaries: candidate identity is centralized in `frontend/src/release.ts`, visual polish is isolated in `premium-polish.css`, and the reviewed dictionary now has 240/240 exact semantic scenes split across focused scene modules. The verified public runtime remains 2.4.0.
+
 # Architecture — Ivrit Sheli 2.9.1 Hebrew Alphabet Studio — 2026-07-27
 
 Ivrit Sheli 2.9.1 dated 2026-07-27 keeps two deliberate runtime modes. The

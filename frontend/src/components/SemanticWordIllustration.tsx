@@ -8,13 +8,30 @@ import {
   isA0SemanticVisualKey,
   type A0VisualKey,
 } from '../visuals/a0VisualRecipes';
+import { ActionScene } from './semantic-scenes/ActionScenes';
+import { AutonomyScene } from './semantic-scenes/AutonomyScenes';
+import { BureaucracyScene } from './semantic-scenes/BureaucracyScenes';
+import { CommunicationScene } from './semantic-scenes/CommunicationScenes';
 import { CoreDailyScene } from './semantic-scenes/CoreDailyScenes';
 import { CoreGreetingTimeScene } from './semantic-scenes/CoreGreetingTimeScenes';
 import { FamilyPlaceScene } from './semantic-scenes/FamilyPlaceScenes';
 import { FamilyRelationshipScene } from './semantic-scenes/FamilyRelationshipScenes';
 import { FoodHomeScene } from './semantic-scenes/FoodHomeScenes';
 import { GreetingTimeScene } from './semantic-scenes/GreetingTimeScenes';
-import { SemanticSceneFrame as SceneFrame } from './semantic-scenes/SemanticScenePrimitives';
+import { HealthScene } from './semantic-scenes/HealthScenes';
+import { HousingScene } from './semantic-scenes/HousingScenes';
+import { NatureScene } from './semantic-scenes/NatureScenes';
+import { NumberScene } from './semantic-scenes/NumberScenes';
+import { RegisterScene } from './semantic-scenes/RegisterScenes';
+import { ServicesScene } from './semantic-scenes/ServicesScenes';
+import { ShoppingScene } from './semantic-scenes/ShoppingScenes';
+import { TransportScene } from './semantic-scenes/TransportScenes';
+import { WeatherScene } from './semantic-scenes/WeatherScenes';
+import { WorkScene } from './semantic-scenes/WorkScenes';
+import {
+  SemanticSceneFrame as SceneFrame,
+  SemanticSceneVignette as SceneVignette,
+} from './semantic-scenes/SemanticScenePrimitives';
 import './semantic-word-illustration.css';
 
 export type SemanticIllustrationSize = 'thumbnail' | 'card' | 'hero';
@@ -41,7 +58,21 @@ function ReviewedScene({
     ?? CoreDailyScene({ visualKey, hintStage })
     ?? GreetingTimeScene({ visualKey, hintStage })
     ?? FamilyPlaceScene({ visualKey, hintStage })
-    ?? FoodHomeScene({ visualKey, hintStage });
+    ?? FoodHomeScene({ visualKey, hintStage })
+    ?? NumberScene({ visualKey, hintStage })
+    ?? NatureScene({ visualKey, hintStage })
+    ?? WeatherScene({ visualKey, hintStage })
+    ?? TransportScene({ visualKey, hintStage })
+    ?? HealthScene({ visualKey, hintStage })
+    ?? ShoppingScene({ visualKey, hintStage })
+    ?? ActionScene({ visualKey, hintStage })
+    ?? CommunicationScene({ visualKey, hintStage })
+    ?? WorkScene({ visualKey, hintStage })
+    ?? AutonomyScene({ visualKey, hintStage })
+    ?? RegisterScene({ visualKey, hintStage })
+    ?? ServicesScene({ visualKey, hintStage })
+    ?? HousingScene({ visualKey, hintStage })
+    ?? BureaucracyScene({ visualKey, hintStage });
   if (!scene) {
     throw new Error(`Missing semantic scene renderer for ${visualKey}`);
   }
@@ -77,11 +108,13 @@ export function SemanticWordIllustration({
       data-scene-template={recipe.template}
       data-size={size}
       data-hint-stage={hintStage}
+      data-motion-profile={recipe.template}
       focusable="false"
     >
       {!decorative && <title id={titleId}>{title}</title>}
-      <SceneFrame hintStage={hintStage} />
+      <SceneFrame hintStage={hintStage} sceneId={titleId} />
       <ReviewedScene visualKey={visual.key} hintStage={hintStage} />
+      <SceneVignette sceneId={titleId} />
     </svg>
   );
 }

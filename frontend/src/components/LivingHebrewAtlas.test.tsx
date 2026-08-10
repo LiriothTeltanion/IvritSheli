@@ -53,13 +53,15 @@ describe('LivingHebrewAtlas', () => {
     expect(screen.getByRole('button', { name: /לגלות: ירושלים/ })).toBeInTheDocument();
   });
 
-  it('keeps the existing app icon in the reusable on-screen lockup', () => {
+  it('uses the accessible mixed-script wordmark in the reusable lockup', () => {
     render(<IvritSheliBrandLockup locale="es" />);
 
     const lockup = screen.getByLabelText('Ivrit Sheli — Hebreo para la vida real');
     expect(lockup).toHaveAttribute('dir', 'ltr');
-    expect(lockup.querySelector('img')).toHaveAttribute('src', '/icons/app-icon.svg');
-    expect(screen.getByText('Ivrit Sheli')).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Ivrit Sheli' })).toHaveAttribute('dir', 'ltr');
+    expect(screen.getByText('Ivrit')).toHaveAttribute('dir', 'ltr');
+    expect(screen.getByText('שלי')).toHaveAttribute('lang', 'he');
+    expect(screen.getByText('שלי')).toHaveAttribute('dir', 'rtl');
   });
 
   it('offers a decorative backdrop that never adds duplicate navigation controls', () => {

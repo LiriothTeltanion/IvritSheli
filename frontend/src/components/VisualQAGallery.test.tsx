@@ -1,5 +1,5 @@
 // Module: visual QA gallery tests
-// Purpose: Keep the 72-scene comparison and five-second recognition workflow usable.
+// Purpose: Keep the exact-scene comparison and five-second recognition workflow usable.
 
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -45,13 +45,16 @@ describe('VisualQAGallery', () => {
       </I18nProvider>,
     );
 
+    // Read from the catalog rather than a literal, so adding a category's art
+    // does not fail a test that is about the gallery, not about the count.
+    const total = A0_SEMANTIC_VISUAL_KEYS.length;
     await waitFor(() => {
-      expect(screen.getByText('72/72 exact scenes loaded')).toBeInTheDocument();
+      expect(screen.getByText(`${total}/${total} exact scenes loaded`)).toBeInTheDocument();
     });
-    expect(document.querySelectorAll('.visual-qa__catalog > article')).toHaveLength(72);
-    expect(document.querySelectorAll('.visual-qa__catalog [data-size="thumbnail"]')).toHaveLength(72);
-    expect(document.querySelectorAll('.visual-qa__catalog [data-size="card"]')).toHaveLength(72);
-    expect(document.querySelectorAll('.visual-qa__catalog [data-size="hero"]')).toHaveLength(72);
+    expect(document.querySelectorAll('.visual-qa__catalog > article')).toHaveLength(total);
+    expect(document.querySelectorAll('.visual-qa__catalog [data-size="thumbnail"]')).toHaveLength(total);
+    expect(document.querySelectorAll('.visual-qa__catalog [data-size="card"]')).toHaveLength(total);
+    expect(document.querySelectorAll('.visual-qa__catalog [data-size="hero"]')).toHaveLength(total);
 
     vi.useFakeTimers();
     fireEvent.click(screen.getByRole('button', { name: 'Start recognition check' }));
@@ -77,5 +80,16 @@ describe('VisualQAGallery', () => {
       }
     }
     expect(new Set(correctPositions).size).toBeGreaterThan(1);
-  }, 15_000);
+    // The slowest test in the suite, by a wide margin, and deliberately so: it
+    // renders the whole catalog at three sizes — 432 SVGs and ~12k shapes.
+    //
+    // The cost is jsdom, not the product. Chrome renders the same gallery
+    // interactive in 584ms and recalculates all 432 in 17ms. In jsdom it takes
+    // ~20s on an idle machine and ~50s on a busy one, so the budget is set for
+    // the busy case rather than tuned to the last green run.
+    //
+    // If this needs raising again, prefer trimming what it renders: every scene
+    // is already rendered individually by SemanticWordIllustration.test.tsx, so
+    // the catalog-wide render here is about the gallery's own wiring.
+  }, 120_000);
 });

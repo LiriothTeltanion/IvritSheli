@@ -462,7 +462,13 @@ describe('AudioPractice', () => {
 
     renderAudio({ cloudAvailable: false });
 
-    expect(await screen.findByRole('radio', { name: 'Private Ivrit Sheli transcription' })).toBeEnabled();
+    // The radio is rendered disabled until the capabilities fetch resolves, so
+    // `findByRole` returns it while it is still disabled. Asserting enabled on
+    // that first result only passed when the fetch happened to settle in the
+    // same tick; waiting for the enabled state is what the test actually means.
+    await waitFor(() => {
+      expect(screen.getByRole('radio', { name: 'Private Ivrit Sheli transcription' })).toBeEnabled();
+    });
     expect(screen.queryByRole('radio', { name: 'OpenAI transcription' })).not.toBeInTheDocument();
     await waitFor(() => {
       expect(screen.getByRole('radio', { name: 'Private Ivrit Sheli transcription' })).toBeChecked();

@@ -1,0 +1,9 @@
+<svg width="560" height="128" viewBox="0 0 560 128" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Ivrit Sheli monochrome wordmark</title>
+  <desc id="desc">Monochrome Ivrit Sheli wordmark with Latin Ivrit and Hebrew שלי.</desc>
+  <text x="12" y="86" font-family="Inter, 'Segoe UI', Arial, sans-serif" font-size="72" font-weight="800" letter-spacing="-4" fill="currentColor">Ivrit</text>
+  <g transform="translate(207 0) rotate(-3 90 70)">
+    <text x="0" y="88" font-family="'Segoe Print', 'Guttman Yad-Brush', 'Arial Hebrew', Arial, sans-serif" font-size="75" font-weight="600" fill="currentColor">שלי</text>
+    <path d="M8 107c48-11 98 3 159-11" stroke="currentColor" stroke-width="6" stroke-linecap="round" opacity=".62"/>
+  </g>
+</svg>

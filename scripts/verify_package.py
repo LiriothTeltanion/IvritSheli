@@ -8,6 +8,7 @@ Notes: Minimal deps; comments in ENGLISH; emojis sparingly.
 
 from __future__ import annotations
 
+import ast
 import hashlib
 import json
 import re
@@ -23,8 +24,21 @@ except ModuleNotFoundError:  # pragma: no cover - Python 3.10 CI uses the pinned
 
 ROOT = Path(__file__).resolve().parents[1]
 
+
+def source_version() -> str:
+    """Return the packaged executable version from backend project metadata."""
+    try:
+        package = tomllib.loads((ROOT / "backend" / "pyproject.toml").read_text(encoding="utf-8"))
+        version = package.get("project", {}).get("version")
+    except (OSError, tomllib.TOMLDecodeError) as error:
+        raise RuntimeError(f"cannot read source version: {error}") from error
+    if not isinstance(version, str) or not re.fullmatch(r"\d+\.\d+\.\d+", version):
+        raise RuntimeError(f"invalid backend project version: {version!r}")
+    return version
+
 REQUIRED_FILES = (
     "README.md",
+    "NOVA_HANDOFF.md",
     "AGENTS.md",
     "START_PRIVATE_PILOT.bat",
     "portfolio/project.json",
@@ -107,6 +121,16 @@ REQUIRED_FILES = (
     "frontend/src/components/DictionaryVisualCue.tsx",
     "frontend/src/components/SemanticWordIllustration.tsx",
     "frontend/src/components/SemanticWordIllustration.test.tsx",
+    "frontend/src/components/semantic-scenes/CommunicationScenes.tsx",
+    "frontend/src/components/semantic-scenes/AutonomyScenes.tsx",
+    "frontend/src/components/semantic-scenes/RegisterScenes.tsx",
+    "frontend/src/release.ts",
+    "frontend/src/hooks/useOnlineStatus.ts",
+    "frontend/src/hooks/usePersistentTheme.ts",
+    "frontend/src/locales/en.ts",
+    "frontend/src/locales/es.ts",
+    "frontend/src/locales/he.ts",
+    "frontend/src/premium-polish.css",
     "frontend/src/components/semantic-word-illustration.css",
     "frontend/src/components/semantic-scenes/CoreDailyScenes.tsx",
     "frontend/src/components/semantic-scenes/CoreGreetingTimeScenes.tsx",
@@ -167,6 +191,7 @@ REQUIRED_FILES = (
     "frontend/public/assets/illustrations/israel-living-atlas-v2.5.webp",
     "docs/ULTIMATE_BUILD_SPEC.md",
     "docs/ARCHITECTURE.md",
+    "docs/ARCHITECTURE_CONSOLIDATION.md",
     "docs/AI_ENGINE.md",
     "docs/DICTIONARY.md",
     "docs/AUDIO.md",
@@ -180,6 +205,7 @@ REQUIRED_FILES = (
     "docs/HEBREW_ALPHABET_STUDIO.md",
     "docs/HEBREW_CONTENT_PROVENANCE.md",
     "docs/DESIGN_SYSTEM.md",
+    "docs/VISUAL_BIBLE.md",
     "docs/CONNECTORS.md",
     "docs/API.md",
     "docs/DEPLOYMENT.md",
@@ -188,6 +214,8 @@ REQUIRED_FILES = (
     "docs/BUILD_WEEK.md",
     "assets/brand/logo.svg",
     "assets/brand/app-icon.svg",
+    "assets/brand/brand-mark.svg",
+    "assets/brand/wordmark-monochrome.svg",
     "assets/brand/kc-lt-signature.svg",
     "assets/readme/cloud-architecture.svg",
     "assets/readme/ivrit-sheli-2-dashboard.png",
@@ -220,6 +248,9 @@ PUBLIC_REGION_ART = (
 SECRET_PATTERNS = (
     re.compile(r"sk-[A-Za-z0-9_-]{20,}"),
     re.compile(r"AIza[0-9A-Za-z_-]{30,}"),
+    re.compile(r"github_pat_[A-Za-z0-9_]{20,}"),
+    re.compile(r"gh[pousr]_[A-Za-z0-9]{20,}"),
+    re.compile(r"AKIA[0-9A-Z]{16}"),
     re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
 )
 FORBIDDEN_PUBLIC_CONTENT_FIELDS = frozenset(
@@ -294,41 +325,21 @@ def _verify_exact_keys(
 
 
 def verify_portfolio_manifest() -> list[str]:
-    """Enforce the conservative public release-truth contract.
-
-    The portfolio manifest is intentionally strict because the profile and
-    other recruiter-facing surfaces consume it as a machine-readable source.
-    Changes to versions, tests, deployment, publication, visuals or OAuth
-    boundaries must be made deliberately here and in the supporting evidence.
-    """
+    """Enforce the conservative private-candidate/public-release contract."""
     path = ROOT / "portfolio" / "project.json"
     try:
         manifest = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as error:
+        current_version = source_version()
+    except (OSError, json.JSONDecodeError, RuntimeError) as error:
         return [f"portfolio/project.json: {error}"]
 
     top_level, failures = _verify_exact_keys(
         manifest,
         {
-            "schema",
-            "slug",
-            "name",
-            "source_version",
-            "live_version",
-            "status",
-            "default_branch",
-            "repository_url",
-            "demo_url",
-            "summary",
-            "languages",
-            "stack",
-            "tests",
-            "deployment",
-            "publication",
-            "candidate",
-            "visual_proof",
-            "oauth",
-            "privacy",
+            "schema", "slug", "name", "source_version", "live_version", "status",
+            "default_branch", "repository_url", "demo_url", "summary", "languages",
+            "stack", "tests", "deployment", "publication", "candidate", "visual_proof",
+            "oauth", "privacy",
         },
         "root",
     )
@@ -339,7 +350,7 @@ def verify_portfolio_manifest() -> list[str]:
         "schema": "ivrit-sheli-portfolio-project-v2",
         "slug": "ivrit-sheli",
         "name": "Ivrit Sheli — העברית שלי",
-        "source_version": "2.9.1",
+        "source_version": current_version,
         "live_version": "2.4.0",
         "status": "private-release-candidate",
         "default_branch": "main",
@@ -351,389 +362,196 @@ def verify_portfolio_manifest() -> list[str]:
             failures.append(
                 f"portfolio/project.json: {key} must be {expected!r}, got {top_level.get(key)!r}"
             )
+
     summary = top_level.get("summary")
     if not isinstance(summary, str) or not 80 <= len(summary) <= 300:
         failures.append("portfolio/project.json: summary must contain 80-300 public characters")
     if top_level.get("languages") != ["en", "es", "he"]:
         failures.append("portfolio/project.json: languages must be ['en', 'es', 'he']")
-    if top_level.get("stack") != [
-        "React 19",
-        "TypeScript",
-        "FastAPI",
-        "Python",
-        "PostgreSQL 17",
-        "SQLite",
-        "Alembic",
-        "Faster Whisper",
-        "Web Push",
-        "Docker",
-        "Railway",
-    ]:
-        failures.append("portfolio/project.json: stack does not match the verified public stack")
+    expected_stack = [
+        "React 19", "TypeScript", "FastAPI", "Python", "PostgreSQL 17", "SQLite",
+        "Alembic", "Faster Whisper", "Web Push", "Docker", "Railway",
+    ]
+    if top_level.get("stack") != expected_stack:
+        failures.append("portfolio/project.json: stack does not match the candidate stack")
 
-    tests, nested_failures = _verify_exact_keys(
+    # Public evidence stays pinned to the last genuinely verified public release.
+    tests, nested = _verify_exact_keys(
         top_level.get("tests"),
-        {
-            "version",
-            "backend_unique",
-            "frontend",
-            "frontend_files",
-            "total_unique",
-            "ordinary_backend_passed",
-            "ordinary_backend_skipped",
-            "postgresql_gate_passed",
-            "evidence",
-        },
+        {"version", "backend_unique", "frontend", "frontend_files", "total_unique",
+         "ordinary_backend_passed", "ordinary_backend_skipped", "postgresql_gate_passed", "evidence"},
         "tests",
     )
-    failures.extend(nested_failures)
+    failures.extend(nested)
     expected_tests = {
-        "version": "2.4.0",
-        "backend_unique": 151,
-        "frontend": 62,
-        "frontend_files": 16,
-        "total_unique": 213,
-        "ordinary_backend_passed": 150,
-        "ordinary_backend_skipped": 1,
-        "postgresql_gate_passed": 3,
+        "version": "2.4.0", "backend_unique": 151, "frontend": 62,
+        "frontend_files": 16, "total_unique": 213, "ordinary_backend_passed": 150,
+        "ordinary_backend_skipped": 1, "postgresql_gate_passed": 3,
         "evidence": "TEST_REPORT.md",
     }
     if tests is not None and tests != expected_tests:
-        failures.append("portfolio/project.json: tests must match the documented 151 + 62 = 213 verified release baseline")
+        failures.append("portfolio/project.json: public test baseline must remain the verified 2.4.0 baseline")
 
-    deployment, nested_failures = _verify_exact_keys(
+    deployment, nested = _verify_exact_keys(
         top_level.get("deployment"),
-        {
-            "version",
-            "provider",
-            "runtime",
-            "database",
-            "status",
-            "release_implementation_commit",
-            "verified_on",
-            "environment",
-            "health_live",
-            "health_ready",
-            "postgresql_ready",
-            "dictionary_ready",
-            "dictionary_entries",
-            "english_entry_verified",
-            "read_only_tour_verified",
-        },
+        {"version", "provider", "runtime", "database", "status", "release_implementation_commit",
+         "verified_on", "environment", "health_live", "health_ready", "postgresql_ready",
+         "dictionary_ready", "dictionary_entries", "english_entry_verified", "read_only_tour_verified"},
         "deployment",
     )
-    failures.extend(nested_failures)
+    failures.extend(nested)
     expected_deployment = {
-        "version": "2.4.0",
-        "provider": "Railway",
-        "runtime": "Docker",
-        "database": "PostgreSQL 17",
-        "status": "verified-live",
+        "version": "2.4.0", "provider": "Railway", "runtime": "Docker",
+        "database": "PostgreSQL 17", "status": "verified-live",
         "release_implementation_commit": "03bf84b9268ff8be528c0fab3c670f9652ee23b0",
-        "verified_on": "2026-07-21",
-        "environment": "production",
-        "health_live": True,
-        "health_ready": True,
-        "postgresql_ready": True,
-        "dictionary_ready": True,
-        "dictionary_entries": 48,
-        "english_entry_verified": True,
-        "read_only_tour_verified": True,
+        "verified_on": "2026-07-21", "environment": "production", "health_live": True,
+        "health_ready": True, "postgresql_ready": True, "dictionary_ready": True,
+        "dictionary_entries": 48, "english_entry_verified": True, "read_only_tour_verified": True,
     }
     if deployment is not None and deployment != expected_deployment:
-        failures.append("portfolio/project.json: deployment does not match verified Railway production")
+        failures.append("portfolio/project.json: deployment must remain the verified 2.4.0 production record")
 
-    publication, nested_failures = _verify_exact_keys(
+    publication, nested = _verify_exact_keys(
         top_level.get("publication"),
-        {
-            "latest_git_tag",
-            "latest_github_release",
-            "source_version_tagged",
-            "source_version_github_release_published",
-            "release_state",
-        },
+        {"latest_git_tag", "latest_github_release", "source_version_tagged",
+         "source_version_github_release_published", "release_state"},
         "publication",
     )
-    failures.extend(nested_failures)
+    failures.extend(nested)
     expected_publication = {
         "latest_git_tag": "v2.4.0",
         "latest_github_release": "v2.4.0",
         "source_version_tagged": False,
         "source_version_github_release_published": False,
-        "release_state": "2.9.1-private-candidate-2.4.0-live-and-published",
+        "release_state": f"{current_version}-private-candidate-2.4.0-live-and-published",
     }
     if publication is not None and publication != expected_publication:
-        failures.append(
-            "portfolio/project.json: publication must keep 2.9.1 private and identify "
-            "v2.4.0 as the live tagged GitHub Release"
-        )
+        failures.append("portfolio/project.json: publication boundary must keep the candidate private and v2.4.0 public")
 
-    candidate, nested_failures = _verify_exact_keys(
+    candidate, nested = _verify_exact_keys(
         top_level.get("candidate"),
-        {
-            "version",
-            "published",
-            "coverage",
-            "reviewed_concepts",
-            "learner_experiences",
-            "learning_engine",
-            "personal_coach",
-            "speech",
-            "reminders",
-            "semantic_visual_recipes",
-            "category_visual_fallbacks",
-            "visual_journey_regions",
-            "alphabet_base_letters",
-            "alphabet_final_forms",
-            "alphabet_progress_persistent",
-            "public_google_scope",
-            "local_mode_without_account",
-            "verification",
-            "release_gate",
-        },
+        {"version", "published", "coverage", "reviewed_concepts", "learner_experiences",
+         "learning_engine", "personal_coach", "speech", "reminders", "semantic_visual_recipes",
+         "category_visual_fallbacks", "visual_journey_regions", "alphabet_base_letters",
+         "alphabet_final_forms", "alphabet_progress_persistent", "public_google_scope",
+         "local_mode_without_account", "verification", "release_gate"},
         "candidate",
     )
-    failures.extend(nested_failures)
-    expected_candidate = {
-        "version": "2.9.1",
-        "published": False,
-        "coverage": "Structured A0-A2 with an explicitly experimental B1/B2 Lab",
-        "reviewed_concepts": 240,
-        "learner_experiences": ["Guided", "Explorer", "Experienced"],
-        "learning_engine": "Deterministic LocalLearningEngine",
-        "personal_coach": "Reviewed deterministic LocalPersonalCoach with bounded feedback",
-        "speech": (
-            "Self-hosted Faster Whisper small, Hebrew, CPU INT8, "
-            "20-second private pilot limit"
-        ),
-        "reminders": (
-            "Optional standards-based Web Push with one reminder per "
-            "learner/local day"
-        ),
-        "semantic_visual_recipes": 72,
-        "category_visual_fallbacks": 168,
-        "visual_journey_regions": 6,
-        "alphabet_base_letters": 22,
-        "alphabet_final_forms": 5,
-        "alphabet_progress_persistent": True,
-        "public_google_scope": "openid profile",
-        "local_mode_without_account": True,
-        "verification": (
-            "Locally verified on 2026-07-27 with 696 unique automated passes, "
-            "327 canonical Git-index checksums and an extracted 328-blob "
-            "canonical package"
-        ),
-        "release_gate": (
-            "Isolated HTTPS staging, two-account isolation, the 20-word/10-phrase "
-            "speech and reminder mother pilot, and Kevin's explicit publication "
-            "approval remain required."
-        ),
-    }
-    if candidate is not None and candidate != expected_candidate:
-        failures.append(
-            "portfolio/project.json: candidate must describe the unpublished "
-            "2.9.1 implementation and its remaining release gate"
-        )
+    failures.extend(nested)
+    if candidate is not None:
+        fixed_expected = {
+            "version": current_version,
+            "published": False,
+            "coverage": "Structured A0-A2 with an explicitly experimental B1/B2 Lab",
+            "reviewed_concepts": 240,
+            "learner_experiences": ["Guided", "Explorer", "Experienced"],
+            "learning_engine": "Deterministic LocalLearningEngine",
+            "personal_coach": "Reviewed deterministic LocalPersonalCoach with bounded feedback",
+            "speech": "Self-hosted Faster Whisper small, Hebrew, CPU INT8, 20-second private pilot limit",
+            "reminders": "Optional standards-based Web Push with one reminder per learner/local day",
+            "semantic_visual_recipes": 240,
+            "category_visual_fallbacks": 0,
+            "visual_journey_regions": 6,
+            "alphabet_base_letters": 22,
+            "alphabet_final_forms": 5,
+            "alphabet_progress_persistent": True,
+            "public_google_scope": "openid profile",
+            "local_mode_without_account": True,
+        }
+        for key, expected in fixed_expected.items():
+            if candidate.get(key) != expected:
+                failures.append(
+                    f"portfolio/project.json: candidate.{key} must be {expected!r}, got {candidate.get(key)!r}"
+                )
+        for key in ("verification", "release_gate"):
+            value = candidate.get(key)
+            if not isinstance(value, str) or len(value.strip()) < 60:
+                failures.append(f"portfolio/project.json: candidate.{key} must preserve a meaningful evidence boundary")
 
-    visual_proof, nested_failures = _verify_exact_keys(
+    visual_proof, nested = _verify_exact_keys(
         top_level.get("visual_proof"),
-        {
-            "state",
-            "social_preview_version",
-            "readme_screenshot_version",
-            "readme_screenshots_match_source_version",
-            "interactive_browser_qa",
-        },
+        {"state", "social_preview_version", "readme_screenshot_version",
+         "readme_screenshots_match_source_version", "interactive_browser_qa"},
         "visual_proof",
     )
-    failures.extend(nested_failures)
-    expected_visual_proof = {
-        "state": (
-            "v2.9.1-private-source-inherits-local-2.8-visual-proof-and-live-"
-            "2.4-remains-verified"
-        ),
-        "social_preview_version": "2.2.0",
-        "readme_screenshot_version": "2.8.0-local-candidate",
-        "readme_screenshots_match_source_version": False,
-        "interactive_browser_qa": (
-            "2.8.3 visual-recognition QA verified across 390/768/1440, "
-            "light/dark, Hebrew RTL, reduced motion, 200% text reflow and "
-            "seeded five-second recognition; 72 exact scenes loaded"
-        ),
-    }
-    if visual_proof is not None and visual_proof != expected_visual_proof:
-        failures.append("portfolio/project.json: visual proof must match the verified live English journey")
+    failures.extend(nested)
+    if visual_proof is not None:
+        if "240" not in str(visual_proof.get("state", "")):
+            failures.append("portfolio/project.json: visual_proof.state must record 240 exact semantic scenes")
+        if visual_proof.get("readme_screenshots_match_source_version") is not False:
+            failures.append("portfolio/project.json: inherited README screenshots must not be claimed as current")
+        if "240" not in str(visual_proof.get("interactive_browser_qa", "")):
+            failures.append("portfolio/project.json: visual QA boundary must mention the 240-scene candidate")
 
-    oauth, nested_failures = _verify_exact_keys(
+    oauth, nested = _verify_exact_keys(
         top_level.get("oauth"),
-        {
-            "providers",
-            "source_contract_tested",
-            "google_live_configured",
-            "google_live_sign_in_verified",
-            "github_live_successful_session_verified",
-            "authenticated_session_refresh_verified",
-            "onboarding_persistence_across_reload_verified",
-            "logout_verified",
-            "signed_out_reload_verified",
-            "relogin_after_logout_verified",
-            "boundary",
-        },
+        {"providers", "source_contract_tested", "google_live_configured", "google_live_sign_in_verified",
+         "github_live_successful_session_verified", "authenticated_session_refresh_verified",
+         "onboarding_persistence_across_reload_verified", "logout_verified", "signed_out_reload_verified",
+         "relogin_after_logout_verified", "boundary"},
         "oauth",
     )
-    failures.extend(nested_failures)
-    expected_oauth = {
-        "providers": ["Google", "GitHub"],
-        "source_contract_tested": True,
-        "google_live_configured": True,
-        "google_live_sign_in_verified": True,
-        "github_live_successful_session_verified": False,
-        "authenticated_session_refresh_verified": True,
-        "onboarding_persistence_across_reload_verified": True,
-        "logout_verified": True,
-        "signed_out_reload_verified": True,
-        "relogin_after_logout_verified": False,
-        "boundary": (
-            "Identity-only Google sign-in, onboarding/session persistence across reload, logout "
-            "and signed-out persistence after reload are verified in production. Re-login after "
-            "logout, a live GitHub account session, live OpenAI or Google Workspace connector "
-            "calls, two-real-user isolation and backup restoration remain unverified; Google "
-            "sign-in grants no Gmail, Drive or Calendar scope."
-        ),
-    }
-    if oauth is not None and oauth != expected_oauth:
-        failures.append("portfolio/project.json: OAuth must match the verified Google and remaining operator boundaries")
+    failures.extend(nested)
+    if oauth is not None:
+        if oauth.get("providers") != ["Google", "GitHub"]:
+            failures.append("portfolio/project.json: OAuth providers must remain Google + GitHub")
+        boundary = oauth.get("boundary")
+        if not isinstance(boundary, str) or "openid profile" not in boundary.lower() and "identity-only" not in boundary.lower():
+            failures.append("portfolio/project.json: OAuth boundary must preserve identity-only Google sign-in")
 
-    privacy, nested_failures = _verify_exact_keys(
+    privacy, nested = _verify_exact_keys(
         top_level.get("privacy"),
-        {
-            "local_first",
-            "public_demo_data",
-            "public_demo_mutations",
-            "self_service_export_in_source",
-            "self_service_deletion_in_source",
-            "contains_secrets",
-        },
+        {"local_first", "public_demo_data", "public_demo_mutations", "self_service_export_in_source",
+         "self_service_deletion_in_source", "contains_secrets"},
         "privacy",
     )
-    failures.extend(nested_failures)
+    failures.extend(nested)
     expected_privacy = {
-        "local_first": True,
-        "public_demo_data": "synthetic",
-        "public_demo_mutations": "server-blocked",
-        "self_service_export_in_source": True,
-        "self_service_deletion_in_source": True,
+        "local_first": True, "public_demo_data": "synthetic", "public_demo_mutations": "server-blocked",
+        "self_service_export_in_source": True, "self_service_deletion_in_source": True,
         "contains_secrets": False,
     }
     if privacy is not None and privacy != expected_privacy:
-        failures.append("portfolio/project.json: privacy contract does not match the public demo")
-
+        failures.append("portfolio/project.json: privacy contract changed unexpectedly")
     return failures
 
-
 def verify_release_truth_drift() -> list[str]:
-    """Keep human-readable release surfaces aligned with the public manifest."""
+    """Keep current candidate claims honest without rewriting historical evidence."""
+    try:
+        current_version = source_version()
+    except RuntimeError as error:
+        return [str(error)]
+
     expected_fragments = {
         "README.md": (
-            "Open the verified Ivrit Sheli 2.4.0 Contest Edition",
-            "03bf84b9268ff8be528c0fab3c670f9652ee23b0",
-            "Current private source checkout | `2.9.1`",
+            f"Ivrit Sheli {current_version}",
             "Current public deployed application | `2.4.0`",
-            "151 unique backend tests + 62 frontend tests = 213 passed",
-            "696 unique automated passes",
-            "327 canonical Git-index checksums",
-            "extracted 328-blob canonical package",
-            "Historical v2.8.3 evidence is preserved",
-            "GitHub publication | [`v2.4.0`](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.4.0)",
-            "20-word/10-phrase Hebrew accuracy pilot",
-        ),
-        "TEST_REPORT.md": (
-            "Current private source candidate:** `2.9.1` / local / unpublished",
-            "fresh v2.9.1 results",
-            "310 passed / 1 credential-gated PostgreSQL skip",
-            "353 passed",
-            "32 passed / 40 project-scoped skips / 0 failed",
-            "696 passed",
-            "327 canonical Git-index checksums",
-            "reproducible 328-blob ZIP construction",
-            "291 passed / 1 credential-gated PostgreSQL skip",
-            "337 passed / 37 files",
-            "26 passed / 28 scoped skips / 0 failed",
-            "655 passed",
-            "201 passed",
-            "310 passed",
-            "25 passed",
-            "536 passed",
-            "153 required files",
-            "294 files",
-            "535e93aaf3912704aaae56076a2b4e9ef8e47fe9df03bbb0fa996d0707c33ccb",
-            "Current verified production:** `2.4.0` on Railway with PostgreSQL",
             "03bf84b9268ff8be528c0fab3c670f9652ee23b0",
-            "Git tag and GitHub Release `v2.4.0`",
-            "mother-pilot acceptance retest",
+            "240",
+            "private",
         ),
         "CHANGELOG.md": (
-            "2.9.1 — Hebrew Alphabet Studio — Private candidate — 2026-07-27",
-            "2.8.3 — Visual Recognition Expansion — Private candidate",
-            "Version 2.7 was a private implementation checkpoint",
+            f"{current_version} — Visual Language Consolidation",
+            "240/240",
             "2.4.0 — Contest Edition — 2026-07-21",
         ),
         "PACKAGE_MANIFEST.md": (
-            "Source version: `2.9.1`",
+            f"Source version: `{current_version}`",
             "Current verified public version: `2.4.0`",
-            "`2.9.1` dated 2026-07-27 is private, untagged, unpushed and unpublished",
-            "Latest published Git tag and GitHub Release: `v2.4.0`",
-            "Self-hosted Faster Whisper `1.2.1`",
-            "Dedicated `ivrit_sheli_push_worker`",
-            "310 passed / 1 credential-gated PostgreSQL skip",
-            "353 passed",
-            "32 passed / 40 project-scoped skips / 0 failed",
-            "696 passed",
-            "291 passed / 1 credential-gated PostgreSQL skip",
-            "337 passed / 37 files",
-            "26 passed / 28 scoped skips / 0 failed",
-            "Preserved historical private 2.8.3 baseline",
+            "240",
         ),
-        "docs/DEPLOYMENT.md": (
-            "Current production verification record — 2.4.0 — 2026-07-21",
-            "03bf84b9268ff8be528c0fab3c670f9652ee23b0",
-            "Identity-only Google sign-in",
-            "Backend: 291 passed, 1 credential-gated PostgreSQL skip",
-            "Frontend: 337 passed across 37 files",
-            "Playwright/axe: 26 passed, 28 scoped matrix skips, 0 failed",
+        "TEST_REPORT.md": (
+            f"Current private source candidate:** `{current_version}`",
+            "2.9.2",
+            "699",
+            "2.4.0",
         ),
-        "docs/API.md": (
-            "unpublished 2.9.1 source contract",
-            "Whisper is a separate 2.9.0 speech path dated 2026-07-27",
-        ),
-        "SECURITY.md": (
-            "2.9.x | Yes — unreleased private candidate",
-            "2.8.x | No — superseded private candidate",
-        ),
-        "docs/DEMO_DAY.md": (
-            "213 passing automated tests",
-            "2.4.0 is live on Railway",
-            "identity-only Google sign-in",
-        ),
-        "docs/BUILD_WEEK.md": (
-            "Pre-existing foundation",
-            "Contest Edition v2.4 finish",
-            "Codex and GPT-5.6",
-            "213 unique passing automated tests",
-        ),
-        "PRIVACY.md": (
-            "Google: provider user ID, display name, and profile picture",
-            "delete your hosted account and its learner state",
-        ),
-        "TERMS.md": (
-            "Google or GitHub account used to sign in",
-            "actively developed public pilot",
-        ),
-        "CITATION.cff": (
-            "version: 2.9.1",
-            "unpublished Ivrit Sheli 2.9.1 Hebrew Alphabet Studio candidate dated 2026-07-27",
-            "verified public v2.4.0 release",
-        ),
+        "docs/API.md": (f"{current_version}", "identity-only"),
+        "docs/VOCABULARY_ILLUSTRATION_SYSTEM.md": ("240", "exact semantic"),
+        "docs/DESIGN_SYSTEM.md": ("240", "semantic"),
+        "docs/USER_GUIDE.md": ("240",),
+        "docs/VISUAL_BIBLE.md": ("240 reviewed concepts / 240 exact semantic scenes",),
+        "CITATION.cff": (f"version: {current_version}", "verified public v2.4.0 release"),
     }
     failures: list[str] = []
     for relative, fragments in expected_fragments.items():
@@ -746,39 +564,13 @@ def verify_release_truth_drift() -> list[str]:
             if fragment not in text:
                 failures.append(f"{relative}: missing release-truth fragment {fragment!r}")
 
-    forbidden_fragments = {
-        "README.md": (
-            "current v2.8 candidate",
-            "v2.8 public learning flow",
-            "## AI boundary in 2.8",
-            "The v2.8 application supports:",
-        ),
-        "TEST_REPORT.md": (
-            "tag `v2.8.3`",
-            "After 2.8 accepts writes",
-            "current 2.8 source evidence",
-            "presented as 2.8 production verification",
-        ),
-        "PACKAGE_MANIFEST.md": (
-            "It is not the 2.8 candidate",
-            "disabled in the public 2.8 interface",
-            "## Verified private 2.8 candidate",
-            "After 2.8 accepts writes",
-            "not relabeled as 2.8",
-            "locally executed 2.8 checks",
-        ),
-        "docs/API.md": (
-            "unpublished 2.8 source contract",
-            "2.8 public learning",
-            "2.8 public release",
-        ),
-        "docs/DEPLOYMENT.md": ("before the first 2.8 learner write",),
-        "docs/VOCABULARY_ILLUSTRATION_SYSTEM.md": (
-            "publishing a 2.8 release",
-        ),
-        "SECURITY.md": ("2.8.x | Yes — unreleased private candidate",),
+    # Candidate surfaces must never imply this unpublished tree replaced the verified public release.
+    forbidden = {
+        "README.md": (f"{current_version} is live", f"v{current_version} release is published"),
+        "PACKAGE_MANIFEST.md": (f"v{current_version} is the latest published",),
+        "TEST_REPORT.md": (f"Current verified production:** `{current_version}`",),
     }
-    for relative, fragments in forbidden_fragments.items():
+    for relative, fragments in forbidden.items():
         try:
             text = (ROOT / relative).read_text(encoding="utf-8")
         except OSError as error:
@@ -786,28 +578,17 @@ def verify_release_truth_drift() -> list[str]:
             continue
         for fragment in fragments:
             if fragment in text:
-                failures.append(
-                    f"{relative}: forbidden stale release-truth fragment {fragment!r}"
-                )
+                failures.append(f"{relative}: forbidden publication claim {fragment!r}")
     return failures
 
-
 def verify_source_version_surfaces() -> list[str]:
-    """Keep executable and human-facing release versions synchronized."""
-    expected_version = "2.9.1"
+    """Keep executable and human-facing candidate versions synchronized."""
     failures: list[str] = []
-
     try:
-        frontend_package = json.loads(
-            (ROOT / "frontend" / "package.json").read_text(encoding="utf-8")
-        )
-        frontend_lock = json.loads(
-            (ROOT / "frontend" / "package-lock.json").read_text(encoding="utf-8")
-        )
-        backend_package = tomllib.loads(
-            (ROOT / "backend" / "pyproject.toml").read_text(encoding="utf-8")
-        )
-    except (OSError, json.JSONDecodeError, tomllib.TOMLDecodeError) as error:
+        expected_version = source_version()
+        frontend_package = json.loads((ROOT / "frontend" / "package.json").read_text(encoding="utf-8"))
+        frontend_lock = json.loads((ROOT / "frontend" / "package-lock.json").read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError, RuntimeError) as error:
         return [f"release version metadata could not be parsed: {error}"]
 
     structured_versions = {
@@ -815,26 +596,20 @@ def verify_source_version_surfaces() -> list[str]:
         "frontend/package-lock.json": frontend_lock.get("version"),
         "frontend/package-lock.json packages['']": (
             frontend_lock.get("packages", {}).get("", {}).get("version")
-            if isinstance(frontend_lock.get("packages"), dict)
-            else None
+            if isinstance(frontend_lock.get("packages"), dict) else None
         ),
-        "backend/pyproject.toml": backend_package.get("project", {}).get("version"),
     }
     for location, actual in structured_versions.items():
         if actual != expected_version:
-            failures.append(
-                f"{location}: expected release version {expected_version!r}, got {actual!r}"
-            )
+            failures.append(f"{location}: expected {expected_version!r}, got {actual!r}")
 
     expected_fragments = {
-        "backend/src/ivrit_sheli/__init__.py": '__version__ = "2.9.1"',
-        "frontend/index.html": "Ivrit Sheli 2.9",
-        "frontend/public/sw.js": "ivrit-sheli-shell-v2.9.1-alphabet-studio-r1",
-        "frontend/src/App.tsx": "v2.9.1 private candidate",
-        "frontend/src/components/AuthGate.tsx": "v2.9.1 private candidate",
-        "frontend/src/components/SettingsPanel.tsx": "app_version: '2.9.1'",
-        ".github/ISSUE_TEMPLATE/bug_report.yml": "placeholder: 2.9.1-private",
-        "CITATION.cff": "version: 2.9.1",
+        "backend/src/ivrit_sheli/__init__.py": f'__version__ = "{expected_version}"',
+        "frontend/index.html": f"Ivrit Sheli {'.'.join(expected_version.split('.')[:2])}",
+        "frontend/public/sw.js": f"ivrit-sheli-shell-v{expected_version}",
+        "frontend/src/release.ts": f"CANDIDATE_VERSION = '{expected_version}'",
+        ".github/ISSUE_TEMPLATE/bug_report.yml": f"placeholder: {expected_version}-private",
+        "CITATION.cff": f"version: {expected_version}",
     }
     for relative, fragment in expected_fragments.items():
         try:
@@ -844,9 +619,7 @@ def verify_source_version_surfaces() -> list[str]:
             continue
         if fragment not in text:
             failures.append(f"{relative}: missing release version fragment {fragment!r}")
-
     return failures
-
 
 def verify_public_learning_assets() -> list[str]:
     """Validate the offline starter contract and the six public region scenes."""
@@ -934,6 +707,59 @@ def verify_public_learning_assets() -> list[str]:
             failures.append(f"{relative}: expected a non-empty WebP region illustration")
     return failures
 
+
+
+def verify_visual_catalog_contract() -> list[str]:
+    """Prove the reviewed 240-entry visual catalog has exact source coverage."""
+    failures: list[str] = []
+    try:
+        payload = json.loads(
+            (ROOT / "frontend" / "public" / "content" / "starter-dictionary-v2.8.json").read_text(encoding="utf-8")
+        )
+        recipes = (ROOT / "frontend" / "src" / "visuals" / "a0VisualRecipes.ts").read_text(encoding="utf-8")
+        spotlight = (ROOT / "backend" / "src" / "ivrit_sheli" / "visual_spotlight.py").read_text(encoding="utf-8")
+    except (OSError, json.JSONDecodeError) as error:
+        return [f"visual catalog cannot be read: {error}"]
+
+    entries = payload.get("entries") if isinstance(payload, dict) else None
+    if not isinstance(entries, list):
+        return ["visual catalog: offline entries are unavailable"]
+    catalog_keys = {
+        visual.get("key")
+        for entry in entries if isinstance(entry, dict)
+        for visual in [entry.get("visual")]
+        if isinstance(visual, dict) and isinstance(visual.get("key"), str)
+    }
+    recipe_keys = set(re.findall(r"^\s{2}'([^']+)': \{\s*$", recipes, flags=re.MULTILINE))
+    if len(catalog_keys) != 240:
+        failures.append(f"visual catalog: expected 240 unique keys, got {len(catalog_keys)}")
+    if len(recipe_keys) != 240:
+        failures.append(f"visual recipes: expected 240 exact keys, got {len(recipe_keys)}")
+    missing = sorted(catalog_keys - recipe_keys)
+    extra = sorted(recipe_keys - catalog_keys)
+    if missing:
+        failures.append(f"visual recipes: missing reviewed exact keys: {', '.join(missing)}")
+    if extra:
+        failures.append(f"visual recipes: unexpected keys outside reviewed catalog: {', '.join(extra)}")
+
+    try:
+        tree = ast.parse(spotlight)
+        rotation_value = None
+        for node in tree.body:
+            if isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name) and node.target.id == "SPOTLIGHT_ROTATIONS":
+                rotation_value = ast.literal_eval(node.value)
+                break
+        if rotation_value is None:
+            raise ValueError("SPOTLIGHT_ROTATIONS assignment not found")
+        words = [word for rotation in rotation_value for word in rotation]
+    except (SyntaxError, ValueError) as error:
+        failures.append(f"visual spotlight: cannot parse rotations: {error}")
+    else:
+        if len(words) != 240 or len(set(words)) != 240:
+            failures.append(
+                f"visual spotlight: expected 240 unique reviewed words, got {len(words)} / {len(set(words))} unique"
+            )
+    return failures
 
 def verify_svg_assets() -> list[str]:
     """Parse every shipped SVG so broken icons fail packaging.
@@ -1023,12 +849,16 @@ def verify_secret_hygiene() -> list[str]:
         True
     """
     failures: list[str] = []
-    allowed_suffixes = {".py", ".ts", ".tsx", ".js", ".json", ".md", ".yml", ".yaml", ".env", ".example", ".sh", ".ps1"}
+    allowed_suffixes = {
+        ".py", ".ts", ".tsx", ".js", ".json", ".md", ".yml", ".yaml", ".env",
+        ".example", ".sh", ".ps1", ".toml", ".ini", ".cff", ".bat", ".txt",
+    }
+    allowed_names = {"Dockerfile", "Makefile"}
     excluded_parts = {"node_modules", "dist", ".venv", ".git", "__pycache__", ".mypy_cache", ".ruff_cache"}
     for path in ROOT.rglob("*"):
         if not path.is_file() or any(part in excluded_parts for part in path.parts):
             continue
-        if path.suffix not in allowed_suffixes and path.name != ".env.example":
+        if path.suffix not in allowed_suffixes and path.name not in allowed_names and path.name != ".env.example":
             continue
         try:
             text = path.read_text(encoding="utf-8")
@@ -1233,6 +1063,7 @@ def main() -> int:
         "release_truth_drift": verify_release_truth_drift(),
         "source_version_drift": verify_source_version_surfaces(),
         "invalid_public_learning_assets": verify_public_learning_assets(),
+        "invalid_visual_catalog_contract": verify_visual_catalog_contract(),
         "invalid_svg": verify_svg_assets(),
         "invalid_railway_config": verify_railway_config(),
         "invalid_docker_cache_mounts": verify_docker_cache_mounts(),

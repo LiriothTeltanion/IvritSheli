@@ -6,8 +6,10 @@
 
 import { useState } from 'react';
 import { useI18n } from '../i18n';
+import { CANDIDATE_BADGE, CANDIDATE_LABEL } from '../release';
 import type { AuthProvider, Locale } from '../types';
 import { Icon } from './Icon';
+import { IvritSheliWordmark } from './IvritSheliWordmark';
 import { PreAccountLesson } from './PreAccountLesson';
 
 interface AuthGateProps {
@@ -17,6 +19,7 @@ interface AuthGateProps {
   onDemo: () => void;
   onRetry: () => void;
   providers: AuthProvider[];
+  localCompanionUrl?: string | null;
 }
 
 const creatorLinks = {
@@ -34,6 +37,7 @@ export function AuthGate({
   onDemo,
   onRetry,
   providers,
+  localCompanionUrl = null,
 }: AuthGateProps): React.JSX.Element {
   const { locale, setLocale, t } = useI18n();
   const [showAccessChoices, setShowAccessChoices] = useState(false);
@@ -48,8 +52,8 @@ export function AuthGate({
 
       <header className="auth-header">
         <a className="auth-brand" href="/" aria-label={`${t('appName')} — ${t('home')}`}>
-          <img src="/icons/app-icon.svg" alt="" />
-          <span><strong>{t('appName')}</strong><small>PRIVATE CANDIDATE 2.9.1</small></span>
+          <IvritSheliWordmark label={t('appName')} />
+          <small>{CANDIDATE_BADGE}</small>
         </a>
         <div className="auth-header__actions">
           <div className="locale-switch auth-locale" aria-label={t('interfaceLanguage')}>
@@ -62,7 +66,7 @@ export function AuthGate({
               </button>
             ))}
           </div>
-          <span className="auth-version">v2.9.1 private candidate · 2026-07-27</span>
+          <span className="auth-version">{CANDIDATE_LABEL}</span>
         </div>
       </header>
 
@@ -124,12 +128,15 @@ export function AuthGate({
                 )}
                 <a
                   className="auth-button auth-button--secondary auth-button--local"
-                  href={creatorLinks.localSetup}
-                  target="_blank"
-                  rel="noreferrer"
+                  href={localCompanionUrl ?? creatorLinks.localSetup}
+                  target={localCompanionUrl ? undefined : '_blank'}
+                  rel={localCompanionUrl ? undefined : 'noreferrer'}
                 >
                   <Icon name="shield" size={19} />
-                  <span><strong>{t('continueLocalSetup')}</strong><small>{t('continueLocalSetupDetail')}</small></span>
+                  <span>
+                    <strong>{t('continueLocalSetup')}</strong>
+                    <small>{t(localCompanionUrl ? 'continueLocalWorkspaceDetail' : 'continueLocalSetupDetail')}</small>
+                  </span>
                 </a>
                 <button className="auth-button auth-button--secondary" type="button" onClick={onDemo} disabled={busy}>
                   {busy ? <span className="spinner" /> : <Icon name="play" size={19} />}
@@ -153,10 +160,12 @@ export function AuthGate({
             src="/illustrations/regions/jerusalem.webp"
             alt=""
             aria-hidden="true"
+            decoding="async"
+            fetchPriority="high"
           />
           <div className="auth-visual__halo" aria-hidden="true" />
           <div className="auth-preview-card auth-preview-card--main">
-            <header><span className="auth-preview-brand">עברית שלי</span><span className="auth-preview-live">{t('secure')}</span></header>
+            <header><IvritSheliWordmark compact label={t('appName')} /><span className="auth-preview-live">{t('secure')}</span></header>
             <div className="auth-preview-word" lang="he" dir="rtl">הדרך שלך לעברית</div>
             <p>{t('yourWayToHebrew')}</p>
             <div className="auth-preview-progress"><i /></div>
@@ -170,7 +179,7 @@ export function AuthGate({
       </section>
 
       <footer className="auth-footer">
-        <span><i /> React + FastAPI</span>
+        <span><i /> {t('appTagline')}</span>
         <nav className="creator-links" aria-label={t('creatorLinks')}>
           <span>{t('builtBy')}</span>
           <a href={creatorLinks.github} target="_blank" rel="noreferrer"><Icon name="github" size={17} /> GitHub</a>

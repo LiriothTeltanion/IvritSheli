@@ -8,8 +8,11 @@ import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react
 import { api, AUTH_REQUIRED_EVENT, configureApiSession } from './api';
 import { deviceRecordingOwnerScope } from './deviceAudioStorage';
 import { localeOverrideFromSearch, useI18n } from './i18n';
+import { useOnlineStatus } from './hooks/useOnlineStatus';
+import { usePersistentTheme } from './hooks/usePersistentTheme';
 import { resolveLearnerMode } from './learnerMode';
 import { unsubscribeFromDailyPractice } from './pushNotifications';
+import { CANDIDATE_BADGE, CANDIDATE_LABEL } from './release';
 import { SessionAccessProvider } from './session';
 import type { AuthState, Dashboard, GamificationStatus, LearnerMode, LearnTab, Locale, Profile, ProgressData, ViewKey } from './types';
 import { AuthGate } from './components/AuthGate';
@@ -17,6 +20,7 @@ import { BeginnerOnboarding } from './components/BeginnerOnboarding';
 import { DictionaryDrawer } from './components/DictionaryDrawer';
 import { FirstStepsLesson } from './components/FirstStepsLesson';
 import { Icon, type IconName } from './components/Icon';
+import { IvritSheliWordmark } from './components/IvritSheliWordmark';
 import { PreAccountLesson } from './components/PreAccountLesson';
 import { ProfileMenu } from './components/ProfileMenu';
 import { QuickCapture } from './components/QuickCapture';
@@ -108,9 +112,9 @@ export default function App(): React.JSX.Element {
   const [firstStepsComplete, setFirstStepsComplete] = useState(false);
   const [onboardingRevision, setOnboardingRevision] = useState(0);
   const [localWelcomeComplete, setLocalWelcomeComplete] = useState(false);
-  const [online, setOnline] = useState(navigator.onLine);
+  const online = useOnlineStatus();
   const [visitFinished, setVisitFinished] = useState(false);
-  const [theme, setTheme] = useState<'dark' | 'light'>(() => localStorage.getItem('ivrit-sheli-theme') === 'dark' ? 'dark' : 'light');
+  const [theme, toggleTheme] = usePersistentTheme();
 
   const refreshCore = useCallback(async (): Promise<void> => {
     try {
@@ -164,16 +168,6 @@ export default function App(): React.JSX.Element {
     void refreshCore();
   }, [auth?.authenticated, refreshCore]);
   useEffect(() => {
-    const onOnline = (): void => setOnline(true);
-    const onOffline = (): void => setOnline(false);
-    window.addEventListener('online', onOnline);
-    window.addEventListener('offline', onOffline);
-    return () => {
-      window.removeEventListener('online', onOnline);
-      window.removeEventListener('offline', onOffline);
-    };
-  }, []);
-  useEffect(() => {
     // Tour cards and sidebar navigation replace the main view in place. Reset an
     // existing page offset so the destination heading is never mounted off-screen.
     if (window.scrollY > 0) window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
@@ -187,7 +181,8 @@ export default function App(): React.JSX.Element {
         read_only: false,
         user: null,
         mode: 'cloud',
-        auth_providers: current?.auth_providers ?? ['github'],
+        auth_providers: current?.auth_providers ?? [],
+        local_companion_url: current?.local_companion_url ?? null,
         capabilities: {
           cloud_learning: true,
           ai: true,
@@ -204,10 +199,6 @@ export default function App(): React.JSX.Element {
     window.addEventListener(AUTH_REQUIRED_EVENT, onAuthenticationRequired);
     return () => window.removeEventListener(AUTH_REQUIRED_EVENT, onAuthenticationRequired);
   }, [t]);
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-    localStorage.setItem('ivrit-sheli-theme', theme);
-  }, [theme]);
   useEffect(() => {
     if (!toast) return;
     const timer = window.setTimeout(() => setToast(''), 2800);
@@ -304,8 +295,7 @@ export default function App(): React.JSX.Element {
   if (authChecking) {
     return (
       <main className="app-loading" aria-live="polite">
-        <div className="loading-mark"><span>ע</span><i /><i /></div>
-        <h1>{t('appName')}</h1>
+        <IvritSheliWordmark className="loading-wordmark" label={t('appName')} />
         <p>{t('loadingWorkspace')}</p>
         <div className="loading-track"><i /></div>
       </main>
@@ -318,7 +308,8 @@ export default function App(): React.JSX.Element {
         busy={demoBusy}
         error={authError}
         notice={authNotice}
-        providers={auth?.auth_providers ?? ['github']}
+        providers={auth?.auth_providers ?? []}
+        localCompanionUrl={auth?.local_companion_url ?? null}
         onDemo={() => { void startDemo(); }}
         onRetry={() => { void checkAuth(); }}
       />
@@ -328,8 +319,7 @@ export default function App(): React.JSX.Element {
   if (loading) {
     return (
       <main className="app-loading">
-        <div className="loading-mark"><span>ע</span><i /><i /></div>
-        <h1>{t('appName')}</h1>
+        <IvritSheliWordmark className="loading-wordmark" label={t('appName')} />
         <p>{t('loadingWorkspace')}</p>
         <div className="loading-track"><i /></div>
       </main>
@@ -383,8 +373,8 @@ export default function App(): React.JSX.Element {
         <div className="onboarding-glow onboarding-glow--two" aria-hidden="true" />
         <header className="onboarding-header">
           <a className="auth-brand" href="/" aria-label={`${t('appName')} — ${t('home')}`}>
-            <img src="/icons/app-icon.svg" alt="" />
-            <span><strong>{t('appName')}</strong><small>{t('firstSteps')}</small></span>
+            <IvritSheliWordmark label={t('appName')} />
+            <small>{t('firstSteps')}</small>
           </a>
           <div className="locale-switch" aria-label={t('interfaceLanguage')}>
             {(['en', 'es', 'he'] as Locale[]).map((code) => (
@@ -492,8 +482,8 @@ export default function App(): React.JSX.Element {
 
       <aside className="sidebar">
         <div className="brand-lockup">
-          <img src="/icons/app-icon.svg" alt="" />
-          <div><strong>{t('appName')}</strong><span>PRIVATE CANDIDATE 2.9.1</span></div>
+          <IvritSheliWordmark label={t('appName')} />
+          <span>{CANDIDATE_BADGE}</span>
         </div>
         <nav className="side-nav" aria-label={t('primaryNavigation')}>
           {visibleNavigation.map((item) => (
@@ -516,13 +506,13 @@ export default function App(): React.JSX.Element {
         </div>
         <div className="sidebar-footer">
           <div className="privacy-mini"><Icon name="target" size={17} /><span><strong>{t(`${learnerMode}Mode`)}</strong><small>{t('level')} {profile.cefr_band ?? profile.hebrew_level}</small></span></div>
-          <span className="version-label">v2.9.1 private candidate · 2026-07-27</span>
+          <span className="version-label">{CANDIDATE_LABEL}</span>
         </div>
       </aside>
 
       <div className="main-column">
         <header className="topbar">
-          <div className="mobile-brand"><img src="/icons/app-icon.svg" alt="" /><strong>{t('appName')}</strong></div>
+          <div className="mobile-brand"><IvritSheliWordmark compact label={t('appName')} /></div>
           <div className="topbar-context"><span>{t(pageTitle)}</span><i /> <strong>{t('appTagline')}</strong><em className="learner-mode-chip">{t(`${learnerMode}Mode`)}</em><em className="cefr-level-chip">{t('level')} {profile.cefr_band ?? profile.hebrew_level}</em></div>
           <div className="topbar-actions">
             <span className={`network-chip ${online ? '' : 'is-offline'}`}><Icon name={online ? 'cloud' : 'offline'} size={15} />{online ? t('online') : t('offline')}</span>
@@ -532,7 +522,7 @@ export default function App(): React.JSX.Element {
                 setLocale(code);
               }}>{code.toUpperCase()}</button>)}
             </div>
-            <button type="button" className="icon-button" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} aria-label={t('toggleTheme')}>{theme === 'dark' ? '☀' : '☾'}</button>
+            <button type="button" className="icon-button" onClick={toggleTheme} aria-label={t('toggleTheme')}>{theme === 'dark' ? '☀' : '☾'}</button>
             {learnerMode === 'guided' && (
               <button type="button" className="topbar-help" onClick={() => setView('help')}>
                 <span aria-hidden="true">?</span>{t('help')}
@@ -572,8 +562,14 @@ export default function App(): React.JSX.Element {
             <span><strong>{t('readOnlyDemo')}</strong><small>{t('readOnlyExplanation')}</small></span>
             {(auth.auth_providers ?? []).includes('google') ? (
               <a href="/api/v1/auth/google/start"><span className="google-mark" aria-hidden="true">G</span> {t('continueGoogle')}</a>
-            ) : (
+            ) : (auth.auth_providers ?? []).includes('github') ? (
               <a href="/api/v1/auth/github/start"><Icon name="github" size={16} /> {t('continueGithub')}</a>
+            ) : auth.local_companion_url ? (
+              <a href={auth.local_companion_url}><Icon name="home" size={16} /> {t('continueLocalSetup')}</a>
+            ) : (
+              <button type="button" onClick={() => { void logout(); }} disabled={loggingOut}>
+                {t('logout')}
+              </button>
             )}
           </div>
         )}

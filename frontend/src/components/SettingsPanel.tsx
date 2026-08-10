@@ -14,6 +14,7 @@ import {
   type DeviceRecording,
 } from '../deviceAudioStorage';
 import { useI18n } from '../i18n';
+import { CANDIDATE_VERSION } from '../release';
 import { learningCoreCopy } from '../learningCoreCopy';
 import { resolveLearnerMode } from '../learnerMode';
 import { useSessionAccess } from '../session';
@@ -245,7 +246,7 @@ export function SettingsPanel({
         diagnostics: {
           user_agent: navigator.userAgent,
           viewport: `${window.innerWidth}x${window.innerHeight}`,
-          app_version: '2.9.1',
+          app_version: CANDIDATE_VERSION,
           online: navigator.onLine,
           locale,
           route: window.location.pathname,

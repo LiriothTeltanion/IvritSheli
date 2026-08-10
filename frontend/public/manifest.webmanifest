@@ -2,17 +2,24 @@
   "id": "/",
   "name": "Ivrit Sheli — Adaptive Hebrew",
   "short_name": "Ivrit Sheli",
-  "description": "Ivrit Sheli 2.9.1 private candidate (2026-07-27): a warm illustrated Hebrew-learning journey with an integrated Alphabet Studio, private listening practice, and an explainable personal coach.",
+  "description": "Ivrit Sheli 2.10.0 private candidate (2026-08-10): a warm trilingual Hebrew-learning journey with 240 exact semantic scenes, Alphabet Studio, private listening practice and an explainable personal coach.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui"
+  ],
   "orientation": "any",
   "background_color": "#f7f1e5",
   "theme_color": "#f7f1e5",
   "lang": "en",
   "dir": "auto",
-  "categories": ["education", "productivity"],
+  "categories": [
+    "education",
+    "productivity"
+  ],
   "prefer_related_applications": false,
   "icons": [
     {

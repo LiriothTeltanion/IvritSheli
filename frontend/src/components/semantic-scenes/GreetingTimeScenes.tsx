@@ -29,7 +29,18 @@ function ClockFace({
 }): React.JSX.Element {
   return (
     <g transform={`translate(${x} ${y})`}>
-      <circle className="semantic-art__surface semantic-art__outlined" r={radius} />
+      {/* Case: a shadow pool, a brass ring, then the dial recessed inside it. */}
+      <ellipse className="semantic-art__prop-shadow" cy={radius * 0.12} rx={radius} ry={radius} />
+      <circle className="semantic-art__metal semantic-art__outlined" r={radius} />
+      <circle className="semantic-art__surface semantic-art__outlined" r={radius - 6} />
+      <path
+        className="semantic-art__shade"
+        d={`M0 ${-radius} a${radius} ${radius} 0 0 1 0 ${radius * 2} ${radius * 0.78} ${radius} 0 0 0 0 ${-radius * 2}Z`}
+      />
+      <path
+        className="semantic-art__gloss"
+        d={`M${-radius * 0.72} ${-radius * 0.4}a${radius} ${radius} 0 0 1 ${radius * 0.5} ${-radius * 0.5}`}
+      />
       <path
         className="semantic-art__detail semantic-art__detail--thin"
         d={`M0 ${-radius + 7}v8M0 ${radius - 15}v8M${-radius + 7} 0h8M${radius - 15} 0h8M${-radius * 0.68} ${-radius * 0.68}l6 6M${radius * 0.68} ${radius * 0.68}l-6-6M${radius * 0.68} ${-radius * 0.68}l-6 6M${-radius * 0.68} ${radius * 0.68}l6-6`}
@@ -74,7 +85,11 @@ function Sun({
 }): React.JSX.Element {
   return (
     <g transform={`translate(${x} ${y})`}>
+      {/* Halo first, so the disc sits inside its own light. */}
+      <circle className="semantic-art__sun-halo" r={radius + 11} />
       <circle className="semantic-art__gold semantic-art__outlined" r={radius} />
+      {/* A warmer core keeps the disc from reading as a flat sticker. */}
+      <circle className="semantic-art__sun-core" cx={-radius * 0.22} cy={-radius * 0.22} r={radius * 0.58} />
       <path
         className="semantic-art__sun-rays semantic-art__motion-part"
         d={`M0 ${-radius - 14}v8M0 ${radius + 6}v8M${-radius - 14} 0h8M${radius + 6} 0h8M${-radius - 10} ${-radius - 10}l6 6M${radius + 4} ${radius + 4}l6 6M${radius + 4} ${-radius - 4}l6-6M${-radius - 4} ${radius + 4}l-6 6`}
@@ -88,183 +103,280 @@ export function GreetingTimeScene({
   hintStage,
 }: GreetingTimeSceneProps): React.JSX.Element | null {
   switch (visualKey) {
+    /* Hello: two neighbours meeting on the street they both live on. */
     case 'greetings.hello':
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
-            <path
-              className="semantic-art__wall semantic-art__outlined"
-              d="M20 48h62v94H20Zm138-13h62v107h-62Z"
-            />
-            <path
-              className="semantic-art__window semantic-art__outlined"
-              d="M31 64h28v30H31Zm145-13h27v31h-27Z"
-            />
-            <path
-              className="semantic-art__detail semantic-art__detail--thin"
-              d="M45 64v30M31 79h28m131-28v31m-14-15h27M20 142h200"
-            />
+            <path className="semantic-art__wall semantic-art__outlined" d="M12 12h216v122H12Z" />
+            <Sun x={204} y={34} radius={13} />
+            {/* Two buildings and the pavement between them: a street, so the
+                greeting has somewhere to happen. */}
+            <path className="semantic-art__stone-lit semantic-art__outlined" d="M14 38h76v96H14Z" />
+            <path className="semantic-art__stone" d="M14 38h76v5H14Zm0 32h76v4H14Zm0 32h76v4H14Z" />
+            <path className="semantic-art__facade-shade" d="M76 38h14v96H76Z" />
+            <path className="semantic-art__window semantic-art__outlined" d="M24 48h20v16H24Zm28 0h20v16H52ZM24 80h20v16H24Zm28 0h20v16H52Z" />
+            <path className="semantic-art__window-lit" d="M24 48h20v16H24Zm28 32h20v16H52Z" />
+            <path className="semantic-art__clay-soft semantic-art__outlined" d="M150 52h78v82h-78Z" />
+            <path className="semantic-art__facade-shade" d="M214 52h14v82h-14Z" />
+            <path className="semantic-art__window semantic-art__outlined" d="M160 62h20v16h-20Zm28 0h20v16h-20Zm-28 30h20v16h-20Zm28 0h20v16h-20Z" />
+            <path className="semantic-art__window-lit" d="M188 62h20v16h-20Z" />
+            <path className="semantic-art__grain" d="M150 84h78" />
+            <path className="semantic-art__floor" d="M12 134h216v32H12Z" />
+            <path className="semantic-art__surface-deep" d="M12 134h216v5H12Z" />
+            <path className="semantic-art__tiles" d="M50 139v27m40-27v27m40-27v27m40-27v27" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
-            <SemanticPerson x={65} y={111} shirt="coral" pose="wave" />
-            <SemanticPerson x={175} y={111} shirt="teal" facing="left" pose="wave" />
+            {/* A tree between them, so the middle of the card is not a hole. */}
+            <path className="semantic-art__wood-line" d="M120 128v-26" />
+            <circle className="semantic-art__green-soft semantic-art__outlined" cx="110" cy="86" r="17" />
+            <circle className="semantic-art__green semantic-art__outlined" cx="130" cy="82" r="18" />
+            <circle className="semantic-art__green-soft semantic-art__outlined" cx="120" cy="66" r="18" />
+            <path className="semantic-art__leaf-lit" d="M110 54c8-6 18-4 24 3" />
+            <SemanticPerson x={64} y={106} shirt="coral" pose="wave" scale={1.05} />
+            <SemanticPerson x={176} y={106} shirt="teal" facing="left" pose="wave" scale={1.05} />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            <SpeechBubble x={92} y={36} />
-            <path
-              className="semantic-art__motion semantic-art__motion-part"
-              d="M82 61q9-9 17 0m59 0q-9-9-17 0"
-            />
+            {/*
+              One bubble each, and the greeting travelling both ways. A single
+              bubble made it look as though only one of them had spoken.
+            */}
+            <g transform="translate(20 22) scale(0.52)">
+              <SpeechBubble x={0} y={0} />
+            </g>
+            <g transform="translate(228 22) scale(-0.52 0.52)">
+              <SpeechBubble x={0} y={0} />
+            </g>
+            <path className="semantic-art__motion semantic-art__motion-part" d="M78 58q10-9 19 0m46 0q-9-9-19 0" />
           </SceneLayer>
         </>
       );
+
+    /* Thanks: the moment the gift changes hands, at the door. */
     case 'greetings.thanks':
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
-            <path className="semantic-art__wood semantic-art__outlined" d="M25 128h190v25H25Z" />
-            <path
-              className="semantic-art__green-soft semantic-art__outlined"
-              d="M29 79c-13-27 10-48 32-25 17 18-2 39-32 25Zm152-2c-13-26 10-46 31-24 17 18-1 38-31 24Z"
-            />
+            <path className="semantic-art__wall semantic-art__outlined" d="M12 12h216v122H12Z" />
+            <path className="semantic-art__floor" d="M12 134h216v32H12Z" />
+            <path className="semantic-art__surface-deep" d="M12 128h216v6H12Z" />
+            {/* The doorway someone has just arrived at. */}
+            <path className="semantic-art__wood semantic-art__outlined" d="M148 24h68v110h-68Z" />
+            <path className="semantic-art__wood-deep" d="M202 24h14v110h-14Z" />
+            <path className="semantic-art__detail semantic-art__detail--thin" d="M158 38h44v38h-44Zm0 46h44v40h-44Z" />
+            <circle className="semantic-art__gold semantic-art__outlined" cx="194" cy="82" r="5" />
+            <path className="semantic-art__coral-soft semantic-art__outlined" d="M142 138h76v14h-76Z" />
+            <path className="semantic-art__grain" d="M150 145h60" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
-            <SemanticPerson x={57} y={111} shirt="blue" pose="reach" />
-            <SemanticPerson x={184} y={111} shirt="coral" facing="left" pose="hold" />
-            <path
-              className="semantic-art__gold semantic-art__outlined"
-              d="M94 86h54v44H94Z"
-            />
-            <path
-              className="semantic-art__coral semantic-art__outlined"
-              d="M87 78h68v17H87Zm29 0v52m-19-52c-14-16 2-28 19 0m10 0c15-16-1-28-10 0"
-            />
+            <SemanticPerson x={44} y={104} shirt="blue" pose="reach" scale={1.05} />
+            <SemanticPerson x={162} y={104} shirt="coral" facing="left" pose="hold" scale={1.05} />
+            {/* The parcel, held between the two of them. */}
+            <path className="semantic-art__gold semantic-art__outlined" d="M84 84h48v40H84Z" />
+            <path className="semantic-art__gold-lit" d="M84 84h12v40H84Z" />
+            <path className="semantic-art__gold-deep" d="M120 84h12v40h-12Z" />
+            <path className="semantic-art__coral semantic-art__outlined" d="M78 76h60v14H78Z" />
+            <path className="semantic-art__coral-line" d="M102 76v48" />
+            <path className="semantic-art__coral semantic-art__outlined" d="M100 76c-13-14 2-25 17 0m6 0c14-14-1-25-6 0Z" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            <path
-              className="semantic-art__coral semantic-art__outlined"
-              d="M104 50c0-17 22-19 28-5 7-14 29-12 29 5 0 17-29 33-29 33s-28-16-28-33Z"
-            />
-            <path className="semantic-art__spark" d="m86 47 4 8 8 4-8 4-4 8-4-8-8-4 8-4Z" />
+            {/*
+              One small heart, inside a bubble, over the person receiving. It
+              used to be a heart the size of the parcel, and two other greeting
+              scenes carried one too.
+            */}
+            <g transform="translate(150 22) scale(-0.5 0.5)">
+              <SpeechBubble x={0} y={0} />
+            </g>
+            <path className="semantic-art__coral semantic-art__outlined" d="M126 36c0-9 11-10 14-3 4-7 15-6 15 3 0 9-15 17-15 17s-14-8-14-17Z" />
+            <path className="semantic-art__spark" d="m66 62 4 8 8 4-8 4-4 8-4-8-8-4 8-4Z" />
+            <path className="semantic-art__gloss" d="M90 92v24" />
           </SceneLayer>
         </>
       );
+
+    /* Please: asking for something across a counter, and being handed it. */
     case 'greetings.please':
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
-            <path className="semantic-art__awning semantic-art__outlined" d="M23 29h194l-12 28H35Z" />
-            <path
-              className="semantic-art__awning-lines"
-              d="m57 29-5 28m42-28-2 28m56-28 2 28m34-28 5 28"
-            />
-            <path className="semantic-art__wood semantic-art__outlined" d="M26 119h188v31H26Z" />
+            <path className="semantic-art__wall semantic-art__outlined" d="M12 12h216v122H12Z" />
+            <path className="semantic-art__awning semantic-art__outlined" d="M18 22h204l-12 26H30Z" />
+            <path className="semantic-art__awning-lines" d="m58 22-5 26m44-26-2 26m56-26 2 26m36-26 5 26" />
+            {/* A shelf of cups behind: this is a place that serves things. */}
+            <path className="semantic-art__wood semantic-art__outlined" d="M132 58h88v6h-88Zm0 30h88v6h-88Z" />
+            <path className="semantic-art__surface semantic-art__outlined" d="M140 42h14v16h-14Zm22 0h14v16h-14Zm22 0h14v16h-14Zm-44 30h14v16h-14Zm22 0h14v16h-14Zm22 0h14v16h-14Z" />
+            <path className="semantic-art__floor" d="M12 134h216v32H12Z" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
-            <SemanticPerson x={54} y={106} shirt="teal" pose="reach" />
-            <SemanticPerson x={189} y={106} shirt="gold" facing="left" pose="listen" />
-            <SpeechBubble x={84} y={53} />
+            <SemanticPerson x={48} y={102} shirt="teal" pose="reach" scale={1.05} />
+            <SemanticPerson x={192} y={98} shirt="gold" facing="left" pose="hold" scale={1.05} />
+            <path className="semantic-art__wood semantic-art__outlined" d="M20 116h200v14H20Z" />
+            <path className="semantic-art__wood-lit" d="M20 116h200v5H20Z" />
+            <path className="semantic-art__wood-deep" d="M20 130h200v6H20Z" />
+            <path className="semantic-art__grain" d="M30 124h180" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            <path
-              className="semantic-art__glass semantic-art__outlined"
-              d="M119 92h42l-5 50h-32Z"
-            />
-            <path className="semantic-art__water" d="M123 111c10 4 20-3 36 0l-3 28h-31Z" />
-            <path className="semantic-art__skin-line" d="M75 113c15 7 27 8 43 0" />
-            <path className="semantic-art__spark" d="m164 80 3 7 7 3-7 3-3 7-3-7-7-3 7-3Z" />
+            <g transform="translate(74 26) scale(0.56)">
+              <SpeechBubble x={0} y={0} />
+            </g>
+            {/* The glass, set down on the counter between them. */}
+            <path className="semantic-art__glass semantic-art__outlined" d="M108 74h34l-4 42h-26Z" />
+            <path className="semantic-art__water" d="M111 90c8 3 17-3 30 0l-3 26h-24Z" />
+            <path className="semantic-art__gloss" d="M114 80v30" />
+            <ellipse className="semantic-art__surface semantic-art__outlined" cx="125" cy="116" rx="24" ry="5" />
+            <path className="semantic-art__spark" d="m160 66 3 7 7 3-7 3-3 7-3-7-7-3 7-3Z" />
           </SceneLayer>
         </>
       );
+
+    /*
+      Yes and no are the pair a beginner most needs to keep apart, so they are
+      separated on four independent channels: the room, the posture, the arcs
+      over the head, and the badge. Not on colour alone, which fails under
+      colour-vision deficiency, and no longer on a hand the size of a loaf.
+    */
     case 'greetings.yes':
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
-            <path className="semantic-art__wall semantic-art__outlined" d="M28 28h184v119H28Z" />
-            <path className="semantic-art__surface semantic-art__outlined" d="M45 47h150v83H45Z" />
-            <path
-              className="semantic-art__detail semantic-art__detail--thin"
-              d="M62 65h45m-45 18h30m-30 18h40"
-            />
+            <path className="semantic-art__wall semantic-art__outlined" d="M14 14h212v120H14Z" />
+            <path className="semantic-art__grain" d="M14 46h212M14 80h212M14 114h212" />
+            <path className="semantic-art__floor" d="M14 134h212v32H14Z" />
+            <path className="semantic-art__surface-deep" d="M14 128h212v6H14Z" />
+            {/* A table between them: this is a yes to something offered. */}
+            <path className="semantic-art__wood semantic-art__outlined" d="M84 108h74v11H84Z" />
+            <path className="semantic-art__wood-deep" d="M84 119h74v5H84Z" />
+            <path className="semantic-art__wood semantic-art__outlined" d="M92 124h9v30h-9Zm50 0h9v30h-9Z" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
-            <circle className="semantic-art__green-soft semantic-art__outlined" cx="150" cy="88" r="46" />
-            <path className="semantic-art__green semantic-art__outlined" d="m119 88 20 21 44-51 13 12-56 65-34-34Z" />
+            <SemanticPerson x={54} y={98} shirt="teal" pose="reach" scale={1.05} />
+            <SemanticPerson x={188} y={98} shirt="gold" facing="left" pose="hold" scale={1.05} />
+            {/* Nodding: the arcs run up and down, against side to side for `no`. */}
+            <path className="semantic-art__motion semantic-art__motion-part" d="M36 58q-12 10 0 20m0-30q-20 14 0 30" />
+            <path className="semantic-art__teal semantic-art__outlined" d="M104 86h34v18c0 4-7 6-17 6s-17-2-17-6Z" />
+            <path className="semantic-art__teal-deep" d="M126 86h12v18c0 3-4 5-10 6Z" />
+            <path className="semantic-art__detail" d="M138 91c9 0 9 12 0 12" />
+            <path className="semantic-art__steam semantic-art__motion-part" d="M112 78c-5-7 5-10 0-17m14 17c-5-7 5-10 0-17" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            <SemanticPerson x={64} y={117} shirt="teal" pose="point" scale={0.85} />
-            <path
-              className="semantic-art__motion semantic-art__motion-part"
-              d="M50 68q14 11 27 0m-24 12q11 8 21 0"
-            />
-            <path className="semantic-art__spark" d="m191 43 4 8 8 4-8 4-4 8-4-8-8-4 8-4Z" />
+            <circle className="semantic-art__green-soft semantic-art__outlined" cx="192" cy="42" r="26" />
+            <path className="semantic-art__green semantic-art__outlined" d="m176 42 11 12 24-28 8 7-31 37-19-19Z" />
           </SceneLayer>
         </>
       );
+
     case 'greetings.no':
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
-            <path className="semantic-art__wall semantic-art__outlined" d="M28 28h184v119H28Z" />
-            <path className="semantic-art__surface semantic-art__outlined" d="M45 47h150v83H45Z" />
-            <path
-              className="semantic-art__detail semantic-art__detail--thin"
-              d="M62 65h45m-45 18h30m-30 18h40"
-            />
+            <path className="semantic-art__gold-soft semantic-art__outlined" d="M14 14h212v120H14Z" />
+            <path className="semantic-art__wood semantic-art__outlined" d="M104 26h100v108h-100Z" />
+            <path className="semantic-art__teal semantic-art__outlined" d="M114 36h80v98h-80Z" />
+            <path className="semantic-art__teal-deep" d="M178 36h16v98h-16Z" />
+            <path className="semantic-art__detail semantic-art__detail--thin" d="M126 50h48v30h-48Zm0 40h48v32h-48Z" />
+            <circle className="semantic-art__gold semantic-art__outlined" cx="168" cy="86" r="5" />
+            <path className="semantic-art__floor" d="M14 134h212v32H14Z" />
+            <path className="semantic-art__surface-deep" d="M14 128h212v6H14Z" />
+            <path className="semantic-art__clay semantic-art__outlined" d="M212 108h22l-4 22h-14Z" />
+            <path className="semantic-art__stem" d="M223 108V92" />
+            <path className="semantic-art__green semantic-art__outlined" d="M223 96c-13 1-18-9-11-15 8-6 16 5 11 15Z" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
-            <circle className="semantic-art__coral semantic-art__outlined" cx="150" cy="88" r="46" />
-            <path
-              className="semantic-art__surface semantic-art__outlined"
-              d="m118 65 13-13 19 20 20-20 13 13-20 20 20 20-13 13-20-20-19 20-13-13 20-20Z"
-            />
+            <SemanticPerson x={54} y={100} shirt="coral" pose="neutral" scale={1.05} />
+            {/*
+              A raised palm at the size a palm actually is. It used to be fifty
+              units tall and read as a paddle; here the forearm gives it a
+              scale to be read against.
+            */}
+            <path className="semantic-art__skin-line" d="M64 104 80 86" />
+            <path className="semantic-art__skin semantic-art__outlined" d="M74 78h28a5 5 0 0 1 5 5v9a11 11 0 0 1-11 11h-16a11 11 0 0 1-11-11v-9a5 5 0 0 1 5-5Z" />
+            {/*
+              Four fingers, not two. With a pair of them the raised hand
+              read as a V sign, which is a different message in half the
+              places this app will be opened.
+            */}
+            <path className="semantic-art__skin semantic-art__outlined" d="M73 80V70a4 4 0 0 1 8 0v10Zm10 0V64a4 4 0 0 1 8 0v16Zm10 0V62a4 4 0 0 1 8 0v18Zm10 3V71a4 4 0 0 1 7 0v12Z" />
+            <path className="semantic-art__skin-shade" d="M99 78h3a5 5 0 0 1 5 5v9a11 11 0 0 1-10 11c5-8 6-17 2-25Z" />
+            {/*
+              Shaking: the arcs run side to side, against up and down for
+              `yes`. They sit clear above the head — drawn across it they read
+              as a band over the eyes, the same fault the hair once had.
+            */}
+            <path className="semantic-art__motion semantic-art__motion-part" d="M36 54q18-11 36 0m-40 9q22-13 44 0" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            <SemanticPerson x={62} y={117} shirt="coral" pose="neutral" scale={0.85} />
-            <path className="semantic-art__skin-line" d="M47 99 32 87m45 12 15-12" />
+            <circle className="semantic-art__coral semantic-art__outlined" cx="196" cy="42" r="26" />
             <path
-              className="semantic-art__motion semantic-art__motion-part"
-              d="M43 67q20-13 38 0m-34 9q15-10 29 0"
+              className="semantic-art__surface semantic-art__outlined"
+              d="m178 28 7-7 11 11 11-11 7 7-11 11 11 11-7 7-11-11-11 11-7-7 11-11Z"
             />
           </SceneLayer>
         </>
       );
+
+    /* Good evening: the greeting you give on the balcony, with the day going. */
     case 'greetings.good_evening':
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
-            <path className="semantic-art__window semantic-art__outlined" d="M24 25h192v95H24Z" />
-            <path className="semantic-art__coral semantic-art__outlined" d="M24 91h192v29H24Z" />
-            <circle className="semantic-art__gold semantic-art__outlined" cx="184" cy="75" r="25" />
-            <path className="semantic-art__detail semantic-art__detail--thin" d="M24 120h192M45 120v32m150-32v32" />
+            <path className="semantic-art__window semantic-art__outlined" d="M12 12h216v106H12Z" />
+            <path className="semantic-art__coral-soft" d="M12 62h216v56H12Z" />
+            <circle className="semantic-art__sun-halo" cx="186" cy="72" r="40" />
+            <circle className="semantic-art__gold semantic-art__outlined" cx="186" cy="72" r="22" />
+            <circle className="semantic-art__sun-core" cx="180" cy="66" r="11" />
+            {/* The city going dark behind them, one window at a time. */}
+            <path className="semantic-art__blue-deep semantic-art__outlined" d="M14 84h26v34H14Zm32-12h22v46H46Zm28 20h24v26H74Zm104-6h22v32h-22Zm28 10h22v22h-22Z" />
+            <path className="semantic-art__window-lit" d="M20 92h6v8h-6Zm10 0h6v8h-6Zm22-12h6v8h-6Zm-22 24h6v8h-6Zm60 0h6v8h-6Zm102-8h6v8h-6Z" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
-            <SemanticPerson x={77} y={112} shirt="gold" pose="wave" />
-            <SemanticPerson x={142} y={112} shirt="blue" facing="left" pose="wave" />
-            <path className="semantic-art__motion semantic-art__motion-part" d="M89 53q13-10 25 0m17 0q-12-10-24 0" />
+            <SemanticPerson x={78} y={100} shirt="gold" pose="wave" scale={1.05} />
+            <SemanticPerson x={140} y={100} shirt="blue" facing="left" pose="neutral" scale={1.05} />
+            <path className="semantic-art__motion semantic-art__motion-part" d="M92 52q12-10 24 0" />
+            {/* The balcony rail they are standing behind. */}
+            <path className="semantic-art__metal semantic-art__outlined" d="M12 118h216v7H12Z" />
+            <path className="semantic-art__metal-line" d="M26 125v30m24-30v30m24-30v30m24-30v30m24-30v30m24-30v30m24-30v30m24-30v30" />
+            <path className="semantic-art__metal semantic-art__outlined" d="M12 155h216v8H12Z" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            <path className="semantic-art__gold-soft semantic-art__outlined" d="M191 105h22l-4 42h-14Z" />
-            <path className="semantic-art__detail" d="M202 105V88m-8 7h16" />
-            <path className="semantic-art__spark" d="m202 77 4 8 8 4-8 4-4 8-4-8-8-4 8-4Z" />
+            <g transform="translate(210 20) scale(-0.5 0.5)">
+              <SpeechBubble x={0} y={0} />
+            </g>
+            {/* The lamp coming on, and the first star out. */}
+            <path className="semantic-art__metal-line" d="M32 92V74h16" />
+            <path className="semantic-art__gold-soft semantic-art__outlined" d="M22 92h22l-5 24H27Z" />
+            <path className="semantic-art__window-lit" d="M25 96h16l-3 16H28Z" />
+            <path className="semantic-art__sun-halo" d="M14 84h38v40H14Z" />
+            <path className="semantic-art__spark" d="m214 40 4 8 8 4-8 4-4 8-4-8-8-4 8-4Z" />
           </SceneLayer>
         </>
       );
+
     case 'greetings.good_night':
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wall semantic-art__outlined" d="M20 24h200v130H20Z" />
             <path className="semantic-art__window semantic-art__outlined" d="M145 37h54v55h-54Z" />
+            {/* Night sky in the pane, and moonlight falling across the room. */}
+            <path className="semantic-art__water-deep" d="M148 40h48v49h-48Z" />
             <path className="semantic-art__detail semantic-art__detail--thin" d="M172 37v55m-27-27h54" />
             <CrescentMoon x={166} y={61} scale={0.5} />
+            <path className="semantic-art__shade" d="M20 24h200v130H20Z" />
+            <path className="semantic-art__window-lit" d="m145 92 54-55v18l-36 37Z" opacity="0.35" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
+            <ellipse className="semantic-art__prop-shadow" cx="103" cy="147" rx="76" ry="7" />
             <path className="semantic-art__teal semantic-art__outlined" d="M34 101h137v43H34Z" />
             <path className="semantic-art__surface semantic-art__outlined" d="M40 88h51c17 0 28 12 28 29H40Z" />
+            <path className="semantic-art__gloss" d="M48 95c14-2 30-2 43 1" />
             <circle className="semantic-art__skin semantic-art__outlined" cx="77" cy="98" r="13" />
+            <circle className="semantic-art__skin-lit" cx="73" cy="94" r="7" />
             <path className="semantic-art__hair" d="M64 97c2-15 19-20 29-9-12 0-19 4-29 9Z" />
             <path className="semantic-art__coral semantic-art__outlined" d="M101 106h70v38h-70Z" />
+            {/* Folds in the blanket, and its far edge in shadow. */}
+            <path className="semantic-art__grain" d="M118 110v30m17-30v30m17-30v30" />
+            <path className="semantic-art__shade" d="M101 132h70v12h-70Z" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
             <path className="semantic-art__face" d="M70 99h5m7 0h5m-13 7q6 3 11 0" />
@@ -279,7 +391,9 @@ export function GreetingTimeScene({
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wall semantic-art__outlined" d="M20 24h200v130H20Z" />
             <path className="semantic-art__wood semantic-art__outlined" d="M37 132h166v18H37Z" />
+            <path className="semantic-art__grain" d="M45 139h150M45 146h100" />
             <path className="semantic-art__green semantic-art__outlined" d="M48 132c-13-27 9-49 31-26 18 19-1 40-31 26Z" />
+            <path className="semantic-art__leaf-lit" d="M55 124c-8-19 5-31 20-24" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <ClockFace x={121} y={84} radius={58}>
@@ -292,6 +406,11 @@ export function GreetingTimeScene({
               d="M116 18a67 67 0 1 1-50 22m-2-14 2 14 15-1"
             />
             <path className="semantic-art__spark" d="m190 118 4 8 8 4-8 4-4 8-4-8-8-4 8-4Z" />
+            {/* Pendulum case below the dial: an hour is a long, slow unit. */}
+            <path className="semantic-art__wood semantic-art__outlined" d="M104 142h34v18h-34Z" />
+            <path className="semantic-art__metal-line" d="M121 142v-8" />
+            <circle className="semantic-art__gold semantic-art__outlined" cx="121" cy="152" r="7" />
+            <path className="semantic-art__grain" d="M110 147h22" />
           </SceneLayer>
         </>
       );
@@ -300,8 +419,10 @@ export function GreetingTimeScene({
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__metal semantic-art__outlined" d="M107 22h27v18h-27Z" />
+            <path className="semantic-art__gloss" d="M111 26v10" />
             <path className="semantic-art__detail" d="M120 22V12m-13 1h26" />
             <path className="semantic-art__wood semantic-art__outlined" d="M31 137h178v18H31Z" />
+            <path className="semantic-art__grain" d="M39 144h162M39 151h108" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <ClockFace x={120} y={89} radius={54}>
@@ -314,7 +435,10 @@ export function GreetingTimeScene({
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
             <path className="semantic-art__arrow semantic-art__motion-part" d="M125 36a53 53 0 0 1 44 25m-3-15 3 15-14-1" />
+            <ellipse className="semantic-art__prop-shadow" cx="191" cy="139" rx="12" ry="4" />
             <path className="semantic-art__coral semantic-art__outlined" d="M182 86h18v51h-18Z" />
+            <path className="semantic-art__gloss" d="M185 91v41" />
+            <path className="semantic-art__shade" d="M195 86h5v51h-5Z" />
           </SceneLayer>
         </>
       );
@@ -331,8 +455,14 @@ export function GreetingTimeScene({
             <Sun x={120} y={43} radius={18} />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
+            <ellipse className="semantic-art__prop-shadow" cx="122" cy="150" rx="48" ry="6" />
             <CalendarPage x={86} y={78} selected />
+            <path className="semantic-art__shade" d="M142 86h12v62h-12Z" />
+            <path className="semantic-art__gloss" d="M92 88v58" />
+            {/* Rooftops either side, lit on the side the sun is on. */}
             <path className="semantic-art__coral semantic-art__outlined" d="M35 105h22v24H35Zm148 0h22v24h-22Z" />
+            <path className="semantic-art__coral semantic-art__outlined" d="m33 105 13-12 13 12Zm148 0 13-12 13 12Z" />
+            <path className="semantic-art__gloss" d="M39 110v14m148-14v14" />
           </SceneLayer>
         </>
       );
@@ -341,9 +471,16 @@ export function GreetingTimeScene({
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wall semantic-art__outlined" d="M18 26h204v124H18Z" />
+            <path className="semantic-art__shade" d="M198 26h24v111h-24Z" />
             <path className="semantic-art__wood semantic-art__outlined" d="M18 137h204v17H18Z" />
+            <path className="semantic-art__grain" d="M26 144h188M26 150h130" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
+            {/* Seven cards standing in a row, each dropping a shadow on the next. */}
+            <path
+              className="semantic-art__prop-shadow"
+              d="M53 56h5v54h-5Zm26 0h5v54h-5Zm26 0h5v54h-5Zm26 0h5v54h-5Zm26 0h5v54h-5Zm26 0h5v54h-5Zm26 0h5v54h-5Z"
+            />
             <path
               className="semantic-art__surface semantic-art__outlined"
               d="M30 52h23v54H30Zm26 0h23v54H56Zm26 0h23v54H82Zm26 0h23v54h-23Zm26 0h23v54h-23Zm26 0h23v54h-23Zm26 0h23v54h-23Z"
@@ -351,6 +488,10 @@ export function GreetingTimeScene({
             <path
               className="semantic-art__coral semantic-art__outlined"
               d="M30 52h23v14H30Zm26 0h23v14H56Zm26 0h23v14H82Zm26 0h23v14h-23Zm26 0h23v14h-23Zm26 0h23v14h-23Zm26 0h23v14h-23Z"
+            />
+            <path
+              className="semantic-art__gloss"
+              d="M33 70v33m26-33v33m26-33v33m26-33v33m26-33v33m26-33v33m26-33v33"
             />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
@@ -371,18 +512,27 @@ export function GreetingTimeScene({
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wall semantic-art__outlined" d="M20 22h200v133H20Z" />
             <path className="semantic-art__green semantic-art__outlined" d="M190 137c-17-35 10-54 32-26v26Z" />
+            <path className="semantic-art__leaf-lit" d="M197 130c-11-24 5-38 22-27" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
+            <path className="semantic-art__prop-shadow" d="M44 41h143v105H44Z" />
             <path className="semantic-art__surface semantic-art__outlined" d="M38 35h143v105H38Z" />
             <path className="semantic-art__coral semantic-art__outlined" d="M38 35h143v24H38Z" />
+            {/* Wire binding at the head, as on every wall calendar. */}
+            <path className="semantic-art__metal-line" d="M64 27v11m36-11v11m36-11v11m36-11v11" />
+            <path className="semantic-art__gloss" d="M43 63v72" />
             <path
               className="semantic-art__detail semantic-art__detail--thin"
               d="M58 67h16m11 0h16m11 0h16m11 0h16M58 88h16m11 0h16m11 0h16m11 0h16M58 109h16m11 0h16m11 0h16m11 0h16M58 130h16m11 0h16m11 0h16m11 0h16"
             />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
+            {/* Four weeks marked across the grid: what a month is made of. */}
+            <path className="semantic-art__coral" d="M52 63h12v10H52Zm0 21h12v10H52Zm0 21h12v10H52Zm0 21h12v10H52Z" />
+            <circle className="semantic-art__gold semantic-art__outlined" cx="147" cy="130" r="10" />
             <circle className="semantic-art__surface semantic-art__outlined" cx="202" cy="59" r="21" />
             <path className="semantic-art__blue semantic-art__outlined" d="M206 39c-21 6-22 32-4 41-28 2-33-34 4-41Z" />
+            <path className="semantic-art__gloss" d="M197 46a21 21 0 0 0-8 14" />
             <path className="semantic-art__arrow semantic-art__motion-part" d="M186 96q20 14 12 35m-8-7 8 7 8-9" />
           </SceneLayer>
         </>
@@ -418,12 +568,19 @@ export function GreetingTimeScene({
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wood semantic-art__outlined" d="M20 139h200v20H20Z" />
+            <path className="semantic-art__grain" d="M28 146h184M28 153h122" />
+            <circle className="semantic-art__sun-halo" cx="42" cy="35" r="24" />
             <circle className="semantic-art__gold-soft semantic-art__outlined" cx="42" cy="35" r="13" />
             <path className="semantic-art__cloud semantic-art__outlined" d="M171 30c4-16 29-18 35-2 15-2 20 17 6 23h-48c-13-5-8-22 7-21Z" />
+            <path className="semantic-art__shade" d="M164 44c16 5 39 6 48 0 3 4 1 8-6 7h-48c-4-1-6-4 6-7Z" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
+            <ellipse className="semantic-art__prop-shadow" cx="178" cy="126" rx="38" ry="6" />
             <CalendarPage x={142} y={54} selected />
+            <path className="semantic-art__shade" d="M198 54h12v70h-12Z" />
+            <ellipse className="semantic-art__prop-shadow" cx="66" cy="117" rx="38" ry="6" />
             <CalendarPage x={31} y={45} />
+            <path className="semantic-art__gloss" d="M36 75v38" />
             <path className="semantic-art__arrow" d="M138 93h-34m10-10-10 10 10 10" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
@@ -438,12 +595,19 @@ export function GreetingTimeScene({
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__window semantic-art__outlined" d="M24 25h192v94H24Z" />
             <path className="semantic-art__green-soft semantic-art__outlined" d="M24 99c37-39 72-37 106 0 28-32 57-34 86 0v20H24Z" />
+            <path className="semantic-art__leaf-lit" d="M38 94c26-25 54-23 78 2m20-2c22-24 46-24 68 0" />
+            {/* Low sun through the pane: the light that says early. */}
+            <path className="semantic-art__window-lit" d="M28 115 96 29h30l-68 86Z" />
             <path className="semantic-art__detail semantic-art__detail--thin" d="M120 25v94M24 119h192" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <Sun x={76} y={76} radius={20} />
             <path className="semantic-art__wood semantic-art__outlined" d="M35 124h170v27H35Z" />
+            <path className="semantic-art__grain" d="M43 132h154M43 141h108" />
+            <ellipse className="semantic-art__prop-shadow" cx="156" cy="129" rx="28" ry="5" />
             <path className="semantic-art__surface semantic-art__outlined" d="M132 92h45v37h-45Z" />
+            <path className="semantic-art__shade" d="M165 92h12v37h-12Z" />
+            <path className="semantic-art__gloss" d="M137 98v25" />
             <path className="semantic-art__surface semantic-art__outlined" d="M175 100c29-4 30 25 2 24" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>

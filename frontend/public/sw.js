@@ -4,13 +4,14 @@
 // Date: 2026-07-15 | TZ: Asia/Jerusalem
 // Notes: API responses and user data are deliberately never cached by the service worker.
 
-const CACHE_NAME = 'ivrit-sheli-shell-v2.9.1-alphabet-studio-r1';
+const CACHE_NAME = 'ivrit-sheli-shell-v2.10.0-visual-language-r1';
 const CORE_ASSETS = [
   '/',
   '/manifest.webmanifest',
   '/icons/app-icon.svg',
   '/icons/app-icon-192.png',
   '/icons/app-icon-512.png',
+  '/fonts/GveretLevin-Regular.ttf',
   '/content/starter-dictionary-v2.8.json',
   '/illustrations/regions/galilee.webp',
   '/illustrations/regions/haifa-carmel.webp',

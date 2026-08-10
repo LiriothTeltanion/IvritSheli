@@ -1,3 +1,7 @@
+# 2.10.0 visual-catalog status — 2026-08-10
+
+The reviewed starter catalog now has **240/240 exact semantic scenes**. No reviewed concept depends on a category or emoji fallback; fallback rendering is retained only for future unsupported/imported entries. The exact-scene system remains deterministic, accessible, theme-aware and compatible with reduced motion. See `VISUAL_BIBLE.md` for the current art and motion rules.
+
 # Vocabulary illustration system
 
 ## Current v2.8.3 structure

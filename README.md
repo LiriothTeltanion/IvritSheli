@@ -1,7 +1,7 @@
 <div align="center">
   <img src="assets/brand/logo.svg" alt="Ivrit Sheli" width="680" />
 
-  <h1>Ivrit Sheli 2.9.1 — Hebrew Alphabet Studio · העברית שלי</h1>
+  <h1>Ivrit Sheli 2.10.0 — Visual Language Consolidation · העברית שלי</h1>
   <p><strong>See, hear, recognize and use living Hebrew in a journey that adapts gradually to you.</strong></p>
 
   <p>
@@ -28,27 +28,28 @@
   <a href="https://ivritsheli-production.up.railway.app/?lang=en"><strong>🌐 Open the verified Ivrit Sheli 2.4.0 Contest Edition — 2026-07-21</strong></a>
 </p>
 
-> **Release-candidate boundary:** this checkout is the private, unpublished **2.9.1 Hebrew Alphabet Studio candidate dated 2026-07-27**. The production Railway deployment, public Git tag, GitHub Release and Devpost submission intentionally remain on the verified **2.4.0 Contest Edition dated 2026-07-21**. The private candidate will use a separate HTTPS staging service and isolated PostgreSQL data only after fresh verification; it will not replace production without pilot evidence and Kevin's explicit approval.
+> **Release-candidate boundary:** this checkout is the private, unpublished **2.10.0 Visual Language Consolidation candidate dated 2026-08-10**. It consolidates the 2.9.2 Brand & Private Access work and completes exact semantic illustration coverage for all 240 reviewed starter concepts. The production Railway deployment, public Git tag, GitHub Release and Devpost submission intentionally remain on the verified **2.4.0 Contest Edition dated 2026-07-21**. This candidate will not replace production without a fresh full test matrix, staging/pilot evidence and Kevin's explicit approval.
 
 ### Source and live release truth
 
 | Surface | Verified state |
 |---|---|
-| Current private source checkout | `2.9.1` · Hebrew Alphabet Studio candidate · 2026-07-27 · not deployed or published |
+| Current private source checkout | `2.10.0` · Visual Language Consolidation candidate · 2026-08-10 · not deployed or published |
 | Current public deployed application | `2.4.0` · Contest Edition · verified 2026-07-21 |
 | Release implementation commit | `03bf84b9268ff8be528c0fab3c670f9652ee23b0` |
 | Production storage/readiness | PostgreSQL · ready · 48 reviewed dictionary entries |
 | Deployment verification | Successful on 2026-07-21 |
 | Release verification | 151 unique backend tests + 62 frontend tests = 213 passed; main CI and CodeQL passed |
-| Candidate verification | **Locally verified on 2026-07-27:** 310 backend tests, 353 frontend tests, 32 Playwright/axe cases and one additional live PostgreSQL 17 case = **696 unique automated passes**. Ruff, strict MyPy across 38 source files, TypeScript, compileall, doctor, production build, dependency audits, Compose and a healthy non-root 2.9.1 Docker runtime passed. The source verifier, 327 canonical Git-index checksums and an extracted 328-blob canonical package also passed. |
+| Candidate verification | **Historical 2.9.2 baseline:** 312 backend tests + 355 frontend tests + 32 Playwright/axe cases = **699 automated passes** on 2026-07-28. **2.10.0 consolidation:** package/source-consistency and visual-catalog gates are refreshed in this artifact; the complete backend/frontend/Playwright/PostgreSQL/Docker suite must be rerun before any publication claim. |
 | GitHub publication | [`v2.4.0`](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.4.0), dated 2026-07-21, is the published tag and GitHub Release |
 | Live account evidence | Identity-only Google sign-in, onboarding state and the authenticated session persisted across reload; logout returned to the English landing page and remained signed out after reload |
 | Live judge-path evidence | The English entry link and four-stop read-only guided tour passed production browser checks |
-| Remaining 2.9.1 release gate | Guided, Explorer and Experienced pilot review; isolated HTTPS staging with at least 2 GB for Whisper; two-real-account persistence; 20-word/10-phrase Hebrew accuracy pilot; reminder consent checks; mother-pilot acceptance; and explicit publication approval |
+| Remaining 2.10.0 release gate | Full post-consolidation quality gate; Guided, Explorer and Experienced visual-recognition review; isolated HTTPS staging with at least 2 GB for Whisper; two-real-account persistence; 20-word/10-phrase Hebrew accuracy pilot; reminder consent checks; mother-pilot acceptance; and explicit publication approval |
 
 Historical v2.8.3 evidence is preserved below as regression context; it is not
-presented as current v2.9.1 verification dated 2026-07-27.
-| Visual proof | The animated journey and desktop/mobile/RTL captures below were generated from the local 2.8.0 candidate after Docker rebuild and direct browser inspection |
+presented as current v2.10.0 verification dated 2026-08-10. The animated journey
+and desktop/mobile/RTL captures below were generated from the local 2.8.0
+candidate after Docker rebuild and direct browser inspection.
 
 The same conservative fields are available for portfolio/profile tooling in
 [`portfolio/project.json`](portfolio/project.json). The creative and product
@@ -82,7 +83,7 @@ principles behind this release live in the
 </table>
 </details>
 
-> **Screenshot boundary:** these images show the inherited unpublished 2.8 visual foundation (historical date not re-verified in this slice), not the frozen 2.4.0 Contest Edition dated 2026-07-21 and not yet the final 2.9.1 Alphabet Studio UI dated 2026-07-27. Updated captures will be added only after the candidate passes visual and mobile review.
+> **Screenshot boundary:** these images show the inherited unpublished 2.8 visual foundation (historical date not re-verified in this slice), not the frozen 2.4.0 Contest Edition dated 2026-07-21 and not yet refreshed 2.10.0 Visual Language Consolidation captures dated 2026-08-10. Updated captures will be added only after the candidate passes visual and mobile review.
 
 ## Why this project exists 💙
 
@@ -90,7 +91,48 @@ Most language products make every learner follow the same path. Ivrit Sheli does
 
 The system tracks what you recognize, what you can produce, where you hesitate, which grammar errors repeat, which situations matter, and which learning mode works best. Recommendations are explainable: the app tells you *why* it selected a word, exercise, mission, or speaking drill.
 
-## What the private 2.9.1 candidate adds — 2026-07-27 🔤
+## What the private 2.10.0 candidate consolidates — 2026-08-10 ✨
+
+**Visual Language Consolidation** freezes feature growth long enough to make the
+learning experience, graphics and release evidence agree again. All **240/240**
+reviewed A0–A2 starter concepts now have an exact, accessible semantic SVG
+scene. The final 36 scenes cover communication, autonomy and social register,
+so reviewed starter vocabulary no longer falls back to a category icon or
+emoji.
+
+The illustration system keeps progressive `context → meaning → anchor` hints,
+adds recipe-driven motion profiles and preserves a fully stationary
+`prefers-reduced-motion` path. The six original Israel-region WebP paintings
+remain the cinematic layer for large journey surfaces; exact SVG scenes remain
+the fast, offline, scalable learning layer for word recognition.
+
+This candidate also centralizes learner-facing build labels, refreshes the
+package verifier/checksum workflow for extracted source archives, adds a [`Visual Bible`](docs/VISUAL_BIBLE.md), records the safe refactor boundary in [`Architecture Consolidation`](docs/ARCHITECTURE_CONSOLIDATION.md), and introduces a reversible premium-polish stylesheet. The prior 2.9.2
+699-pass gate remains historical evidence rather than being relabelled as
+2.10.0 proof. A complete fresh automated and human visual QA pass is required
+before publication.
+
+## What the private 2.9.2 candidate adds — 2026-07-28 🎨
+
+**Brand & Private Access** gives every major surface the same accessible
+Ivrit Sheli signature: `Ivrit` remains clear and familiar while the Hebrew
+`שלי` sits immediately beside it in red handwriting. The font is bundled locally under
+its OFL license, so the identity does not depend on a third-party font request.
+The PWA icon, loading state, authentication entry, onboarding, navigation and
+learning surfaces now belong to one restrained visual system.
+
+Access is also more truthful. A provider button appears only when the backend
+has real Google or GitHub OAuth credentials. The shared Docker demo remains
+read-only; on a development computer it may advertise an exact loopback link
+to the writable SQLite workspace. That link is rejected in production and is
+not an authentication bypass. Installing the PWA is optional: the application
+still opens in a browser, while cloud continuity continues to require a
+configured identity provider and isolated PostgreSQL account.
+
+The complete 2.9.2 quality gate and updated visual captures are still pending.
+No public deployment or contest material changes as part of this private slice.
+
+## Foundation inherited from the private 2.9.1 candidate — 2026-07-27 🔤
 
 **Hebrew Alphabet Studio** turns the former compact reading-track reference
 into an integrated learning surface. Hebrew has **22 base letters**. Five of
@@ -360,7 +402,10 @@ The default address is `http://127.0.0.1:8000`. If that port is busy, the launch
 
 ### Private phone pilot on the same Wi-Fi 📱
 
-Double-click [`START_PRIVATE_PILOT.bat`](START_PRIVATE_PILOT.bat). It starts the writable local app on the first available port, detects the computer's LAN address and copies a Spanish link for WhatsApp.
+Double-click [`START_PRIVATE_PILOT.bat`](START_PRIVATE_PILOT.bat). It starts the
+writable local app on stable port `8129`, reuses the separate learner data in
+`%LOCALAPPDATA%\IvritSheli\pilots\mama`, detects the computer's Wi-Fi address
+and copies a Spanish link for WhatsApp.
 
 During the test:
 

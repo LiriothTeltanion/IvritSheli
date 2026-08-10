@@ -167,7 +167,7 @@ function RelationshipCanvas(): React.JSX.Element {
   return (
     <>
       <rect
-        className="semantic-art__surface semantic-art__outlined"
+        className="semantic-art__plate semantic-art__outlined"
         x="18"
         y="15"
         width="204"
@@ -187,29 +187,126 @@ function RelationshipCanvas(): React.JSX.Element {
   );
 }
 
+type MarkerAge = 'child' | 'adult' | 'elder';
+
+/**
+ * Derive who a node represents from its id.
+ *
+ * The diagram encodes gender in the outline shape, which stays the
+ * colour-independent signal. Age and role only add drawn features on top, so a
+ * learner can tell a grandfather from a boy at a glance.
+ */
+function markerAge(nodeId: string): MarkerAge {
+  if (nodeId.startsWith('grand') && nodeId !== 'grandchild') return 'elder';
+  if (nodeId === 'grandchild' || nodeId === 'child' || nodeId.startsWith('child-')
+    || nodeId === 'son' || nodeId === 'daughter' || nodeId === 'brother'
+    || nodeId === 'sister' || nodeId === 'reference-sibling') return 'child';
+  return 'adult';
+}
+
+function MarkerFeatures({
+  shape,
+  age,
+  x,
+  y,
+}: {
+  shape: RelationshipShape;
+  age: MarkerAge;
+  x: number;
+  y: number;
+}): React.JSX.Element | null {
+  const hair = age === 'elder' ? 'semantic-art__marker-hair--grey' : 'semantic-art__marker-hair';
+  if (shape === 'feminine') {
+    if (age === 'child') {
+      // Pigtails: two tufts clear of the outline so they read at card size.
+      return (
+        <g className={hair}>
+          <circle cx={x - 16} cy={y - 9} r="5" />
+          <circle cx={x + 16} cy={y - 9} r="5" />
+          <path className="semantic-art__marker-hairline" d={`M${x - 11} ${y - 12}q11-7 22 0`} />
+        </g>
+      );
+    }
+    if (age === 'elder') {
+      // A bun above the head.
+      return (
+        <g className={hair}>
+          <circle cx={x} cy={y - 19} r="6" />
+          <path className="semantic-art__marker-hairline" d={`M${x - 12} ${y - 10}q12-8 24 0`} />
+        </g>
+      );
+    }
+    // Long hair falling either side.
+    return (
+      <g className={hair}>
+        <path d={`M${x - 15} ${y - 4}q-3 12 2 17 3-9 2-19Z`} />
+        <path d={`M${x + 15} ${y - 4}q3 12-2 17-3-9-2-19Z`} />
+        <path className="semantic-art__marker-hairline" d={`M${x - 12} ${y - 10}q12-8 24 0`} />
+      </g>
+    );
+  }
+  if (shape === 'masculine') {
+    if (age === 'child') {
+      // A cap with a brim.
+      return (
+        <g className="semantic-art__marker-cap">
+          <path d={`M${x - 13} ${y - 11}q13-11 26 0Z`} />
+          <path d={`M${x - 17} ${y - 11}h9`} />
+        </g>
+      );
+    }
+    if (age === 'elder') {
+      // Short beard along the jaw.
+      return <path className="semantic-art__marker-beard" d={`M${x - 9} ${y + 4}q9 10 18 0`} />;
+    }
+    // Moustache under the eyes.
+    return <path className="semantic-art__marker-moustache" d={`M${x - 7} ${y + 2}q7 3 14 0`} />;
+  }
+  return null;
+}
+
 function MarkerShape({
   shape,
   x,
   y,
   highlighted = false,
+  nodeId = '',
 }: {
   shape: RelationshipShape;
   x: number;
   y: number;
   highlighted?: boolean;
+  nodeId?: string;
 }): React.JSX.Element {
   const className = `${highlighted ? 'semantic-art__gold-soft' : 'semantic-art__surface'} semantic-art__outlined`;
-  if (shape === 'feminine') {
-    return <circle className={className} cx={x} cy={y} r="15" />;
-  }
-  if (shape === 'masculine') {
-    return <rect className={className} x={x - 15} y={y - 15} width="30" height="30" rx="2" />;
-  }
+  const outline = shape === 'feminine'
+    ? <circle className={className} cx={x} cy={y} r="15" />
+    : shape === 'masculine'
+      ? <rect className={className} x={x - 15} y={y - 15} width="30" height="30" rx="2" />
+      : (
+        <path
+          className={className}
+          d={`M${x} ${y - 16} ${x + 16} ${y} ${x} ${y + 16} ${x - 16} ${y}Z`}
+        />
+      );
   return (
-    <path
-      className={className}
-      d={`M${x} ${y - 16} ${x + 16} ${y} ${x} ${y + 16} ${x - 16} ${y}Z`}
-    />
+    <g>
+      {outline}
+      {/* The outline alone carries gender the colour-independent way, but a box
+          does not read as a person. A neutral face — identical on every shape,
+          so it encodes nothing — makes the node recognisable without touching
+          the genealogy convention. */}
+      <MarkerFeatures shape={shape} age={markerAge(nodeId)} x={x} y={y} />
+      <g className="semantic-art__marker-face">
+        <circle cx={x - 5} cy={y - 3} r="1.7" />
+        <circle cx={x + 5} cy={y - 3} r="1.7" />
+        {/* An adult masculine node carries a moustache where the smile sits, so
+            that node shows eyes only and lets the moustache read clearly. */}
+        {!(shape === 'masculine' && markerAge(nodeId) === 'adult') && (
+          <path d={`M${x - 5} ${y + 5}q5 4 10 0`} />
+        )}
+      </g>
+    </g>
   );
 }
 
@@ -286,25 +383,61 @@ function ReferenceOutline({
   );
 }
 
-function RelationshipDiagram({
-  spec,
-  hintStage,
+/*
+ * Subject in front, tree behind.
+ *
+ * Measured problem this solves: drawn as a diagram alone, `mother` and
+ * `father` differed by five shapes out of fifty-four — the highlight ring
+ * moving to the neighbouring node. Ten of the twelve family words scored above
+ * 0.97 similarity against each other, the worst confusability in the whole
+ * scene set, on exactly the pairs a beginner has to tell apart.
+ *
+ * Enlarging the subject fixes recognition without giving up the teaching: the
+ * square/circle convention still carries gender independently of colour, and
+ * the tree stays on the card as the reference that shows *where* this person
+ * sits, which is what the word actually means.
+ */
+const SUBJECT_SCALE = 2.3;
+const SUBJECT_CENTER = { x: 78, y: 94 } as const;
+const PAIR_SCALE = 1.5;
+const PAIR_CENTERS = [{ x: 54, y: 94 }, { x: 112, y: 94 }] as const;
+/* Places the node cluster, not the whole canvas, inside the reference panel. */
+const MINI_TRANSFORM = 'translate(132.8 30) scale(0.48)';
+
+/** One node redrawn large enough to be told apart at a glance. */
+function SubjectMarker({
+  node,
+  center,
+  scale,
 }: {
-  spec: RelationshipSceneSpec;
-  hintStage: SemanticHintStage;
+  node: RelationshipNode;
+  center: { readonly x: number; readonly y: number };
+  scale: number;
 }): React.JSX.Element {
   return (
-    <>
-      <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
-        <RelationshipCanvas />
-      </SceneLayer>
-      <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
+    <g
+      data-relationship-subject={node.id}
+      transform={`translate(${center.x - scale * node.x} ${center.y - scale * node.y}) scale(${scale})`}
+    >
+      <MarkerShape shape={node.shape} x={node.x} y={node.y} highlighted nodeId={node.id} />
+    </g>
+  );
+}
+
+/**
+ * The same tree, small, as a reference panel.
+ *
+ * Faces and fine features are hidden by CSS at this size — below about seven
+ * pixels they turn to mud — so the panel carries structure only, which is all
+ * it is for.
+ */
+function MiniDiagram({ spec }: { spec: RelationshipSceneSpec }): React.JSX.Element {
+  return (
+    <g className="semantic-art__mini-diagram">
+      <rect className="semantic-art__surface semantic-art__outlined" x="146" y="36" width="82" height="72" rx="12" />
+      <g transform={MINI_TRANSFORM}>
         {spec.connections.map((connection) => (
-          <path
-            key={connection}
-            className="semantic-art__detail"
-            d={connection}
-          />
+          <path key={connection} className="semantic-art__detail" d={connection} />
         ))}
         {spec.nodes.map((node) => (
           <g key={node.id} data-relationship-node={node.id}>
@@ -313,18 +446,45 @@ function RelationshipDiagram({
               x={node.x}
               y={node.y}
               highlighted={Boolean(node.target)}
+              nodeId={node.id}
             />
           </g>
         ))}
-      </SceneLayer>
-      <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-        {spec.nodes.filter((node) => node.target).map((node) => (
-          <TargetOutline key={`target-${node.id}`} node={node} />
-        ))}
-        {spec.nodes.filter((node) => node.reference).map((node) => (
-          <ReferenceOutline key={`reference-${node.id}`} node={node} />
-        ))}
-        {spec.groupTarget && (
+      </g>
+    </g>
+  );
+}
+
+function RelationshipDiagram({
+  spec,
+  hintStage,
+}: {
+  spec: RelationshipSceneSpec;
+  hintStage: SemanticHintStage;
+}): React.JSX.Element {
+  const targets = spec.nodes.filter((node) => node.target);
+  const [primary] = targets;
+  // `family.family` means the whole tree, so there the tree *is* the subject
+  // and shrinking it behind a foreground figure would say the wrong thing.
+  const pair = targets.length > 1;
+
+  if (spec.groupTarget || !primary) {
+    return (
+      <>
+        <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
+          <RelationshipCanvas />
+        </SceneLayer>
+        <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
+          {spec.connections.map((connection) => (
+            <path key={connection} className="semantic-art__detail" d={connection} />
+          ))}
+          {spec.nodes.map((node) => (
+            <g key={node.id} data-relationship-node={node.id}>
+              <MarkerShape shape={node.shape} x={node.x} y={node.y} nodeId={node.id} />
+            </g>
+          ))}
+        </SceneLayer>
+        <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
           <rect
             className="semantic-art__arrow semantic-art__motion-part"
             x="40"
@@ -333,7 +493,44 @@ function RelationshipDiagram({
             height="137"
             rx="24"
           />
+        </SceneLayer>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
+        <RelationshipCanvas />
+      </SceneLayer>
+      <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
+        {targets.map((node, index) => (
+          <SubjectMarker
+            key={node.id}
+            node={node}
+            center={pair ? PAIR_CENTERS[index] ?? PAIR_CENTERS[0] : SUBJECT_CENTER}
+            scale={pair ? PAIR_SCALE : SUBJECT_SCALE}
+          />
+        ))}
+      </SceneLayer>
+      <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
+        {/* One ring around a pair, because "parents" is the pair, not two
+            separately marked people. */}
+        {pair ? (
+          <rect
+            className="semantic-art__arrow semantic-art__motion-part"
+            x="22"
+            y="56"
+            width="122"
+            height="80"
+            rx="24"
+          />
+        ) : (
+          <g transform={`translate(${SUBJECT_CENTER.x - SUBJECT_SCALE * primary.x} ${SUBJECT_CENTER.y - SUBJECT_SCALE * primary.y}) scale(${SUBJECT_SCALE})`}>
+            <TargetOutline node={primary} />
+          </g>
         )}
+        <MiniDiagram spec={spec} />
       </SceneLayer>
     </>
   );
@@ -366,7 +563,7 @@ function ChildScene({
           pose="neutral"
           scale={0.95}
         />
-        <MarkerShape shape={shape} x={marker.x} y={marker.y} highlighted />
+        <MarkerShape shape={shape} x={marker.x} y={marker.y} highlighted nodeId={marker.id} />
         <path
           className="semantic-art__detail"
           d="M113 91q18-20 37-17"

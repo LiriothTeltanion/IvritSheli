@@ -168,6 +168,7 @@ export interface AuthState {
   user: AuthUser | null;
   mode: 'local' | 'cloud';
   auth_providers?: AuthProvider[];
+  local_companion_url?: string | null;
   capabilities: AuthCapabilities;
 }
 

@@ -3,6 +3,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useI18n } from '../i18n';
+import { CANDIDATE_LABEL } from '../release';
 import type { DictionaryVisual, Locale } from '../types';
 import { A0_SEMANTIC_VISUAL_KEYS } from '../visuals/a0VisualRecipes';
 import { DictionaryVisualCue } from './DictionaryVisualCue';
@@ -71,6 +72,9 @@ export function VisualQAGallery(): React.JSX.Element {
   const [score, setScore] = useState({ correct: 0, total: 0 });
   const [pilotSeed, setPilotSeed] = useState(0);
   const exactKeys = useMemo(() => new Set<string>(A0_SEMANTIC_VISUAL_KEYS), []);
+  // Derived, never typed by hand: the catalog grows every time a category gets
+  // real art, and a literal here silently goes stale.
+  const exactSceneCount = A0_SEMANTIC_VISUAL_KEYS.length;
 
   useEffect(() => {
     let active = true;
@@ -153,9 +157,9 @@ export function VisualQAGallery(): React.JSX.Element {
     <main className="visual-qa">
       <header className="visual-qa__hero">
         <div>
-          <span>Ivrit Sheli v2.9.1 · private candidate · 2026-07-27</span>
+          <span>Ivrit Sheli {CANDIDATE_LABEL}</span>
           <h1>Visual Recognition QA</h1>
-          <p>72 exact semantic scenes · thumbnail, card and hero comparison</p>
+          <p>{exactSceneCount} exact semantic scenes · thumbnail, card and hero comparison</p>
         </div>
         <div className="visual-qa__controls">
           <div role="group" aria-label="Interface language">
@@ -218,7 +222,7 @@ export function VisualQAGallery(): React.JSX.Element {
           <button
             type="button"
             className="primary-button"
-            disabled={entries.length !== 72}
+            disabled={entries.length !== exactSceneCount}
             onClick={beginRecognition}
           >
             Start recognition check
@@ -231,8 +235,8 @@ export function VisualQAGallery(): React.JSX.Element {
       </section>
 
       <div className="visual-qa__status" role="status">
-        <strong>{entries.length}/72 exact scenes loaded</strong>
-        <span>{entries.length === 72 ? 'Catalog ready for visual review' : 'Checking the local catalog…'}</span>
+        <strong>{entries.length}/{exactSceneCount} exact scenes loaded</strong>
+        <span>{entries.length === exactSceneCount ? 'Catalog ready for visual review' : 'Checking the local catalog…'}</span>
       </div>
 
       <section className="visual-qa__catalog" aria-label="Exact scene catalog">

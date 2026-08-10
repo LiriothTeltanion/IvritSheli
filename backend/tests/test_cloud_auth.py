@@ -226,6 +226,7 @@ def test_cloud_requires_auth_and_demo_is_seeded_read_only(tmp_path: Path) -> Non
             "user": None,
             "mode": "cloud",
             "auth_providers": ["github"],
+            "local_companion_url": None,
             "capabilities": {
                 "cloud_learning": True,
                 "ai": True,
@@ -314,6 +315,29 @@ def test_cloud_requires_auth_and_demo_is_seeded_read_only(tmp_path: Path) -> Non
         )
         assert delete_demo.status_code == 403
         assert delete_demo.json()["error"]["code"] == "demo_read_only"
+
+
+def test_cloud_auth_exposes_the_development_local_companion_without_making_it_a_provider(
+    tmp_path: Path,
+) -> None:
+    settings = cloud_settings(
+        tmp_path,
+        {
+            "GITHUB_CLIENT_ID": "",
+            "GITHUB_CLIENT_SECRET": "",
+            "LOCAL_COMPANION_URL": "http://127.0.0.1:8001",
+        },
+    )
+    with TestClient(create_app(settings, cloud_store=MemoryCloudStore())) as client:
+        anonymous = client.get("/api/v1/auth/me").json()
+        assert anonymous["auth_providers"] == []
+        assert anonymous["local_companion_url"] == "http://127.0.0.1:8001"
+
+        demo = client.post(
+            "/api/v1/auth/demo", headers={"Content-Type": "application/json"}
+        ).json()
+        assert demo["demo"] is True
+        assert demo["local_companion_url"] == "http://127.0.0.1:8001"
 
 
 def test_github_oauth_login_csrf_logout_and_replay_protection(tmp_path: Path) -> None:
@@ -673,13 +697,13 @@ def test_operational_endpoints_report_version_storage_and_readiness(tmp_path: Pa
             oauth_client=FakeGitHubOAuth(),
         )
     ) as client:
-        assert client.get("/health/live").json()["version"] == "2.9.1"
+        assert client.get("/health/live").json()["version"] == "2.10.0"
         ready = client.get("/health/ready")
         assert ready.status_code == 200
         assert ready.json()["checks"]["postgresql"] is True
         assert ready.json()["checks"]["dictionary_details"]["mode"] == "shared_cloud"
         version = client.get("/version").json()
-        assert version["version"] == "2.9.1"
+        assert version["version"] == "2.10.0"
         assert version["storage"] == "postgresql"
 
 

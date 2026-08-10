@@ -270,7 +270,7 @@ export function LivingHebrewAtlasBackdrop({
   const region = atlasRegions.find((candidate) => candidate.id === activeRegion) ?? defaultAtlasRegion;
   return (
     <div className={`ivrit-atlas-backdrop ${className}`.trim()} aria-hidden="true">
-      <img src={region.image} alt="" />
+      <img src={region.image} alt="" decoding="async" />
     </div>
   );
 }
@@ -320,7 +320,7 @@ export function LivingHebrewAtlas({
                     aria-label={`${copy.select}: ${localized(region.name, locale)} — ${localized(region.theme, locale)}`}
                     onClick={() => onSelectRegion(region.id)}
                   >
-                    <img src={region.image} alt="" loading="lazy" />
+                    <img src={region.image} alt="" loading="lazy" decoding="async" />
                     <span className="ivrit-atlas__region-index" aria-hidden="true">
                       {isComplete ? '✓' : index + 1}
                     </span>
@@ -332,7 +332,7 @@ export function LivingHebrewAtlas({
                   </button>
                 ) : (
                   <>
-                    <img src={region.image} alt="" loading="lazy" />
+                    <img src={region.image} alt="" loading="lazy" decoding="async" />
                     <span className="ivrit-atlas__region-index" aria-hidden="true">
                       {isComplete ? '✓' : index + 1}
                     </span>
@@ -354,6 +354,8 @@ export function LivingHebrewAtlas({
           className="ivrit-atlas__region-art"
           src={activeRegionData.image}
           alt={localized(activeRegionData.imageAlt, locale)}
+          loading="lazy"
+          decoding="async"
         />
         <div className="ivrit-atlas__art-wash" aria-hidden="true" />
         <div className="ivrit-atlas__mini-map" aria-hidden="true">

@@ -1,3 +1,23 @@
+# Ivrit Sheli 2.10.0 — Visual Language Consolidation Package Manifest
+
+- Source version: `2.10.0`
+- Candidate state: private / unpublished / prepared 2026-08-10
+- Source lineage: derived from the clean 2.9.2 Brand & Private Access export supplied for consolidation; `.git`, real secrets, local databases, models, dependency caches and generated audit folders are intentionally absent.
+- Current verified public version: `2.4.0`
+- Visual catalog: **240 reviewed concepts / 240 exact semantic scenes / 0 reviewed category fallbacks**
+- Final source integrity gate: **197 required files verified / 364 clean-package SHA-256 entries**
+- Candidate test evidence: the 2.9.2 **699-pass** baseline remains historical; 2.10.0 receives a fresh package-consistency and focused verification record in `TEST_REPORT.md` and still requires the full release matrix before publication.
+
+## 2.10.0 package purpose
+
+This package is a consolidation artifact, not a public release. It freezes feature growth, finishes the reviewed semantic-illustration catalog, introduces explicit art/motion rules, centralizes candidate version labels, reduces infrastructure language in ordinary learner surfaces and makes checksum verification work from both a Git worktree and a clean extracted source package.
+
+The six local Israel-region WebP scenes remain the cinematic journey layer. Exact code-native semantic SVGs remain the deterministic, accessible and offline learning layer. Future unsupported/imported vocabulary may still use a fallback, but no reviewed 240-concept starter entry should need one.
+
+---
+
+## Historical ledger retained below
+
 # Ivrit Sheli 2.9.1 — Hebrew Alphabet Studio Package Manifest
 
 ## Release identity

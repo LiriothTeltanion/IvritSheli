@@ -1145,6 +1145,7 @@ def register_routes(app: FastAPI) -> None:
         return auth_payload(
             getattr(request.state, "session_identity", None),
             container.settings.auth_providers,
+            container.settings.local_companion_url,
         )
 
     @app.get(f"{API_PREFIX}/auth/github/start")
@@ -1236,7 +1237,11 @@ def register_routes(app: FastAPI) -> None:
         grant = container.auth.start_demo()
         container.auth.logout(request.cookies.get(container.settings.session_cookie_name))
         response = JSONResponse(
-            auth_payload(grant.identity, container.settings.auth_providers)
+            auth_payload(
+                grant.identity,
+                container.settings.auth_providers,
+                container.settings.local_companion_url,
+            )
         )
         _set_session_cookies(response, grant, container.settings)
         return response
@@ -1249,7 +1254,11 @@ def register_routes(app: FastAPI) -> None:
         response = JSONResponse(
             _local_auth_payload()
             if not container.settings.cloud_mode
-            else auth_payload(None, container.settings.auth_providers)
+            else auth_payload(
+                None,
+                container.settings.auth_providers,
+                container.settings.local_companion_url,
+            )
         )
         _clear_session_cookies(response, container.settings)
         return response
@@ -1265,7 +1274,11 @@ def register_routes(app: FastAPI) -> None:
             raise HTTPException(status_code=403, detail="The shared demo cannot be deleted")
         container.cloud_store.delete_user(identity.user.id)
         response = JSONResponse(
-            auth_payload(None, container.settings.auth_providers)
+            auth_payload(
+                None,
+                container.settings.auth_providers,
+                container.settings.local_companion_url,
+            )
         )
         _clear_session_cookies(response, container.settings)
         return response

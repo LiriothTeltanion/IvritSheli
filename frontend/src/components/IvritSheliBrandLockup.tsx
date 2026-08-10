@@ -3,6 +3,7 @@
 
 import type { Locale } from '../types';
 import './living-hebrew-atlas.css';
+import { IvritSheliWordmark } from './IvritSheliWordmark';
 
 interface IvritSheliBrandLockupProps {
   locale?: Locale;
@@ -28,15 +29,9 @@ export function IvritSheliBrandLockup({
       dir={locale === 'he' ? 'rtl' : 'ltr'}
       role="group"
     >
-      <span className="ivrit-brand-lockup__mark" aria-hidden="true">
-        <img src="/icons/app-icon.svg" alt="" />
-      </span>
+      <IvritSheliWordmark compact={compact} />
       <span className="ivrit-brand-lockup__copy">
-        <strong>Ivrit Sheli</strong>
         <span lang={locale}>{taglines[locale]}</span>
-      </span>
-      <span className="ivrit-brand-lockup__hebrew" lang="he" dir="rtl" aria-hidden="true">
-        העברית שלי
       </span>
     </div>
   );

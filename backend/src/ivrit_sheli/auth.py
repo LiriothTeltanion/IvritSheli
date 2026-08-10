@@ -353,6 +353,7 @@ def safe_redirect_path(value: str) -> str:
 def auth_payload(
     identity: SessionIdentity | None,
     auth_providers: tuple[str, ...] = (),
+    local_companion_url: str = "",
 ) -> dict[str, Any]:
     """Return the stable browser session contract."""
     user = identity.user if identity else None
@@ -363,6 +364,7 @@ def auth_payload(
         "user": user.public_dict() if user else None,
         "mode": "cloud",
         "auth_providers": list(auth_providers),
+        "local_companion_url": local_companion_url or None,
         "capabilities": {
             "cloud_learning": True,
             "ai": True,

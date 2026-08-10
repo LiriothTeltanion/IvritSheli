@@ -10,6 +10,7 @@ import type { LearnerMode, Locale, Profile, VoiceStyle } from '../types';
 import { createHebrewUtterance, persistVoiceStyle, readStoredVoiceStyle } from '../voicePreference';
 import { DictionaryVisualCue } from './DictionaryVisualCue';
 import { Icon } from './Icon';
+import { IvritSheliWordmark } from './IvritSheliWordmark';
 
 type BeginnerLevel = 'A0' | 'A1' | 'A2';
 type BeginnerGoal = 'daily_life' | 'speaking' | 'travel' | 'medical';
@@ -224,8 +225,8 @@ export function BeginnerOnboarding({ profile, storageKey, onFinished, onSkip }: 
       <div className="onboarding-glow onboarding-glow--two" aria-hidden="true" />
       <header className="onboarding-header">
         <a className="auth-brand" href="/" aria-label={`${t('appName')} — ${t('home')}`}>
-          <img src="/icons/app-icon.svg" alt="" />
-          <span><strong>{t('appName')}</strong><small>{t('firstSteps')}</small></span>
+          <IvritSheliWordmark label={t('appName')} />
+          <small>{t('firstSteps')}</small>
         </a>
         <button type="button" className="onboarding-skip" onClick={onSkip}>{t('doLater')}</button>
       </header>

@@ -48,3 +48,6 @@ data/backups/*
 .idea/
 .DS_Store
 Thumbs.db
+
+# Editable-install build metadata
+*.egg-info/

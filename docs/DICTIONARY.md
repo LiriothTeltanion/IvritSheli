@@ -1,3 +1,7 @@
+# 2.10.0 visual dictionary note — 2026-08-10
+
+All **240 reviewed starter concepts** now map to exact semantic SVG scenes. The renderer keeps fallback support for future imported/unsupported vocabulary, but reviewed starter entries no longer rely on a category/emoji fallback.
+
 # Hebrew dictionary
 
 ## Immediate mode

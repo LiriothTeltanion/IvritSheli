@@ -37,6 +37,12 @@ const anonymous = {
   capabilities: cloudCapabilities,
 };
 
+const anonymousWithLocalCompanion = {
+  ...anonymous,
+  auth_providers: [],
+  local_companion_url: 'http://127.0.0.1:8001',
+};
+
 const demoSession = {
   authenticated: true,
   demo: true,
@@ -117,7 +123,7 @@ function renderApp(): void {
 }
 
 function routeFetch(
-  initialSession: typeof anonymous | typeof demoSession | typeof githubSession | typeof localSession,
+  initialSession: typeof anonymous | typeof anonymousWithLocalCompanion | typeof demoSession | typeof githubSession | typeof localSession,
   learnerProfile: Profile = profile,
 ): ReturnType<typeof vi.fn> {
   return vi.fn(async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
@@ -176,12 +182,14 @@ describe('App cloud session flow', () => {
     expect(screen.getByRole('link', { name: /Continue with GitHub/i })).toHaveAttribute('href', '/api/v1/auth/github/start');
     expect(screen.getByRole('link', { name: /Use local mode on this computer/i })).toHaveAttribute('target', '_blank');
     expect(screen.getByRole('button', { name: 'Explore read-only demo' })).toBeEnabled();
-    expect(screen.getByText(/Your chosen provider handles authentication/i)).toBeInTheDocument();
+    expect(screen.getByText(/No password is created or stored here/i)).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'HE' }));
     expect(screen.getByRole('heading', { name: 'העברית שלך. ההתקדמות שלך. המקום שלך.' })).toBeInTheDocument();
     expect(screen.getAllByText('הדרך שלך לעברית').length).toBeGreaterThan(0);
-    expect(screen.getByText('עברית שנבנית מהחיים האמיתיים שלך')).toBeInTheDocument();
+    // The tagline now appears in the hero and again in the footer, where the
+    // 2.10 copy pass replaced `React + FastAPI` with the learning proposition.
+    expect(screen.getAllByText('עברית שנבנית מהחיים האמיתיים שלך').length).toBeGreaterThan(0);
     expect(screen.getAllByText('EN · ES · HE + RTL').length).toBeGreaterThan(0);
     expect(screen.getByLabelText('יכולות מרחב הלימוד')).toBeInTheDocument();
     expect(document.documentElement).toHaveAttribute('dir', 'rtl');
@@ -205,6 +213,21 @@ describe('App cloud session flow', () => {
     await user.click(screen.getByRole('button', { name: 'Retry secure connection' }));
     await waitFor(() => expect(screen.queryByRole('alert')).not.toBeInTheDocument());
     expect(screen.queryByText(/uvicorn/i)).not.toBeInTheDocument();
+  });
+
+  it('shows the real writable local companion when OAuth is not configured', async () => {
+    vi.stubGlobal('fetch', routeFetch(anonymousWithLocalCompanion));
+    const user = userEvent.setup();
+    renderApp();
+
+    await screen.findByRole('heading', { name: 'Your first three Hebrew words' });
+    await user.click(screen.getByRole('button', { name: 'Skip lesson and choose how to continue' }));
+    expect(screen.queryByRole('link', { name: /Continue with Google/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /Continue with GitHub/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Use local mode on this computer/i })).toHaveAttribute(
+      'href',
+      'http://127.0.0.1:8001',
+    );
   });
 
   it('starts the seeded demo, labels it clearly, and disables persistent mutations', async () => {

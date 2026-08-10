@@ -44,9 +44,23 @@ not distribute VAPID keys or live Push subscriptions.
 
 Google Calendar, Gmail, and Drive are optional read-only integrations. No Google credentials are distributed. Users configure their own OAuth application and consent scopes.
 
+## Gveret Levin Hebrew handwriting font
+
+The red `שלי` signature in the application wordmark uses
+`GveretLevin-Regular.ttf` from the Google Fonts repository. The font is
+distributed under the SIL Open Font License 1.1.
+
+- Source: https://github.com/google/fonts/tree/main/ofl/gveretlevin
+- Bundled license: `frontend/public/fonts/GveretLevin-OFL.txt`
+
+Preserve the bundled OFL notice when redistributing the font.
+
 ## Custom graphics
 
-The Ivrit Sheli application logo, interface previews, icons, and achievement badge SVGs in `assets/` were created for this project and are distributed under the repository's MIT license.
+The Ivrit Sheli application icon, interface previews, illustrations, and
+achievement badge SVGs in `assets/` were created for this project and are
+distributed under the repository's MIT license. The wordmark's handwriting
+font remains covered by the separate OFL notice above.
 
 ## Bundled research brief
 

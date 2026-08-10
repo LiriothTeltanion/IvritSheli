@@ -1,5 +1,9 @@
-// Module: family and place semantic scenes
-// Purpose: Teach family relationships and Israeli places through distinct, progressive visual stories.
+// Module: place semantic scenes
+// Purpose: Teach Israeli places through distinct, progressive visual stories.
+//
+// Family words are NOT here: FamilyRelationshipScenes claims all twelve
+// `family.*` keys earlier in the resolution chain, so a second set of them
+// could never render. That set was removed rather than left as a decoy.
 
 import type { A0VisualKey } from '../../visuals/a0VisualRecipes';
 import type { SemanticHintStage } from '../SemanticWordIllustration';
@@ -13,23 +17,27 @@ interface FamilyPlaceSceneProps {
   hintStage: SemanticHintStage;
 }
 
-function Heart({ x, y, scale = 1 }: { x: number; y: number; scale?: number }): React.JSX.Element {
-  return (
-    <path
-      className="semantic-art__coral semantic-art__outlined"
-      d="M0 6C-17-7-29 13 0 33 29 13 17-7 0 6Z"
-      transform={`translate(${x} ${y}) scale(${scale})`}
-    />
-  );
-}
-
 function Tree({ x, y, scale = 1 }: { x: number; y: number; scale?: number }): React.JSX.Element {
   return (
     <g transform={`translate(${x} ${y}) scale(${scale})`}>
-      <path className="semantic-art__wood semantic-art__outlined" d="M-5 18h10v40H-5Z" />
-      <circle className="semantic-art__green-soft semantic-art__outlined" cx="-12" cy="5" r="17" />
-      <circle className="semantic-art__green semantic-art__outlined" cx="11" cy="2" r="20" />
-      <circle className="semantic-art__green-soft semantic-art__outlined" cx="1" cy="-15" r="18" />
+      {/*
+        Trunk tapers and flares into roots rather than being a plank, and the
+        canopy is modelled in three values of green: the lit crown catches the
+        light from the upper left, the base sits under it, and the deep mass
+        hangs beneath. Three flat circles of one green read as a lollipop.
+      */}
+      <path className="semantic-art__wood semantic-art__outlined" d="M-4 18q-1 22-8 40h24q-7-18-8-40Z" />
+      <path className="semantic-art__wood-deep" d="M2 18q1 22 8 40h6q-7-18-8-40Z" />
+      <path className="semantic-art__grain" d="M-1 26v26M-6 40q4-10 3-18" />
+      <path className="semantic-art__detail semantic-art__detail--thin" d="M-5 22l-8-7M5 30l9-8" />
+      <circle className="semantic-art__green-deep" cx="-11" cy="8" r="17" />
+      <circle className="semantic-art__green-deep" cx="12" cy="6" r="19" />
+      <circle className="semantic-art__green semantic-art__outlined" cx="-12" cy="2" r="17" />
+      <circle className="semantic-art__green semantic-art__outlined" cx="11" cy="-1" r="20" />
+      <circle className="semantic-art__green-lit" cx="0" cy="-16" r="18" />
+      <circle className="semantic-art__green-lit" cx="-14" cy="-4" r="10" />
+      {/* Sunlit crown edge, drawn last so it reads on top of the canopy. */}
+      <path className="semantic-art__leaf-lit" d="M-9-26c8-6 18-4 24 3M-25-4c-2-8 1-14 7-18" />
     </g>
   );
 }
@@ -57,9 +65,36 @@ function Building({
         height={height}
         rx="5"
       />
+      {/* A cornice reads as a roofline and stops the block looking like a slab. */}
+      <path
+        className={`semantic-art__${color} semantic-art__outlined`}
+        d={`M${x - 3} ${y}h${width + 6}v6H${x - 3}Z`}
+      />
+      {/*
+        Only the shaded flank is painted, in the building's own colour. Adding
+        a lit band as well turned the block into three vertical stripes and
+        read as pattern rather than as light — one plane is enough to say which
+        way the sun is.
+      */}
+      <path
+        className={`semantic-art__${color}-deep`}
+        d={`M${x + width - Math.round(width * 0.24)} ${y + 6}h${Math.round(width * 0.24)}v${height - 6}h${-Math.round(width * 0.24)}Z`}
+      />
       <path
         className="semantic-art__window semantic-art__outlined"
         d={`M${x + 9} ${y + 12}h12v15h-12Zm${width - 30} 0h12v15h-12ZM${x + 9} ${y + 38}h12v15h-12Zm${width - 30} 0h12v15h-12Z`}
+      />
+      {/* One lit window per floor: a home someone is actually inside. */}
+      <path
+        className="semantic-art__window-lit"
+        d={`M${x + 9} ${y + 12}h12v15h-12Zm${width - 30} 26h12v15h-12Z`}
+      />
+      {/* A sill under each window. The relative hop between the two sills is
+          `width - 48`, not `width - 32`: the pen is already 16 along after the
+          first sill, so the wider hop pushed the second one 8 past the wall. */}
+      <path
+        className="semantic-art__grain"
+        d={`M${x + 8} ${y + 28}h14m${width - 46} 0h14M${x + 8} ${y + 54}h14m${width - 46} 0h14`}
       />
     </g>
   );
@@ -69,30 +104,12 @@ function SeaWaves({ y = 132 }: { y?: number }): React.JSX.Element {
   return (
     <>
       <path className="semantic-art__water" d={`M12 ${y}q23-18 46 0t46 0 46 0 46 0 32 0v34H12Z`} />
+      {/* A second, offset swell behind the crest gives the sea depth. */}
+      <path className="semantic-art__water-deep" d={`M12 ${y + 11}q28-13 56 0t56 0 56 0 32 0v23H12Z`} />
       <path className="semantic-art__water-stream" d={`M13 ${y}q23-18 46 0t46 0 46 0 46 0 31 0`} />
+      {/* Foam flecks along the crest. */}
+      <path className="semantic-art__foam" d={`M34 ${y - 3}h9M80 ${y - 3}h9M126 ${y - 3}h9M172 ${y - 3}h9`} />
     </>
-  );
-}
-
-function FamilyTreeAnchor({
-  x,
-  y,
-  highlight,
-}: {
-  x: number;
-  y: number;
-  highlight: 'left' | 'right' | 'child';
-}): React.JSX.Element {
-  const leftClass = highlight === 'left' ? 'semantic-art__gold' : 'semantic-art__surface';
-  const rightClass = highlight === 'right' ? 'semantic-art__gold' : 'semantic-art__surface';
-  const childClass = highlight === 'child' ? 'semantic-art__gold' : 'semantic-art__surface';
-  return (
-    <g transform={`translate(${x} ${y})`}>
-      <path className="semantic-art__detail semantic-art__detail--thin" d="M0 0h38M19 0v18m-19 0h38M0 18v10m38-10v10" />
-      <circle className={`${leftClass} semantic-art__outlined`} cx="0" cy="-1" r="8" />
-      <circle className={`${rightClass} semantic-art__outlined`} cx="38" cy="-1" r="8" />
-      <circle className={`${childClass} semantic-art__outlined`} cx="19" cy="27" r="8" />
-    </g>
   );
 }
 
@@ -121,286 +138,6 @@ export function FamilyPlaceScene({
   hintStage,
 }: FamilyPlaceSceneProps): React.JSX.Element | null {
   switch (visualKey) {
-    case 'family.mother':
-      return (
-        <SceneLayers
-          hintStage={hintStage}
-          context={(
-            <>
-              <rect className="semantic-art__window semantic-art__outlined" x="28" y="30" width="58" height="49" rx="6" />
-              <path className="semantic-art__sun-rays" d="M57 38v-10m-17 24H29m56 0H74m-29-13-8-8m32 8 8-8" />
-              <circle className="semantic-art__gold semantic-art__outlined" cx="57" cy="53" r="10" />
-            </>
-          )}
-          meaning={(
-            <>
-              <SemanticPerson x={130} y={103} shirt="teal" facing="left" pose="reach" scale={1.15} />
-              <SemanticPerson x={76} y={120} shirt="gold" pose="reach" scale={0.7} />
-              <path className="semantic-art__skin-line" d="M108 102q-18 5-25 17" />
-            </>
-          )}
-          anchor={(
-            <>
-              <Heart x={104} y={49} scale={0.55} />
-              <path className="semantic-art__coral semantic-art__motion" d="M65 142q39 26 80 0" />
-            </>
-          )}
-        />
-      );
-    case 'family.father':
-      return (
-        <SceneLayers
-          hintStage={hintStage}
-          context={(
-            <>
-              <path className="semantic-art__wood semantic-art__outlined" d="M25 132h190v12H25Zm17-33h56v33H42Z" />
-              <path className="semantic-art__detail semantic-art__detail--thin" d="M49 112h41m-31-13v33" />
-            </>
-          )}
-          meaning={(
-            <>
-              <SemanticPerson x={143} y={99} shirt="blue" facing="left" pose="reach" scale={1.15} />
-              <SemanticPerson x={85} y={119} shirt="coral" pose="hold" scale={0.7} />
-            </>
-          )}
-          anchor={(
-            <>
-              <path className="semantic-art__gold semantic-art__outlined" d="M93 108h22v22H93Zm22-20h22v42h-22Z" />
-              <Heart x={118} y={45} scale={0.48} />
-            </>
-          )}
-        />
-      );
-    case 'family.brother':
-      return (
-        <SceneLayers
-          hintStage={hintStage}
-          context={(
-            <>
-              <path className="semantic-art__floor" d="M21 128h198v28H21Z" />
-              <path className="semantic-art__detail semantic-art__detail--thin" d="M21 128h198m-164 0 16-25m114 25-16-25" />
-            </>
-          )}
-          meaning={(
-            <>
-              <SemanticPerson x={79} y={106} shirt="blue" pose="reach" scale={0.86} />
-              <SemanticPerson x={151} y={106} shirt="teal" facing="left" pose="reach" scale={0.86} />
-              <path className="semantic-art__skin-line" d="M96 94q18-15 37 0" />
-            </>
-          )}
-          anchor={(
-            <>
-              <circle className="semantic-art__gold semantic-art__outlined" cx="115" cy="130" r="15" />
-              <path className="semantic-art__detail semantic-art__detail--thin" d="m105 120 20 20m0-20-20 20" />
-            </>
-          )}
-        />
-      );
-    case 'family.sister':
-      return (
-        <SceneLayers
-          hintStage={hintStage}
-          context={(
-            <>
-              <path className="semantic-art__teal-soft semantic-art__outlined" d="M35 125q80-29 170 0l-12 28H47Z" />
-              <path className="semantic-art__detail semantic-art__detail--thin" d="M31 65h47v34H31Zm132 0h47v34h-47Z" />
-            </>
-          )}
-          meaning={(
-            <>
-              <SemanticPerson x={80} y={105} shirt="coral" pose="hold" scale={0.84} />
-              <SemanticPerson x={154} y={105} shirt="gold" facing="left" pose="point" scale={0.84} />
-            </>
-          )}
-          anchor={(
-            <>
-              <path className="semantic-art__surface semantic-art__outlined" d="M94 112q21-12 42 0v31q-21-12-42 0Zm0 0q-21-12-42 0v31q21-12 42 0Z" />
-              <Heart x={116} y={43} scale={0.45} />
-            </>
-          )}
-        />
-      );
-    case 'family.grandmother':
-      return (
-        <SceneLayers
-          hintStage={hintStage}
-          context={(
-            <>
-              <path className="semantic-art__wood semantic-art__outlined" d="M28 109h47v39H28Zm8-18h31v18H36Z" />
-              <path className="semantic-art__green-soft semantic-art__outlined" d="M189 58h13v74h-13Zm-21-7q27-28 55 0-10 28-28 30-18-2-27-30Z" />
-            </>
-          )}
-          meaning={(
-            <>
-              <SemanticPerson x={129} y={99} shirt="coral" facing="left" pose="reach" scale={1.1} />
-              <SemanticPerson x={82} y={121} shirt="gold" pose="reach" scale={0.68} />
-              <path className="semantic-art__metal semantic-art__outlined" d="M116 73q13-20 26 0-13-7-26 0Z" />
-            </>
-          )}
-          anchor={(
-            <>
-              <Heart x={103} y={40} scale={0.55} />
-              <path className="semantic-art__coral semantic-art__motion" d="M73 137q31 26 66 0" />
-            </>
-          )}
-        />
-      );
-    case 'family.grandfather':
-      return (
-        <SceneLayers
-          hintStage={hintStage}
-          context={(
-            <>
-              <path className="semantic-art__wood semantic-art__outlined" d="M24 127h191v11H24Zm19-17h147v17H43Z" />
-              <Tree x={199} y={67} scale={0.62} />
-            </>
-          )}
-          meaning={(
-            <>
-              <SemanticPerson x={128} y={99} shirt="blue" facing="left" pose="point" scale={1.08} />
-              <SemanticPerson x={78} y={119} shirt="teal" pose="listen" scale={0.68} />
-              <path className="semantic-art__metal semantic-art__outlined" d="M115 73q13-20 26 0-13-7-26 0Z" />
-            </>
-          )}
-          anchor={(
-            <>
-              <path className="semantic-art__surface semantic-art__outlined" d="M79 110q18-10 36 0v29q-18-10-36 0Zm0 0q-18-10-36 0v29q18-10 36 0Z" />
-              <path className="semantic-art__wood semantic-art__outlined" d="M153 87q14 4 7 18v43h-6v-43q4-9-4-11Z" />
-            </>
-          )}
-        />
-      );
-    case 'family.family':
-      return (
-        <SceneLayers
-          hintStage={hintStage}
-          context={(
-            <>
-              <path className="semantic-art__surface semantic-art__outlined" d="m27 96 93-66 93 66v62H27Z" />
-              <path className="semantic-art__coral semantic-art__outlined" d="m20 98 100-73 100 73-9 12-91-65-91 65Z" />
-            </>
-          )}
-          meaning={(
-            <>
-              <SemanticPerson x={87} y={112} shirt="teal" pose="reach" scale={0.93} />
-              <SemanticPerson x={153} y={112} shirt="coral" facing="left" pose="reach" scale={0.93} />
-            </>
-          )}
-          anchor={(
-            <>
-              <Heart x={120} y={67} scale={0.65} />
-              <path className="semantic-art__gold semantic-art__motion" d="M66 149q54 21 108 0" />
-            </>
-          )}
-        />
-      );
-    case 'family.parents':
-      return (
-        <SceneLayers
-          hintStage={hintStage}
-          context={(
-            <>
-              <rect className="semantic-art__window semantic-art__outlined" x="90" y="24" width="60" height="43" rx="5" />
-              <path className="semantic-art__detail semantic-art__detail--thin" d="M120 24v43M90 46h60" />
-            </>
-          )}
-          meaning={(
-            <>
-              <SemanticPerson x={73} y={103} shirt="teal" pose="reach" />
-              <SemanticPerson x={168} y={103} shirt="blue" facing="left" pose="reach" />
-            </>
-          )}
-          anchor={(
-            <>
-              <path className="semantic-art__gold-soft semantic-art__outlined" d="M99 103h43v34H99Zm4 34v12m35-12v12M99 111h43" />
-              <Heart x={120} y={74} scale={0.46} />
-            </>
-          )}
-        />
-      );
-    case 'family.son':
-      return (
-        <SceneLayers
-          hintStage={hintStage}
-          context={(
-            <>
-              <path className="semantic-art__tiles" d="M26 102h188v49H26Z" />
-              <path className="semantic-art__detail semantic-art__detail--thin" d="M26 118h188M58 102v49m45-49v49m45-49v49m45-49v49" />
-            </>
-          )}
-          meaning={(
-            <>
-              <SemanticPerson x={142} y={100} shirt="teal" facing="left" pose="reach" />
-              <SemanticPerson x={82} y={121} shirt="blue" pose="hold" scale={0.68} />
-            </>
-          )}
-          anchor={<FamilyTreeAnchor x={89} y={42} highlight="child" />}
-        />
-      );
-    case 'family.daughter':
-      return (
-        <SceneLayers
-          hintStage={hintStage}
-          context={(
-            <>
-              <path className="semantic-art__green-soft semantic-art__outlined" d="M23 129q45-34 86 0t108 0v27H23Z" />
-              <circle className="semantic-art__gold semantic-art__outlined" cx="193" cy="37" r="15" />
-            </>
-          )}
-          meaning={(
-            <>
-              <SemanticPerson x={145} y={101} shirt="coral" facing="left" pose="reach" />
-              <SemanticPerson x={83} y={121} shirt="gold" pose="reach" scale={0.68} />
-            </>
-          )}
-          anchor={(
-            <>
-              <FamilyTreeAnchor x={91} y={38} highlight="child" />
-              <path className="semantic-art__green semantic-art__outlined" d="M110 132q10-26 20 0-10-5-20 0Zm10 0v19" />
-            </>
-          )}
-        />
-      );
-    case 'family.boy':
-      return (
-        <SceneLayers
-          hintStage={hintStage}
-          context={(
-            <>
-              <path className="semantic-art__green-soft semantic-art__outlined" d="M18 136q55-30 111 0t93 0v22H18Z" />
-              <circle className="semantic-art__gold semantic-art__outlined" cx="43" cy="42" r="14" />
-            </>
-          )}
-          meaning={<SemanticPerson x={105} y={105} shirt="blue" pose="hold" scale={0.86} />}
-          anchor={(
-            <>
-              <path className="semantic-art__coral semantic-art__outlined" d="m177 40 23 22-23 22-23-22Z" />
-              <path className="semantic-art__motion" d="M177 84q-9 29-57 16" />
-            </>
-          )}
-        />
-      );
-    case 'family.girl':
-      return (
-        <SceneLayers
-          hintStage={hintStage}
-          context={(
-            <>
-              <path className="semantic-art__floor" d="M24 134h192v24H24Z" />
-              <rect className="semantic-art__window semantic-art__outlined" x="164" y="27" width="47" height="43" rx="5" />
-              <path className="semantic-art__detail semantic-art__detail--thin" d="M187 27v43m-23-22h47" />
-            </>
-          )}
-          meaning={<SemanticPerson x={99} y={106} shirt="teal" pose="point" scale={0.86} />}
-          anchor={(
-            <>
-              <path className="semantic-art__surface semantic-art__outlined" d="M140 72h57v58h-57Z" />
-              <path className="semantic-art__coral semantic-art__outlined" d="m151 115 14-23 10 12 9-18 9 29Z" />
-              <path className="semantic-art__gold semantic-art__outlined" d="m128 89 10-2-3 10-16 19-8 3 3-9Z" />
-            </>
-          )}
-        />
-      );
     case 'places.israel':
       return (
         <SceneLayers
@@ -408,21 +145,38 @@ export function FamilyPlaceScene({
           context={(
             <>
               <path className="semantic-art__water" d="M18 18h72v140H18Z" />
+              <path className="semantic-art__water-deep" d="M18 18h30v140H18Z" />
               <path className="semantic-art__water-stream" d="M88 18v140M30 42q22-14 45 0M29 77q22-14 45 0M29 112q22-14 45 0" />
+              <path className="semantic-art__foam" d="M80 30v118" />
             </>
           )}
           meaning={(
-            <path
-              className="semantic-art__gold-soft semantic-art__outlined"
-              d="M129 18q21 17 15 36l15 18-10 20 18 23-21 46-27-12 10-37-15-24 9-30-8-21Z"
-            />
+            <>
+              {/* The country's own drop shadow lifts it off the map plate. */}
+              <path
+                className="semantic-art__prop-shadow"
+                d="M135 24q21 17 15 36l15 18-10 20 18 23-21 46-27-12 10-37-15-24 9-30-8-21Z"
+              />
+              <path
+                className="semantic-art__gold-soft semantic-art__outlined"
+                d="M129 18q21 17 15 36l15 18-10 20 18 23-21 46-27-12 10-37-15-24 9-30-8-21Z"
+              />
+              <path className="semantic-art__shade" d="m159 72-10 20 18 23-21 46-14-6 20-43-14-22Z" />
+            </>
           )}
           anchor={(
             <>
+              {/* Three cities pinned on the map, north to south. */}
+              <circle className="semantic-art__ink" cx="128" cy="52" r="3.5" />
+              <circle className="semantic-art__ink" cx="126" cy="118" r="3.5" />
+              <circle className="semantic-art__ink" cx="140" cy="146" r="3.5" />
+              <path className="semantic-art__detail semantic-art__detail--thin" d="M128 52h22M126 118h26M140 146h20" />
               <circle className="semantic-art__coral semantic-art__outlined" cx="139" cy="84" r="13" />
               <circle className="semantic-art__surface semantic-art__outlined" cx="139" cy="84" r="5" />
               <path className="semantic-art__coral semantic-art__outlined" d="m139 104-10-17h20Z" />
+              <circle className="semantic-art__sun-halo" cx="193" cy="40" r="28" />
               <circle className="semantic-art__gold semantic-art__outlined" cx="193" cy="40" r="16" />
+              <circle className="semantic-art__sun-core" cx="189" cy="36" r="8" />
             </>
           )}
         />
@@ -435,19 +189,37 @@ export function FamilyPlaceScene({
             <>
               <path className="semantic-art__gold-soft semantic-art__outlined" d="M18 92h204v68H18Zm18-23h34v23H36Zm136 0h34v23h-34Z" />
               <path className="semantic-art__detail semantic-art__detail--thin" d="M18 111h204M38 92v68m42-68v68m42-68v68m42-68v68m42-68v68" />
+              {/* Jerusalem stone: courses of ashlar across the city wall. */}
+              <path className="semantic-art__grain" d="M18 101h204M18 122h204M18 133h204M18 146h204" />
+              <path className="semantic-art__gloss" d="M22 95h196" />
+              <path className="semantic-art__shade" d="M190 92h32v68h-32Z" />
             </>
           )}
           meaning={(
             <>
               <path className="semantic-art__surface semantic-art__outlined" d="M82 78h77v66H82Z" />
               <path className="semantic-art__gold semantic-art__outlined" d="M91 78q29-48 59 0Z" />
-              <path className="semantic-art__detail semantic-art__detail--thin" d="M120 30V17m-6 2h12" />
+              {/* Ribs down the dome, and the arched windows beneath it. */}
+              <path className="semantic-art__detail semantic-art__detail--thin" d="M120 78V52m-16 26q4-20 16-26m16 26q-4-20-16-26" />
+              <path className="semantic-art__shade" d="M120 52q18 6 30 26h-30Z" />
+              <path className="semantic-art__window" d="M92 96h14v20H92Zm43 0h14v20h-14Z" />
+              <path className="semantic-art__window-lit" d="M94 99h10v15H94Zm43 0h10v15h-10Z" />
+              <path className="semantic-art__gloss" d="M86 84v56" />
+              {/* Magen David finial on a short spire. Two overlapping triangles
+                  rather than one outline, so the star still reads at thumbnail
+                  size where a thin six-pointed path would close up. */}
+              <path className="semantic-art__metal-line" d="M120 52V40" />
+              <circle className="semantic-art__gold semantic-art__outlined" cx="120" cy="44" r="4" />
+              <path className="semantic-art__gold semantic-art__outlined" d="m120 13 11.3 19.5h-22.6Z" />
+              <path className="semantic-art__gold semantic-art__outlined" d="m120 39-11.3-19.5h22.6Z" />
             </>
           )}
           anchor={(
             <>
               <path className="semantic-art__ink" d="M103 144v-25q0-18 17-18t17 18v25Z" />
+              <path className="semantic-art__gold" d="M118 128h4v16h-4Z" />
               <Tree x={190} y={100} scale={0.47} />
+              <Tree x={44} y={104} scale={0.38} />
             </>
           )}
         />
@@ -471,8 +243,18 @@ export function FamilyPlaceScene({
           )}
           anchor={(
             <>
-              <path className="semantic-art__surface semantic-art__outlined" d="M38 80h47v8H38Zm0 20h47v8H38" />
+              {/* Balcony rails on the Bauhaus block, not white slabs: drawn in
+                  near-white on a near-white wall they read as floating bars. */}
+              <path className="semantic-art__metal-line" d="M34 84h50M34 104h50" />
+              <path className="semantic-art__grain" d="M42 84v-5m12 5v-5m12 5v-5m12 5v-5M42 104v-5m12 5v-5m12 5v-5m12 5v-5" />
+              <path className="semantic-art__surface-deep" d="M34 84h50v3H34Zm0 20h50v3H34Z" />
               <path className="semantic-art__green semantic-art__outlined" d="M182 104h8v34h-8Zm-16 1q20-31 40 0-19 13-40 0Z" />
+              {/* Promenade and a parasol on the sand: the seafront it is named for. */}
+              <path className="semantic-art__gold-soft semantic-art__outlined" d="M14 137h212v10H14Z" />
+              <path className="semantic-art__grain" d="M22 142h40m14 0h40m14 0h40m14 0h40" />
+              <path className="semantic-art__coral semantic-art__outlined" d="M96 128q18-22 36 0Z" />
+              <path className="semantic-art__wood-line" d="M114 128v14" />
+              <path className="semantic-art__detail semantic-art__detail--thin" d="M148 40q7-7 14 0-7-4-14 0m22-8q6-6 12 0-6-3-12 0" />
             </>
           )}
         />
@@ -485,19 +267,43 @@ export function FamilyPlaceScene({
             <>
               <SeaWaves y={143} />
               <path className="semantic-art__green-soft semantic-art__outlined" d="M18 135 92 34l89 101Z" />
+              {/* The Carmel's slopes: one face to the sun, one away from it. */}
+              <path className="semantic-art__shade" d="M92 34l89 101h-89Z" />
+              <path className="semantic-art__gloss" d="M40 118 90 50" />
             </>
           )}
           meaning={(
             <>
               <path className="semantic-art__gold-soft semantic-art__outlined" d="M75 129h104v10H75Zm-9-25h94v10H66Zm-8-25h83v10H58Zm12-25h53v10H70Z" />
-              <path className="semantic-art__green semantic-art__outlined" d="M88 54h15v75H88Z" />
+              {/* Cypress rows on each terrace — the gardens' signature. */}
+              <path className="semantic-art__stem" d="M80 121v8m14-8v8m14-8v8m14-8v8m-56-25v8m14-8v8m14-8v8m14-8v8m-56-25v8m14-8v8m14-8v8" />
+              <path className="semantic-art__leaf-lit" d="M78 125h58m-64-25h58" />
+              {/*
+                The central stair axis of the gardens. It was one solid green
+                rectangle, so it read as a green pillar driven through the
+                terraces instead of the staircase that joins them.
+              */}
+              <path className="semantic-art__gold-soft semantic-art__outlined" d="M93 62h8v67h-8Z" />
+              <path className="semantic-art__gold" d="M93 70h8v2h-8Zm0 12h8v2h-8Zm0 12h8v2h-8Zm0 12h8v2h-8Zm0 12h8v2h-8Z" />
             </>
           )}
           anchor={(
             <>
+              <ellipse className="semantic-art__prop-shadow" cx="188" cy="139" rx="22" ry="4" />
               <path className="semantic-art__surface semantic-art__outlined" d="m186 111 18 27h-36Z" />
+              <path className="semantic-art__shade" d="m186 111 18 27h-18Z" />
               <path className="semantic-art__wood semantic-art__outlined" d="M184 83h4v55h-4Z" />
-              <circle className="semantic-art__coral semantic-art__outlined" cx="96" cy="43" r="7" />
+              {/*
+                The shrine crowning the terraces: a colonnade under a golden
+                dome. It used to be a bare arc with a red disc floating beside
+                it, which read as a mushroom.
+              */}
+              <path className="semantic-art__surface semantic-art__outlined" d="M81 40h31v22H81Z" />
+              <path className="semantic-art__surface-deep" d="M101 40h11v22h-11Z" />
+              <path className="semantic-art__detail semantic-art__detail--thin" d="M88 43v16m9-16v16m9-16v16" />
+              <path className="semantic-art__gold semantic-art__outlined" d="M78 40c0-13 8-20 18-20s18 7 18 20Z" />
+              <path className="semantic-art__gold-lit" d="M78 40c0-11 6-18 14-20-5 5-8 12-8 20Z" />
+              <path className="semantic-art__gold semantic-art__outlined" d="M94 21h5v-8h-5Z" />
             </>
           )}
         />
@@ -509,20 +315,32 @@ export function FamilyPlaceScene({
           context={(
             <>
               <path className="semantic-art__gold-soft semantic-art__outlined" d="M17 126q48-43 91 0 55-48 115 0v34H17Z" />
+              {/* Lit crests and shaded lee sides on the dunes. */}
+              <path className="semantic-art__gloss" d="M34 120q38-33 70-2m18 2q42-38 78-4" />
+              <path className="semantic-art__shade" d="M108 126q55-48 115 0v34H108Z" />
+              <circle className="semantic-art__sun-halo" cx="193" cy="37" r="34" />
               <circle className="semantic-art__hot semantic-art__outlined" cx="193" cy="37" r="20" />
+              <circle className="semantic-art__sun-core" cx="188" cy="32" r="9" />
               <path className="semantic-art__sun-rays semantic-art__sun-rays--hot" d="M193 8V1m0 72v-7m-29-29h-8m74 0h-8m-49-20-6-6m52 52-6-6m6-40 6-6m-52 52-6 6" />
             </>
           )}
           meaning={(
             <>
+              <ellipse className="semantic-art__prop-shadow" cx="74" cy="147" rx="34" ry="6" />
               <path className="semantic-art__wood semantic-art__outlined" d="M43 103h58v43H43Z" />
+              {/* Staves and bands: a well, not a crate. */}
+              <path className="semantic-art__grain" d="M58 110v34m14-34v34m14-34v34" />
+              <path className="semantic-art__metal-line" d="M43 117h58m-58 20h58" />
+              <path className="semantic-art__shade" d="M88 103h13v43H88Z" />
               <ellipse className="semantic-art__ink" cx="72" cy="103" rx="29" ry="10" />
               <ellipse className="semantic-art__water" cx="72" cy="103" rx="19" ry="6" />
+              <path className="semantic-art__gloss" d="M60 101q11-4 22 0" />
             </>
           )}
           anchor={(
             <>
               <path className="semantic-art__coral semantic-art__outlined" d="M115 117q39-60 86 0h-14q-33-39-59 0Z" />
+              <path className="semantic-art__shade" d="M158 89q22 3 43 28h-14q-16-19-29-25Z" />
               <path className="semantic-art__detail semantic-art__detail--thin" d="M128 117h59m-45-20 10 20m18-20-10 20" />
             </>
           )}
@@ -548,7 +366,16 @@ export function FamilyPlaceScene({
           anchor={(
             <>
               <SemanticPerson x={53} y={121} shirt="gold" pose="walk" scale={0.58} />
+              <SemanticPerson x={148} y={121} shirt="teal" facing="left" pose="walk" scale={0.55} />
               <circle className="semantic-art__green semantic-art__outlined" cx="190" cy="37" r="10" />
+              {/* Traffic signal and a car: a city is busy, not merely tall. */}
+              <path className="semantic-art__ink semantic-art__outlined" d="M74 100h14v30H74Z" />
+              <circle className="semantic-art__coral" cx="81" cy="108" r="4" />
+              <circle className="semantic-art__green" cx="81" cy="122" r="4" />
+              <path className="semantic-art__metal-line" d="M81 130v14" />
+              <path className="semantic-art__blue semantic-art__outlined" d="M104 126h34l8 10v10h-50v-10Z" />
+              <circle className="semantic-art__ink" cx="114" cy="147" r="5" />
+              <circle className="semantic-art__ink" cx="138" cy="147" r="5" />
             </>
           )}
         />
@@ -560,20 +387,34 @@ export function FamilyPlaceScene({
           context={(
             <>
               <path className="semantic-art__blue semantic-art__outlined" d="M17 101q30-34 60 0t60 0 60 0 27 0v58H17Z" />
+              {/* Deep water below, so the sea has a near and a far. */}
+              <path className="semantic-art__water-deep" d="M17 138h206v21H17Z" />
+              <circle className="semantic-art__sun-halo" cx="194" cy="37" r="32" />
               <circle className="semantic-art__gold semantic-art__outlined" cx="194" cy="37" r="18" />
+              <circle className="semantic-art__sun-core" cx="190" cy="33" r="9" />
+              {/* Sun track on the water — the cue that reads as sea, not sky. */}
+              <path className="semantic-art__gloss" d="M186 108h16m-20 12h24m-28 12h32" />
             </>
           )}
           meaning={(
             <>
               <path className="semantic-art__water-stream" d="M18 105q30-34 60 0t60 0 60 0 25 0M18 132q30-25 60 0t60 0 60 0 25 0" />
+              <path className="semantic-art__foam" d="M24 108q26-26 52-2m14 2q26-26 52-2" />
               <path className="semantic-art__surface semantic-art__outlined" d="m76 91 30 24H48Z" />
+              <path className="semantic-art__shade" d="M76 91l30 24H76Z" />
+              {/* Second sail behind the first, so the boat has a near and a far. */}
+              <path className="semantic-art__teal-soft semantic-art__outlined" d="m74 66-20 49h20Z" />
               <path className="semantic-art__wood semantic-art__outlined" d="M74 52h5v63h-5Z" />
+              <path className="semantic-art__wood semantic-art__outlined" d="M44 115h68l-10 16H54Z" />
+              <path className="semantic-art__shade" d="M84 115h28l-10 16H84Z" />
             </>
           )}
           anchor={(
             <>
               <path className="semantic-art__water-drop" d="M152 58c-16 21-14 35 0 35s16-14 0-35Z" />
               <path className="semantic-art__spark" d="M177 76h19m-9-9v19" />
+              {/* Gulls over the far water: the horizon gets some life. */}
+              <path className="semantic-art__detail semantic-art__detail--thin" d="M158 40q6-6 12 0-6-3-12 0m26-8q5-5 10 0-5-3-10 0" />
             </>
           )}
         />
@@ -586,19 +427,33 @@ export function FamilyPlaceScene({
             <>
               <SeaWaves y={112} />
               <path className="semantic-art__gold-soft semantic-art__outlined" d="M16 136q66-32 111 0 53-25 97 0v25H16Z" />
+              {/* Wet line where the last wave reached, and dry sand above it. */}
+              <path className="semantic-art__foam" d="M22 132q60-28 105 0m14 0q48-22 82 0" />
+              <path className="semantic-art__gloss" d="M30 143q56-20 96 2" />
             </>
           )}
           meaning={(
             <>
+              <ellipse className="semantic-art__prop-shadow" cx="92" cy="148" rx="42" ry="6" />
               <path className="semantic-art__coral semantic-art__outlined" d="M42 80q43-48 86 0Z" />
+              {/* Panelled canopy: a parasol, not a coloured semicircle. */}
+              <path className="semantic-art__detail semantic-art__detail--thin" d="M85 56v24m-21 0q10-26 21-24m21 24Q96 54 85 56m43 24q-11-27-22-24" />
+              <path className="semantic-art__shade" d="M85 56q22-2 43 24H85Z" />
               <path className="semantic-art__wood semantic-art__outlined" d="M82 79h6v69h-6Z" />
               <path className="semantic-art__surface semantic-art__outlined" d="M139 121h55l-7 27h-55Z" />
+              <path className="semantic-art__gloss" d="M144 125h46" />
             </>
           )}
           anchor={(
             <>
+              <circle className="semantic-art__sun-halo" cx="191" cy="39" r="32" />
               <circle className="semantic-art__gold semantic-art__outlined" cx="191" cy="39" r="18" />
+              <circle className="semantic-art__sun-core" cx="186" cy="34" r="9" />
               <path className="semantic-art__water semantic-art__outlined" d="M136 133q28-15 57 0l-4 15h-57Z" />
+              <path className="semantic-art__water-deep" d="M134 143h54l-1 5h-54Z" />
+              {/* Two shells on the dry sand. */}
+              <path className="semantic-art__surface semantic-art__outlined" d="M46 152q9-13 18 0Z" />
+              <path className="semantic-art__surface semantic-art__outlined" d="M108 156q7-10 14 0Z" />
             </>
           )}
         />
@@ -625,6 +480,12 @@ export function FamilyPlaceScene({
               <path className="semantic-art__motion" d="M96 56q20-18 40 0" />
               <circle className="semantic-art__coral semantic-art__outlined" cx="92" cy="60" r="4" />
               <circle className="semantic-art__gold semantic-art__outlined" cx="143" cy="51" r="4" />
+              {/* Swings and a gravel path: a park is somewhere you do things. */}
+              <path className="semantic-art__metal-line" d="M22 152V104h40v48M28 108v34m28-34v34" />
+              <path className="semantic-art__wood semantic-art__outlined" d="M22 142h14v5H22Zm26 0h14v5H48Z" />
+              <path className="semantic-art__gold-soft semantic-art__outlined" d="M104 159q14-22 34 0Z" />
+              <circle className="semantic-art__coral semantic-art__outlined" cx="196" cy="132" r="5" />
+              <circle className="semantic-art__gold semantic-art__outlined" cx="208" cy="138" r="5" />
             </>
           )}
         />
@@ -651,6 +512,11 @@ export function FamilyPlaceScene({
             <>
               <circle className="semantic-art__gold semantic-art__outlined" cx="120" cy="57" r="15" />
               <path className="semantic-art__detail" d="M120 57V45m0 12 9 6" />
+              {/* A second pupil, railings and a flag: a school in session. */}
+              <SemanticPerson x={168} y={125} shirt="coral" facing="left" pose="walk" scale={0.58} />
+              <path className="semantic-art__metal-line" d="M28 155v-22m12 22v-22m12 22v-22m136 22v-22m12 22v-22m12 22v-22M28 134h36m124 0h36" />
+              <path className="semantic-art__metal-line" d="M205 62V26" />
+              <path className="semantic-art__blue semantic-art__outlined semantic-art__motion-part" d="M205 28h30v18h-30Z" />
               <path className="semantic-art__gold semantic-art__motion" d="M111 155h19" />
             </>
           )}

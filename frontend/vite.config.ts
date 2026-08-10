@@ -27,5 +27,12 @@ export default defineConfig({
     exclude: ['e2e/**', 'node_modules/**', 'dist/**'],
     globals: true,
     maxWorkers: 4,
+    // The exact-scene catalog grew from 72 lean scenes to the complete 240-scene reviewed catalog,
+    // and the QA gallery renders every one of them at three sizes — 720 SVGs
+    // and ~12k shapes in a single test. jsdom builds SVG DOM far slower than a
+    // browser does: the same gallery reaches interactive in 584ms in Chrome and
+    // recalculates the full gallery rapidly in Chrome, so this is an environment cost, not a
+    // product one. The default 5s was calibrated for the smaller catalog.
+    testTimeout: 30_000,
   },
 });

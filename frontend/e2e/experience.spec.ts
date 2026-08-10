@@ -271,15 +271,24 @@ test.describe('listening and privacy fallbacks', () => {
 });
 
 test.describe('visual recognition expansion', () => {
-  test('renders all 72 exact scenes across the configured viewport and display preferences', async ({ page }, testInfo) => {
+  test('renders all 240 exact scenes across the configured viewport and display preferences', async ({ page }, testInfo) => {
+    /*
+     * This case paints the whole catalogue: 240 scenes at three sizes, 720
+     * hand-authored SVGs, then switches theme and language and re-lays them
+     * out. It measured 54s on the reference Windows machine against a 30s
+     * default budget, and the cost is the rendering, not the product — every
+     * assertion below passes once it is given room. `test.slow()` triples the
+     * budget rather than hiding the expense behind a raised global default.
+     */
+    test.slow();
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/?visualQa=1&lang=en');
 
-    await expect(page.getByText('72/72 exact scenes loaded')).toBeVisible();
-    await expect(page.locator('.visual-qa__catalog > article')).toHaveCount(72);
-    await expect(page.locator('.visual-qa__catalog [data-size="thumbnail"]')).toHaveCount(72);
-    await expect(page.locator('.visual-qa__catalog [data-size="card"]')).toHaveCount(72);
-    await expect(page.locator('.visual-qa__catalog [data-size="hero"]')).toHaveCount(72);
+    await expect(page.getByText('240/240 exact scenes loaded')).toBeVisible();
+    await expect(page.locator('.visual-qa__catalog > article')).toHaveCount(240);
+    await expect(page.locator('.visual-qa__catalog [data-size="thumbnail"]')).toHaveCount(240);
+    await expect(page.locator('.visual-qa__catalog [data-size="card"]')).toHaveCount(240);
+    await expect(page.locator('.visual-qa__catalog [data-size="hero"]')).toHaveCount(240);
     await expect(page.locator('[data-visual-id="family.mother"]').first()).toBeVisible();
 
     const animationNames = await page.locator(
@@ -325,7 +334,7 @@ test.describe('visual recognition expansion', () => {
   test('reveals four meanings only after the five-second recognition exposure', async ({ page }, testInfo) => {
     desktopOnly(testInfo.project.name);
     await page.goto('/?visualQa=1&lang=en');
-    await expect(page.getByText('72/72 exact scenes loaded')).toBeVisible();
+    await expect(page.getByText('240/240 exact scenes loaded')).toBeVisible();
 
     await page.getByRole('button', { name: 'Start recognition check' }).click();
     await expect(page.getByText('Observe the scene… 5 seconds')).toBeVisible();

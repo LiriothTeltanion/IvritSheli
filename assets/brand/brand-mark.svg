@@ -1,0 +1,17 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Ivrit Sheli brand mark</title>
+  <desc id="desc">A warm square learning card with the Hebrew letter aleph, a small sun and a coral handwritten underline.</desc>
+  <defs>
+    <linearGradient id="bg" x1="45" y1="30" x2="470" y2="490"><stop stop-color="#173B53"/><stop offset="1" stop-color="#0B1D30"/></linearGradient>
+    <linearGradient id="paper" x1="94" y1="75" x2="420" y2="422"><stop stop-color="#FFF9EC"/><stop offset="1" stop-color="#F4E4C4"/></linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="128" fill="url(#bg)"/>
+  <path d="M44 382c86-62 149-31 219-80 70-50 129-38 205-102v268H44V382Z" fill="#2D7D74" opacity=".24"/>
+  <rect x="60" y="54" width="392" height="368" rx="104" fill="url(#paper)" stroke="#E3C289" stroke-width="2"/>
+  <circle cx="379" cy="123" r="38" fill="#E8AC3A"/>
+  <path d="M379 72V58M379 188v-14M328 123h-14M444 123h-14" stroke="#E8AC3A" stroke-width="10" stroke-linecap="round"/>
+  <text x="252" y="310" text-anchor="middle" font-size="224" font-family="Arial, 'Noto Sans Hebrew', sans-serif" font-weight="700" fill="#153E4D">א</text>
+  <path d="M153 346c45-15 100 4 149-11 29-9 54-26 74-46" stroke="#C93448" stroke-width="17" stroke-linecap="round"/>
+  <path d="M176 375c45-13 90 0 145-16" stroke="#C93448" stroke-width="8" stroke-linecap="round" opacity=".72"/>
+  <circle cx="132" cy="128" r="10" fill="#2D7D74"/><circle cx="159" cy="128" r="10" fill="#E39B3D"/><circle cx="186" cy="128" r="10" fill="#C93448"/>
+</svg>

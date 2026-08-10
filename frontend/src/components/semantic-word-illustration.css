@@ -1,27 +1,106 @@
 /* Semantic A0 scenes: exact actions and objects with a shared warm visual grammar. */
 
 .semantic-art {
-  --semantic-ink: #26384a;
+  /*
+   * Editorial palette: four tonal steps per hue.
+   *
+   * A single value per hue is what makes flat illustration look like a
+   * children's book — with no darker and lighter of the same colour there is
+   * no form, only silhouette. Each hue here carries `-deep` (turned away from
+   * the light), the base, `-lit` (facing it) and `-tint` (large calm areas),
+   * so a shape can be modelled in its own colour instead of having a grey
+   * wash laid over it.
+   *
+   * Hues are deliberately a little desaturated from the primaries they
+   * replaced: saturated teal/coral/gold at full strength is the other half of
+   * why the old set read as a toy.
+   */
+  --semantic-ink: #22323f;
   --semantic-detail-ink: var(--semantic-ink);
   --semantic-symbol-ink: var(--semantic-ink);
-  --semantic-paper: #fffaf0;
-  --semantic-surface: #fffefa;
-  --semantic-teal: #167b76;
-  --semantic-teal-soft: #cde8df;
-  --semantic-coral: #d96f62;
-  --semantic-gold: #edb94e;
-  --semantic-gold-soft: #f8df9f;
-  --semantic-blue: #4b8ca8;
-  --semantic-green: #659b68;
-  --semantic-green-soft: #b9d49e;
-  --semantic-skin: #c98562;
-  --semantic-hair: #44342e;
+  --semantic-paper: #fdf8ef;
+  --semantic-plate: #fffdf7;
+  --semantic-surface: #fffdf7;
+
+  --semantic-teal-deep: #0b4f4c;
+  --semantic-teal: #16756f;
+  --semantic-teal-lit: #3f9f95;
+  --semantic-teal-soft: #cbe4de;
+
+  --semantic-coral-deep: #a34434;
+  --semantic-coral: #cf6350;
+  --semantic-coral-lit: #e78e77;
+  --semantic-coral-soft: #f6d9cf;
+
+  --semantic-gold-deep: #c08420;
+  --semantic-gold: #e0a636;
+  --semantic-gold-lit: #f2c568;
+  --semantic-gold-soft: #f9e4b6;
+
+  --semantic-blue-deep: #2b586f;
+  --semantic-blue: #457d97;
+  --semantic-blue-lit: #74a6bd;
+  --semantic-blue-soft: #d2e3ec;
+
+  --semantic-green-deep: #3b6b40;
+  --semantic-green: #5c9159;
+  --semantic-green-lit: #86b982;
+  --semantic-green-soft: #cde3c2;
+
+  /* Two accents the old set lacked. Six hues is about the point where a
+     palette stops feeling like a starter kit. */
+  --semantic-plum-deep: #5e3550;
+  --semantic-plum: #86527a;
+  --semantic-plum-lit: #b07ea3;
+  --semantic-plum-soft: #e6d3e0;
+
+  --semantic-clay-deep: #8f4a2c;
+  --semantic-clay: #b96a41;
+  --semantic-clay-lit: #d79a72;
+  --semantic-clay-soft: #f0dccb;
+
+  --semantic-skin-deep: #a8663f;
+  --semantic-skin: #c9855f;
+  --semantic-hair: #3d2f2a;
+  --semantic-hair-grey: #9aa4ad;
+  --semantic-window-lit: rgba(247, 214, 126, 0.85);
+  --semantic-gloss: rgba(255, 255, 255, 0.58);
+  --semantic-water-deep: #2f7f96;
+  --semantic-metal-ink: #93a3ad;
+
+  /*
+   * The light in every scene is warm, from the upper left. Shadow is therefore
+   * cool and slightly violet, never neutral grey — a grey wash over warm
+   * colour is what made the old objects look like moulded plastic.
+   */
+  --semantic-shade: rgba(64, 46, 82, 0.16);
+  --semantic-prop-shadow: rgba(72, 50, 78, 0.18);
+  --semantic-contact-core: rgba(72, 50, 78, 0.22);
+  --semantic-contact-edge: rgba(72, 50, 78, 0);
+  --semantic-vignette-clear: rgba(60, 42, 70, 0);
+  --semantic-vignette-edge: rgba(60, 42, 70, 0.13);
+
+  /* Depth tokens. Gradient stops read these, so the dark theme only has to
+     restate the tokens — the artwork itself never forks. */
+  --semantic-paper-lit: #fffdf7;
+  --semantic-paper-deep: #f8ecd9;
+  --semantic-ground-near: #cfe6da;
+  --semantic-ground-far: #e7f2ea;
+  --semantic-glow-core: rgba(240, 196, 108, 0.32);
+  --semantic-glow-edge: rgba(240, 196, 108, 0);
+  --semantic-skin-lit: rgba(255, 236, 214, 0.44);
+  --semantic-hair-lit: rgba(255, 228, 196, 0.30);
+  --semantic-ground-rim: rgba(255, 255, 255, 0.46);
+  --semantic-sun-halo: rgba(240, 196, 108, 0.24);
+  --semantic-sun-core: rgba(255, 242, 198, 0.68);
+  --semantic-leaf-lit: rgba(226, 244, 208, 0.62);
+  --semantic-grain: rgba(88, 58, 34, 0.24);
   display: block;
   width: 100%;
   height: auto;
   overflow: visible;
   color: var(--semantic-ink);
-  filter: drop-shadow(0 0.85rem 1.35rem rgba(80, 58, 26, 0.12));
+  filter: drop-shadow(0 0.85rem 1.35rem rgba(72, 50, 78, 0.13));
 }
 
 .semantic-art--thumbnail {
@@ -29,45 +108,398 @@
 }
 
 .semantic-art--thumbnail .semantic-art__detail--thin,
-.semantic-art--thumbnail .semantic-art__glow {
+.semantic-art--thumbnail .semantic-art__glow,
+.semantic-art--thumbnail .semantic-art__hair-lit,
+.semantic-art--thumbnail .semantic-art__ground-rim,
+.semantic-art--thumbnail .semantic-art__marker-face,
+.semantic-art--thumbnail .semantic-art__marker-hairline,
+.semantic-art--thumbnail .semantic-art__gloss,
+.semantic-art--thumbnail .semantic-art__skin-highlight,
+.semantic-art--thumbnail .semantic-art__foam,
+.semantic-art--thumbnail .semantic-art__marker-moustache,
+.semantic-art--thumbnail .semantic-art__leaf-lit,
+.semantic-art--thumbnail .semantic-art__grain,
+.semantic-art--thumbnail .semantic-art__hatch,
+.semantic-art--thumbnail .semantic-art__garment-line {
   display: none;
 }
 
 .semantic-art__paper {
-  fill: var(--semantic-paper);
+  /* fill comes from the scene's gradient attribute; see SemanticSceneDefs. */
   stroke: color-mix(in srgb, var(--semantic-ink) 22%, transparent);
   stroke-width: 2;
 }
 
 .semantic-art__glow {
-  fill: color-mix(in srgb, var(--semantic-gold) 18%, transparent);
+  /* fill comes from the scene's radial gradient attribute. */
+  pointer-events: none;
 }
 
 .semantic-art__ground {
-  fill: color-mix(in srgb, var(--semantic-teal-soft) 72%, var(--semantic-paper));
+  /* fill comes from the scene's linear gradient attribute. */
 }
 
-.semantic-art__surface { fill: var(--semantic-surface); }
-.semantic-art__teal { fill: var(--semantic-teal); }
-.semantic-art__teal-soft { fill: var(--semantic-teal-soft); }
-.semantic-art__coral { fill: var(--semantic-coral); }
-.semantic-art__gold { fill: var(--semantic-gold); }
-.semantic-art__gold-soft { fill: var(--semantic-gold-soft); }
-.semantic-art__blue { fill: var(--semantic-blue); }
-.semantic-art__green { fill: var(--semantic-green); }
-.semantic-art__green-soft { fill: var(--semantic-green-soft); }
-.semantic-art__hot { fill: #f09b42; }
-.semantic-art__cloud { fill: #cddce5; }
-.semantic-art__wood { fill: #bd8352; }
-.semantic-art__wall { fill: #f2e8d7; }
-.semantic-art__floor { fill: #d6aa76; }
-.semantic-art__metal { fill: #aebdc5; }
+.semantic-art__contact { pointer-events: none; }
+.semantic-art__skin-lit { fill: var(--semantic-skin-lit); }
 
-.semantic-art__outlined {
-  stroke: color-mix(in srgb, var(--semantic-ink) 76%, transparent);
-  stroke-width: 2.8;
+/* Arms are single strokes; without a hand at the end they stop in mid-air. */
+.semantic-art__hand {
+  fill: var(--semantic-skin);
+  stroke: color-mix(in srgb, var(--semantic-ink) 60%, transparent);
+  stroke-width: 1.6;
+}
+
+/* One shading tone for every material. Keeping clothing, façades and props on
+   the same token is what makes light look like it comes from one direction. */
+.semantic-art__shade,
+.semantic-art__shirt-shade,
+.semantic-art__facade-shade {
+  fill: var(--semantic-shade);
+  stroke: none;
+}
+
+/* Soft pool under a prop. Without it every object floats on flat colour. */
+.semantic-art__prop-shadow,
+.semantic-art__bubble-shadow {
+  fill: var(--semantic-prop-shadow);
+  stroke: none;
+  pointer-events: none;
+}
+
+/* A drawn route on a map, and the rims of a bicycle: stroke-only marks that
+   would otherwise have to borrow a fill class and override it inline. */
+.semantic-art__route {
+  fill: none;
+  stroke: var(--semantic-coral);
+  stroke-width: 5;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+.semantic-art__rim {
+  fill: none;
+  stroke: var(--semantic-symbol-ink);
+  stroke-width: 5;
+}
+
+/* Grain, weave, brick courses: whatever tells you what a surface is made of. */
+.semantic-art__grain {
+  fill: none;
+  stroke: var(--semantic-grain);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.semantic-art__hair-lit {
+  fill: none;
+  stroke: var(--semantic-hair-lit);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.semantic-art__garment-line {
+  fill: none;
+  stroke: color-mix(in srgb, var(--semantic-ink) 34%, transparent);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.semantic-art__vignette { pointer-events: none; }
+
+.semantic-art__calendar-ring,
+.semantic-art__metal-line {
+  fill: none;
+  stroke: var(--semantic-metal-ink);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+/* Objects: light direction and material, drawn on top of the flat fills. */
+.semantic-art__window-lit {
+  fill: var(--semantic-window-lit);
+  stroke: none;
+}
+
+.semantic-art__gloss,
+.semantic-art__foam {
+  fill: none;
+  stroke: var(--semantic-gloss);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.semantic-art__water-deep {
+  fill: var(--semantic-water-deep);
+  stroke: none;
+}
+
+/* The reference panel redraws the same tree at roughly half size. Faces and
+   fine features turn to mud below ~7px, so the small copy carries structure
+   only — the foreground subject is where those details get read. */
+.semantic-art__mini-diagram .semantic-art__marker-face,
+.semantic-art__mini-diagram .semantic-art__marker-hairline,
+.semantic-art__mini-diagram .semantic-art__marker-moustache,
+.semantic-art__mini-diagram .semantic-art__marker-beard { display: none; }
+
+/* Strokes must not shrink with the panel, or the tree fades to hairlines. */
+.semantic-art__mini-diagram path,
+.semantic-art__mini-diagram rect,
+.semantic-art__mini-diagram circle { vector-effect: non-scaling-stroke; }
+
+/* Role features on a genealogy marker. Gender still comes from the outline
+   shape, so these are recognition aids layered on top, never the only signal. */
+.semantic-art__marker-hair,
+.semantic-art__marker-hair--grey { stroke: none; }
+.semantic-art__marker-hair circle,
+.semantic-art__marker-hair path { fill: var(--semantic-hair); }
+.semantic-art__marker-hair--grey circle,
+.semantic-art__marker-hair--grey path { fill: var(--semantic-hair-grey); }
+.semantic-art__marker-hairline {
+  fill: none !important;
+  stroke: var(--semantic-hair);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.semantic-art__marker-hair--grey .semantic-art__marker-hairline { stroke: var(--semantic-hair-grey); }
+.semantic-art__marker-cap path { fill: var(--semantic-coral); stroke: none; }
+.semantic-art__marker-cap path + path {
+  fill: none;
+  stroke: var(--semantic-coral);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+.semantic-art__marker-moustache,
+.semantic-art__marker-beard {
+  fill: none;
+  stroke: var(--semantic-hair);
+  stroke-width: 3.4;
+  stroke-linecap: round;
+}
+.semantic-art__marker-beard { stroke: var(--semantic-hair-grey); }
+
+/* Neutral face inside a genealogy marker: eyes filled, mouth stroked. */
+.semantic-art__marker-face circle { fill: var(--semantic-symbol-ink); }
+.semantic-art__marker-face path {
+  fill: none;
+  stroke: var(--semantic-symbol-ink);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+.semantic-art__sun-halo { fill: var(--semantic-sun-halo); }
+.semantic-art__sun-core { fill: var(--semantic-sun-core); }
+
+.semantic-art__leaf-lit {
+  fill: none;
+  stroke: var(--semantic-leaf-lit);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.semantic-art__ground-rim {
+  fill: none;
+  stroke: var(--semantic-ground-rim);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.semantic-art__shoe {
+  fill: none;
+  stroke: var(--semantic-hair);
+  stroke-width: 7;
+  stroke-linecap: round;
+}
+
+/*
+ * Every hue in four steps. `-deep` is the plane turned away from the light,
+ * `-lit` the one facing it. Modelling a shape in its own colour is what makes
+ * the difference between an illustration and a coloured-in outline.
+ */
+.semantic-art__surface { fill: var(--semantic-surface); }
+/* A full-card plate, for scenes that draw their own board over the frame.
+   `__surface` deliberately keeps its light value in the dark theme, which left
+   those cards glaring white among all the others. */
+.semantic-art__plate { fill: var(--semantic-plate); }
+/*
+ * Plaster and painted render. The shaded step stays very close to the base:
+ * a near-white wall in shadow is still near-white, and a bigger gap read as a
+ * second building standing next to the first rather than as its own far side.
+ */
+.semantic-art__surface-lit { fill: #fffefb; }
+.semantic-art__surface-deep { fill: #f2ebdf; }
+
+.semantic-art__teal { fill: var(--semantic-teal); }
+.semantic-art__teal-deep { fill: var(--semantic-teal-deep); }
+.semantic-art__teal-lit { fill: var(--semantic-teal-lit); }
+.semantic-art__teal-soft { fill: var(--semantic-teal-soft); }
+
+.semantic-art__coral { fill: var(--semantic-coral); }
+.semantic-art__coral-deep { fill: var(--semantic-coral-deep); }
+.semantic-art__coral-lit { fill: var(--semantic-coral-lit); }
+.semantic-art__coral-soft { fill: var(--semantic-coral-soft); }
+
+.semantic-art__gold { fill: var(--semantic-gold); }
+.semantic-art__gold-deep { fill: var(--semantic-gold-deep); }
+.semantic-art__gold-lit { fill: var(--semantic-gold-lit); }
+.semantic-art__gold-soft { fill: var(--semantic-gold-soft); }
+
+.semantic-art__blue { fill: var(--semantic-blue); }
+.semantic-art__blue-deep { fill: var(--semantic-blue-deep); }
+.semantic-art__blue-lit { fill: var(--semantic-blue-lit); }
+.semantic-art__blue-soft { fill: var(--semantic-blue-soft); }
+
+.semantic-art__green { fill: var(--semantic-green); }
+/* Stems, reeds, vine lines. These were being drawn with the fill-only green
+   class, so a stem path with no area rendered nothing at all. */
+.semantic-art__stem {
+  fill: none;
+  stroke: var(--semantic-green);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.semantic-art__green-deep { fill: var(--semantic-green-deep); }
+.semantic-art__green-lit { fill: var(--semantic-green-lit); }
+.semantic-art__green-soft { fill: var(--semantic-green-soft); }
+
+.semantic-art__plum { fill: var(--semantic-plum); }
+.semantic-art__plum-deep { fill: var(--semantic-plum-deep); }
+.semantic-art__plum-lit { fill: var(--semantic-plum-lit); }
+.semantic-art__plum-soft { fill: var(--semantic-plum-soft); }
+
+.semantic-art__clay { fill: var(--semantic-clay); }
+.semantic-art__clay-deep { fill: var(--semantic-clay-deep); }
+.semantic-art__clay-lit { fill: var(--semantic-clay-lit); }
+.semantic-art__clay-soft { fill: var(--semantic-clay-soft); }
+
+.semantic-art__skin-deep { fill: var(--semantic-skin-deep); }
+
+.semantic-art__hot { fill: #ef9a3c; }
+.semantic-art__cloud { fill: #cfdbe4; }
+/*
+ * Wood gets its own muted browns rather than borrowing the clay accent.
+ * Clay is a saturated terracotta, which is right for a small pot and far too
+ * loud for the large areas wood covers — trunks, benches, counters, floors.
+ */
+.semantic-art__wood { fill: #a9784e; }
+.semantic-art__wood-deep { fill: #7d5636; }
+.semantic-art__wood-lit { fill: #c99f74; }
+/*
+ * Coloured strokes, one per fill they mirror.
+ *
+ * Poles, trunks, legs, stalks and highlights are lines, and a line has no
+ * interior for a `fill` to reach. Painting them with the matching fill class
+ * left twenty-one shapes across the catalogue drawing nothing at all — small
+ * enough that no screenshot caught them, which is exactly why they lasted.
+ * `__stem` was the first of these; the rest follow its shape.
+ */
+.semantic-art__wood-line {
+  fill: none;
+  stroke: #7d5636;
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.semantic-art__gold-line {
+  fill: none;
+  stroke: var(--semantic-gold);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.semantic-art__coral-line {
+  fill: none;
+  stroke: var(--semantic-coral);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.semantic-art__blue-line {
+  fill: none;
+  stroke: var(--semantic-blue-lit);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+/* A highlight on skin, not structure: it hides at thumbnail size like `__gloss`. */
+.semantic-art__skin-highlight {
+  fill: none;
+  stroke: var(--semantic-skin-lit);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.semantic-art__wall { fill: #f2e7d4; }
+.semantic-art__floor { fill: #d7ab7c; }
+.semantic-art__metal { fill: #adbcc4; }
+.semantic-art__metal-deep { fill: #7d8d97; }
+/*
+ * Stone, which until now borrowed metal. Metal is a cool blue-grey with a
+ * gloss, so a rock painted in it reads as a steel disc; and Israel's stone —
+ * Jerusalem limestone, the rocks in a wadi — is warm, not blue.
+ */
+.semantic-art__stone { fill: #9a8c7c; }
+.semantic-art__stone-deep { fill: #6f6357; }
+.semantic-art__stone-lit { fill: #bcb0a0; }
+
+/* Hatching for texture: cloth, stone, foliage mass. Hidden at thumbnail size
+   and in high contrast, like every other atmospheric resource. */
+.semantic-art__hatch {
+  fill: none;
+  stroke: var(--semantic-shade);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+
+/*
+ * A heavy, uniform outline around every shape is the clearest signal of
+ * "cartoon". Editorial illustration lets colour separate the forms and keeps
+ * the line as a whisper — present enough to hold an edge against a similar
+ * neighbour, light enough that the colour is doing the work.
+ *
+ * High contrast puts the strong line back; see the prefers-contrast block.
+ */
+.semantic-art__outlined {
+  stroke: color-mix(in srgb, var(--semantic-ink) 42%, transparent);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Depth of field, applied to all scenes at once through the layer each shape
+   already declares.
+   One uniform line weight is the main reason flat illustration reads as flat:
+   scenery and subject arrive at the eye with equal urgency. Pushing the
+   context layer back and bringing the meaning layer forward separates the
+   planes without redrawing anything. */
+[data-visual-layer="context"] .semantic-art__outlined {
+  stroke: color-mix(in srgb, var(--semantic-ink) 26%, transparent);
+  stroke-width: 1.2;
+}
+
+[data-visual-layer="meaning"] .semantic-art__outlined {
+  stroke: color-mix(in srgb, var(--semantic-ink) 52%, transparent);
+  stroke-width: 1.9;
+}
+
+/*
+ * The whisper-thin line works because colour separates the shapes. These fills
+ * sit within a hair of the paper's own value, so for them the line is the only
+ * separation there is and it has to stay strong enough to carry the edge.
+ */
+.semantic-art__surface.semantic-art__outlined,
+.semantic-art__cloud.semantic-art__outlined,
+.semantic-art__wall.semantic-art__outlined,
+[data-visual-layer] .semantic-art__surface.semantic-art__outlined,
+[data-visual-layer] .semantic-art__cloud.semantic-art__outlined,
+[data-visual-layer] .semantic-art__wall.semantic-art__outlined {
+  stroke: color-mix(in srgb, var(--semantic-ink) 60%, transparent);
+  stroke-width: 2;
+}
+
+/* 40% measured 2.83:1 against the paper — under the 3:1 WCAG 1.4.11 floor for
+   non-text graphics. 52% clears it while still sitting behind the subject. */
+[data-visual-layer="context"] .semantic-art__detail,
+[data-visual-layer="context"] .semantic-art__detail--thin {
+  stroke: color-mix(in srgb, var(--semantic-ink) 52%, transparent);
 }
 
 .semantic-art__ink {
@@ -97,8 +529,18 @@
   opacity: 0.68;
 }
 
+/*
+ * Clock hands are heavier than ordinary detail. This used to declare only the
+ * width, so a path carrying it alone painted nothing at all — every existing
+ * caller happened to pair it with `__detail`, and the first one that forgot
+ * drew an empty clock face. It now carries its own paint and stands on its own.
+ */
 .semantic-art__clock-hand {
+  fill: none;
+  stroke: var(--semantic-detail-ink);
   stroke-width: 7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .semantic-art__motion,
@@ -144,23 +586,52 @@
   stroke-linejoin: round;
 }
 
+/*
+ * Hair keeps its own dark edge in both themes. `--semantic-ink` flips to a
+ * near-white in the dark theme, which drew a bright outline around every head
+ * and made the figures look like they had white hair.
+ */
 .semantic-art__hair {
   fill: var(--semantic-hair);
-  stroke: var(--semantic-ink);
-  stroke-width: 2;
+  stroke: #1c1512;
+  stroke-width: 1.4;
   stroke-linejoin: round;
 }
 
 .semantic-art__shirt {
-  stroke: color-mix(in srgb, var(--semantic-ink) 70%, transparent);
-  stroke-width: 2.5;
+  stroke: color-mix(in srgb, var(--semantic-ink) 44%, transparent);
+  stroke-width: 1.6;
   stroke-linejoin: round;
 }
 
+/*
+ * Clothing is modelled in its own hue: a lit plane on the side facing the
+ * light and a deep plane on the side turned away. A grey wash over a flat
+ * colour makes fabric look like plastic; two more values of the same colour
+ * make it look like cloth.
+ */
 .semantic-art__person--teal .semantic-art__shirt { fill: var(--semantic-teal); }
+.semantic-art__person--teal .semantic-art__shirt-lit { fill: var(--semantic-teal-lit); }
+.semantic-art__person--teal .semantic-art__shirt-deep { fill: var(--semantic-teal-deep); }
+
 .semantic-art__person--coral .semantic-art__shirt { fill: var(--semantic-coral); }
+.semantic-art__person--coral .semantic-art__shirt-lit { fill: var(--semantic-coral-lit); }
+.semantic-art__person--coral .semantic-art__shirt-deep { fill: var(--semantic-coral-deep); }
+
 .semantic-art__person--gold .semantic-art__shirt { fill: var(--semantic-gold); }
+.semantic-art__person--gold .semantic-art__shirt-lit { fill: var(--semantic-gold-lit); }
+.semantic-art__person--gold .semantic-art__shirt-deep { fill: var(--semantic-gold-deep); }
+
 .semantic-art__person--blue .semantic-art__shirt { fill: var(--semantic-blue); }
+.semantic-art__person--blue .semantic-art__shirt-lit { fill: var(--semantic-blue-lit); }
+.semantic-art__person--blue .semantic-art__shirt-deep { fill: var(--semantic-blue-deep); }
+
+.semantic-art__shirt-lit,
+.semantic-art__shirt-deep { stroke: none; }
+
+/* Skin and hair get the same treatment as cloth. */
+.semantic-art__skin-shade { fill: var(--semantic-skin-deep); stroke: none; }
+.semantic-art__hair-deep { fill: #2a201c; stroke: none; }
 
 .semantic-art__face {
   fill: none;
@@ -168,6 +639,15 @@
   stroke-width: 2.2;
   stroke-linecap: round;
 }
+
+/* Eyes stay at card size and disappear in thumbnails, where two dots this
+   small turn into specks of dirt. */
+.semantic-art__eye {
+  fill: var(--semantic-symbol-ink);
+  stroke: none;
+}
+
+.semantic-art--thumbnail .semantic-art__eye { display: none; }
 
 .semantic-art__bubble {
   stroke-width: 2.4;
@@ -218,10 +698,6 @@
   stroke-width: 2.5;
 }
 
-.semantic-art__handshake {
-  stroke-width: 11;
-}
-
 .semantic-art__awning {
   fill: var(--semantic-gold);
 }
@@ -253,6 +729,33 @@
   dominant-baseline: central;
 }
 
+/* Numerals painted onto an object in the scene — a route sign, a dial, a
+   ticket. Sized so they stay legible at thumbnail scale. */
+.semantic-art__numeral {
+  fill: var(--semantic-symbol-ink);
+  font-family: Arial, sans-serif;
+  font-size: 30px;
+  font-weight: 900;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+.semantic-art__numeral--small { font-size: 17px; }
+.semantic-art__numeral--onDark { fill: var(--semantic-surface); }
+
+/* The counting row: one dot per unit, so the amount can always be counted
+   rather than only read. Empty dots show the size of the set being filled. */
+.semantic-art__count-dot {
+  fill: var(--semantic-coral);
+  stroke: var(--semantic-ink);
+  stroke-width: 2;
+}
+
+.semantic-art__count-dot--empty {
+  fill: none;
+  stroke: color-mix(in srgb, var(--semantic-ink) 34%, transparent);
+}
+
 .semantic-art__scarf {
   stroke: color-mix(in srgb, var(--semantic-ink) 55%, transparent);
   stroke-width: 2.5;
@@ -263,10 +766,19 @@
   --semantic-detail-ink: #5a8192;
   --semantic-symbol-ink: #26384a;
   --semantic-paper: #15283a;
+  --semantic-plate: #1b2c3e;
   --semantic-surface: #f4f8fa;
-  --semantic-teal-soft: #315b58;
-  --semantic-gold-soft: #9b7333;
-  --semantic-green-soft: #486d4b;
+  /* The `-soft` tints are large calm areas, so on a dark surface they have to
+     become deep tones rather than pale ones or they blow out the card. The
+     `-deep` and `-lit` steps keep their light-theme roles: they are relative
+     to their own base, and that relationship does not invert with the theme. */
+  --semantic-teal-soft: #2c5451;
+  --semantic-coral-soft: #6d3529;
+  --semantic-gold-soft: #8f6a2e;
+  --semantic-blue-soft: #2c4c5e;
+  --semantic-green-soft: #43663f;
+  --semantic-plum-soft: #4c2b43;
+  --semantic-clay-soft: #6b3d26;
   color-scheme: dark;
   filter: drop-shadow(0 1rem 1.5rem rgba(0, 0, 0, 0.3));
 }
@@ -296,14 +808,94 @@
   stroke: #26384a;
 }
 
+/* These four keep a light fill in the dark theme, so they need a dark outline —
+   but the rule above outranks the depth-of-field one and was flattening the
+   background back to full strength. Restate it per layer so scenery recedes in
+   the dark theme too, instead of only in the light one. */
+:root[data-theme="dark"] [data-visual-layer="context"] .semantic-art__surface.semantic-art__outlined,
+:root[data-theme="dark"] [data-visual-layer="context"] .semantic-art__glass.semantic-art__outlined,
+:root[data-theme="dark"] [data-visual-layer="context"] .semantic-art__metal.semantic-art__outlined,
+:root[data-theme="dark"] [data-visual-layer="context"] .semantic-art__cloud.semantic-art__outlined,
+:root[data-theme="dark"] [data-visual-layer="context"] .semantic-art__window {
+  stroke: rgba(38, 56, 74, 0.58);
+}
+
+/* Restating only the depth tokens re-lights every gradient for the dark
+   surface; no scene or gradient definition is duplicated. */
+:root[data-theme="dark"] .semantic-art {
+  --semantic-paper-lit: #1d3449;
+  --semantic-paper-deep: #101f2e;
+  --semantic-ground-near: #2b4a4a;
+  --semantic-ground-far: #1a3140;
+  --semantic-glow-core: rgba(237, 185, 78, 0.20);
+  --semantic-glow-edge: rgba(237, 185, 78, 0);
+  --semantic-contact-core: rgba(0, 0, 0, 0.38);
+  --semantic-contact-edge: rgba(0, 0, 0, 0);
+  --semantic-skin-lit: rgba(255, 236, 214, 0.26);
+  /* Cool-violet shadow in the dark theme too, just deeper. Pure black reads as
+     a hole punched in the card rather than as a shaded plane. */
+  --semantic-shade: rgba(16, 8, 28, 0.32);
+  --semantic-hair-lit: rgba(255, 233, 205, 0.22);
+  --semantic-vignette-clear: rgba(12, 6, 22, 0);
+  --semantic-vignette-edge: rgba(12, 6, 22, 0.34);
+  --semantic-ground-rim: rgba(190, 226, 226, 0.24);
+  --semantic-sun-halo: rgba(237, 185, 78, 0.16);
+  --semantic-sun-core: rgba(255, 240, 190, 0.42);
+  --semantic-leaf-lit: rgba(232, 247, 214, 0.34);
+  --semantic-hair-grey: #b8c2cb;
+  --semantic-window-lit: rgba(247, 214, 126, 0.9);
+  --semantic-gloss: rgba(255, 255, 255, 0.4);
+  --semantic-water-deep: #1f5d70;
+  --semantic-prop-shadow: rgba(14, 7, 24, 0.38);
+  --semantic-contact-core: rgba(14, 7, 24, 0.42);
+  --semantic-contact-edge: rgba(14, 7, 24, 0);
+  --semantic-metal-ink: #7f8d97;
+  --semantic-grain: rgba(255, 236, 208, 0.18);
+}
+
 @media (prefers-contrast: more) {
+  /* Gradients lower edge contrast, so high-contrast mode flattens them back
+     to solid tokens. A CSS rule outranks the inline presentation attribute. */
+  .semantic-art__paper { fill: var(--semantic-paper); }
+  .semantic-art__ground { fill: var(--semantic-teal-soft); }
+  .semantic-art__glow,
+  .semantic-art__contact,
+  .semantic-art__skin-lit,
+  .semantic-art__shirt-shade,
+  .semantic-art__hair-lit,
+  .semantic-art__vignette,
+  .semantic-art__ground-rim,
+  .semantic-art__sun-halo,
+  .semantic-art__sun-core,
+  .semantic-art__leaf-lit,
+  .semantic-art__gloss,
+  .semantic-art__skin-highlight,
+  .semantic-art__foam,
+  .semantic-art__facade-shade,
+  .semantic-art__shade,
+  .semantic-art__grain,
+  .semantic-art__hatch,
+  .semantic-art__prop-shadow,
+  .semantic-art__bubble-shadow { display: none; }
+}
+
+@media (prefers-contrast: more) {
+  /* The layer selectors that create depth of field carry more specificity than
+     a bare class, so high contrast has to match them to win. Depth is a
+     comfort; legibility is not, and here it flattens back to one strong line. */
   .semantic-art__paper,
   .semantic-art__outlined,
+  [data-visual-layer] .semantic-art__outlined,
   .semantic-art__window,
   .semantic-art__hair,
   .semantic-art__shirt {
     stroke: currentColor;
     stroke-width: 4;
+  }
+
+  [data-visual-layer="context"] .semantic-art__detail,
+  [data-visual-layer="context"] .semantic-art__detail--thin {
+    stroke: currentColor;
   }
 
   .semantic-art__detail,
@@ -387,4 +979,92 @@
 @keyframes semanticArrowMove {
   0%, 100% { transform: translateX(0); }
   50% { transform: translateX(4px); }
+}
+
+/* 2.10 visual-language consolidation ------------------------------------- */
+/* New exact communication/autonomy/register scenes need stroke counterparts
+   for teal/green fills. Keeping them token-driven preserves light/dark and
+   high-contrast behavior without hard-coded one-off colours. */
+.semantic-art__teal-line {
+  fill: none;
+  stroke: var(--semantic-teal);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.semantic-art__green-line {
+  fill: none;
+  stroke: var(--semantic-green);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Motion is derived from the scene recipe instead of sprinkled arbitrarily.
+   Object scenes breathe, directional scenes travel, exchanges lean toward each
+   other and quantity/time scenes pulse their temporal anchor. */
+@media (prefers-reduced-motion: no-preference) {
+  .semantic-art--hero[data-motion-profile="object-focus"]:hover [data-visual-layer="anchor"],
+  button:hover .semantic-art[data-motion-profile="object-focus"] [data-visual-layer="anchor"],
+  button:focus-visible .semantic-art[data-motion-profile="object-focus"] [data-visual-layer="anchor"] {
+    animation: semanticObjectFocus 720ms var(--ease, ease) both;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .semantic-art--hero[data-motion-profile="direction"]:hover [data-visual-layer="meaning"],
+  button:hover .semantic-art[data-motion-profile="direction"] [data-visual-layer="meaning"],
+  button:focus-visible .semantic-art[data-motion-profile="direction"] [data-visual-layer="meaning"] {
+    animation: semanticDirectionTravel 760ms var(--ease, ease) both;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .semantic-art--hero[data-motion-profile="exchange"]:hover [data-visual-layer="meaning"],
+  button:hover .semantic-art[data-motion-profile="exchange"] [data-visual-layer="meaning"],
+  button:focus-visible .semantic-art[data-motion-profile="exchange"] [data-visual-layer="meaning"] {
+    animation: semanticExchangeWarmth 760ms var(--ease, ease) both;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .semantic-art--hero[data-motion-profile="quantity-time"]:hover [data-visual-layer="anchor"],
+  button:hover .semantic-art[data-motion-profile="quantity-time"] [data-visual-layer="anchor"],
+  button:focus-visible .semantic-art[data-motion-profile="quantity-time"] [data-visual-layer="anchor"] {
+    animation: semanticTimePulse 820ms var(--ease, ease) both;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+}
+
+@keyframes semanticObjectFocus {
+  0%, 100% { transform: translateY(0) scale(1); }
+  45% { transform: translateY(-2px) scale(1.035); }
+}
+
+@keyframes semanticDirectionTravel {
+  0%, 100% { transform: translateX(0); }
+  45% { transform: translateX(3px); }
+}
+
+@keyframes semanticExchangeWarmth {
+  0%, 100% { transform: scale(1); }
+  45% { transform: scale(1.018); }
+}
+
+@keyframes semanticTimePulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.04); opacity: .92; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .semantic-art,
+  .semantic-art *,
+  .semantic-art *::before,
+  .semantic-art *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }

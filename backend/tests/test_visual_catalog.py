@@ -48,7 +48,7 @@ KNOWN_SCENE_ALTS = {
 }
 
 
-def test_visual_catalog_has_72_exact_scenes_and_168_explicit_fallbacks() -> None:
+def test_visual_catalog_has_240_exact_scenes_and_no_reviewed_fallbacks() -> None:
     recipe_source = RECIPES_PATH.read_text(encoding="utf-8")
     exact_keys = set(re.findall(r"^  '([^']+)': \{$", recipe_source, flags=re.MULTILINE))
     payload: dict[str, Any] = json.loads(
@@ -62,10 +62,10 @@ def test_visual_catalog_has_72_exact_scenes_and_168_explicit_fallbacks() -> None
     }
 
     assert len(catalog_by_visual) == 240
-    assert len(exact_keys) == 72
-    assert len(EXACT_VISUAL_WORDS) == 72
+    assert len(exact_keys) == 240
+    assert len(EXACT_VISUAL_WORDS) == 240
     assert exact_keys <= catalog_by_visual.keys()
-    assert len(catalog_by_visual.keys() - exact_keys) == 168
+    assert catalog_by_visual.keys() - exact_keys == set()
     exact_words_in_catalog = {
         str(entry["word"])
         for visual_key, entry in catalog_by_visual.items()

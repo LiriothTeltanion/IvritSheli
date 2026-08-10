@@ -14,6 +14,7 @@ import './v25-private-pilot.css';
 import './learner-mode.css';
 import './achievement-progress.css';
 import './learning-core.css';
+import './premium-polish.css';
 
 const VisualQAGallery = lazy(async () => {
   const module = await import('./components/VisualQAGallery');

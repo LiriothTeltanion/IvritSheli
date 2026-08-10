@@ -1,3 +1,88 @@
+# Ivrit Sheli 2.10.0 — Visual Language Consolidation Verification Ledger
+
+- **Current private source candidate:** `2.10.0` / local artifact / unpublished
+- **Consolidation date:** 2026-08-10
+- **Current verified public production:** `2.4.0` / Railway / PostgreSQL / verified 2026-07-21
+- **Historical candidate baseline:** `2.9.2` completed 699 automated passes on 2026-07-28; that number is preserved as historical evidence and is not relabelled as 2.10.0 proof.
+
+## Current 2.10.0 evidence boundary
+
+This consolidation completes **240/240 exact semantic scenes**, centralizes candidate version identity, refreshes source-package checksum generation, adds the Visual Bible and a reversible premium-polish layer, and simplifies learner-facing storage/auth copy. The package verifier, Python compile checks and focused visual-catalog checks are rerun for this artifact. The complete frontend dependency install, full browser matrix, PostgreSQL/Docker gates, speech pilot and staging checks remain required before publication.
+
+The verified public `2.4.0` production record remains unchanged. Nothing in this private artifact claims that 2.10.0 is deployed, tagged, released or submitted to Devpost.
+
+## First complete gate execution — reference Windows machine — 2026-08-10
+
+The consolidation artifact could not install packages, so the sections below it
+record what a sandbox without a registry could prove. This section records the
+gate actually executed afterwards on the reference Windows machine (Windows 11,
+Python 3.14.6, Node 22), which is the first time 2.10 met Vitest, the Vite
+build, Playwright and the complete backend suite.
+
+That run found four defects the artifact checks could not see; they are listed
+in the CHANGELOG validation addendum and fixed. The results below are **after**
+those fixes.
+
+| Gate | Command | Result |
+|---|---|---|
+| Frontend dependency audit — production | `npm audit --omit=dev` | **0 vulnerabilities** |
+| Frontend dependency audit — full tree | `npm audit` | **0 vulnerabilities** after in-range patches of `postcss`, `nanoid`, `undici`; no major moved |
+| TypeScript | `tsc -b --pretty false` | **Passed**, 0 errors |
+| Frontend tests | `vitest run --maxWorkers=2` | **697 passed / 40 files / 0 failed** |
+| Vite production build | `npm run build` | **Passed** |
+| Backend lint | `ruff check backend/src backend/tests scripts` | **Passed** |
+| Backend types | `mypy --config-file backend/pyproject.toml backend/src` | **Passed across 38 source files** |
+| Backend tests | `pytest backend/tests -q` | **312 passed / 1 credential-gated PostgreSQL skip / 0 failed** |
+| Python compile | `compileall backend/src scripts` | **Passed** |
+| Offline doctor | `python -m ivrit_sheli --doctor` | **Passed as 2.10.0**, 7 checks, 0 failures |
+| Browser + accessibility | `playwright test` | **32 passed / 40 project-scoped skips / 0 failed** |
+| Package verifier | `python scripts/verify_package.py` | **Passed**, 197 required files |
+| Python dependency audit | `pip-audit -r backend/requirements.txt` | **1 known vulnerability — not remediated**, see below |
+
+**Unique directly executed automated passes: 1,041** — 697 frontend, 312
+backend, 32 browser. The credential-gated PostgreSQL skip is not counted, and
+the 40 Playwright skips are intentional project-scoped matrix exclusions rather
+than passes or failures.
+
+### Open dependency finding
+
+`cryptography==49.0.0` carries **PYSEC-2026-3552**, fixed in 50.0.0. It is a
+runtime pin, reached only through `push_notifications.py` for Web Push payload
+encryption. It was **not** upgraded here: a major bump of a cryptography library
+during a stabilisation pass needs its own change and its own verification, not a
+line edited to silence a warning. It is the first thing to resolve in the next
+pass.
+
+### Still not claimed
+
+PostgreSQL 17 integration, production-shaped Docker/Compose readiness, HTTPS
+staging, two-real-account isolation and the Hebrew accuracy pilot were not run
+here and remain required before publication. The public 2.4.0 production record
+is unchanged; nothing in this candidate is deployed, tagged or submitted.
+
+## Artifact checks executed in this environment
+
+| Check | 2.10.0 artifact result |
+|---|---|
+| `python scripts/verify_package.py` | **Passed** — release truth, secret-pattern scan, JSON/SVG/assets, 240-scene catalog contract, checksums and README links |
+| Required package files | **197 required files present** in the final verification run |
+| Checksum generator | **Passed** in clean-package mode — **364 packaged-file SHA-256 entries** regenerated after all edits |
+| Exact visual catalog | **240 catalog keys = 240 exact recipes; 0 reviewed fallbacks** |
+| Visual spotlight smoke | **Passed** — 240 exact words available and a six-card seeded spotlight returned six unique trilingual visuals |
+| Trilingual catalog split | **606 EN / 606 ES / 606 HE keys; sets identical** |
+| TypeScript/TSX syntax transpilation | **125 source files parsed with 0 syntax errors** using the available TypeScript compiler |
+| Python `compileall` | **Passed** for `backend/src` and `scripts` |
+| `python -m ivrit_sheli --doctor` | **Passed** — version 2.10.0, 240-entry dictionary, local learning DB, offline AI, audio recognition match, connector registry and dashboard |
+| Full backend pytest | **Not executed here** — the intentionally clean source export contains no virtualenv and this sandbox lacks the pinned `psycopg` package; installing it is unavailable in this environment |
+| Full npm/Vitest/Playwright/Vite | **Not executed here** — `node_modules` is intentionally excluded and the sandbox has no package-registry access. CI remains configured to run the complete gate after `npm ci`. |
+| PostgreSQL/Docker/staging/speech pilot | **Not claimed** — must run in the normal project/CI environment before publication |
+
+These limitations are environmental, not silently converted into passes. The new CI configuration runs the primary local-first gate on Python 3.13 (matching the production image) and keeps a separate Python 3.10 compatibility backend gate.
+
+---
+
+## Historical ledger retained below
+
 # Ivrit Sheli 2.9.1 — Private Candidate Verification Ledger
 
 - **Ledger update date:** 2026-07-27

@@ -1,3 +1,7 @@
+# 2.10.0 provenance note — 2026-08-10
+
+The linguistic catalog remains reviewed separately from its art. The private 2.10.0 candidate expands exact semantic illustration coverage from the historical 2.8.3 milestone of 72 scenes to **240/240 reviewed concepts**. Illustration coverage does not change spelling, meaning, grammar or provenance claims.
+
 # Hebrew content sourcing and provenance
 
 **Status:** v2.9.1 content policy — private candidate dated 2026-07-27

@@ -1,3 +1,7 @@
+# 2.10.0 design-system consolidation — 2026-08-10
+
+The current private candidate combines six cinematic Israel-region WebP journey scenes with **240 exact semantic SVG scenes** for the reviewed vocabulary catalog. Learner surfaces prioritize Hebrew and meaning; infrastructure details move behind advanced/privacy disclosure. Motion is semantic and fully disabled when reduced motion is requested. See `VISUAL_BIBLE.md`.
+
 # Design system
 
 ## Warm Illustrated Journey visual direction

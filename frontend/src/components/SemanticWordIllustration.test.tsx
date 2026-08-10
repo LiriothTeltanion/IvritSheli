@@ -25,8 +25,10 @@ function visual(key: string): DictionaryVisual {
 }
 
 describe('SemanticWordIllustration', () => {
-  it('covers 72 high-impact A0 meanings with unique semantic fingerprints', () => {
-    expect(A0_SEMANTIC_VISUAL_KEYS).toHaveLength(72);
+  it('covers 240 high-impact A0 meanings with unique semantic fingerprints', () => {
+    // Deliberately a literal, not a derived value: this is the tripwire that
+    // catches art disappearing. Raise it by hand when a category gains scenes.
+    expect(A0_SEMANTIC_VISUAL_KEYS).toHaveLength(240);
     const fingerprints = A0_SEMANTIC_VISUAL_KEYS.map((key) => semanticFingerprint(getA0VisualRecipe(key)));
     expect(new Set(fingerprints)).toHaveLength(A0_SEMANTIC_VISUAL_KEYS.length);
   });
@@ -75,8 +77,14 @@ describe('SemanticWordIllustration', () => {
       'semantic',
     );
 
-    rerender(<DictionaryVisualCue visual={visual('transport.bus')} locale="en" />);
-    expect(container.querySelector('[data-visual-id="transport.bus"]')).toHaveAttribute(
+    // A key that is deliberately not in the catalog. Naming a real word here
+    // makes the test fail the day that word gains art, which is backwards: the
+    // behaviour under test is "no exact scene → fallback", not which words
+    // happen to lack one today.
+    const notYetDrawn = 'transport.unfinished_concept';
+    expect(A0_SEMANTIC_VISUAL_KEYS).not.toContain(notYetDrawn);
+    rerender(<DictionaryVisualCue visual={visual(notYetDrawn)} locale="en" />);
+    expect(container.querySelector(`[data-visual-id="${notYetDrawn}"]`)).toHaveAttribute(
       'data-visual-fallback',
       'true',
     );
