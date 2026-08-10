@@ -2,6 +2,27 @@
 
 All notable changes are documented here. Versions follow Semantic Versioning.
 
+## 2.10.0 — Security addendum — Private candidate — 2026-08-11
+
+Version stays **2.10.0**: an unpublished candidate receiving a dependency patch
+does not become a new one, and no version surface moves.
+
+### Security
+
+- `cryptography` 49.0.0 → **50.0.0**, resolving **PYSEC-2026-3552**. 50.0.0 is
+  the lowest published release that carries the fix.
+
+  Ivrit Sheli touches one API of that library — `Fernet`, to encrypt push
+  subscription documents at rest — and a ciphertext written under 49.0.0 was
+  proved to decrypt byte-identically under 50.0.0, so stored subscriptions are
+  unaffected. The Web Push stack that reaches deeper into it and that the test
+  suite stubs out — `pywebpush`, `py-vapid`, `http-ece` — was exercised
+  separately against 50.0.0 with deprecation warnings promoted to errors: VAPID
+  signing, an `aes128gcm` round trip and a real payload encoding all passed
+  clean. No application code needed changing.
+
+  `pip-audit` now reports no known vulnerabilities.
+
 ## 2.10.0 — Validation addendum — Private candidate — 2026-08-10
 
 Version stays **2.10.0**. This candidate was never tagged, deployed or

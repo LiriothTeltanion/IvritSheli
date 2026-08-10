@@ -37,21 +37,37 @@ those fixes.
 | Offline doctor | `python -m ivrit_sheli --doctor` | **Passed as 2.10.0**, 7 checks, 0 failures |
 | Browser + accessibility | `playwright test` | **32 passed / 40 project-scoped skips / 0 failed** |
 | Package verifier | `python scripts/verify_package.py` | **Passed**, 197 required files |
-| Python dependency audit | `pip-audit -r backend/requirements.txt` | **1 known vulnerability — not remediated**, see below |
+| Python dependency audit | `pip-audit -r backend/requirements.txt` | **No known vulnerabilities** after the isolated `cryptography` 49.0.0 → 50.0.0 upgrade |
 
 **Unique directly executed automated passes: 1,041** — 697 frontend, 312
 backend, 32 browser. The credential-gated PostgreSQL skip is not counted, and
 the 40 Playwright skips are intentional project-scoped matrix exclusions rather
 than passes or failures.
 
-### Open dependency finding
+### Dependency finding — resolved 2026-08-11
 
-`cryptography==49.0.0` carries **PYSEC-2026-3552**, fixed in 50.0.0. It is a
-runtime pin, reached only through `push_notifications.py` for Web Push payload
-encryption. It was **not** upgraded here: a major bump of a cryptography library
-during a stabilisation pass needs its own change and its own verification, not a
-line edited to silence a warning. It is the first thing to resolve in the next
-pass.
+`cryptography==49.0.0` carried **PYSEC-2026-3552**. It was deliberately left
+alone during the stabilisation pass — a major bump of a cryptography library
+deserves its own change and its own verification, not a line edited to silence a
+warning — and was then upgraded on its own to **50.0.0**, the lowest published
+release that resolves the advisory and, as of this date, the only 50.x release.
+
+The pin is reached two ways, and both were checked:
+
+- **Directly**, through `push_notifications.py`, which uses exactly one API:
+  `cryptography.fernet.Fernet` for encrypting subscription documents at rest.
+  A ciphertext produced under 49.0.0 was decrypted byte-identically under
+  50.0.0, so stored subscriptions survive the upgrade.
+- **Transitively**, through `pywebpush`, `py-vapid` and `http-ece`, which reach
+  much deeper into the library than Ivrit Sheli does and which the test suite
+  stubs out. They were exercised directly against 50.0.0 with deprecation
+  warnings promoted to errors: VAPID key generation and claim signing, an
+  `aes128gcm` encrypt/decrypt round trip, and a real `WebPusher` payload
+  encoding. All three passed with no warning. None of the three caps the
+  version — they declare `>=2.5`, `>=46` and `>=2.6.1`.
+
+`pip-audit -r backend/requirements.txt` now reports **no known vulnerabilities**.
+No application code changed; the upgrade required no compatibility edits.
 
 ### Still not claimed
 

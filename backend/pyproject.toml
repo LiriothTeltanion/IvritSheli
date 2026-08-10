@@ -21,7 +21,7 @@ dependencies = [
   "alembic==1.18.5",
   "faster-whisper==1.2.1",
   "pywebpush==2.3.0",
-  "cryptography==49.0.0",
+  "cryptography==50.0.0",
 ]
 
 [project.scripts]
