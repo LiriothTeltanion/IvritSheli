@@ -7,7 +7,7 @@
 
 ## Current 2.10.0 evidence boundary
 
-This consolidation completes **240/240 exact semantic scenes**, centralizes candidate version identity, refreshes source-package checksum generation, adds the Visual Bible and a reversible premium-polish layer, and simplifies learner-facing storage/auth copy. The package verifier, Python compile checks and focused visual-catalog checks are rerun for this artifact. The complete frontend dependency install, full browser matrix, PostgreSQL/Docker gates, speech pilot and staging checks remain required before publication.
+This consolidation completes **240/240 exact semantic scenes**, centralizes candidate version identity, refreshes source-package checksum generation, adds the Visual Bible and a reversible premium-polish layer, and simplifies learner-facing storage/auth copy. The package verifier, Python compile checks and focused visual-catalog checks are rerun for this artifact. The complete frontend dependency install, the full browser matrix and the PostgreSQL/Docker gates have since been executed on the reference Windows machine — dated 2026-08-10 and 2026-08-11 in the two sections below — against local disposable infrastructure. The **speech pilot and staging checks remain required before publication**, and local production-shaped verification is not a deployment.
 
 The verified public `2.4.0` production record remains unchanged. Nothing in this private artifact claims that 2.10.0 is deployed, tagged, released or submitted to Devpost.
 
@@ -69,14 +69,84 @@ The pin is reached two ways, and both were checked:
 `pip-audit -r backend/requirements.txt` now reports **no known vulnerabilities**.
 No application code changed; the upgrade required no compatibility edits.
 
-### Still not claimed
+### Still not claimed at that point
 
-PostgreSQL 17 integration, production-shaped Docker/Compose readiness, HTTPS
-staging, two-real-account isolation and the Hebrew accuracy pilot were not run
-here and remain required before publication. The public 2.4.0 production record
-is unchanged; nothing in this candidate is deployed, tagged or submitted.
+HTTPS staging, two-real-account isolation and the Hebrew accuracy pilot were not
+run. PostgreSQL and Docker were also outstanding then; they were closed in the
+run recorded below.
 
-## Artifact checks executed in this environment
+## PostgreSQL 17 and production-shaped container validation — 2026-08-11
+
+Executed locally on the reference Windows machine against disposable
+infrastructure with throwaway credentials. **This is local production-shaped
+verification of the 2.10 candidate. It is not a deployment, and it is not a
+public or staging verification.** The verified public production record remains
+`2.4.0` on Railway, dated 2026-07-21, and nothing in this candidate is deployed,
+tagged, released or submitted.
+
+| Area | Result |
+|---|---|
+| PostgreSQL tested | **17.10** (`postgres:17-alpine`, digest-pinned) |
+| Docker / Compose | Docker **29.6.2**, Compose **v5.3.1** |
+| Alembic from empty database | **5 revisions applied to head**, `20260716_0001` → `20260727_0005` |
+| Runtime-role provisioning | **Passed**, `database.provision.ready` |
+| PostgreSQL-gated suite | **3 passed** — the case that had been skipped since 2.9 now executes |
+| Complete backend suite | **310 ordinary + 3 PostgreSQL = 313 passed, 0 skipped** |
+| Image build | **Passed** from current source with `--no-cache` |
+| `cryptography` inside the image | **50.0.0** verified in the built image, not inherited from a cached layer |
+| Container process | uvicorn as PID 1, **UID/GID 10001:10001** on all four of real, effective, saved and fs |
+| `/health/live` | `alive`, 2.10.0 |
+| `/health/ready` | `ready`, `postgresql: true`, dictionary **240 entries / 240 senses**, schema v3 |
+| `/version` | 2.10.0 · environment `development` (the compose loopback policy) · storage **postgresql** |
+| Migration credentials in the app process | **Absent.** Compose never passes them, and when deliberately injected the entrypoint removes them before the final UID 10001 process |
+| Log redaction | **No leak** across 93 log lines against ten patterns: role passwords, session secret, push key, credential-bearing DSNs, `Authorization`, session cookie, OAuth code and state |
+| Graceful shutdown / restart | Clean uvicorn sequence, **exit code 0** in 1.8s; healthy again 6s after restart |
+| `docker compose down -v` | Clean. Host learner databases byte-identical before and after — the stack uses named volumes, no bind mount to the repository `data/` |
+
+### Database security posture, as measured
+
+- `SESSION_USER` = `CURRENT_USER` = `ivrit_sheli_runtime`. PostgreSQL's own
+  connection log confirms the container authenticates **directly** as that role
+  over `scram-sha-256`; there is no `SET ROLE` step to audit.
+- Role attributes: `SUPERUSER no · CREATEDB no · CREATEROLE no · REPLICATION no ·
+  BYPASSRLS no · INHERIT no · LOGIN yes`. Same for the push worker.
+- **Zero** memberships in any other role.
+- Row Level Security **ENABLED and FORCED** on `learner_states`,
+  `push_subscriptions` and `push_delivery_state`.
+- Grants are least-privilege; `alembic_version` is **SELECT only**, which is what
+  readiness needs and nothing more.
+- No `CREATE` on the database and no `CREATE` on schema `public`.
+- Attempted from the runtime role and denied with `InsufficientPrivilege`:
+  `CREATE DATABASE`, `CREATE ROLE`, `SET ROLE` to the administrator,
+  `ALTER ROLE … BYPASSRLS`, `CREATE TABLE` in `public`.
+
+### Tenant isolation, two synthetic learners
+
+Read, write and delete were each attempted across the tenant boundary:
+
+- Learner A sees exactly one row, their own. An explicit query for B's row
+  returns **0 rows**.
+- `UPDATE` and `DELETE` against B's row affect **0 rows**.
+- `INSERT` carrying B's `user_id` is rejected by the policy itself —
+  *new row violates row-level security policy* — not merely by a check
+  constraint.
+- With no `app.user_id` set, the table returns **0 rows**: the default is
+  closed, not open.
+- State survives across independent connections unchanged.
+- Deleting A cascades to A's learner state and leaves B's untouched.
+
+All identities and data were synthetic and disposable, and the environment was
+destroyed afterwards.
+
+## Artifact checks executed in the consolidation sandbox — 2026-08-10
+
+This table records what the consolidation sandbox itself could prove, before the
+artifact ever reached a machine with a package registry, PostgreSQL or Docker.
+It is kept as a true record of that environment. Its last three rows have since
+been **superseded** by the two sections above, which ran the gates it could not;
+each says so inline. Its checksum row counts that export's clean-package walk —
+the manifest in this repository is a different set, **362 canonical Git-index
+entries**.
 
 | Check | 2.10.0 artifact result |
 |---|---|
@@ -89,9 +159,9 @@ is unchanged; nothing in this candidate is deployed, tagged or submitted.
 | TypeScript/TSX syntax transpilation | **125 source files parsed with 0 syntax errors** using the available TypeScript compiler |
 | Python `compileall` | **Passed** for `backend/src` and `scripts` |
 | `python -m ivrit_sheli --doctor` | **Passed** — version 2.10.0, 240-entry dictionary, local learning DB, offline AI, audio recognition match, connector registry and dashboard |
-| Full backend pytest | **Not executed here** — the intentionally clean source export contains no virtualenv and this sandbox lacks the pinned `psycopg` package; installing it is unavailable in this environment |
-| Full npm/Vitest/Playwright/Vite | **Not executed here** — `node_modules` is intentionally excluded and the sandbox has no package-registry access. CI remains configured to run the complete gate after `npm ci`. |
-| PostgreSQL/Docker/staging/speech pilot | **Not claimed** — must run in the normal project/CI environment before publication |
+| Full backend pytest | Not executed in this sandbox — the intentionally clean source export contains no virtualenv and it lacks the pinned `psycopg` package. **Superseded 2026-08-11: 313 passed, 0 skipped** on the reference machine. |
+| Full npm/Vitest/Playwright/Vite | Not executed in this sandbox — `node_modules` is intentionally excluded and it has no package-registry access. **Superseded 2026-08-10/11: Vitest 697/697, Playwright 32/32, `tsc` and the Vite build clean** on the reference machine. CI remains configured to run the complete gate after `npm ci`. |
+| PostgreSQL/Docker/staging/speech pilot | PostgreSQL and Docker: **superseded 2026-08-11** by the local production-shaped run above — PostgreSQL 17.10 and a `--no-cache` image build, both against disposable infrastructure. Staging and the speech pilot remain **unrun and unclaimed**. |
 
 These limitations are environmental, not silently converted into passes. The new CI configuration runs the primary local-first gate on Python 3.13 (matching the production image) and keeps a separate Python 3.10 compatibility backend gate.
 

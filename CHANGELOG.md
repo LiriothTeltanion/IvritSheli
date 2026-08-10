@@ -2,6 +2,45 @@
 
 All notable changes are documented here. Versions follow Semantic Versioning.
 
+## 2.10.0 — Runtime validation addendum — Private candidate — 2026-08-11
+
+Version stays **2.10.0**. This records the first execution of the PostgreSQL and
+container gates against this candidate, plus the one test-robustness fix that
+run required. No application code changed.
+
+### Verified locally, production-shaped
+
+PostgreSQL **17.10** and Docker **29.6.2** / Compose **v5.3.1**, against
+disposable infrastructure with throwaway credentials. Alembic ran an empty
+database to head across five revisions, role provisioning completed, and the
+PostgreSQL-gated case that had been skipped since 2.9 now executes: the backend
+suite is **313 passed with zero skips**.
+
+The container runs uvicorn as PID 1 under UID/GID 10001, reports 2.10.0 with
+`storage: postgresql` and a 240-entry dictionary, authenticates to PostgreSQL
+directly as the restricted `ivrit_sheli_runtime` role over `scram-sha-256`, and
+never receives the migration credential — Compose does not pass it, and the
+entrypoint strips it even when it is deliberately injected. Row Level Security
+is enabled and forced on all three tenant tables, cross-tenant read, write and
+delete were each attempted and refused, and no credential, cookie, header or
+OAuth value appeared in any log.
+
+**This is local verification of the candidate, not a deployment.** Public
+production remains the verified `2.4.0` of 2026-07-21. HTTPS staging,
+two-real-account isolation and the Hebrew accuracy pilot remain unrun.
+
+### Fixed
+
+- The two browser cases that mount the Visual QA catalogue waited for it with
+  Playwright's 5s assertion default. That page inlines 720 hand-authored SVGs
+  and three viewport projects render it at once: measured at 54s with the
+  machine quiet and 1m18s under memory pressure at a single worker, the default
+  could not hold, and the matrix failed intermittently on machine load rather
+  than on any product behaviour. Only the catalogue-mount wait now carries a
+  budget proportionate to what it waits for; every assertion after it keeps the
+  ordinary default, because a slow answer there would be a real defect. Two
+  consecutive full matrices pass 32/32.
+
 ## 2.10.0 — Security addendum — Private candidate — 2026-08-11
 
 Version stays **2.10.0**: an unpublished candidate receiving a dependency patch
