@@ -123,7 +123,7 @@ describe('DictionaryDrawer', () => {
 
     await waitFor(() => expect(lookup).toHaveBeenCalledWith('שלום'));
     expect((await screen.findAllByText('shalom')).length).toBeGreaterThan(0);
-    expect(screen.getByRole('img', { name: 'Two people greeting' })).toBeInTheDocument();
+    expect(await screen.findByRole('img', { name: 'Two people greeting' })).toBeInTheDocument();
     expect(screen.getByText('peace; hello')).toBeInTheDocument();
     expect(screen.getByText('paz; hola')).toBeInTheDocument();
     expect(screen.getByText('goodbye')).toBeInTheDocument();

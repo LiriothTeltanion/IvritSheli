@@ -94,7 +94,7 @@ describe('LearnPanel dictionary identity', () => {
     const dictionaryButtons = screen.getAllByRole('button', { name: 'Dictionary' });
     await user.click(dictionaryButtons[1]!);
     await waitFor(() => expect(screen.getByText('second homograph')).toBeInTheDocument());
-    expect(screen.getByRole('img', { name: 'Friendly greeting' })).toBeInTheDocument();
+    expect(await screen.findByRole('img', { name: 'Friendly greeting' })).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: /shalom-b/i }));
     expect(onWordClick).toHaveBeenCalledWith('שלום', 2);

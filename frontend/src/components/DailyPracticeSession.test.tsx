@@ -184,7 +184,7 @@ describe('DailyPracticeSession', () => {
     expect(screen.getByText('shalom')).toBeInTheDocument();
     expect(screen.getByText('toda')).toBeInTheDocument();
     expect(screen.getByText('Recall, listen and speak without penalties for mistakes.')).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: 'Two neighbors facing each other and waving hello' })).toHaveAttribute(
+    expect(await screen.findByRole('img', { name: 'Two neighbors facing each other and waving hello' })).toHaveAttribute(
       'data-visual-id',
       'greetings.hello',
     );

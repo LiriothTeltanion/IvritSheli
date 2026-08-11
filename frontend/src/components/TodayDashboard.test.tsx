@@ -1,7 +1,7 @@
 // Module: Today dashboard tests
 // Purpose: Keep the read-only product tour discoverable, actionable, and absent from private workspaces.
 
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { I18nProvider } from '../i18n';
@@ -180,7 +180,11 @@ describe('TodayDashboard product tour', () => {
     renderDashboard(false, actions);
 
     expect(screen.getByRole('heading', { name: 'Your visual words today' })).toBeInTheDocument();
-    expect(document.querySelectorAll('.visual-vocabulary__grid [data-visual-detail="semantic"]')).toHaveLength(6);
+    // The scene layer is a dynamic import now, so the drawings arrive a tick
+    // after the grid does. The count is still the assertion.
+    await waitFor(() => {
+      expect(document.querySelectorAll('.visual-vocabulary__grid [data-visual-detail="semantic"]')).toHaveLength(6);
+    });
     expect(document.querySelector('.hero-visual [data-visual-id="family.mother"]')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Open dictionary for לחם' }));
@@ -197,11 +201,13 @@ describe('TodayDashboard product tour', () => {
     expect(actions.onOpenAlphabet).toHaveBeenCalledOnce();
   });
 
-  it('keeps six exact compatibility scenes when an older dashboard omits the spotlight', () => {
+  it('keeps six exact compatibility scenes when an older dashboard omits the spotlight', async () => {
     const { visual_spotlight: _spotlight, ...olderDashboard } = dashboard;
     renderDashboard(false, actionSpies(), olderDashboard);
 
-    expect(document.querySelectorAll('.visual-vocabulary__grid [data-visual-detail="semantic"]')).toHaveLength(6);
+    await waitFor(() => {
+      expect(document.querySelectorAll('.visual-vocabulary__grid [data-visual-detail="semantic"]')).toHaveLength(6);
+    });
     expect(document.querySelector('[data-visual-id="food.water"]')).toBeInTheDocument();
   });
 

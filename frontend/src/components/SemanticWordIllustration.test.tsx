@@ -1,7 +1,7 @@
 // Module: semantic word illustration tests
 // Purpose: Protect A0 recipe coverage, semantic uniqueness, progressive hints, and accessibility.
 
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import type { DictionaryVisual } from '../types';
 import {
@@ -68,14 +68,16 @@ describe('SemanticWordIllustration', () => {
     }
   });
 
-  it('uses the same renderer for detailed scenes and marks unfinished concepts as fallback', () => {
+  it('uses the same renderer for detailed scenes and marks unfinished concepts as fallback', async () => {
     const { container, rerender } = render(
       <DictionaryVisualCue visual={visual('home.room')} locale="en" />,
     );
-    expect(container.querySelector('[data-visual-id="home.room"]')).toHaveAttribute(
-      'data-visual-detail',
-      'semantic',
-    );
+    await waitFor(() => {
+      expect(container.querySelector('[data-visual-id="home.room"]')).toHaveAttribute(
+        'data-visual-detail',
+        'semantic',
+      );
+    });
 
     // A key that is deliberately not in the catalog. Naming a real word here
     // makes the test fail the day that word gains art, which is backwards: the

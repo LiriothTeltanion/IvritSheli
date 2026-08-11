@@ -34,7 +34,7 @@ describe('FirstStepsLesson', () => {
       </I18nProvider>,
     );
 
-    expect(screen.getByRole('img', { name: 'Two neighbors facing each other and waving hello' })).toBeInTheDocument();
+    expect(await screen.findByRole('img', { name: 'Two neighbors facing each other and waving hello' })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'thank you' }));
     expect(screen.getByText('Choose another answer and try again.')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'hello · peace' }));

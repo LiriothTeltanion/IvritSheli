@@ -52,7 +52,20 @@ describe('VisualQAGallery', () => {
       expect(screen.getByText(`${total}/${total} exact scenes loaded`)).toBeInTheDocument();
     });
     expect(document.querySelectorAll('.visual-qa__catalog > article')).toHaveLength(total);
-    expect(document.querySelectorAll('.visual-qa__catalog [data-size="thumbnail"]')).toHaveLength(total);
+    /*
+     * The counter above reports loaded dictionary entries; the artwork itself
+     * comes from the deferred scene chunk and settles after it.
+     *
+     * Measured here, not guessed: this page mounts 720 illustrations behind one
+     * Suspense boundary each, and in jsdom that settles somewhere between three
+     * and eight seconds on a quiet machine — 3s fails, 8s passes. Running the
+     * browser matrix at the same time pushed it past 8s, so the budget covers a
+     * loaded machine rather than only an idle one. The product never does this;
+     * it draws six cards at a time. Only this one wait carries the budget.
+     */
+    await waitFor(() => {
+      expect(document.querySelectorAll('.visual-qa__catalog [data-size="thumbnail"]')).toHaveLength(total);
+    }, { timeout: 20_000 });
     expect(document.querySelectorAll('.visual-qa__catalog [data-size="card"]')).toHaveLength(total);
     expect(document.querySelectorAll('.visual-qa__catalog [data-size="hero"]')).toHaveLength(total);
 
