@@ -61,29 +61,27 @@ principles behind this release live in the
 </p>
 
 <details>
-<summary><strong>🌤️ Open the local 2.8 beginner, mobile and Hebrew RTL views</strong></summary>
+<summary><strong>🌤️ Open the local 2.10 desktop, mobile and Hebrew RTL views</strong></summary>
 
 <table>
   <tr>
-    <td width="50%" align="center"><strong>Learn before account</strong></td>
-    <td width="50%" align="center"><strong>Guided desktop journey</strong></td>
+    <td width="100%" align="center"><strong>Guided desktop journey</strong></td>
   </tr>
   <tr>
-    <td><img src="assets/readme/ivrit-sheli-2.8-welcome.png" width="100%" alt="Ivrit Sheli 2.8 beginner entry teaching shalom before asking the learner to choose an account" /></td>
-    <td><img src="assets/readme/ivrit-sheli-2.8-dashboard.png" width="100%" alt="Ivrit Sheli 2.8 Guided dashboard with an illustrated word card and a warm Israel journey" /></td>
+    <td><img src="assets/readme/ivrit-sheli-2.10-dashboard.png" width="100%" alt="Ivrit Sheli 2.10 Guided desktop dashboard: one primary lesson action, a word card pairing the Hebrew shesh with its exact semantic scene, and the reading step for the letter alef" /></td>
   </tr>
   <tr>
     <td width="34%" align="center"><strong>390 px mobile</strong></td>
     <td width="66%" align="center"><strong>Hebrew right-to-left</strong></td>
   </tr>
   <tr>
-    <td><img src="assets/readme/ivrit-sheli-2.8-mobile.png" width="100%" alt="Ivrit Sheli 2.8 mobile Guided view with one clear lesson action and three-item navigation" /></td>
-    <td><img src="assets/readme/ivrit-sheli-2.8-hebrew-rtl.png" width="100%" alt="Ivrit Sheli 2.8 Hebrew beginner entry rendered right to left" /></td>
+    <td><img src="assets/readme/ivrit-sheli-2.10-mobile.png" width="100%" alt="Ivrit Sheli 2.10 mobile Guided view in Spanish with one clear lesson action and three-item navigation" /></td>
+    <td><img src="assets/readme/ivrit-sheli-2.10-hebrew-rtl.png" width="100%" alt="Ivrit Sheli 2.10 Guided dashboard rendered right to left in Hebrew, with the navigation mirrored to the right edge" /></td>
   </tr>
 </table>
 </details>
 
-> **Screenshot boundary:** these images show the inherited unpublished 2.8 visual foundation (historical date not re-verified in this slice), not the frozen 2.4.0 Contest Edition dated 2026-07-21 and not yet refreshed 2.10.0 Visual Language Consolidation captures dated 2026-08-10. Updated captures will be added only after the candidate passes visual and mobile review.
+> **Screenshot boundary:** the three images above are **local 2.10.0 candidate captures taken on 2026-08-11**, after the visual, mobile, Hebrew RTL, reduced-motion, high-contrast and 200%-zoom review. They are captures of a development build on one machine — not a deployment, and not evidence that 2.10 is published. Public production remains the frozen **2.4.0** Contest Edition dated 2026-07-21. The animated journey above them still shows the inherited unpublished 2.8 foundation and is labelled as such.
 
 ## Why this project exists 💙
 

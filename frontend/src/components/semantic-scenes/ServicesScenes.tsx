@@ -314,10 +314,16 @@ export function ServicesScene({
             <path className="semantic-art__detail semantic-art__detail--thin" d="M56 52h60m40 0h28M56 72h64m40 0h28M56 92h52m48 0h28M56 112h68m36 0h28" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            <path className="semantic-art__teal-soft semantic-art__outlined" d="M46 126h148v24H46Z" />
+            {/*
+              The amount owed is what an invoice *is*. The total row used to
+              carry the same weight as the four rows above it, so the card said
+              "a document with a table" and stopped there.
+            */}
+            <path className="semantic-art__coral-soft semantic-art__outlined" d="M46 126h148v24H46Z" />
             <path className="semantic-art__detail" d="M46 126h148" />
-            <text className="semantic-art__currency" x="168" y="147" fontSize="20">₪</text>
-            <path className="semantic-art__detail semantic-art__detail--thin" d="M56 142h56" />
+            <path className="semantic-art__gold semantic-art__outlined" d="M126 130h62v16h-62Z" />
+            <text className="semantic-art__currency" x="172" y="144" fontSize="17">₪</text>
+            <path className="semantic-art__detail semantic-art__detail--thin" d="M56 142h50" />
           </SceneLayer>
         </>
       );

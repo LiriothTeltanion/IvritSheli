@@ -1001,6 +1001,20 @@
   stroke-linejoin: round;
 }
 
+/* A stroke in the surface colour, for marks drawn *on* a coloured badge.
+   The negative check badge used `__surface` — a fill class — on an open
+   two-segment cross. SVG has no line to fill there, so it filled each
+   subpath's implied region instead: two 16x16 slivers that vanish against the
+   disc. `autonomy.cannot` and `autonomy.i_do_not_have` both showed a blank red
+   circle where the X belongs. Measured in the browser: stroke `none`. */
+.semantic-art__surface-line {
+  fill: none;
+  stroke: var(--semantic-surface);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 /* Motion is derived from the scene recipe instead of sprinkled arbitrarily.
    Object scenes breathe, directional scenes travel, exchanges lean toward each
    other and quantity/time scenes pulse their temporal anchor. */

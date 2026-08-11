@@ -155,6 +155,13 @@ export function WorkScene({ visualKey, hintStage }: WorkSceneProps): React.JSX.E
             <path className="semantic-art__green semantic-art__outlined" d="M64 50h28v28H64Z" />
             <path className="semantic-art__surface" d="M70 63l7 8 13-16 5 5-18 21-12-13Z" />
             <path className="semantic-art__detail" d="M96 64h74" />
+            {/*
+              One row singled out. `mesima` is a single assigned task, and four
+              rows of equal weight said "to-do list" instead — the same thing
+              `work.project` already says, one card away.
+            */}
+            <path className="semantic-art__coral-line" d="M62 84h-6v28h6" />
+            <path className="semantic-art__arrow semantic-art__motion-part" d="M28 98h16m-6-5 6 5-6 5" />
           </SceneLayer>
         </>
       );

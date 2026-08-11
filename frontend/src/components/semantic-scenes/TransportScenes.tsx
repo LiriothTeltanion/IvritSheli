@@ -42,8 +42,10 @@ function TurnArrow({ dir }: { dir: 'right' | 'left' }): React.JSX.Element {
     <g transform={dir === 'left' ? 'translate(240 0) scale(-1 1)' : undefined}>
       <path className="semantic-art__ink semantic-art__outlined" d="M84 162V96q0-26 26-26h56v34h-56v58Z" />
       <path className="semantic-art__gloss" d="M92 158v-58q0-20 20-20h48" />
-      {/* Centre line, broken along the straight and continuous round the bend. */}
-      <path className="semantic-art__surface" d="M112 162v-14m0-12v-14m4-16 10-10m18-6h14m14 0h12" />
+      {/* Centre line, broken along the straight and continuous round the bend.
+          Painted with the fill-only `__surface` until now, which on an open path
+          draws nothing: both turn scenes shipped with a bare carriageway. */}
+      <path className="semantic-art__surface-line" d="M112 162v-14m0-12v-14m4-16 10-10m18-6h14m14 0h12" />
       <path className="semantic-art__arrow semantic-art__motion-part" d="M100 152V104q0-16 16-16h34" />
       <path className="semantic-art__arrow semantic-art__motion-part" d="m146 77 20 11-20 11" />
       {/* Kerbs on both edges and a give-way bar at the mouth of the turn. */}

@@ -93,7 +93,11 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 ::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--text-muted) 50%, transparent); border: 3px solid var(--bg-deep); border-radius: 99px; }
 
 .app-shell { min-height: 100vh; display: grid; grid-template-columns: var(--sidebar-width) minmax(0, 1fr); isolation: isolate; }
-.ambient { position: fixed; width: 520px; height: 520px; border-radius: 50%; filter: blur(110px); pointer-events: none; opacity: 0.15; z-index: -3; animation: ambientDrift 18s var(--ease) infinite alternate; }
+/* Settles instead of drifting forever. Two 520px discs under a 110px blur,
+   animated with `infinite alternate`, kept the compositor busy for as long as
+   the app was open — on a surface the reader never looks at, at opacity .15,
+   behind everything. One pass on arrival keeps the entrance and then rests. */
+.ambient { position: fixed; width: 520px; height: 520px; border-radius: 50%; filter: blur(110px); pointer-events: none; opacity: 0.15; z-index: -3; animation: ambientDrift 18s var(--ease) 1 alternate forwards; }
 .ambient--one { background: var(--teal); inset: -180px auto auto 28%; }
 .ambient--two { background: var(--violet); inset: auto -180px -180px auto; animation-delay: -8s; }
 .grid-noise { position: fixed; inset: 0; pointer-events: none; z-index: -2; opacity: 0.32; background-image: linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px); background-size: 42px 42px; mask-image: radial-gradient(circle at 50% 30%, black, transparent 78%); }
@@ -1017,7 +1021,8 @@ body {
   opacity: 0.11;
   filter: blur(0.2px);
   text-shadow: 0 0 44px color-mix(in srgb, var(--teal) 28%, transparent);
-  animation: letterDrift 24s var(--ease) infinite alternate;
+  /* Same reasoning as `.ambient`: the aleph and shin arrive and then hold. */
+  animation: letterDrift 24s var(--ease) 1 alternate forwards;
 }
 
 .grid-noise::before {

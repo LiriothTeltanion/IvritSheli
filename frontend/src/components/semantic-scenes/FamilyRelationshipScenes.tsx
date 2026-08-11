@@ -396,13 +396,33 @@ function ReferenceOutline({
  * square/circle convention still carries gender independently of colour, and
  * the tree stays on the card as the reference that shows *where* this person
  * sits, which is what the word actually means.
+ *
+ * Rebalanced after looking at the rendered cards rather than the markup.
+ *
+ * Enlarging the subject did fix the pairs it was aimed at — `mother` still
+ * reads apart from `father`, `grandmother` from `mother` — but it moved the
+ * collision onto the age axis instead of removing it. `daughter` and `sister`
+ * are both feminine children, so they rendered the *same* portrait: same
+ * circle, same pigtails, same smile. `brother` and `son` likewise. On those
+ * four words the only thing on the card that differed was the reference tree,
+ * and at 0.48 the tree was too small to read, so two different words looked
+ * identical.
+ *
+ * What actually separates a sister from a daughter is not the person, it is
+ * where she sits relative to you: beside you, or below you. So the tree gets
+ * the room to say that, the subject gives some back, and the panel now marks
+ * *you* with the dashed outline it already had a component for. Neither pair is
+ * carried by one signal alone.
  */
-const SUBJECT_SCALE = 2.3;
-const SUBJECT_CENTER = { x: 78, y: 94 } as const;
-const PAIR_SCALE = 1.5;
-const PAIR_CENTERS = [{ x: 54, y: 94 }, { x: 112, y: 94 }] as const;
-/* Places the node cluster, not the whole canvas, inside the reference panel. */
-const MINI_TRANSFORM = 'translate(132.8 30) scale(0.48)';
+const SUBJECT_SCALE = 1.85;
+const SUBJECT_CENTER = { x: 66, y: 92 } as const;
+const PAIR_SCALE = 1.25;
+const PAIR_CENTERS = [{ x: 44, y: 92 }, { x: 92, y: 92 }] as const;
+/* Places the node cluster, not the whole canvas, inside the reference panel.
+   Derived, not eyeballed: the widest tree spans x 49–178 and y 22–153 once node
+   half-widths are counted, so at 0.7 it centres on the panel's own middle. */
+const MINI_PANEL = { x: 118, y: 26, width: 108, height: 128 } as const;
+const MINI_TRANSFORM = 'translate(92.6 28.8) scale(0.7)';
 
 /** One node redrawn large enough to be told apart at a glance. */
 function SubjectMarker({
@@ -432,12 +452,35 @@ function SubjectMarker({
  * it is for.
  */
 function MiniDiagram({ spec }: { spec: RelationshipSceneSpec }): React.JSX.Element {
+  // `son` and `daughter` are defined against both parents, not one, so every
+  // reference node gets the outline. Marking only the first left half of the
+  // relation silently unstated.
+  const references = spec.nodes.filter((node) => node.reference);
   return (
     <g className="semantic-art__mini-diagram">
-      <rect className="semantic-art__surface semantic-art__outlined" x="146" y="36" width="82" height="72" rx="12" />
+      <rect
+        className="semantic-art__surface semantic-art__outlined"
+        x={MINI_PANEL.x}
+        y={MINI_PANEL.y}
+        width={MINI_PANEL.width}
+        height={MINI_PANEL.height}
+        rx="12"
+      />
       <g transform={MINI_TRANSFORM}>
         {spec.connections.map((connection) => (
           <path key={connection} className="semantic-art__detail" d={connection} />
+        ))}
+        {/* Marking "you" is the whole point of the panel: a sister sits beside
+            this outline, a daughter below it. Without it the tree is decoration. */}
+        {references.map((node) => <ReferenceOutline key={node.id} node={node} />)}
+        {/*
+          The panel hides faces below about seven pixels, which leaves the
+          target — the one node the card is about — as a featureless gold blob;
+          in the dark theme it reads as a brown smudge. The ring says which node
+          without depending on a feature or on colour.
+        */}
+        {spec.nodes.filter((node) => node.target).map((node) => (
+          <TargetOutline key={`target-${node.id}`} node={node} />
         ))}
         {spec.nodes.map((node) => (
           <g key={node.id} data-relationship-node={node.id}>
@@ -519,11 +562,11 @@ function RelationshipDiagram({
         {pair ? (
           <rect
             className="semantic-art__arrow semantic-art__motion-part"
-            x="22"
-            y="56"
-            width="122"
-            height="80"
-            rx="24"
+            x="18"
+            y="62"
+            width="98"
+            height="60"
+            rx="20"
           />
         ) : (
           <g transform={`translate(${SUBJECT_CENTER.x - SUBJECT_SCALE * primary.x} ${SUBJECT_CENTER.y - SUBJECT_SCALE * primary.y}) scale(${SUBJECT_SCALE})`}>

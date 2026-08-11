@@ -360,9 +360,11 @@ export function CoreGreetingTimeScene({
             <SemanticPerson x={184} y={112} shirt="teal" pose="walk" scale={1.12} />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
+            {/* Stops short of the walker. At its old length it ran straight
+                through the figure's hip and read as a spear, not as travel. */}
             <path
               className="semantic-art__arrow semantic-art__motion-part"
-              d="M136 139h67m-15-12 15 12-15 12"
+              d="M120 139h42m-12-10 12 10-12 10"
             />
             <path
               className="semantic-art__motion semantic-art__motion-part"

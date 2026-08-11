@@ -336,8 +336,18 @@ export function BureaucracyScene({
             <path className="semantic-art__teal semantic-art__outlined" d="M120 22 62 42v42c0 34 26 58 58 68 32-10 58-34 58-68V42Z" />
             <path className="semantic-art__teal-lit" d="M120 22 62 42v42c0 26 15 46 36 59-11-16-16-36-16-59V34Z" />
             <path className="semantic-art__teal-deep" d="M120 22v130c32-10 58-34 58-68V42Z" />
-            <path className="semantic-art__surface semantic-art__outlined" d="M120 56 88 82h9v34h46V82h9Z" />
-            <path className="semantic-art__coral semantic-art__outlined" d="M110 96h20v20h-20Z" />
+            {/*
+              Inside the shield, what the policy covers. A lone house read as a
+              crest — a coat of arms, not a product. A home and a car together
+              read as cover, and they cost nothing in silhouette: the shield is
+              still the only one in the catalogue.
+            */}
+            <path className="semantic-art__surface semantic-art__outlined" d="M84 76 100 58l16 18v36H84Z" />
+            <path className="semantic-art__coral semantic-art__outlined" d="M94 94h12v18H94Z" />
+            <path className="semantic-art__surface semantic-art__outlined" d="M122 112V98l6-10h22l6 10v14Z" />
+            <path className="semantic-art__teal-deep" d="M130 91h18l4 7h-26Z" />
+            <circle className="semantic-art__ink" cx="131" cy="112" r="4" />
+            <circle className="semantic-art__ink" cx="151" cy="112" r="4" />
           </SceneLayer>
         </>
       );

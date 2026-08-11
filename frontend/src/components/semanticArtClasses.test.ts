@@ -47,38 +47,62 @@ const INTERPOLATED_PREFIXES = new Set([
  * bottom of twenty-four cards while this file reported everything clean.
  */
 const baseCss = ((): string => {
+  // Comments come out first. This scanner reads whatever precedes a `{` as the
+  // selector, so an unstripped comment that merely *mentions* a class hands
+  // that class every declaration in the rule below it. That is not
+  // hypothetical: the comment explaining this very family of bugs was enough to
+  // certify `__surface` as a stroking class.
+  const source = css.replace(/\/\*[\s\S]*?\*\//g, '');
   let depth = 0;
   let out = '';
   let i = 0;
-  while (i < css.length) {
-    if (depth === 0 && css.startsWith('@media', i)) {
-      const open = css.indexOf('{', i);
+  while (i < source.length) {
+    if (depth === 0 && source.startsWith('@media', i)) {
+      const open = source.indexOf('{', i);
       if (open === -1) break;
       i = open + 1;
       depth = 1;
       continue;
     }
     if (depth > 0) {
-      if (css[i] === '{') depth += 1;
-      else if (css[i] === '}') depth -= 1;
+      if (source[i] === '{') depth += 1;
+      else if (source[i] === '}') depth -= 1;
       i += 1;
       continue;
     }
-    out += css[i];
+    out += source[i];
     i += 1;
   }
   return out;
 })();
 
-/** Classes whose base rule sets a `stroke`, so they paint an open path. */
-function strokingClasses(): Set<string> {
+/**
+ * Classes whose own rule declares `property` with a real value.
+ *
+ * Only the *subject* of each selector counts — the last compound, after any
+ * descendant combinator — and only when that compound names exactly one art
+ * class. A rule for `.a.b` says nothing about what `.a` does alone, and
+ * crediting it anyway is what let a two-segment cross painted with the
+ * fill-only `__surface` reach the screen: the dark-theme rule
+ * `.semantic-art__surface.semantic-art__outlined { stroke: … }` convinced this
+ * scanner that `__surface` strokes. It does not. The badge rendered blank.
+ *
+ * Known limit, stated rather than silently relied on: a theme-scoped rule such
+ * as `:root[data-theme="dark"] .semantic-art__x` still counts, so a class that
+ * is painted only in the dark theme would pass.
+ */
+function classesDeclaring(property: 'stroke' | 'fill'): Set<string> {
+  const declared = new RegExp(`(^|[;\\s])${property}\\s*:\\s*(?!none\\b)`);
   const found = new Set<string>();
   for (const block of baseCss.matchAll(/([^{}]+)\{([^}]*)\}/g)) {
-    const selector = block[1] ?? '';
-    const body = block[2] ?? '';
-    if (!/(^|[;\s])stroke\s*:/.test(body)) continue;
-    for (const hit of selector.matchAll(/\.(semantic-art__[a-zA-Z0-9-]+)/g)) {
-      if (hit[1] !== undefined) found.add(hit[1]);
+    if (!declared.test(block[2] ?? '')) continue;
+    for (const selector of (block[1] ?? '').split(',')) {
+      const subject = selector.trim().split(/[\s>+~]+/).pop() ?? '';
+      const classes = Array.from(
+        subject.matchAll(/\.(semantic-art__[a-zA-Z0-9-]+)/g),
+        (hit) => hit[1]!,
+      );
+      if (classes.length === 1) found.add(classes[0]!);
     }
   }
   return found;
@@ -110,7 +134,7 @@ describe('semantic art classes', () => {
      * that also carry a stroking class are fine, and so are closed paths, which
      * end their subpaths with `z`.
      */
-    const strokes = strokingClasses();
+    const strokes = classesDeclaring('stroke');
     const invisible: string[] = [];
 
     for (const [path, source] of Object.entries(scenes)) {
@@ -140,16 +164,7 @@ describe('semantic art classes', () => {
      * their outline satisfied it, and all six rendered as solid black cards.
      * The question is not "is there paint" but "is there a fill".
      */
-    const filling = new Set<string>();
-    for (const block of baseCss.matchAll(/([^{}]+)\{([^}]*)\}/g)) {
-      const selector = block[1] ?? '';
-      const body = block[2] ?? '';
-      if (!/(^|[;\s])fill\s*:/.test(body)) continue;
-      for (const hit of selector.matchAll(/\.(semantic-art__[a-zA-Z0-9-]+)/g)) {
-        if (hit[1] !== undefined) filling.add(hit[1]);
-      }
-    }
-
+    const filling = classesDeclaring('fill');
     const unfilled: string[] = [];
     for (const [path, source] of Object.entries(scenes)) {
       for (const tag of source.matchAll(

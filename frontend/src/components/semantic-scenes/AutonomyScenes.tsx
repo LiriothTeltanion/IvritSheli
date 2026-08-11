@@ -3,7 +3,7 @@
 
 import type { A0VisualKey } from '../../visuals/a0VisualRecipes';
 import type { SemanticHintStage } from '../SemanticWordIllustration';
-import { CalendarPage, SceneLayer, SemanticPerson, SpeechBubble } from './SemanticScenePrimitives';
+import { CalendarPage, GrammarMarker, SceneLayer, SemanticPerson, SpeechBubble } from './SemanticScenePrimitives';
 
 interface AutonomySceneProps {
   visualKey: A0VisualKey;
@@ -20,26 +20,13 @@ function StreetGround(): React.JSX.Element {
   );
 }
 
-function GrammarMarker({ x, y, feminine }: { x: number; y: number; feminine: boolean }): React.JSX.Element {
-  return (
-    <g transform={`translate(${x} ${y})`}>
-      {feminine
-        ? <circle className="semantic-art__coral-soft semantic-art__outlined" cx="0" cy="0" r="14" />
-        : <rect className="semantic-art__blue-soft semantic-art__outlined" x="-14" y="-14" width="28" height="28" rx="3" />}
-      <circle className="semantic-art__eye" cx="-4" cy="-2" r="1.5" />
-      <circle className="semantic-art__eye" cx="4" cy="-2" r="1.5" />
-      <path className="semantic-art__face" d="M-5 5q5 4 10 0" />
-    </g>
-  );
-}
-
 function CheckBadge({ x, y, positive = true }: { x: number; y: number; positive?: boolean }): React.JSX.Element {
   return (
     <g transform={`translate(${x} ${y})`}>
       <circle className={`${positive ? 'semantic-art__green' : 'semantic-art__coral'} semantic-art__outlined`} r="17" />
       {positive
         ? <path className="semantic-art__surface" d="m-9 0 7 8L11-8l5 5L-2 16-14 4Z" />
-        : <path className="semantic-art__surface" d="m-8-8 16 16m0-16-16 16" />}
+        : <path className="semantic-art__surface-line" d="m-8-8 16 16m0-16-16 16" />}
     </g>
   );
 }
@@ -74,14 +61,25 @@ export function AutonomyScene({ visualKey, hintStage }: AutonomySceneProps): Rea
     case 'autonomy.cannot':
       return (
         <>
-          <SceneLayer name="context" minimumStage={0} hintStage={hintStage}><StreetGround /></SceneLayer>
-          <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
-            <SemanticPerson x={64} y={112} shirt="gold" pose="walk" scale={1.02} />
-            <path className="semantic-art__coral semantic-art__outlined" d="M112 82h96v18h-96Z" />
-            <path className="semantic-art__coral-line" d="M126 82 144 100m18-18 18 18" />
-            <path className="semantic-art__metal-line" d="M124 100v46m72-46v46" />
+          <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
+            <StreetGround />
+            {/*
+              The same doorway `autonomy.can` uses, at the same coordinates, but
+              shut. The pair only teaches the contrast if the two cards differ in
+              one thing; before this they shared no object at all, and `cannot`
+              read as a red bench.
+            */}
+            <path className="semantic-art__coral semantic-art__outlined" d="M146 50h62v94h-62Z" />
+            <path className="semantic-art__surface-deep" d="M156 60h42v84h-42Z" />
+            <circle className="semantic-art__gold" cx="165" cy="102" r="4" />
           </SceneLayer>
-          <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}><CheckBadge x={175} y={52} positive={false} /></SceneLayer>
+          <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
+            <SemanticPerson x={76} y={111} shirt="gold" pose="walk" scale={1.05} />
+            {/* The walk stops at the door instead of passing through it. */}
+            <path className="semantic-art__arrow semantic-art__motion-part" d="M101 112h32m-13-11 13 11-13 11" />
+            <path className="semantic-art__coral-line" d="M152 66 202 128m0-62-50 62" />
+          </SceneLayer>
+          <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}><CheckBadge x={187} y={44} positive={false} /></SceneLayer>
         </>
       );
     case 'autonomy.where_can':
@@ -127,7 +125,7 @@ export function AutonomyScene({ visualKey, hintStage }: AutonomySceneProps): Rea
             <path className="semantic-art__gold-lit" d="M105 113h36v7h-36Z" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            <GrammarMarker x={57} y={48} feminine={feminine} />
+            <GrammarMarker x={52} y={62} feminine={feminine} anchor={[68, 84]} />
             <path className="semantic-art__green-line semantic-art__motion-part" d="M103 101c13-13 27-13 40 0" />
           </SceneLayer>
         </>
@@ -150,11 +148,17 @@ export function AutonomyScene({ visualKey, hintStage }: AutonomySceneProps): Rea
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}><StreetGround /></SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
-            <SemanticPerson x={92} y={109} shirt="gold" pose="reach" scale={1.1} />
-            <path className="semantic-art__surface-deep semantic-art__outlined" d="M142 88h52v45h-52Z" />
-            <path className="semantic-art__detail semantic-art__detail--thin" d="M151 100h34m-34 12h20" />
+            <SemanticPerson x={92} y={109} shirt="gold" pose="hold" scale={1.1} />
+            {/*
+              The same key `autonomy.i_have` puts in the hands, drawn as an
+              outline. Absence of the known object says "I don't have it";
+              swapping in an unrelated dark panel, as this did before, said
+              nothing at all.
+            */}
+            <path className="semantic-art__detail" fill="none" strokeDasharray="5 5" d="M148 100h12v35h-12Zm10 0h28v8h-28Z" />
+            <circle className="semantic-art__detail" fill="none" strokeDasharray="5 5" cx="184" cy="104" r="6" />
           </SceneLayer>
-          <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}><CheckBadge x={168} y={66} positive={false} /></SceneLayer>
+          <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}><CheckBadge x={196} y={74} positive={false} /></SceneLayer>
         </>
       );
     case 'autonomy.looking_m':
@@ -169,7 +173,7 @@ export function AutonomyScene({ visualKey, hintStage }: AutonomySceneProps): Rea
             <path className="semantic-art__gold semantic-art__outlined" d="M151 83h9v16h-9Z" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            <GrammarMarker x={52} y={48} feminine={feminine} />
+            <GrammarMarker x={50} y={62} feminine={feminine} anchor={[66, 84]} />
             <path className="semantic-art__motion semantic-art__motion-part" d="M136 56c25-12 55-4 69 19" />
           </SceneLayer>
         </>
@@ -187,7 +191,7 @@ export function AutonomyScene({ visualKey, hintStage }: AutonomySceneProps): Rea
             <SpeechBubble x={120} y={46} question />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            <GrammarMarker x={52} y={48} feminine={feminine} />
+            <GrammarMarker x={50} y={62} feminine={feminine} anchor={[66, 84]} />
             <path className="semantic-art__coral-line" d="M137 50 160 78" />
             <path className="semantic-art__coral-line" d="M164 49 141 78" />
           </SceneLayer>

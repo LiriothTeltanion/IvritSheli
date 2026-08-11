@@ -133,6 +133,39 @@ export function SemanticPerson({
  * Lives here rather than in one category file because health and services both
  * need it — a pharmacy, a health fund and a neighbourhood clinic all carry it.
  */
+/**
+ * Which speaker a gendered phrase belongs to, in the circle/square convention
+ * the family kinship diagram already uses.
+ *
+ * It used to be defined twice, once per scene module, and both copies placed it
+ * high in the empty sky with the speaker far below, where it read as a detached
+ * head rather than a label. One copy now, with a short leader to the speaker's
+ * shoulder, so the badge points at somebody.
+ */
+export function GrammarMarker({ x, y, feminine, anchor }: {
+  x: number;
+  y: number;
+  feminine: boolean;
+  anchor: readonly [number, number];
+}): React.JSX.Element {
+  return (
+    <g>
+      <path
+        className="semantic-art__detail semantic-art__detail--thin"
+        d={`M${x} ${y + 12}L${anchor[0]} ${anchor[1]}`}
+      />
+      <g transform={`translate(${x} ${y})`}>
+        {feminine
+          ? <circle className="semantic-art__coral-soft semantic-art__outlined" cx="0" cy="0" r="12" />
+          : <rect className="semantic-art__blue-soft semantic-art__outlined" x="-12" y="-12" width="24" height="24" rx="3" />}
+        <circle className="semantic-art__eye" cx="-3.5" cy="-2" r="1.4" />
+        <circle className="semantic-art__eye" cx="3.5" cy="-2" r="1.4" />
+        <path className="semantic-art__face" d="M-4 4q4 4 8 0" />
+      </g>
+    </g>
+  );
+}
+
 export function MedicalCross({ x, y, size = 20, tone = 'green' }: {
   x: number; y: number; size?: number; tone?: 'green' | 'coral';
 }): React.JSX.Element {

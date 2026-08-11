@@ -3,7 +3,7 @@
 
 import type { A0VisualKey } from '../../visuals/a0VisualRecipes';
 import type { SemanticHintStage } from '../SemanticWordIllustration';
-import { SceneLayer, SemanticPerson, SpeechBubble } from './SemanticScenePrimitives';
+import { GrammarMarker, SceneLayer, SemanticPerson, SpeechBubble } from './SemanticScenePrimitives';
 
 interface RegisterSceneProps {
   visualKey: A0VisualKey;
@@ -25,19 +25,6 @@ function WarmRoom(): React.JSX.Element {
       <circle className="semantic-art__gold-soft" cx="192" cy="42" r="20" />
       <ellipse className="semantic-art__prop-shadow" cx="120" cy="151" rx="92" ry="8" />
     </>
-  );
-}
-
-function GrammarMarker({ x, y, feminine }: { x: number; y: number; feminine: boolean }): React.JSX.Element {
-  return (
-    <g transform={`translate(${x} ${y})`}>
-      {feminine
-        ? <circle className="semantic-art__coral-soft semantic-art__outlined" r="14" />
-        : <rect className="semantic-art__blue-soft semantic-art__outlined" x="-14" y="-14" width="28" height="28" rx="3" />}
-      <circle className="semantic-art__eye" cx="-4" cy="-2" r="1.5" />
-      <circle className="semantic-art__eye" cx="4" cy="-2" r="1.5" />
-      <path className="semantic-art__face" d="M-5 5q5 4 10 0" />
-    </g>
   );
 }
 
@@ -139,7 +126,9 @@ export function RegisterScene({ visualKey, hintStage }: RegisterSceneProps): Rea
             <path className="semantic-art__gold-lit" d="M98 107h46v8H98Z" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            <path className="semantic-art__green-line semantic-art__motion-part" d="M151 96c13-10 25-10 38-1" />
+            {/* Arcs over the offered box, from giver to taker. It used to run at
+                head height across the right figure and read as a blindfold. */}
+            <path className="semantic-art__green-line semantic-art__motion-part" d="M94 102q28-26 56 0" />
             <path className="semantic-art__spark" d="m121 56 4 8 8 4-8 4-4 8-4-8-8-4 8-4Z" />
           </SceneLayer>
         </>
@@ -215,7 +204,7 @@ export function RegisterScene({ visualKey, hintStage }: RegisterSceneProps): Rea
             <SpeechBubble x={125} y={54} />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            <GrammarMarker x={62} y={48} feminine={feminine} />
+            <GrammarMarker x={60} y={62} feminine={feminine} anchor={[76, 84]} />
             <Check x={172} y={96} />
           </SceneLayer>
         </>
