@@ -386,15 +386,15 @@ export const A0_VISUAL_RECIPES = {
   },
   'time.hour': {
     template: 'quantity-time',
-    setting: 'large-wall-clock',
-    meaning: 'measuring-one-hour',
-    anchor: 'clock-face-and-hour-hand-arc',
+    setting: 'tall-regulator-clock',
+    meaning: 'one-hour-step-across-twelve-markers',
+    anchor: 'short-hour-hand-and-slow-pendulum',
   },
   'time.minute': {
     template: 'quantity-time',
-    setting: 'close-clock-face',
-    meaning: 'measuring-one-minute',
-    anchor: 'minute-hand-and-sixty-ticks',
+    setting: 'handheld-stopwatch',
+    meaning: 'one-complete-minute-across-sixty-second-marks',
+    anchor: 'long-hand-lap-and-sixty-badge',
   },
   'time.day': {
     template: 'quantity-time',

@@ -543,6 +543,42 @@
   stroke-linejoin: round;
 }
 
+.semantic-art__hour-marker {
+  fill: var(--semantic-detail-ink);
+}
+
+.semantic-art__hour-marker--cardinal {
+  fill: var(--semantic-coral);
+}
+
+.semantic-art__minute-tick {
+  stroke: var(--semantic-detail-ink);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+
+.semantic-art__minute-tick--major {
+  stroke: var(--semantic-coral);
+  stroke-width: 4;
+}
+
+.semantic-art__minute-label {
+  fill: var(--semantic-detail-ink);
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+.semantic-art--thumbnail .semantic-art__minute-tick {
+  stroke-width: 2.8;
+}
+
+.semantic-art--thumbnail .semantic-art__minute-tick--major {
+  stroke-width: 4.6;
+}
+
 .semantic-art__motion,
 .semantic-art__steam,
 .semantic-art__breath {

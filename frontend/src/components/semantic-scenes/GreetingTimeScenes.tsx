@@ -51,6 +51,52 @@ function ClockFace({
   );
 }
 
+function HourDialMarkers(): React.JSX.Element {
+  return (
+    <g data-scene-cue="twelve-hour-markers">
+      {Array.from({ length: 12 }, (_, index) => {
+        const angle = (index / 12) * Math.PI * 2 - Math.PI / 2;
+        const distance = 29;
+        const isCardinal = index % 3 === 0;
+
+        return (
+          <circle
+            key={`hour-marker-${index}`}
+            className={isCardinal ? 'semantic-art__hour-marker semantic-art__hour-marker--cardinal' : 'semantic-art__hour-marker'}
+            cx={Math.cos(angle) * distance}
+            cy={Math.sin(angle) * distance}
+            r={isCardinal ? 3 : 2.2}
+          />
+        );
+      })}
+    </g>
+  );
+}
+
+function MinuteDialTicks(): React.JSX.Element {
+  return (
+    <g data-scene-cue="sixty-second-ticks">
+      {Array.from({ length: 60 }, (_, index) => {
+        const angle = (index / 60) * Math.PI * 2 - Math.PI / 2;
+        const isMajor = index % 5 === 0;
+        const innerRadius = isMajor ? 35 : 39.5;
+        const outerRadius = 44;
+
+        return (
+          <line
+            key={`minute-tick-${index}`}
+            className={isMajor ? 'semantic-art__minute-tick semantic-art__minute-tick--major' : 'semantic-art__minute-tick'}
+            x1={Math.cos(angle) * innerRadius}
+            y1={Math.sin(angle) * innerRadius}
+            x2={Math.cos(angle) * outerRadius}
+            y2={Math.sin(angle) * outerRadius}
+          />
+        );
+      })}
+    </g>
+  );
+}
+
 function CrescentMoon({
   x,
   y,
@@ -389,28 +435,40 @@ export function GreetingTimeScene({
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
-            <path className="semantic-art__wall semantic-art__outlined" d="M20 24h200v130H20Z" />
-            <path className="semantic-art__wood semantic-art__outlined" d="M37 132h166v18H37Z" />
-            <path className="semantic-art__grain" d="M45 139h150M45 146h100" />
-            <path className="semantic-art__green semantic-art__outlined" d="M48 132c-13-27 9-49 31-26 18 19-1 40-31 26Z" />
-            <path className="semantic-art__leaf-lit" d="M55 124c-8-19 5-31 20-24" />
+            <path className="semantic-art__wall semantic-art__outlined" d="M17 16h206v148H17Z" />
+            <path className="semantic-art__gold-soft" d="M17 16h52v148H17Z" />
+            <path className="semantic-art__wood semantic-art__outlined" d="M28 149h184v15H28Z" />
+            <path className="semantic-art__grain" d="M36 155h168M36 161h112" />
+            <path className="semantic-art__detail semantic-art__detail--thin" d="M35 38h27M35 50h19M178 38h27M186 50h19" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
-            <ClockFace x={121} y={84} radius={58}>
-              <path className="semantic-art__detail semantic-art__clock-hand" d="M0 0V-33m0 33 24 12" />
+            <g data-scene-cue="hour-regulator-case">
+              <ellipse className="semantic-art__prop-shadow" cx="120" cy="159" rx="56" ry="7" />
+              <path
+                className="semantic-art__wood semantic-art__outlined"
+                d="M76 39Q76 14 101 14h38q25 0 25 25v120H76Z"
+              />
+              <path className="semantic-art__shade" d="M151 35q0-16-15-21h3q25 0 25 25v120h-13Z" />
+              <path className="semantic-art__gold-soft semantic-art__outlined" d="M87 40q0-16 17-16h32q17 0 17 16v51H87Z" />
+              <path className="semantic-art__surface semantic-art__outlined" d="M92 96h56v56H92Z" />
+              <path className="semantic-art__gloss" d="M98 102v43" />
+            </g>
+            <ClockFace x={120} y={59} radius={39}>
+              <HourDialMarkers />
+              <path className="semantic-art__clock-hand" d="M0 0V-24M0 0l10-13" />
             </ClockFace>
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            <path
-              className="semantic-art__arrow semantic-art__motion-part"
-              d="M116 18a67 67 0 1 1-50 22m-2-14 2 14 15-1"
-            />
-            <path className="semantic-art__spark" d="m190 118 4 8 8 4-8 4-4 8-4-8-8-4 8-4Z" />
-            {/* Pendulum case below the dial: an hour is a long, slow unit. */}
-            <path className="semantic-art__wood semantic-art__outlined" d="M104 142h34v18h-34Z" />
-            <path className="semantic-art__metal-line" d="M121 142v-8" />
-            <circle className="semantic-art__gold semantic-art__outlined" cx="121" cy="152" r="7" />
-            <path className="semantic-art__grain" d="M110 147h22" />
+            <g data-scene-cue="one-hour-step">
+              <path className="semantic-art__arrow" d="M120 10a50 50 0 0 1 31 11m-2-12 2 12-12 1" />
+              <circle className="semantic-art__coral semantic-art__outlined" cx="120" cy="10" r="4" />
+            </g>
+            <g data-scene-cue="slow-pendulum">
+              <path className="semantic-art__metal-line" d="M120 101v32" />
+              <circle className="semantic-art__gold semantic-art__outlined" cx="120" cy="139" r="11" />
+              <path className="semantic-art__gloss" d="M115 135a7 7 0 0 1 6-3" />
+              <path className="semantic-art__motion semantic-art__motion-part" d="M98 146q22 13 44 0" />
+            </g>
           </SceneLayer>
         </>
       );
@@ -418,27 +476,37 @@ export function GreetingTimeScene({
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
-            <path className="semantic-art__metal semantic-art__outlined" d="M107 22h27v18h-27Z" />
-            <path className="semantic-art__gloss" d="M111 26v10" />
-            <path className="semantic-art__detail" d="M120 22V12m-13 1h26" />
-            <path className="semantic-art__wood semantic-art__outlined" d="M31 137h178v18H31Z" />
-            <path className="semantic-art__grain" d="M39 144h162M39 151h108" />
+            <path className="semantic-art__blue-soft semantic-art__outlined" d="M22 23h196v136H22Z" />
+            <circle
+              className="semantic-art__glow"
+              cx="120"
+              cy="91"
+              r="73"
+              fill="var(--semantic-sun-halo)"
+            />
+            <path className="semantic-art__surface semantic-art__outlined" d="M36 139h168v18H36Z" />
+            <path className="semantic-art__detail semantic-art__detail--thin" d="M45 146h150M45 152h98" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
-            <ClockFace x={120} y={89} radius={54}>
-              <path className="semantic-art__detail semantic-art__clock-hand" d="M0 0 5-39m-5 39-17 15" />
-              <path
-                className="semantic-art__detail semantic-art__detail--thin"
-                d="M-18-45l3 7m15-10v8m18-5-3 7M40-25l-7 4m13 12-8 1m7 17-8-2M31 29l-6-5M14 43l-2-8M-6 45l1-8M-25 37l5-7M-40 24l7-4M-46 7l8-1M-43-11l8 2M-34-29l7 5"
-              />
+            <g data-scene-cue="stopwatch-crown">
+              <path className="semantic-art__metal semantic-art__outlined" d="M108 16h24v18h-24Z" />
+              <path className="semantic-art__detail" d="M120 16V8m-14 1h28" />
+              <path className="semantic-art__metal semantic-art__outlined" d="m164 37 14 10-9 13-14-10Z" />
+            </g>
+            <ClockFace x={120} y={91} radius={57}>
+              <MinuteDialTicks />
+              <path className="semantic-art__clock-hand" d="M0 0 8-39M0 0l-18 16" />
             </ClockFace>
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            <path className="semantic-art__arrow semantic-art__motion-part" d="M125 36a53 53 0 0 1 44 25m-3-15 3 15-14-1" />
-            <ellipse className="semantic-art__prop-shadow" cx="191" cy="139" rx="12" ry="4" />
-            <path className="semantic-art__coral semantic-art__outlined" d="M182 86h18v51h-18Z" />
-            <path className="semantic-art__gloss" d="M185 91v41" />
-            <path className="semantic-art__shade" d="M195 86h5v51h-5Z" />
+            <g data-scene-cue="one-minute-lap">
+              <path className="semantic-art__arrow semantic-art__motion-part" d="M121 26a66 66 0 1 1-54 28m-2-14 2 14 14-3" />
+            </g>
+            <g data-scene-cue="sixty-count-badge">
+              <circle className="semantic-art__coral semantic-art__outlined" cx="183" cy="132" r="20" />
+              <circle className="semantic-art__surface" cx="183" cy="132" r="14" />
+              <text className="semantic-art__minute-label" x="183" y="133">60</text>
+            </g>
           </SceneLayer>
         </>
       );

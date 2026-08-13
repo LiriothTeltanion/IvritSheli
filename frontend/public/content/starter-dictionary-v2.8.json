@@ -7931,16 +7931,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "A round wall clock",
-              "es": "Un reloj redondo de pared",
-              "he": "שעון קיר עגול"
+              "en": "A tall pendulum clock with twelve hour marks and a one-hour arc",
+              "es": "Un reloj alto de péndulo con doce marcas horarias y un arco de una hora",
+              "he": "שעון מטוטלת גבוה עם שנים עשר סימוני שעות וקשת של שעה אחת"
             },
             "emoji": "🕐",
             "key": "time.hour"
           },
-          "visual_alt_en": "A round wall clock",
-          "visual_alt_es": "Un reloj redondo de pared",
-          "visual_alt_he": "שעון קיר עגול",
+          "visual_alt_en": "A tall pendulum clock with twelve hour marks and a one-hour arc",
+          "visual_alt_es": "Un reloj alto de péndulo con doce marcas horarias y un arco de una hora",
+          "visual_alt_he": "שעון מטוטלת גבוה עם שנים עשר סימוני שעות וקשת של שעה אחת",
           "visual_emoji": "🕐",
           "visual_key": "time.hour"
         }
@@ -7950,9 +7950,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "A round wall clock",
-          "es": "Un reloj redondo de pared",
-          "he": "שעון קיר עגול"
+          "en": "A tall pendulum clock with twelve hour marks and a one-hour arc",
+          "es": "Un reloj alto de péndulo con doce marcas horarias y un arco de una hora",
+          "he": "שעון מטוטלת גבוה עם שנים עשר סימוני שעות וקשת של שעה אחת"
         },
         "emoji": "🕐",
         "key": "time.hour"
@@ -8004,16 +8004,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "A stopwatch counting seconds",
-              "es": "Un cronómetro contando segundos",
-              "he": "שעון עצר סופר שניות"
+              "en": "A stopwatch shows one complete minute on a dial with sixty second marks",
+              "es": "Un cronómetro muestra un minuto completo en una esfera con sesenta marcas de segundos",
+              "he": "שעון עצר מציג דקה שלמה על חוגה עם שישים סימוני שניות"
             },
             "emoji": "⏱️",
             "key": "time.minute"
           },
-          "visual_alt_en": "A stopwatch counting seconds",
-          "visual_alt_es": "Un cronómetro contando segundos",
-          "visual_alt_he": "שעון עצר סופר שניות",
+          "visual_alt_en": "A stopwatch shows one complete minute on a dial with sixty second marks",
+          "visual_alt_es": "Un cronómetro muestra un minuto completo en una esfera con sesenta marcas de segundos",
+          "visual_alt_he": "שעון עצר מציג דקה שלמה על חוגה עם שישים סימוני שניות",
           "visual_emoji": "⏱️",
           "visual_key": "time.minute"
         }
@@ -8023,9 +8023,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "A stopwatch counting seconds",
-          "es": "Un cronómetro contando segundos",
-          "he": "שעון עצר סופר שניות"
+          "en": "A stopwatch shows one complete minute on a dial with sixty second marks",
+          "es": "Un cronómetro muestra un minuto completo en una esfera con sesenta marcas de segundos",
+          "he": "שעון עצר מציג דקה שלמה על חוגה עם שישים סימוני שניות"
         },
         "emoji": "⏱️",
         "key": "time.minute"

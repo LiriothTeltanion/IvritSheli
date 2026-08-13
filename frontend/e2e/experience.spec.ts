@@ -304,6 +304,24 @@ test.describe('visual recognition expansion', () => {
     await expect(page.locator('.visual-qa__catalog [data-size="hero"]')).toHaveCount(240, { timeout: MOUNT_BUDGET_MS });
     await expect(page.locator('[data-visual-id="family.mother"]').first()).toBeVisible({ timeout: MOUNT_BUDGET_MS });
 
+    const hourThumbnail = page.locator('article[data-visual-key="time.hour"] [data-size="thumbnail"]');
+    const minuteThumbnail = page.locator('article[data-visual-key="time.minute"] [data-size="thumbnail"]');
+    await expect(hourThumbnail.locator('[data-scene-cue="hour-regulator-case"]')).toBeVisible();
+    await expect(hourThumbnail.locator('[data-scene-cue="slow-pendulum"]')).toBeVisible();
+    await expect(minuteThumbnail.locator('[data-scene-cue="stopwatch-crown"]')).toBeVisible();
+    const minuteTickState = await minuteThumbnail
+      .locator('[data-scene-cue="sixty-second-ticks"] line')
+      .evaluateAll((ticks) => ({
+        count: ticks.length,
+        allDisplayed: ticks.every((tick) => window.getComputedStyle(tick).display !== 'none'),
+        allPainted: ticks.every((tick) => {
+          const style = window.getComputedStyle(tick);
+          return style.stroke !== 'none' && Number.parseFloat(style.strokeWidth) > 0;
+        }),
+      }));
+    expect(minuteTickState).toEqual({ count: 60, allDisplayed: true, allPainted: true });
+    await expect(minuteThumbnail.locator('[data-scene-cue="sixty-count-badge"]')).toBeVisible();
+
     const animationNames = await page.locator(
       '.semantic-art__motion, .semantic-art__motion-part, .semantic-art__sun-rays, .semantic-art__arrow',
     ).evaluateAll((elements) => elements.slice(0, 12).map(
@@ -317,6 +335,8 @@ test.describe('visual recognition expansion', () => {
     await page.getByRole('button', { name: 'HE', exact: true }).click();
     await expect(page.locator('html')).toHaveAttribute('lang', 'he');
     await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
+    await expect(hourThumbnail.locator('[data-scene-cue="slow-pendulum"]')).toBeVisible();
+    await expect(minuteThumbnail.locator('[data-scene-cue="sixty-count-badge"]')).toBeVisible();
 
     const dimensions = await page.evaluate(() => ({
       clientWidth: document.documentElement.clientWidth,

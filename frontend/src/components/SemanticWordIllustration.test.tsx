@@ -72,6 +72,34 @@ describe('SemanticWordIllustration', () => {
     });
   });
 
+  it('keeps hour and minute visually distinct at thumbnail size', () => {
+    const { container, rerender } = render(
+      <SemanticWordIllustration visual={visual('time.hour')} locale="es" size="thumbnail" />,
+    );
+
+    expect(container.querySelector('[data-scene-cue="hour-regulator-case"]')).toBeInTheDocument();
+    expect(container.querySelector('[data-scene-cue="twelve-hour-markers"]')?.childElementCount).toBe(12);
+    expect(container.querySelector('[data-scene-cue="slow-pendulum"]')).toBeInTheDocument();
+    expect(getA0VisualRecipe('time.hour')).toEqual({
+      template: 'quantity-time',
+      setting: 'tall-regulator-clock',
+      meaning: 'one-hour-step-across-twelve-markers',
+      anchor: 'short-hour-hand-and-slow-pendulum',
+    });
+
+    rerender(<SemanticWordIllustration visual={visual('time.minute')} locale="es" size="thumbnail" />);
+    expect(container.querySelector('[data-scene-cue="stopwatch-crown"]')).toBeInTheDocument();
+    expect(container.querySelector('[data-scene-cue="sixty-second-ticks"]')?.childElementCount).toBe(60);
+    expect(container.querySelector('[data-scene-cue="one-minute-lap"]')).toBeInTheDocument();
+    expect(container.querySelector('[data-scene-cue="sixty-count-badge"]')).toHaveTextContent('60');
+    expect(getA0VisualRecipe('time.minute')).toEqual({
+      template: 'quantity-time',
+      setting: 'handheld-stopwatch',
+      meaning: 'one-complete-minute-across-sixty-second-marks',
+      anchor: 'long-hand-lap-and-sixty-badge',
+    });
+  });
+
   it.each(A0_SEMANTIC_VISUAL_KEYS)('renders the reviewed context, meaning, and anchor layers for %s', (key) => {
     const { container } = render(
       <SemanticWordIllustration visual={visual(key)} locale="en" hintStage={2} />,

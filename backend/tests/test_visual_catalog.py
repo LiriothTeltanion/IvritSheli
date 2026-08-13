@@ -45,6 +45,16 @@ KNOWN_SCENE_ALTS = {
         "es": "Ilustración de una persona que extiende las manos hacia una caja pesada que otra lleva sola",
         "he": "איור של אדם שמושיט ידיים לעבר ארגז כבד שאדם אחר נושא לבדו",
     },
+    "time.hour": {
+        "en": "A tall pendulum clock with twelve hour marks and a one-hour arc",
+        "es": "Un reloj alto de péndulo con doce marcas horarias y un arco de una hora",
+        "he": "שעון מטוטלת גבוה עם שנים עשר סימוני שעות וקשת של שעה אחת",
+    },
+    "time.minute": {
+        "en": "A stopwatch shows one complete minute on a dial with sixty second marks",
+        "es": "Un cronómetro muestra un minuto completo en una esfera con sesenta marcas de segundos",
+        "he": "שעון עצר מציג דקה שלמה על חוגה עם שישים סימוני שניות",
+    },
     "time.year": {
         "en": "A circular year wheel divided into four changing seasons",
         "es": "Una rueda anual circular dividida en cuatro estaciones",
