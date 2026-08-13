@@ -57,6 +57,21 @@ describe('SemanticWordIllustration', () => {
     expect(container.querySelector('[data-visual-layer="anchor"]')).toBeInTheDocument();
   });
 
+  it('keeps offering help directional at thumbnail size', () => {
+    const { container } = render(
+      <SemanticWordIllustration visual={visual('register.offer_help')} locale="es" size="thumbnail" />,
+    );
+
+    expect(container.querySelector('[data-scene-cue="solo-heavy-load"]')).toBeInTheDocument();
+    expect(container.querySelector('[data-scene-cue="offer-direction"] .semantic-art__arrow')).toBeInTheDocument();
+    expect(getA0VisualRecipe('register.offer_help')).toEqual({
+      template: 'exchange',
+      setting: 'one-person-carrying-a-heavy-box',
+      meaning: 'another-person-offering-to-take-the-load',
+      anchor: 'open-hands-arrow-toward-free-corner',
+    });
+  });
+
   it.each(A0_SEMANTIC_VISUAL_KEYS)('renders the reviewed context, meaning, and anchor layers for %s', (key) => {
     const { container } = render(
       <SemanticWordIllustration visual={visual(key)} locale="en" hintStage={2} />,

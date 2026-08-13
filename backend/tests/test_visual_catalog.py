@@ -40,6 +40,11 @@ KNOWN_SCENE_ALTS = {
         "es": "Una persona tiende la mano para ayudar a otra a levantarse",
         "he": "אדם מושיט יד ועוזר לאדם אחר לקום",
     },
+    "register.offer_help": {
+        "en": "Illustration of a helper reaching with open hands toward a heavy box another person is carrying alone",
+        "es": "Ilustración de una persona que extiende las manos hacia una caja pesada que otra lleva sola",
+        "he": "איור של אדם שמושיט ידיים לעבר ארגז כבד שאדם אחר נושא לבדו",
+    },
     "time.year": {
         "en": "A circular year wheel divided into four changing seasons",
         "es": "Una rueda anual circular dividida en cuatro estaciones",

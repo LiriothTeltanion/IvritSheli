@@ -120,16 +120,25 @@ export function RegisterScene({ visualKey, hintStage }: RegisterSceneProps): Rea
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}><WarmRoom /></SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
-            <SemanticPerson x={64} y={109} shirt="coral" pose="hold" scale={1.0} />
-            <SemanticPerson x={180} y={109} shirt="teal" facing="left" pose="reach" scale={1.0} />
-            <path className="semantic-art__gold semantic-art__outlined" d="M96 105h50v32H96Z" />
-            <path className="semantic-art__gold-lit" d="M98 107h46v8H98Z" />
+            <g data-scene-cue="solo-heavy-load">
+              <SemanticPerson x={72} y={106} shirt="coral" pose="hold" scale={1.04} />
+              <g transform="rotate(-7 111 119)">
+                <path className="semantic-art__gold semantic-art__outlined" d="M76 96h70v43H76Z" />
+                <path className="semantic-art__gold-lit" d="M78 98h66v10H78Z" />
+                <path className="semantic-art__detail semantic-art__detail--thin" d="M111 98v39" />
+              </g>
+              <path className="semantic-art__coral-line" d="M48 74 40 68m12 18-11-1m35-20 2-11" />
+            </g>
+            <SemanticPerson x={198} y={109} shirt="teal" facing="left" pose="reach" scale={1.0} />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            {/* Arcs over the offered box, from giver to taker. It used to run at
-                head height across the right figure and read as a blindfold. */}
-            <path className="semantic-art__green-line semantic-art__motion-part" d="M94 102q28-26 56 0" />
-            <path className="semantic-art__spark" d="m121 56 4 8 8 4-8 4-4 8-4-8-8-4 8-4Z" />
+            {/* The arrow begins at the helper's open hands and ends at the free
+                corner of the tilted load. Its direction must survive at 96 px:
+                this is an offer to take weight, not a shared request for help. */}
+            <g data-scene-cue="offer-direction">
+              <path className="semantic-art__arrow semantic-art__motion-part" d="M171 102 148 112m10-10-10 10 11 1" />
+              <path className="semantic-art__green-line" d="M184 87q-9-9-18 0" />
+            </g>
           </SceneLayer>
         </>
       );

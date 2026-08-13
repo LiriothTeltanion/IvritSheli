@@ -1484,9 +1484,9 @@ export const A0_VISUAL_RECIPES = {
   },
   'register.offer_help': {
     template: 'exchange',
-    setting: 'carrying-something-together',
-    meaning: 'offering-assistance',
-    anchor: 'second-pair-of-hands-taking-the-load',
+    setting: 'one-person-carrying-a-heavy-box',
+    meaning: 'another-person-offering-to-take-the-load',
+    anchor: 'open-hands-arrow-toward-free-corner',
   },
   'register.advisable': {
     template: 'direction',
