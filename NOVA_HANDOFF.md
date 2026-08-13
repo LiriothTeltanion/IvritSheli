@@ -8,17 +8,17 @@ Public production intentionally remains: **2.4.0 Contest Edition (2026-07-21)**
 
 - **Project:** `02 — Ivrit Sheli`
 - **Branch:** `consolidation/ivrit-sheli-2.10-baseline`
-- **Input HEAD:** `d475304015e8c76c5468f08f46627c6e3853e9d5`
-- **Issue:** `KEV-9` — Phase 4A.1 validation and local preservation
-- **Work completed:** dynamic label ownership, package/brand cleanup with legacy-distribution migration, six-route dictionary extraction, exact-byte checksum integrity and deterministic optimized-build browser gating
-- **Verification:** 699 Vitest + 316 unique backend pytest + 32 Playwright/axe = **1,047 unique passes**; type/lint/build, PostgreSQL/RLS, dependency audits, package verification and no-cache image smoke green
-- **Current URLs:** stable Docker/PostgreSQL app `http://127.0.0.1:8000/`; hot-reload frontend `http://127.0.0.1:5173/` proxying that backend
-- **Next action:** close `KEV-9` after the local commit, then execute the real `KEV-10` walkthrough before choosing one `KEV-14` learner-facing slice
-- **Blockers:** no local engineering blocker; staging/two-real-account/pilot gates remain, and public judge state is frozen until after 2026-08-25 unless Kevin explicitly changes that instruction
+- **Implementation HEAD:** `03ea87b45f1bcc2901bef7e32dc1b6966723c32f`
+- **Issues:** `KEV-14` Done; `KEV-11` In Progress. `KEV-9` and `KEV-10` remain Done.
+- **Work completed:** the exact dictionary entry now continues from save to pronunciation practice (`82a36b0`); `health.help` now depicts interpersonal assistance and stays identifiable at thumbnail size (`03ea87b`)
+- **Verification:** 701/701 Vitest, focused visual backend 5/5, focused VisualQAGallery 1/1, clean TypeScript and production build, package verifier green for 202 required files / 372 canonical checksums, and real mobile HE/RTL browser walkthrough green. The prior Phase 4 gate remains 316 unique backend pytest + 32 Playwright/axe with PostgreSQL/RLS, dependency and no-cache image checks.
+- **Current URLs:** Docker/PostgreSQL candidate `http://127.0.0.1:8000/`; hot-reload frontend `http://127.0.0.1:5173/`; isolated writable local workspace `http://127.0.0.1:8001/`
+- **Next action:** continue `KEV-11` with exactly one new evidence-selected semantic ambiguity in VisualQAGallery; do not repeat `health.help`. After that, `KEV-12` is the next planned compatibility audit, before `KEV-13`.
+- **Blockers:** no local engineering blocker. Staging/two-real-account/pilot gates remain; publication, deploy, push and public judge-state changes remain frozen until after 2026-08-25 unless Kevin explicitly changes that instruction.
 
-Resolve the live checkout's self-referential document commit with
-`git rev-parse HEAD`; the exact Phase 4 implementation commit is also recorded
-in the final `KEV-9` Linear checkpoint.
+Resolve the live checkout's self-referential handoff-only commit with
+`git rev-parse HEAD`. The exact implementation commits are recorded above and
+in their `KEV-14` / `KEV-11` Linear checkpoints.
 
 ## Read this before adding another feature
 
@@ -106,6 +106,29 @@ These are local candidate results, not a public/staging deployment. Public produ
 
 The artifact following `d475304` started Phase 4 conservatively: it moved dynamic code labels out of `i18n.tsx`, retired remaining current `Ultimate` package/user-facing branding, and extracted only the dictionary HTTP route family behind a route-contract test. The normal Windows gate completed on 2026-08-13: 699 Vitest, 316 unique backend pytest and 32 Playwright/axe cases passed, together with PostgreSQL/RLS, dependency, package and no-cache Docker checks.
 
+## Continuation checkpoint — 2026-08-13
+
+- `KEV-10` completed a real walkthrough across first launch, Today, dictionary,
+  pronunciation fallback and a 390 px HE/RTL local workspace. Its highest-value
+  observed friction was the dead end after saving a dictionary word.
+- `KEV-14` closed that friction in `82a36b0`: both a newly saved exact entry
+  and a persisted saved entry expose an immediate, keyboard-friendly
+  pronunciation action. The exact learning-item ID and displayed homograph are
+  carried into `AudioPractice`, so a scored attempt is attributed correctly.
+- The real isolated workspace verified `עֶזְרָה` save → practice → exact target,
+  then verified the continuation persisted after reload without duplicate save.
+- `KEV-11` began with one bounded correction in `03ea87b`: `health.help` no
+  longer reads as an emergency sign. VisualQAGallery confirms a standing helper,
+  seated learner and joined-hands anchor at 99 × 74 px, card and hero sizes,
+  light/dark, HE RTL and reduced motion. The broader 240-scene audit remains in
+  progress.
+- Current local candidate evidence is 701/701 frontend tests, 5/5 focused visual
+  backend tests, clean TypeScript/build and a passing package verifier for 202
+  required files and 372 canonical Git-index checksums.
+- The three inspection surfaces are live at ports 8000, 5173 and 8001. Port 8001
+  uses isolated data under ignored `tmp/kev10-local-data`; it does not point at
+  Kevin's normal private application data.
+
 ## Rules for the next development pass
 
 - Keep `docs/VISUAL_BIBLE.md` authoritative for new illustrations and motion.
@@ -118,7 +141,15 @@ The artifact following `d475304` started Phase 4 conservatively: it moved dynami
 
 ## Suggested next task for the next coding agent
 
-**First:** use the running application for the `KEV-10` learner walkthrough; do not reopen Phase 4A.1.
-**Second:** choose exactly one `KEV-14` friction by observed learner impact and close it with focused tests plus browser evidence.
-**Parallel visual candidate:** `KEV-11` found `health.help` visually reads as an emergency sign instead of interpersonal help; redesign only that scene after the functional slice is safe.
-**Later architecture:** if user-facing work is green, extract only `operations` or `alphabet`; keep `repository.py` intact.
+**First:** continue `KEV-11` by selecting one still-unfixed ambiguity from real
+VisualQAGallery evidence. Do not reopen Phase 4A.1, rerun the completed KEV-10
+walkthrough, or redesign `health.help` again.
+
+**Second:** when that bounded visual slice is green, audit `KEV-12` as optional
+PostgreSQL compatibility without provider calls, migrations or vendor lock-in.
+Keep `KEV-13` local-only and do not create a Vercel deployment during the
+publication freeze.
+
+**Later architecture:** if user-facing and visual work remain green, extract
+only `operations` or `alphabet`; keep `repository.py` intact and avoid a broad
+`api.py` rewrite.
