@@ -197,33 +197,45 @@ export function HealthScene({
         </>
       );
 
-    /* Emergency help: a sign with a cross, and an alert. */
+    /* Everyday help: one person reaches down and helps another stand. */
     case 'health.help':
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
-            <path className="semantic-art__wall semantic-art__outlined" d="M12 12h216v150H12Z" />
-            <path className="semantic-art__grain" d="M12 52h216M12 92h216M12 132h216" />
+            {/* A quiet neighbourhood path keeps the human action dominant. */}
+            <path className="semantic-art__wall semantic-art__outlined" d="M12 12h216v130H12Z" />
+            <path className="semantic-art__floor" d="M12 142h216v20H12Z" />
+            <path className="semantic-art__grain" d="M12 142h216M42 142v20m52-20v20m52-20v20m52-20v20" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
-            <path className="semantic-art__prop-shadow" d="M124 32h96v92h-96Z" />
-            <path className="semantic-art__coral semantic-art__outlined" d="M28 30h164v96H28Z" />
-            {/* Magen David Adom, not a red cross: this is Israeli signage. */}
-            <MagenDavid x={110} y={78} size={62} />
-            <MagenDavid x={110} y={78} size={44} tone="surface" />
+            <ellipse className="semantic-art__prop-shadow" cx="130" cy="158" rx="92" ry="8" />
+            {/* The helper stays upright and reaches toward the lower figure. */}
+            <SemanticPerson x={80} y={107} shirt="teal" pose="reach" scale={1.35} />
+            {/*
+              The second person is seated with bent legs. A second upright
+              figure would turn the same joined hands into a greeting.
+            */}
+            <circle className="semantic-art__skin semantic-art__outlined" cx="174" cy="79" r="15" />
+            <circle className="semantic-art__skin-lit" cx="169" cy="75" r="6" />
+            <path className="semantic-art__hair" d="M160 77q1-18 15-18 14 1 14 18-14-8-29 0Z" />
+            <path className="semantic-art__coral semantic-art__outlined" d="M158 96q17-9 29 3l8 36h-48q3-25 11-39Z" />
+            <path className="semantic-art__coral-lit" d="M158 97q6-5 12-5-7 18-8 43h-15q3-25 11-38Z" />
+            <path className="semantic-art__coral-deep" d="M178 95q7 1 9 5l8 35h-13q0-27-4-40Z" />
+            <path className="semantic-art__face" d="M164 82q4 3 8 0" />
+            <circle className="semantic-art__eye" cx="165" cy="77" r="1.7" />
+            <circle className="semantic-art__eye" cx="173" cy="77" r="1.7" />
+            {/* Bent knees and grounded shoes make the lower posture legible. */}
+            <path className="semantic-art__limb" d="M160 134 145 148h-25m61-14 17 13h18" />
+            <path className="semantic-art__shoe" d="M120 148h-9m105-1h10" />
+            <path className="semantic-art__skin-line" d="M180 103 196 119" />
+            <circle className="semantic-art__hand" cx="198" cy="121" r="4" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            {/* Beacon over the sign, and an arrow pointing to the door. */}
-            <circle className="semantic-art__gold semantic-art__outlined" cx="110" cy="20" r="11" />
-            <path className="semantic-art__sun-rays semantic-art__motion-part" d="M110 2v-2M88 20h-8m52 0h8M92 6l-6-6m54 6 6-6" />
-            <path className="semantic-art__arrow semantic-art__motion-part" d="M110 134v20m-10-10 10 10 10-10" />
-            <path className="semantic-art__gloss" d="M36 38v80" />
-            {/* Door below the sign, lit, with a handle: this is the way in. */}
-            <path className="semantic-art__teal semantic-art__outlined" d="M84 138h52v24H84Z" />
-            <path className="semantic-art__window-lit" d="M90 142h40v20H90Z" />
-            <circle className="semantic-art__gold" cx="128" cy="152" r="4" />
-            <path className="semantic-art__metal-line" d="M110 138v24" />
-            <path className="semantic-art__gloss" d="M88 142v18" />
+            {/* One arm and one hand meet the helper's existing outstretched hand. */}
+            <path className="semantic-art__skin-line" d="M158 96q-17 0-32 6" />
+            <circle className="semantic-art__hand semantic-art__outlined" cx="126" cy="102" r="5" />
+            {/* A short lift cue explains the action; reduced motion makes it still. */}
+            <path className="semantic-art__motion semantic-art__motion-part" d="M151 124q-8-13 1-25m-7 5 7-5 4 8" />
           </SceneLayer>
         </>
       );

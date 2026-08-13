@@ -773,10 +773,10 @@ export const A0_VISUAL_RECIPES = {
     anchor: 'steady-pulse-trace',
   },
   'health.help': {
-    template: 'direction',
-    setting: 'emergency-sign',
-    meaning: 'help-this-way',
-    anchor: 'beacon-and-arrow',
+    template: 'person-action',
+    setting: 'neighborhood-path',
+    meaning: 'helping-another-person-stand',
+    anchor: 'joined-hands',
   },
   'health.pharmacy': {
     template: 'place',

@@ -3478,17 +3478,17 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "An emergency help sign",
-              "es": "Una señal de ayuda de emergencia",
-              "he": "סימן לעזרה דחופה"
+              "en": "One person reaches out to help another stand up",
+              "es": "Una persona tiende la mano para ayudar a otra a levantarse",
+              "he": "אדם מושיט יד ועוזר לאדם אחר לקום"
             },
-            "emoji": "🆘",
+            "emoji": "🤝",
             "key": "health.help"
           },
-          "visual_alt_en": "An emergency help sign",
-          "visual_alt_es": "Una señal de ayuda de emergencia",
-          "visual_alt_he": "סימן לעזרה דחופה",
-          "visual_emoji": "🆘",
+          "visual_alt_en": "One person reaches out to help another stand up",
+          "visual_alt_es": "Una persona tiende la mano para ayudar a otra a levantarse",
+          "visual_alt_he": "אדם מושיט יד ועוזר לאדם אחר לקום",
+          "visual_emoji": "🤝",
           "visual_key": "health.help"
         }
       ],
@@ -3497,11 +3497,11 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "An emergency help sign",
-          "es": "Una señal de ayuda de emergencia",
-          "he": "סימן לעזרה דחופה"
+          "en": "One person reaches out to help another stand up",
+          "es": "Una persona tiende la mano para ayudar a otra a levantarse",
+          "he": "אדם מושיט יד ועוזר לאדם אחר לקום"
         },
-        "emoji": "🆘",
+        "emoji": "🤝",
         "key": "health.help"
       },
       "word": "עזרה"

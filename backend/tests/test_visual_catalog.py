@@ -35,6 +35,11 @@ KNOWN_SCENE_ALTS = {
         "es": "Una persona se acomoda en la cama bajo una ventana iluminada por la luna",
         "he": "אדם נכנס למיטה מתחת לחלון מואר באור הירח",
     },
+    "health.help": {
+        "en": "One person reaches out to help another stand up",
+        "es": "Una persona tiende la mano para ayudar a otra a levantarse",
+        "he": "אדם מושיט יד ועוזר לאדם אחר לקום",
+    },
     "time.year": {
         "en": "A circular year wheel divided into four changing seasons",
         "es": "Una rueda anual circular dividida en cuatro estaciones",
