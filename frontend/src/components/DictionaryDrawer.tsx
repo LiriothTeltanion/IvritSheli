@@ -38,9 +38,10 @@ interface DictionaryDrawerProps {
   onClose: () => void;
   onOpenWord: (word: string) => void;
   onLearned?: () => void;
+  onPracticeWord?: (target: { text: string; itemId: number }) => void;
 }
 
-export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, onLearned }: DictionaryDrawerProps): React.JSX.Element | null {
+export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, onLearned, onPracticeWord }: DictionaryDrawerProps): React.JSX.Element | null {
   const { locale, label, t } = useI18n();
   const { readOnly, readOnlyReason } = useSessionAccess();
   const [entries, setEntries] = useState<DictionaryEntry[]>([]);
@@ -49,7 +50,7 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
   const [adding, setAdding] = useState(false);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
-  const [learnedEntryIds, setLearnedEntryIds] = useState<Set<number>>(() => new Set());
+  const [learnedItemIds, setLearnedItemIds] = useState<Map<number, number>>(() => new Map());
   const [activeCategory, setActiveCategory] = useState('');
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const mountedRef = useRef(true);
@@ -111,8 +112,9 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
   }, [initialEntryId, word]);
 
   const entry = entries[selectedIndex] ?? null;
-  const learnedInThisSession = Boolean(entry && learnedEntryIds.has(entry.id));
-  const isLearned = learnedInThisSession || Boolean(entry?.learning_item_id);
+  const learnedInThisSession = Boolean(entry && learnedItemIds.has(entry.id));
+  const learningItemId = entry ? learnedItemIds.get(entry.id) ?? entry.learning_item_id ?? undefined : undefined;
+  const isLearned = learningItemId !== undefined;
   const learningStatus = entry?.learning_status ?? (learnedInThisSession ? 'needs_review' : 'active');
   const learningStatusLabel = learningStatus === 'mastered'
     ? t('statusMastered')
@@ -242,9 +244,9 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
     setAdding(true);
     setError('');
     try {
-      await api.learnDictionaryEntry(entryId);
+      const learned = await api.learnDictionaryEntry(entryId);
       if (!mountedRef.current) return;
-      setLearnedEntryIds((current) => new Set(current).add(entryId));
+      setLearnedItemIds((current) => new Map(current).set(entryId, learned.id));
       onLearned?.();
     } catch (reason) {
       if (!mountedRef.current) return;
@@ -494,10 +496,28 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
             </details>
 
             <footer className="dictionary-save-footer">
-              <button type="button" className={`primary-button learned-button ${isLearned ? 'is-learned' : ''}`} onClick={() => { void learn(); }} disabled={readOnly || isLearned || adding} title={readOnly ? readOnlyReason : undefined}>
-                {adding ? <span className="spinner" /> : <Icon name={isLearned ? 'check' : 'plus'} size={18} />}
-                {adding ? t('addingToLearning') : isLearned ? t('alreadyInLearning') : t('addToLearning')}
-              </button>
+              {isLearned ? (
+                <button
+                  type="button"
+                  className="primary-button learned-button"
+                  onClick={() => {
+                    if (!entry || learningItemId === undefined) return;
+                    onPracticeWord?.({
+                      text: entry.display_niqqud || entry.word,
+                      itemId: learningItemId,
+                    });
+                  }}
+                  disabled={!onPracticeWord}
+                >
+                  <Icon name="mic" size={18} />
+                  {t('practiceSayingWord')}
+                </button>
+              ) : (
+                <button type="button" className="primary-button learned-button" onClick={() => { void learn(); }} disabled={readOnly || adding} title={readOnly ? readOnlyReason : undefined}>
+                  {adding ? <span className="spinner" /> : <Icon name="plus" size={18} />}
+                  {adding ? t('addingToLearning') : t('addToLearning')}
+                </button>
+              )}
             </footer>
           </div>
         )}

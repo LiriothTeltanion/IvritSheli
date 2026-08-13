@@ -113,17 +113,18 @@ describe('DictionaryDrawer', () => {
     const learn = vi.spyOn(api, 'learnDictionaryEntry').mockResolvedValue(LEARNED_ITEM);
     const search = vi.spyOn(api, 'dictionarySearch').mockResolvedValue([ENTRY]);
     const onLearned = vi.fn();
+    const onPracticeWord = vi.fn();
     const user = userEvent.setup();
 
     render(
       <I18nProvider>
-        <DictionaryDrawer word="שלום" onClose={vi.fn()} onOpenWord={vi.fn()} onLearned={onLearned} />
+        <DictionaryDrawer word="שלום" onClose={vi.fn()} onOpenWord={vi.fn()} onLearned={onLearned} onPracticeWord={onPracticeWord} />
       </I18nProvider>,
     );
 
     await waitFor(() => expect(lookup).toHaveBeenCalledWith('שלום'));
     expect((await screen.findAllByText('shalom')).length).toBeGreaterThan(0);
-    expect(await screen.findByRole('img', { name: 'Two people greeting' })).toBeInTheDocument();
+    expect(await screen.findByRole('img', { name: 'Two people greeting' }, { timeout: 5_000 })).toBeInTheDocument();
     expect(screen.getByText('peace; hello')).toBeInTheDocument();
     expect(screen.getByText('paz; hola')).toBeInTheDocument();
     expect(screen.getByText('goodbye')).toBeInTheDocument();
@@ -143,7 +144,10 @@ describe('DictionaryDrawer', () => {
     await user.click(screen.getByRole('button', { name: /Add to learning/i }));
     await waitFor(() => expect(learn).toHaveBeenCalledWith(7));
     expect(onLearned).toHaveBeenCalledOnce();
-    expect(screen.getByRole('button', { name: /Already in learning/i })).toBeDisabled();
+    const practice = screen.getByRole('button', { name: /Practice saying this word/i });
+    expect(practice).toHaveFocus();
+    await user.click(practice);
+    expect(onPracticeWord).toHaveBeenCalledWith({ text: 'שָׁלוֹם', itemId: 99 });
   });
 
   it('renders persisted learned state without offering a duplicate add', async () => {
@@ -154,16 +158,19 @@ describe('DictionaryDrawer', () => {
       learning_due_state: 'upcoming',
     }]);
     const learn = vi.spyOn(api, 'learnDictionaryEntry');
+    const onPracticeWord = vi.fn();
+    const user = userEvent.setup();
 
     render(
       <I18nProvider>
-        <DictionaryDrawer word="שלום" onClose={vi.fn()} onOpenWord={vi.fn()} />
+        <DictionaryDrawer word="שלום" onClose={vi.fn()} onOpenWord={vi.fn()} onPracticeWord={onPracticeWord} />
       </I18nProvider>,
     );
 
     await waitFor(() => expect(lookup).toHaveBeenCalledWith('שלום'));
     expect(await screen.findByText('Learning status: Mastered')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Already in learning/i })).toBeDisabled();
+    await user.click(screen.getByRole('button', { name: /Practice saying this word/i }));
+    expect(onPracticeWord).toHaveBeenCalledWith({ text: 'שָׁלוֹם', itemId: 99 });
     expect(learn).not.toHaveBeenCalled();
   });
 
@@ -301,16 +308,17 @@ describe('DictionaryDrawer', () => {
     };
     vi.spyOn(api, 'dictionaryLookup').mockResolvedValue([ENTRY, secondEntry]);
     const learn = vi.spyOn(api, 'learnDictionaryEntry').mockResolvedValue(LEARNED_ITEM);
+    const onPracticeWord = vi.fn();
     const user = userEvent.setup();
 
     render(
       <I18nProvider>
-        <DictionaryDrawer word="שלום" onClose={vi.fn()} onOpenWord={vi.fn()} />
+        <DictionaryDrawer word="שלום" onClose={vi.fn()} onOpenWord={vi.fn()} onPracticeWord={onPracticeWord} />
       </I18nProvider>,
     );
 
     await user.click(await screen.findByRole('button', { name: /Add to learning/i }));
-    expect(screen.getByRole('button', { name: /Already in learning/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /Practice saying this word/i })).toBeEnabled();
 
     await user.click(screen.getByRole('tab', { name: 'Verb' }));
     expect(screen.getByRole('button', { name: /Add to learning/i })).toBeEnabled();
@@ -331,11 +339,12 @@ describe('DictionaryDrawer', () => {
     };
     vi.spyOn(api, 'dictionaryLookup').mockResolvedValue([ENTRY, homograph]);
     const learn = vi.spyOn(api, 'learnDictionaryEntry').mockResolvedValue({ ...LEARNED_ITEM, id: 108 });
+    const onPracticeWord = vi.fn();
     const user = userEvent.setup();
 
     render(
       <I18nProvider>
-        <DictionaryDrawer word="שלום" initialEntryId={8} onClose={vi.fn()} onOpenWord={vi.fn()} />
+        <DictionaryDrawer word="שלום" initialEntryId={8} onClose={vi.fn()} onOpenWord={vi.fn()} onPracticeWord={onPracticeWord} />
       </I18nProvider>,
     );
 
@@ -343,6 +352,8 @@ describe('DictionaryDrawer', () => {
     expect(screen.getByRole('tab', { name: 'Interjection' })).toHaveAttribute('aria-selected', 'true');
     await user.click(screen.getByRole('button', { name: /Add to learning/i }));
     await waitFor(() => expect(learn).toHaveBeenCalledWith(8));
+    await user.click(screen.getByRole('button', { name: /Practice saying this word/i }));
+    expect(onPracticeWord).toHaveBeenCalledWith({ text: 'שָׁלוֹם ב׳', itemId: 108 });
   });
 
   it('clears stale entries and ignores an older search response after the word changes', async () => {

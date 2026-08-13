@@ -3,7 +3,7 @@
 // Author: Kevin "Lirioth" Cusnir
 // Date: 2026-07-16 | TZ: Asia/Jerusalem
 
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { api } from '../api';
@@ -73,6 +73,12 @@ const HOMOGRAPHS: DictionaryEntry[] = [1, 2].map((id) => ({
 describe('LearnPanel dictionary identity', () => {
   afterEach(() => vi.restoreAllMocks());
 
+  const searchForHomographs = async (user: ReturnType<typeof userEvent.setup>): Promise<void> => {
+    await user.type(screen.getByPlaceholderText('Search Hebrew, English, or Spanish'), 'שלום');
+    await user.click(screen.getAllByRole('button', { name: 'Dictionary' })[1]!);
+    await waitFor(() => expect(screen.getByText('second homograph')).toBeInTheDocument());
+  };
+
   it('passes the selected dictionary entry id when opening a homograph', async () => {
     vi.spyOn(api, 'dictionarySearch').mockResolvedValue(HOMOGRAPHS);
     const onWordClick = vi.fn();
@@ -135,5 +141,96 @@ describe('LearnPanel dictionary identity', () => {
       await slowResponse;
     });
     expect(screen.getByText('second homograph')).toBeInTheDocument();
+  });
+
+  it('turns the exact newly saved homograph into an immediate pronunciation action', async () => {
+    vi.spyOn(api, 'dictionarySearch').mockResolvedValue(HOMOGRAPHS);
+    const learn = vi.spyOn(api, 'learnDictionaryEntry').mockResolvedValue({
+      id: 108,
+      hebrew_text: 'שלום',
+      hebrew_with_niqqud: 'שָׁלוֹם ב׳',
+      transliteration: 'shalom-b',
+      translation_en: 'second homograph',
+      translation_es: 'segundo homógrafo',
+      item_type: 'word',
+      root: 'שלם',
+      binyan: null,
+      grammatical_gender: null,
+      register_label: null,
+      context_label: 'dictionary',
+      priority: 0.7,
+    });
+    vi.spyOn(api, 'audioCapabilities').mockRejectedValue(new Error('Use browser fallback'));
+    const score = vi.spyOn(api, 'pronunciationScore').mockResolvedValue({
+      score: 100,
+      feedback: { band: { en: 'Excellent', es: 'Excelente', he: 'מצוין' } },
+    });
+    const user = userEvent.setup();
+
+    render(
+      <I18nProvider>
+        <LearnPanel
+          initialTab="dictionary"
+          cloudAvailable={false}
+          dashboard={DASHBOARD}
+          onWordClick={vi.fn()}
+          onRefresh={vi.fn()}
+        />
+      </I18nProvider>,
+    );
+
+    await searchForHomographs(user);
+    const homographCard = screen.getByText('second homograph').closest('article');
+    expect(homographCard).not.toBeNull();
+    const add = within(homographCard!).getByRole('button', { name: 'Add to learning' });
+    await user.click(add);
+    await waitFor(() => expect(learn).toHaveBeenCalledWith(2));
+
+    const practice = within(homographCard!).getByRole('button', { name: 'Practice שָׁלוֹם ב׳' });
+    expect(practice).toHaveFocus();
+    await user.click(practice);
+
+    expect(await screen.findByRole('heading', { name: 'Pronunciation' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Target phrase' })).toHaveValue('שָׁלוֹם ב׳');
+    const transcript = screen.getByRole('textbox', { name: 'Transcript' });
+    await user.type(transcript, 'שָׁלוֹם ב׳');
+    await user.click(screen.getByRole('button', { name: 'Check recognition match' }));
+    await waitFor(() => expect(score).toHaveBeenCalledWith(
+      'שָׁלוֹם ב׳',
+      'שָׁלוֹם ב׳',
+      108,
+      'manual',
+      undefined,
+    ));
+  });
+
+  it('offers pronunciation directly for an already saved exact dictionary result', async () => {
+    vi.spyOn(api, 'dictionarySearch').mockResolvedValue(HOMOGRAPHS.map((entry) => (
+      entry.id === 2 ? { ...entry, learning_item_id: 208, learning_status: 'active' } : entry
+    )));
+    const learn = vi.spyOn(api, 'learnDictionaryEntry');
+    vi.spyOn(api, 'audioCapabilities').mockRejectedValue(new Error('Use browser fallback'));
+    const user = userEvent.setup();
+
+    render(
+      <I18nProvider>
+        <LearnPanel
+          initialTab="dictionary"
+          cloudAvailable={false}
+          dashboard={DASHBOARD}
+          onWordClick={vi.fn()}
+          onRefresh={vi.fn()}
+        />
+      </I18nProvider>,
+    );
+
+    await searchForHomographs(user);
+    const homographCard = screen.getByText('second homograph').closest('article');
+    expect(homographCard).not.toBeNull();
+    await user.click(within(homographCard!).getByRole('button', { name: 'Practice שָׁלוֹם ב׳' }));
+
+    expect(await screen.findByRole('heading', { name: 'Pronunciation' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Target phrase' })).toHaveValue('שָׁלוֹם ב׳');
+    expect(learn).not.toHaveBeenCalled();
   });
 });

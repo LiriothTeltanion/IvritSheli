@@ -747,6 +747,11 @@ export default function App(): React.JSX.Element {
           setToast(t('captured'));
           void refreshCore();
         }}
+        onPracticeWord={(target) => {
+          setPracticeTarget(target);
+          setDictionaryTarget(null);
+          goToLearn('audio');
+        }}
       />
       {toast && <div className="toast" role="status"><Icon name="check" size={17} /> {toast}</div>}
     </div>

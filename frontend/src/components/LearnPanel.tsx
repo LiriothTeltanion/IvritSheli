@@ -45,10 +45,12 @@ export function LearnPanel({
   const [dictionaryResults, setDictionaryResults] = useState<DictionaryEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [activePracticeTarget, setActivePracticeTarget] = useState(practiceTarget);
   const mountedRef = useRef(true);
   const searchGenerationRef = useRef(0);
 
   useEffect(() => setTab(initialTab), [initialTab]);
+  useEffect(() => setActivePracticeTarget(practiceTarget), [practiceTarget]);
   useEffect(() => {
     mountedRef.current = true;
     return () => {
@@ -89,6 +91,16 @@ export function LearnPanel({
     } catch (reason) {
       setMessage(reason instanceof Error ? reason.message : String(reason));
     }
+  };
+
+  const practiceEntry = (entry: DictionaryEntry): void => {
+    if (entry.learning_item_id === null || entry.learning_item_id === undefined) return;
+    setActivePracticeTarget({
+      text: entry.display_niqqud || entry.word,
+      itemId: entry.learning_item_id,
+    });
+    setMessage('');
+    setTab('audio');
   };
 
   const alphabetLabel = locale === 'he' ? 'אלפבית' : locale === 'es' ? 'Alfabeto' : 'Alphabet';
@@ -137,10 +149,10 @@ export function LearnPanel({
       {tab === 'audio' && (
         <div className="audio-workspace">
           <AudioPractice
-            initialText={practiceTarget?.text ?? 'אני עדיין לומד עברית'}
-            {...(practiceTarget?.itemId === undefined
+            initialText={activePracticeTarget?.text ?? 'אני עדיין לומד עברית'}
+            {...(activePracticeTarget?.itemId === undefined
               ? {}
-              : { itemId: practiceTarget.itemId })}
+              : { itemId: activePracticeTarget.itemId })}
             cloudAvailable={cloudAvailable}
             onWordClick={onWordClick}
           />
@@ -185,16 +197,28 @@ export function LearnPanel({
                       {entry.root && <span>{t('rootLabel')} · {entry.root}</span>}
                     </div>
                   </button>
-                  <button
-                    type="button"
-                    className={`icon-button learned-button ${entry.learning_item_id ? 'is-learned' : ''}`}
-                    onClick={() => { void addEntry(entry); }}
-                    aria-label={entry.learning_item_id ? t('alreadyInLearning') : t('addToLearning')}
-                    disabled={readOnly || Boolean(entry.learning_item_id)}
-                    title={readOnly ? readOnlyReason : entry.learning_item_id ? t('alreadyInLearning') : undefined}
-                  >
-                    <Icon name={entry.learning_item_id ? 'check' : 'plus'} />
-                  </button>
+                  {entry.learning_item_id ? (
+                    <button
+                      type="button"
+                      className="secondary-button dictionary-result__practice"
+                      onClick={() => practiceEntry(entry)}
+                      aria-label={t('practicePhrase', { phrase: entry.display_niqqud || entry.word })}
+                    >
+                      <Icon name="mic" size={17} />
+                      {t('practiceSayingWord')}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="icon-button learned-button"
+                      onClick={() => { void addEntry(entry); }}
+                      aria-label={t('addToLearning')}
+                      disabled={readOnly}
+                      title={readOnly ? readOnlyReason : undefined}
+                    >
+                      <Icon name="plus" />
+                    </button>
+                  )}
                 </article>
               );
             })}
