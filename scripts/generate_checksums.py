@@ -4,9 +4,10 @@ Purpose: Regenerate SHA256SUMS.txt from the Git index or a clean extracted sourc
 Author: Kevin "Lirioth" Cusnir
 Updated: 2026-08-10 | TZ: Asia/Jerusalem
 
-In a Git worktree, canonical index blobs remain the source of truth. In a clean
-source export where .git is intentionally absent, packaged bytes are hashed
-directly so the package can verify itself without inventing repository state.
+In a Git worktree, canonical index blobs remain the source of truth. In an
+extracted canonical archive where .git is intentionally absent, shipped bytes
+are hashed exactly so verification never reinterprets binary or line-ending
+content after packaging.
 """
 
 from __future__ import annotations
@@ -90,7 +91,12 @@ def indexed_blob(relative: str) -> bytes:
 
 
 def packaged_blob(relative: str) -> bytes:
-    """Read bytes from a clean extracted package."""
+    """Read one extracted canonical-package file without byte conversion.
+
+    The release archive builder writes canonical index blobs directly. Reusing
+    Git's text/binary conversion after extraction would be both redundant and
+    unsafe because a package has no index or authoritative attribute context.
+    """
     return (ROOT / relative).read_bytes()
 
 

@@ -1,8 +1,24 @@
 # Ivrit Sheli 2.10.0 — Nova Consolidation Handoff
 
-Prepared: 2026-08-10  
-Source state: private / unpublished  
+Prepared: 2026-08-10; operational checkpoint refreshed: 2026-08-13
+Source state: private / unpublished
 Public production intentionally remains: **2.4.0 Contest Edition (2026-07-21)**
+
+## NovaSync operational checkpoint
+
+- **Project:** `02 — Ivrit Sheli`
+- **Branch:** `consolidation/ivrit-sheli-2.10-baseline`
+- **Input HEAD:** `d475304015e8c76c5468f08f46627c6e3853e9d5`
+- **Issue:** `KEV-9` — Phase 4A.1 validation and local preservation
+- **Work completed:** dynamic label ownership, package/brand cleanup with legacy-distribution migration, six-route dictionary extraction, exact-byte checksum integrity and deterministic optimized-build browser gating
+- **Verification:** 699 Vitest + 316 unique backend pytest + 32 Playwright/axe = **1,047 unique passes**; type/lint/build, PostgreSQL/RLS, dependency audits, package verification and no-cache image smoke green
+- **Current URLs:** stable Docker/PostgreSQL app `http://127.0.0.1:8000/`; hot-reload frontend `http://127.0.0.1:5173/` proxying that backend
+- **Next action:** close `KEV-9` after the local commit, then execute the real `KEV-10` walkthrough before choosing one `KEV-14` learner-facing slice
+- **Blockers:** no local engineering blocker; staging/two-real-account/pilot gates remain, and public judge state is frozen until after 2026-08-25 unless Kevin explicitly changes that instruction
+
+Resolve the live checkout's self-referential document commit with
+`git rev-parse HEAD`; the exact Phase 4 implementation commit is also recorded
+in the final `KEV-9` Linear checkpoint.
 
 ## Read this before adding another feature
 
@@ -77,6 +93,19 @@ Before merging/publishing, run in the normal project/CI environment:
 9. human five-second recognition check on the 36 newly exact concepts
 10. speech/reminder pilot and two-real-account staging checks
 
+
+## Reference-machine validation completed after the original consolidation
+
+The Windows reference repository subsequently completed the gates that were unavailable in the artifact sandbox:
+
+- Phase 1: `cryptography` upgraded from 49.0.0 to 50.0.0; `pip-audit` returned no known vulnerabilities.
+- Phase 2: PostgreSQL 17.10, Alembic fresh migration, restricted runtime role, forced RLS, two-user isolation and a no-cache Docker/Compose production-shaped build passed locally.
+- Phase 3: visual QA/accessibility corrections and semantic-art code splitting completed; the reference machine reported 697 Vitest passes, 313 backend pytest passes, 32 Playwright/axe passes, clean type/lint/build gates and a clean worktree at `d475304`.
+
+These are local candidate results, not a public/staging deployment. Public production remains 2.4.0.
+
+The artifact following `d475304` started Phase 4 conservatively: it moved dynamic code labels out of `i18n.tsx`, retired remaining current `Ultimate` package/user-facing branding, and extracted only the dictionary HTTP route family behind a route-contract test. The normal Windows gate completed on 2026-08-13: 699 Vitest, 316 unique backend pytest and 32 Playwright/axe cases passed, together with PostgreSQL/RLS, dependency, package and no-cache Docker checks.
+
 ## Rules for the next development pass
 
 - Keep `docs/VISUAL_BIBLE.md` authoritative for new illustrations and motion.
@@ -87,8 +116,9 @@ Before merging/publishing, run in the normal project/CI environment:
 - Do not resume large backend file splitting until the complete backend/PostgreSQL/Docker gate is available. Refactor one domain boundary at a time with contract tests.
 - Preserve the public 2.4.0 evidence boundary until a genuinely verified candidate supersedes it.
 
-## Suggested next task for Claude
+## Suggested next task for the next coding agent
 
-**First:** run the complete 2.10.0 CI/test/browser matrix in the normal development environment and fix only regressions.  
-**Second:** refresh desktop/mobile/RTL screenshots from the verified 2.10 UI.  
-**Third:** only after those gates are green, choose one backend decomposition slice from `docs/ARCHITECTURE_CONSOLIDATION.md` or one user-tested UX improvement — not another broad feature wave.
+**First:** use the running application for the `KEV-10` learner walkthrough; do not reopen Phase 4A.1.
+**Second:** choose exactly one `KEV-14` friction by observed learner impact and close it with focused tests plus browser evidence.
+**Parallel visual candidate:** `KEV-11` found `health.help` visually reads as an emergency sign instead of interpersonal help; redesign only that scene after the functional slice is safe.
+**Later architecture:** if user-facing work is green, extract only `operations` or `alphabet`; keep `repository.py` intact.

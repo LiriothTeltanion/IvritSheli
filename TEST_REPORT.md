@@ -103,6 +103,10 @@ tagged, released or submitted.
 | Graceful shutdown / restart | Clean uvicorn sequence, **exit code 0** in 1.8s; healthy again 6s after restart |
 | `docker compose down -v` | Clean. Host learner databases byte-identical before and after — the stack uses named volumes, no bind mount to the repository `data/` |
 
+### Current local automated baseline after Phases 1–3
+
+Combining the latest directly executed reference-machine results gives **1,042 automated passes** for the 2.10 candidate: 697 Vitest + 313 backend pytest + 32 Playwright/axe. This is a convenience total across distinct suites, not a substitute for their individual assertions, and it remains local candidate evidence rather than public/staging verification.
+
 ### Database security posture, as measured
 
 - `SESSION_USER` = `CURRENT_USER` = `ivrit_sheli_runtime`. PostgreSQL's own
@@ -137,6 +141,62 @@ Read, write and delete were each attempted across the tenant boundary:
 
 All identities and data were synthetic and disposable, and the environment was
 destroyed afterwards.
+
+## Phase 4A.1 Windows adoption gate — 2026-08-13
+
+Executed on the reference Windows machine against the Phase 4 delta layered on
+`d475304`. This closes the artifact-stage limitation recorded below. It remains
+local candidate evidence: no staging, production, tag, push or release action
+was performed.
+
+| Gate | Result |
+|---|---|
+| TypeScript | **Passed**, 0 errors |
+| Frontend tests | **699 passed / 40 files / 0 failed** |
+| Vite production build | **Passed**; the existing >500 kB chunk advisory remains a warning |
+| Ruff / strict MyPy | **Passed** / **passed across 39 source files** |
+| Host backend suite | **315 passed / 1 PostgreSQL credential-gated skip / 0 failed** |
+| Disposable PostgreSQL 17 suite | **3 passed / 0 failed**; the one host skip executed, so current unique backend coverage is **316 passed** |
+| Browser + accessibility | **32 passed / 40 intentional project-scoped skips / 0 failed** across 390, 768 and 1440 px, light/dark, HE RTL, reduced motion, 200% reflow and axe |
+| Python compile / offline doctor | **Passed** / **7 checks passed as 2.10.0** |
+| Package verifier / checksums | **Passed — 202 required files** after the final documentation refresh; **372 canonical Git-index checksums** regenerated and verified |
+| Dependency audits | `pip-audit`: **no known vulnerabilities**; npm production and full tree: **0 vulnerabilities** |
+| Docker image | **Passed** from current source with `--no-cache`; validation tag `ivrit-sheli:phase4a1-verified` |
+| Isolated image smoke | **ready**, `/health/live` 200, 2.10.0, SQLite; uvicorn PID 1 ran as UID/GID **10001:10001** for real/effective/saved/fs identities |
+| Runtime credential boundary | Deliberately injected migration/push credentials were **absent from PID 1**; OAuth/log redaction passed for all supplied forbidden values |
+
+The browser gate initially reproduced resource contention when the HMR server
+mounted the 240-scene gallery at three sizes across concurrent projects. Traces
+showed that product assertions had passed and axe was still traversing 720 SVGs
+when the case budget expired. The harness now builds once, serves the optimized
+artifact with `vite preview`, keeps CI at two workers, serializes locally, and
+gives only the full-catalog case a 180-second total budget while retaining its
+60-second mount assertions. It also refuses to reuse an unknown process on the
+gate port. The final clean build/preview rerun passed the complete unchanged
+matrix in 3.3 minutes. This is a determinism fix to the verification boundary,
+not a product behavior change.
+
+**Current unique automated evidence: 1,047 passes** — 699 Vitest + 316 backend
+pytest + 32 Playwright/axe. Counts are not inflated by the two PostgreSQL tests
+that run in both the host and disposable-database invocations.
+
+## Phase 4 artifact-stage consolidation — Nova sandbox — 2026-08-11
+
+This source artifact starts the first deliberately small post-validation architecture slice on top of `d475304`. The sandbox has no package-registry access, so this section records only checks actually executable here; **the normal Windows full gate is still required before these Phase 4 edits are adopted/committed in the real repository**.
+
+| Check | Result |
+|---|---|
+| Python compileall | **Passed** for backend source/tests and scripts |
+| TypeScript/TSX syntax transpilation | **127 files / 0 syntax errors** using the available TypeScript compiler |
+| Dynamic code-label parity (source guard) | **93 EN / 93 ES / 93 HE labels; unique key counts aligned** |
+| Dictionary route ownership | **6 dictionary route decorators moved out of `api.py`; 6 registered in `api_dictionary.py`** |
+| Package identity | `ivrit-sheli-web` frontend / `ivrit-sheli` Python distribution |
+| Package verifier | **Passed — 200 required files** after the Phase 4 ownership additions |
+| Clean-package checksum manifest | **370 entries regenerated and verified** |
+| Full TypeScript/Vitest/Vite | **Not executed in this sandbox** — npm registry unavailable; baseline `d475304` had already passed 697/697 + build on Windows, but Phase 4 must rerun there |
+| Full Ruff/MyPy/pytest/PostgreSQL/Docker | **Not executed for the Phase 4 delta in this sandbox**; do not infer a pass from the Phase 1–3 baseline |
+
+Phase 4 changes are intentionally narrow: dynamic code-label ownership, current package/brand identity cleanup, and one dictionary HTTP-route extraction with a route-contract test. No repository transaction, auth, RLS, migration or runtime configuration logic moved.
 
 ## Artifact checks executed in the consolidation sandbox — 2026-08-10
 

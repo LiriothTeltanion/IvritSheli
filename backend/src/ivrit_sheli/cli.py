@@ -54,7 +54,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--version",
         action="version",
-        version=f"Ivrit Sheli Ultimate {__version__}",
+        version=f"Ivrit Sheli {__version__}",
     )
     parser.add_argument(
         "--init",

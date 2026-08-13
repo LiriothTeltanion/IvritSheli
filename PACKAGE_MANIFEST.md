@@ -5,8 +5,8 @@
 - Source lineage: derived from the clean 2.9.2 Brand & Private Access export supplied for consolidation; `.git`, real secrets, local databases, models, dependency caches and generated audit folders are intentionally absent.
 - Current verified public version: `2.4.0`
 - Visual catalog: **240 reviewed concepts / 240 exact semantic scenes / 0 reviewed category fallbacks**
-- Final source integrity gate: **197 required files verified / 364 clean-package SHA-256 entries**
-- Candidate test evidence: the 2.9.2 **699-pass** baseline remains historical; 2.10.0 receives a fresh package-consistency and focused verification record in `TEST_REPORT.md` and still requires the full release matrix before publication.
+- Final source integrity gate: **202 required files verified / 372 canonical Git-index SHA-256 entries**
+- Candidate test evidence: Phase 4A.1 passed **1,047 local automated checks** on 2026-08-13, including the complete browser/accessibility matrix and disposable PostgreSQL coverage. Human recognition, isolated staging/pilot and explicit publication approval remain required; see `TEST_REPORT.md`.
 
 ## 2.10.0 package purpose
 

@@ -36,6 +36,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 from ivrit_sheli import __version__
 from ivrit_sheli.ai_engine import AIEngine
+from ivrit_sheli.api_dictionary import register_dictionary_routes
 from ivrit_sheli.audio import MAX_AUDIO_BYTES, AudioProviderError, AudioService
 from ivrit_sheli.auth import (
     AuthenticationCapacityError,
@@ -572,7 +573,7 @@ def create_app(
     Example:
         >>> app = create_app(Settings.from_env({"APP_DB_PATH": ":memory:", "DICTIONARY_DB_PATH": ":memory:"}))
         >>> app.title
-        'Ivrit Sheli Ultimate API'
+        'Ivrit Sheli API'
     """
     runtime_settings = settings or Settings.from_env()
 
@@ -624,7 +625,7 @@ def create_app(
         app.state.services.cloud_store.close()
 
     app = FastAPI(
-        title="Ivrit Sheli Ultimate API",
+        title="Ivrit Sheli API",
         version=__version__,
         description="Local-first and securely authenticated cloud Hebrew-learning API",
         docs_url=f"{API_PREFIX}/docs",
@@ -1790,73 +1791,13 @@ def register_routes(app: FastAPI) -> None:
         """Reset derived weights without deleting vocabulary, sessions, or mastery."""
         return repository_for(request).reset_personalization()
 
-    @app.get(f"{API_PREFIX}/dictionary/search")
-    def dictionary_search(
-        request: Request,
-        q: str = Query(min_length=1, max_length=500),
-        limit: int = Query(default=20, ge=1, le=100),
-    ) -> dict[str, Any]:
-        repository = repository_for(request)
-        results = _with_dictionary_learning_state(
-            repository,
-            services(request).dictionary.search(q, limit),
-        )
-        return {"query": q, "results": results}
-
-    @app.get(f"{API_PREFIX}/dictionary/browse")
-    def dictionary_browse(
-        request: Request,
-        category: str = Query(min_length=1, max_length=64),
-        limit: int = Query(default=24, ge=1, le=100),
-    ) -> dict[str, Any]:
-        repository = repository_for(request)
-        results = _with_dictionary_learning_state(
-            repository,
-            services(request).dictionary.browse(category, limit),
-        )
-        return {"category": category, "results": results}
-
-    @app.get(f"{API_PREFIX}/dictionary/lookup")
-    def dictionary_lookup(
-        request: Request,
-        word: str = Query(min_length=1, max_length=500),
-    ) -> dict[str, Any]:
-        repository = repository_for(request)
-        results = _with_dictionary_learning_state(
-            repository,
-            services(request).dictionary.lookup(word),
-        )
-        return {"word": word, "results": results}
-
-    @app.get(f"{API_PREFIX}/dictionary/entries/{{entry_id}}")
-    def dictionary_entry(request: Request, entry_id: int) -> dict[str, Any]:
-        entry = services(request).dictionary.get(entry_id)
-        return _with_dictionary_learning_state(repository_for(request), [entry])[0]
-
-    @app.get(f"{API_PREFIX}/dictionary/stats")
-    def dictionary_stats(request: Request) -> dict[str, Any]:
-        return services(request).dictionary.stats()
-
-    @app.post(f"{API_PREFIX}/dictionary/{{entry_id}}/learn", status_code=201)
-    def learn_dictionary_entry(request: Request, entry_id: int) -> dict[str, Any]:
-        card = services(request).dictionary.get(entry_id)
-        repository = repository_for(request)
-        first_sense = card["senses"][0] if card["senses"] else {}
-        return repository.get_or_create_dictionary_item(
-            entry_id,
-            {
-                "hebrew_text": card["word"],
-                "hebrew_with_niqqud": card["display_niqqud"],
-                "transliteration": card.get("romanization"),
-                "translation_en": first_sense.get("gloss_en"),
-                "translation_es": first_sense.get("gloss_es"),
-                "item_type": card.get("pos") or "word",
-                "root": card.get("root"),
-                "binyan": card.get("binyan"),
-                "grammatical_gender": card.get("gender"),
-                "priority": 0.65,
-            },
-        )
+    register_dictionary_routes(
+        app,
+        api_prefix=API_PREFIX,
+        repository_for=repository_for,
+        dictionary_for=lambda request: services(request).dictionary,
+        decorate_entries=_with_dictionary_learning_state,
+    )
 
     ai_routes = {
         "analyze": "analyze",
@@ -2717,7 +2658,7 @@ def register_frontend(app: FastAPI, frontend_dist: Path) -> None:
             return FileResponse(index)
         return JSONResponse(
             {
-                "name": "Ivrit Sheli Ultimate",
+                "name": "Ivrit Sheli",
                 "api": f"{API_PREFIX}/docs",
                 "message": "Frontend is not built. Run npm install && npm run build in frontend/.",
             }

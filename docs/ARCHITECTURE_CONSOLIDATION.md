@@ -50,14 +50,23 @@ The final exact-scene expansion is split by semantic ownership instead of being 
 
 The package verifier derives the candidate version from backend executable metadata. Checksum generation supports both canonical Git-index blobs and intentionally clean extracted source packages. The verifier also proves 240 catalog keys map to 240 exact recipes and 240 unique spotlight words.
 
+
+### Phase 4 first backend boundary
+
+After the complete 2.10 frontend, PostgreSQL 17 and Docker gates were established on the reference Windows machine, the first deliberately small backend decomposition moved only the dictionary HTTP routes to `backend/src/ivrit_sheli/api_dictionary.py`. Authentication, CSRF, request limits, tenant selection, service construction and repository behavior remain centralized and unchanged. A route-contract test fixes the six dictionary paths/methods so future router work cannot silently drop or duplicate an endpoint.
+
+### Locale metadata and package identity
+
+Dynamic code/category labels now live in `frontend/src/locales/codeLabels.ts` instead of the React provider. The locale parity suite guards both message catalogs and dynamic labels across EN/ES/HE. Current package metadata also uses the plain Ivrit Sheli identity (`ivrit-sheli-web` / `ivrit-sheli`) rather than the retired `Ultimate` package name. Historical filenames and historical notes may retain the word when needed for provenance, but current user-facing surfaces do not.
+
 ## Large-file risk that remains
 
 The backend `api.py` and `repository.py` still contain substantial mature behavior. Splitting those files is desirable, but doing it mechanically in a source-export environment without the complete PostgreSQL/runtime dependency set would create more risk than value. They should be decomposed only behind a full green backend/PostgreSQL/Docker suite.
 
 Recommended next safe boundaries:
 
-1. Extract API routers by domain (`auth`, `learning`, `dictionary`, `audio`, `alphabet`, `push`, `operations`) while keeping service contracts unchanged.
-2. Split repository behavior around profile/state, practice/review, dictionary, alphabet, audio and notifications.
+1. Continue API extraction one domain at a time after the dictionary slice (`operations` or `alphabet` are the next low-risk candidates).
+2. Split repository behavior around profile/state, practice/review, dictionary, alphabet, audio and notifications only after each API slice stays green.
 3. Add contract tests before moving each endpoint/repository family.
 4. Keep one migration/tenant/security boundary; do not duplicate authorization logic across routers.
 

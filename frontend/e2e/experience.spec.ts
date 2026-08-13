@@ -283,16 +283,17 @@ test.describe('visual recognition expansion', () => {
    * ordinary default, because a slow answer there would be a real defect.
    */
   const MOUNT_BUDGET_MS = 60_000;
+  const FULL_CATALOG_CASE_BUDGET_MS = 180_000;
 
   test('renders all 240 exact scenes across the configured viewport and display preferences', async ({ page }, testInfo) => {
     /*
      * This case paints the whole catalogue: 240 scenes at three sizes, 720
-     * hand-authored SVGs, then switches theme and language and re-lays them
-     * out. `test.slow()` triples the case budget rather than hiding the expense
-     * behind a raised global default.
-     *
+     * hand-authored SVGs, then switches theme and language, re-lays everything
+     * out at 200%, and runs axe across the resulting DOM. Keep the 60-second
+     * mount assertions strict, but give the complete case enough time for axe
+     * on a loaded Windows reference machine without raising the global budget.
      */
-    test.slow();
+    test.setTimeout(FULL_CATALOG_CASE_BUDGET_MS);
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/?visualQa=1&lang=en');
 

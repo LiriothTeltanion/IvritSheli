@@ -1,8 +1,14 @@
 # 2.10.0 private-candidate note — 2026-08-10
 
-The private visual QA gallery now derives and renders **all 240 exact semantic scenes**. The prior 72-scene references below are historical milestones from 2.8.3. In the current candidate, reviewed starter concepts no longer use category/emoji fallbacks. The full 390/768/1440, light/dark, Hebrew RTL, reduced-motion and 200% reflow matrix must be rerun before publication.
+The private visual QA gallery now derives and renders **all 240 exact semantic
+scenes**. The prior 72-scene references below are historical milestones from
+2.8.3. In the current candidate, reviewed starter concepts no longer use
+category/emoji fallbacks. The automated 390/768/1440, light/dark, Hebrew RTL,
+reduced-motion, 200% reflow and axe matrix passed locally on 2026-08-13. Human
+recognition review, isolated staging/pilot evidence and explicit approval remain
+required before publication.
 
-# Ivrit Sheli Ultimate — User Guide
+# Ivrit Sheli — User Guide
 
 ## 1. First launch
 

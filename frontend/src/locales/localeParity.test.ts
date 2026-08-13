@@ -16,6 +16,7 @@ import { describe, expect, it } from 'vitest';
 import { enMessages } from './en';
 import { esMessages } from './es';
 import { heMessages } from './he';
+import { codeLabels } from './codeLabels';
 
 const catalogues = { en: enMessages, es: esMessages, he: heMessages } as const;
 
@@ -57,5 +58,23 @@ describe('interface copy catalogues', () => {
       }
     }
     expect(mismatched).toEqual([]);
+  });
+});
+
+describe('dynamic code labels', () => {
+  it('carries exactly the same dynamic-label keys in all three languages', () => {
+    const en = Object.keys(codeLabels.en).sort();
+    expect(Object.keys(codeLabels.es).sort()).toEqual(en);
+    expect(Object.keys(codeLabels.he).sort()).toEqual(en);
+  });
+
+  it('leaves no dynamic label empty in any language', () => {
+    const empty: string[] = [];
+    for (const [locale, labels] of Object.entries(codeLabels)) {
+      for (const [key, value] of Object.entries(labels)) {
+        if (value.trim() === '') empty.push(`${locale}.${key}`);
+      }
+    }
+    expect(empty).toEqual([]);
   });
 });

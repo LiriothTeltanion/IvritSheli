@@ -28,7 +28,7 @@
   <a href="https://ivritsheli-production.up.railway.app/?lang=en"><strong>🌐 Open the verified Ivrit Sheli 2.4.0 Contest Edition — 2026-07-21</strong></a>
 </p>
 
-> **Release-candidate boundary:** this checkout is the private, unpublished **2.10.0 Visual Language Consolidation candidate dated 2026-08-10**. It consolidates the 2.9.2 Brand & Private Access work and completes exact semantic illustration coverage for all 240 reviewed starter concepts. The production Railway deployment, public Git tag, GitHub Release and Devpost submission intentionally remain on the verified **2.4.0 Contest Edition dated 2026-07-21**. This candidate will not replace production without a fresh full test matrix, staging/pilot evidence and Kevin's explicit approval.
+> **Release-candidate boundary:** this checkout is the private, unpublished **2.10.0 Visual Language Consolidation candidate dated 2026-08-10**, with Phase 4A.1 locally verified on 2026-08-13. It consolidates the 2.9.2 Brand & Private Access work and completes exact semantic illustration coverage for all 240 reviewed starter concepts. The production Railway deployment, public Git tag, GitHub Release and Devpost submission intentionally remain on the verified **2.4.0 Contest Edition dated 2026-07-21**. This candidate will not replace production without staging/backup/pilot evidence and Kevin's explicit approval; the complete local code/browser/PostgreSQL/Docker matrix has been rerun through Phase 4A.1.
 
 ### Source and live release truth
 
@@ -40,11 +40,11 @@
 | Production storage/readiness | PostgreSQL · ready · 48 reviewed dictionary entries |
 | Deployment verification | Successful on 2026-07-21 |
 | Release verification | 151 unique backend tests + 62 frontend tests = 213 passed; main CI and CodeQL passed |
-| Candidate verification | **Historical 2.9.2 baseline:** 312 backend tests + 355 frontend tests + 32 Playwright/axe cases = **699 automated passes** on 2026-07-28. **2.10.0 consolidation:** package/source-consistency and visual-catalog gates are refreshed in this artifact; the complete backend/frontend/Playwright/PostgreSQL/Docker suite must be rerun before any publication claim. |
+| Candidate verification | **2.10.0 Phase 4A.1 local candidate (verified 2026-08-13):** 699 Vitest + 316 unique backend pytest + 32 Playwright/axe = **1,047 directly executed automated passes**; TypeScript/Vite, Ruff/MyPy, PostgreSQL 17/RLS/two-user isolation, dependency audits and a no-cache container smoke also passed locally. This is **not** staging/public verification. |
 | GitHub publication | [`v2.4.0`](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.4.0), dated 2026-07-21, is the published tag and GitHub Release |
 | Live account evidence | Identity-only Google sign-in, onboarding state and the authenticated session persisted across reload; logout returned to the English landing page and remained signed out after reload |
 | Live judge-path evidence | The English entry link and four-stop read-only guided tour passed production browser checks |
-| Remaining 2.10.0 release gate | Full post-consolidation quality gate; Guided, Explorer and Experienced visual-recognition review; isolated HTTPS staging with at least 2 GB for Whisper; two-real-account persistence; 20-word/10-phrase Hebrew accuracy pilot; reminder consent checks; mother-pilot acceptance; and explicit publication approval |
+| Remaining 2.10.0 release gate | Isolated HTTPS staging with production settings/sealed secrets; two-real-account persistence; backup/restore drill; 20-word/10-phrase Hebrew accuracy pilot; reminder consent checks; mother-pilot acceptance; and explicit publication approval. The full local code/browser/PostgreSQL/Docker gate is green through Phase 4A.1; public production remains frozen at 2.4.0. |
 
 Historical v2.8.3 evidence is preserved below as regression context; it is not
 presented as current v2.10.0 verification dated 2026-08-10. The animated journey
@@ -107,8 +107,9 @@ the fast, offline, scalable learning layer for word recognition.
 This candidate also centralizes learner-facing build labels, refreshes the
 package verifier/checksum workflow for extracted source archives, adds a [`Visual Bible`](docs/VISUAL_BIBLE.md), records the safe refactor boundary in [`Architecture Consolidation`](docs/ARCHITECTURE_CONSOLIDATION.md), and introduces a reversible premium-polish stylesheet. The prior 2.9.2
 699-pass gate remains historical evidence rather than being relabelled as
-2.10.0 proof. A complete fresh automated and human visual QA pass is required
-before publication.
+2.10.0 proof. The fresh Phase 4A.1 automated/browser gate passed locally on
+2026-08-13; human visual recognition and the documented staging/pilot checks
+remain required before publication.
 
 ## What the private 2.9.2 candidate adds — 2026-07-28 🎨
 
@@ -450,6 +451,8 @@ Development mode uses hot reload and opens at `http://127.0.0.1:5173`.
 python -m venv .venv
 source .venv/bin/activate
 pip install -r backend/requirements.txt
+python -m pip uninstall --yes ivrit-sheli-ultimate
+python -m pip install --no-deps --editable backend
 PYTHONPATH=backend/src python -m ivrit_sheli --init --seed
 uvicorn ivrit_sheli.api:app --app-dir backend/src --reload --port 8000
 
@@ -458,6 +461,11 @@ cd frontend
 npm ci
 npm run dev
 ```
+
+The uninstall line removes only the retired local distribution metadata used by
+older Ivrit Sheli environments. Installing the current editable distribution
+afterward prevents both package identities from owning the same module and
+`ivrit-sheli` console command.
 
 ### Docker
 

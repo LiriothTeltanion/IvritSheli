@@ -39,6 +39,7 @@ def source_version() -> str:
 REQUIRED_FILES = (
     "README.md",
     "NOVA_HANDOFF.md",
+    "NOVA_PHASE4_REPORT.md",
     "AGENTS.md",
     "START_PRIVATE_PILOT.bat",
     "portfolio/project.json",
@@ -88,6 +89,7 @@ REQUIRED_FILES = (
     "backend/src/ivrit_sheli/starter_lexicon_validation.py",
     "backend/src/ivrit_sheli/db_admin.py",
     "backend/src/ivrit_sheli/request_limits.py",
+    "backend/src/ivrit_sheli/api_dictionary.py",
     "backend/src/ivrit_sheli/structured_logging.py",
     "backend/tests/test_daily_practice.py",
     "backend/tests/test_learning_engines.py",
@@ -98,6 +100,7 @@ REQUIRED_FILES = (
     "backend/tests/test_local_personal_coach.py",
     "backend/tests/test_listening_coach_v29.py",
     "backend/tests/test_push_notifications.py",
+    "backend/tests/test_package_checksums.py",
     "frontend/package-lock.json",
     "frontend/playwright.config.ts",
     "frontend/e2e/experience.spec.ts",
@@ -130,6 +133,8 @@ REQUIRED_FILES = (
     "frontend/src/locales/en.ts",
     "frontend/src/locales/es.ts",
     "frontend/src/locales/he.ts",
+    "frontend/src/locales/codeLabels.ts",
+    "frontend/src/locales/localeParity.test.ts",
     "frontend/src/premium-polish.css",
     "frontend/src/components/semantic-word-illustration.css",
     "frontend/src/components/semantic-scenes/CoreDailyScenes.tsx",
@@ -581,6 +586,75 @@ def verify_release_truth_drift() -> list[str]:
                 failures.append(f"{relative}: forbidden publication claim {fragment!r}")
     return failures
 
+def verify_brand_identity() -> list[str]:
+    """Keep current package/product metadata aligned with the Ivrit Sheli brand."""
+    failures: list[str] = []
+    try:
+        frontend_package = json.loads(
+            (ROOT / "frontend" / "package.json").read_text(encoding="utf-8")
+        )
+        frontend_lock = json.loads(
+            (ROOT / "frontend" / "package-lock.json").read_text(encoding="utf-8")
+        )
+        backend_package = tomllib.loads(
+            (ROOT / "backend" / "pyproject.toml").read_text(encoding="utf-8")
+        )
+    except (OSError, json.JSONDecodeError, tomllib.TOMLDecodeError) as error:
+        return [f"brand metadata could not be parsed: {error}"]
+
+    expected = {
+        "frontend/package.json": frontend_package.get("name"),
+        "frontend/package-lock.json": frontend_lock.get("name"),
+        "frontend/package-lock.json packages['']": (
+            frontend_lock.get("packages", {}).get("", {}).get("name")
+            if isinstance(frontend_lock.get("packages"), dict)
+            else None
+        ),
+        "backend/pyproject.toml": backend_package.get("project", {}).get("name"),
+    }
+    required = {
+        "frontend/package.json": "ivrit-sheli-web",
+        "frontend/package-lock.json": "ivrit-sheli-web",
+        "frontend/package-lock.json packages['']": "ivrit-sheli-web",
+        "backend/pyproject.toml": "ivrit-sheli",
+    }
+    for location, value in expected.items():
+        if value != required[location]:
+            failures.append(
+                f"{location}: expected package identity {required[location]!r}, got {value!r}"
+            )
+
+    user_facing_surfaces = (
+        "backend/src/ivrit_sheli/api.py",
+        "backend/src/ivrit_sheli/cli.py",
+        "scripts/setup.ps1",
+        "scripts/setup.sh",
+        "docs/USER_GUIDE.md",
+        "docs/DEMO_DAY.md",
+        "docs/ULTIMATE_BUILD_SPEC.md",
+    )
+    for relative in user_facing_surfaces:
+        try:
+            text = (ROOT / relative).read_text(encoding="utf-8")
+        except OSError as error:
+            failures.append(f"{relative}: {error}")
+            continue
+        if "Ivrit Sheli Ultimate" in text:
+            failures.append(f"{relative}: obsolete 'Ivrit Sheli Ultimate' branding remains")
+
+    for relative in ("scripts/setup.ps1", "scripts/setup.sh"):
+        try:
+            text = (ROOT / relative).read_text(encoding="utf-8")
+        except OSError as error:
+            failures.append(f"{relative}: {error}")
+            continue
+        if "ivrit-sheli-ultimate" not in text:
+            failures.append(f"{relative}: retired Python distribution migration is missing")
+        if "--editable backend" not in text:
+            failures.append(f"{relative}: current editable Python distribution install is missing")
+    return failures
+
+
 def verify_source_version_surfaces() -> list[str]:
     """Keep executable and human-facing candidate versions synchronized."""
     failures: list[str] = []
@@ -894,8 +968,9 @@ def canonical_file_bytes(relative: str, *, use_index: bool) -> bytes:
 
     The index is the release source of truth. This avoids false checksum drift
     when a checkout uses CRLF working-tree files while the committed blob uses
-    LF. A release archive has no Git metadata, so its extracted bytes are
-    already the canonical package source and are read directly.
+    LF. The release archive builder writes those canonical blobs directly, so
+    an extracted archive is verified byte-for-byte without trying to reconstruct
+    Git attributes or text/binary classification after packaging.
 
     Args:
         relative: Forward-slash repository path.
@@ -1005,10 +1080,7 @@ def verify_checksum_manifest() -> list[str]:
                 "stage the intended release tree, then run "
                 "scripts/generate_checksums.py"
                 if use_index
-                else (
-                    "rebuild from the verified commit with "
-                    "core.autocrlf=false and core.eol=lf"
-                )
+                else "regenerate the clean package checksum manifest"
             )
             failures.append(
                 f"SHA256SUMS.txt: stale {source} digest for {relative}; {action}"
@@ -1061,6 +1133,7 @@ def main() -> int:
         "invalid_json": verify_json_files(),
         "invalid_portfolio_manifest": verify_portfolio_manifest(),
         "release_truth_drift": verify_release_truth_drift(),
+        "brand_identity_drift": verify_brand_identity(),
         "source_version_drift": verify_source_version_surfaces(),
         "invalid_public_learning_assets": verify_public_learning_assets(),
         "invalid_visual_catalog_contract": verify_visual_catalog_contract(),

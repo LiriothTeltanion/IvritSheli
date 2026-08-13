@@ -1,3 +1,15 @@
+## 2.10.0 Phase 4A.1 consolidation addendum — Private, unpublished — 2026-08-13
+
+- Moves dynamic learner-facing code labels out of the React i18n provider and extends parity guards to those EN/ES/HE labels.
+- Retires remaining current `Ultimate` package/user-facing branding while preserving historical filenames/notes where they provide provenance.
+- Extracts the six dictionary HTTP routes into `api_dictionary.py` without moving authentication, tenant selection or repository behavior; adds an explicit route-contract regression test.
+- Adds package verification for the current Ivrit Sheli package identity and the new Phase 4 ownership files.
+- Migrates existing editable environments away from the retired Python distribution identity before installing `ivrit-sheli`, preventing two distributions from owning the same module and console command.
+- Uses Git-index blobs as the repository checksum authority and exact bytes in extracted canonical archives; regression tests cover Git attributes plus CRLF, lone-CR, control-byte and early/late-NUL integrity cases.
+- The Windows adoption gate is complete: 699 Vitest, 316 unique backend pytest and 32 Playwright/axe cases passed, with PostgreSQL/RLS, dependency audits and a no-cache image smoke also green.
+- The browser matrix now exercises the optimized production build through Vite preview and serializes locally; this removes HMR/resource-contention timeouts without skipping a viewport or weakening an assertion.
+- This remains a local private candidate. No tag, push, deployment, Devpost update or public release was made.
+
 # Changelog
 
 All notable changes are documented here. Versions follow Semantic Versioning.

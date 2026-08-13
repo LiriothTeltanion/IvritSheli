@@ -2,7 +2,7 @@
 
 ## Product sentence
 
-**Ivrit Sheli Ultimate is a private, adaptive Hebrew-learning system that converts the learner's real life into personalized vocabulary, speaking practice, and explainable recommendations.**
+**Ivrit Sheli is a private, adaptive Hebrew-learning system that converts the learner's real life into personalized vocabulary, speaking practice, and explainable recommendations.**
 
 ## Two-minute fallback video flow
 

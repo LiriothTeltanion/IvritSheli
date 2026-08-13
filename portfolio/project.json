@@ -84,15 +84,15 @@
     "alphabet_progress_persistent": true,
     "public_google_scope": "openid profile",
     "local_mode_without_account": true,
-    "verification": "2.10.0 package/source-consistency gates refreshed on 2026-08-10; the 2.9.2 699-pass automated baseline is historical and the full post-consolidation suite must be rerun before publication.",
-    "release_gate": "Full post-consolidation automated suite, isolated HTTPS staging, two-account isolation, the speech/reminder mother pilot, visual recognition review and Kevin's explicit publication approval remain required."
+    "verification": "2.10.0 Phase 4A.1 passed 1,047 local automated checks on 2026-08-13, including the complete browser/accessibility matrix and disposable PostgreSQL coverage; this is private local evidence, not staging or publication.",
+    "release_gate": "Isolated HTTPS staging, two-real-account isolation, backup/restore, the speech/reminder mother pilot, human visual recognition and Kevin's explicit publication approval remain required."
   },
   "visual_proof": {
     "state": "v2.10.0-private-source-completes-240-semantic-scenes-while-live-2.4-remains-verified",
     "social_preview_version": "2.2.0",
     "readme_screenshot_version": "2.8.0-local-candidate",
     "readme_screenshots_match_source_version": false,
-    "interactive_browser_qa": "The private QA gallery now derives and renders all 240 exact semantic scenes; the full 390/768/1440 light/dark RTL reduced-motion 200% reflow matrix must be rerun after this consolidation."
+    "interactive_browser_qa": "The private QA gallery derives all 240 exact semantic scenes; the automated 390/768/1440 light/dark, Hebrew RTL, reduced-motion, 200% reflow and axe matrix passed locally on 2026-08-13. Human recognition review remains required before publication."
   },
   "oauth": {
     "providers": [

@@ -193,6 +193,25 @@ def test_capture_review_and_progress_flow(client: TestClient) -> None:
     assert progress["activity_log"][0]["source"] == "learning_item"
 
 
+def test_dictionary_route_contract_is_registered_once(client: TestClient) -> None:
+    expected = {
+        ("/api/v1/dictionary/search", "GET"),
+        ("/api/v1/dictionary/browse", "GET"),
+        ("/api/v1/dictionary/lookup", "GET"),
+        ("/api/v1/dictionary/entries/{entry_id}", "GET"),
+        ("/api/v1/dictionary/stats", "GET"),
+        ("/api/v1/dictionary/{entry_id}/learn", "POST"),
+    }
+    registered = [
+        (route.path, method)
+        for route in client.app.routes
+        for method in (getattr(route, "methods", None) or set())
+        if route.path.startswith("/api/v1/dictionary/")
+    ]
+    assert set(registered) == expected
+    assert len(registered) == len(expected)
+
+
 def test_dictionary_is_linked_to_learning_collection(
     client: TestClient, settings: Settings
 ) -> None:

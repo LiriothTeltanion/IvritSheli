@@ -10,7 +10,11 @@ export default defineConfig({
   fullyParallel: false,
   forbidOnly: isCI,
   retries: isCI ? 2 : 0,
-  workers: isCI ? 2 : 3,
+  // Concurrent viewport projects can mount up to 2,160 semantic SVGs during
+  // the full-catalog case and starve unrelated checks on the Windows reference
+  // machine. Keep CI at its proven two-worker ceiling and serialize locally so
+  // the same complete matrix is repeatable under desktop memory pressure.
+  workers: isCI ? 2 : 1,
   reporter: isCI
     ? [['line'], ['html', { open: 'never', outputFolder: '../tmp/playwright-report' }]]
     : 'list',
@@ -48,9 +52,13 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `npm run dev -- --host 127.0.0.1 --port ${port} --strictPort`,
+    // Exercise the optimized artifact Kevin will actually inspect and ship.
+    // The HMR server progressively slows while the full visual matrix mounts
+    // thousands of SVGs; preview keeps the same browser coverage deterministic.
+    command: `npm run build && npm run preview -- --host 127.0.0.1 --port ${port} --strictPort`,
     url: `http://127.0.0.1:${port}`,
-    reuseExistingServer: !isCI,
+    // Never accept a stale process on the gate port as evidence for this tree.
+    reuseExistingServer: false,
     timeout: 120_000,
   },
 });
