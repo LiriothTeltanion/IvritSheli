@@ -287,7 +287,7 @@ The PWA caches its shell, six region scenes and reviewed starter dictionary, but
 
 ## Private 2.7.0 checkpoint — date not re-verified — beginner-first continuity
 
-The unpublished v2.7 checkpoint (date not re-verified) established the three-words-before-account entry, Guided/A0 defaults, the simplified Guided navigation, permanent Help access, real network status and an accessible profile menu. It also introduced the deterministic daily planner, resumable practice tables, curriculum progress, idempotent step events, profile text scaling and focus status. These foundations passed through v2.8 (date not re-verified) and are incorporated into the current 2.9.1 candidate dated 2026-07-27; v2.7 was not deployed, tagged or published.
+The unpublished v2.7 checkpoint (date not re-verified) established the three-words-before-account entry, Guided/A0 defaults, the simplified Guided navigation, permanent Help access, real network status and an accessible profile menu. It also introduced the deterministic daily planner, resumable practice tables, curriculum progress, idempotent step events, profile text scaling and focus status. These foundations passed through v2.8 (date not re-verified) and were incorporated into the then-current 2.9.1 candidate dated 2026-07-27; v2.7 was not deployed, tagged or published.
 
 ## Historical 2.6.0 Learning Core — date not re-verified 🧠
 

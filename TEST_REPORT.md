@@ -520,6 +520,6 @@ Re-login after logout, two-real-user production isolation, live OpenAI/Google Wo
 ## Reliability statement
 
 Passing tests and local checks materially reduce risk but do not prove
-defect-free software. This report deliberately separates current v2.9.1 source
-evidence, historical private checkpoints, live-production evidence and
+defect-free software. This report deliberately separates current v2.11.0
+source evidence, historical private checkpoints, live-production evidence and
 credential-, device-, packaging- or operator-dependent gates.

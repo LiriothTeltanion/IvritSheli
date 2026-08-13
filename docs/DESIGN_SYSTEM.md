@@ -1,6 +1,6 @@
-# 2.10.0 design-system consolidation — 2026-08-10
+# 2.11.0 Living Hebrew Field Notes — 2026-08-14
 
-The current private candidate combines six cinematic Israel-region WebP journey scenes with **240 exact semantic SVG scenes** for the reviewed vocabulary catalog. Learner surfaces prioritize Hebrew and meaning; infrastructure details move behind advanced/privacy disclosure. Motion is semantic and fully disabled when reduced motion is requested. See `VISUAL_BIBLE.md`.
+The current private candidate combines six cinematic Israel-region WebP journey scenes with **240 exact semantic SVG scenes** for the reviewed vocabulary catalog. Its editorial field-note layer adds restrained domain mats, five composition families, adult shared characters and thumbnail-safe meaning cues without replacing the scene-specific semantics. Learner surfaces prioritize Hebrew and meaning; infrastructure details move behind advanced/privacy disclosure. Motion is semantic and fully disabled when reduced motion is requested. See `VISUAL_BIBLE.md`.
 
 # Design system
 

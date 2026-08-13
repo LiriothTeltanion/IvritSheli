@@ -92,7 +92,7 @@
     "social_preview_version": "2.2.0",
     "readme_screenshot_version": "2.8.0-local-candidate",
     "readme_screenshots_match_source_version": false,
-    "interactive_browser_qa": "The private QA gallery derives all 240 exact semantic scenes; the automated 390/768/1440 light/dark, Hebrew RTL, reduced-motion, 200% reflow and axe matrix passed locally on 2026-08-13. Human recognition review remains required before publication."
+    "interactive_browser_qa": "The private 2.11 QA gallery derives all 240 exact semantic scenes. On 2026-08-14 the desktop-1440 and mobile-390 full 240 x 3 cases passed with dark, Hebrew RTL, reduced motion, 200% reflow and desktop axe; desktop five-second recognition also passed. A four-sheet ES/light contact matrix showed all 240 thumbnails with no blank cards. The broader 390/768/1440 matrix remains inherited 2.10 evidence from 2026-08-13. Human recognition review remains required before publication."
   },
   "oauth": {
     "providers": [

@@ -1,4 +1,4 @@
-# Ivrit Sheli 2.10.0 — Nova Consolidation Handoff
+# Ivrit Sheli 2.11.0 — Living Hebrew Field Notes Handoff
 
 Prepared: 2026-08-10; operational checkpoint refreshed: 2026-08-14
 Source state: private / unpublished
@@ -8,13 +8,13 @@ Public production intentionally remains: **2.4.0 Contest Edition (2026-07-21)**
 
 - **Project:** `02 — Ivrit Sheli`
 - **Branch:** `consolidation/ivrit-sheli-2.10-baseline`
-- **Implementation HEAD:** `72719f7131a29516b2d7b13f5ce24709b9692e8d`
+- **Implementation HEAD:** `cea42377e70405a259252bb4a4a9b81ec024b630`
 - **Issues:** `KEV-14` Done; `KEV-11` In Progress. `KEV-9` and `KEV-10` remain Done.
-- **Work completed:** the exact dictionary entry continues from save to pronunciation practice (`82a36b0`); `health.help` depicts interpersonal assistance (`03ea87b`); `register.offer_help` clearly offers help toward a solo heavy load (`fb94ff7`); `time.hour` is now a tall 12-mark regulator clock with a short hour hand and slow pendulum, while `time.minute` is a compact stopwatch with 60 second marks, a complete sweep and a visible `60` badge (`72719f7`).
-- **Verification:** 703/703 Vitest; 315 backend pytest passed with the one real-PostgreSQL case skipped because host DSNs were not supplied; final focused visual backend 1/1 and frontend 488/488; mobile-390 and desktop-1440 full-catalog Playwright cases passed with pair-specific thumbnail cues, dark, HE/RTL, reduced motion, 200% reflow and desktop axe; clean Ruff, mypy (39 source files), compileall, TypeScript and production build; package verifier green for 202 required files / 372 canonical checksums. The prior Phase 4 gate remains the current PostgreSQL/RLS, dependency and no-cache image evidence.
+- **Work completed:** 2.11.0 applies the Living Hebrew Field Notes art direction across all 240 exact scenes: typed domain/setting metadata, five composition families, thumbnail-safe semantic detail, adult shared characters and restrained domain mats. VisualQAGallery is now a trilingual, searchable 20-domain workbench with one-size review, semantic recipes and stable same-domain recognition choices. `housing.floor` accessible copy now matches its building-in-section art. Prior learner-flow and bounded ambiguity commits remain complete and were not repeated.
+- **Verification:** 705/705 Vitest; 315 backend pytest passed with one real-PostgreSQL case skipped because host DSNs were not supplied; mobile-390 and desktop-1440 full 240 × 3 Playwright catalog cases passed with dark, HE/RTL, reduced motion, 200% reflow and desktop axe; recognition desktop passed; an ES/light thumbnail contact matrix rendered all 240 scenes across four sheets without blank cards; clean Ruff, strict mypy (39 files), compileall, TypeScript and production build; offline doctor 7/7 as 2.11.0 with 240 entries; package verification passed for 202 required files and 372 canonical Git-index checksums. Prior 2.10 Phase 4A.1 remains the current PostgreSQL/RLS, dependency and no-cache image evidence.
 - **Current URLs:** Docker/PostgreSQL candidate `http://127.0.0.1:8000/`; hot-reload frontend `http://127.0.0.1:5173/`; isolated writable local workspace `http://127.0.0.1:8001/`
-- **Next action:** continue `KEV-11` by selecting exactly one new high-impact ambiguity from VisualQAGallery. Do not repeat `health.help`, `register.offer_help` or the completed `time.hour` / `time.minute` pair. After the next bounded visual slice, `KEV-12` is the planned compatibility audit before `KEV-13`.
-- **Blockers:** no local engineering blocker. This slice did not rerun the real PostgreSQL integration case because no host migration/runtime DSNs were supplied; the Docker candidate itself is healthy. Staging/two-real-account/pilot gates remain; publication, deploy, push and public judge-state changes remain frozen until after 2026-08-25 unless Kevin explicitly changes that instruction.
+- **Next action:** continue `KEV-11` with the highest-risk confusable cluster, recommended first: `communication.ask` / `answer` / `explain` / `request`, using the new domain filter and five-second lab. The all-catalog system pass is complete; do not repeat it as another feature wave. After a bounded cluster slice, `KEV-12` remains the planned compatibility audit before `KEV-13`.
+- **Blockers:** no local engineering blocker. Port 8000 remains a healthy inherited 2.10.0 Docker/PostgreSQL candidate; port 8001 remains healthy on the pre-restart process after a restart command was blocked before execution. The real PostgreSQL case was skipped because host DSNs were not supplied. Human recognition of confusable clusters, staging/two-real-account/pilot gates remain; publication, deploy, push and public judge-state changes remain frozen until after 2026-08-25 unless Kevin explicitly changes that instruction.
 
 Resolve the live checkout's self-referential handoff-only commit with
 `git rev-parse HEAD`. The exact implementation commits are recorded above and
@@ -24,7 +24,7 @@ in their `KEV-14` / `KEV-11` Linear checkpoints.
 
 This source package is a consolidation of the supplied 2.9.2 Brand & Private Access export. The goal was to make visual language, maintainability and release evidence coherent before feature growth resumes.
 
-Do **not** publish, tag, deploy over production, alter Devpost or relabel historical test totals as 2.10.0 evidence without Kevin's explicit approval and a fresh complete release gate.
+Do **not** publish, tag, deploy over production, alter Devpost or relabel historical test totals as 2.11.0 evidence without Kevin's explicit approval and a fresh complete release gate.
 
 ## What changed
 
@@ -56,14 +56,14 @@ Do **not** publish, tag, deploy over production, alter Devpost or relabel histor
 
 ### Release/tooling integrity
 
-- Source version is **2.10.0** and remains explicitly private/unpublished.
+- Source version is **2.11.0** and remains explicitly private/unpublished.
 - Package verifier derives the candidate version from backend executable metadata instead of embedding an old candidate number.
 - Checksum generation works both from Git index blobs and from a clean extracted source package without `.git`.
 - Secret-pattern coverage was expanded for OpenAI, Google, GitHub PAT/token forms, AWS access-key IDs and private keys across more textual config formats.
 - Package verifier now proves the 240 reviewed dictionary visual keys, 240 exact recipes and 240 unique spotlight words agree.
 - CI's main full gate now uses Python 3.13 to match the production image and includes a separate Python 3.10 compatibility backend job.
 
-## Artifact verification completed here
+## Historical 2.10 artifact verification completed here
 
 - `python scripts/verify_package.py` — passed.
 - 197 required source/package files — passed.
