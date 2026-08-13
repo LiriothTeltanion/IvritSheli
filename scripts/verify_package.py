@@ -536,7 +536,7 @@ def verify_release_truth_drift() -> list[str]:
             "private",
         ),
         "CHANGELOG.md": (
-            f"{current_version} — Visual Language Consolidation",
+            f"{current_version} — Living Hebrew Field Notes",
             "240/240",
             "2.4.0 — Contest Edition — 2026-07-21",
         ),
@@ -547,8 +547,8 @@ def verify_release_truth_drift() -> list[str]:
         ),
         "TEST_REPORT.md": (
             f"Current private source candidate:** `{current_version}`",
-            "2.9.2",
-            "699",
+            "2.10.0",
+            "1,047",
             "2.4.0",
         ),
         "docs/API.md": (f"{current_version}", "identity-only"),

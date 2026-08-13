@@ -41,7 +41,11 @@ describe('SemanticWordIllustration', () => {
     expect(image).toHaveAttribute('viewBox', '0 0 240 180');
     expect(image).toHaveAttribute('data-visual-id', key);
     expect(image).toHaveAttribute('data-visual-detail', 'semantic');
+    expect(image).toHaveAttribute('data-art-direction', 'editorial-atlas');
+    expect(image).toHaveAttribute('data-scene-category', key.split('.', 1)[0]);
+    expect(image).toHaveAttribute('data-scene-setting', getA0VisualRecipe(key).setting);
     expect(image).toHaveAttribute('data-size', 'thumbnail');
+    expect(container.querySelector('[data-frame-variant]')).toBeInTheDocument();
     expect(container.querySelector('.category-art__word-cue')).not.toBeInTheDocument();
   });
 

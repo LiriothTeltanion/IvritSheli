@@ -18,7 +18,7 @@ Every curated concept includes:
 
 Fields such as `root` and `binyan` remain unknown when a reviewed linguistic source does not establish them; an attractive card is never treated as evidence for grammar.
 
-The visuals are semantic learning cues, not dictionary facts. Seventy-two reviewed concepts have exact semantic SVG scenes with progressive context, meaning and anchor layers. The other 168 concepts use explicit category-composition and emoji fallbacks. Unsupported or imported entries can return `visual: null`; the application does not fabricate illustrations, roots or grammar to fill a missing source field.
+The visuals are semantic learning cues, not dictionary facts. All 240 reviewed concepts have exact semantic SVG scenes with progressive context, meaning and anchor layers. Category-composition and emoji fallbacks remain only for future unsupported or imported entries, which can also return `visual: null`; the application does not fabricate illustrations, roots or grammar to fill a missing source field.
 
 ## Full mode
 

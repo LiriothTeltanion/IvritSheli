@@ -1,16 +1,21 @@
-# Ivrit Sheli 2.10.0 — Visual Language Consolidation Package Manifest
+# Ivrit Sheli 2.11.0 — Living Hebrew Field Notes Package Manifest
 
-- Source version: `2.10.0`
-- Candidate state: private / unpublished / prepared 2026-08-10
+- Source version: `2.11.0`
+- Candidate state: private / unpublished / prepared 2026-08-14
 - Source lineage: derived from the clean 2.9.2 Brand & Private Access export supplied for consolidation; `.git`, real secrets, local databases, models, dependency caches and generated audit folders are intentionally absent.
 - Current verified public version: `2.4.0`
 - Visual catalog: **240 reviewed concepts / 240 exact semantic scenes / 0 reviewed category fallbacks**
 - Final source integrity gate: **202 required files verified / 372 canonical Git-index SHA-256 entries**
 - Candidate test evidence: Phase 4A.1 passed **1,047 local automated checks** on 2026-08-13, including the complete browser/accessibility matrix and disposable PostgreSQL coverage. Human recognition, isolated staging/pilot and explicit publication approval remain required; see `TEST_REPORT.md`.
+- Current 2.11.0 editorial evidence: **705 frontend tests** and **315 backend tests** passed on 2026-08-14, with one credential-gated PostgreSQL skip; strict TypeScript/build, Ruff/MyPy/compileall/doctor and the 240 × 3 desktop/mobile visual matrix passed. Prior PostgreSQL/RLS and container results remain attributed to 2.10.0.
 
-## 2.10.0 package purpose
+## 2.11.0 package purpose
 
-This package is a consolidation artifact, not a public release. It freezes feature growth, finishes the reviewed semantic-illustration catalog, introduces explicit art/motion rules, centralizes candidate version labels, reduces infrastructure language in ordinary learner surfaces and makes checksum verification work from both a Git worktree and a clean extracted source package.
+This package is an editorial visual-system checkpoint, not a public release. It
+keeps the 240/240 exact semantic catalog and gives every scene a typed domain,
+setting and composition family, adult character treatment, thumbnail-safe cues
+and a fast trilingual QA workbench. It inherits the verified 2.10 architecture,
+security, persistence and release boundaries without broadening them.
 
 The six local Israel-region WebP scenes remain the cinematic journey layer. Exact code-native semantic SVGs remain the deterministic, accessible and offline learning layer. Future unsupported/imported vocabulary may still use a fallback, but no reviewed 240-concept starter entry should need one.
 

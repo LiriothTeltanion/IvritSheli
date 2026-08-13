@@ -1,4 +1,24 @@
-# Ivrit Sheli Visual Bible — 2.10.0 private candidate
+# Ivrit Sheli Visual Bible — 2.11.0 private candidate
+
+## Living Hebrew Field Notes — 2026-08-14
+
+The current art direction is a contemporary Israeli editorial field notebook:
+warm paper and Jerusalem-stone neutrals, deep ink, Mediterranean light and
+restrained category accents. It is adult, specific and useful before it is
+decorative.
+
+- Every exact scene declares its domain, setting, semantic template and
+  `editorial-atlas` art direction for deterministic QA.
+- Five shared compositions distinguish still life, encounter, wayfinding,
+  diagram and measure/time scenes without changing the semantic subject.
+- Domain colour belongs to the editorial mat; object colour still communicates
+  the actual meaning.
+- The shared adult character system uses more natural proportions, action-based
+  expressions and stable skin, hair and clothing variants.
+- Thumbnail mode preserves thin semantic cues and removes nonessential frame
+  motifs. Card and hero modes may reveal material and editorial detail.
+- The QA workbench defaults to one 12-scene domain and one size; `group=all`
+  plus `size=compare` remains the exhaustive automated matrix.
 
 ## Product feeling
 
@@ -31,7 +51,7 @@ They should feel recognisably Israeli without stereotypes: Mediterranean light, 
 
 Every reviewed starter concept has a code-native SVG scene selected by its exact semantic key. These illustrations must remain fast, local, theme-aware, accessible and deterministic.
 
-The 2.10.0 candidate target is **240 reviewed concepts / 240 exact semantic scenes**. Category and emoji fallbacks remain only for future imported or unsupported entries outside that reviewed catalog.
+The 2.11.0 candidate target is **240 reviewed concepts / 240 exact semantic scenes**. Category and emoji fallbacks remain only for future imported or unsupported entries outside that reviewed catalog.
 
 Each scene follows the hierarchy:
 

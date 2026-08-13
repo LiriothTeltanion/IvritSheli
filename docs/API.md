@@ -1,6 +1,6 @@
-# 2.10.0 source-contract note — 2026-08-10
+# 2.11.0 source-contract note — 2026-08-14
 
-This unpublished 2.10.0 consolidation inherits the 2.9.2 API surface without broadening public permissions. Google public sign-in remains **identity-only** (`openid profile`). The primary change is visual/release consistency: all 240 reviewed starter concepts now resolve to exact semantic scenes, while the verified public deployment remains 2.4.0.
+This unpublished 2.11.0 candidate inherits the 2.10.0 API surface without broadening public permissions. Google public sign-in remains **identity-only** (`openid profile`). The current change is an editorial and recognition-focused visual system across all 240 exact scenes; the verified public deployment remains 2.4.0.
 
 # API catalog — Ivrit Sheli 2.9.2 private candidate — 2026-07-28
 

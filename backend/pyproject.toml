@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ivrit-sheli"
-version = "2.10.0"
+version = "2.11.0"
 description = "Private, adaptive, trilingual Hebrew-learning operating system"
 readme = {text = "Ivrit Sheli backend: local-first SQLite plus Google/GitHub authenticated PostgreSQL cloud mode.", content-type = "text/markdown"}
 requires-python = ">=3.10"

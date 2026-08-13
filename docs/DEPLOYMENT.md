@@ -357,12 +357,12 @@ pytest backend/tests -q -m "not postgres"   # ordinary run, no database env
 pytest backend/tests -q -m postgres         # separate shell, database env set
 ```
 
-Evidence for the current private candidate, **2.10.0**, lives in
+Evidence for the current private candidate, **2.11.0**, lives in
 `TEST_REPORT.md`; this section has not been rewritten for it, and its rollout
 preconditions above are still phrased against 2.9.1.
 
 The following results belong to the inherited 2.9.0 baseline dated 2026-07-27
-and must not be relabelled as proof of 2.9.1 or of 2.10.0:
+and must not be relabelled as proof of 2.9.1, 2.10.0 or 2.11.0:
 
 - Backend: 291 passed, 1 credential-gated PostgreSQL skip.
 - Frontend: 337 passed across 37 files.

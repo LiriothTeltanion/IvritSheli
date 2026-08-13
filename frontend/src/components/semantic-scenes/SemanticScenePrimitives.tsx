@@ -3,6 +3,7 @@
 
 import type { ReactNode } from 'react';
 import type { SemanticHintStage } from '../SemanticWordIllustration';
+import type { VisualTemplate } from '../../visuals/a0VisualRecipes';
 
 interface SceneLayerProps {
   name: 'context' | 'meaning' | 'anchor';
@@ -82,46 +83,70 @@ export function SemanticPerson({
     }
     return <path className="semantic-art__skin-line" d="M-8 5-14 18M8 5l14 13" />;
   })();
+  const face = pose === 'stomach' || pose === 'shiver'
+    ? 'M-4-16q4-3 8 0'
+    : pose === 'listen'
+      ? 'M-4-16h8'
+      : 'M-4-16q4 3 8 0';
+  const hair = (() => {
+    if (shirt === 'coral') {
+      return (
+        <>
+          <path className="semantic-art__hair" d="M-9-25c-1-8 4-14 10-14 6 0 10 5 9 14-6-3-13-3-19 0Z" />
+          <circle className="semantic-art__hair" cx="9" cy="-31" r="5" />
+        </>
+      );
+    }
+    if (shirt === 'blue') {
+      return <path className="semantic-art__hair" d="M-10-25c0-9 4-14 10-14 7 0 11 5 10 14-3-4-5-5-7-2-3-4-6-4-7 0-2-3-4-2-6 2Z" />;
+    }
+    if (shirt === 'gold') {
+      return <path className="semantic-art__hair" d="M-10-25c0-9 5-14 11-14 5 0 9 4 9 10-7-2-13 0-20 4Z" />;
+    }
+    return <path className="semantic-art__hair" d="M-10-25c-1-9 4-14 11-14 6 0 10 5 9 14-6-3-13-3-20 0Z" />;
+  })();
   return (
     <g
       className={`semantic-art__person semantic-art__person--${shirt}`}
       transform={`translate(${x} ${y}) scale(${direction} ${scale})`}
     >
       {/* Neck first, so the collar reads as sitting on top of it. */}
-      <path className="semantic-art__skin" d="M-4-12h8v8h-8Z" />
+      <path className="semantic-art__skin" d="M-3.5-14h7v9h-7Z" />
       {/* The jaw casts onto the neck; without it the head floats on a stump. */}
-      <path className="semantic-art__skin-shade" d="M-4-12h8v4h-8Z" />
-      <circle className="semantic-art__skin" cx="0" cy="-21" r="11" />
+      <path className="semantic-art__skin-shade" d="M-3.5-14h7v4h-7Z" />
+      <circle className="semantic-art__skin" cx="0" cy="-23" r="9.5" />
       {/* Modelled in skin's own colour: lit on the light side, deep opposite. */}
-      <path className="semantic-art__skin-shade" d="M6-31a11 11 0 0 1 0 20 13 11 0 0 0 0-20Z" />
-      <circle className="semantic-art__skin-lit" cx="-4" cy="-24" r="5" />
+      <path className="semantic-art__skin-shade" d="M5-32a9.5 9.5 0 0 1 0 18 11 9.5 0 0 0 0-18Z" />
+      <circle className="semantic-art__skin-lit" cx="-3.5" cy="-26" r="4" />
       {/*
         Hair stops above the brow. It used to reach y=-20, straight across the
         eye line, and with no eyes drawn underneath every one of the fifty-six
         figures read as wearing a blindfold.
       */}
-      <path className="semantic-art__hair" d="M-11-24c-1-10 5-16 12-15 7 1 11 6 10 15-7-4-15-4-22 0Z" />
-      <path className="semantic-art__hair-deep" d="M7-37c3 3 5 8 4 13-2-1-4-2-7-3Z" />
+      {hair}
+      <path className="semantic-art__hair-deep" d="M6-37c3 3 5 7 4 12-2-1-4-2-6-3Z" />
       {/* One loose strand keeps the silhouette from reading as a helmet. */}
-      <path className="semantic-art__hair-lit" d="M-8-28c3-5 7-7 12-6" />
-      <path className="semantic-art__shirt" d="M-15 35c1-29 6-45 15-45s14 16 15 45Z" />
+      <path className="semantic-art__hair-lit" d="M-7-29c3-4 7-6 11-5" />
+      <path className="semantic-art__shirt" d="M-15 38c1-31 6-46 15-46s14 15 15 46Z" />
       {/* Three planes of the same cloth: lit shoulder, base, shaded flank. */}
-      <path className="semantic-art__shirt-lit" d="M-9-9c-5 4-8 20-9 44h-6c1-27 6-42 13-45Z" />
-      <path className="semantic-art__shirt-deep" d="M4-9c7 4 11 20 11 44H7C7 17 6 1 4-9Z" />
+      <path className="semantic-art__shirt-lit" d="M-9-7c-5 4-8 21-9 45h-6c1-28 6-43 13-46Z" />
+      <path className="semantic-art__shirt-deep" d="M4-7c7 4 11 21 11 45H7C7 19 6 2 4-7Z" />
       {/* Collar and hem: two short lines that turn a blob into clothing. */}
-      <path className="semantic-art__garment-line" d="M-6-9q6 6 12 0M-13 27h26" />
-      <circle className="semantic-art__eye" cx="-4" cy="-21" r="1.7" />
-      <circle className="semantic-art__eye" cx="4" cy="-21" r="1.7" />
-      <path className="semantic-art__face" d="M-4-15q4 3 8 0" />
+      <path className="semantic-art__garment-line" d="M-6-7q6 5 12 0M-13 30h26" />
+      {shirt === 'gold' && <path className="semantic-art__garment-line" d="M0-2v31m-2-20h4m-4 8h4" />}
+      {shirt === 'blue' && <path className="semantic-art__garment-line" d="M-13 12h7m12 0h7" />}
+      <circle className="semantic-art__eye" cx="-3.5" cy="-23" r="1.45" />
+      <circle className="semantic-art__eye" cx="3.5" cy="-23" r="1.45" />
+      <path className="semantic-art__face" d={face} />
       {arm}
       {hands.map(([hx, hy]) => (
-        <circle key={`${hx},${hy}`} className="semantic-art__hand" cx={hx} cy={hy} r="3.6" />
+        <circle key={`${hx},${hy}`} className="semantic-art__hand" cx={hx} cy={hy} r="3.1" />
       ))}
-      <path className="semantic-art__limb" d={pose === 'walk' ? 'M-4 35-13 51M5 35l12 13' : 'M-5 35-8 51M5 35l8 16'} />
+      <path className="semantic-art__limb" d={pose === 'walk' ? 'M-4 38-13 55M5 38l12 14' : 'M-5 38-8 55M5 38l8 17'} />
       {/* Shoes ground the figure instead of letting the legs taper into nothing. */}
       <path
         className="semantic-art__shoe"
-        d={pose === 'walk' ? 'M-13 51h-6M17 48l4 5' : 'M-8 51h-6M13 51h6'}
+        d={pose === 'walk' ? 'M-13 55h-6M17 52l4 5' : 'M-8 55h-6M13 55h6'}
       />
     </g>
   );
@@ -289,6 +314,11 @@ export function SemanticSceneDefs({ sceneId }: { sceneId: string }): React.JSX.E
         <stop offset="0%" stopColor="var(--semantic-ground-near)" />
         <stop offset="100%" stopColor="var(--semantic-ground-far)" />
       </linearGradient>
+      <linearGradient id={`${sceneId}-editorial-wash`} x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stopColor="var(--semantic-editorial-wash-start)" />
+        <stop offset="58%" stopColor="var(--semantic-editorial-wash-clear)" />
+        <stop offset="100%" stopColor="var(--semantic-editorial-wash-end)" />
+      </linearGradient>
       <radialGradient id={`${sceneId}-glow`} cx="50%" cy="50%" r="50%">
         <stop offset="0%" stopColor="var(--semantic-glow-core)" />
         <stop offset="100%" stopColor="var(--semantic-glow-edge)" />
@@ -330,10 +360,19 @@ export function SemanticSceneVignette({ sceneId }: { sceneId: string }): React.J
 export function SemanticSceneFrame({
   hintStage,
   sceneId,
+  template,
 }: {
   hintStage: SemanticHintStage;
   sceneId: string;
+  template: VisualTemplate;
 }): React.JSX.Element {
+  const frameVariant = (() => {
+    if (template === 'object-focus') return 'still-life';
+    if (template === 'person-action' || template === 'exchange') return 'encounter';
+    if (template === 'place' || template === 'direction') return 'wayfinding';
+    if (template === 'quantity-time') return 'measure';
+    return 'diagram';
+  })();
   return (
     <>
       <SemanticSceneDefs sceneId={sceneId} />
@@ -348,6 +387,57 @@ export function SemanticSceneFrame({
         rx="28"
         fill={`url(#${sceneId}-paper)`}
       />
+      <rect
+        className="semantic-art__editorial-wash"
+        x="5"
+        y="5"
+        width="230"
+        height="170"
+        rx="27"
+        fill={`url(#${sceneId}-editorial-wash)`}
+      />
+      <rect
+        className="semantic-art__editorial-rim"
+        x="10"
+        y="10"
+        width="220"
+        height="160"
+        rx="22"
+      />
+      <path className="semantic-art__editorial-rail" d="M18 31v101" />
+      <circle className="semantic-art__editorial-seal" cx="18" cy="21" r="4" />
+      <g className="semantic-art__frame-motif" data-frame-variant={frameVariant}>
+        {frameVariant === 'still-life' && (
+          <>
+            <path d="M31 124h34M31 129h23" />
+            <circle cx="39" cy="115" r="3" />
+          </>
+        )}
+        {frameVariant === 'encounter' && (
+          <>
+            <path d="M33 50q10-14 21 0M207 50q-10-14-21 0" />
+            <path d="M42 57v10M198 57v10" />
+          </>
+        )}
+        {frameVariant === 'wayfinding' && (
+          <>
+            <path d="M31 119c13-11 24-9 35-18M31 127c15-9 28-7 42-20" />
+            <circle cx="69" cy="102" r="3" />
+          </>
+        )}
+        {frameVariant === 'diagram' && (
+          <>
+            <path d="M31 100h38M31 111h38M31 122h38M42 91v40M56 91v40" />
+            <circle cx="63" cy="116" r="3" />
+          </>
+        )}
+        {frameVariant === 'measure' && (
+          <>
+            <path d="M31 124a30 30 0 0 1 48-25" />
+            <path d="m39 115-5-3m16-9-3-5m17 2 1-6" />
+          </>
+        )}
+      </g>
       <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
         <circle
           className="semantic-art__glow"

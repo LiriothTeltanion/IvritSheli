@@ -1,3 +1,27 @@
+# Changelog
+
+All notable changes are documented here. Versions follow Semantic Versioning.
+
+## 2.11.0 — Living Hebrew Field Notes — Private candidate — 2026-08-14
+
+- Gives all 240 exact semantic SVG scenes an explicit editorial art direction,
+  domain, setting and one of five composition families: still life, encounter,
+  wayfinding, diagram or measure.
+- Adds restrained domain palettes and editorial mats while preserving semantic
+  object colours, dark mode, high contrast and reduced motion.
+- Stops hiding thin semantic cues at thumbnail size and strengthens final
+  anchors, fixing a catalog-wide recognition risk across 163 fine-detail uses.
+- Evolves the shared character used by 83 scenes toward adult proportions,
+  action-aware expressions and stable skin, hair and garment variants.
+- Rebuilds VisualQAGallery as a trilingual editorial workbench with search,
+  20-domain navigation, one-size review, semantic recipe metadata and a compact
+  same-domain five-second recognition lab. The default view renders 12 SVGs,
+  while `group=all&size=compare` retains exhaustive 240 × 3 automation.
+- Corrects the stale `housing.floor` accessible description so it matches the
+  four-storey building scene instead of describing an elevator button.
+- Remains local, private and unpublished. No push, tag, release, deployment or
+  public judge-state change was made.
+
 ## 2.10.0 Phase 4A.1 consolidation addendum — Private, unpublished — 2026-08-13
 
 - Moves dynamic learner-facing code labels out of the React i18n provider and extends parity guards to those EN/ES/HE labels.
@@ -9,10 +33,6 @@
 - The Windows adoption gate is complete: 699 Vitest, 316 unique backend pytest and 32 Playwright/axe cases passed, with PostgreSQL/RLS, dependency audits and a no-cache image smoke also green.
 - The browser matrix now exercises the optimized production build through Vite preview and serializes locally; this removes HMR/resource-contention timeouts without skipping a viewport or weakening an assertion.
 - This remains a local private candidate. No tag, push, deployment, Devpost update or public release was made.
-
-# Changelog
-
-All notable changes are documented here. Versions follow Semantic Versioning.
 
 ## 2.10.0 — Runtime validation addendum — Private candidate — 2026-08-11
 

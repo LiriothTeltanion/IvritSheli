@@ -31,6 +31,7 @@ interface DictionaryVisualCueProps {
   className?: string;
   size?: SemanticIllustrationSize;
   hintStage?: SemanticHintStage;
+  decorative?: boolean;
 }
 
 /**
@@ -61,6 +62,7 @@ export function DictionaryVisualCue({
   className = '',
   size = 'card',
   hintStage = 2,
+  decorative = false,
 }: DictionaryVisualCueProps): React.JSX.Element | null {
   if (!visual) return null;
   if (isA0SemanticVisualKey(visual.key)) {
@@ -72,6 +74,7 @@ export function DictionaryVisualCue({
           className={className}
           size={size}
           hintStage={hintStage}
+          decorative={decorative}
         />
       </Suspense>
     );

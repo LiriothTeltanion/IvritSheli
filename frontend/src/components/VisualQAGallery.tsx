@@ -1,19 +1,26 @@
 // Module: local visual QA gallery
-// Purpose: Compare every exact semantic scene and run a five-second recognition check.
+// Purpose: Review every exact scene through a fast, trilingual editorial workbench.
 
-import { useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import { useI18n } from '../i18n';
 import { CANDIDATE_LABEL } from '../release';
 import type { DictionaryVisual, Locale } from '../types';
-import { A0_SEMANTIC_VISUAL_KEYS } from '../visuals/a0VisualRecipes';
+import {
+  A0_SEMANTIC_VISUAL_KEYS,
+  getA0VisualRecipe,
+  isA0SemanticVisualKey,
+  type A0VisualKey,
+} from '../visuals/a0VisualRecipes';
 import { DictionaryVisualCue } from './DictionaryVisualCue';
+
+type QAView = 'thumbnail' | 'card' | 'hero' | 'compare';
 
 interface QAVocabularyEntry {
   id: number;
   word: string;
   display_niqqud: string;
   romanization: string | null;
-  visual: DictionaryVisual;
+  visual: DictionaryVisual & { key: A0VisualKey };
   senses: Array<{
     gloss_en: string;
     gloss_es: string;
@@ -24,6 +31,198 @@ interface OfflineDictionaryPayload {
   entries?: unknown;
 }
 
+interface GalleryCopy {
+  kicker: string;
+  title: string;
+  subtitle: string;
+  scenes: string;
+  domains: string;
+  languages: string;
+  workbench: string;
+  search: string;
+  searchPlaceholder: string;
+  domain: string;
+  allDomains: string;
+  size: string;
+  views: Record<QAView, string>;
+  language: string;
+  theme: string;
+  light: string;
+  dark: string;
+  loaded: (loaded: number, total: number) => string;
+  ready: string;
+  loading: string;
+  showing: (visible: number, category: string) => string;
+  noResults: string;
+  scene: string;
+  recipe: string;
+  context: string;
+  meaning: string;
+  anchor: string;
+  descriptions: string;
+  recognitionLab: string;
+  recognitionSummary: string;
+  recognitionIntro: string;
+  startRecognition: string;
+  observe: string;
+  recognized: string;
+  redesign: string;
+  nextScene: string;
+  score: (correct: number, total: number) => string;
+  recognitionImage: string;
+  unavailable: string;
+}
+
+const GALLERY_COPY: Record<Locale, GalleryCopy> = {
+  en: {
+    kicker: 'Private visual candidate',
+    title: 'Living Hebrew Field Notes',
+    subtitle: 'An editorial workbench for exact, adult and recognizable learning scenes.',
+    scenes: 'exact scenes',
+    domains: 'learning domains',
+    languages: 'interface languages',
+    workbench: 'Scene workbench',
+    search: 'Search scenes',
+    searchPlaceholder: 'Hebrew, meaning or technical key',
+    domain: 'Domain',
+    allDomains: 'All domains',
+    size: 'Review size',
+    views: { thumbnail: 'Thumbnail', card: 'Card', hero: 'Hero', compare: 'Compare' },
+    language: 'Interface language',
+    theme: 'Preview theme',
+    light: 'Light',
+    dark: 'Dark',
+    loaded: (loaded, total) => `${loaded}/${total} exact scenes loaded`,
+    ready: 'Catalog ready for visual review',
+    loading: 'Checking the local catalog…',
+    showing: (visible, category) => `${visible} scenes shown · ${category}`,
+    noResults: 'No scenes match this review filter.',
+    scene: 'Scene',
+    recipe: 'Recognition recipe',
+    context: 'Context',
+    meaning: 'Meaning',
+    anchor: 'Anchor',
+    descriptions: 'Accessible descriptions',
+    recognitionLab: 'Recognition lab',
+    recognitionSummary: 'Test meaning before reading the label',
+    recognitionIntro: 'Study the scene alone for five seconds, then choose a meaning from the same learning domain.',
+    startRecognition: 'Start recognition check',
+    observe: 'Observe the scene… 5 seconds',
+    recognized: 'Recognized',
+    redesign: 'Needs redesign or another exposure',
+    nextScene: 'Next scene',
+    score: (correct, total) => `${correct}/${total} recognized`,
+    recognitionImage: 'Unlabelled scene for recognition testing',
+    unavailable: 'Visual QA unavailable',
+  },
+  es: {
+    kicker: 'Candidata visual privada',
+    title: 'Cuaderno del hebreo vivo',
+    subtitle: 'Mesa editorial para escenas de aprendizaje exactas, adultas y reconocibles.',
+    scenes: 'escenas exactas',
+    domains: 'dominios de aprendizaje',
+    languages: 'idiomas de interfaz',
+    workbench: 'Mesa de escenas',
+    search: 'Buscar escenas',
+    searchPlaceholder: 'Hebreo, significado o clave técnica',
+    domain: 'Dominio',
+    allDomains: 'Todos los dominios',
+    size: 'Tamaño de revisión',
+    views: { thumbnail: 'Miniatura', card: 'Tarjeta', hero: 'Hero', compare: 'Comparar' },
+    language: 'Idioma de interfaz',
+    theme: 'Tema de previsualización',
+    light: 'Claro',
+    dark: 'Oscuro',
+    loaded: (loaded, total) => `${loaded}/${total} escenas exactas cargadas`,
+    ready: 'Catálogo listo para revisión visual',
+    loading: 'Comprobando el catálogo local…',
+    showing: (visible, category) => `${visible} escenas visibles · ${category}`,
+    noResults: 'Ninguna escena coincide con este filtro.',
+    scene: 'Escena',
+    recipe: 'Receta de reconocimiento',
+    context: 'Contexto',
+    meaning: 'Significado',
+    anchor: 'Ancla',
+    descriptions: 'Descripciones accesibles',
+    recognitionLab: 'Laboratorio de reconocimiento',
+    recognitionSummary: 'Prueba el significado antes de leer la etiqueta',
+    recognitionIntro: 'Observa la escena sola durante cinco segundos y elige un significado del mismo dominio.',
+    startRecognition: 'Iniciar prueba de reconocimiento',
+    observe: 'Observa la escena… 5 segundos',
+    recognized: 'Reconocida',
+    redesign: 'Necesita rediseño u otra exposición',
+    nextScene: 'Siguiente escena',
+    score: (correct, total) => `${correct}/${total} reconocidas`,
+    recognitionImage: 'Escena sin etiqueta para una prueba de reconocimiento',
+    unavailable: 'La revisión visual no está disponible',
+  },
+  he: {
+    kicker: 'מועמדת חזותית פרטית',
+    title: 'רשימות שדה לעברית חיה',
+    subtitle: 'שולחן עריכה לסצנות לימוד מדויקות, בוגרות וקלות לזיהוי.',
+    scenes: 'סצנות מדויקות',
+    domains: 'תחומי לימוד',
+    languages: 'שפות ממשק',
+    workbench: 'שולחן הסצנות',
+    search: 'חיפוש סצנות',
+    searchPlaceholder: 'עברית, משמעות או מפתח טכני',
+    domain: 'תחום',
+    allDomains: 'כל התחומים',
+    size: 'גודל לבדיקה',
+    views: { thumbnail: 'תמונה ממוזערת', card: 'כרטיס', hero: 'גדול', compare: 'השוואה' },
+    language: 'שפת הממשק',
+    theme: 'ערכת התצוגה',
+    light: 'בהיר',
+    dark: 'כהה',
+    loaded: (loaded, total) => `${loaded}/${total} סצנות מדויקות נטענו`,
+    ready: 'הקטלוג מוכן לבדיקה חזותית',
+    loading: 'הקטלוג המקומי נבדק…',
+    showing: (visible, category) => `${visible} סצנות מוצגות · ${category}`,
+    noResults: 'אין סצנות שמתאימות למסנן הזה.',
+    scene: 'סצנה',
+    recipe: 'מתכון זיהוי',
+    context: 'הקשר',
+    meaning: 'משמעות',
+    anchor: 'עוגן',
+    descriptions: 'תיאורים נגישים',
+    recognitionLab: 'מעבדת זיהוי',
+    recognitionSummary: 'בודקים את המשמעות לפני שקוראים את התווית',
+    recognitionIntro: 'מתבוננים בסצנה לבדה במשך חמש שניות ואז בוחרים משמעות מאותו תחום.',
+    startRecognition: 'התחלת בדיקת זיהוי',
+    observe: 'מתבוננים בסצנה… 5 שניות',
+    recognized: 'זוהתה',
+    redesign: 'נדרש עיצוב מחדש או מפגש נוסף',
+    nextScene: 'הסצנה הבאה',
+    score: (correct, total) => `${correct}/${total} זוהו`,
+    recognitionImage: 'סצנה ללא תווית לבדיקת זיהוי',
+    unavailable: 'בדיקת האיכות החזותית אינה זמינה',
+  },
+};
+
+const QA_CATEGORIES = [...new Set(A0_SEMANTIC_VISUAL_KEYS.map((key) => key.split('.', 1)[0]!))];
+const QA_VIEWS: readonly QAView[] = ['thumbnail', 'card', 'hero', 'compare'];
+
+function sceneCategory(key: string): string {
+  return key.split('.', 1)[0] ?? '';
+}
+
+function initialCategory(): string {
+  const requested = new URLSearchParams(window.location.search).get('group');
+  return requested === 'all' || (requested && QA_CATEGORIES.includes(requested))
+    ? requested
+    : QA_CATEGORIES[0]!;
+}
+
+function initialView(): QAView {
+  const params = new URLSearchParams(window.location.search);
+  const requested = params.get('size') ?? params.get('view');
+  return QA_VIEWS.includes(requested as QAView) ? requested as QAView : 'thumbnail';
+}
+
+function initialTheme(): 'light' | 'dark' {
+  return new URLSearchParams(window.location.search).get('theme') === 'dark' ? 'dark' : 'light';
+}
+
 function isQAVocabularyEntry(value: unknown): value is QAVocabularyEntry {
   if (!value || typeof value !== 'object') return false;
   const entry = value as Partial<QAVocabularyEntry>;
@@ -31,15 +230,19 @@ function isQAVocabularyEntry(value: unknown): value is QAVocabularyEntry {
     && typeof entry.word === 'string'
     && typeof entry.display_niqqud === 'string'
     && Boolean(entry.visual)
-    && typeof entry.visual?.key === 'string'
+    && isA0SemanticVisualKey(entry.visual?.key ?? '')
     && Array.isArray(entry.senses)
     && typeof entry.senses[0]?.gloss_en === 'string'
     && typeof entry.senses[0]?.gloss_es === 'string';
 }
 
-function meaning(entry: QAVocabularyEntry, locale: Locale): string {
+function localizedMeaning(entry: QAVocabularyEntry, locale: Locale): string {
   if (locale === 'es') return entry.senses[0]?.gloss_es ?? entry.senses[0]?.gloss_en ?? '';
   return entry.senses[0]?.gloss_en ?? '';
+}
+
+function readableRecipePart(value: string): string {
+  return value.replaceAll('-', ' ');
 }
 
 function recognitionChoices(
@@ -47,11 +250,20 @@ function recognitionChoices(
   targetIndex: number,
   seed: number,
 ): QAVocabularyEntry[] {
-  const offsets = [0, 11, 29, 47];
-  const choices = offsets
-    .map((offset) => entries[(targetIndex + offset) % entries.length])
-    .filter((entry): entry is QAVocabularyEntry => Boolean(entry));
+  const target = entries[targetIndex];
+  if (!target) return [];
+  const domainPool = entries.filter((entry) => (
+    entry.visual.key !== target.visual.key
+    && sceneCategory(entry.visual.key) === sceneCategory(target.visual.key)
+  ));
+  const fallbackPool = entries.filter((entry) => entry.visual.key !== target.visual.key);
+  const pool = domainPool.length >= 3 ? [...domainPool] : [...fallbackPool];
   let state = (seed ^ ((targetIndex + 1) * 0x9e3779b1)) >>> 0;
+  const choices = [target];
+  while (choices.length < 4 && pool.length > 0) {
+    state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
+    choices.push(pool.splice(state % pool.length, 1)[0]!);
+  }
   for (let index = choices.length - 1; index > 0; index -= 1) {
     state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
     const swapIndex = state % (index + 1);
@@ -61,10 +273,14 @@ function recognitionChoices(
 }
 
 export function VisualQAGallery(): React.JSX.Element {
-  const { locale, setLocale } = useI18n();
+  const { locale, setLocale, label } = useI18n();
+  const copy = GALLERY_COPY[locale];
   const [entries, setEntries] = useState<QAVocabularyEntry[]>([]);
   const [error, setError] = useState('');
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [theme, setTheme] = useState<'light' | 'dark'>(initialTheme);
+  const [activeCategory, setActiveCategory] = useState(initialCategory);
+  const [view, setView] = useState<QAView>(initialView);
+  const [query, setQuery] = useState('');
   const [recognitionIndex, setRecognitionIndex] = useState<number | null>(null);
   const [choicesVisible, setChoicesVisible] = useState(false);
   const [answered, setAnswered] = useState(false);
@@ -72,8 +288,6 @@ export function VisualQAGallery(): React.JSX.Element {
   const [score, setScore] = useState({ correct: 0, total: 0 });
   const [pilotSeed, setPilotSeed] = useState(0);
   const exactKeys = useMemo(() => new Set<string>(A0_SEMANTIC_VISUAL_KEYS), []);
-  // Derived, never typed by hand: the catalog grows every time a category gets
-  // real art, and a literal here silently goes stale.
   const exactSceneCount = A0_SEMANTIC_VISUAL_KEYS.length;
 
   useEffect(() => {
@@ -90,11 +304,9 @@ export function VisualQAGallery(): React.JSX.Element {
           if (!isQAVocabularyEntry(candidate) || !exactKeys.has(candidate.visual.key)) continue;
           uniqueEntries.set(candidate.visual.key, candidate);
         }
-        setEntries(
-          [...uniqueEntries.values()].sort((left, right) => (
-            left.visual.key.localeCompare(right.visual.key)
-          )),
-        );
+        setEntries([...uniqueEntries.values()].sort((left, right) => (
+          left.visual.key.localeCompare(right.visual.key)
+        )));
       })
       .catch((reason: unknown) => {
         if (active) setError(reason instanceof Error ? reason.message : String(reason));
@@ -119,10 +331,37 @@ export function VisualQAGallery(): React.JSX.Element {
     return () => window.clearTimeout(timer);
   }, [choicesVisible, recognitionIndex]);
 
+  const countsByCategory = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const entry of entries) {
+      const category = sceneCategory(entry.visual.key);
+      counts.set(category, (counts.get(category) ?? 0) + 1);
+    }
+    return counts;
+  }, [entries]);
+
+  const visibleEntries = useMemo(() => {
+    const normalizedQuery = query.trim().toLocaleLowerCase(locale);
+    return entries.filter((entry) => {
+      if (activeCategory !== 'all' && sceneCategory(entry.visual.key) !== activeCategory) return false;
+      if (!normalizedQuery) return true;
+      const searchText = [
+        entry.word,
+        entry.display_niqqud,
+        entry.romanization ?? '',
+        entry.visual.key,
+        localizedMeaning(entry, locale),
+        entry.visual.alt[locale],
+      ].join(' ').toLocaleLowerCase(locale);
+      return searchText.includes(normalizedQuery);
+    });
+  }, [activeCategory, entries, locale, query]);
+
   const target = recognitionIndex === null ? null : entries[recognitionIndex];
   const choices = recognitionIndex === null
     ? []
-    : recognitionChoices(entries, recognitionIndex, pilotSeed + score.total);
+    : recognitionChoices(entries, recognitionIndex, pilotSeed);
+
   const beginRecognition = (): void => {
     const seed = (Date.now() ^ (entries.length * 0x45d9f3b)) >>> 0;
     setPilotSeed(seed);
@@ -131,6 +370,7 @@ export function VisualQAGallery(): React.JSX.Element {
     setAnswered(false);
     setLastCorrect(null);
   };
+
   const chooseMeaning = (choice: QAVocabularyEntry): void => {
     if (!target || answered) return;
     const correct = choice.visual.key === target.visual.key;
@@ -141,6 +381,7 @@ export function VisualQAGallery(): React.JSX.Element {
       total: current.total + 1,
     }));
   };
+
   const nextRecognition = (): void => {
     if (recognitionIndex === null || entries.length === 0) return;
     setRecognitionIndex((recognitionIndex + 13) % entries.length);
@@ -150,133 +391,227 @@ export function VisualQAGallery(): React.JSX.Element {
   };
 
   if (error) {
-    return <main className="visual-qa visual-qa--error"><h1>Visual QA unavailable</h1><p>{error}</p></main>;
+    return <main className="visual-qa visual-qa--error"><h1>{copy.unavailable}</h1><p>{error}</p></main>;
   }
+
+  const activeCategoryLabel = activeCategory === 'all' ? copy.allDomains : label(activeCategory);
 
   return (
     <main className="visual-qa">
-      <header className="visual-qa__hero">
-        <div>
-          <span>Ivrit Sheli {CANDIDATE_LABEL}</span>
-          <h1>Visual Recognition QA</h1>
-          <p>{exactSceneCount} exact semantic scenes · thumbnail, card and hero comparison</p>
+      <header className="visual-qa__masthead">
+        <div className="visual-qa__identity">
+          <span>{copy.kicker} · <bdi dir="ltr">{CANDIDATE_LABEL}</bdi></span>
+          <h1>{copy.title}</h1>
+          <p>{copy.subtitle}</p>
         </div>
-        <div className="visual-qa__controls">
-          <div role="group" aria-label="Interface language">
-            {(['en', 'es', 'he'] as const).map((code) => (
-              <button
-                key={code}
-                type="button"
-                className={locale === code ? 'active' : ''}
-                onClick={() => setLocale(code)}
-              >
-                {code.toUpperCase()}
-              </button>
-            ))}
-          </div>
-          <div role="group" aria-label="Preview theme">
-            <button type="button" className={theme === 'light' ? 'active' : ''} onClick={() => setTheme('light')}>Light</button>
-            <button type="button" className={theme === 'dark' ? 'active' : ''} onClick={() => setTheme('dark')}>Dark</button>
-          </div>
-        </div>
+        <dl className="visual-qa__facts" aria-label={copy.title}>
+          <div><dt>{exactSceneCount}</dt><dd>{copy.scenes}</dd></div>
+          <div><dt>{QA_CATEGORIES.length}</dt><dd>{copy.domains}</dd></div>
+          <div><dt>3</dt><dd>{copy.languages}</dd></div>
+        </dl>
       </header>
 
-      <section className="visual-qa__recognition" aria-labelledby="recognition-title">
-        <div>
-          <span className="eyebrow">5-second pilot</span>
-          <h2 id="recognition-title">Recognition check</h2>
-          <p>Study the scene alone for five seconds, then choose one of four meanings.</p>
+      <details className="visual-qa__recognition">
+        <summary>
+          <span><small>{copy.recognitionLab}</small><strong>{copy.recognitionSummary}</strong></span>
+          <output>{copy.score(score.correct, score.total)}</output>
+        </summary>
+        <div className="visual-qa__recognition-body">
+          <p>{copy.recognitionIntro}</p>
+          {target ? (
+            <div className="visual-qa__recognition-stage" aria-live="polite" data-target-visual={target.visual.key}>
+              <div className="visual-qa__blind-scene" role="img" aria-label={copy.recognitionImage}>
+                <DictionaryVisualCue visual={target.visual} locale={locale} size="hero" decorative />
+              </div>
+              {!choicesVisible && <strong className="visual-qa__countdown">{copy.observe}</strong>}
+              {choicesVisible && (
+                <div className="visual-qa__choices">
+                  {choices.map((choice) => (
+                    <button
+                      key={choice.visual.key}
+                      type="button"
+                      disabled={answered}
+                      data-choice-visual={choice.visual.key}
+                      onClick={() => chooseMeaning(choice)}
+                    >
+                      {localizedMeaning(choice, locale)}
+                    </button>
+                  ))}
+                </div>
+              )}
+              {answered && target && (
+                <div className={`visual-qa__result visual-qa__result--${lastCorrect ? 'correct' : 'retry'}`}>
+                  <strong>{lastCorrect ? copy.recognized : copy.redesign}</strong>
+                  <span><b lang="he" dir="rtl">{target.display_niqqud}</b> · {localizedMeaning(target, locale)}</span>
+                  <button type="button" onClick={nextRecognition}>{copy.nextScene}</button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <button
+              type="button"
+              className="primary-button"
+              disabled={entries.length !== exactSceneCount}
+              onClick={beginRecognition}
+            >
+              {copy.startRecognition}
+            </button>
+          )}
+          {pilotSeed > 0 && <small className="visual-qa__seed"><bdi dir="ltr">pilot seed {pilotSeed}</bdi></small>}
         </div>
-        {target ? (
-          <div
-            className="visual-qa__recognition-stage"
-            aria-live="polite"
-            data-target-visual={target.visual.key}
+      </details>
+
+      <section className="visual-qa__workspace" aria-labelledby="workbench-title">
+        <aside className="visual-qa__domains" aria-label={copy.domain}>
+          <h2 id="workbench-title">{copy.workbench}</h2>
+          <button
+            type="button"
+            className={activeCategory === 'all' ? 'active' : ''}
+            aria-pressed={activeCategory === 'all'}
+            onClick={() => setActiveCategory('all')}
           >
-            <DictionaryVisualCue visual={target.visual} locale={locale} size="hero" />
-            {!choicesVisible && <strong className="visual-qa__countdown">Observe the scene… 5 seconds</strong>}
-            {choicesVisible && (
-              <div className="visual-qa__choices">
-                {choices.map((choice) => (
+            <span>{copy.allDomains}</span><b>{entries.length}</b>
+          </button>
+          {QA_CATEGORIES.map((category, index) => (
+            <button
+              key={category}
+              type="button"
+              className={activeCategory === category ? 'active' : ''}
+              aria-pressed={activeCategory === category}
+              onClick={() => setActiveCategory(category)}
+            >
+              <span><small>{String(index + 1).padStart(2, '0')}</small>{label(category)}</span>
+              <b>{countsByCategory.get(category) ?? 0}</b>
+            </button>
+          ))}
+        </aside>
+
+        <div className="visual-qa__review">
+          <div className="visual-qa__toolbar">
+            <label className="visual-qa__search">
+              <span>{copy.search}</span>
+              <input
+                type="search"
+                value={query}
+                placeholder={copy.searchPlaceholder}
+                onChange={(event) => setQuery(event.target.value)}
+              />
+            </label>
+            <label className="visual-qa__domain-select">
+              <span>{copy.domain}</span>
+              <select value={activeCategory} onChange={(event) => setActiveCategory(event.target.value)}>
+                <option value="all">{copy.allDomains}</option>
+                {QA_CATEGORIES.map((category) => (
+                  <option key={category} value={category}>{label(category)} · {countsByCategory.get(category) ?? 0}</option>
+                ))}
+              </select>
+            </label>
+            <div className="visual-qa__segmented" role="group" aria-label={copy.size}>
+              <span>{copy.size}</span>
+              <div>
+                {QA_VIEWS.map((candidateView) => (
                   <button
-                    key={choice.visual.key}
+                    key={candidateView}
                     type="button"
-                    disabled={answered}
-                    data-choice-visual={choice.visual.key}
-                    onClick={() => chooseMeaning(choice)}
+                    className={view === candidateView ? 'active' : ''}
+                    aria-pressed={view === candidateView}
+                    onClick={() => setView(candidateView)}
                   >
-                    {meaning(choice, locale)}
+                    {copy.views[candidateView]}
                   </button>
                 ))}
               </div>
-            )}
-            {answered && (
-              <div className={`visual-qa__result visual-qa__result--${lastCorrect ? 'correct' : 'retry'}`}>
-                <strong>{lastCorrect ? 'Recognized' : 'Needs redesign or another exposure'}</strong>
-                <span><b lang="he" dir="rtl">{target.display_niqqud}</b> · {meaning(target, locale)}</span>
-                <button type="button" onClick={nextRecognition}>Next scene</button>
-              </div>
-            )}
-          </div>
-        ) : (
-          <button
-            type="button"
-            className="primary-button"
-            disabled={entries.length !== exactSceneCount}
-            onClick={beginRecognition}
-          >
-            Start recognition check
-          </button>
-        )}
-        <output>
-          {score.correct}/{score.total} recognized
-          {pilotSeed > 0 && <small> · pilot seed {pilotSeed}</small>}
-        </output>
-      </section>
-
-      <div className="visual-qa__status" role="status">
-        <strong>{entries.length}/{exactSceneCount} exact scenes loaded</strong>
-        <span>{entries.length === exactSceneCount ? 'Catalog ready for visual review' : 'Checking the local catalog…'}</span>
-      </div>
-
-      <section className="visual-qa__catalog" aria-label="Exact scene catalog">
-        {entries.map((entry) => (
-          <article key={entry.visual.key} data-visual-key={entry.visual.key}>
-            <header>
-              <div>
-                <strong lang="he" dir="rtl">{entry.display_niqqud}</strong>
-                <span>{entry.romanization}</span>
-              </div>
-              <small>{entry.visual.key}</small>
-            </header>
-            <p>{meaning(entry, locale)}</p>
-            <div className="visual-qa__sizes">
-              <figure>
-                <DictionaryVisualCue visual={entry.visual} locale={locale} size="thumbnail" />
-                <figcaption>Small</figcaption>
-              </figure>
-              <figure>
-                <DictionaryVisualCue visual={entry.visual} locale={locale} size="card" />
-                <figcaption>Card</figcaption>
-              </figure>
-              <figure>
-                <DictionaryVisualCue visual={entry.visual} locale={locale} size="hero" />
-                <figcaption>Hero</figcaption>
-              </figure>
             </div>
-            <details>
-              <summary>Accessible descriptions</summary>
-              <dl>
+            <div className="visual-qa__segmented" role="group" aria-label={copy.language}>
+              <span>{copy.language}</span>
+              <div>
                 {(['en', 'es', 'he'] as const).map((code) => (
-                  <div key={code}>
-                    <dt>{code.toUpperCase()}</dt>
-                    <dd lang={code} dir={code === 'he' ? 'rtl' : 'ltr'}>{entry.visual.alt[code]}</dd>
-                  </div>
+                  <button
+                    key={code}
+                    type="button"
+                    className={locale === code ? 'active' : ''}
+                    aria-pressed={locale === code}
+                    onClick={() => setLocale(code)}
+                  >
+                    <bdi dir="ltr">{code.toUpperCase()}</bdi>
+                  </button>
                 ))}
-              </dl>
-            </details>
-          </article>
-        ))}
+              </div>
+            </div>
+            <div className="visual-qa__segmented" role="group" aria-label={copy.theme}>
+              <span>{copy.theme}</span>
+              <div>
+                <button type="button" className={theme === 'light' ? 'active' : ''} aria-pressed={theme === 'light'} onClick={() => setTheme('light')}>{copy.light}</button>
+                <button type="button" className={theme === 'dark' ? 'active' : ''} aria-pressed={theme === 'dark'} onClick={() => setTheme('dark')}>{copy.dark}</button>
+              </div>
+            </div>
+          </div>
+
+          <div className="visual-qa__status" role="status">
+            <strong>{copy.loaded(entries.length, exactSceneCount)}</strong>
+            <span>{entries.length === exactSceneCount ? copy.ready : copy.loading}</span>
+            <small>{copy.showing(visibleEntries.length, activeCategoryLabel)}</small>
+          </div>
+
+          <section className={`visual-qa__catalog visual-qa__catalog--${view}`} aria-label={copy.workbench}>
+            {visibleEntries.length === 0 && <p className="visual-qa__empty">{copy.noResults}</p>}
+            {visibleEntries.map((entry, visibleIndex) => {
+              const recipe = getA0VisualRecipe(entry.visual.key);
+              const category = sceneCategory(entry.visual.key);
+              const previousCategory = visibleIndex > 0
+                ? sceneCategory(visibleEntries[visibleIndex - 1]!.visual.key)
+                : '';
+              const showChapter = activeCategory === 'all' && category !== previousCategory;
+              const catalogIndex = entries.findIndex((candidate) => candidate.visual.key === entry.visual.key) + 1;
+              const sizes = view === 'compare' ? (['thumbnail', 'card', 'hero'] as const) : [view];
+              return (
+                <Fragment key={entry.visual.key}>
+                  {showChapter && (
+                    <h2 className="visual-qa__chapter">
+                      <span>{String(QA_CATEGORIES.indexOf(category) + 1).padStart(2, '0')}</span>
+                      {label(category)}
+                    </h2>
+                  )}
+                  <article data-visual-key={entry.visual.key} data-scene-category={category}>
+                    <div className="visual-qa__folio">
+                      <span>{copy.scene} {String(catalogIndex).padStart(3, '0')}</span>
+                      <bdi dir="ltr">{entry.visual.key}</bdi>
+                    </div>
+                    <div className={`visual-qa__sizes visual-qa__sizes--${view}`}>
+                      {sizes.map((size) => (
+                        <figure key={size}>
+                          <DictionaryVisualCue visual={entry.visual} locale={locale} size={size} />
+                          {view === 'compare' && <figcaption>{copy.views[size]}</figcaption>}
+                        </figure>
+                      ))}
+                    </div>
+                    <header>
+                      <strong lang="he" dir="rtl">{entry.display_niqqud}</strong>
+                      <p>{localizedMeaning(entry, locale)}</p>
+                      {entry.romanization && <bdi dir="ltr">{entry.romanization}</bdi>}
+                    </header>
+                    <dl className="visual-qa__recipe" aria-label={copy.recipe}>
+                      <div><dt>{copy.context}</dt><dd><bdi dir="ltr">{readableRecipePart(recipe.setting)}</bdi></dd></div>
+                      <div><dt>{copy.meaning}</dt><dd><bdi dir="ltr">{readableRecipePart(recipe.meaning)}</bdi></dd></div>
+                      <div><dt>{copy.anchor}</dt><dd><bdi dir="ltr">{readableRecipePart(recipe.anchor)}</bdi></dd></div>
+                    </dl>
+                    <details>
+                      <summary>{copy.descriptions}</summary>
+                      <dl>
+                        {(['en', 'es', 'he'] as const).map((code) => (
+                          <div key={code}>
+                            <dt><bdi dir="ltr">{code.toUpperCase()}</bdi></dt>
+                            <dd lang={code} dir={code === 'he' ? 'rtl' : 'ltr'}>{entry.visual.alt[code]}</dd>
+                          </div>
+                        ))}
+                      </dl>
+                    </details>
+                  </article>
+                </Fragment>
+              );
+            })}
+          </section>
+        </div>
       </section>
     </main>
   );

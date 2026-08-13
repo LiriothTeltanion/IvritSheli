@@ -1,15 +1,41 @@
-# Ivrit Sheli 2.10.0 — Visual Language Consolidation Verification Ledger
+# Ivrit Sheli 2.11.0 — Living Hebrew Field Notes Verification Ledger
 
-- **Current private source candidate:** `2.10.0` / local artifact / unpublished
-- **Consolidation date:** 2026-08-10
+- **Current private source candidate:** `2.11.0` / local artifact / unpublished
+- **Editorial checkpoint date:** 2026-08-14
 - **Current verified public production:** `2.4.0` / Railway / PostgreSQL / verified 2026-07-21
-- **Historical candidate baseline:** `2.9.2` completed 699 automated passes on 2026-07-28; that number is preserved as historical evidence and is not relabelled as 2.10.0 proof.
+- **Historical candidate baseline:** `2.10.0` Phase 4A.1 completed 1,047 automated passes on 2026-08-13; that number is preserved as historical evidence and is not relabelled as 2.11.0 proof.
 
-## Current 2.10.0 evidence boundary
+## Current 2.11.0 evidence boundary
 
-This consolidation completes **240/240 exact semantic scenes**, centralizes candidate version identity, refreshes source-package checksum generation, adds the Visual Bible and a reversible premium-polish layer, and simplifies learner-facing storage/auth copy. The package verifier, Python compile checks and focused visual-catalog checks are rerun for this artifact. The complete frontend dependency install, the full browser matrix and the PostgreSQL/Docker gates have since been executed on the reference Windows machine — dated 2026-08-10 and 2026-08-11 in the two sections below — against local disposable infrastructure. The **speech pilot and staging checks remain required before publication**, and local production-shaped verification is not a deployment.
+This editorial checkpoint preserves **240/240 exact semantic scenes** while
+adding global art metadata, five frame families, adult character variants,
+thumbnail-safe semantic detail and a trilingual domain-based QA workbench. Its
+tests are recorded as new 2.11 evidence below; the PostgreSQL/RLS and no-cache
+Docker results remain inherited 2.10 evidence because this slice does not
+change those runtime boundaries. The **human recognition, speech pilot and
+staging checks remain required before publication**.
 
-The verified public `2.4.0` production record remains unchanged. Nothing in this private artifact claims that 2.10.0 is deployed, tagged, released or submitted to Devpost.
+The verified public `2.4.0` production record remains unchanged. Nothing in this private artifact claims that 2.11.0 is deployed, tagged, released or submitted to Devpost.
+
+## Living Hebrew Field Notes gate — reference Windows machine — 2026-08-14
+
+| Gate | Command | Result |
+|---|---|---|
+| Focused semantic art/workbench | `npm run test -- --run src/components/SemanticWordIllustration.test.tsx src/components/VisualQAGallery.test.tsx` | **488 passed** |
+| Complete frontend suite | `npm run test:run` | **705 passed across 40 files** |
+| TypeScript + production build | `npm run build` | **Passed**; Visual QA 15.58 kB JS / 5.16 kB gzip and 12.83 kB CSS / 2.88 kB gzip |
+| Complete backend suite | `.venv\\Scripts\\python.exe -m pytest backend/tests -q -p no:cacheprovider` | **315 passed / 1 PostgreSQL-gated skip** |
+| Backend style/types/compile | Ruff + strict MyPy + compileall | **Passed**; MyPy covered 39 source files |
+| Offline doctor | `.venv\\Scripts\\python.exe -m ivrit_sheli --doctor` with in-memory DBs | **7/7 passed as 2.11.0**, 240 dictionary entries |
+| Full visual catalog — desktop | Playwright `renders all 240 exact scenes…`, `desktop-1440` | **Passed**, including 720 SVG, dark, HE/RTL, reduced motion, 200% reflow and axe |
+| Full visual catalog — mobile | Same case, `mobile-390` | **Passed**, including 720 SVG, HE/RTL and 200% reflow |
+| Recognition lab — desktop | Playwright five-second recognition case | **Passed** |
+
+The one backend skip requires explicit migration/runtime PostgreSQL DSNs; no
+such credentials were supplied for this visual slice. The prior 2.10.0 Phase
+4A.1 PostgreSQL/RLS, dependency-audit and no-cache Docker evidence remains
+historical and is not relabelled as a 2.11.0 execution. Human recognition of
+the confusable semantic clusters remains a separate acceptance gate.
 
 ## First complete gate execution — reference Windows machine — 2026-08-10
 

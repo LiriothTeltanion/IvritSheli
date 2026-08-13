@@ -1,12 +1,14 @@
-# 2.10.0 private-candidate note — 2026-08-10
+# 2.11.0 private-candidate note — 2026-08-14
 
-The private visual QA gallery now derives and renders **all 240 exact semantic
-scenes**. The prior 72-scene references below are historical milestones from
-2.8.3. In the current candidate, reviewed starter concepts no longer use
-category/emoji fallbacks. The automated 390/768/1440, light/dark, Hebrew RTL,
-reduced-motion, 200% reflow and axe matrix passed locally on 2026-08-13. Human
-recognition review, isolated staging/pilot evidence and explicit approval remain
-required before publication.
+The private visual QA gallery derives **all 240 exact semantic scenes** and now
+opens as a trilingual editorial workbench: choose one of 20 domains, search,
+switch among thumbnail/card/hero/compare views, inspect the exact
+`context → meaning → anchor` recipe, or run a five-second recognition check
+with distractors from the same domain. It loads one 12-scene domain and one size
+by default for speed; `group=all&size=compare` is reserved for exhaustive QA.
+The prior 72-scene references below are historical milestones from 2.8.3.
+Human recognition review, isolated staging/pilot evidence and explicit approval
+remain required before publication.
 
 # Ivrit Sheli — User Guide
 

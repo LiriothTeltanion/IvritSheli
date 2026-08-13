@@ -94,6 +94,7 @@ export function SemanticWordIllustration({
   const titleId = useId();
   if (!isA0SemanticVisualKey(visual.key)) return null;
   const recipe = getA0VisualRecipe(visual.key);
+  const sceneCategory = visual.key.split('.', 1)[0];
   const title = visual.alt[locale] || visual.alt.en || visual.alt.es || visual.alt.he;
 
   return (
@@ -105,6 +106,9 @@ export function SemanticWordIllustration({
       aria-labelledby={decorative ? undefined : titleId}
       data-visual-id={visual.key}
       data-visual-detail="semantic"
+      data-art-direction="editorial-atlas"
+      data-scene-category={sceneCategory}
+      data-scene-setting={recipe.setting}
       data-scene-template={recipe.template}
       data-size={size}
       data-hint-stage={hintStage}
@@ -112,7 +116,7 @@ export function SemanticWordIllustration({
       focusable="false"
     >
       {!decorative && <title id={titleId}>{title}</title>}
-      <SceneFrame hintStage={hintStage} sceneId={titleId} />
+      <SceneFrame hintStage={hintStage} sceneId={titleId} template={recipe.template} />
       <ReviewedScene visualKey={visual.key} hintStage={hintStage} />
       <SceneVignette sceneId={titleId} />
     </svg>

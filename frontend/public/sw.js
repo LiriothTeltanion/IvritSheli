@@ -4,7 +4,7 @@
 // Date: 2026-07-15 | TZ: Asia/Jerusalem
 // Notes: API responses and user data are deliberately never cached by the service worker.
 
-const CACHE_NAME = 'ivrit-sheli-shell-v2.10.0-visual-language-r1';
+const CACHE_NAME = 'ivrit-sheli-shell-v2.11.0-field-notes-r1';
 const CORE_ASSETS = [
   '/',
   '/manifest.webmanifest',

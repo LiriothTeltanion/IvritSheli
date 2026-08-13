@@ -1,7 +1,7 @@
 <div align="center">
   <img src="assets/brand/logo.svg" alt="Ivrit Sheli" width="680" />
 
-  <h1>Ivrit Sheli 2.10.0 — Visual Language Consolidation · העברית שלי</h1>
+  <h1>Ivrit Sheli 2.11.0 — Living Hebrew Field Notes · העברית שלי</h1>
   <p><strong>See, hear, recognize and use living Hebrew in a journey that adapts gradually to you.</strong></p>
 
   <p>
@@ -28,26 +28,26 @@
   <a href="https://ivritsheli-production.up.railway.app/?lang=en"><strong>🌐 Open the verified Ivrit Sheli 2.4.0 Contest Edition — 2026-07-21</strong></a>
 </p>
 
-> **Release-candidate boundary:** this checkout is the private, unpublished **2.10.0 Visual Language Consolidation candidate dated 2026-08-10**, with Phase 4A.1 locally verified on 2026-08-13. It consolidates the 2.9.2 Brand & Private Access work and completes exact semantic illustration coverage for all 240 reviewed starter concepts. The production Railway deployment, public Git tag, GitHub Release and Devpost submission intentionally remain on the verified **2.4.0 Contest Edition dated 2026-07-21**. This candidate will not replace production without staging/backup/pilot evidence and Kevin's explicit approval; the complete local code/browser/PostgreSQL/Docker matrix has been rerun through Phase 4A.1.
+> **Release-candidate boundary:** this checkout is the private, unpublished **2.11.0 Living Hebrew Field Notes candidate dated 2026-08-14**. It evolves the verified 2.10.0 consolidation with an adult editorial system across all 240 exact semantic scenes and a fast trilingual visual-review workbench. The production Railway deployment, public Git tag, GitHub Release and Devpost submission intentionally remain on the verified **2.4.0 Contest Edition dated 2026-07-21**. This candidate will not replace production without staging/backup/pilot evidence and Kevin's explicit approval.
 
 ### Source and live release truth
 
 | Surface | Verified state |
 |---|---|
-| Current private source checkout | `2.10.0` · Visual Language Consolidation candidate · 2026-08-10 · not deployed or published |
+| Current private source checkout | `2.11.0` · Living Hebrew Field Notes candidate · 2026-08-14 · not deployed or published |
 | Current public deployed application | `2.4.0` · Contest Edition · verified 2026-07-21 |
 | Release implementation commit | `03bf84b9268ff8be528c0fab3c670f9652ee23b0` |
 | Production storage/readiness | PostgreSQL · ready · 48 reviewed dictionary entries |
 | Deployment verification | Successful on 2026-07-21 |
 | Release verification | 151 unique backend tests + 62 frontend tests = 213 passed; main CI and CodeQL passed |
-| Candidate verification | **2.10.0 Phase 4A.1 local candidate (verified 2026-08-13):** 699 Vitest + 316 unique backend pytest + 32 Playwright/axe = **1,047 directly executed automated passes**; TypeScript/Vite, Ruff/MyPy, PostgreSQL 17/RLS/two-user isolation, dependency audits and a no-cache container smoke also passed locally. This is **not** staging/public verification. |
+| Candidate verification | **2.11.0 local editorial candidate (2026-08-14):** 705 frontend + 315 backend tests passed, with one credential-gated PostgreSQL skip; TypeScript/build, Ruff/MyPy/compileall/doctor and the 240 × 3 desktop/mobile visual matrix passed. PostgreSQL/RLS, dependency and no-cache container evidence remains inherited from verified 2.10.0 Phase 4A.1. This is **not** staging/public verification. |
 | GitHub publication | [`v2.4.0`](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.4.0), dated 2026-07-21, is the published tag and GitHub Release |
 | Live account evidence | Identity-only Google sign-in, onboarding state and the authenticated session persisted across reload; logout returned to the English landing page and remained signed out after reload |
 | Live judge-path evidence | The English entry link and four-stop read-only guided tour passed production browser checks |
-| Remaining 2.10.0 release gate | Isolated HTTPS staging with production settings/sealed secrets; two-real-account persistence; backup/restore drill; 20-word/10-phrase Hebrew accuracy pilot; reminder consent checks; mother-pilot acceptance; and explicit publication approval. The full local code/browser/PostgreSQL/Docker gate is green through Phase 4A.1; public production remains frozen at 2.4.0. |
+| Remaining 2.11.0 release gate | Human five-second recognition review across confusable scene clusters; isolated HTTPS staging with production settings/sealed secrets; two-real-account persistence; backup/restore drill; Hebrew accuracy and mother-pilot acceptance; and explicit publication approval. Public production remains frozen at 2.4.0. |
 
 Historical v2.8.3 evidence is preserved below as regression context; it is not
-presented as current v2.10.0 verification dated 2026-08-10. The animated journey
+presented as current v2.11.0 verification dated 2026-08-14. The animated journey
 and desktop/mobile/RTL captures below were generated from the local 2.8.0
 candidate after Docker rebuild and direct browser inspection.
 
@@ -88,6 +88,23 @@ principles behind this release live in the
 Most language products make every learner follow the same path. Ivrit Sheli does the opposite: it converts the Hebrew you encounter at work, in Be'er Sheva, in messages, appointments, media, and daily conversations into an evolving personal curriculum.
 
 The system tracks what you recognize, what you can produce, where you hesitate, which grammar errors repeat, which situations matter, and which learning mode works best. Recommendations are explainable: the app tells you *why* it selected a word, exercise, mission, or speaking drill.
+
+## What the private 2.11.0 candidate improves — 2026-08-14 ✦
+
+**Living Hebrew Field Notes** turns the complete 240-scene catalog into a more
+adult, specific editorial system. Every exact SVG now declares its domain,
+setting and semantic composition; five shared frame families distinguish
+objects, encounters, places, diagrams and time/quantity without obscuring the
+meaning. The shared character system gains more natural proportions,
+action-aware expressions and stable appearance variants.
+
+Thumbnail scenes preserve semantic fine detail that the earlier stylesheet hid
+globally. Card and hero sizes add restrained domain colour and material depth.
+The private VisualQAGallery is now a trilingual workbench with search, 20-domain
+navigation, thumbnail/card/hero/compare modes, visible
+`context → meaning → anchor` recipes and same-domain recognition distractors.
+It loads 12 scenes by default instead of painting 720 SVGs at once; the full
+240 × 3 matrix remains available to automation.
 
 ## What the private 2.10.0 candidate consolidates — 2026-08-10 ✨
 

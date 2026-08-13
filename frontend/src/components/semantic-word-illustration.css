@@ -95,6 +95,11 @@
   --semantic-sun-core: rgba(255, 242, 198, 0.68);
   --semantic-leaf-lit: rgba(226, 244, 208, 0.62);
   --semantic-grain: rgba(88, 58, 34, 0.24);
+  --semantic-editorial-primary: var(--semantic-teal);
+  --semantic-editorial-secondary: var(--semantic-gold);
+  --semantic-editorial-wash-start: color-mix(in srgb, var(--semantic-editorial-primary) 11%, transparent);
+  --semantic-editorial-wash-clear: transparent;
+  --semantic-editorial-wash-end: color-mix(in srgb, var(--semantic-editorial-secondary) 8%, transparent);
   display: block;
   width: 100%;
   height: auto;
@@ -103,11 +108,87 @@
   filter: drop-shadow(0 0.85rem 1.35rem rgba(72, 50, 78, 0.13));
 }
 
+/* Living Hebrew Field Notes: category atmosphere changes the editorial mat,
+   never the semantic objects. This gives all 240 scenes a domain identity
+   without making colour carry the answer. */
+.semantic-art:is(
+  [data-scene-category="greetings"],
+  [data-scene-category="communication"],
+  [data-scene-category="register"]
+) {
+  --semantic-editorial-primary: var(--semantic-coral);
+  --semantic-editorial-secondary: var(--semantic-plum);
+}
+
+.semantic-art:is(
+  [data-scene-category="family"],
+  [data-scene-category="home"],
+  [data-scene-category="housing"]
+) {
+  --semantic-editorial-primary: var(--semantic-clay);
+  --semantic-editorial-secondary: var(--semantic-gold-deep);
+}
+
+.semantic-art:is(
+  [data-scene-category="food"],
+  [data-scene-category="shopping"]
+) {
+  --semantic-editorial-primary: var(--semantic-coral);
+  --semantic-editorial-secondary: var(--semantic-green);
+}
+
+.semantic-art:is(
+  [data-scene-category="transport"],
+  [data-scene-category="places"]
+) {
+  --semantic-editorial-primary: var(--semantic-blue);
+  --semantic-editorial-secondary: var(--semantic-teal);
+}
+
+.semantic-art:is(
+  [data-scene-category="health"],
+  [data-scene-category="services"]
+) {
+  --semantic-editorial-primary: var(--semantic-teal);
+  --semantic-editorial-secondary: var(--semantic-blue);
+}
+
+.semantic-art:is(
+  [data-scene-category="actions"],
+  [data-scene-category="autonomy"]
+) {
+  --semantic-editorial-primary: var(--semantic-teal);
+  --semantic-editorial-secondary: var(--semantic-coral);
+}
+
+.semantic-art:is(
+  [data-scene-category="numbers"],
+  [data-scene-category="time"]
+) {
+  --semantic-editorial-primary: var(--semantic-gold-deep);
+  --semantic-editorial-secondary: var(--semantic-blue);
+}
+
+.semantic-art:is(
+  [data-scene-category="work"],
+  [data-scene-category="bureaucracy"]
+) {
+  --semantic-editorial-primary: var(--semantic-plum);
+  --semantic-editorial-secondary: var(--semantic-blue);
+}
+
+.semantic-art:is(
+  [data-scene-category="nature"],
+  [data-scene-category="weather"]
+) {
+  --semantic-editorial-primary: var(--semantic-green-deep);
+  --semantic-editorial-secondary: var(--semantic-blue);
+}
+
 .semantic-art--thumbnail {
   filter: drop-shadow(0 0.4rem 0.7rem rgba(80, 58, 26, 0.1));
 }
 
-.semantic-art--thumbnail .semantic-art__detail--thin,
 .semantic-art--thumbnail .semantic-art__glow,
 .semantic-art--thumbnail .semantic-art__hair-lit,
 .semantic-art--thumbnail .semantic-art__ground-rim,
@@ -124,10 +205,64 @@
   display: none;
 }
 
+/* Thin used to mean disposable. It also marks floor levels, grammar leaders,
+   calendar rows and other recognition cues, so it must survive 96–120 px. */
+.semantic-art--thumbnail .semantic-art__detail--thin {
+  display: initial;
+  stroke-width: 3.1;
+  opacity: 0.82;
+  vector-effect: non-scaling-stroke;
+}
+
 .semantic-art__paper {
   /* fill comes from the scene's gradient attribute; see SemanticSceneDefs. */
   stroke: color-mix(in srgb, var(--semantic-ink) 22%, transparent);
   stroke-width: 2;
+}
+
+.semantic-art__editorial-wash,
+.semantic-art__editorial-rim,
+.semantic-art__editorial-rail,
+.semantic-art__editorial-seal,
+.semantic-art__frame-motif {
+  pointer-events: none;
+}
+
+.semantic-art__editorial-wash { opacity: 0.92; }
+
+.semantic-art__editorial-rim {
+  fill: none;
+  stroke: color-mix(in srgb, var(--semantic-editorial-primary) 22%, transparent);
+  stroke-width: 1;
+}
+
+.semantic-art__editorial-rail,
+.semantic-art__frame-motif {
+  fill: none;
+  stroke: color-mix(in srgb, var(--semantic-editorial-primary) 48%, transparent);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.semantic-art__editorial-seal {
+  fill: var(--semantic-editorial-secondary);
+  stroke: color-mix(in srgb, var(--semantic-ink) 54%, transparent);
+  stroke-width: 1;
+}
+
+.semantic-art__frame-motif { opacity: 0.34; }
+
+.semantic-art--thumbnail .semantic-art__editorial-rim,
+.semantic-art--thumbnail .semantic-art__editorial-rail,
+.semantic-art--thumbnail .semantic-art__editorial-seal,
+.semantic-art--thumbnail .semantic-art__frame-motif { display: none; }
+
+.semantic-art--thumbnail [data-visual-layer="context"] { opacity: 0.88; }
+
+.semantic-art--thumbnail [data-visual-layer="anchor"] .semantic-art__outlined {
+  stroke: color-mix(in srgb, var(--semantic-ink) 68%, transparent);
+  stroke-width: 2.8;
 }
 
 .semantic-art__glow {
@@ -614,6 +749,33 @@
   fill: var(--semantic-skin);
 }
 
+/* Four restrained adult character palettes. Shirt choice already travels with
+   a person across a scene, so it is a stable, deterministic identity hook —
+   no random faces and no kinship character changing between renders. */
+.semantic-art__person--teal {
+  --semantic-skin: #c9855f;
+  --semantic-skin-deep: #9d5f3d;
+  --semantic-hair: #3d2f2a;
+}
+
+.semantic-art__person--coral {
+  --semantic-skin: #9f6044;
+  --semantic-skin-deep: #78432f;
+  --semantic-hair: #211f24;
+}
+
+.semantic-art__person--gold {
+  --semantic-skin: #dda176;
+  --semantic-skin-deep: #b97751;
+  --semantic-hair: #73503a;
+}
+
+.semantic-art__person--blue {
+  --semantic-skin: #b8754e;
+  --semantic-skin-deep: #8e5336;
+  --semantic-hair: #35313a;
+}
+
 .semantic-art__skin-line {
   fill: none;
   stroke: var(--semantic-skin);
@@ -629,7 +791,7 @@
  */
 .semantic-art__hair {
   fill: var(--semantic-hair);
-  stroke: #1c1512;
+  stroke: color-mix(in srgb, var(--semantic-hair) 72%, #000);
   stroke-width: 1.4;
   stroke-linejoin: round;
 }
@@ -667,7 +829,7 @@
 
 /* Skin and hair get the same treatment as cloth. */
 .semantic-art__skin-shade { fill: var(--semantic-skin-deep); stroke: none; }
-.semantic-art__hair-deep { fill: #2a201c; stroke: none; }
+.semantic-art__hair-deep { fill: color-mix(in srgb, var(--semantic-hair) 72%, #000); stroke: none; }
 
 .semantic-art__face {
   fill: none;
@@ -912,7 +1074,12 @@
   .semantic-art__grain,
   .semantic-art__hatch,
   .semantic-art__prop-shadow,
-  .semantic-art__bubble-shadow { display: none; }
+  .semantic-art__bubble-shadow,
+  .semantic-art__editorial-wash,
+  .semantic-art__editorial-rim,
+  .semantic-art__editorial-rail,
+  .semantic-art__editorial-seal,
+  .semantic-art__frame-motif { display: none; }
 }
 
 @media (prefers-contrast: more) {
@@ -954,10 +1121,6 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .semantic-art__spark {
-    animation: semanticSpark 2.4s ease-in-out infinite alternate;
-  }
-
   button:hover .semantic-art[data-size="thumbnail"],
   button:focus-visible .semantic-art[data-size="thumbnail"] {
     transform: translateY(-2px);
@@ -988,6 +1151,12 @@
   button:focus-visible .semantic-art__arrow,
   .semantic-art--hero:hover .semantic-art__arrow {
     animation: semanticArrowMove 620ms ease-in-out;
+  }
+
+  button:hover .semantic-art__spark,
+  button:focus-visible .semantic-art__spark,
+  .semantic-art--hero:hover .semantic-art__spark {
+    animation: semanticSpark 620ms ease-in-out;
   }
 }
 

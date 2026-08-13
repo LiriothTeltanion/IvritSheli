@@ -40,6 +40,11 @@ KNOWN_SCENE_ALTS = {
         "es": "Una persona tiende la mano para ayudar a otra a levantarse",
         "he": "אדם מושיט יד ועוזר לאדם אחר לקום",
     },
+    "housing.floor": {
+        "en": "A four-storey apartment building in section, with the lift stopped at the top floor",
+        "es": "Un edificio de cuatro plantas en sección, con el ascensor detenido en la planta superior",
+        "he": "בניין בן ארבע קומות בחתך, כשהמעלית עצרה בקומה העליונה",
+    },
     "register.offer_help": {
         "en": "Illustration of a helper reaching with open hands toward a heavy box another person is carrying alone",
         "es": "Ilustración de una persona que extiende las manos hacia una caja pesada que otra lleva sola",

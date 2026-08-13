@@ -295,7 +295,7 @@ test.describe('visual recognition expansion', () => {
      */
     test.setTimeout(FULL_CATALOG_CASE_BUDGET_MS);
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await page.goto('/?visualQa=1&lang=en');
+    await page.goto('/?visualQa=1&lang=en&group=all&size=compare');
 
     await expect(page.getByText('240/240 exact scenes loaded')).toBeVisible({ timeout: MOUNT_BUDGET_MS });
     await expect(page.locator('.visual-qa__catalog > article')).toHaveCount(240, { timeout: MOUNT_BUDGET_MS });
@@ -347,11 +347,31 @@ test.describe('visual recognition expansion', () => {
     await page.evaluate(() => {
       document.documentElement.style.fontSize = '200%';
     });
-    const zoomedDimensions = await page.evaluate(() => ({
-      clientWidth: document.documentElement.clientWidth,
-      scrollWidth: document.documentElement.scrollWidth,
-    }));
-    expect(zoomedDimensions.scrollWidth).toBeLessThanOrEqual(zoomedDimensions.clientWidth + 1);
+    const zoomedDimensions = await page.evaluate(() => {
+      const clientWidth = document.documentElement.clientWidth;
+      const overflowers = [...document.querySelectorAll<HTMLElement>('body *')]
+        .map((element) => {
+          const bounds = element.getBoundingClientRect();
+          return {
+            element: `${element.tagName.toLowerCase()}.${element.className}`,
+            left: Math.round(bounds.left),
+            right: Math.round(bounds.right),
+            width: Math.round(bounds.width),
+            text: element.textContent?.trim().slice(0, 48) ?? '',
+          };
+        })
+        .filter((item) => item.left < -1 || item.right > clientWidth + 1)
+        .slice(0, 12);
+      return {
+        clientWidth,
+        scrollWidth: document.documentElement.scrollWidth,
+        overflowers,
+      };
+    });
+    expect(
+      zoomedDimensions.scrollWidth,
+      JSON.stringify(zoomedDimensions.overflowers, null, 2),
+    ).toBeLessThanOrEqual(zoomedDimensions.clientWidth + 1);
 
     if (testInfo.project.name === 'desktop-1440') {
       const results = await new AxeBuilder({ page })
@@ -369,6 +389,7 @@ test.describe('visual recognition expansion', () => {
     await page.goto('/?visualQa=1&lang=en');
     await expect(page.getByText('240/240 exact scenes loaded')).toBeVisible({ timeout: MOUNT_BUDGET_MS });
 
+    await page.getByText('Test meaning before reading the label').click();
     await page.getByRole('button', { name: 'Start recognition check' }).click();
     await expect(page.getByText('Observe the scene… 5 seconds')).toBeVisible();
     await expect(page.locator('.visual-qa__choices')).toHaveCount(0);

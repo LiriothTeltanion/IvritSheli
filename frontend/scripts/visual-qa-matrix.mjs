@@ -4,12 +4,9 @@
 // Author: Kevin "Lirioth" Cusnir
 // Date: 2026-08-11 | TZ: Asia/Jerusalem
 //
-// The gallery renders each scene at three sizes inside one article. This script
-// hides everything except the size under review, packs the catalog into a fixed
-// grid and screenshots it a batch at a time. It hides rather than clones on
-// purpose: the scenes read their paint from `--semantic-*` custom properties
-// that cascade from the real container, so a clone into a fresh node can look
-// correct here and wrong in the product.
+// The gallery accepts a real size/domain query, so this script asks it for all
+// scenes at one review size, packs them into a fixed grid and screenshots them
+// in batches. Nothing is cloned or restyled into a different illustration.
 //
 // Usage:
 //   node frontend/scripts/visual-qa-matrix.mjs --theme dark --locale he --width 390
@@ -59,12 +56,12 @@ const MATRIX = [
   { label: 'card-reduced-en-1440', size: 'card', theme: 'light', locale: 'en', width: 1440, reducedMotion: true },
 ];
 
-/** Injected once per page: collapse the gallery to the size under review. */
-function layoutCss(size, columns) {
-  const keep = { thumbnail: 1, card: 2, hero: 3 }[size];
+/** Injected once per page: make a dense contact sheet, not different artwork. */
+function layoutCss(columns) {
   return `
-    .visual-qa__hero, .visual-qa__recognition, .visual-qa__status { display: none !important; }
+    .visual-qa__masthead, .visual-qa__recognition, .visual-qa__status, .visual-qa__domains, .visual-qa__toolbar { display: none !important; }
     .visual-qa { padding: 0 !important; }
+    .visual-qa__workspace { display: block !important; margin: 0 !important; width: 100% !important; }
     .visual-qa__catalog {
       display: grid !important;
       grid-template-columns: repeat(${columns}, minmax(0, 1fr)) !important;
@@ -73,11 +70,8 @@ function layoutCss(size, columns) {
     }
     .visual-qa__catalog article details { display: none !important; }
     .visual-qa__catalog article { margin: 0 !important; padding: 8px !important; }
-    /* The gallery keeps three sized columns side by side. Hiding two leaves the
-       survivor squeezed into its old fraction, so the track list collapses too. */
+    .visual-qa__catalog article { content-visibility: visible !important; contain-intrinsic-size: auto !important; }
     .visual-qa__sizes { grid-template-columns: minmax(0, 1fr) !important; gap: 0 !important; }
-    .visual-qa__sizes figure { display: none !important; }
-    .visual-qa__sizes figure:nth-of-type(${keep}) { display: grid !important; width: 100% !important; }
     .visual-qa__sizes figcaption { display: none !important; }
     /* Labels stay, but the artwork is what is under review. */
     .visual-qa__catalog article header { font-size: 0.7rem !important; gap: 4px !important; }
@@ -93,7 +87,10 @@ async function capture(page, spec, outputRoot) {
   const directory = resolve(outputRoot, spec.label);
   await mkdir(directory, { recursive: true });
 
-  await page.goto(`${BASE}/?visualQa=1`, { waitUntil: 'domcontentloaded' });
+  await page.goto(
+    `${BASE}/?visualQa=1&group=all&size=${spec.size}&theme=${spec.theme}&lang=${spec.locale}`,
+    { waitUntil: 'domcontentloaded' },
+  );
   // The catalog is fetched, not bundled; wait for the real count rather than a timer.
   await page.waitForFunction(
     () => document.querySelectorAll('article[data-visual-key]').length > 0,
@@ -111,10 +108,8 @@ async function capture(page, spec, outputRoot) {
     { timeout: 120_000 },
   );
   // That counter reports dictionary entries. The drawings come from a deferred
-  // chunk, so waiting on the counter alone photographs empty frames — which is
-  // exactly what it did, and it looked like every scene had vanished under
-  // prefers-contrast. Wait for the artwork itself: three sizes per entry, none
-  // of them still showing the placeholder.
+  // chunk, so waiting on the counter alone can photograph placeholders. Wait
+  // for the one requested drawing per entry.
   await page.waitForFunction(
     () => {
       const articles = document.querySelectorAll('article[data-visual-key]').length;
@@ -122,19 +117,13 @@ async function capture(page, spec, outputRoot) {
       const drawn = document.querySelectorAll(
         '.visual-qa__catalog svg.semantic-art:not([data-scene-pending])',
       ).length;
-      return drawn >= articles * 3;
+      return drawn >= articles;
     },
     undefined,
     { timeout: 180_000 },
   );
 
-  // Drive the gallery's own controls so React state and the DOM agree.
-  await page.getByRole('group', { name: 'Interface language' })
-    .getByRole('button', { name: spec.locale.toUpperCase(), exact: true }).click();
-  await page.getByRole('group', { name: 'Preview theme' })
-    .getByRole('button', { name: spec.theme === 'dark' ? 'Dark' : 'Light', exact: true }).click();
-
-  await page.addStyleTag({ content: layoutCss(spec.size, columns) });
+  await page.addStyleTag({ content: layoutCss(columns) });
 
   const keys = await page.$$eval('article[data-visual-key]', (nodes) => nodes.map((node) => node.getAttribute('data-visual-key')));
   const catalog = page.locator('.visual-qa__catalog');
