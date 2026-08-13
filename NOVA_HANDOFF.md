@@ -8,12 +8,12 @@ Public production intentionally remains: **2.4.0 Contest Edition (2026-07-21)**
 
 - **Project:** `02 — Ivrit Sheli`
 - **Branch:** `consolidation/ivrit-sheli-2.10-baseline`
-- **Implementation HEAD:** `fb94ff7a8d5ac65702cf8c141f8aeb80446451ea`
+- **Implementation HEAD:** `72719f7131a29516b2d7b13f5ce24709b9692e8d`
 - **Issues:** `KEV-14` Done; `KEV-11` In Progress. `KEV-9` and `KEV-10` remain Done.
-- **Work completed:** the exact dictionary entry continues from save to pronunciation practice (`82a36b0`); `health.help` depicts interpersonal assistance (`03ea87b`); `register.offer_help` now distinguishes offering help from requesting it through a solo tilted load and a directional helper arrow (`fb94ff7`)
-- **Verification:** 702/702 Vitest; 315 backend pytest passed with the one real-PostgreSQL case skipped because host DSNs were not supplied; focused visual backend 1/1 and frontend 485/485; mobile-390 and desktop-1440 full-catalog Playwright cases passed with dark, HE/RTL, reduced motion, 200% reflow and desktop axe; clean TypeScript/production build; package verifier green for 202 required files / 372 canonical checksums. The prior Phase 4 gate remains the current PostgreSQL/RLS, dependency and no-cache image evidence.
+- **Work completed:** the exact dictionary entry continues from save to pronunciation practice (`82a36b0`); `health.help` depicts interpersonal assistance (`03ea87b`); `register.offer_help` clearly offers help toward a solo heavy load (`fb94ff7`); `time.hour` is now a tall 12-mark regulator clock with a short hour hand and slow pendulum, while `time.minute` is a compact stopwatch with 60 second marks, a complete sweep and a visible `60` badge (`72719f7`).
+- **Verification:** 703/703 Vitest; 315 backend pytest passed with the one real-PostgreSQL case skipped because host DSNs were not supplied; final focused visual backend 1/1 and frontend 488/488; mobile-390 and desktop-1440 full-catalog Playwright cases passed with pair-specific thumbnail cues, dark, HE/RTL, reduced motion, 200% reflow and desktop axe; clean Ruff, mypy (39 source files), compileall, TypeScript and production build; package verifier green for 202 required files / 372 canonical checksums. The prior Phase 4 gate remains the current PostgreSQL/RLS, dependency and no-cache image evidence.
 - **Current URLs:** Docker/PostgreSQL candidate `http://127.0.0.1:8000/`; hot-reload frontend `http://127.0.0.1:5173/`; isolated writable local workspace `http://127.0.0.1:8001/`
-- **Next action:** continue `KEV-11` with exactly one new ambiguity: separate `time.minute` from `time.hour` at thumbnail size, where CSS currently hides the minute ticks. Do not repeat `health.help` or `register.offer_help`. After that, `KEV-12` is the next planned compatibility audit, before `KEV-13`.
+- **Next action:** continue `KEV-11` by selecting exactly one new high-impact ambiguity from VisualQAGallery. Do not repeat `health.help`, `register.offer_help` or the completed `time.hour` / `time.minute` pair. After the next bounded visual slice, `KEV-12` is the planned compatibility audit before `KEV-13`.
 - **Blockers:** no local engineering blocker. This slice did not rerun the real PostgreSQL integration case because no host migration/runtime DSNs were supplied; the Docker candidate itself is healthy. Staging/two-real-account/pilot gates remain; publication, deploy, push and public judge-state changes remain frozen until after 2026-08-25 unless Kevin explicitly changes that instruction.
 
 Resolve the live checkout's self-referential handoff-only commit with
@@ -127,7 +127,13 @@ The artifact following `d475304` started Phase 4 conservatively: it moved dynami
   open hands toward the load. The exact recipe, EN/ES/HE alt text, offline
   catalog and regression contracts were updated together. The broader
   240-scene audit remains in progress.
-- Current local candidate evidence is 702/702 frontend tests, 315 backend tests
+- A third bounded `KEV-11` correction in `72719f7` makes `time.hour` and
+  `time.minute` identifiable without labels at 99 × 74 px. The hour uses a tall
+  regulator case, short hour hand, twelve markers and pendulum; the minute uses
+  a stopwatch silhouette, 60 second marks, a complete sweep and a `60` badge.
+  The recipes, EN/ES/HE alternative text, offline catalog, component contracts
+  and browser checks now describe and protect the same distinction.
+- Current local candidate evidence is 703/703 frontend tests, 315 backend tests
   plus one explicitly skipped PostgreSQL case, two passing full-catalog browser
   gates (mobile-390 and desktop-1440), clean TypeScript/build and a passing
   package verifier for 202 required files and 372 canonical Git-index checksums.
@@ -147,11 +153,10 @@ The artifact following `d475304` started Phase 4 conservatively: it moved dynami
 
 ## Suggested next task for the next coding agent
 
-**First:** continue `KEV-11` with the evidenced `time.minute` versus `time.hour`
-thumbnail ambiguity. The recipe promises 60 ticks for the minute scene, but the
-thumbnail stylesheet hides their `detail--thin` class. Do not reopen Phase
-4A.1, rerun the completed KEV-10 walkthrough, or redesign `health.help` /
-`register.offer_help` again.
+**First:** continue `KEV-11` with one new evidenced ambiguity selected from
+VisualQAGallery. The `time.minute` versus `time.hour` ambiguity is complete in
+`72719f7`; do not repeat it. Also do not reopen Phase 4A.1, rerun the completed
+KEV-10 walkthrough, or redesign `health.help` / `register.offer_help` again.
 
 **Second:** when that bounded visual slice is green, audit `KEV-12` as optional
 PostgreSQL compatibility without provider calls, migrations or vendor lock-in.
