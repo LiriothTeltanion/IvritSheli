@@ -1,6 +1,6 @@
 # Ivrit Sheli 2.10.0 — Nova Consolidation Handoff
 
-Prepared: 2026-08-10; operational checkpoint refreshed: 2026-08-13
+Prepared: 2026-08-10; operational checkpoint refreshed: 2026-08-14
 Source state: private / unpublished
 Public production intentionally remains: **2.4.0 Contest Edition (2026-07-21)**
 
@@ -8,13 +8,13 @@ Public production intentionally remains: **2.4.0 Contest Edition (2026-07-21)**
 
 - **Project:** `02 — Ivrit Sheli`
 - **Branch:** `consolidation/ivrit-sheli-2.10-baseline`
-- **Implementation HEAD:** `03ea87b45f1bcc2901bef7e32dc1b6966723c32f`
+- **Implementation HEAD:** `fb94ff7a8d5ac65702cf8c141f8aeb80446451ea`
 - **Issues:** `KEV-14` Done; `KEV-11` In Progress. `KEV-9` and `KEV-10` remain Done.
-- **Work completed:** the exact dictionary entry now continues from save to pronunciation practice (`82a36b0`); `health.help` now depicts interpersonal assistance and stays identifiable at thumbnail size (`03ea87b`)
-- **Verification:** 701/701 Vitest, focused visual backend 5/5, focused VisualQAGallery 1/1, clean TypeScript and production build, package verifier green for 202 required files / 372 canonical checksums, and real mobile HE/RTL browser walkthrough green. The prior Phase 4 gate remains 316 unique backend pytest + 32 Playwright/axe with PostgreSQL/RLS, dependency and no-cache image checks.
+- **Work completed:** the exact dictionary entry continues from save to pronunciation practice (`82a36b0`); `health.help` depicts interpersonal assistance (`03ea87b`); `register.offer_help` now distinguishes offering help from requesting it through a solo tilted load and a directional helper arrow (`fb94ff7`)
+- **Verification:** 702/702 Vitest; 315 backend pytest passed with the one real-PostgreSQL case skipped because host DSNs were not supplied; focused visual backend 1/1 and frontend 485/485; mobile-390 and desktop-1440 full-catalog Playwright cases passed with dark, HE/RTL, reduced motion, 200% reflow and desktop axe; clean TypeScript/production build; package verifier green for 202 required files / 372 canonical checksums. The prior Phase 4 gate remains the current PostgreSQL/RLS, dependency and no-cache image evidence.
 - **Current URLs:** Docker/PostgreSQL candidate `http://127.0.0.1:8000/`; hot-reload frontend `http://127.0.0.1:5173/`; isolated writable local workspace `http://127.0.0.1:8001/`
-- **Next action:** continue `KEV-11` with exactly one new evidence-selected semantic ambiguity in VisualQAGallery; do not repeat `health.help`. After that, `KEV-12` is the next planned compatibility audit, before `KEV-13`.
-- **Blockers:** no local engineering blocker. Staging/two-real-account/pilot gates remain; publication, deploy, push and public judge-state changes remain frozen until after 2026-08-25 unless Kevin explicitly changes that instruction.
+- **Next action:** continue `KEV-11` with exactly one new ambiguity: separate `time.minute` from `time.hour` at thumbnail size, where CSS currently hides the minute ticks. Do not repeat `health.help` or `register.offer_help`. After that, `KEV-12` is the next planned compatibility audit, before `KEV-13`.
+- **Blockers:** no local engineering blocker. This slice did not rerun the real PostgreSQL integration case because no host migration/runtime DSNs were supplied; the Docker candidate itself is healthy. Staging/two-real-account/pilot gates remain; publication, deploy, push and public judge-state changes remain frozen until after 2026-08-25 unless Kevin explicitly changes that instruction.
 
 Resolve the live checkout's self-referential handoff-only commit with
 `git rev-parse HEAD`. The exact implementation commits are recorded above and
@@ -120,11 +120,17 @@ The artifact following `d475304` started Phase 4 conservatively: it moved dynami
 - `KEV-11` began with one bounded correction in `03ea87b`: `health.help` no
   longer reads as an emergency sign. VisualQAGallery confirms a standing helper,
   seated learner and joined-hands anchor at 99 × 74 px, card and hero sizes,
-  light/dark, HE RTL and reduced motion. The broader 240-scene audit remains in
-  progress.
-- Current local candidate evidence is 701/701 frontend tests, 5/5 focused visual
-  backend tests, clean TypeScript/build and a passing package verifier for 202
-  required files and 372 canonical Git-index checksums.
+  light/dark, HE RTL and reduced motion.
+- A second bounded `KEV-11` correction in `fb94ff7` separates
+  `register.offer_help` from `autonomy.need_help_m/f`: the offer now shows a
+  solo carrier, a visibly tilted heavy box and a thick arrow from the helper's
+  open hands toward the load. The exact recipe, EN/ES/HE alt text, offline
+  catalog and regression contracts were updated together. The broader
+  240-scene audit remains in progress.
+- Current local candidate evidence is 702/702 frontend tests, 315 backend tests
+  plus one explicitly skipped PostgreSQL case, two passing full-catalog browser
+  gates (mobile-390 and desktop-1440), clean TypeScript/build and a passing
+  package verifier for 202 required files and 372 canonical Git-index checksums.
 - The three inspection surfaces are live at ports 8000, 5173 and 8001. Port 8001
   uses isolated data under ignored `tmp/kev10-local-data`; it does not point at
   Kevin's normal private application data.
@@ -141,9 +147,11 @@ The artifact following `d475304` started Phase 4 conservatively: it moved dynami
 
 ## Suggested next task for the next coding agent
 
-**First:** continue `KEV-11` by selecting one still-unfixed ambiguity from real
-VisualQAGallery evidence. Do not reopen Phase 4A.1, rerun the completed KEV-10
-walkthrough, or redesign `health.help` again.
+**First:** continue `KEV-11` with the evidenced `time.minute` versus `time.hour`
+thumbnail ambiguity. The recipe promises 60 ticks for the minute scene, but the
+thumbnail stylesheet hides their `detail--thin` class. Do not reopen Phase
+4A.1, rerun the completed KEV-10 walkthrough, or redesign `health.help` /
+`register.offer_help` again.
 
 **Second:** when that bounded visual slice is green, audit `KEV-12` as optional
 PostgreSQL compatibility without provider calls, migrations or vendor lock-in.
