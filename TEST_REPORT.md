@@ -35,6 +35,7 @@ submitted to Devpost.
 | Responsive journey paintings | same Playwright matrix above | **3/3 passed** at 390, 768 and 1440 px, including portrait source selection, action-preserving hero crop, reduced motion, overflow and desktop axe |
 | Contact matrices | local Playwright capture tooling | **240/240 light + 240/240 dark card scenes rendered** without blank scenes |
 | In-app browser review | VisualQAGallery at `127.0.0.1:5173` | **Passed**: dark default, seven complete raster images, responsive regional grid and `scrollWidth == clientWidth` at the inspected 1270 px viewport |
+| Package integrity | `.venv\\Scripts\\python.exe scripts\\verify_package.py` | **Passed**: 217 required files and 387 canonical Git-index SHA-256 entries |
 
 The complete frontend run caught two integration defects before this ledger was
 closed: an undefined communication-scene CSS class and an under-budgeted lazy

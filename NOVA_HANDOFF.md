@@ -1,168 +1,128 @@
-# Ivrit Sheli 2.11.0 — Living Hebrew Field Notes Handoff
+# Ivrit Sheli 2.12.0 — Living Hebrew Nocturne Handoff
 
-Prepared: 2026-08-10; operational checkpoint refreshed: 2026-08-14
-Source state: private / unpublished
+Prepared: 2026-08-14 (`Asia/Jerusalem`)
+Source state: private / local / unpublished
 Public production intentionally remains: **2.4.0 Contest Edition (2026-07-21)**
 
 ## NovaSync operational checkpoint
 
 - **Project:** `02 — Ivrit Sheli`
 - **Branch:** `consolidation/ivrit-sheli-2.10-baseline`
-- **Implementation HEAD:** `cea42377e70405a259252bb4a4a9b81ec024b630`
-- **Issues:** `KEV-14` Done; `KEV-11` In Progress. `KEV-9` and `KEV-10` remain Done.
-- **Work completed:** 2.11.0 applies the Living Hebrew Field Notes art direction across all 240 exact scenes: typed domain/setting metadata, five composition families, thumbnail-safe semantic detail, adult shared characters and restrained domain mats. VisualQAGallery is now a trilingual, searchable 20-domain workbench with one-size review, semantic recipes and stable same-domain recognition choices. `housing.floor` accessible copy now matches its building-in-section art. Prior learner-flow and bounded ambiguity commits remain complete and were not repeated.
-- **Verification:** 705/705 Vitest; 315 backend pytest passed with one real-PostgreSQL case skipped because host DSNs were not supplied; mobile-390 and desktop-1440 full 240 × 3 Playwright catalog cases passed with dark, HE/RTL, reduced motion, 200% reflow and desktop axe; recognition desktop passed; an ES/light thumbnail contact matrix rendered all 240 scenes across four sheets without blank cards; clean Ruff, strict mypy (39 files), compileall, TypeScript and production build; offline doctor 7/7 as 2.11.0 with 240 entries; package verification passed for 202 required files and 372 canonical Git-index checksums. Prior 2.10 Phase 4A.1 remains the current PostgreSQL/RLS, dependency and no-cache image evidence.
-- **Current URLs:** Docker/PostgreSQL candidate `http://127.0.0.1:8000/`; hot-reload frontend `http://127.0.0.1:5173/`; isolated writable local workspace `http://127.0.0.1:8001/`
-- **Next action:** continue `KEV-11` with the highest-risk confusable cluster, recommended first: `communication.ask` / `answer` / `explain` / `request`, using the new domain filter and five-second lab. The all-catalog system pass is complete; do not repeat it as another feature wave. After a bounded cluster slice, `KEV-12` remains the planned compatibility audit before `KEV-13`.
-- **Blockers:** no local engineering blocker. Port 8000 remains a healthy inherited 2.10.0 Docker/PostgreSQL candidate; port 8001 remains healthy on the pre-restart process after a restart command was blocked before execution. The real PostgreSQL case was skipped because host DSNs were not supplied. Human recognition of confusable clusters, staging/two-real-account/pilot gates remain; publication, deploy, push and public judge-state changes remain frozen until after 2026-08-25 unless Kevin explicitly changes that instruction.
+- **Implementation HEAD:** `6d6aa6fdbece41f076dfc43677446cd8af8859cb`
+- **Issue:** `KEV-11` remains In Progress for human recognition and the next bounded visual cluster. `KEV-9`, `KEV-10` and `KEV-14` remain Done and were not repeated.
+- **Work completed:** private source advanced from 2.11.0 to **2.12.0 Living Hebrew Nocturne**. Dark is now the first-run default with a persistent light choice and pre-render theme resolution. Seven adult, action-led journey paintings (one Be’er Sheva hero plus six regions with responsive crops) replace the visible legacy set. All 240 exact SVG scenes now use adult shared anatomy, seven setting-aware depth families and short meaning-driven motion; ask/answer/request/explain are distinct. VisualQAGallery is art-dominant and adds an optional seven-painting tray, Hebrew recognition labels, responsive hero framing and high-contrast/reduced-motion support.
+- **Tests:** 717/717 Vitest across 41 files; production TypeScript/Vite build passed; 315 backend pytest passed with one credential-gated PostgreSQL skip; Ruff, strict MyPy across 39 source files and compileall passed; isolated doctor 7/7 as 2.12.0 with 240 entries; Playwright visual-recognition matrix 7 passed / 2 expected desktop-only skips across 390/768/1440 px; light and dark contact matrices each rendered 240/240 scenes; package verification passed for 217 required files and 387 canonical Git-index checksums.
+- **Current URLs:** current hot-reload frontend and art viewer `http://127.0.0.1:5173/?visualQa=1&lang=es&group=communication&size=card&journeyArt=1`; inherited Docker/PostgreSQL candidate `http://127.0.0.1:8000/`; isolated writable local workspace `http://127.0.0.1:8001/`.
+- **Next action:** keep `KEV-11` bounded. Run a human five-second review of the family/relationship diagram cluster, then redesign only the highest-confusion pair. Do not launch another all-catalog feature wave. After that visual slice, `KEV-12` remains the Supabase compatibility audit and `KEV-13` the local-only Vercel readiness audit.
+- **Blockers:** no local engineering blocker. Ports 8000 and 8001 are intentionally preserved inherited 2.10.0 processes while the 5173 frontend reflects current 2.12.0 source; do not call the backends a 2.12 runtime until they are deliberately restarted/rebuilt and reverified. Human recognition, isolated HTTPS staging, two-real-account isolation, backup/restore and mother-pilot acceptance remain unverified. Publication, push, tag, deploy and public judge-state changes remain frozen until after 2026-08-25 unless Kevin explicitly changes that instruction.
 
-Resolve the live checkout's self-referential handoff-only commit with
-`git rev-parse HEAD`. The exact implementation commits are recorded above and
-in their `KEV-14` / `KEV-11` Linear checkpoints.
+The handoff is committed immediately after the implementation checkpoint. Use
+`git rev-parse HEAD` for the handoff-record commit at consumption time; the
+exact implementation commit is recorded above.
 
-## Read this before adding another feature
+## Learner-facing and visual result
 
-This source package is a consolidation of the supplied 2.9.2 Brand & Private Access export. The goal was to make visual language, maintainability and release evidence coherent before feature growth resumes.
+### Dark-first interface
 
-Do **not** publish, tag, deploy over production, alter Devpost or relabel historical test totals as 2.11.0 evidence without Kevin's explicit approval and a fresh complete release gate.
+- A new learner sees the nocturnal navy interface before React mounts; no
+  light flash is required to reach the intended theme.
+- A valid stored light preference still wins on ordinary learner surfaces.
+- Visual QA owns its explicit `theme=light|dark` preview and defaults to dark
+  without overwriting the learner preference.
+- Theme color, install manifest and service-worker cache identity align with
+  the 2.12.0 candidate.
 
-## What changed
+### Seven useful journey paintings
 
-### Visual system
+- Global Be’er Sheva plaza: directions, everyday exchange and public transit.
+- Galilee: adults navigating an olive-lined path.
+- Haifa/Carmel: mountain-to-coast transport context.
+- Tel Aviv/Jaffa: food and social Hebrew.
+- Jerusalem: greetings and everyday encounters.
+- Dead Sea: health, water, travel and shade.
+- Be’er Sheva/Negev: weather and evening transit routines.
 
-- Reviewed catalog coverage is now **240/240 exact semantic scenes**.
-- Added exact renderers for the final 36 concepts in communication, autonomy and social register.
-- Spotlight rotations now cover all 240 reviewed exact-scene words.
-- Added recipe-driven semantic motion and strict reduced-motion behavior.
-- Added `docs/VISUAL_BIBLE.md` as the art/motion/accessibility source of truth.
-- Added `premium-polish.css` as a reversible final presentation layer instead of continuing to inflate the legacy global stylesheet.
-- Preserved the six reviewed Israel-region WebP paintings as the cinematic journey layer.
-- Refreshed the stale repository `logo.svg` and added standalone + monochrome brand marks; the obsolete `ULTIMATE` branding is gone.
+The six regional paintings have landscape and portrait variants. The global
+hero uses an action-preserving 31% mobile crop. No generated Hebrew text is
+embedded in the raster art; language remains real accessible interface text.
+Dimensions, SHA-256 hashes, provenance and review limits live in
+`docs/VISUAL_ASSET_MANIFEST.md`. Legacy rasters remain preserved for reversible
+history but are no longer the visible journey art.
 
-### Maintainability
+### Exact semantic scenes
 
-- Candidate version/date/label moved to `frontend/src/release.ts`.
-- `i18n.tsx` is now a small provider shell; the 606-key catalogs live in `locales/en.ts`, `locales/es.ts`, `locales/he.ts`.
-- Browser online state moved to `hooks/useOnlineStatus.ts`.
-- Persistent theme behavior moved to `hooks/usePersistentTheme.ts`.
-- Final semantic categories are isolated in their own scene modules.
-- `docs/ARCHITECTURE_CONSOLIDATION.md` records the completed refactors and the safe next backend boundaries.
+- Reviewed coverage remains **240 concepts / 240 exact scenes / zero reviewed
+  fallbacks**.
+- The shared figure is visibly adult and uses articulated limbs, hands,
+  trousers/shoes and a sober editorial silhouette in 113 uses.
+- Seven spatial families add recognizable context: diagram, transit,
+  landscape, service, street, interior and tabletop.
+- Communication `ask`, `answer`, `request` and `explain` have different actor
+  poses, bubble origins, arrows, props and sequences.
+- Direction motion no longer drifts right indiscriminately: explicit left/right
+  scenes move in their semantic direction; ambiguous direction scenes use a
+  neutral emphasis.
+- Motion is brief, interaction-triggered and stationary under
+  `prefers-reduced-motion`.
 
-### Learner-facing UX/copy
+### Private art workbench
 
-- Removed framework/database jargon from ordinary sign-in/storage labels where it was not helping a learner make a decision.
-- Technical storage/provider information remains available in advanced/privacy/docs surfaces.
-- Auth/footer now reinforces the learning proposition instead of advertising `React + FastAPI` to ordinary learners.
+- VisualQAGallery remains trilingual, searchable and filterable by all 20
+  learning domains.
+- Art receives the dominant card surface at thumbnail, card, hero and compare
+  sizes.
+- `journeyArt=1` opens all seven paintings together; closing it removes those
+  raster nodes so ordinary semantic QA does not pay their ~3.51 MiB weight.
+- Hebrew recognition choices now use concise pointed Hebrew words instead of
+  silently falling back to English glosses.
+- The complete recognition test now covers answer, score and next-scene reset.
 
-### Release/tooling integrity
+## Verification boundary
 
-- Source version is **2.11.0** and remains explicitly private/unpublished.
-- Package verifier derives the candidate version from backend executable metadata instead of embedding an old candidate number.
-- Checksum generation works both from Git index blobs and from a clean extracted source package without `.git`.
-- Secret-pattern coverage was expanded for OpenAI, Google, GitHub PAT/token forms, AWS access-key IDs and private keys across more textual config formats.
-- Package verifier now proves the 240 reviewed dictionary visual keys, 240 exact recipes and 240 unique spotlight words agree.
-- CI's main full gate now uses Python 3.13 to match the production image and includes a separate Python 3.10 compatibility backend job.
+### Verified for this 2.12.0 local checkpoint
 
-## Historical 2.10 artifact verification completed here
+- Focused visual/theme tests: 500 passed.
+- Complete frontend: 717 passed across 41 files.
+- TypeScript and Vite production build: passed. The existing non-blocking
+  warning for the 513.07 kB main chunk remains.
+- Complete backend: 315 passed / one PostgreSQL-DSN-gated skip.
+- Ruff, strict MyPy (39 source files) and Python compileall: passed.
+- Offline doctor with isolated in-memory databases: 7/7 as 2.12.0, 240 entries.
+- Playwright final matrix: 7 passed / two expected project skips; all 240 exact
+  scenes and all seven paintings passed at mobile 390, tablet 768 and desktop
+  1440. The full recognition flow runs on desktop by design.
+- In-app browser: dark 2.12 title, all seven rasters complete with natural
+  widths above 1000 px, no horizontal overflow, responsive region grid.
+- Package verifier: 217 required files and 387 canonical Git-index SHA-256
+  entries passed, including every new raster and its provenance manifest.
 
-- `python scripts/verify_package.py` — passed.
-- 197 required source/package files — passed.
-- 364 clean-package SHA-256 entries — regenerated and passed.
-- 240 catalog keys = 240 exact recipes; no reviewed fallback — passed.
-- Visual spotlight six-card smoke with trilingual alt text — passed.
-- EN/ES/HE message sets — 606 / 606 / 606, identical keys.
-- 125 TypeScript/TSX files — syntax-transpilation check, 0 errors.
-- Python `compileall` — passed before cleanup.
-- `python -m ivrit_sheli --doctor` — passed as 2.10.0 with 240 dictionary entries.
-- GitHub Actions YAML — parsed successfully.
+### Historical evidence only
 
-## Verification not available in the artifact sandbox
+- PostgreSQL 17/RLS isolation, dependency audits and no-cache Docker evidence
+  belong to verified 2.10.0 Phase 4A.1. This visual slice did not rerun or
+  relabel them.
+- Public Railway, tag, GitHub Release and Devpost state remain 2.4.0.
 
-The clean export intentionally omits `.venv` and `node_modules`, and the assembly sandbox had no package-registry access. The working copy on the reference machine has since had both installed, which is how the complete gate in `TEST_REPORT.md` was executed. The pinned `psycopg` wheel is therefore unavailable here. Do not reinterpret this as a pass or failure of the complete suites.
+### Still required
 
-Before merging/publishing, run in the normal project/CI environment:
+- Human five-second recognition of confusable clusters, starting with family
+  and relationship diagrams.
+- Hebrew-content and mother-pilot acceptance.
+- Isolated HTTPS staging, two-real-account persistence/isolation and a proven
+  backup/restore path.
+- A deliberate backend rebuild/restart if a 2.12 runtime claim is needed.
 
-1. `npm ci`
-2. frontend typecheck + Vitest
-3. Playwright/axe browser matrix
-4. complete backend pytest
-5. PostgreSQL integration gate
-6. Docker/Compose production-shaped smoke
-7. `pip-audit`
-8. visual QA at 390 / 768 / 1440, light/dark, Hebrew RTL, reduced motion and 200% reflow
-9. human five-second recognition check on the 36 newly exact concepts
-10. speech/reminder pilot and two-real-account staging checks
+## Continuation rules
 
-
-## Reference-machine validation completed after the original consolidation
-
-The Windows reference repository subsequently completed the gates that were unavailable in the artifact sandbox:
-
-- Phase 1: `cryptography` upgraded from 49.0.0 to 50.0.0; `pip-audit` returned no known vulnerabilities.
-- Phase 2: PostgreSQL 17.10, Alembic fresh migration, restricted runtime role, forced RLS, two-user isolation and a no-cache Docker/Compose production-shaped build passed locally.
-- Phase 3: visual QA/accessibility corrections and semantic-art code splitting completed; the reference machine reported 697 Vitest passes, 313 backend pytest passes, 32 Playwright/axe passes, clean type/lint/build gates and a clean worktree at `d475304`.
-
-These are local candidate results, not a public/staging deployment. Public production remains 2.4.0.
-
-The artifact following `d475304` started Phase 4 conservatively: it moved dynamic code labels out of `i18n.tsx`, retired remaining current `Ultimate` package/user-facing branding, and extracted only the dictionary HTTP route family behind a route-contract test. The normal Windows gate completed on 2026-08-13: 699 Vitest, 316 unique backend pytest and 32 Playwright/axe cases passed, together with PostgreSQL/RLS, dependency, package and no-cache Docker checks.
-
-## Continuation checkpoint — 2026-08-13
-
-- `KEV-10` completed a real walkthrough across first launch, Today, dictionary,
-  pronunciation fallback and a 390 px HE/RTL local workspace. Its highest-value
-  observed friction was the dead end after saving a dictionary word.
-- `KEV-14` closed that friction in `82a36b0`: both a newly saved exact entry
-  and a persisted saved entry expose an immediate, keyboard-friendly
-  pronunciation action. The exact learning-item ID and displayed homograph are
-  carried into `AudioPractice`, so a scored attempt is attributed correctly.
-- The real isolated workspace verified `עֶזְרָה` save → practice → exact target,
-  then verified the continuation persisted after reload without duplicate save.
-- `KEV-11` began with one bounded correction in `03ea87b`: `health.help` no
-  longer reads as an emergency sign. VisualQAGallery confirms a standing helper,
-  seated learner and joined-hands anchor at 99 × 74 px, card and hero sizes,
-  light/dark, HE RTL and reduced motion.
-- A second bounded `KEV-11` correction in `fb94ff7` separates
-  `register.offer_help` from `autonomy.need_help_m/f`: the offer now shows a
-  solo carrier, a visibly tilted heavy box and a thick arrow from the helper's
-  open hands toward the load. The exact recipe, EN/ES/HE alt text, offline
-  catalog and regression contracts were updated together. The broader
-  240-scene audit remains in progress.
-- A third bounded `KEV-11` correction in `72719f7` makes `time.hour` and
-  `time.minute` identifiable without labels at 99 × 74 px. The hour uses a tall
-  regulator case, short hour hand, twelve markers and pendulum; the minute uses
-  a stopwatch silhouette, 60 second marks, a complete sweep and a `60` badge.
-  The recipes, EN/ES/HE alternative text, offline catalog, component contracts
-  and browser checks now describe and protect the same distinction.
-- Current local candidate evidence is 703/703 frontend tests, 315 backend tests
-  plus one explicitly skipped PostgreSQL case, two passing full-catalog browser
-  gates (mobile-390 and desktop-1440), clean TypeScript/build and a passing
-  package verifier for 202 required files and 372 canonical Git-index checksums.
-- The three inspection surfaces are live at ports 8000, 5173 and 8001. Port 8001
-  uses isolated data under ignored `tmp/kev10-local-data`; it does not point at
-  Kevin's normal private application data.
-
-## Rules for the next development pass
-
-- Keep `docs/VISUAL_BIBLE.md` authoritative for new illustrations and motion.
-- Do not put generated Hebrew text inside raster artwork; render language with real interface text.
-- Do not replace exact semantic SVGs with random generated art. Cinematic generative art may complement them on large surfaces only after human review.
-- If a new reviewed concept is added, add its exact recipe/scene, trilingual alt text, spotlight/QA coverage and package contract in the same change.
-- Keep ordinary learner surfaces about learning; move implementation detail behind advanced/privacy disclosure.
-- Do not resume large backend file splitting until the complete backend/PostgreSQL/Docker gate is available. Refactor one domain boundary at a time with contract tests.
-- Preserve the public 2.4.0 evidence boundary until a genuinely verified candidate supersedes it.
-
-## Suggested next task for the next coding agent
-
-**First:** continue `KEV-11` with one new evidenced ambiguity selected from
-VisualQAGallery. The `time.minute` versus `time.hour` ambiguity is complete in
-`72719f7`; do not repeat it. Also do not reopen Phase 4A.1, rerun the completed
-KEV-10 walkthrough, or redesign `health.help` / `register.offer_help` again.
-
-**Second:** when that bounded visual slice is green, audit `KEV-12` as optional
-PostgreSQL compatibility without provider calls, migrations or vendor lock-in.
-Keep `KEV-13` local-only and do not create a Vercel deployment during the
-publication freeze.
-
-**Later architecture:** if user-facing and visual work remain green, extract
-only `operations` or `alphabet`; keep `repository.py` intact and avoid a broad
-`api.py` rewrite.
+- Keep `docs/VISUAL_BIBLE.md` as the visual authority.
+- Improve one semantic ambiguity at a time; meaning must survive thumbnail/card
+  size before decorative polish is accepted.
+- Keep exact semantic SVGs deterministic and local. Cinematic raster art is a
+  complementary large-surface layer, not linguistic evidence.
+- Do not repeat the completed `KEV-10` walkthrough or `KEV-14` saved-word →
+  pronunciation-practice continuation fix.
+- Do not start a broad `api.py` or `repository.py` rewrite. If the visual and
+  learner-facing slice is safely complete, extract only `operations` or
+  `alphabet` behind contract tests.
+- Do not deploy, push, tag, release or alter public judge state during the
+  publication freeze.
