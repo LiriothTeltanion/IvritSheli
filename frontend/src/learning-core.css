@@ -38,7 +38,7 @@
   pointer-events: none;
   background:
     linear-gradient(90deg, var(--surface-solid) 0%, color-mix(in srgb, var(--surface-solid) 88%, transparent) 55%, color-mix(in srgb, var(--surface-solid) 68%, transparent)),
-    url('/assets/illustrations/israel-living-atlas-v2.5.webp') 82% 42% / cover;
+    url('/assets/illustrations/israel-living-atlas-field-notes.webp') 82% 42% / cover;
   opacity: 0.24;
   -webkit-mask-image: linear-gradient(#000, transparent);
   mask-image: linear-gradient(#000, transparent);

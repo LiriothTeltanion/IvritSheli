@@ -157,7 +157,7 @@ export function AuthGate({
         <aside className="auth-visual" aria-label={t('learningWorkspacePreview')}>
           <img
             className="auth-visual__journey-art"
-            src="/illustrations/regions/jerusalem.webp"
+            src="/assets/illustrations/israel-living-atlas-field-notes.webp"
             alt=""
             aria-hidden="true"
             decoding="async"

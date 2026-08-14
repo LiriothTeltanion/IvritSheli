@@ -31,6 +31,7 @@ import { WorkScene } from './semantic-scenes/WorkScenes';
 import {
   SemanticSceneFrame as SceneFrame,
   SemanticSceneVignette as SceneVignette,
+  type SpatialSceneFamily,
 } from './semantic-scenes/SemanticScenePrimitives';
 import './semantic-word-illustration.css';
 
@@ -44,6 +45,86 @@ interface SemanticWordIllustrationProps {
   size?: SemanticIllustrationSize;
   hintStage?: SemanticHintStage;
   decorative?: boolean;
+}
+
+type SemanticMotionCue =
+  | 'ask'
+  | 'answer'
+  | 'request'
+  | 'explain'
+  | 'person-action'
+  | 'place-reveal'
+  | 'comparison'
+  | 'object-focus'
+  | 'exchange'
+  | 'direction'
+  | 'quantity-time';
+
+type SemanticMotionDirection = 'left' | 'right' | 'neutral';
+
+function settingIncludes(setting: string, fragments: readonly string[]): boolean {
+  return fragments.some((fragment) => setting.includes(fragment));
+}
+
+function spatialFamilyFor(
+  setting: string,
+  template: ReturnType<typeof getA0VisualRecipe>['template'],
+): SpatialSceneFamily {
+  if (settingIncludes(setting, [
+    'relationship-diagram', 'identity-diagram', 'decision', 'scale', 'chart',
+    'forecast', 'planner', 'calendar', 'clock', 'stopwatch', 'season-wheel', 'screen',
+  ]) || template === 'quantity-time' || template === 'comparison-state') return 'diagram';
+
+  if (settingIncludes(setting, [
+    'bus', 'rail', 'train', 'station', 'cycle', 'vehicle', 'taxi', 'ambulance-bay',
+    'junction', 'short-path', 'street-grid', 'route',
+  ])) return 'transit';
+
+  if (settingIncludes(setting, [
+    'sea', 'beach', 'desert', 'negev', 'garden', 'park', 'hill', 'field', 'forest',
+    'mountain', 'galilee', 'carmel', 'horizon', 'promenade', 'nature', 'village-edge',
+  ])) return 'landscape';
+
+  if (settingIncludes(setting, [
+    'counter', 'service', 'clinic', 'office', 'teller', 'municipal', 'border', 'checkout',
+    'consulting', 'waiting-hall', 'help-desk', 'switchboard', 'supermarket', 'shop',
+  ])) return 'service';
+
+  if (settingIncludes(setting, [
+    'street', 'neighborhood', 'neighbourhood', 'lane', 'city', 'entrance', 'house-front',
+    'doorway', 'building', 'colonnade', 'crossing',
+  ])) return 'street';
+
+  if (settingIncludes(setting, [
+    'room', 'home', 'kitchen', 'bed', 'interior', 'lobby', 'restaurant', 'cafe',
+    'school', 'balcony', 'door', 'shelter', 'aisle', 'shelves',
+  ])) return 'interior';
+
+  if (settingIncludes(setting, [
+    'table', 'desk', 'hand', 'sheet', 'folder', 'card', 'bowl', 'tray', 'glass',
+    'payslip', 'statement', 'clipboard', 'board', 'phone', 'belongings',
+  ]) || template === 'object-focus') return 'tabletop';
+
+  if (template === 'place' || template === 'direction') return 'street';
+  if (template === 'person-action' || template === 'exchange') return 'interior';
+  return 'diagram';
+}
+
+function motionCueFor(visualKey: A0VisualKey, template: ReturnType<typeof getA0VisualRecipe>['template']): SemanticMotionCue {
+  if (visualKey === 'communication.ask') return 'ask';
+  if (visualKey === 'communication.answer') return 'answer';
+  if (visualKey === 'communication.request') return 'request';
+  if (visualKey === 'communication.explain') return 'explain';
+  if (template === 'person-action') return 'person-action';
+  if (template === 'place') return 'place-reveal';
+  if (template === 'comparison-state') return 'comparison';
+  return template;
+}
+
+function motionDirectionFor(visualKey: A0VisualKey): SemanticMotionDirection {
+  if (visualKey === 'transport.left' || visualKey === 'time.yesterday') return 'left';
+  if (visualKey === 'transport.right' || visualKey === 'time.tomorrow') return 'right';
+  return 'neutral';
 }
 
 function ReviewedScene({
@@ -95,6 +176,9 @@ export function SemanticWordIllustration({
   if (!isA0SemanticVisualKey(visual.key)) return null;
   const recipe = getA0VisualRecipe(visual.key);
   const sceneCategory = visual.key.split('.', 1)[0];
+  const spatialFamily = spatialFamilyFor(recipe.setting, recipe.template);
+  const motionCue = motionCueFor(visual.key, recipe.template);
+  const motionDirection = motionDirectionFor(visual.key);
   const title = visual.alt[locale] || visual.alt.en || visual.alt.es || visual.alt.he;
 
   return (
@@ -110,13 +194,21 @@ export function SemanticWordIllustration({
       data-scene-category={sceneCategory}
       data-scene-setting={recipe.setting}
       data-scene-template={recipe.template}
+      data-spatial-family={spatialFamily}
       data-size={size}
       data-hint-stage={hintStage}
       data-motion-profile={recipe.template}
+      data-motion-cue={motionCue}
+      data-motion-direction={motionDirection}
       focusable="false"
     >
       {!decorative && <title id={titleId}>{title}</title>}
-      <SceneFrame hintStage={hintStage} sceneId={titleId} template={recipe.template} />
+      <SceneFrame
+        hintStage={hintStage}
+        sceneId={titleId}
+        template={recipe.template}
+        spatialFamily={spatialFamily}
+      />
       <ReviewedScene visualKey={visual.key} hintStage={hintStage} />
       <SceneVignette sceneId={titleId} />
     </svg>

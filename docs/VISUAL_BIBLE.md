@@ -1,20 +1,23 @@
-# Ivrit Sheli Visual Bible — 2.11.0 private candidate
+# Ivrit Sheli Visual Bible — 2.12.0 private candidate
 
-## Living Hebrew Field Notes — 2026-08-14
+## Living Hebrew Nocturne — 2026-08-14
 
-The current art direction is a contemporary Israeli editorial field notebook:
-warm paper and Jerusalem-stone neutrals, deep ink, Mediterranean light and
-restrained category accents. It is adult, specific and useful before it is
-decorative.
+The current art direction is a contemporary Israeli editorial field notebook
+after dusk: deep navy structure, Jerusalem-stone neutrals, Mediterranean teal,
+restrained amber light and selective coral warmth. Dark is the product default;
+light remains a fully supported learner choice. The system is adult, specific
+and useful before it is decorative.
 
 - Every exact scene declares its domain, setting, semantic template and
   `editorial-atlas` art direction for deterministic QA.
-- Five shared compositions distinguish still life, encounter, wayfinding,
-  diagram and measure/time scenes without changing the semantic subject.
+- Shared compositions distinguish still life, encounter, wayfinding, diagram
+  and measure/time scenes, while spatial setting families add material depth
+  without changing the semantic subject.
 - Domain colour belongs to the editorial mat; object colour still communicates
   the actual meaning.
-- The shared adult character system uses more natural proportions, action-based
-  expressions and stable skin, hair and clothing variants.
+- The shared adult character system uses approximately six-head proportions,
+  articulated limbs and hands, action-based expressions and stable skin, hair
+  and clothing variants.
 - Thumbnail mode preserves thin semantic cues and removes nonessential frame
   motifs. Card and hero modes may reveal material and editorial detail.
 - The QA workbench defaults to one 12-scene domain and one size; `group=all`
@@ -36,7 +39,9 @@ Ivrit Sheli deliberately uses two complementary art layers instead of forcing on
 
 ### 1. Cinematic journey art
 
-Large surfaces may use the reviewed local WebP region paintings in `frontend/public/illustrations/regions/`.
+Large surfaces use the reviewed local WebP journey set recorded in
+`VISUAL_ASSET_MANIFEST.md`: six regional paintings with art-directed portrait
+crops plus one cross-journey plaza hero.
 
 Use them for:
 
@@ -45,13 +50,21 @@ Use them for:
 - large lesson or milestone surfaces;
 - emotional context where place matters more than a single vocabulary object.
 
-They should feel recognisably Israeli without stereotypes: Mediterranean light, Jerusalem stone, desert space, everyday streets, transit and public places. They are decorative context, not the source of linguistic truth.
+The private VisualQAGallery exposes the complete set behind the optional
+`journeyArt=1` tray. Keep that tray collapsed during ordinary semantic-scene
+review so its raster weight does not compete with the exact SVG catalog.
+
+They should feel recognisably Israeli without stereotypes: blue-hour
+Mediterranean light, Jerusalem stone, desert space, everyday streets, transit
+and public places. Each painting must contain a useful learner action and a
+regional anchor that survives a card-size crop. They are narrative context, not
+the source of linguistic truth or documentary geography.
 
 ### 2. Exact semantic scenes
 
 Every reviewed starter concept has a code-native SVG scene selected by its exact semantic key. These illustrations must remain fast, local, theme-aware, accessible and deterministic.
 
-The 2.11.0 candidate target is **240 reviewed concepts / 240 exact semantic scenes**. Category and emoji fallbacks remain only for future imported or unsupported entries outside that reviewed catalog.
+The 2.12.0 candidate target is **240 reviewed concepts / 240 exact semantic scenes**. Category and emoji fallbacks remain only for future imported or unsupported entries outside that reviewed catalog.
 
 Each scene follows the hierarchy:
 
@@ -107,7 +120,10 @@ Motion explains meaning or rewards progress; it does not decorate every surface.
 - speaking/listening: waveform or breath-like audio response.
 - success/mastery: one concise celebratory burst, then stillness.
 
-Recommended interaction duration is roughly 160–500 ms for UI transitions and under ~2.5 s for subtle looping semantic ambience.
+Recommended interaction duration is roughly 160–500 ms for UI transitions and
+under ~1.2 s for a semantic demonstration. Prefer one concise run triggered by
+selection, focus or hover; do not keep skies, letters, people or routes moving
+indefinitely.
 
 `prefers-reduced-motion: reduce` must remove nonessential transforms, travel, pulses and looping effects while preserving state changes and comprehension.
 

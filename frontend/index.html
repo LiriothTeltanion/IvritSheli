@@ -1,19 +1,39 @@
 <!doctype html>
-<html lang="en" dir="ltr">
+<html lang="en" dir="ltr" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#f7f1e5" />
+    <meta name="theme-color" content="#030912" />
     <meta name="color-scheme" content="dark light" />
-    <meta name="description" content="A warm illustrated Hebrew-learning journey in English, Spanish, and Hebrew." />
+    <meta name="description" content="A dark-first adult editorial Hebrew-learning journey in English, Spanish, and Hebrew." />
     <meta name="application-name" content="Ivrit Sheli" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Ivrit Sheli" />
+    <script>
+      (() => {
+        let theme = 'dark';
+        try {
+          const params = new URLSearchParams(window.location.search);
+          const previewTheme = params.get('theme');
+          if (params.get('visualQa') === '1') {
+            theme = previewTheme === 'light' || previewTheme === 'dark' ? previewTheme : 'dark';
+          } else {
+            const savedTheme = window.localStorage.getItem('ivrit-sheli-theme');
+            if (savedTheme === 'light' || savedTheme === 'dark') theme = savedTheme;
+          }
+        } catch {
+          // The dark product default remains available without persistent storage.
+        }
+        document.documentElement.dataset.theme = theme;
+        document.querySelector('meta[name="theme-color"]')
+          ?.setAttribute('content', theme === 'dark' ? '#030912' : '#f7f1e5');
+      })();
+    </script>
     <link rel="icon" type="image/svg+xml" href="/icons/app-icon.svg" />
     <link rel="apple-touch-icon" href="/icons/app-icon-192.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
-    <title>Ivrit Sheli 2.11.0 · Living Hebrew Field Notes · העברית שלי</title>
+    <title>Ivrit Sheli 2.12.0 · Living Hebrew Nocturne · העברית שלי</title>
   </head>
   <body>
     <div id="root"></div>

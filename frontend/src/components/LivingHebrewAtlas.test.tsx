@@ -8,7 +8,7 @@ import { LivingHebrewAtlas, LivingHebrewAtlasBackdrop, atlasRegions } from './Li
 
 describe('LivingHebrewAtlas', () => {
   it('covers the full Israel-wide learning journey without making the Negev the only focus', () => {
-    render(<LivingHebrewAtlas />);
+    const { container } = render(<LivingHebrewAtlas />);
 
     expect(atlasRegions).toHaveLength(6);
     expect(screen.getByText('Galilee')).toBeInTheDocument();
@@ -16,12 +16,18 @@ describe('LivingHebrewAtlas', () => {
     expect(screen.getByText('Tel Aviv & Jaffa')).toBeInTheDocument();
     expect(screen.getAllByText('Jerusalem')).toHaveLength(2);
     expect(screen.getByText('Dead Sea')).toBeInTheDocument();
-    expect(screen.getByText('Negev')).toBeInTheDocument();
+    expect(screen.getByText('Be’er Sheva & Negev')).toBeInTheDocument();
     expect(screen.getByTestId('living-hebrew-atlas-scene')).toHaveAttribute('data-testid', 'living-hebrew-atlas-scene');
-    expect(screen.getByRole('img', { name: /Jerusalem stone lane/i })).toHaveAttribute(
+    expect(screen.getByRole('img', { name: /Adults greet one another/i })).toHaveAttribute(
       'src',
-      '/illustrations/regions/jerusalem.webp',
+      '/illustrations/regions/jerusalem-field-notes.webp',
     );
+    expect(container.querySelector('.ivrit-atlas__region-picture source')).toHaveAttribute(
+      'srcset',
+      '/illustrations/regions/jerusalem-field-notes-portrait.webp',
+    );
+    expect(atlasRegions.every((region) => region.image.includes('-field-notes.webp'))).toBe(true);
+    expect(atlasRegions.every((region) => region.portraitImage.includes('-field-notes-portrait.webp'))).toBe(true);
   });
 
   it('exposes an accessible region selection callback and active state', () => {
@@ -68,6 +74,14 @@ describe('LivingHebrewAtlas', () => {
     const { container } = render(<LivingHebrewAtlasBackdrop activeRegion="dead-sea" />);
 
     expect(container.querySelector('.ivrit-atlas-backdrop')).toHaveAttribute('aria-hidden', 'true');
+    expect(container.querySelector('.ivrit-atlas-backdrop img')).toHaveAttribute(
+      'src',
+      '/illustrations/regions/dead-sea-field-notes.webp',
+    );
+    expect(container.querySelector('.ivrit-atlas-backdrop source')).toHaveAttribute(
+      'srcset',
+      '/illustrations/regions/dead-sea-field-notes-portrait.webp',
+    );
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 });

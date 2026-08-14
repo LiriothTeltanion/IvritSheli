@@ -130,6 +130,7 @@ REQUIRED_FILES = (
     "frontend/src/release.ts",
     "frontend/src/hooks/useOnlineStatus.ts",
     "frontend/src/hooks/usePersistentTheme.ts",
+    "frontend/src/hooks/usePersistentTheme.test.tsx",
     "frontend/src/locales/en.ts",
     "frontend/src/locales/es.ts",
     "frontend/src/locales/he.ts",
@@ -194,6 +195,19 @@ REQUIRED_FILES = (
     "frontend/public/illustrations/regions/dead-sea.webp",
     "frontend/public/illustrations/regions/negev.webp",
     "frontend/public/assets/illustrations/israel-living-atlas-v2.5.webp",
+    "frontend/public/illustrations/regions/galilee-field-notes.webp",
+    "frontend/public/illustrations/regions/galilee-field-notes-portrait.webp",
+    "frontend/public/illustrations/regions/haifa-carmel-field-notes.webp",
+    "frontend/public/illustrations/regions/haifa-carmel-field-notes-portrait.webp",
+    "frontend/public/illustrations/regions/tel-aviv-jaffa-field-notes.webp",
+    "frontend/public/illustrations/regions/tel-aviv-jaffa-field-notes-portrait.webp",
+    "frontend/public/illustrations/regions/jerusalem-field-notes.webp",
+    "frontend/public/illustrations/regions/jerusalem-field-notes-portrait.webp",
+    "frontend/public/illustrations/regions/dead-sea-field-notes.webp",
+    "frontend/public/illustrations/regions/dead-sea-field-notes-portrait.webp",
+    "frontend/public/illustrations/regions/negev-field-notes.webp",
+    "frontend/public/illustrations/regions/negev-field-notes-portrait.webp",
+    "frontend/public/assets/illustrations/israel-living-atlas-field-notes.webp",
     "docs/ULTIMATE_BUILD_SPEC.md",
     "docs/ARCHITECTURE.md",
     "docs/ARCHITECTURE_CONSOLIDATION.md",
@@ -211,6 +225,7 @@ REQUIRED_FILES = (
     "docs/HEBREW_CONTENT_PROVENANCE.md",
     "docs/DESIGN_SYSTEM.md",
     "docs/VISUAL_BIBLE.md",
+    "docs/VISUAL_ASSET_MANIFEST.md",
     "docs/CONNECTORS.md",
     "docs/API.md",
     "docs/DEPLOYMENT.md",
@@ -242,12 +257,19 @@ REQUIRED_FILES = (
 )
 
 PUBLIC_REGION_ART = (
-    "frontend/public/illustrations/regions/galilee.webp",
-    "frontend/public/illustrations/regions/haifa-carmel.webp",
-    "frontend/public/illustrations/regions/tel-aviv-jaffa.webp",
-    "frontend/public/illustrations/regions/jerusalem.webp",
-    "frontend/public/illustrations/regions/dead-sea.webp",
-    "frontend/public/illustrations/regions/negev.webp",
+    "frontend/public/illustrations/regions/galilee-field-notes.webp",
+    "frontend/public/illustrations/regions/galilee-field-notes-portrait.webp",
+    "frontend/public/illustrations/regions/haifa-carmel-field-notes.webp",
+    "frontend/public/illustrations/regions/haifa-carmel-field-notes-portrait.webp",
+    "frontend/public/illustrations/regions/tel-aviv-jaffa-field-notes.webp",
+    "frontend/public/illustrations/regions/tel-aviv-jaffa-field-notes-portrait.webp",
+    "frontend/public/illustrations/regions/jerusalem-field-notes.webp",
+    "frontend/public/illustrations/regions/jerusalem-field-notes-portrait.webp",
+    "frontend/public/illustrations/regions/dead-sea-field-notes.webp",
+    "frontend/public/illustrations/regions/dead-sea-field-notes-portrait.webp",
+    "frontend/public/illustrations/regions/negev-field-notes.webp",
+    "frontend/public/illustrations/regions/negev-field-notes-portrait.webp",
+    "frontend/public/assets/illustrations/israel-living-atlas-field-notes.webp",
 )
 
 SECRET_PATTERNS = (
@@ -536,7 +558,7 @@ def verify_release_truth_drift() -> list[str]:
             "private",
         ),
         "CHANGELOG.md": (
-            f"{current_version} — Living Hebrew Field Notes",
+            f"{current_version} — Living Hebrew Nocturne",
             "240/240",
             "2.4.0 — Contest Edition — 2026-07-21",
         ),
@@ -696,7 +718,7 @@ def verify_source_version_surfaces() -> list[str]:
     return failures
 
 def verify_public_learning_assets() -> list[str]:
-    """Validate the offline starter contract and the six public region scenes."""
+    """Validate the offline starter contract and 13 responsive journey assets."""
     dictionary_path = (
         ROOT / "frontend" / "public" / "content" / "starter-dictionary-v2.8.json"
     )

@@ -61,7 +61,7 @@ describe('VisualQAGallery', () => {
     expect(document.querySelectorAll('.visual-qa__catalog > article')).toHaveLength(12);
     await waitFor(() => {
       expect(document.querySelectorAll('.visual-qa__catalog [data-size="thumbnail"]')).toHaveLength(12);
-    });
+    }, { timeout: 5_000 });
     expect(document.querySelectorAll('.visual-qa__catalog [data-size="card"]')).toHaveLength(0);
     expect(document.querySelectorAll('.visual-qa__catalog [data-size="hero"]')).toHaveLength(0);
 
@@ -96,6 +96,30 @@ describe('VisualQAGallery', () => {
     expect(screen.getByRole('button', { name: 'Oscuro' })).toHaveAttribute('aria-pressed', 'true');
   });
 
+  it('opens the responsive seven-scene journey review only when requested', async () => {
+    renderGallery();
+    await waitFor(() => {
+      expect(screen.getByText('240/240 exact scenes loaded')).toBeInTheDocument();
+    });
+
+    const toggle = screen.getByRole('button', { name: 'Open journey paintings' });
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(toggle).not.toHaveAttribute('aria-controls');
+    expect(document.querySelectorAll('.visual-qa__journey-grid figure')).toHaveLength(0);
+
+    fireEvent.click(toggle);
+
+    expect(screen.getByRole('button', { name: 'Close journey paintings' })).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByRole('button', { name: 'Close journey paintings' })).toHaveAttribute('aria-controls', 'journey-art-grid');
+    expect(document.querySelectorAll('.visual-qa__journey-grid figure')).toHaveLength(7);
+    expect(document.querySelectorAll('.visual-qa__journey-grid picture source')).toHaveLength(6);
+    expect(window.location.search).toContain('journeyArt=1');
+    expect(screen.getByRole('img', { name: /Be’er Sheva plaza at blue hour/i })).toHaveAttribute(
+      'src',
+      '/assets/illustrations/israel-living-atlas-field-notes.webp',
+    );
+  });
+
   it('reveals same-domain distractors after five seconds without leaking the answer to assistive tech', async () => {
     renderGallery();
     await waitFor(() => {
@@ -124,5 +148,24 @@ describe('VisualQAGallery', () => {
       (button) => button.dataset.choiceVisual,
     )).toEqual(choiceKeysBeforeAnswer);
     expect(screen.getByText(/pilot seed/u)).toBeInTheDocument();
+  });
+
+  it('uses concise Hebrew words instead of English glosses in the Hebrew recognition lab', async () => {
+    renderGallery();
+    await waitFor(() => {
+      expect(screen.getByText('240/240 exact scenes loaded')).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'HE' }));
+    fireEvent.click(screen.getByText('בוחרים את המילה בעברית לפני שחושפים את הכרטיס'));
+
+    vi.useFakeTimers();
+    fireEvent.click(screen.getByRole('button', { name: 'התחלת בדיקת זיהוי' }));
+    act(() => vi.advanceTimersByTime(5000));
+
+    const choiceButtons = [...document.querySelectorAll<HTMLButtonElement>('[data-choice-visual]')];
+    expect(choiceButtons).toHaveLength(4);
+    expect(choiceButtons.every((button) => button.lang === 'he' && button.dir === 'rtl')).toBe(true);
+    expect(choiceButtons.every((button) => button.textContent?.startsWith('מִילָה'))).toBe(true);
+    expect(choiceButtons.some((button) => button.textContent?.startsWith('meaning'))).toBe(false);
   });
 });

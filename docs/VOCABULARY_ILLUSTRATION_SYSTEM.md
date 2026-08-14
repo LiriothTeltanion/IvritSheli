@@ -4,7 +4,7 @@ The reviewed starter catalog now has **240/240 exact semantic scenes**. No revie
 
 # Vocabulary illustration system
 
-## Current v2.8.3 structure
+## Historical v2.8.3 structure — superseded by the 240/240 status above
 
 Ivrit Sheli keeps learning art local, responsive and license-clear. The
 v2.8.3 **Semantic SVG Story Engine** has one stable visual contract across
@@ -37,7 +37,9 @@ reviewed visual key + trilingual alt text
   localhost or a private-LAN hostname, without exposing it as normal learner
   navigation.
 
-The app must not claim that all 240 concepts already have bespoke art.
+At that historical milestone, the app correctly did not claim that all 240
+concepts had exact art. The current 2.12 source does: the status note above and
+`VISUAL_BIBLE.md` are authoritative for new work.
 
 ## Recognition grammar
 

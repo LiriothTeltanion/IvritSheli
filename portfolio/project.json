@@ -2,13 +2,13 @@
   "schema": "ivrit-sheli-portfolio-project-v2",
   "slug": "ivrit-sheli",
   "name": "Ivrit Sheli — העברית שלי",
-  "source_version": "2.11.0",
+  "source_version": "2.12.0",
   "live_version": "2.4.0",
   "status": "private-release-candidate",
   "default_branch": "main",
   "repository_url": "https://github.com/LiriothTeltanion/IvritSheli",
   "demo_url": "https://ivritsheli-production.up.railway.app",
-  "summary": "An unpublished 2.11.0 adult editorial Hebrew-learning candidate with 240 exact trilingual semantic scenes, Hebrew Alphabet Studio, deterministic coaching and private speech; the verified 2.4 Contest Edition remains public.",
+  "summary": "An unpublished 2.12.0 dark-first adult editorial Hebrew-learning candidate with 240 exact trilingual semantic scenes, responsive Israel journey art, Hebrew Alphabet Studio, deterministic coaching and private speech; the verified 2.4 Contest Edition remains public.",
   "languages": [
     "en",
     "es",
@@ -60,10 +60,10 @@
     "latest_github_release": "v2.4.0",
     "source_version_tagged": false,
     "source_version_github_release_published": false,
-    "release_state": "2.11.0-private-candidate-2.4.0-live-and-published"
+    "release_state": "2.12.0-private-candidate-2.4.0-live-and-published"
   },
   "candidate": {
-    "version": "2.11.0",
+    "version": "2.12.0",
     "published": false,
     "coverage": "Structured A0-A2 with an explicitly experimental B1/B2 Lab",
     "reviewed_concepts": 240,
@@ -84,15 +84,15 @@
     "alphabet_progress_persistent": true,
     "public_google_scope": "openid profile",
     "local_mode_without_account": true,
-    "verification": "2.11.0 passed 705 frontend and 315 backend tests locally on 2026-08-14, with one credential-gated PostgreSQL skip; TypeScript/build, Ruff/MyPy/compileall/doctor and the 240 x 3 desktop/mobile visual matrix passed. PostgreSQL/RLS and no-cache container evidence remains inherited from 2.10.0 Phase 4A.1; this is private local evidence, not staging or publication.",
+    "verification": "Fresh 2.12.0 local verification is recorded in TEST_REPORT.md. PostgreSQL/RLS and no-cache container evidence remains inherited from 2.10.0 Phase 4A.1; this is private local evidence, not staging or publication.",
     "release_gate": "Isolated HTTPS staging, two-real-account isolation, backup/restore, the speech/reminder mother pilot, human visual recognition and Kevin's explicit publication approval remain required."
   },
   "visual_proof": {
-    "state": "v2.11.0-private-source-editorializes-240-semantic-scenes-while-live-2.4-remains-verified",
+    "state": "v2.12.0-private-source-adds-dark-first-responsive-editorial-art-and-240-exact-scenes-while-live-2.4-remains-verified",
     "social_preview_version": "2.2.0",
     "readme_screenshot_version": "2.8.0-local-candidate",
     "readme_screenshots_match_source_version": false,
-    "interactive_browser_qa": "The private 2.11 QA gallery derives all 240 exact semantic scenes. On 2026-08-14 the desktop-1440 and mobile-390 full 240 x 3 cases passed with dark, Hebrew RTL, reduced motion, 200% reflow and desktop axe; desktop five-second recognition also passed. A four-sheet ES/light contact matrix showed all 240 thumbnails with no blank cards. The broader 390/768/1440 matrix remains inherited 2.10 evidence from 2026-08-13. Human recognition review remains required before publication."
+    "interactive_browser_qa": "The private 2.12 QA gallery derives all 240 exact semantic scenes and prioritizes art in a dark-first editorial layout. Fresh browser results are recorded in TEST_REPORT.md; the 2.11 240 x 3 visual matrix and broader 2.10 viewport matrix remain historical evidence only. Human recognition review remains required before publication."
   },
   "oauth": {
     "providers": [

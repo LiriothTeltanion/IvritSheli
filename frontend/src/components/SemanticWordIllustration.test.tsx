@@ -44,9 +44,67 @@ describe('SemanticWordIllustration', () => {
     expect(image).toHaveAttribute('data-art-direction', 'editorial-atlas');
     expect(image).toHaveAttribute('data-scene-category', key.split('.', 1)[0]);
     expect(image).toHaveAttribute('data-scene-setting', getA0VisualRecipe(key).setting);
+    expect(image).toHaveAttribute('data-spatial-family');
     expect(image).toHaveAttribute('data-size', 'thumbnail');
     expect(container.querySelector('[data-frame-variant]')).toBeInTheDocument();
+    expect(container.querySelector('[data-depth-plane="backdrop"]')).toHaveAttribute('data-spatial-family');
     expect(container.querySelector('.category-art__word-cue')).not.toBeInTheDocument();
+  });
+
+  it.each([
+    ['home.kitchen', 'interior'],
+    ['bureaucracy.bank', 'service'],
+    ['transport.train', 'transit'],
+    ['places.tel_aviv', 'landscape'],
+    ['family.family', 'diagram'],
+  ] as const)('maps %s into the %s spatial family', (key, family) => {
+    const { container } = render(
+      <SemanticWordIllustration visual={visual(key)} locale="en" />,
+    );
+
+    expect(container.querySelector('svg')).toHaveAttribute('data-spatial-family', family);
+    expect(container.querySelector('[data-depth-plane="backdrop"]')).toHaveAttribute(
+      'data-spatial-family',
+      family,
+    );
+  });
+
+  it('uses adult editorial anatomy and distinct communication motion cues', () => {
+    const { container, rerender } = render(
+      <SemanticWordIllustration visual={visual('communication.ask')} locale="en" />,
+    );
+
+    expect(container.querySelector('svg')).toHaveAttribute('data-motion-cue', 'ask');
+    expect(container.querySelector('[data-scene-cue="question-from-speaker"]')).toBeInTheDocument();
+    expect(container.querySelectorAll('[data-character-system="adult-editorial"]')).toHaveLength(2);
+    expect(container.querySelector('[data-person-pose="ask"]')).toBeInTheDocument();
+
+    rerender(<SemanticWordIllustration visual={visual('communication.answer')} locale="en" />);
+    expect(container.querySelector('svg')).toHaveAttribute('data-motion-cue', 'answer');
+    expect(container.querySelector('[data-scene-cue="reply-from-responder"]')).toBeInTheDocument();
+    expect(container.querySelector('[data-scene-cue="answer-return-path"]')).toBeInTheDocument();
+
+    rerender(<SemanticWordIllustration visual={visual('communication.request')} locale="en" />);
+    expect(container.querySelector('svg')).toHaveAttribute('data-motion-cue', 'request');
+    expect(container.querySelector('[data-scene-cue="polite-request"]')).toBeInTheDocument();
+    expect(container.querySelector('[data-scene-cue="requested-item"]')).toBeInTheDocument();
+
+    rerender(<SemanticWordIllustration visual={visual('communication.explain')} locale="en" />);
+    expect(container.querySelector('svg')).toHaveAttribute('data-motion-cue', 'explain');
+    expect(container.querySelector('[data-scene-cue="explanation-sequence"]')).toBeInTheDocument();
+    expect(container.querySelector('[data-person-pose="explain"]')).toBeInTheDocument();
+  });
+
+  it('keeps left and right motion aligned with their semantic direction', () => {
+    const { container, rerender } = render(
+      <SemanticWordIllustration visual={visual('transport.left')} locale="en" />,
+    );
+
+    expect(container.querySelector('svg')).toHaveAttribute('data-motion-direction', 'left');
+    rerender(<SemanticWordIllustration visual={visual('transport.right')} locale="en" />);
+    expect(container.querySelector('svg')).toHaveAttribute('data-motion-direction', 'right');
+    rerender(<SemanticWordIllustration visual={visual('actions.go')} locale="en" />);
+    expect(container.querySelector('svg')).toHaveAttribute('data-motion-direction', 'neutral');
   });
 
   it('adds the exact anchor only at the final progressive hint stage', () => {

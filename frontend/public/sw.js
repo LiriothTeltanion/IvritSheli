@@ -4,7 +4,7 @@
 // Date: 2026-07-15 | TZ: Asia/Jerusalem
 // Notes: API responses and user data are deliberately never cached by the service worker.
 
-const CACHE_NAME = 'ivrit-sheli-shell-v2.11.0-field-notes-r1';
+const CACHE_NAME = 'ivrit-sheli-shell-v2.12.0-nocturne-r1';
 const CORE_ASSETS = [
   '/',
   '/manifest.webmanifest',
@@ -13,12 +13,19 @@ const CORE_ASSETS = [
   '/icons/app-icon-512.png',
   '/fonts/GveretLevin-Regular.ttf',
   '/content/starter-dictionary-v2.8.json',
-  '/illustrations/regions/galilee.webp',
-  '/illustrations/regions/haifa-carmel.webp',
-  '/illustrations/regions/tel-aviv-jaffa.webp',
-  '/illustrations/regions/jerusalem.webp',
-  '/illustrations/regions/dead-sea.webp',
-  '/illustrations/regions/negev.webp',
+  '/assets/illustrations/israel-living-atlas-field-notes.webp',
+  '/illustrations/regions/galilee-field-notes.webp',
+  '/illustrations/regions/galilee-field-notes-portrait.webp',
+  '/illustrations/regions/haifa-carmel-field-notes.webp',
+  '/illustrations/regions/haifa-carmel-field-notes-portrait.webp',
+  '/illustrations/regions/tel-aviv-jaffa-field-notes.webp',
+  '/illustrations/regions/tel-aviv-jaffa-field-notes-portrait.webp',
+  '/illustrations/regions/jerusalem-field-notes.webp',
+  '/illustrations/regions/jerusalem-field-notes-portrait.webp',
+  '/illustrations/regions/dead-sea-field-notes.webp',
+  '/illustrations/regions/dead-sea-field-notes-portrait.webp',
+  '/illustrations/regions/negev-field-notes.webp',
+  '/illustrations/regions/negev-field-notes-portrait.webp',
 ];
 const NETWORK_ONLY_PATHS = new Set(['/health/live', '/health/ready', '/version']);
 const PUBLIC_STATIC_PREFIXES = ['/assets/', '/content/', '/icons/', '/illustrations/'];

@@ -1,7 +1,7 @@
 <div align="center">
   <img src="assets/brand/logo.svg" alt="Ivrit Sheli" width="680" />
 
-  <h1>Ivrit Sheli 2.11.0 — Living Hebrew Field Notes · העברית שלי</h1>
+  <h1>Ivrit Sheli 2.12.0 — Living Hebrew Nocturne · העברית שלי</h1>
   <p><strong>See, hear, recognize and use living Hebrew in a journey that adapts gradually to you.</strong></p>
 
   <p>
@@ -28,26 +28,26 @@
   <a href="https://ivritsheli-production.up.railway.app/?lang=en"><strong>🌐 Open the verified Ivrit Sheli 2.4.0 Contest Edition — 2026-07-21</strong></a>
 </p>
 
-> **Release-candidate boundary:** this checkout is the private, unpublished **2.11.0 Living Hebrew Field Notes candidate dated 2026-08-14**. It evolves the verified 2.10.0 consolidation with an adult editorial system across all 240 exact semantic scenes and a fast trilingual visual-review workbench. The production Railway deployment, public Git tag, GitHub Release and Devpost submission intentionally remain on the verified **2.4.0 Contest Edition dated 2026-07-21**. This candidate will not replace production without staging/backup/pilot evidence and Kevin's explicit approval.
+> **Release-candidate boundary:** this checkout is the private, unpublished **2.12.0 Living Hebrew Nocturne candidate dated 2026-08-14**. It deepens the 240 exact semantic scenes, makes dark the intentional default and adds a responsive adult editorial journey-art set. The production Railway deployment, public Git tag, GitHub Release and Devpost submission intentionally remain on the verified **2.4.0 Contest Edition dated 2026-07-21**. This candidate will not replace production without staging/backup/pilot evidence and Kevin's explicit approval.
 
 ### Source and live release truth
 
 | Surface | Verified state |
 |---|---|
-| Current private source checkout | `2.11.0` · Living Hebrew Field Notes candidate · 2026-08-14 · not deployed or published |
+| Current private source checkout | `2.12.0` · Living Hebrew Nocturne candidate · 2026-08-14 · not deployed or published |
 | Current public deployed application | `2.4.0` · Contest Edition · verified 2026-07-21 |
 | Release implementation commit | `03bf84b9268ff8be528c0fab3c670f9652ee23b0` |
 | Production storage/readiness | PostgreSQL · ready · 48 reviewed dictionary entries |
 | Deployment verification | Successful on 2026-07-21 |
 | Release verification | 151 unique backend tests + 62 frontend tests = 213 passed; main CI and CodeQL passed |
-| Candidate verification | **2.11.0 local editorial candidate (2026-08-14):** 705 frontend + 315 backend tests passed, with one credential-gated PostgreSQL skip; TypeScript/build, Ruff/MyPy/compileall/doctor and the 240 × 3 desktop/mobile visual matrix passed. PostgreSQL/RLS, dependency and no-cache container evidence remains inherited from verified 2.10.0 Phase 4A.1. This is **not** staging/public verification. |
+| Candidate verification | **2.12.0 local visual candidate (2026-08-14):** verification is recorded in `TEST_REPORT.md`; PostgreSQL/RLS, dependency and no-cache container evidence remains inherited from verified 2.10.0 Phase 4A.1. This is **not** staging/public verification. |
 | GitHub publication | [`v2.4.0`](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.4.0), dated 2026-07-21, is the published tag and GitHub Release |
 | Live account evidence | Identity-only Google sign-in, onboarding state and the authenticated session persisted across reload; logout returned to the English landing page and remained signed out after reload |
 | Live judge-path evidence | The English entry link and four-stop read-only guided tour passed production browser checks |
-| Remaining 2.11.0 release gate | Human five-second recognition review across confusable scene clusters; isolated HTTPS staging with production settings/sealed secrets; two-real-account persistence; backup/restore drill; Hebrew accuracy and mother-pilot acceptance; and explicit publication approval. Public production remains frozen at 2.4.0. |
+| Remaining 2.12.0 release gate | Human five-second recognition review across confusable scene clusters; isolated HTTPS staging with production settings/sealed secrets; two-real-account persistence; backup/restore drill; Hebrew accuracy and mother-pilot acceptance; and explicit publication approval. Public production remains frozen at 2.4.0. |
 
 Historical v2.8.3 evidence is preserved below as regression context; it is not
-presented as current v2.11.0 verification dated 2026-08-14. The animated journey
+presented as current v2.12.0 verification dated 2026-08-14. The animated journey
 and desktop/mobile/RTL captures below were generated from the local 2.8.0
 candidate after Docker rebuild and direct browser inspection.
 
@@ -89,7 +89,23 @@ Most language products make every learner follow the same path. Ivrit Sheli does
 
 The system tracks what you recognize, what you can produce, where you hesitate, which grammar errors repeat, which situations matter, and which learning mode works best. Recommendations are explainable: the app tells you *why* it selected a word, exercise, mission, or speaking drill.
 
-## What the private 2.11.0 candidate improves — 2026-08-14 ✦
+## What the private 2.12.0 candidate improves — 2026-08-14 ✦
+
+**Living Hebrew Nocturne** makes the dark editorial experience intentional from
+the first frame while preserving a persistent light choice. Six responsive
+region paintings now show adults using Hebrew through orientation, transport,
+food, greetings, health and southern daily routines; one coherent Be'er Sheva
+plaza replaces the old geographic collage on cross-journey surfaces.
+
+The code-native catalog remains **240/240 exact scenes**. Shared adult anatomy,
+setting-aware spatial depth and short meaning-driven motion improve recognition
+without importing generated text into semantic learning content. The private QA
+workbench gives each illustration the dominant card surface, with recipes and
+accessibility metadata still available below it. Asset provenance, dimensions,
+hashes, crops and review limits live in
+[`docs/VISUAL_ASSET_MANIFEST.md`](docs/VISUAL_ASSET_MANIFEST.md).
+
+## What the private 2.11.0 candidate improved — 2026-08-14 ✦
 
 **Living Hebrew Field Notes** turns the complete 240-scene catalog into a more
 adult, specific editorial system. Every exact SVG now declares its domain,

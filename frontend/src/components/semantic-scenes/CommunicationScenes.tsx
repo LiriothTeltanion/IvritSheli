@@ -10,20 +10,18 @@ interface CommunicationSceneProps {
   hintStage: SemanticHintStage;
 }
 
-function ConversationGround(): React.JSX.Element {
+function ConversationGround({ variant = 'dialogue' }: { variant?: 'dialogue' | 'studio' | 'service' }): React.JSX.Element {
   return (
-    <>
-      <path className="semantic-art__wall semantic-art__outlined" d="M12 14h216v128H12Z" />
-      {/*
-        `__ground` deliberately declares no paint of its own: it reads a
-        gradient the scene frame passes in as a `fill` attribute. Used
-        without one, SVG falls back to its default fill and this band came
-        out solid black. `__floor` is what the other nineteen scene modules
-        use, and it carries its own colour.
-      */}
-      <path className="semantic-art__floor" d="M12 142h216v22H12Z" />
+    <g data-conversation-variant={variant} data-scene-cue="conversation-space">
+      <path className="semantic-art__wall semantic-art__outlined" d="M12 18h216v122H12Z" />
+      <path className="semantic-art__facade-shade" d="m228 18-43 28v94h43Z" />
+      <path className="semantic-art__floor" d="M12 132h216v32H12Z" />
+      <path className="semantic-art__spatial-line" d="M12 164 88 132h64l76 32M88 132V42m64 90V42" />
+      <path className="semantic-art__grain" d="M24 151h48m96 0h42M34 158h27m117 0h21" />
+      {variant === 'studio' && <path className="semantic-art__spatial-sill" d="M25 47h48v57H25Zm8 9h32v39H33Z" />}
+      {variant === 'service' && <path className="semantic-art__wood semantic-art__outlined" d="M24 112h192v25H24Z" />}
       <ellipse className="semantic-art__prop-shadow" cx="120" cy="151" rx="94" ry="8" />
-    </>
+    </g>
   );
 }
 
@@ -70,16 +68,23 @@ export function CommunicationScene({
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
-            <ConversationGround />
-            <rect className="semantic-art__surface semantic-art__outlined" x="104" y="32" width="108" height="86" rx="7" />
+            <ConversationGround variant="studio" />
+            <rect className="semantic-art__surface semantic-art__outlined" x="94" y="27" width="122" height="91" rx="5" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
-            <SemanticPerson x={68} y={110} shirt="blue" pose="point" scale={1.1} />
-            <path className="semantic-art__teal semantic-art__outlined" d="M120 50h24v18h-24Zm42 0h24v18h-24Zm-21 32h24v18h-24Z" />
-            <path className="semantic-art__arrow" d="M145 59h14m-7-6 7 6-7 6M174 70l-14 12m1-9-1 9 9-1" />
+            <SemanticPerson x={56} y={109} shirt="blue" pose="explain" scale={1.08} />
+            <g data-scene-cue="explanation-sequence" className="semantic-art__motion-part semantic-art__semantic-motion-cue">
+              <circle className="semantic-art__teal-soft semantic-art__outlined" cx="118" cy="53" r="13" />
+              <circle className="semantic-art__blue-soft semantic-art__outlined" cx="157" cy="53" r="13" />
+              <circle className="semantic-art__gold-soft semantic-art__outlined" cx="196" cy="85" r="13" />
+              <text className="semantic-art__numeral semantic-art__numeral--small" x="118" y="53">1</text>
+              <text className="semantic-art__numeral semantic-art__numeral--small" x="157" y="53">2</text>
+              <text className="semantic-art__numeral semantic-art__numeral--small" x="196" y="85">3</text>
+              <path className="semantic-art__arrow" d="M132 53h11m-5-5 5 5-5 5m28 7 18 14m-2-8 2 8-8-1" />
+            </g>
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            <Check x={196} y={102} scale={0.72} />
+            <Check x={211} y={107} scale={0.55} />
           </SceneLayer>
         </>
       );
@@ -88,11 +93,14 @@ export function CommunicationScene({
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}><ConversationGround /></SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
-            <SemanticPerson x={78} y={108} shirt="gold" pose="wave" scale={1.12} />
+            <SemanticPerson x={72} y={109} shirt="gold" pose="ask" scale={1.1} />
             <SemanticPerson x={184} y={112} shirt="teal" facing="left" pose="listen" scale={0.94} />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            <SpeechBubble x={119} y={40} question />
+            <g data-scene-cue="question-from-speaker" className="semantic-art__semantic-motion-cue">
+              <SpeechBubble x={96} y={35} question tail="left" />
+              <path className="semantic-art__coral-line" d="M93 78q8-2 16 2" />
+            </g>
           </SceneLayer>
         </>
       );
@@ -102,11 +110,13 @@ export function CommunicationScene({
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}><ConversationGround /></SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <SemanticPerson x={62} y={112} shirt="gold" pose="listen" scale={0.96} />
-            <SemanticPerson x={180} y={106} shirt="teal" facing="left" scale={1.1} />
-            <SpeechBubble x={108} y={44} />
+            <SemanticPerson x={180} y={108} shirt="teal" facing="left" pose="answer" scale={1.08} />
+            <g data-scene-cue="reply-from-responder" className="semantic-art__semantic-motion-cue">
+              <SpeechBubble x={121} y={35} tail="right" />
+            </g>
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            <path className="semantic-art__arrow semantic-art__motion-part" d="M156 86c-18 14-35 18-54 13m8-6-8 6 9 5" />
+            <path className="semantic-art__arrow semantic-art__motion-part" data-scene-cue="answer-return-path" d="M158 87c-18 13-37 17-57 12m9-6-9 6 9 5" />
           </SceneLayer>
         </>
       );
@@ -114,17 +124,21 @@ export function CommunicationScene({
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
-            <ConversationGround />
-            <path className="semantic-art__wood semantic-art__outlined" d="M26 116h188v18H26Z" />
+            <ConversationGround variant="service" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
-            <SemanticPerson x={62} y={88} shirt="coral" pose="reach" scale={0.95} />
+            <SemanticPerson x={62} y={90} shirt="coral" pose="request" scale={0.95} />
             <SemanticPerson x={180} y={88} shirt="teal" facing="left" pose="hold" scale={0.95} />
-            <path className="semantic-art__surface semantic-art__outlined" d="M102 92h42v26h-42Z" />
+            <g data-scene-cue="requested-item">
+              <path className="semantic-art__surface semantic-art__outlined" d="M102 91h42v27h-42Z" />
+              <path className="semantic-art__detail semantic-art__detail--thin" d="M109 99h28m-28 8h19" />
+            </g>
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            <SpeechBubble x={105} y={36} />
-            <path className="semantic-art__teal-line semantic-art__motion-part" d="M96 104h-22m0 0 8-7m-8 7 8 7" />
+            <g data-scene-cue="polite-request" className="semantic-art__semantic-motion-cue">
+              <SpeechBubble x={82} y={31} tail="left" />
+              <path className="semantic-art__teal-line semantic-art__motion-part" d="M98 104H76m0 0 8-7m-8 7 8 7" />
+            </g>
           </SceneLayer>
         </>
       );

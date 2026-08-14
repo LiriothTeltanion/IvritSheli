@@ -1,12 +1,12 @@
-# 2.11.0 private-candidate note — 2026-08-14
+# 2.12.0 private-candidate note — 2026-08-14
 
 The private visual QA gallery derives **all 240 exact semantic scenes** and now
-opens as a trilingual editorial workbench: choose one of 20 domains, search,
-switch among thumbnail/card/hero/compare views, inspect the exact
+opens dark by default as a trilingual editorial workbench with art-dominant
+cards. Choose one of 20 domains, search, switch among
+thumbnail/card/hero/compare views, inspect the exact
 `context → meaning → anchor` recipe, or run a five-second recognition check
-with distractors from the same domain. It loads one 12-scene domain and one size
-by default for speed; `group=all&size=compare` is reserved for exhaustive QA.
-The prior 72-scene references below are historical milestones from 2.8.3.
+with distractors from the same domain. The six-region Atlas uses responsive
+adult blue-hour paintings whose visible action matches the vocabulary domain.
 Human recognition review, isolated staging/pilot evidence and explicit approval
 remain required before publication.
 
@@ -145,9 +145,9 @@ Every Hebrew token rendered through the shared `HebrewText` component opens the 
 - IPA, audio URLs, and pronunciation fallback.
 - Source and license attribution.
 
-The bundled 240-concept A0–A2 layer also shows a stable visual cue and localized accessible description. Seventy-two frequent concepts use exact semantic SVG scenes; all support progressive `context`, `meaning` and `anchor` layers. The remaining 168 concepts use explicit category-composition and emoji fallbacks. Today features up to six exact scenes selected from the learner's recommendations before deterministic exact-scene backfill. Dictionary results use a simplified thumbnail, while the drawer uses a larger hero scene. Beginner facts appear first; advanced grammar, forms and provenance remain available without crowding the initial view. Visual cues aid memory but are not presented as grammatical evidence. An imported or unsupported word can correctly have no illustration.
+The bundled 240-concept A0–A2 layer also shows a stable visual cue and localized accessible description. All 240 reviewed concepts use exact semantic SVG scenes with progressive `context`, `meaning` and `anchor` layers. Category and emoji fallbacks are reserved for future imported or unsupported words outside that catalog. Today features up to six exact scenes selected from the learner's recommendations before deterministic exact-scene backfill. Dictionary results use a simplified thumbnail, while the drawer uses a larger hero scene. Beginner facts appear first; advanced grammar, forms and provenance remain available without crowding the initial view. Visual cues aid memory but are not presented as grammatical evidence. An imported or unsupported word can correctly have no illustration.
 
-For visual review on the same PC or private Wi-Fi, append `?visualQa=1` to the local pilot URL. The private QA gallery compares all 240 exact scenes at three sizes and offers a seeded five-second recognition check. It is unavailable on a public hostname and does not persist a learner score.
+For visual review on the same PC or private Wi-Fi, append `?visualQa=1` to the local pilot URL. The private QA gallery compares all 240 exact scenes at three sizes, offers a seeded five-second recognition check and can reveal the seven journey paintings with `&journeyArt=1`. It is unavailable on a public hostname and does not persist a learner score.
 
 ## Finishing a visit
 

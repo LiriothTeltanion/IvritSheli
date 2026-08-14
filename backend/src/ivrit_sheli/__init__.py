@@ -8,4 +8,4 @@ Notes: Minimal deps; comments in ENGLISH; emojis sparingly.
 
 __all__ = ["__version__"]
 
-__version__ = "2.11.0"
+__version__ = "2.12.0"

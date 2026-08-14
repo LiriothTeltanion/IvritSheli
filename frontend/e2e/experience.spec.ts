@@ -384,6 +384,49 @@ test.describe('visual recognition expansion', () => {
     }
   });
 
+  test('renders the seven responsive journey paintings in the dark editorial tray', async ({ page }, testInfo) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/?visualQa=1&lang=en&group=communication&size=card&journeyArt=1');
+
+    await expect(page.getByText('240/240 exact scenes loaded')).toBeVisible({ timeout: MOUNT_BUDGET_MS });
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    await expect(page.getByRole('button', { name: 'Close journey paintings' })).toHaveAttribute('aria-expanded', 'true');
+    await expect(page.locator('.visual-qa__journey-grid figure')).toHaveCount(7);
+    await expect(page.getByRole('img', { name: /Be’er Sheva plaza at blue hour/i })).toBeVisible();
+    await page.waitForFunction(() => [...document.querySelectorAll<HTMLImageElement>('.visual-qa__journey-grid img')]
+      .every((image) => image.complete && image.naturalWidth > 1000));
+
+    const imageSources = await page.locator('.visual-qa__journey-grid img').evaluateAll((images) => images.map(
+      (image) => (image as HTMLImageElement).currentSrc,
+    ));
+    expect(imageSources).toHaveLength(7);
+    if (testInfo.project.name === 'mobile-390') {
+      expect(imageSources.filter((source) => source.includes('-portrait.webp'))).toHaveLength(6);
+      await expect(page.locator('.visual-qa__journey-hero img')).toHaveCSS('object-position', '31% 50%');
+    } else {
+      expect(imageSources.filter((source) => source.includes('-portrait.webp'))).toHaveLength(0);
+    }
+
+    const journeyLayout = await page.evaluate(() => ({
+      clientWidth: document.documentElement.clientWidth,
+      scrollWidth: document.documentElement.scrollWidth,
+      animationNames: [...document.querySelectorAll<HTMLElement>('.visual-qa__journey-grid, .visual-qa__journey-grid img')]
+        .map((element) => window.getComputedStyle(element).animationName),
+    }));
+    expect(journeyLayout.scrollWidth).toBeLessThanOrEqual(journeyLayout.clientWidth + 1);
+    expect(journeyLayout.animationNames.every((name) => name === 'none')).toBe(true);
+
+    if (testInfo.project.name === 'desktop-1440') {
+      const results = await new AxeBuilder({ page })
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+        .analyze();
+      const blockingViolations = results.violations.filter(
+        (violation) => violation.impact === 'serious' || violation.impact === 'critical',
+      );
+      expect(blockingViolations, JSON.stringify(blockingViolations, null, 2)).toEqual([]);
+    }
+  });
+
   test('reveals four meanings only after the five-second recognition exposure', async ({ page }, testInfo) => {
     desktopOnly(testInfo.project.name);
     await page.goto('/?visualQa=1&lang=en');
@@ -394,6 +437,13 @@ test.describe('visual recognition expansion', () => {
     await expect(page.getByText('Observe the scene… 5 seconds')).toBeVisible();
     await expect(page.locator('.visual-qa__choices')).toHaveCount(0);
     await page.waitForTimeout(5100);
-    await expect(page.locator('.visual-qa__choices button')).toHaveCount(4);
+    const choices = page.locator('.visual-qa__choices button');
+    await expect(choices).toHaveCount(4);
+    const targetKey = await page.locator('.visual-qa__recognition-stage').getAttribute('data-target-visual');
+    await page.locator(`[data-choice-visual="${targetKey}"]`).click();
+    await expect(page.getByText('Recognized', { exact: true })).toBeVisible();
+    await expect(page.getByText('1/1 recognized', { exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Next scene' }).click();
+    await expect(page.getByText('Observe the scene… 5 seconds')).toBeVisible();
   });
 });

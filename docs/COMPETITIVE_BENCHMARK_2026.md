@@ -44,6 +44,11 @@ percentage.
 
 ## Local candidate implementation status
 
+**2.12 visual-status note — 2026-08-14:** the benchmark rows preserve the
+original v2.8 product decisions, while the current private source now covers
+240/240 reviewed concepts with exact local SVG scenes and seven responsive
+journey paintings. Publication remains frozen; this is local candidate evidence.
+
 The original snapshot describes the local v2.8 candidate on 2026-07-26.
 The private 2.9.1 Alphabet Studio extension dated 2026-07-27 is recorded as a
 new implementation slice without rewriting that historical verification. The
@@ -72,7 +77,7 @@ acceptance retest and the OpenAI Build Week winner announcement.
 | Linguistically reviewed reading support | The display ladder uses authored `reading_hints` when available. The legacy state name `partial_niqqud` now means “reviewed cue or full reviewed niqqud,” never deletion by character position. Hint-only remains unpointed until reveal, then uses the reviewed cue or full form; entries without reviewed support remain honestly unpointed. | `frontend/src/learningCore.ts`; `frontend/src/components/LearningCoreJourney.tsx`; `backend/src/ivrit_sheli/learning_core.py` | Verified locally in backend and frontend suites |
 | Actionable high-value empty states | An exhausted review queue and an empty progress activity log offer Daily Practice. A filtered word collection offers Clear filters; a genuinely empty collection offers Dictionary. This is a targeted improvement, not yet a claim that every empty state in the product has been audited. | `frontend/src/components/ReviewCard.tsx`; `frontend/src/components/ProgressPanel.tsx`; `frontend/src/components/RegistryPanel.tsx`; `frontend/src/components/LearnPanel.tsx` | Verified locally for the targeted states |
 | Larger touch floor on primary learning surfaces | Shared primary/secondary controls and the inspected locale, icon, atlas, dictionary and round-action controls have a 48 px minimum dimension in CSS. | `frontend/src/styles.css` | Verified locally across 390/768/1440 px, keyboard, reduced-motion, dark/light axe and 200% reflow gates |
-| Visual association without generic stock art | Seventy-two reviewed concepts now have exact, local SVG scenes with progressive context/meaning/anchor layers. Today selects recommended exact-scene words first and uses deterministic exact backfill only. A private-LAN QA gallery compares all scenes and records a seeded five-second recognition run. | `frontend/src/visuals/a0VisualRecipes.ts`; `frontend/src/components/semantic-scenes/`; `backend/src/ivrit_sheli/visual_spotlight.py` | Verified locally at 390/768/1440 px, light/dark, Hebrew RTL, reduced motion and 200% text reflow; 12-scene mother pilot remains required |
+| Visual association without generic stock art | All 240 reviewed concepts now have exact, local SVG scenes with progressive context/meaning/anchor layers. Today selects recommended exact-scene words first and uses deterministic exact backfill only. A private-LAN QA gallery compares all scenes, exposes seven responsive journey paintings and records a seeded five-second recognition run. | `frontend/src/visuals/a0VisualRecipes.ts`; `frontend/src/components/semantic-scenes/`; `backend/src/ivrit_sheli/visual_spotlight.py` | Verified locally at 390/768/1440 px, light/dark, Hebrew RTL, reduced motion and 200% text reflow; human recognition and mother-pilot review remain required |
 
 ## Adopt
 

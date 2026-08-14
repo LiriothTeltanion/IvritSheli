@@ -108,7 +108,7 @@
   filter: drop-shadow(0 0.85rem 1.35rem rgba(72, 50, 78, 0.13));
 }
 
-/* Living Hebrew Field Notes: category atmosphere changes the editorial mat,
+/* Living Hebrew Nocturne: category atmosphere changes the editorial mat,
    never the semantic objects. This gives all 240 scenes a domain identity
    without making colour carry the answer. */
 .semantic-art:is(
@@ -190,19 +190,28 @@
 }
 
 .semantic-art--thumbnail .semantic-art__glow,
-.semantic-art--thumbnail .semantic-art__hair-lit,
 .semantic-art--thumbnail .semantic-art__ground-rim,
 .semantic-art--thumbnail .semantic-art__marker-face,
 .semantic-art--thumbnail .semantic-art__marker-hairline,
-.semantic-art--thumbnail .semantic-art__gloss,
 .semantic-art--thumbnail .semantic-art__skin-highlight,
 .semantic-art--thumbnail .semantic-art__foam,
 .semantic-art--thumbnail .semantic-art__marker-moustache,
 .semantic-art--thumbnail .semantic-art__leaf-lit,
-.semantic-art--thumbnail .semantic-art__grain,
-.semantic-art--thumbnail .semantic-art__hatch,
-.semantic-art--thumbnail .semantic-art__garment-line {
+.semantic-art--thumbnail .semantic-art__hatch {
   display: none;
+}
+
+/* Thumbnail is a deliberate lower level of detail, not a detail-free icon.
+   Keep one broad material cue and the garment construction lines; micro hatch
+   and facial decoration still disappear. */
+.semantic-art--thumbnail .semantic-art__grain,
+.semantic-art--thumbnail .semantic-art__gloss,
+.semantic-art--thumbnail .semantic-art__hair-lit,
+.semantic-art--thumbnail .semantic-art__garment-line {
+  display: initial;
+  opacity: 0.48;
+  stroke-width: 1.35;
+  vector-effect: non-scaling-stroke;
 }
 
 /* Thin used to mean disposable. It also marks floor levels, grammar leaders,
@@ -253,6 +262,63 @@
 
 .semantic-art__frame-motif { opacity: 0.34; }
 
+/* Spatial families turn the recipe's setting into a quiet back/mid/ground
+   scaffold. These are simple planes and paths rather than SVG filters, so the
+   exhaustive 720-instance QA view remains cheap to mount. */
+.semantic-art__spatial-context {
+  pointer-events: none;
+  opacity: 0.56;
+}
+
+.semantic-art__spatial-plane {
+  fill: color-mix(in srgb, var(--semantic-surface) 64%, var(--semantic-editorial-primary));
+  opacity: 0.42;
+}
+
+.semantic-art__spatial-shade {
+  fill: var(--semantic-shade);
+}
+
+.semantic-art__spatial-silhouette {
+  fill: color-mix(in srgb, var(--semantic-editorial-primary) 19%, transparent);
+}
+
+.semantic-art__spatial-distance {
+  fill: color-mix(in srgb, var(--semantic-green-soft) 68%, transparent);
+}
+
+.semantic-art__spatial-line,
+.semantic-art__spatial-grid,
+.semantic-art__spatial-axis,
+.semantic-art__spatial-dash,
+.semantic-art__spatial-sill {
+  fill: none;
+  stroke: color-mix(in srgb, var(--semantic-detail-ink) 25%, transparent);
+  stroke-width: 1.45;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.semantic-art__spatial-grid { stroke-dasharray: 3 5; }
+.semantic-art__spatial-axis { stroke-width: 1.8; opacity: 0.58; }
+.semantic-art__spatial-dash { stroke-width: 2.2; stroke-dasharray: 5 5; }
+.semantic-art__spatial-sill { stroke-width: 2; }
+
+.semantic-art__spatial-counter {
+  fill: color-mix(in srgb, var(--semantic-wood, #a9794e) 72%, var(--semantic-surface));
+  stroke: color-mix(in srgb, var(--semantic-ink) 26%, transparent);
+  stroke-width: 1.2;
+}
+
+.semantic-art--thumbnail .semantic-art__spatial-context {
+  opacity: 0.34;
+}
+
+.semantic-art--thumbnail .semantic-art__spatial-grid,
+.semantic-art--thumbnail .semantic-art__spatial-axis {
+  display: none;
+}
+
 .semantic-art--thumbnail .semantic-art__editorial-rim,
 .semantic-art--thumbnail .semantic-art__editorial-rail,
 .semantic-art--thumbnail .semantic-art__editorial-seal,
@@ -281,7 +347,7 @@
 .semantic-art__hand {
   fill: var(--semantic-skin);
   stroke: color-mix(in srgb, var(--semantic-ink) 60%, transparent);
-  stroke-width: 1.6;
+  stroke-width: 1.25;
 }
 
 /* One shading tone for every material. Keeping clothing, façades and props on
@@ -438,10 +504,10 @@
 }
 
 .semantic-art__shoe {
-  fill: none;
-  stroke: var(--semantic-hair);
-  stroke-width: 7;
-  stroke-linecap: round;
+  fill: color-mix(in srgb, var(--semantic-hair) 88%, var(--semantic-ink));
+  stroke: color-mix(in srgb, var(--semantic-hair) 76%, #000);
+  stroke-width: 1.15;
+  stroke-linejoin: round;
 }
 
 /*
@@ -756,30 +822,50 @@
   --semantic-skin: #c9855f;
   --semantic-skin-deep: #9d5f3d;
   --semantic-hair: #3d2f2a;
+  --semantic-trousers: #374d5c;
 }
 
 .semantic-art__person--coral {
   --semantic-skin: #9f6044;
   --semantic-skin-deep: #78432f;
   --semantic-hair: #211f24;
+  --semantic-trousers: #3f4655;
 }
 
 .semantic-art__person--gold {
   --semantic-skin: #dda176;
   --semantic-skin-deep: #b97751;
   --semantic-hair: #73503a;
+  --semantic-trousers: #31566d;
 }
 
 .semantic-art__person--blue {
   --semantic-skin: #b8754e;
   --semantic-skin-deep: #8e5336;
   --semantic-hair: #35313a;
+  --semantic-trousers: #4a434f;
 }
 
 .semantic-art__skin-line {
   fill: none;
   stroke: var(--semantic-skin);
-  stroke-width: 7;
+  stroke-width: 5.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.semantic-art__trousers {
+  fill: var(--semantic-trousers);
+  stroke: color-mix(in srgb, var(--semantic-ink) 36%, transparent);
+  stroke-width: 1.1;
+  stroke-linejoin: round;
+}
+
+.semantic-art__trouser-seam,
+.semantic-art__nose {
+  fill: none;
+  stroke: color-mix(in srgb, var(--semantic-symbol-ink) 54%, transparent);
+  stroke-width: 1.1;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -834,7 +920,7 @@
 .semantic-art__face {
   fill: none;
   stroke: var(--semantic-symbol-ink);
-  stroke-width: 2.2;
+  stroke-width: 1.55;
   stroke-linecap: round;
 }
 
@@ -1079,7 +1165,10 @@
   .semantic-art__editorial-rim,
   .semantic-art__editorial-rail,
   .semantic-art__editorial-seal,
-  .semantic-art__frame-motif { display: none; }
+  .semantic-art__frame-motif,
+  .semantic-art__spatial-context,
+  .semantic-art__spatial-line,
+  .semantic-art__spatial-sill { display: none; }
 }
 
 @media (prefers-contrast: more) {
@@ -1235,9 +1324,21 @@
   .semantic-art--hero[data-motion-profile="direction"]:hover [data-visual-layer="meaning"],
   button:hover .semantic-art[data-motion-profile="direction"] [data-visual-layer="meaning"],
   button:focus-visible .semantic-art[data-motion-profile="direction"] [data-visual-layer="meaning"] {
-    animation: semanticDirectionTravel 760ms var(--ease, ease) both;
+    animation: semanticDirectionEmphasis 760ms var(--ease, ease) both;
     transform-box: fill-box;
     transform-origin: center;
+  }
+
+  .semantic-art--hero[data-motion-profile="direction"][data-motion-direction="left"]:hover [data-visual-layer="meaning"],
+  button:hover .semantic-art[data-motion-profile="direction"][data-motion-direction="left"] [data-visual-layer="meaning"],
+  button:focus-visible .semantic-art[data-motion-profile="direction"][data-motion-direction="left"] [data-visual-layer="meaning"] {
+    animation-name: semanticDirectionTravelLeft;
+  }
+
+  .semantic-art--hero[data-motion-profile="direction"][data-motion-direction="right"]:hover [data-visual-layer="meaning"],
+  button:hover .semantic-art[data-motion-profile="direction"][data-motion-direction="right"] [data-visual-layer="meaning"],
+  button:focus-visible .semantic-art[data-motion-profile="direction"][data-motion-direction="right"] [data-visual-layer="meaning"] {
+    animation-name: semanticDirectionTravelRight;
   }
 
   .semantic-art--hero[data-motion-profile="exchange"]:hover [data-visual-layer="meaning"],
@@ -1262,7 +1363,17 @@
   45% { transform: translateY(-2px) scale(1.035); }
 }
 
-@keyframes semanticDirectionTravel {
+@keyframes semanticDirectionEmphasis {
+  0%, 100% { transform: translateY(0) scale(1); }
+  45% { transform: translateY(-1px) scale(1.012); }
+}
+
+@keyframes semanticDirectionTravelLeft {
+  0%, 100% { transform: translateX(0); }
+  45% { transform: translateX(-3px); }
+}
+
+@keyframes semanticDirectionTravelRight {
   0%, 100% { transform: translateX(0); }
   45% { transform: translateX(3px); }
 }
@@ -1277,13 +1388,106 @@
   50% { transform: scale(1.04); opacity: .92; }
 }
 
+/* Editorial Depth v2 motion is a one-shot explanation attached to a semantic
+   group. It never runs as ambient catalogue motion and never animates a group
+   that already owns an SVG positioning transform. */
+@media (prefers-reduced-motion: no-preference) {
+  button:hover .semantic-art[data-motion-cue="ask"] .semantic-art__semantic-motion-cue,
+  button:focus-visible .semantic-art[data-motion-cue="ask"] .semantic-art__semantic-motion-cue,
+  .semantic-art--hero[data-motion-cue="ask"]:hover .semantic-art__semantic-motion-cue {
+    animation: semanticQuestionOrigin 640ms var(--ease, ease) both;
+  }
+
+  button:hover .semantic-art[data-motion-cue="answer"] .semantic-art__semantic-motion-cue,
+  button:focus-visible .semantic-art[data-motion-cue="answer"] .semantic-art__semantic-motion-cue,
+  .semantic-art--hero[data-motion-cue="answer"]:hover .semantic-art__semantic-motion-cue {
+    animation: semanticAnswerReturn 660ms var(--ease, ease) both;
+  }
+
+  button:hover .semantic-art[data-motion-cue="request"] .semantic-art__semantic-motion-cue,
+  button:focus-visible .semantic-art[data-motion-cue="request"] .semantic-art__semantic-motion-cue,
+  .semantic-art--hero[data-motion-cue="request"]:hover .semantic-art__semantic-motion-cue {
+    animation: semanticRequestOffer 700ms var(--ease, ease) both;
+  }
+
+  button:hover .semantic-art[data-motion-cue="explain"] .semantic-art__semantic-motion-cue,
+  button:focus-visible .semantic-art[data-motion-cue="explain"] .semantic-art__semantic-motion-cue,
+  .semantic-art--hero[data-motion-cue="explain"]:hover .semantic-art__semantic-motion-cue {
+    animation: semanticExplainSequence 760ms var(--ease, ease) both;
+  }
+
+  button:hover .semantic-art[data-motion-cue="person-action"] [data-visual-layer="meaning"],
+  button:focus-visible .semantic-art[data-motion-cue="person-action"] [data-visual-layer="meaning"],
+  .semantic-art--hero[data-motion-cue="person-action"]:hover [data-visual-layer="meaning"] {
+    animation: semanticActionIntent 620ms var(--ease, ease) both;
+    transform-box: fill-box;
+    transform-origin: center bottom;
+  }
+
+  button:hover .semantic-art[data-motion-cue="place-reveal"] [data-visual-layer="meaning"],
+  button:focus-visible .semantic-art[data-motion-cue="place-reveal"] [data-visual-layer="meaning"],
+  .semantic-art--hero[data-motion-cue="place-reveal"]:hover [data-visual-layer="meaning"] {
+    animation: semanticPlaceReveal 760ms var(--ease, ease) both;
+    transform-box: fill-box;
+    transform-origin: center bottom;
+  }
+
+  button:hover .semantic-art[data-motion-cue="comparison"] [data-visual-layer="anchor"],
+  button:focus-visible .semantic-art[data-motion-cue="comparison"] [data-visual-layer="anchor"],
+  .semantic-art--hero[data-motion-cue="comparison"]:hover [data-visual-layer="anchor"] {
+    animation: semanticComparisonRead 680ms var(--ease, ease) both;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+}
+
+@keyframes semanticQuestionOrigin {
+  0% { opacity: .68; transform: translate(-3px, 4px) scale(.96); }
+  55% { opacity: 1; transform: translate(1px, -1px) scale(1.01); }
+  100% { opacity: 1; transform: translate(0, 0) scale(1); }
+}
+
+@keyframes semanticAnswerReturn {
+  0% { opacity: .7; transform: translateX(6px); }
+  58% { opacity: 1; transform: translateX(-2px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes semanticRequestOffer {
+  0% { opacity: .72; transform: translateX(-4px); }
+  56% { opacity: 1; transform: translateX(2px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes semanticExplainSequence {
+  0% { opacity: .62; transform: translateX(-3px); }
+  45% { opacity: 1; transform: translateX(2px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes semanticActionIntent {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  45% { transform: translateY(-2px) rotate(-.6deg); }
+}
+
+@keyframes semanticPlaceReveal {
+  0% { opacity: .82; transform: translateY(2px) scale(.985); }
+  58% { opacity: 1; transform: translateY(-1px) scale(1.006); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes semanticComparisonRead {
+  0%, 100% { transform: translateX(0); }
+  35% { transform: translateX(-2px); }
+  70% { transform: translateX(2px); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .semantic-art,
   .semantic-art *,
   .semantic-art *::before,
   .semantic-art *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
+    animation: none !important;
+    transition: none !important;
   }
 }

@@ -1,11 +1,54 @@
-# Ivrit Sheli 2.11.0 — Living Hebrew Field Notes Verification Ledger
+# Ivrit Sheli 2.12.0 — Living Hebrew Nocturne Verification Ledger
 
-- **Current private source candidate:** `2.11.0` / local artifact / unpublished
-- **Editorial checkpoint date:** 2026-08-14
+- **Current private source candidate:** `2.12.0` / local artifact / unpublished
+- **Nocturne checkpoint date:** 2026-08-14
 - **Current verified public production:** `2.4.0` / Railway / PostgreSQL / verified 2026-07-21
-- **Historical candidate baseline:** `2.10.0` Phase 4A.1 completed 1,047 automated passes on 2026-08-13; that number is preserved as historical evidence and is not relabelled as 2.11.0 proof.
+- **Historical candidate baselines:** `2.11.0` passed 705 frontend and 315
+  backend tests plus its 240 × 3 visual matrix on 2026-08-14; `2.10.0` Phase
+  4A.1 completed 1,047 automated passes on 2026-08-13. Neither number is
+  relabelled as 2.12.0 proof.
 
-## Current 2.11.0 evidence boundary
+## Current 2.12.0 evidence boundary
+
+This visual checkpoint preserves **240/240 exact semantic scenes** while adding
+dark-first theme resolution, responsive regional art, adult shared geometry,
+setting-aware spatial context and short semantic motion. Fresh 2.12 results are
+recorded below after execution. The PostgreSQL/RLS and no-cache Docker results
+remain inherited 2.10 evidence because this slice does not change runtime data
+boundaries. Human recognition, speech pilot and isolated staging remain
+required before publication.
+
+The verified public `2.4.0` production record remains unchanged. Nothing in
+this private artifact claims that 2.12.0 is deployed, tagged, released or
+submitted to Devpost.
+
+## Living Hebrew Nocturne gate — reference Windows machine — 2026-08-14
+
+| Gate | Command | Result |
+|---|---|---|
+| Complete frontend suite | `npm run test:run` | **717 passed across 41 files** |
+| TypeScript + production build | `npm run build` | **Passed**; Visual QA 19.00 kB JS / 6.24 kB gzip and 16.37 kB CSS / 3.58 kB gzip; the known non-blocking main-chunk warning remains |
+| Complete backend suite | `.venv\\Scripts\\python.exe -m pytest backend/tests -q -p no:cacheprovider` | **315 passed / 1 PostgreSQL-gated skip** |
+| Backend style/types/compile | Ruff + strict MyPy + compileall | **Passed**; MyPy covered 39 source files |
+| Offline doctor | `.venv\\Scripts\\python.exe -m ivrit_sheli --doctor` with isolated in-memory DBs | **7/7 passed as 2.12.0**, 240 dictionary entries, senses, forms and examples |
+| Full semantic catalog + journey art + recognition lab | `npx playwright test -g "visual recognition expansion" --workers=1` | **7 passed / 2 expected project skips**: all 240 scenes and seven paintings passed at 390, 768 and 1440 px; the desktop-only full recognition flow passed |
+| Responsive journey paintings | same Playwright matrix above | **3/3 passed** at 390, 768 and 1440 px, including portrait source selection, action-preserving hero crop, reduced motion, overflow and desktop axe |
+| Contact matrices | local Playwright capture tooling | **240/240 light + 240/240 dark card scenes rendered** without blank scenes |
+| In-app browser review | VisualQAGallery at `127.0.0.1:5173` | **Passed**: dark default, seven complete raster images, responsive regional grid and `scrollWidth == clientWidth` at the inspected 1270 px viewport |
+
+The complete frontend run caught two integration defects before this ledger was
+closed: an undefined communication-scene CSS class and an under-budgeted lazy
+gallery test wait. Both were corrected and the full 715-test suite was rerun.
+The one backend skip requires explicit migration/runtime PostgreSQL DSNs; no
+credentials were supplied for this visual slice. The prior 2.10.0 Phase 4A.1
+PostgreSQL/RLS, dependency-audit and no-cache Docker evidence therefore remains
+historical and is not relabelled as a 2.12.0 execution.
+
+Automated recognition proves render coverage and interaction contracts, not
+human comprehension. A short human five-second review of the remaining
+confusable clusters and family diagrams is still required.
+
+## Historical 2.11.0 evidence boundary
 
 This editorial checkpoint preserves **240/240 exact semantic scenes** while
 adding global art metadata, five frame families, adult character variants,
@@ -520,6 +563,6 @@ Re-login after logout, two-real-user production isolation, live OpenAI/Google Wo
 ## Reliability statement
 
 Passing tests and local checks materially reduce risk but do not prove
-defect-free software. This report deliberately separates current v2.11.0
+defect-free software. This report deliberately separates current v2.12.0
 source evidence, historical private checkpoints, live-production evidence and
 credential-, device-, packaging- or operator-dependent gates.

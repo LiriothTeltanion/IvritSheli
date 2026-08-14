@@ -3,12 +3,20 @@ import { useEffect, useState } from 'react';
 
 export type AppTheme = 'dark' | 'light';
 
+const THEME_STORAGE_KEY = 'ivrit-sheli-theme';
+const THEME_COLORS: Record<AppTheme, string> = {
+  dark: '#030912',
+  light: '#f7f1e5',
+};
+
 function initialTheme(): AppTheme {
   try {
-    return window.localStorage.getItem('ivrit-sheli-theme') === 'dark' ? 'dark' : 'light';
+    const savedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
+    if (savedTheme === 'dark' || savedTheme === 'light') return savedTheme;
   } catch {
-    return 'light';
+    // The product default still works when storage is unavailable.
   }
+  return 'dark';
 }
 
 export function usePersistentTheme(): [AppTheme, () => void] {
@@ -16,8 +24,10 @@ export function usePersistentTheme(): [AppTheme, () => void] {
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
+    document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')
+      ?.setAttribute('content', THEME_COLORS[theme]);
     try {
-      window.localStorage.setItem('ivrit-sheli-theme', theme);
+      window.localStorage.setItem(THEME_STORAGE_KEY, theme);
     } catch {
       // The in-memory preference still works when storage is unavailable.
     }

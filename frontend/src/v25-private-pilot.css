@@ -10,7 +10,7 @@
   z-index: 0;
   inset: 0;
   pointer-events: none;
-  background-image: url('/assets/illustrations/israel-living-atlas-v2.5.webp');
+  background-image: url('/assets/illustrations/israel-living-atlas-field-notes.webp');
   background-position: 72% center;
   background-size: cover;
   opacity: 0.24;
@@ -93,7 +93,7 @@
   height: auto;
   border: 0;
   border-radius: inherit;
-  background-image: url('/assets/illustrations/israel-living-atlas-v2.5.webp');
+  background-image: url('/assets/illustrations/israel-living-atlas-field-notes.webp');
   background-position: center;
   background-size: cover;
   filter: saturate(0.92) contrast(1.02);

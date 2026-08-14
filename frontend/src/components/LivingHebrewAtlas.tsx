@@ -25,6 +25,7 @@ export interface AtlasRegion {
   name: LocalizedCopy;
   theme: LocalizedCopy;
   image: string;
+  portraitImage: string;
   imageAlt: LocalizedCopy;
   x: number;
   y: number;
@@ -49,12 +50,13 @@ export const atlasRegions: readonly AtlasRegion[] = [
   {
     id: 'galilee',
     name: { en: 'Galilee', es: 'Galilea', he: 'הגליל' },
-    theme: { en: 'Nature and directions', es: 'Naturaleza y direcciones', he: 'טבע וכיוונים' },
-    image: '/illustrations/regions/galilee.webp',
+    theme: { en: 'Nature and directions', es: 'Naturaleza y orientación', he: 'טבע והתמצאות בדרך' },
+    image: '/illustrations/regions/galilee-field-notes.webp',
+    portraitImage: '/illustrations/regions/galilee-field-notes-portrait.webp',
     imageAlt: {
-      en: 'An illustrated Galilee path overlooking green hills, olive trees, and the Sea of Galilee',
-      es: 'Un sendero ilustrado de Galilea entre colinas verdes, olivos y el mar de Galilea',
-      he: 'שביל מאויר בגליל מול גבעות ירוקות, עצי זית והכנרת',
+      en: 'Two adult hikers follow a stone path through olive trees above the Sea of Galilee at blue hour',
+      es: 'Dos excursionistas adultos siguen un sendero de piedra entre olivos sobre el mar de Galilea al anochecer',
+      he: 'שני מטיילים מבוגרים הולכים בשביל אבן בין עצי זית מעל לכנרת בשעה הכחולה',
     },
     x: 67,
     y: 12,
@@ -62,12 +64,13 @@ export const atlasRegions: readonly AtlasRegion[] = [
   {
     id: 'haifa-carmel',
     name: { en: 'Haifa & Carmel', es: 'Haifa y el Carmelo', he: 'חיפה והכרמל' },
-    theme: { en: 'City and coast', es: 'Ciudad y costa', he: 'עיר וחוף' },
-    image: '/illustrations/regions/haifa-carmel.webp',
+    theme: { en: 'Transport between mountain and coast', es: 'Transporte entre montaña y costa', he: 'תחבורה בין ההר לחוף' },
+    image: '/illustrations/regions/haifa-carmel-field-notes.webp',
+    portraitImage: '/illustrations/regions/haifa-carmel-field-notes-portrait.webp',
     imageAlt: {
-      en: 'An illustrated view from green Mount Carmel across Haifa and its Mediterranean bay',
-      es: 'Una vista ilustrada desde el verde monte Carmelo hacia Haifa y su bahía mediterránea',
-      he: 'מבט מאויר מהכרמל הירוק אל חיפה והמפרץ הים־תיכוני',
+      en: 'Adults look across Haifa at night, from the illuminated Carmel terraces toward the city, port, and Mediterranean bay',
+      es: 'Adultos contemplan Haifa de noche desde las terrazas iluminadas del Carmelo hacia la ciudad, el puerto y la bahía mediterránea',
+      he: 'מבוגרים מביטים על חיפה בלילה, מהטרסות המוארות בכרמל אל העיר, הנמל והמפרץ',
     },
     x: 33,
     y: 26,
@@ -75,12 +78,13 @@ export const atlasRegions: readonly AtlasRegion[] = [
   {
     id: 'tel-aviv-jaffa',
     name: { en: 'Tel Aviv & Jaffa', es: 'Tel Aviv y Jaffa', he: 'תל אביב ויפו' },
-    theme: { en: 'Work and social Hebrew', es: 'Trabajo y hebreo social', he: 'עבודה וחיי חברה' },
-    image: '/illustrations/regions/tel-aviv-jaffa.webp',
+    theme: { en: 'Food and social Hebrew', es: 'Comida y hebreo social', he: 'אוכל ועברית חברתית' },
+    image: '/illustrations/regions/tel-aviv-jaffa-field-notes.webp',
+    portraitImage: '/illustrations/regions/tel-aviv-jaffa-field-notes-portrait.webp',
     imageAlt: {
-      en: 'An illustrated Mediterranean promenade linking Old Jaffa with the Tel Aviv skyline',
-      es: 'Un paseo mediterráneo ilustrado que une la antigua Jaffa con el perfil de Tel Aviv',
-      he: 'טיילת ים־תיכונית מאוירת המחברת בין יפו העתיקה לקו הרקיע של תל אביב',
+      en: 'Two adults share a meal and conversation on the wet Jaffa promenade, with the lit Tel Aviv skyline beyond',
+      es: 'Dos adultos comparten comida y conversación en el paseo mojado de Jaffa, con el perfil iluminado de Tel Aviv al fondo',
+      he: 'שני מבוגרים חולקים ארוחה ושיחה בטיילת יפו הרטובה, מול קו הרקיע המואר של תל אביב',
     },
     x: 27,
     y: 45,
@@ -88,12 +92,13 @@ export const atlasRegions: readonly AtlasRegion[] = [
   {
     id: 'jerusalem',
     name: { en: 'Jerusalem', es: 'Jerusalén', he: 'ירושלים' },
-    theme: { en: 'Culture and everyday errands', es: 'Cultura y vida cotidiana', he: 'תרבות וסידורים' },
-    image: '/illustrations/regions/jerusalem.webp',
+    theme: { en: 'Greetings and everyday encounters', es: 'Saludos y encuentros cotidianos', he: 'ברכות ומפגשים מחיי היומיום' },
+    image: '/illustrations/regions/jerusalem-field-notes.webp',
+    portraitImage: '/illustrations/regions/jerusalem-field-notes-portrait.webp',
     imageAlt: {
-      en: 'An illustrated Jerusalem stone lane opening onto layered neighborhoods and olive trees',
-      es: 'Una calle ilustrada de piedra de Jerusalén que se abre a barrios y olivos',
-      he: 'סמטת אבן ירושלמית מאוירת הנפתחת אל שכונות מדורגות ועצי זית',
+      en: 'Adults greet one another beside a produce stall on a lamplit Jerusalem stone lane at blue hour',
+      es: 'Adultos se saludan junto a un puesto de frutas en una calle de piedra de Jerusalén iluminada al anochecer',
+      he: 'מבוגרים מברכים זה את זה ליד דוכן פירות בסמטת אבן ירושלמית מוארת בשעה הכחולה',
     },
     x: 60,
     y: 49,
@@ -101,25 +106,27 @@ export const atlasRegions: readonly AtlasRegion[] = [
   {
     id: 'dead-sea',
     name: { en: 'Dead Sea', es: 'Mar Muerto', he: 'ים המלח' },
-    theme: { en: 'Travel and wellbeing', es: 'Viajes y bienestar', he: 'טיולים ובריאות' },
-    image: '/illustrations/regions/dead-sea.webp',
+    theme: { en: 'Health, travel, and wellbeing', es: 'Salud, viajes y bienestar', he: 'בריאות, טיולים ורווחה' },
+    image: '/illustrations/regions/dead-sea-field-notes.webp',
+    portraitImage: '/illustrations/regions/dead-sea-field-notes-portrait.webp',
     imageAlt: {
-      en: 'An illustrated mineral-blue Dead Sea framed by salt formations and desert cliffs',
-      es: 'Un Mar Muerto ilustrado de azul mineral entre formaciones de sal y acantilados',
-      he: 'ים המלח מאויר בגוון כחול מינרלי בין גבישי מלח ומצוקי מדבר',
+      en: 'Adult travelers rest in shade and reach for water beside the mineral-blue Dead Sea and its salt formations',
+      es: 'Viajeros adultos descansan a la sombra y toman agua junto al Mar Muerto azul mineral y sus formaciones de sal',
+      he: 'מטיילים מבוגרים נחים בצל ולוקחים מים ליד מי ים המלח הכחולים ותצורות המלח',
     },
     x: 70,
     y: 65,
   },
   {
     id: 'negev',
-    name: { en: 'Negev', es: 'Néguev', he: 'הנגב' },
-    theme: { en: 'Community and daily life', es: 'Comunidad y vida diaria', he: 'קהילה וחיי יום־יום' },
-    image: '/illustrations/regions/negev.webp',
+    name: { en: 'Be’er Sheva & Negev', es: 'Be’er Sheva y el Néguev', he: 'באר שבע והנגב' },
+    theme: { en: 'Weather and desert routines', es: 'Clima y rutinas del desierto', he: 'מזג אוויר ושגרה מדברית' },
+    image: '/illustrations/regions/negev-field-notes.webp',
+    portraitImage: '/illustrations/regions/negev-field-notes-portrait.webp',
     imageAlt: {
-      en: 'An illustrated Negev sunrise over sandstone ridges, an acacia tree, and a small community',
-      es: 'Un amanecer ilustrado en el Néguev entre crestas de arenisca, una acacia y una comunidad',
-      he: 'זריחה מאוירת בנגב מעל רכסי אבן חול, עץ שיטה ויישוב קטן',
+      en: 'Adults wait for an evening bus beneath an acacia tree on the edge of Be’er Sheva and the Negev',
+      es: 'Adultos esperan un autobús al anochecer bajo una acacia en el borde de Be’er Sheva y el Néguev',
+      he: 'מבוגרים ממתינים לאוטובוס לעת ערב מתחת לעץ שיטה בפאתי באר שבע והנגב',
     },
     x: 49,
     y: 86,
@@ -140,7 +147,7 @@ const atlasCopy: Record<Locale, {
   en: {
     eyebrow: 'Living Hebrew Atlas',
     title: 'Learn Hebrew through places and moments that feel real.',
-    description: 'Travel from the Galilee to the Negev through practical scenes, useful words, listening, and conversation.',
+    description: 'Travel from the Galilee to Be’er Sheva and the Negev through practical scenes, useful words, listening, and conversation.',
     active: 'Current journey',
     complete: 'Completed',
     ready: 'Ready to explore',
@@ -149,7 +156,7 @@ const atlasCopy: Record<Locale, {
   es: {
     eyebrow: 'Atlas de hebreo vivo',
     title: 'Aprende hebreo con lugares y momentos que se sienten reales.',
-    description: 'Viaja desde Galilea hasta el Néguev con escenas prácticas, palabras útiles, escucha y conversación.',
+    description: 'Viaja desde Galilea hasta Be’er Sheva y el Néguev con escenas prácticas, palabras útiles, escucha y conversación.',
     active: 'Ruta actual',
     complete: 'Completado',
     ready: 'Listo para explorar',
@@ -158,7 +165,7 @@ const atlasCopy: Record<Locale, {
   he: {
     eyebrow: 'אטלס העברית החיה',
     title: 'לומדים עברית דרך מקומות ורגעים מהחיים.',
-    description: 'מטיילים מהגליל עד הנגב בעזרת סצנות שימושיות, מילים, הקשבה ושיחה.',
+    description: 'מטיילים מהגליל עד באר שבע והנגב בעזרת סצנות שימושיות, מילים, הקשבה ושיחה.',
     active: 'המסלול הנוכחי',
     complete: 'הושלם',
     ready: 'מוכן לגילוי',
@@ -270,7 +277,10 @@ export function LivingHebrewAtlasBackdrop({
   const region = atlasRegions.find((candidate) => candidate.id === activeRegion) ?? defaultAtlasRegion;
   return (
     <div className={`ivrit-atlas-backdrop ${className}`.trim()} aria-hidden="true">
-      <img src={region.image} alt="" decoding="async" />
+      <picture key={region.id}>
+        <source media="(max-width: 580px)" srcSet={region.portraitImage} />
+        <img src={region.image} alt="" decoding="async" />
+      </picture>
     </div>
   );
 }
@@ -320,7 +330,10 @@ export function LivingHebrewAtlas({
                     aria-label={`${copy.select}: ${localized(region.name, locale)} — ${localized(region.theme, locale)}`}
                     onClick={() => onSelectRegion(region.id)}
                   >
-                    <img src={region.image} alt="" loading="lazy" decoding="async" />
+                    <picture>
+                      <source media="(max-width: 580px)" srcSet={region.portraitImage} />
+                      <img src={region.image} alt="" loading="lazy" decoding="async" />
+                    </picture>
                     <span className="ivrit-atlas__region-index" aria-hidden="true">
                       {isComplete ? '✓' : index + 1}
                     </span>
@@ -332,7 +345,10 @@ export function LivingHebrewAtlas({
                   </button>
                 ) : (
                   <>
-                    <img src={region.image} alt="" loading="lazy" decoding="async" />
+                    <picture>
+                      <source media="(max-width: 580px)" srcSet={region.portraitImage} />
+                      <img src={region.image} alt="" loading="lazy" decoding="async" />
+                    </picture>
                     <span className="ivrit-atlas__region-index" aria-hidden="true">
                       {isComplete ? '✓' : index + 1}
                     </span>
@@ -350,15 +366,18 @@ export function LivingHebrewAtlas({
       </div>
 
       <div className="ivrit-atlas__visual" data-testid="living-hebrew-atlas-scene">
-        <img
-          className="ivrit-atlas__region-art"
-          src={activeRegionData.image}
-          alt={localized(activeRegionData.imageAlt, locale)}
-          loading="lazy"
-          decoding="async"
-        />
+        <picture className="ivrit-atlas__region-picture" key={activeRegionData.id}>
+          <source media="(max-width: 580px)" srcSet={activeRegionData.portraitImage} />
+          <img
+            className="ivrit-atlas__region-art"
+            src={activeRegionData.image}
+            alt={localized(activeRegionData.imageAlt, locale)}
+            loading="lazy"
+            decoding="async"
+          />
+        </picture>
         <div className="ivrit-atlas__art-wash" aria-hidden="true" />
-        <div className="ivrit-atlas__mini-map" aria-hidden="true">
+        <div className="ivrit-atlas__mini-map" key={`map-${activeRegionData.id}`} aria-hidden="true">
           <AtlasScene activeRegion={activeRegion} />
         </div>
         <div className="ivrit-atlas__visual-note">

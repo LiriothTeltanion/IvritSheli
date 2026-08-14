@@ -164,14 +164,22 @@
   cursor: pointer;
 }
 
-.ivrit-atlas__region-list li > img,
-.ivrit-atlas__region-list li > button > img {
+.ivrit-atlas__region-list li > picture,
+.ivrit-atlas__region-list li > button > picture {
   grid-row: 1 / span 2;
   width: 3.4rem;
   height: 3.4rem;
+  display: block;
+  overflow: hidden;
   border-radius: 0.78rem;
-  object-fit: cover;
   box-shadow: inset 0 0 0 1px rgba(23, 32, 51, 0.13);
+}
+
+.ivrit-atlas__region-list picture > img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
 }
 
 .ivrit-atlas__region-list li > button:hover {
@@ -256,16 +264,20 @@
   box-shadow: 0 1.5rem 3rem rgba(23, 32, 51, 0.14);
 }
 
-.ivrit-atlas__region-art {
+.ivrit-atlas__region-picture {
   position: absolute;
   inset: 0;
+  display: block;
+}
+
+.ivrit-atlas__region-art {
   width: 100%;
   height: 100%;
   display: block;
   object-fit: cover;
   object-position: center;
   transform: scale(1.012);
-  transition: opacity 220ms ease, transform 700ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  animation: atlasArtEnter 560ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
 .ivrit-atlas__art-wash {
@@ -307,11 +319,9 @@
 .ivrit-atlas__sea { opacity: 0.98; }
 .ivrit-atlas__land { opacity: 0.99; }
 .ivrit-atlas__coastline { fill: none; stroke: #5b9fa2; stroke-width: 4; stroke-linecap: round; }
-.ivrit-atlas__sun { opacity: 0.94; transform-origin: 628px 88px; animation: atlasSun 7s ease-in-out infinite alternate; }
+.ivrit-atlas__sun { opacity: 0.94; transform-origin: 628px 88px; }
 .ivrit-atlas__cloud { fill: #fffdf8; opacity: 0.72; }
-.ivrit-atlas__cloud--one { animation: atlasCloud 14s ease-in-out infinite alternate; }
-.ivrit-atlas__cloud--two { animation: atlasCloud 18s ease-in-out -5s infinite alternate-reverse; }
-.ivrit-atlas__journey-line { fill: none; stroke: rgba(15, 118, 110, 0.48); stroke-width: 5; stroke-linecap: round; stroke-dasharray: 3 17; animation: atlasRoute 10s linear infinite; }
+.ivrit-atlas__journey-line { fill: none; stroke: rgba(15, 118, 110, 0.48); stroke-width: 5; stroke-linecap: round; stroke-dasharray: 3 17; animation: atlasRoute 900ms ease-out both; }
 
 .ivrit-atlas__hill { fill: #699b72; }
 .ivrit-atlas__hill--far { fill: #95b88d; }
@@ -341,16 +351,12 @@
   opacity: 0.17;
 }
 
-.ivrit-atlas__letter--aleph { animation: atlasLetter 5.5s ease-in-out infinite alternate; }
-.ivrit-atlas__letter--lamed { animation: atlasLetter 6.5s ease-in-out -2s infinite alternate; }
-.ivrit-atlas__letter--shin { animation: atlasLetter 7s ease-in-out -3s infinite alternate; }
-
 .ivrit-atlas__active-halo {
   fill: rgba(255, 253, 248, 0.9);
   stroke: #0f766e;
   stroke-width: 4;
   transform-origin: 0 0;
-  animation: atlasHalo 2.4s ease-out infinite;
+  animation: atlasHalo 1.2s ease-out both;
   pointer-events: none;
 }
 
@@ -505,33 +511,39 @@ button.ivrit-atlas__marker:focus-visible {
   pointer-events: none;
 }
 
+.ivrit-atlas-backdrop picture,
 .ivrit-atlas-backdrop img {
   width: 100%;
   height: 100%;
+  display: block;
+}
+
+.ivrit-atlas-backdrop img {
   object-fit: cover;
   opacity: 0.18;
   filter: saturate(0.8);
+  animation: atlasBackdropEnter 560ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
-@keyframes atlasSun {
-  to { transform: scale(1.06); opacity: 1; }
+@keyframes atlasArtEnter {
+  from { opacity: 0.25; transform: scale(1.035); }
+  to { opacity: 1; transform: scale(1.012); }
 }
 
-@keyframes atlasCloud {
-  to { transform: translateX(22px); }
+@keyframes atlasBackdropEnter {
+  from { opacity: 0; transform: scale(1.02); }
+  to { opacity: 0.18; transform: scale(1); }
 }
 
 @keyframes atlasRoute {
-  to { stroke-dashoffset: -80; }
-}
-
-@keyframes atlasLetter {
-  to { transform: translateY(-7px); opacity: 0.25; }
+  from { opacity: 0.24; stroke-dashoffset: 80; }
+  to { opacity: 1; stroke-dashoffset: 0; }
 }
 
 @keyframes atlasHalo {
-  0%, 100% { opacity: 0.7; }
-  55% { opacity: 1; }
+  0% { opacity: 0; stroke-width: 8; }
+  48% { opacity: 1; stroke-width: 5; }
+  100% { opacity: 0.78; stroke-width: 4; }
 }
 
 @media (max-width: 900px) {

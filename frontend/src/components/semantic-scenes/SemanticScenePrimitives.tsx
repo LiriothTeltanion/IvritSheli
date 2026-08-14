@@ -5,6 +5,30 @@ import type { ReactNode } from 'react';
 import type { SemanticHintStage } from '../SemanticWordIllustration';
 import type { VisualTemplate } from '../../visuals/a0VisualRecipes';
 
+export type SpatialSceneFamily =
+  | 'interior'
+  | 'street'
+  | 'service'
+  | 'transit'
+  | 'landscape'
+  | 'tabletop'
+  | 'diagram';
+
+export type SemanticPersonPose =
+  | 'neutral'
+  | 'wave'
+  | 'point'
+  | 'stomach'
+  | 'walk'
+  | 'shiver'
+  | 'listen'
+  | 'hold'
+  | 'reach'
+  | 'ask'
+  | 'answer'
+  | 'request'
+  | 'explain';
+
 interface SceneLayerProps {
   name: 'context' | 'meaning' | 'anchor';
   minimumStage: SemanticHintStage;
@@ -34,7 +58,7 @@ export function SemanticPerson({
   y: number;
   shirt?: 'teal' | 'coral' | 'gold' | 'blue';
   facing?: 'left' | 'right';
-  pose?: 'neutral' | 'wave' | 'point' | 'stomach' | 'walk' | 'shiver' | 'listen' | 'hold' | 'reach';
+  pose?: SemanticPersonPose;
   scale?: number;
 }): React.JSX.Element {
   const direction = facing === 'left' ? -scale : scale;
@@ -46,17 +70,21 @@ export function SemanticPerson({
    * hand on the active arm: there the drawing already ends in splayed fingers
    * or a pointing finger, and a disc on top would bury it.
    */
-  const hands: ReadonlyArray<readonly [number, number]> = (() => {
+  const hands: ReadonlyArray<readonly [number, number, number]> = (() => {
     switch (pose) {
-      case 'wave': return [[-14, 18]];
-      case 'point': return [[-14, 18]];
-      case 'stomach': return [[0, 16]];
-      case 'shiver': return [[-2, 14], [2, 14]];
-      case 'listen': return [[-14, 18], [15, -18]];
-      case 'hold': return [[0, 20]];
-      case 'reach': return [[-18, 12], [30, -2]];
-      case 'walk': return [[-13, 18], [22, 18]];
-      default: return [[-14, 18], [22, 18]];
+      case 'wave': return [[-14, 18, -16]];
+      case 'point': return [[-14, 18, -16]];
+      case 'stomach': return [[0, 16, 0]];
+      case 'shiver': return [[-2, 14, -22], [2, 14, 22]];
+      case 'listen': return [[-14, 18, -16], [15, -18, 72]];
+      case 'hold': return [[0, 20, 0]];
+      case 'reach': return [[-18, 12, -18], [30, -2, -8]];
+      case 'ask': return [[-14, 18, -16], [28, 5, -8]];
+      case 'answer': return [[-14, 18, -16], [25, 8, 8]];
+      case 'request': return [[0, 18, 0]];
+      case 'explain': return [[-14, 18, -16]];
+      case 'walk': return [[-13, 18, -18], [22, 18, 18]];
+      default: return [[-14, 18, -16], [22, 18, 16]];
     }
   })();
   const arm = (() => {
@@ -64,7 +92,7 @@ export function SemanticPerson({
       return <path className="semantic-art__skin-line semantic-art__motion-part" d="M8 4 20-8l2-16m0 0-5-7m5 7 5-7m-5 7 8 1" />;
     }
     if (pose === 'point') {
-      return <path className="semantic-art__skin-line" d="M7 5 24-3l14 1" />;
+      return <path className="semantic-art__skin-line" d="M8 3q9-7 18-5h12" />;
     }
     if (pose === 'stomach') {
       return <path className="semantic-art__skin-line" d="M-8 5 0 16 10 7M8 5 0 16-9 8" />;
@@ -73,80 +101,96 @@ export function SemanticPerson({
       return <path className="semantic-art__skin-line semantic-art__motion-part" d="M-9 5-2 14 7 4M9 5 2 14-7 5" />;
     }
     if (pose === 'listen') {
-      return <path className="semantic-art__skin-line" d="M7 5 17-8l-2-10" />;
+      return <path className="semantic-art__skin-line" d="M8 3q8-2 9-11l-2-10" />;
     }
     if (pose === 'hold') {
       return <path className="semantic-art__skin-line" d="M-8 5-2 18 0 20M8 5 2 18 0 20" />;
     }
     if (pose === 'reach') {
-      return <path className="semantic-art__skin-line" d="M-8 5-18 12M8 5l22-7" />;
+      return <path className="semantic-art__skin-line" d="M-8 3q-5 5-10 9M8 3q10-3 22-5" />;
     }
-    return <path className="semantic-art__skin-line" d="M-8 5-14 18M8 5l14 13" />;
+    if (pose === 'ask') {
+      return <path className="semantic-art__skin-line semantic-art__motion-part" d="M-8 3q-3 8-6 15M8 3q9 8 20 2" />;
+    }
+    if (pose === 'answer') {
+      return <path className="semantic-art__skin-line semantic-art__motion-part" d="M-8 3q-3 8-6 15M8 3q8 1 17 5" />;
+    }
+    if (pose === 'request') {
+      return <path className="semantic-art__skin-line" d="M-8 3q1 10 8 15M8 3q-1 10-8 15" />;
+    }
+    if (pose === 'explain') {
+      return <path className="semantic-art__skin-line semantic-art__motion-part" d="M-8 3q-3 8-6 15M8 3q10-5 30-5" />;
+    }
+    return <path className="semantic-art__skin-line" d="M-8 3q-3 8-6 15M8 3q5 8 14 15" />;
   })();
   const face = pose === 'stomach' || pose === 'shiver'
-    ? 'M-4-16q4-3 8 0'
+    ? 'M-3.2-19q3.2-2.2 6.4 0'
     : pose === 'listen'
-      ? 'M-4-16h8'
-      : 'M-4-16q4 3 8 0';
+      ? 'M-3.2-19h6.4'
+      : pose === 'ask'
+        ? 'M-3-19q3-1 6 0'
+        : 'M-3.2-19q3.2 1.8 6.4 0';
   const hair = (() => {
     if (shirt === 'coral') {
-      return (
-        <>
-          <path className="semantic-art__hair" d="M-9-25c-1-8 4-14 10-14 6 0 10 5 9 14-6-3-13-3-19 0Z" />
-          <circle className="semantic-art__hair" cx="9" cy="-31" r="5" />
-        </>
-      );
+      return <path className="semantic-art__hair" d="M-7-26c-1-6 2-11 8-11 5 0 8 4 7 10-4-2-10-2-15 1Zm13-6c5 0 6 7 2 9" />;
     }
     if (shirt === 'blue') {
-      return <path className="semantic-art__hair" d="M-10-25c0-9 4-14 10-14 7 0 11 5 10 14-3-4-5-5-7-2-3-4-6-4-7 0-2-3-4-2-6 2Z" />;
+      return <path className="semantic-art__hair" d="M-8-27c0-7 3-11 8-11 6 0 9 4 8 11-3-3-4-4-6-2-2-3-5-3-6 0-2-2-3-1-4 2Z" />;
     }
     if (shirt === 'gold') {
-      return <path className="semantic-art__hair" d="M-10-25c0-9 5-14 11-14 5 0 9 4 9 10-7-2-13 0-20 4Z" />;
+      return <path className="semantic-art__hair" d="M-8-27c0-7 4-11 9-11 4 0 7 3 7 8-6-2-11 0-16 3Z" />;
     }
-    return <path className="semantic-art__hair" d="M-10-25c-1-9 4-14 11-14 6 0 10 5 9 14-6-3-13-3-20 0Z" />;
+    return <path className="semantic-art__hair" d="M-8-27c-1-7 3-11 9-11 5 0 8 4 7 11-5-3-11-3-16 0Z" />;
   })();
   return (
     <g
       className={`semantic-art__person semantic-art__person--${shirt}`}
       transform={`translate(${x} ${y}) scale(${direction} ${scale})`}
+      data-character-system="adult-editorial"
+      data-person-pose={pose}
     >
-      {/* Neck first, so the collar reads as sitting on top of it. */}
-      <path className="semantic-art__skin" d="M-3.5-14h7v9h-7Z" />
-      {/* The jaw casts onto the neck; without it the head floats on a stump. */}
-      <path className="semantic-art__skin-shade" d="M-3.5-14h7v4h-7Z" />
-      <circle className="semantic-art__skin" cx="0" cy="-23" r="9.5" />
-      {/* Modelled in skin's own colour: lit on the light side, deep opposite. */}
-      <path className="semantic-art__skin-shade" d="M5-32a9.5 9.5 0 0 1 0 18 11 9.5 0 0 0 0-18Z" />
-      <circle className="semantic-art__skin-lit" cx="-3.5" cy="-26" r="4" />
-      {/*
-        Hair stops above the brow. It used to reach y=-20, straight across the
-        eye line, and with no eyes drawn underneath every one of the fifty-six
-        figures read as wearing a blindfold.
-      */}
+      {/* A ~1:6 head-to-body ratio keeps the shared figure readable without the
+          oversized head, tiny legs and mitten hands of the previous system. */}
+      <path className="semantic-art__skin" d="M-3-17h6v10h-6Z" />
+      <path className="semantic-art__skin-shade" d="M-3-17h6v4h-6Z" />
+      <ellipse className="semantic-art__skin" cx="0" cy="-24" rx="7.4" ry="8.2" />
+      <path className="semantic-art__skin-shade" d="M4-32a7.4 8.2 0 0 1 0 16 8.5 8.2 0 0 0 0-16Z" />
+      <ellipse className="semantic-art__skin-lit" cx="-2.8" cy="-26" rx="2.8" ry="3.4" />
       {hair}
-      <path className="semantic-art__hair-deep" d="M6-37c3 3 5 7 4 12-2-1-4-2-6-3Z" />
-      {/* One loose strand keeps the silhouette from reading as a helmet. */}
-      <path className="semantic-art__hair-lit" d="M-7-29c3-4 7-6 11-5" />
-      <path className="semantic-art__shirt" d="M-15 38c1-31 6-46 15-46s14 15 15 46Z" />
-      {/* Three planes of the same cloth: lit shoulder, base, shaded flank. */}
-      <path className="semantic-art__shirt-lit" d="M-9-7c-5 4-8 21-9 45h-6c1-28 6-43 13-46Z" />
-      <path className="semantic-art__shirt-deep" d="M4-7c7 4 11 21 11 45H7C7 19 6 2 4-7Z" />
-      {/* Collar and hem: two short lines that turn a blob into clothing. */}
-      <path className="semantic-art__garment-line" d="M-6-7q6 5 12 0M-13 30h26" />
-      {shirt === 'gold' && <path className="semantic-art__garment-line" d="M0-2v31m-2-20h4m-4 8h4" />}
-      {shirt === 'blue' && <path className="semantic-art__garment-line" d="M-13 12h7m12 0h7" />}
-      <circle className="semantic-art__eye" cx="-3.5" cy="-23" r="1.45" />
-      <circle className="semantic-art__eye" cx="3.5" cy="-23" r="1.45" />
+      <path className="semantic-art__hair-deep" d="M5-35c3 3 4 6 3 9-2-1-3-2-5-3Z" />
+      <path className="semantic-art__hair-lit" d="M-5-30c2-3 5-4 8-4" />
+      <path className="semantic-art__shirt" d="M-13 28c1-24 5-35 13-35s12 11 13 35Z" />
+      <path className="semantic-art__shirt-lit" d="M-8-6c-4 4-6 16-7 34h-5c1-21 5-33 10-35Z" />
+      <path className="semantic-art__shirt-deep" d="M4-6c6 4 9 16 9 34H6C6 13 5 1 4-6Z" />
+      <path className="semantic-art__garment-line" d="M-5-7q5 4 10 0M-11 22h22" />
+      {shirt === 'gold' && <path className="semantic-art__garment-line" d="M0-2v23m-2-15h4m-4 7h4" />}
+      {shirt === 'blue' && <path className="semantic-art__garment-line" d="M-11 8h6m10 0h6" />}
+      <path
+        className="semantic-art__trousers"
+        d={pose === 'walk'
+          ? 'M-10 27h20L5 38l13 13-5 4L0 43-9 55l-6-4 9-15Z'
+          : 'M-10 27h20L7 39l7 16H8L1 41-5 55h-7l6-18Z'}
+      />
+      <path className="semantic-art__trouser-seam" d={pose === 'walk' ? 'M0 30 5 38M-5 36-9 51' : 'M0 30 1 41M-6 37-5 52M7 39l7 16'} />
+      <ellipse className="semantic-art__eye" cx="-2.7" cy="-24.5" rx="1.05" ry="1.25" />
+      <ellipse className="semantic-art__eye" cx="2.7" cy="-24.5" rx="1.05" ry="1.25" />
+      <path className="semantic-art__nose" d="M1-24v3l2 1" />
       <path className="semantic-art__face" d={face} />
       {arm}
-      {hands.map(([hx, hy]) => (
-        <circle key={`${hx},${hy}`} className="semantic-art__hand" cx={hx} cy={hy} r="3.1" />
+      {hands.map(([hx, hy, angle]) => (
+        <ellipse
+          key={`${hx},${hy}`}
+          className="semantic-art__hand"
+          cx={hx}
+          cy={hy}
+          rx="3"
+          ry="2.15"
+          transform={`rotate(${angle} ${hx} ${hy})`}
+        />
       ))}
-      <path className="semantic-art__limb" d={pose === 'walk' ? 'M-4 38-13 55M5 38l12 14' : 'M-5 38-8 55M5 38l8 17'} />
-      {/* Shoes ground the figure instead of letting the legs taper into nothing. */}
       <path
         className="semantic-art__shoe"
-        d={pose === 'walk' ? 'M-13 55h-6M17 52l4 5' : 'M-8 55h-6M13 55h6'}
+        d={pose === 'walk' ? 'M-9 51h-8q-3 0-3 4h12Zm22 0 6 2q3 1 2 4h-9Z' : 'M-5 52h-8q-3 0-3 4h11Zm13 0h8q3 0 3 4H8Z'}
       />
     </g>
   );
@@ -233,16 +277,21 @@ export function SpeechBubble({
   x,
   y,
   question = false,
+  tail = 'left',
 }: {
   x: number;
   y: number;
   question?: boolean;
+  tail?: 'left' | 'right';
 }): React.JSX.Element {
+  const bubble = tail === 'left'
+    ? 'M0 0h47a10 10 0 0 1 10 10v15a10 10 0 0 1-10 10H26l-10 9 2-9H0A10 10 0 0 1-10 25V10A10 10 0 0 1 0 0Z'
+    : 'M0 0h47a10 10 0 0 1 10 10v15a10 10 0 0 1-10 10H31l10 9-2-9H0A10 10 0 0 1-10 25V10A10 10 0 0 1 0 0Z';
   return (
-    <g transform={`translate(${x} ${y})`}>
+    <g transform={`translate(${x} ${y})`} data-bubble-tail={tail}>
       {/* Offset copy behind the bubble: a drop shadow that lifts it off the scene. */}
-      <path className="semantic-art__bubble-shadow" d="M3 4h47a10 10 0 0 1 10 10v15a10 10 0 0 1-10 10H29l-10 9 2-9H3A10 10 0 0 1-7 29V14A10 10 0 0 1 3 4Z" />
-      <path className="semantic-art__surface semantic-art__bubble semantic-art__outlined" d="M0 0h47a10 10 0 0 1 10 10v15a10 10 0 0 1-10 10H26l-10 9 2-9H0A10 10 0 0 1-10 25V10A10 10 0 0 1 0 0Z" />
+      <path className="semantic-art__bubble-shadow" d={bubble} transform="translate(3 4)" />
+      <path className="semantic-art__surface semantic-art__bubble semantic-art__outlined" d={bubble} />
       {question
         ? <path className="semantic-art__detail" d="M21 10c0-7 14-7 14 0 0 5-7 5-7 10m0 7h.1" />
         : <path className="semantic-art__detail" d="M7 13h33M12 23h23" />}
@@ -357,14 +406,86 @@ export function SemanticSceneVignette({ sceneId }: { sceneId: string }): React.J
   );
 }
 
+function SemanticSpatialBackdrop({ family }: { family: SpatialSceneFamily }): React.JSX.Element {
+  const content = (() => {
+    switch (family) {
+      case 'interior':
+        return (
+          <>
+            <path className="semantic-art__spatial-plane" d="M22 38h196v101H22Z" />
+            <path className="semantic-art__spatial-shade" d="m218 38-48 32v69h48Z" />
+            <path className="semantic-art__spatial-line" d="M22 139 88 98h64l66 41M88 98V52m64 46V52" />
+          </>
+        );
+      case 'street':
+        return (
+          <>
+            <path className="semantic-art__spatial-silhouette" d="M24 126V80h31v18h25V67h34v59Zm113 0V74h24V57h31v31h24v38Z" />
+            <path className="semantic-art__spatial-line" d="M28 151 103 111h34l75 40M120 111v40" />
+          </>
+        );
+      case 'service':
+        return (
+          <>
+            <path className="semantic-art__spatial-plane" d="M24 45h192v80H24Z" />
+            <path className="semantic-art__spatial-line" d="M36 58h47v31H36Zm121 0h47v31h-47M24 125h192M49 125l-17 30m159-30 17 30" />
+            <path className="semantic-art__spatial-counter" d="M28 118h184v20H28Z" />
+          </>
+        );
+      case 'transit':
+        return (
+          <>
+            <path className="semantic-art__spatial-silhouette" d="M25 106h31V75h32v31h64V66h34v40h29v24H25Z" />
+            <path className="semantic-art__spatial-line" d="M42 157 103 106m95 51-61-51M76 157l39-51m49 51-39-51" />
+            <path className="semantic-art__spatial-dash" d="M120 116v9m0 9v12" />
+          </>
+        );
+      case 'landscape':
+        return (
+          <>
+            <path className="semantic-art__spatial-distance" d="M19 115q35-42 70-9 31-55 71-9 27-27 61 8v43H19Z" />
+            <path className="semantic-art__spatial-line" d="M24 130q39-25 74-4t73-3q22-13 45-4" />
+          </>
+        );
+      case 'tabletop':
+        return (
+          <>
+            <path className="semantic-art__spatial-plane" d="M20 112h200v42H20Z" />
+            <path className="semantic-art__spatial-shade" d="M20 144h200v10H20Z" />
+            <path className="semantic-art__spatial-line" d="M20 112h200M52 112 32 154m156-42 20 42" />
+          </>
+        );
+      default:
+        return (
+          <>
+            <path className="semantic-art__spatial-grid" d="M38 45h164v92H38Zm0 31h164M38 107h164M79 45v92m41-92v92m41-92v92" />
+            <path className="semantic-art__spatial-axis" d="M28 144h184m-92-108v116" />
+          </>
+        );
+    }
+  })();
+
+  return (
+    <g
+      className="semantic-art__spatial-context"
+      data-spatial-family={family}
+      data-depth-plane="backdrop"
+    >
+      {content}
+    </g>
+  );
+}
+
 export function SemanticSceneFrame({
   hintStage,
   sceneId,
   template,
+  spatialFamily,
 }: {
   hintStage: SemanticHintStage;
   sceneId: string;
   template: VisualTemplate;
+  spatialFamily: SpatialSceneFamily;
 }): React.JSX.Element {
   const frameVariant = (() => {
     if (template === 'object-focus') return 'still-life';
@@ -372,6 +493,18 @@ export function SemanticSceneFrame({
     if (template === 'place' || template === 'direction') return 'wayfinding';
     if (template === 'quantity-time') return 'measure';
     return 'diagram';
+  })();
+  const groundPath = (() => {
+    if (spatialFamily === 'landscape') return 'M18 141c42-15 74-9 105 1 36 11 67 8 99-6v26H18Z';
+    if (spatialFamily === 'street' || spatialFamily === 'transit') return 'M18 137 103 109h34l85 28v25H18Z';
+    if (spatialFamily === 'diagram') return 'M18 151h204v11H18Z';
+    return 'M18 137h204v25H18Z';
+  })();
+  const groundRimPath = (() => {
+    if (spatialFamily === 'landscape') return 'M18 141c42-15 74-9 105 1 36 11 67 8 99-6';
+    if (spatialFamily === 'street' || spatialFamily === 'transit') return 'M18 137 103 109h34l85 28';
+    if (spatialFamily === 'diagram') return 'M18 151h204';
+    return 'M18 137h204';
   })();
   return (
     <>
@@ -439,6 +572,7 @@ export function SemanticSceneFrame({
         )}
       </g>
       <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
+        <SemanticSpatialBackdrop family={spatialFamily} />
         <circle
           className="semantic-art__glow"
           cx="198"
@@ -448,8 +582,9 @@ export function SemanticSceneFrame({
         />
         <path
           className="semantic-art__ground"
-          d="M18 141c42-15 74-9 105 1 36 11 67 8 99-6v26H18Z"
+          d={groundPath}
           fill={`url(#${sceneId}-ground)`}
+          data-depth-plane="ground"
         />
         {/* A soft contact shadow sits the subject on the ground instead of
             leaving it floating on flat colour. */}
@@ -464,7 +599,7 @@ export function SemanticSceneFrame({
         {/* A lit rim where the ground meets the air gives the horizon an edge. */}
         <path
           className="semantic-art__ground-rim"
-          d="M18 141c42-15 74-9 105 1 36 11 67 8 99-6"
+          d={groundRimPath}
         />
       </SceneLayer>
     </>

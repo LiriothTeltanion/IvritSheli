@@ -1,6 +1,9 @@
-# 2.11.0 source-contract note — 2026-08-14
+# 2.12.0 source-contract note — 2026-08-14
 
-This unpublished 2.11.0 candidate inherits the 2.10.0 API surface without broadening public permissions. Google public sign-in remains **identity-only** (`openid profile`). The current change is an editorial and recognition-focused visual system across all 240 exact scenes; the verified public deployment remains 2.4.0.
+This unpublished 2.12.0 candidate inherits the 2.11.0 API surface without
+broadening public permissions. Google public sign-in remains **identity-only**
+(`openid profile`). The current change is a client-side visual and responsive-
+asset checkpoint; the verified public deployment remains 2.4.0.
 
 # API catalog — Ivrit Sheli 2.9.2 private candidate — 2026-07-28
 
@@ -201,7 +204,7 @@ Dictionary reference data remains local/rebuildable SQLite data in both runtime 
 
 Dictionary results are decorated with the current learner's saved-item ID, learning status, and due state. Search, lookup and entry GETs are read-only: exploration does not append events, award XP or change mastery. Repeated **Add to learning** requests return the existing active item instead of creating new duplicate vocabulary records.
 
-The 2.8 reviewed starter dictionary contains 240 trilingual A0–A2 concepts. Its schema exposes nullable `level`, `category`, `visual_id`, visual metadata and `reading_hints`. A visual contains a stable key/identifier, a fallback emoji and localized alternative text for `en`, `es`, and `he`. Seventy-two concepts have exact semantic SVG scenes with progressive `context`, `meaning` and `anchor` layers. The other 168 concepts use explicit category-composition and emoji fallbacks and are not presented as bespoke art. `GET /dashboard` includes an optional backward-compatible `visual_spotlight` of up to six exact scenes; ranked learner recommendations are used first and deterministic exact-scene rotations only fill remaining positions. Curated senses expose the same metadata and provenance, and examples may include `translation_es`. Reading hints are authored linguistic data—when they are absent, the interface shows the complete reviewed niqqud or no niqqud instead of deleting marks mechanically. Imported or unsupported entries may correctly return no visual or reading hints rather than receiving fabricated content.
+The backward-compatible 2.8 starter-dictionary payload contains 240 trilingual A0–A2 concepts. Its schema exposes nullable `level`, `category`, `visual_id`, visual metadata and `reading_hints`. A visual contains a stable key/identifier, a fallback emoji and localized alternative text for `en`, `es`, and `he`. The 2.8 source originally shipped 72 exact scenes and 168 fallbacks; the current 2.12 frontend now resolves all 240 reviewed keys to exact semantic SVG scenes with progressive `context`, `meaning` and `anchor` layers without changing that payload contract. `GET /dashboard` includes an optional backward-compatible `visual_spotlight` of up to six exact scenes; ranked learner recommendations are used first and deterministic exact-scene rotations only fill remaining positions. Curated senses expose the same metadata and provenance, and examples may include `translation_es`. Reading hints are authored linguistic data—when they are absent, the interface shows the complete reviewed niqqud or no niqqud instead of deleting marks mechanically. Imported or unsupported entries may correctly return no visual or reading hints rather than receiving fabricated content.
 
 ## AI
 

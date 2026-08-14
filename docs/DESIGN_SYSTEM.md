@@ -1,12 +1,22 @@
-# 2.11.0 Living Hebrew Field Notes — 2026-08-14
+# 2.12.0 Living Hebrew Nocturne — 2026-08-14
 
-The current private candidate combines six cinematic Israel-region WebP journey scenes with **240 exact semantic SVG scenes** for the reviewed vocabulary catalog. Its editorial field-note layer adds restrained domain mats, five composition families, adult shared characters and thumbnail-safe meaning cues without replacing the scene-specific semantics. Learner surfaces prioritize Hebrew and meaning; infrastructure details move behind advanced/privacy disclosure. Motion is semantic and fully disabled when reduced motion is requested. See `VISUAL_BIBLE.md`.
+The current private candidate combines six responsive Israel-region journey
+paintings and one cross-journey hero with **240 exact semantic SVG scenes** for
+the reviewed vocabulary catalog. Dark navy is the default editorial frame;
+light remains an explicit persistent choice. Setting-aware depth, adult shared
+anatomy and brief meaning-driven motion strengthen recognition without replacing
+scene-specific semantics. See `VISUAL_BIBLE.md` and
+`VISUAL_ASSET_MANIFEST.md`.
 
 # Design system
 
 ## Warm Illustrated Journey visual direction
 
-The default beginner experience is a warm illustrated journey: cream paper-like backgrounds, navy text, teal actions, gold learning highlights and coral speaking/destructive accents. Dark mode is retained for learner choice and advanced workspaces, but the first-run experience is light-first so content hierarchy is familiar to people with limited technical experience.
+The default beginner experience is a nocturnal editorial journey: deep navy
+structure, high-contrast text, teal actions, gold learning highlights and coral
+speaking/destructive accents. Light mode remains fully supported and persistent
+when a learner chooses it; first run is intentionally dark across Guided,
+Explorer, Experienced and the visual QA workbench.
 
 ## Core warm palette
 
@@ -36,10 +46,10 @@ The frontend includes a small custom inline SVG icon set. Icons inherit `current
 
 ## Word illustrations
 
-The reviewed layer contains 240 concepts. Seventy-two words use exact semantic
+The reviewed layer contains 240 concepts, and all 240 use exact semantic
 code-native SVG scenes with progressive context, meaning and anchor layers.
-The other 168 concepts use explicit category-composition and emoji fallbacks
-rather than being presented as bespoke art. Each cue is
+Category-composition and emoji fallbacks remain available only for future
+imported or unsupported words outside that reviewed catalog. Each cue is
 selected for recall rather than decoration and is paired with localized Hebrew,
 English and Spanish alternative text. Illustration colors reuse the warm tokens so
 high-contrast and theme behavior stay coherent. Images do not load from
@@ -48,8 +58,7 @@ third-party hosts, track learners or introduce a separate asset license.
 An illustration is never evidence for meaning, grammar or cultural usage. Source-backed text and provenance remain the authority, and unsupported dictionary entries may have no visual.
 
 See [Vocabulary illustration system](VOCABULARY_ILLUSTRATION_SYSTEM.md) for
-the exact-scene catalog, progressive-layer boundary, current fallback
-limitation, and replacement order.
+the exact-scene catalog, progressive-layer boundary and fallback contract.
 
 ## Motion
 

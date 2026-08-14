@@ -2,6 +2,29 @@
 
 All notable changes are documented here. Versions follow Semantic Versioning.
 
+## 2.12.0 — Living Hebrew Nocturne — Private candidate — 2026-08-14
+
+- Makes dark the intentional first-run theme while preserving an explicit,
+  persistent light preference and preventing a pre-render colour flash.
+- Replaces the six visible regional journey paintings with a coherent adult
+  blue-hour editorial series, adds art-directed portrait crops for mobile and
+  aligns every region's copy with its real learning domain and action.
+- Replaces the geographically impossible legacy collage in learner-facing
+  surfaces with one believable Be'er Sheva plaza scene combining directions,
+  everyday exchange and transit.
+- Deepens all 240 deterministic semantic SVG scenes with adult shared anatomy,
+  setting-aware spatial geometry and short meaning-driven motion profiles.
+- Reworks the private VisualQAGallery so art is the primary card surface rather
+  than a small thumbnail beside metadata, while retaining trilingual search,
+  exact recipes, recognition testing, RTL and reduced-motion behavior.
+- Adds a collapsible seven-painting review tray to VisualQAGallery so the global
+  hero and six responsive regional scenes can be inspected together without
+  loading their raster weight during ordinary semantic-scene review.
+- Records dimensions, hashes, generation provenance, responsive crops and the
+  review boundary for all seven new rasters in `docs/VISUAL_ASSET_MANIFEST.md`.
+- Remains local, private and unpublished. No push, tag, release, deployment or
+  public judge-state change was made.
+
 ## 2.11.0 — Living Hebrew Field Notes — Private candidate — 2026-08-14
 
 - Gives all 240 exact semantic SVG scenes an explicit editorial art direction,

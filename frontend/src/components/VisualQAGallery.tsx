@@ -12,6 +12,7 @@ import {
   type A0VisualKey,
 } from '../visuals/a0VisualRecipes';
 import { DictionaryVisualCue } from './DictionaryVisualCue';
+import { atlasRegions } from './LivingHebrewAtlas';
 
 type QAView = 'thumbnail' | 'card' | 'hero' | 'compare';
 
@@ -71,12 +72,19 @@ interface GalleryCopy {
   score: (correct: number, total: number) => string;
   recognitionImage: string;
   unavailable: string;
+  journeyArt: string;
+  journeySummary: string;
+  journeyShow: string;
+  journeyHide: string;
+  journeyCount: string;
+  journeyHero: string;
+  journeyHeroAlt: string;
 }
 
 const GALLERY_COPY: Record<Locale, GalleryCopy> = {
   en: {
     kicker: 'Private visual candidate',
-    title: 'Living Hebrew Field Notes',
+    title: 'Living Hebrew Nocturne',
     subtitle: 'An editorial workbench for exact, adult and recognizable learning scenes.',
     scenes: 'exact scenes',
     domains: 'learning domains',
@@ -114,6 +122,13 @@ const GALLERY_COPY: Record<Locale, GalleryCopy> = {
     score: (correct, total) => `${correct}/${total} recognized`,
     recognitionImage: 'Unlabelled scene for recognition testing',
     unavailable: 'Visual QA unavailable',
+    journeyArt: 'Cinematic journey art',
+    journeySummary: 'Review the seven adult, action-led paintings in context',
+    journeyShow: 'Open journey paintings',
+    journeyHide: 'Close journey paintings',
+    journeyCount: '7 reviewed scenes',
+    journeyHero: 'Hebrew in motion · Be’er Sheva',
+    journeyHeroAlt: 'Adults use directions, everyday exchange, and public transport in a Be’er Sheva plaza at blue hour',
   },
   es: {
     kicker: 'Candidata visual privada',
@@ -155,6 +170,13 @@ const GALLERY_COPY: Record<Locale, GalleryCopy> = {
     score: (correct, total) => `${correct}/${total} reconocidas`,
     recognitionImage: 'Escena sin etiqueta para una prueba de reconocimiento',
     unavailable: 'La revisión visual no está disponible',
+    journeyArt: 'Arte cinematográfico del recorrido',
+    journeySummary: 'Revisa en contexto las siete pinturas adultas centradas en acciones útiles',
+    journeyShow: 'Abrir pinturas del recorrido',
+    journeyHide: 'Cerrar pinturas del recorrido',
+    journeyCount: '7 escenas revisadas',
+    journeyHero: 'Hebreo en movimiento · Be’er Sheva',
+    journeyHeroAlt: 'Adultos usan indicaciones, un intercambio cotidiano y transporte público en una plaza de Be’er Sheva al anochecer',
   },
   he: {
     kicker: 'מועמדת חזותית פרטית',
@@ -186,8 +208,8 @@ const GALLERY_COPY: Record<Locale, GalleryCopy> = {
     anchor: 'עוגן',
     descriptions: 'תיאורים נגישים',
     recognitionLab: 'מעבדת זיהוי',
-    recognitionSummary: 'בודקים את המשמעות לפני שקוראים את התווית',
-    recognitionIntro: 'מתבוננים בסצנה לבדה במשך חמש שניות ואז בוחרים משמעות מאותו תחום.',
+    recognitionSummary: 'בוחרים את המילה בעברית לפני שחושפים את הכרטיס',
+    recognitionIntro: 'מתבוננים בסצנה לבדה במשך חמש שניות ואז בוחרים את המילה המתאימה בעברית.',
     startRecognition: 'התחלת בדיקת זיהוי',
     observe: 'מתבוננים בסצנה… 5 שניות',
     recognized: 'זוהתה',
@@ -196,6 +218,13 @@ const GALLERY_COPY: Record<Locale, GalleryCopy> = {
     score: (correct, total) => `${correct}/${total} זוהו`,
     recognitionImage: 'סצנה ללא תווית לבדיקת זיהוי',
     unavailable: 'בדיקת האיכות החזותית אינה זמינה',
+    journeyArt: 'אמנות קולנועית למסע',
+    journeySummary: 'סקירת שבע תמונות בוגרות המבוססות על פעולות שימושיות',
+    journeyShow: 'פתיחת תמונות המסע',
+    journeyHide: 'סגירת תמונות המסע',
+    journeyCount: '7 סצנות שנבדקו',
+    journeyHero: 'עברית בתנועה · באר שבע',
+    journeyHeroAlt: 'מבוגרים משתמשים בהכוונה, בהחלפה יומיומית ובתחבורה ציבורית בכיכר בבאר שבע בשעה הכחולה',
   },
 };
 
@@ -220,7 +249,12 @@ function initialView(): QAView {
 }
 
 function initialTheme(): 'light' | 'dark' {
-  return new URLSearchParams(window.location.search).get('theme') === 'dark' ? 'dark' : 'light';
+  const requested = new URLSearchParams(window.location.search).get('theme');
+  return requested === 'light' || requested === 'dark' ? requested : 'dark';
+}
+
+function initialJourneyReview(): boolean {
+  return new URLSearchParams(window.location.search).get('journeyArt') === '1';
 }
 
 function isQAVocabularyEntry(value: unknown): value is QAVocabularyEntry {
@@ -239,6 +273,11 @@ function isQAVocabularyEntry(value: unknown): value is QAVocabularyEntry {
 function localizedMeaning(entry: QAVocabularyEntry, locale: Locale): string {
   if (locale === 'es') return entry.senses[0]?.gloss_es ?? entry.senses[0]?.gloss_en ?? '';
   return entry.senses[0]?.gloss_en ?? '';
+}
+
+function localizedRecognitionChoice(entry: QAVocabularyEntry, locale: Locale): string {
+  if (locale === 'he') return entry.display_niqqud || entry.word;
+  return localizedMeaning(entry, locale);
 }
 
 function readableRecipePart(value: string): string {
@@ -278,6 +317,7 @@ export function VisualQAGallery(): React.JSX.Element {
   const [entries, setEntries] = useState<QAVocabularyEntry[]>([]);
   const [error, setError] = useState('');
   const [theme, setTheme] = useState<'light' | 'dark'>(initialTheme);
+  const [journeyReviewOpen, setJourneyReviewOpen] = useState(initialJourneyReview);
   const [activeCategory, setActiveCategory] = useState(initialCategory);
   const [view, setView] = useState<QAView>(initialView);
   const [query, setQuery] = useState('');
@@ -318,10 +358,14 @@ export function VisualQAGallery(): React.JSX.Element {
 
   useEffect(() => {
     const previousTheme = document.documentElement.dataset.theme;
+    const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    const previousThemeColor = themeColor?.content;
     document.documentElement.dataset.theme = theme;
+    themeColor?.setAttribute('content', theme === 'dark' ? '#030912' : '#f7f1e5');
     return () => {
       if (previousTheme) document.documentElement.dataset.theme = previousTheme;
       else delete document.documentElement.dataset.theme;
+      if (themeColor && previousThemeColor) themeColor.content = previousThemeColor;
     };
   }, [theme]);
 
@@ -390,6 +434,30 @@ export function VisualQAGallery(): React.JSX.Element {
     setLastCorrect(null);
   };
 
+  const selectTheme = (nextTheme: 'light' | 'dark'): void => {
+    setTheme(nextTheme);
+    const nextUrl = new URL(window.location.href);
+    nextUrl.searchParams.set('theme', nextTheme);
+    window.history.replaceState(
+      window.history.state,
+      '',
+      `${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`,
+    );
+  };
+
+  const toggleJourneyReview = (): void => {
+    const nextOpen = !journeyReviewOpen;
+    setJourneyReviewOpen(nextOpen);
+    const nextUrl = new URL(window.location.href);
+    if (nextOpen) nextUrl.searchParams.set('journeyArt', '1');
+    else nextUrl.searchParams.delete('journeyArt');
+    window.history.replaceState(
+      window.history.state,
+      '',
+      `${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`,
+    );
+  };
+
   if (error) {
     return <main className="visual-qa visual-qa--error"><h1>{copy.unavailable}</h1><p>{error}</p></main>;
   }
@@ -411,6 +479,53 @@ export function VisualQAGallery(): React.JSX.Element {
         </dl>
       </header>
 
+      <section className="visual-qa__journey" aria-labelledby="journey-art-title">
+        <header>
+          <span>
+            <small>{copy.journeyArt}</small>
+            <strong id="journey-art-title">{copy.journeySummary}</strong>
+          </span>
+          <output>{copy.journeyCount}</output>
+          <button
+            type="button"
+            aria-expanded={journeyReviewOpen}
+            aria-controls={journeyReviewOpen ? 'journey-art-grid' : undefined}
+            onClick={toggleJourneyReview}
+          >
+            {journeyReviewOpen ? copy.journeyHide : copy.journeyShow}
+          </button>
+        </header>
+        {journeyReviewOpen && (
+          <div className="visual-qa__journey-grid" id="journey-art-grid">
+            <figure className="visual-qa__journey-hero">
+              <img
+                src="/assets/illustrations/israel-living-atlas-field-notes.webp"
+                alt={copy.journeyHeroAlt}
+                decoding="async"
+              />
+              <figcaption><strong>{copy.journeyHero}</strong><span>{copy.journeySummary}</span></figcaption>
+            </figure>
+            {atlasRegions.map((region) => (
+              <figure key={region.id}>
+                <picture>
+                  <source media="(max-width: 580px)" srcSet={region.portraitImage} />
+                  <img
+                    src={region.image}
+                    alt={region.imageAlt[locale]}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </picture>
+                <figcaption>
+                  <strong>{region.name[locale]}</strong>
+                  <span>{region.theme[locale]}</span>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        )}
+      </section>
+
       <details className="visual-qa__recognition">
         <summary>
           <span><small>{copy.recognitionLab}</small><strong>{copy.recognitionSummary}</strong></span>
@@ -430,11 +545,13 @@ export function VisualQAGallery(): React.JSX.Element {
                     <button
                       key={choice.visual.key}
                       type="button"
+                      lang={locale === 'he' ? 'he' : undefined}
+                      dir={locale === 'he' ? 'rtl' : undefined}
                       disabled={answered}
                       data-choice-visual={choice.visual.key}
                       onClick={() => chooseMeaning(choice)}
                     >
-                      {localizedMeaning(choice, locale)}
+                      {localizedRecognitionChoice(choice, locale)}
                     </button>
                   ))}
                 </div>
@@ -442,7 +559,7 @@ export function VisualQAGallery(): React.JSX.Element {
               {answered && target && (
                 <div className={`visual-qa__result visual-qa__result--${lastCorrect ? 'correct' : 'retry'}`}>
                   <strong>{lastCorrect ? copy.recognized : copy.redesign}</strong>
-                  <span><b lang="he" dir="rtl">{target.display_niqqud}</b> · {localizedMeaning(target, locale)}</span>
+                  <span><b lang="he" dir="rtl">{target.display_niqqud}</b>{locale === 'he' ? '' : ` · ${localizedMeaning(target, locale)}`}</span>
                   <button type="button" onClick={nextRecognition}>{copy.nextScene}</button>
                 </div>
               )}
@@ -541,8 +658,8 @@ export function VisualQAGallery(): React.JSX.Element {
             <div className="visual-qa__segmented" role="group" aria-label={copy.theme}>
               <span>{copy.theme}</span>
               <div>
-                <button type="button" className={theme === 'light' ? 'active' : ''} aria-pressed={theme === 'light'} onClick={() => setTheme('light')}>{copy.light}</button>
-                <button type="button" className={theme === 'dark' ? 'active' : ''} aria-pressed={theme === 'dark'} onClick={() => setTheme('dark')}>{copy.dark}</button>
+                <button type="button" className={theme === 'light' ? 'active' : ''} aria-pressed={theme === 'light'} onClick={() => selectTheme('light')}>{copy.light}</button>
+                <button type="button" className={theme === 'dark' ? 'active' : ''} aria-pressed={theme === 'dark'} onClick={() => selectTheme('dark')}>{copy.dark}</button>
               </div>
             </div>
           </div>

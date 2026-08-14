@@ -101,7 +101,7 @@ describe('AuthGate beginner preview', () => {
   });
 
   it('shows a post-deletion local cleanup warning separately from authentication errors', () => {
-    render(
+    const { container } = render(
       <I18nProvider>
         <AuthGate
           busy={false}
@@ -119,5 +119,9 @@ describe('AuthGate beginner preview', () => {
         .closest('[role="status"]'),
     ).toBeInTheDocument();
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(container.querySelector('.auth-visual__journey-art')).toHaveAttribute(
+      'src',
+      '/assets/illustrations/israel-living-atlas-field-notes.webp',
+    );
   });
 });
