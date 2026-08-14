@@ -179,3 +179,15 @@ Two things that reading did establish, and both are real:
 Method note for whoever measures next: read the raw computed string, never a
 converted one, and read it from a node that is already inside a rendered scene
 rather than one injected into the SVG. Both mistakes were made here.
+
+### Open finding — materials wearing the wrong token
+
+`food.milk` pours **teal** milk: the stream and the filled glass both use the
+water token. It is the same fault as the bread scored in blue-grey with the
+generic ink token — a material borrowing a class whose name describes a
+different substance.
+
+Worth a sweep rather than a single fix: every scene where the token's name and
+the depicted material disagree. The measured palette table above is what makes
+that sweep possible, because the fault is invisible in the markup and only
+shows once the colour is known.

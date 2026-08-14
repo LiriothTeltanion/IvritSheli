@@ -807,8 +807,16 @@
   stroke-width: 3.5;
 }
 
+/* A lit edge, not a drawn line.
+
+   Measured: white at 82% and 4 units wide, on a canvas 240 units across. That
+   is a marker, not a brush — run along the top of a loaf it stopped reading as
+   light catching a crust and started reading as a glass cloche over a dish.
+   Light on an edge is thin and it fades; these two numbers are the whole
+   difference between the two readings. Seven scenes use it. */
 .semantic-art__highlight {
-  stroke: rgba(255, 255, 255, 0.82);
+  stroke: rgba(255, 255, 255, 0.55);
+  stroke-width: 2.5;
 }
 
 .semantic-art__skin {
