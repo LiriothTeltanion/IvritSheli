@@ -191,3 +191,35 @@ Worth a sweep rather than a single fix: every scene where the token's name and
 the depicted material disagree. The measured palette table above is what makes
 that sweep possible, because the fault is invisible in the markup and only
 shows once the colour is known.
+
+## Corrected target — 2026-08-14, late
+
+Kevin supplied a `food.bread` example that changes what the SVG is aiming at,
+and it is a better target than the six painted references.
+
+**The six paintings are painting.** Impasto, broken colour, visible facture.
+They anchor palette, light direction and material *truth*, and they always
+will. But a hand-authored SVG cannot reach brushwork, and pretending otherwise
+is what produced a reverted repaint: chasing paint with vector shapes gets a
+half-measure of both.
+
+**The new example is vector illustration**, which is the medium these scenes
+are actually made in. It is reachable, and it is specific:
+
+- **Gradients, not flat fills.** The crust runs bright orange at the upper
+  left to deep brown at the lower right, in one continuous ramp. Flat fills
+  with a second flat fill laid over them is what reads as clip art.
+- **A dark outline around each form.** This is the single largest contributor
+  to the illustrated look, and the catalogue already has `__outlined`.
+- **The loaf is cut.** The crumb face is what says bread; a closed dome says
+  helmet. The reverted attempt had this right and the colours wrong.
+- **Crumb is cream with warm brown speckle** — never a cool near-white with
+  grey dots, which is exactly the token mistake recorded above.
+- **Scoring is thick, dark brown, and curved with the surface.**
+- **The ground behind the subject is a soft gradient**, darker away from the
+  key light, which is how the subject separates without losing detail.
+
+So the working rule from here: **take colour, light direction and material
+behaviour from the paintings; take rendering technique from the vector
+example.** The paintings say what a crust is made of. The vector example says
+how to draw it with paths.
