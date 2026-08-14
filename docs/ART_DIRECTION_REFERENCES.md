@@ -125,3 +125,45 @@ Every rule here was written after a specific defect, not from theory.
 `docs/art-direction/<family>--<scene key>.webp`
 
 The naming keeps the family first, because that is how they are consulted.
+
+## Measured token palette — 2026-08-14
+
+Read from the running application with `getComputedStyle`, not inferred from
+the token names. This table exists because a repaint of `food.bread` was
+reverted after colours were chosen by reading class names: `__surface` sounds
+like a neutral card colour and is in fact a cool near-white, which turned an
+open crumb into a spotted egg.
+
+Identical in light and dark: the scene *frame* responds to the theme, the
+materials do not.
+
+| Token | Fill | Note |
+|---|---|---|
+| `__wood` | `#a9784e` | mid brown |
+| `__wood-lit` | `#c99f74` | |
+| `__wood-deep` | `#7d5636` | |
+| `__gold` | `#e0a636` | **lighter than `__gold-soft`** |
+| `__gold-soft` | `#8f6a2e` | despite the name, the *darker* gold — the outer crust step |
+| `__gold-lit` | `#f2c568` | |
+| `__surface` | `#f4f8fa` | cool near-white. **Not** a crumb or paper colour |
+| `__surface-lit` | `#fffefb` | |
+| `__surface-deep` | `#f2ebdf` | warm off-white, the closest thing to paper |
+| `__skin` / `__skin-lit` / `__skin-shade` | `#c9855f` / `#ffecd6` / `#a8663f` | |
+| `__stone` | `#9a8c7c` | |
+| `__highlight` | stroke `#ffffff` @ 4px | opaque white — heavy at scene scale |
+| `__gloss` | stroke `#ffffff` @ 3px | |
+| `__grain` | stroke `#ffecd0` @ 2px | |
+
+Against the committed reference palette, the gaps are specific: crust wants
+`#C47732` and `__gold-soft` is `#8f6a2e`; crumb wants `#E9CF9B` and nothing in
+the catalogue is close — `__surface-deep` at `#f2ebdf` is the nearest and is
+still far too pale.
+
+**Unresolved, and the reason this section stops here.** `--semantic-shade` is
+declared `rgba(64, 46, 82, 0.16)` — translucent — but the computed fill read
+back as an opaque near-black. One of the two is wrong: either the token is
+redefined further down the sheet, or the measurement dropped the alpha channel.
+`__shade` has 99 uses across the scenes and is the token that carries every
+"this side turns away from the light", so nothing may be changed about it until
+that contradiction is settled. Resolve it by reading `fill` and the resolved
+custom property together, on a real scene node rather than an injected one.
