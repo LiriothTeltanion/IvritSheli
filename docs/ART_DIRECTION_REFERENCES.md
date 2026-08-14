@@ -159,11 +159,23 @@ Against the committed reference palette, the gaps are specific: crust wants
 the catalogue is close — `__surface-deep` at `#f2ebdf` is the nearest and is
 still far too pale.
 
-**Unresolved, and the reason this section stops here.** `--semantic-shade` is
-declared `rgba(64, 46, 82, 0.16)` — translucent — but the computed fill read
-back as an opaque near-black. One of the two is wrong: either the token is
-redefined further down the sheet, or the measurement dropped the alpha channel.
-`__shade` has 99 uses across the scenes and is the token that carries every
-"this side turns away from the light", so nothing may be changed about it until
-that contradiction is settled. Resolve it by reading `fill` and the resolved
-custom property together, on a real scene node rather than an injected one.
+**Resolved 2026-08-14.** `--semantic-shade` is `rgba(16, 8, 28, 0.32)` — a
+translucent 32% wash, scoped to `.semantic-art` rather than to `:root`, which
+is why a root lookup returned nothing. The earlier "opaque near-black" reading
+was a measurement error: the hex conversion dropped the alpha channel. There is
+no defect in the 99 uses, and nothing about `__shade` needs changing.
+
+Two things that reading did establish, and both are real:
+
+- `__highlight` is `rgba(255, 255, 255, 0.82)` at `4px` on a 240-unit canvas.
+  That is a heavy, bright line, and it is what turned a rim light on the loaf
+  into a glass cloche. Softening it is a one-line change that reaches every
+  scene.
+- `__shade` is a single neutral wash used for every material. In the reference
+  paintings the shadow side of bread is *browner*, not merely darker — shadow
+  carries hue. A per-material shade step would be the larger of the two wins,
+  and the more invasive.
+
+Method note for whoever measures next: read the raw computed string, never a
+converted one, and read it from a node that is already inside a rendered scene
+rather than one injected into the SVG. Both mistakes were made here.
