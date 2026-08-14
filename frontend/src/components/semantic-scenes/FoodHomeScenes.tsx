@@ -47,7 +47,10 @@ export function FoodHomeScene({
             <path className="semantic-art__shade" d="M147 47c26 13 44 36 46 64-11 8-27 12-45 14 9-27 7-56-1-78Z" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            <path className="semantic-art__detail" d="M78 91c7-18 15-29 25-34m-1 41c7-22 16-36 27-43m0 43c7-21 16-34 27-39" />
+            {/* Scoring is a cut in the crust, so it takes the crust's own darker
+                brown. Painted with the generic ink class it came out blue-grey,
+                and no bread on earth is scored in blue. */}
+            <path className="semantic-art__wood-line" d="M78 91c7-18 15-29 25-34m-1 41c7-22 16-36 27-43m0 43c7-21 16-34 27-39" />
             <path className="semantic-art__highlight" d="M69 109c29 9 72 10 103 1" />
             {/* Sesame on the crust, scattered rather than ranked. */}
             <path
@@ -56,10 +59,22 @@ export function FoodHomeScene({
             />
             {/* A cut slice: proof that the loaf is bread and not a stone. */}
             <path className="semantic-art__gold-soft semantic-art__outlined" d="M27 121c1-19 8-30 20-30s19 11 20 30Z" />
-            <circle className="semantic-art__shade" cx="41" cy="110" r="4" />
-            <circle className="semantic-art__shade" cx="53" cy="115" r="3" />
-            <path className="semantic-art__metal semantic-art__outlined" d="m168 47 11-7 28 61-11 5Z" />
-            <path className="semantic-art__gloss" d="m174 50 24 52" />
+            {/* Crumb. Two large holes sitting level and symmetrical on a small
+                dome do not read as an open crumb — they read as a pair of eyes,
+                and the slice turned into a face. Smaller, more of them, none of
+                them aligned with another. */}
+            <circle className="semantic-art__shade" cx="38" cy="112" r="2.4" />
+            <circle className="semantic-art__shade" cx="47" cy="105" r="1.7" />
+            <circle className="semantic-art__shade" cx="54" cy="114" r="2.1" />
+            <circle className="semantic-art__shade" cx="45" cy="118" r="1.4" />
+            <circle className="semantic-art__shade" cx="58" cy="107" r="1.5" />
+            {/* The knife lies on the board. It used to float diagonally in the
+                air above the loaf, bladed but handleless, and read as a grey
+                rectangle rather than a tool. */}
+            <ellipse className="semantic-art__prop-shadow" cx="168" cy="126" rx="30" ry="3" />
+            <path className="semantic-art__metal semantic-art__outlined" d="M139 119h45l4 3-4 3h-45Z" />
+            <path className="semantic-art__gloss" d="M143 120h40" />
+            <path className="semantic-art__wood semantic-art__outlined" d="M184 117h16a3 3 0 0 1 3 3v3a3 3 0 0 1-3 3h-16Z" />
           </SceneLayer>
         </>
       );
