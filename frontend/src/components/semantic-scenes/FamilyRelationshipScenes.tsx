@@ -29,6 +29,7 @@ interface RelationshipNode {
   x: number;
   y: number;
   shape: RelationshipShape;
+  relationshipRole?: 'sibling' | 'child' | 'parent';
   target?: boolean;
   reference?: boolean;
 }
@@ -88,7 +89,7 @@ const FAMILY_SCENES: Record<
       { id: 'parent-masculine', x: 82, y: 53, shape: 'masculine' },
       { id: 'parent-feminine', x: 158, y: 53, shape: 'feminine' },
       { id: 'reference-sibling', x: 78, y: 126, shape: 'reference', reference: true },
-      { id: 'brother', x: 162, y: 126, shape: 'masculine', target: true },
+      { id: 'brother', x: 162, y: 126, shape: 'masculine', target: true, relationshipRole: 'sibling' },
     ],
     connections: [PARENTS_TO_SIBLINGS],
   },
@@ -97,7 +98,7 @@ const FAMILY_SCENES: Record<
       { id: 'parent-masculine', x: 82, y: 53, shape: 'masculine' },
       { id: 'parent-feminine', x: 158, y: 53, shape: 'feminine' },
       { id: 'reference-sibling', x: 78, y: 126, shape: 'reference', reference: true },
-      { id: 'sister', x: 162, y: 126, shape: 'feminine', target: true },
+      { id: 'sister', x: 162, y: 126, shape: 'feminine', target: true, relationshipRole: 'sibling' },
     ],
     connections: [PARENTS_TO_SIBLINGS],
   },
@@ -135,8 +136,22 @@ const FAMILY_SCENES: Record<
   },
   'family.parents': {
     nodes: [
-      { id: 'father', x: 82, y: 70, shape: 'masculine', target: true },
-      { id: 'mother', x: 158, y: 70, shape: 'feminine', target: true },
+      {
+        id: 'father',
+        x: 82,
+        y: 70,
+        shape: 'masculine',
+        target: true,
+        relationshipRole: 'parent',
+      },
+      {
+        id: 'mother',
+        x: 158,
+        y: 70,
+        shape: 'feminine',
+        target: true,
+        relationshipRole: 'parent',
+      },
       { id: 'child', x: 120, y: 137, shape: 'reference', reference: true },
     ],
     connections: [PARENT_TO_CHILD],
@@ -145,7 +160,7 @@ const FAMILY_SCENES: Record<
     nodes: [
       { id: 'parent-masculine', x: 82, y: 62, shape: 'masculine', reference: true },
       { id: 'parent-feminine', x: 158, y: 62, shape: 'feminine', reference: true },
-      { id: 'son', x: 120, y: 132, shape: 'masculine', target: true },
+      { id: 'son', x: 120, y: 132, shape: 'masculine', target: true, relationshipRole: 'child' },
     ],
     connections: ['M82 70v20m76-20v20M82 82h76M120 82v42'],
   },
@@ -153,7 +168,7 @@ const FAMILY_SCENES: Record<
     nodes: [
       { id: 'parent-masculine', x: 82, y: 62, shape: 'masculine', reference: true },
       { id: 'parent-feminine', x: 158, y: 62, shape: 'feminine', reference: true },
-      { id: 'daughter', x: 120, y: 132, shape: 'feminine', target: true },
+      { id: 'daughter', x: 120, y: 132, shape: 'feminine', target: true, relationshipRole: 'child' },
     ],
     connections: ['M82 70v20m76-20v20M82 82h76M120 82v42'],
   },
@@ -209,11 +224,13 @@ function MarkerFeatures({
   age,
   x,
   y,
+  role,
 }: {
   shape: RelationshipShape;
   age: MarkerAge;
   x: number;
   y: number;
+  role: 'sibling' | 'child' | 'parent' | undefined;
 }): React.JSX.Element | null {
   const hair = age === 'elder' ? 'semantic-art__marker-hair--grey' : 'semantic-art__marker-hair';
   if (shape === 'feminine') {
@@ -265,18 +282,59 @@ function MarkerFeatures({
   return null;
 }
 
+function MarkerRole({
+  role,
+  x,
+  y,
+}: {
+  role: 'sibling' | 'child' | 'parent' | undefined;
+  x: number;
+  y: number;
+}): React.JSX.Element | null {
+  if (!role) {
+    return null;
+  }
+
+  if (role === 'sibling') {
+    return (
+      <g className="semantic-art__marker-role semantic-art__marker-role--sibling">
+        <path d={`M${x - 12} ${y + 10}h12`} />
+        <path d={`M${x - 12} ${y + 16}h12`} />
+      </g>
+    );
+  }
+  if (role === 'parent') {
+    return (
+      <g className="semantic-art__marker-role semantic-art__marker-role--parent">
+        <path d={`M${x - 10} ${y - 12}h20`} />
+        <path d={`M${x - 10} ${y - 12}v7`} />
+        <path d={`M${x + 10} ${y - 12}v7`} />
+      </g>
+    );
+  }
+
+  return (
+    <path
+      className="semantic-art__marker-role semantic-art__marker-role--child"
+      d={`M${x - 8} ${y + 9}l8 8 8-8`}
+    />
+  );
+}
+
 function MarkerShape({
   shape,
   x,
   y,
   highlighted = false,
   nodeId = '',
+  relationshipRole,
 }: {
   shape: RelationshipShape;
   x: number;
   y: number;
   highlighted?: boolean;
   nodeId?: string;
+  relationshipRole: 'sibling' | 'child' | 'parent' | undefined;
 }): React.JSX.Element {
   const className = `${highlighted ? 'semantic-art__gold-soft' : 'semantic-art__surface'} semantic-art__outlined`;
   const outline = shape === 'feminine'
@@ -296,7 +354,13 @@ function MarkerShape({
           does not read as a person. A neutral face — identical on every shape,
           so it encodes nothing — makes the node recognisable without touching
           the genealogy convention. */}
-      <MarkerFeatures shape={shape} age={markerAge(nodeId)} x={x} y={y} />
+      <MarkerFeatures
+        shape={shape}
+        age={markerAge(nodeId)}
+        x={x}
+        y={y}
+        role={relationshipRole}
+      />
       <g className="semantic-art__marker-face">
         <circle cx={x - 5} cy={y - 3} r="1.7" />
         <circle cx={x + 5} cy={y - 3} r="1.7" />
@@ -305,6 +369,7 @@ function MarkerShape({
         {!(shape === 'masculine' && markerAge(nodeId) === 'adult') && (
           <path d={`M${x - 5} ${y + 5}q5 4 10 0`} />
         )}
+        <MarkerRole role={relationshipRole} x={x} y={y} />
       </g>
     </g>
   );
@@ -439,7 +504,14 @@ function SubjectMarker({
       data-relationship-subject={node.id}
       transform={`translate(${center.x - scale * node.x} ${center.y - scale * node.y}) scale(${scale})`}
     >
-      <MarkerShape shape={node.shape} x={node.x} y={node.y} highlighted nodeId={node.id} />
+      <MarkerShape
+        shape={node.shape}
+        x={node.x}
+        y={node.y}
+        highlighted
+        nodeId={node.id}
+        relationshipRole={node.relationshipRole}
+      />
     </g>
   );
 }
@@ -490,6 +562,7 @@ function MiniDiagram({ spec }: { spec: RelationshipSceneSpec }): React.JSX.Eleme
               y={node.y}
               highlighted={Boolean(node.target)}
               nodeId={node.id}
+              relationshipRole={node.relationshipRole}
             />
           </g>
         ))}
@@ -523,7 +596,13 @@ function RelationshipDiagram({
           ))}
           {spec.nodes.map((node) => (
             <g key={node.id} data-relationship-node={node.id}>
-              <MarkerShape shape={node.shape} x={node.x} y={node.y} nodeId={node.id} />
+            <MarkerShape
+              shape={node.shape}
+              x={node.x}
+              y={node.y}
+              nodeId={node.id}
+              relationshipRole={node.relationshipRole}
+            />
             </g>
           ))}
         </SceneLayer>
@@ -606,7 +685,14 @@ function ChildScene({
           pose="neutral"
           scale={0.95}
         />
-        <MarkerShape shape={shape} x={marker.x} y={marker.y} highlighted nodeId={marker.id} />
+        <MarkerShape
+          shape={shape}
+          x={marker.x}
+          y={marker.y}
+          highlighted
+          nodeId={marker.id}
+          relationshipRole={marker.relationshipRole}
+        />
         <path
           className="semantic-art__detail"
           d="M113 91q18-20 37-17"

@@ -8,12 +8,14 @@ Public production intentionally remains: **2.4.0 Contest Edition (2026-07-21)**
 
 - **Project:** `02 — Ivrit Sheli`
 - **Branch:** `consolidation/ivrit-sheli-2.10-baseline`
-- **Implementation HEAD:** `6d6aa6fdbece41f076dfc43677446cd8af8859cb`
-- **Issue:** `KEV-11` remains In Progress for human recognition and the next bounded visual cluster. `KEV-9`, `KEV-10` and `KEV-14` remain Done and were not repeated.
+- **Implementation HEAD:** `9b3ed76`
+- **Issue:** `KEV-11` now has the family/relationship sibling-child-parent ambiguity pass in progress. `KEV-9`, `KEV-10` and `KEV-14` remain Done and were not repeated.
 - **Work completed:** private source advanced from 2.11.0 to **2.12.0 Living Hebrew Nocturne**. Dark is now the first-run default with a persistent light choice and pre-render theme resolution. Seven adult, action-led journey paintings (one Be’er Sheva hero plus six regions with responsive crops) replace the visible legacy set. All 240 exact SVG scenes now use adult shared anatomy, seven setting-aware depth families and short meaning-driven motion; ask/answer/request/explain are distinct. VisualQAGallery is art-dominant and adds an optional seven-painting tray, Hebrew recognition labels, responsive hero framing and high-contrast/reduced-motion support.
+- **Slice 1 (2026-08-16):** side navigation now has labeled sections with clearer hierarchy, a mobile off-canvas drawer with toggle + backdrop, and profile identity editing (display name + preset avatar) wired to local persistence and immediate render updates. Fixed learner-mode label typing (`guided/explorer/experienced`) where needed to avoid stale string key usage.
+- **Slice 2 (2026-08-16):** bounded family/relationship visual ambiguity pass: `family.brother`, `family.sister`, `family.son` and `family.daughter` now carry explicit role cues (`sibling` vs `child`) on the relationship markers and stronger mini-diagram reference/target structure cues. This continuation adds a `parent` role cue to `family.parents` markers for a cleaner father/mother read without rebalancing the scene topology.
 - **Tests:** 717/717 Vitest across 41 files; production TypeScript/Vite build passed; 315 backend pytest passed with one credential-gated PostgreSQL skip; Ruff, strict MyPy across 39 source files and compileall passed; isolated doctor 7/7 as 2.12.0 with 240 entries; Playwright visual-recognition matrix 7 passed / 2 expected desktop-only skips across 390/768/1440 px; light and dark contact matrices each rendered 240/240 scenes; package verification passed for 217 required files and 387 canonical Git-index checksums.
 - **Current URLs:** current hot-reload frontend and art viewer `http://127.0.0.1:5173/?visualQa=1&lang=es&group=communication&size=card&journeyArt=1`; inherited Docker/PostgreSQL candidate `http://127.0.0.1:8000/`; isolated writable local workspace `http://127.0.0.1:8001/`.
-- **Next action:** keep `KEV-11` bounded. Run a human five-second review of the family/relationship diagram cluster, then redesign only the highest-confusion pair. Do not launch another all-catalog feature wave. After that visual slice, `KEV-12` remains the Supabase compatibility audit and `KEV-13` the local-only Vercel readiness audit.
+- **Next action:** keep `KEV-11` bounded. Run a human five-second review of the full family/relationship cluster (including `family.parents` now marked with a parent role cue) and either mark this slice passed or report the exact remaining confusion spot for one more micro-adjustment. Do not launch another all-catalog feature wave. After this visual slice, `KEV-12` remains the Supabase compatibility audit and `KEV-13` the local-only Vercel readiness audit.
 - **Blockers:** no local engineering blocker. Ports 8000 and 8001 are intentionally preserved inherited 2.10.0 processes while the 5173 frontend reflects current 2.12.0 source; do not call the backends a 2.12 runtime until they are deliberately restarted/rebuilt and reverified. Human recognition, isolated HTTPS staging, two-real-account isolation, backup/restore and mother-pilot acceptance remain unverified. Publication, push, tag, deploy and public judge-state changes remain frozen until after 2026-08-25 unless Kevin explicitly changes that instruction.
 
 The handoff is committed immediately after the implementation checkpoint. Use
@@ -81,7 +83,7 @@ history but are no longer the visible journey art.
 
 ### Verified for this 2.12.0 local checkpoint
 
-- Focused visual/theme tests: 500 passed.
+- Focused visual/theme tests: 500 passed + `SemanticWordIllustration.test.tsx` (492) for this slice.
 - Complete frontend: 717 passed across 41 files.
 - TypeScript and Vite production build: passed. The existing non-blocking
   warning for the 513.07 kB main chunk remains.
