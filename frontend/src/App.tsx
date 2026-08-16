@@ -4,7 +4,7 @@
 // Date: 2026-07-15 | TZ: Asia/Jerusalem
 // Notes: Comments in ENGLISH; emojis sparingly.
 
-import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { api, AUTH_REQUIRED_EVENT, configureApiSession } from './api';
 import { deviceRecordingOwnerScope } from './deviceAudioStorage';
 import { localeOverrideFromSearch, useI18n } from './i18n';
@@ -40,6 +40,44 @@ interface DictionaryTarget {
 }
 
 const ONBOARDING_VERSION = 1;
+const IDENTITY_PROFILE_VERSION = 1;
+const IDENTITY_PROFILE_STORAGE_PREFIX = 'ivrit-sheli:learner-identity';
+const MENU_SECTIONS: NavigationSection[] = [
+  {
+    headingKey: 'learningSection',
+    items: [
+      { key: 'today', icon: 'home', labelKey: 'today', modes: ['guided', 'explorer', 'experienced'] },
+      { key: 'learn', icon: 'book', labelKey: 'words', modes: ['guided', 'explorer', 'experienced'] },
+    ],
+  },
+  {
+    headingKey: 'practiceSection',
+    items: [
+      { key: 'coach', icon: 'sparkles', labelKey: 'coach', modes: ['explorer', 'experienced'] },
+      { key: 'progress', icon: 'chart', labelKey: 'progress', modes: ['explorer', 'experienced'] },
+      { key: 'dictionary', icon: 'book', labelKey: 'dictionary', modes: ['explorer', 'experienced'] },
+      { key: 'audio', icon: 'volume', labelKey: 'audio', modes: ['explorer', 'experienced'] },
+    ],
+  },
+  {
+    headingKey: 'connectionsSection',
+    items: [
+      { key: 'connectors', icon: 'link', labelKey: 'connectors', modes: ['explorer', 'experienced'] },
+    ],
+  },
+  {
+    headingKey: 'supportSection',
+    items: [
+      { key: 'help', icon: 'shield', labelKey: 'help', modes: ['guided'] },
+    ],
+  },
+  {
+    headingKey: 'toolsSection',
+    items: [
+      { key: 'settings', icon: 'settings', labelKey: 'settings', modes: ['explorer', 'experienced'] },
+    ],
+  },
+];
 
 function learnerStorageId(auth: AuthState | null): string {
   return auth?.user?.id ?? (auth?.mode === 'local' ? 'local-device' : 'anonymous');
@@ -53,35 +91,134 @@ function localWelcomeStorageKey(auth: AuthState | null): string {
   return `ivrit-sheli:local-welcome-v1:${learnerStorageId(auth)}`;
 }
 
-type NavigationItem = {
+function identityStorageKey(auth: AuthState | null): string {
+  return `${IDENTITY_PROFILE_STORAGE_PREFIX}:v${IDENTITY_PROFILE_VERSION}:${learnerStorageId(auth)}`;
+}
+
+interface LocalIdentityProfile {
+  displayName?: string;
+  avatarPresetId?: string | undefined;
+}
+
+interface NavigationItem {
   key: ViewKey;
   icon: IconName;
-  labelKey: 'today' | 'learn' | 'words' | 'coach' | 'progress' | 'connectors' | 'settings' | 'help';
+  labelKey: 'today' | 'learn' | 'words' | 'coach' | 'progress' | 'connectors' | 'settings' | 'help' | 'dictionary' | 'audio';
+  modes: LearnerMode[];
+}
+
+interface NavigationSection {
+  headingKey: 'learningSection' | 'practiceSection' | 'connectionsSection' | 'supportSection' | 'toolsSection';
+  items: NavigationItem[];
+}
+
+type NavigationSectionItemWithLabel = {
+  key: ViewKey;
+  icon: IconName;
+  labelKey: Exclude<NavigationItem['labelKey'], 'learn'> | 'learn' | 'words' | 'dictionary' | 'audio';
 };
 
-const navigation: NavigationItem[] = [
-  { key: 'today', icon: 'home', labelKey: 'today' },
-  { key: 'learn', icon: 'book', labelKey: 'learn' },
-  { key: 'coach', icon: 'sparkles', labelKey: 'coach' },
-  { key: 'progress', icon: 'chart', labelKey: 'progress' },
-  { key: 'connectors', icon: 'link', labelKey: 'connectors' },
-  { key: 'settings', icon: 'settings', labelKey: 'settings' },
-];
+function readIdentityProfile(auth: AuthState | null): LocalIdentityProfile {
+  if (!auth?.authenticated) return {};
+  try {
+    const raw = window.localStorage.getItem(identityStorageKey(auth));
+    if (!raw) return {};
+    const parsed = JSON.parse(raw) as Partial<LocalIdentityProfile>;
+    if (typeof parsed !== 'object' || parsed === null) return {};
+    const next: LocalIdentityProfile = {};
+    if (typeof parsed.displayName === 'string' && parsed.displayName.trim()) {
+      next.displayName = parsed.displayName.trim();
+    }
+    if (typeof parsed.avatarPresetId === 'string' && parsed.avatarPresetId.trim()) {
+      next.avatarPresetId = parsed.avatarPresetId.trim();
+    }
+    return next;
+  } catch {
+    return {};
+  }
+}
+
+function writeIdentityProfile(auth: AuthState | null, profile: LocalIdentityProfile): void {
+  if (!auth?.authenticated) return;
+  const key = identityStorageKey(auth);
+  const payload = {
+    displayName: profile.displayName?.trim() || undefined,
+    avatarPresetId: profile.avatarPresetId?.trim() || undefined,
+  };
+  try {
+    if (!payload.displayName && !payload.avatarPresetId) {
+      window.localStorage.removeItem(key);
+      return;
+    }
+    window.localStorage.setItem(key, JSON.stringify(payload));
+  } catch {
+    // Preferences are local-only; failing to persist stays safe.
+  }
+}
+
+function readIdentityDisplayName(auth: AuthState | null, profile: Profile, readProfileName: string | null): string {
+  const override = readIdentityProfile(auth).displayName?.trim();
+  if (override) return override;
+  if (readProfileName) return readProfileName;
+  return profile.display_name;
+}
+
+function readIdentityAvatarPreset(auth: AuthState | null): string | undefined {
+  return readIdentityProfile(auth).avatarPresetId;
+}
+
+function navigationForLearnerMode(mode: LearnerMode): NavigationSection[] {
+  return MENU_SECTIONS
+    .map((section) => ({
+      ...section,
+      items: section.items.filter((item) => item.modes.includes(mode)),
+    }))
+    .filter((section) => section.items.length > 0);
+}
+
+function navigationLabelKey(
+  item: ViewKey,
+  learnerMode: LearnerMode,
+): Exclude<NavigationItem['labelKey'], 'learn'> | 'learn' | 'words' | 'dictionary' | 'audio' {
+  if (item === 'learn' && learnerMode === 'guided') return 'words';
+  return item === 'learn' ? 'learn' : item;
+}
+
+function learnerModeLabelKey(learnerMode: LearnerMode): 'guidedMode' | 'explorerMode' | 'experiencedMode' {
+  return learnerMode === 'guided'
+    ? 'guidedMode'
+    : learnerMode === 'explorer'
+      ? 'explorerMode'
+      : 'experiencedMode';
+}
+
+function flattenSectionsForMode(
+  sections: NavigationSection[],
+  learnerMode: LearnerMode,
+): NavigationSectionItemWithLabel[] {
+  const flat: NavigationSectionItemWithLabel[] = [];
+  sections.forEach((section) => {
+    section.items.forEach((item) => {
+      flat.push({
+        key: item.key,
+        icon: item.icon,
+        labelKey: navigationLabelKey(item.key, learnerMode),
+      });
+    });
+  });
+  return flat;
+}
+
+type NavigationSectionItem = {
+  key: ViewKey;
+  icon: IconName;
+  labelKey: NavigationItem['labelKey'];
+};
 
 const globalUtilityViews = new Set<ViewKey>(['settings']);
 
-function navigationForLearnerMode(mode: LearnerMode): NavigationItem[] {
-  if (mode === 'guided') {
-    return [
-      { key: 'today', icon: 'home', labelKey: 'today' },
-      { key: 'learn', icon: 'book', labelKey: 'words' },
-      { key: 'help', icon: 'shield', labelKey: 'help' },
-    ];
-  }
-  if (mode === 'explorer') {
-    return navigation.filter((item) => item.key !== 'connectors');
-  }
-  return navigation;
+function learnViewTab(view: ViewKey, fallbackTab: LearnTab): LearnTab {
+  return view === 'audio' ? 'audio' : view === 'dictionary' ? 'dictionary' : fallbackTab;
 }
 
 export default function App(): React.JSX.Element {
@@ -115,6 +252,71 @@ export default function App(): React.JSX.Element {
   const online = useOnlineStatus();
   const [visitFinished, setVisitFinished] = useState(false);
   const [theme, toggleTheme] = usePersistentTheme();
+  const [identityProfile, setIdentityProfile] = useState<LocalIdentityProfile>({});
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const sidebarRef = useRef<HTMLElement>(null);
+  const sidebarToggleRef = useRef<HTMLButtonElement>(null);
+
+  const guestAuthState = useCallback((currentAuth: AuthState | null): AuthState => ({
+    authenticated: false,
+    demo: false,
+    read_only: false,
+    user: null,
+    mode: 'cloud',
+    auth_providers: currentAuth?.auth_providers ?? [],
+    local_companion_url: currentAuth?.local_companion_url ?? null,
+    capabilities: {
+      cloud_learning: true,
+      ai: true,
+      audio_scoring: true,
+      connectors: true,
+      local_first: false,
+    },
+  }), []);
+
+  const clearAuthForLocalSwitch = useCallback((options?: { errorMessage?: string }): void => {
+    configureApiSession(null);
+    setAuth((current) => guestAuthState(current));
+    setAuthError(options?.errorMessage ?? '');
+    setAuthNotice('');
+    setLoading(false);
+    setError('');
+    setView('today');
+    setCaptureOpen(false);
+    setDictionaryTarget(null);
+    setFirstStepsOpen(false);
+    setVisitFinished(false);
+  }, [guestAuthState]);
+
+  useEffect(() => {
+    if (!auth?.authenticated) {
+      setIdentityProfile({});
+      return;
+    }
+    setIdentityProfile(readIdentityProfile(auth));
+  }, [auth?.authenticated, auth?.user?.id, auth?.mode]);
+
+  useEffect(() => {
+    if (!sidebarOpen) return;
+    const onPointerDown = (event: PointerEvent): void => {
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+      if (sidebarRef.current?.contains(target) || sidebarToggleRef.current?.contains(target)) return;
+      setSidebarOpen(false);
+    };
+    const onEscape = (event: KeyboardEvent): void => {
+      if (event.key === 'Escape') {
+        setSidebarOpen(false);
+        sidebarToggleRef.current?.focus();
+      }
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('keydown', onEscape);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('keydown', onEscape);
+    };
+  }, [sidebarOpen]);
 
   const refreshCore = useCallback(async (): Promise<void> => {
     try {
@@ -227,6 +429,24 @@ export default function App(): React.JSX.Element {
   const goToLearn = (tab: LearnTab): void => {
     setLearnTab(tab);
     setView('learn');
+    setSidebarOpen(false);
+  };
+
+  const handleSetView = (next: ViewKey): void => {
+    if (next === 'dictionary') {
+      setLearnTab('dictionary');
+      setView(next);
+      setSidebarOpen(false);
+      return;
+    }
+    if (next === 'audio') {
+      setLearnTab('audio');
+      setView(next);
+      setSidebarOpen(false);
+      return;
+    }
+    setView(next);
+    setSidebarOpen(false);
   };
 
   const openDictionary = useCallback((word: string, entryId?: number): void => {
@@ -238,22 +458,33 @@ export default function App(): React.JSX.Element {
     () => navigationForLearnerMode(activeLearnerMode),
     [activeLearnerMode],
   );
+  const flatNavigation = useMemo(
+    () => flattenSectionsForMode(visibleNavigation, activeLearnerMode),
+    [activeLearnerMode, visibleNavigation],
+  );
+  const bottomNavigation = useMemo(
+    () => flatNavigation.filter((item) => item.key !== 'settings'),
+    [flatNavigation],
+  );
   useEffect(() => {
     if (
       !globalUtilityViews.has(view)
-      && !visibleNavigation.some((item) => item.key === view)
+      && !flatNavigation.some((item) => item.key === view)
     ) {
       setView('today');
     }
-  }, [view, visibleNavigation]);
-  const pageTitle = useMemo(
-    () => (
-      visibleNavigation.find((item) => item.key === view)?.labelKey
-      ?? navigation.find((item) => item.key === view)?.labelKey
-      ?? 'today'
-    ),
-    [view, visibleNavigation],
+  }, [flatNavigation, view]);
+  const pageTitleKey = useMemo(
+    () => flatNavigation.find((item) => item.key === view)?.labelKey
+      ?? navigationLabelKey(view, activeLearnerMode),
+    [activeLearnerMode, flatNavigation, view],
   );
+  const pageTitle = t(pageTitleKey);
+
+  const updateIdentityProfile = (nextProfile: LocalIdentityProfile): void => {
+    setIdentityProfile(nextProfile);
+    writeIdentityProfile(auth, nextProfile);
+  };
 
   const startDemo = async (): Promise<void> => {
     setDemoBusy(true);
@@ -269,7 +500,7 @@ export default function App(): React.JSX.Element {
     }
   };
 
-  const logout = async (): Promise<void> => {
+  const logout = async ({ silent = false }: { silent?: boolean } = {}): Promise<void> => {
     setLoggingOut(true);
     try {
       try {
@@ -286,10 +517,16 @@ export default function App(): React.JSX.Element {
       setFirstStepsOpen(false);
       setError('');
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : String(reason));
+      clearAuthForLocalSwitch({
+        errorMessage: silent ? '' : reason instanceof Error ? reason.message : String(reason),
+      });
     } finally {
       setLoggingOut(false);
     }
+  };
+
+  const handleFinishAndSwitchUser = async (): Promise<void> => {
+    await logout({ silent: true });
   };
 
   if (authChecking) {
@@ -433,6 +670,12 @@ export default function App(): React.JSX.Element {
             })
             .catch((reason: unknown) => setError(reason instanceof Error ? reason.message : String(reason)));
         }}
+        onIdentitySetup={(displayName, avatarPresetId) => {
+          updateIdentityProfile({
+            displayName: displayName || profile?.display_name || auth?.user?.display_name || 'Learner',
+            avatarPresetId,
+          });
+        }}
         onFinished={(nextProfile) => {
           setProfile(nextProfile);
           setLocale(nextProfile.interface_language);
@@ -452,7 +695,8 @@ export default function App(): React.JSX.Element {
 
   const localMode = auth.mode === 'local';
   const learnerMode = activeLearnerMode;
-  const identityName = localMode ? profile.display_name : auth.user?.display_name ?? profile.display_name;
+  const identityName = readIdentityDisplayName(auth, profile, auth.user?.display_name ?? profile.display_name);
+  const identityAvatarPresetId = identityProfile.avatarPresetId;
   const recordingOwnerScope = deviceRecordingOwnerScope({
     mode: auth.mode,
     ...(auth.user?.id ? { userId: auth.user.id } : {}),
@@ -464,6 +708,10 @@ export default function App(): React.JSX.Element {
         learnerName={identityName}
         online={online}
         onContinue={() => setVisitFinished(false)}
+        switching={loggingOut}
+        onEndVisitAndSwitchUser={() => {
+          void handleFinishAndSwitchUser();
+        }}
       />
     );
   }
@@ -480,40 +728,69 @@ export default function App(): React.JSX.Element {
       <div className="ambient ambient--two" aria-hidden="true" />
       <div className="grid-noise" aria-hidden="true" />
 
-      <aside className="sidebar">
+      <aside
+        ref={sidebarRef}
+        id="app-sidebar"
+        className={`sidebar ${sidebarOpen ? 'is-open' : ''}`}
+      >
         <div className="brand-lockup">
           <IvritSheliWordmark label={t('appName')} />
           <span>{CANDIDATE_BADGE}</span>
         </div>
         <nav className="side-nav" aria-label={t('primaryNavigation')}>
-          {visibleNavigation.map((item) => (
-            <button
-              key={item.key}
-              type="button"
-              className={view === item.key ? 'active' : ''}
-              onClick={() => setView(item.key)}
-              aria-current={view === item.key ? 'page' : undefined}
-            >
-              <Icon name={item.icon} size={20} />
-              <span>{t(item.labelKey)}</span>
-              {item.key === 'learn' && dashboard.today.due_reviews > 0 && <b>{dashboard.today.due_reviews}</b>}
-            </button>
+          {visibleNavigation.map((section) => (
+            <section className="side-nav__section" key={section.headingKey}>
+              <h2>{t(section.headingKey)}</h2>
+              {section.items.map((item) => (
+                <button
+                  key={item.key}
+                  type="button"
+                  className={view === item.key ? 'active' : ''}
+                  onClick={() => handleSetView(item.key)}
+                  aria-current={view === item.key ? 'page' : undefined}
+                >
+                  <Icon name={item.icon} size={20} />
+                  <span>{t(navigationLabelKey(item.key, learnerMode))}</span>
+                  {item.key === 'learn' && dashboard.today.due_reviews > 0 && <b>{dashboard.today.due_reviews}</b>}
+                </button>
+              ))}
+            </section>
           ))}
         </nav>
         <div className="sidebar-progress">
           <XPBar xp={dashboard.xp} compact />
           <div className="sidebar-streak"><Icon name="flame" size={18} /><span><strong>{dashboard.stats.streak_days}</strong>{t('streak')}</span></div>
         </div>
-        <div className="sidebar-footer">
-          <div className="privacy-mini"><Icon name="target" size={17} /><span><strong>{t(`${learnerMode}Mode`)}</strong><small>{t('level')} {profile.cefr_band ?? profile.hebrew_level}</small></span></div>
+          <div className="sidebar-footer">
+           <div className="privacy-mini"><Icon name="target" size={17} /><span><strong>{t(learnerModeLabelKey(learnerMode))}</strong><small>{t('level')} {profile.cefr_band ?? profile.hebrew_level}</small></span></div>
           <span className="version-label">{CANDIDATE_LABEL}</span>
         </div>
       </aside>
 
+      <button
+        type="button"
+        ref={sidebarToggleRef}
+        className="sidebar-toggle icon-button"
+        aria-label={sidebarOpen ? t('closeMenu') : t('openMenu')}
+        aria-expanded={sidebarOpen}
+        aria-controls="app-sidebar"
+        onClick={() => setSidebarOpen((current) => !current)}
+      >
+        <span>{sidebarOpen ? '✕' : '☰'}</span>
+      </button>
+      {sidebarOpen && (
+        <button
+          type="button"
+          className="sidebar-backdrop"
+          aria-label={t('closeMenu')}
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       <div className="main-column">
         <header className="topbar">
           <div className="mobile-brand"><IvritSheliWordmark compact label={t('appName')} /></div>
-          <div className="topbar-context"><span>{t(pageTitle)}</span><i /> <strong>{t('appTagline')}</strong><em className="learner-mode-chip">{t(`${learnerMode}Mode`)}</em><em className="cefr-level-chip">{t('level')} {profile.cefr_band ?? profile.hebrew_level}</em></div>
+          <div className="topbar-context"><span>{pageTitle}</span><i /> <strong>{t('appTagline')}</strong><em className="learner-mode-chip">{t(learnerModeLabelKey(learnerMode))}</em><em className="cefr-level-chip">{t('level')} {profile.cefr_band ?? profile.hebrew_level}</em></div>
           <div className="topbar-actions">
             <span className={`network-chip ${online ? '' : 'is-offline'}`}><Icon name={online ? 'cloud' : 'offline'} size={15} />{online ? t('online') : t('offline')}</span>
             <div className="locale-switch" aria-label={t('interfaceLanguage')}>
@@ -524,7 +801,7 @@ export default function App(): React.JSX.Element {
             </div>
             <button type="button" className="icon-button" onClick={toggleTheme} aria-label={t('toggleTheme')}>{theme === 'dark' ? '☀' : '☾'}</button>
             {learnerMode === 'guided' && (
-              <button type="button" className="topbar-help" onClick={() => setView('help')}>
+              <button type="button" className="topbar-help" onClick={() => handleSetView('help')}>
                 <span aria-hidden="true">?</span>{t('help')}
               </button>
             )}
@@ -542,15 +819,23 @@ export default function App(): React.JSX.Element {
               <ProfileMenu
                 avatarUrl={auth.user?.avatar_url}
                 identityName={identityName}
+                identityAvatarPresetId={identityAvatarPresetId}
                 workspaceLabel={auth.demo ? t('demoWorkspace') : localMode ? t('localWorkspace') : t('personalWorkspace')}
                 learnerMode={learnerMode}
                 level={profile.cefr_band ?? profile.hebrew_level}
                 localMode={localMode}
                 online={online}
                 loggingOut={loggingOut}
-                onOpenSettings={() => setView('settings')}
+                onOpenSettings={() => handleSetView('settings')}
                 onLogout={() => { void logout(); }}
                 onFinishVisit={() => setVisitFinished(true)}
+                onIdentityUpdate={(nextDisplayName, nextAvatarPresetId) => {
+                  const nextIdentityProfile: LocalIdentityProfile = { displayName: nextDisplayName };
+                  if (nextAvatarPresetId) {
+                    nextIdentityProfile.avatarPresetId = nextAvatarPresetId;
+                  }
+                  updateIdentityProfile(nextIdentityProfile);
+                }}
               />
             </div>
           </div>
@@ -658,12 +943,41 @@ export default function App(): React.JSX.Element {
                 );
                 goToLearn('audio');
               }}
-              onOpenProgress={() => setView('progress')}
-              onOpenCoach={() => setView('coach')}
+              onOpenProgress={() => handleSetView('progress')}
+              onOpenCoach={() => handleSetView('coach')}
               onRefresh={() => { void refreshCore(); }}
             />
           )}
-          {view === 'learn' && <LearnPanel initialTab={learnTab} {...(practiceTarget ? { practiceTarget } : {})} cloudAvailable={dashboard.system.cloud_available} dashboard={dashboard} onWordClick={openDictionary} onRefresh={() => { void refreshCore(); }} />}
+          {view === 'learn' && (
+            <LearnPanel
+              initialTab={learnViewTab(view, learnTab)}
+              {...(practiceTarget ? { practiceTarget } : {})}
+              cloudAvailable={dashboard.system.cloud_available}
+              dashboard={dashboard}
+              onWordClick={openDictionary}
+              onRefresh={() => { void refreshCore(); }}
+            />
+          )}
+          {view === 'dictionary' && (
+            <LearnPanel
+              initialTab={learnViewTab(view, learnTab)}
+              {...(practiceTarget ? { practiceTarget } : {})}
+              cloudAvailable={dashboard.system.cloud_available}
+              dashboard={dashboard}
+              onWordClick={openDictionary}
+              onRefresh={() => { void refreshCore(); }}
+            />
+          )}
+          {view === 'audio' && (
+            <LearnPanel
+              initialTab={learnViewTab(view, learnTab)}
+              {...(practiceTarget ? { practiceTarget } : {})}
+              cloudAvailable={dashboard.system.cloud_available}
+              dashboard={dashboard}
+              onWordClick={openDictionary}
+              onRefresh={() => { void refreshCore(); }}
+            />
+          )}
           {view === 'coach' && <AICoach cloudAvailable={false} onWordClick={openDictionary} />}
           {view === 'progress' && progress && <ProgressPanel progress={progress} gamification={gamification} cefrBand={profile.cefr_band ?? profile.hebrew_level} onStartPractice={() => goToLearn('practice')} onOpenAlphabet={() => goToLearn('alphabet')} />}
           {view === 'progress' && !progress && <section className="card skeleton-page"><div className="skeleton" /><div className="skeleton" /></section>}
@@ -693,7 +1007,7 @@ export default function App(): React.JSX.Element {
                 setProfile(null);
                 setProgress(null);
                 setGamification(null);
-                setView('today');
+                handleSetView('today');
                 setFirstStepsOpen(false);
               }}
             />
@@ -709,7 +1023,14 @@ export default function App(): React.JSX.Element {
                 <article><strong>3</strong><span><b>{t('guidedHelpStepThree')}</b><small>{t('guidedHelpStepThreeDetail')}</small></span></article>
               </div>
               <div className="guided-help__actions">
-                <button type="button" className="primary-button primary-button--large" onClick={() => { setView('today'); setFirstStepsOpen(!firstStepsComplete); }}>
+        <button
+          type="button"
+          className="primary-button primary-button--large"
+          onClick={() => {
+            handleSetView('today');
+            setFirstStepsOpen(!firstStepsComplete);
+          }}
+        >
                   <Icon name="play" size={19} /> {firstStepsComplete ? t('continueMyLesson') : t('startFirstLesson')}
                 </button>
                 <button type="button" className="secondary-button secondary-button--large" onClick={() => goToLearn('dictionary')}>
@@ -723,8 +1044,13 @@ export default function App(): React.JSX.Element {
       </div>
 
       <nav className="bottom-nav" aria-label={t('mobileNavigation')}>
-        {visibleNavigation.filter((item) => item.key !== 'settings').slice(0, 5).map((item) => (
-          <button key={item.key} type="button" className={view === item.key ? 'active' : ''} onClick={() => setView(item.key)}>
+        {bottomNavigation.map((item) => (
+          <button
+            key={item.key}
+            type="button"
+            className={view === item.key ? 'active' : ''}
+            onClick={() => handleSetView(item.key)}
+          >
             <Icon name={item.icon} size={21} /><span>{t(item.labelKey)}</span>
           </button>
         ))}

@@ -91,4 +91,41 @@ describe('BeginnerOnboarding', () => {
       learner_mode: 'guided',
     }));
   });
+
+  it('saves chosen avatar and name when onboarding finishes', async () => {
+    vi.spyOn(window.navigator, 'language', 'get').mockReturnValue('en-US');
+    const onIdentitySetup = vi.fn();
+    vi.spyOn(api, 'updateProfile')
+      .mockResolvedValueOnce(PROFILE)
+      .mockResolvedValueOnce(PROFILE)
+      .mockResolvedValueOnce(PROFILE)
+      .mockResolvedValue({ ...PROFILE, onboarding_step: 4, onboarding_completed: 1 });
+    const onFinished = vi.fn();
+    const user = userEvent.setup();
+
+    render(
+      <I18nProvider>
+        <BeginnerOnboarding
+          profile={PROFILE}
+          storageKey="setup-test"
+          onFinished={onFinished}
+          onIdentitySetup={onIdentitySetup}
+          onSkip={vi.fn()}
+        />
+      </I18nProvider>,
+    );
+
+    await user.type(screen.getByRole('textbox', { name: /What should we call you\?/ }), 'Marta');
+    await user.click(screen.getByRole('button', { name: /Avatar 👩🏽/i }));
+    await user.click(await screen.findByRole('button', { name: /Continue/i }));
+    await user.click(await screen.findByRole('button', { name: /I know a few words/i }));
+    await user.click(await screen.findByRole('button', { name: /Continue/i }));
+    await user.click(await screen.findByRole('button', { name: /Everyday life/i }));
+    await user.click(await screen.findByRole('button', { name: /Continue/i }));
+    await user.click(await screen.findByRole('button', { name: /Start my first lesson/i }));
+
+    expect(onIdentitySetup).toHaveBeenCalledOnce();
+    expect(onIdentitySetup).toHaveBeenCalledWith('Marta', 'preset-dark');
+    expect(onFinished).toHaveBeenCalled();
+  });
 });

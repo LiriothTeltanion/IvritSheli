@@ -6,6 +6,7 @@ import { api } from '../api';
 import { useI18n } from '../i18n';
 import { resolveLearnerMode } from '../learnerMode';
 import { starterWords, starterWordVisual } from '../starterWords';
+import { AVATAR_PRESETS, type AvatarPresetId } from '../profileAvatarPresets';
 import type { LearnerMode, Locale, Profile, VoiceStyle } from '../types';
 import { createHebrewUtterance, persistVoiceStyle, readStoredVoiceStyle } from '../voicePreference';
 import { DictionaryVisualCue } from './DictionaryVisualCue';
@@ -17,6 +18,7 @@ type BeginnerGoal = 'daily_life' | 'speaking' | 'travel' | 'medical';
 
 interface OnboardingDraft {
   displayName: string;
+  avatarPresetId: AvatarPresetId | undefined;
   locale: Locale;
   level: BeginnerLevel;
   minutes: 5 | 10 | 15;
@@ -37,6 +39,7 @@ interface BeginnerOnboardingProps {
   storageKey: string;
   onFinished: (profile: Profile) => void;
   onSkip: () => void;
+  onIdentitySetup?: (displayName: string, avatarPresetId?: AvatarPresetId) => void;
 }
 
 const languageOptions: ReadonlyArray<{ code: Locale; name: string; greeting: string }> = [
@@ -58,6 +61,7 @@ function defaultDraft(profile: Profile): OnboardingDraft {
     : 'daily_life';
   return {
     displayName: profile.display_name === 'Learner' ? '' : profile.display_name,
+    avatarPresetId: undefined,
     locale: profile.interface_language,
     level,
     minutes,
@@ -107,7 +111,13 @@ function readStoredDraft(storageKey: string, profile: Profile): StoredOnboarding
   }
 }
 
-export function BeginnerOnboarding({ profile, storageKey, onFinished, onSkip }: BeginnerOnboardingProps): React.JSX.Element {
+export function BeginnerOnboarding({
+  profile,
+  storageKey,
+  onFinished,
+  onSkip,
+  onIdentitySetup,
+}: BeginnerOnboardingProps): React.JSX.Element {
   const { setLocale, t } = useI18n();
   const initial = useMemo(() => readStoredDraft(storageKey, profile), [profile, storageKey]);
   const [step, setStep] = useState(initial.step);
@@ -194,6 +204,7 @@ export function BeginnerOnboarding({ profile, storageKey, onFinished, onSkip }: 
     try {
       persistVoiceStyle(draft.voiceStyle);
       const updated = await api.updateProfile(profileUpdate(4, true));
+      onIdentitySetup?.(draft.displayName.trim() || draft.displayName || profile.display_name, draft.avatarPresetId);
       onFinished(updated);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : String(reason));
@@ -257,6 +268,23 @@ export function BeginnerOnboarding({ profile, storageKey, onFinished, onSkip }: 
                 required
               />
               <small id="onboarding-display-name-detail">{t('preferredNameDetail')}</small>
+            </div>
+            <div className="onboarding-avatar-field">
+              <span>{t('avatar')}</span>
+              <div className="onboarding-avatar-picker">
+                {AVATAR_PRESETS.map((preset) => (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    className={draft.avatarPresetId === preset.id ? 'onboarding-avatar-picker__button active' : 'onboarding-avatar-picker__button'}
+                    onClick={() => setDraft((current) => ({ ...current, avatarPresetId: current.avatarPresetId === preset.id ? undefined : preset.id }))}
+                    aria-label={`${t('avatar')} ${preset.emoji}`}
+                    aria-pressed={draft.avatarPresetId === preset.id}
+                  >
+                    <span>{preset.emoji}</span>
+                  </button>
+                ))}
+              </div>
             </div>
             <div className="onboarding-choice-grid onboarding-choice-grid--languages">
               {languageOptions.map((option) => (
