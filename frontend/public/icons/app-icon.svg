@@ -40,6 +40,10 @@
       <stop offset="58%" stop-color="#a5f3fc"/>
       <stop offset="100%" stop-color="#22d3ee"/>
     </linearGradient>
+    <radialGradient id="center_glow" cx="256" cy="256" r="220" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#00b4d8" stop-opacity="0.45"/>
+      <stop offset="65%" stop-color="#00b4d8" stop-opacity="0"/>
+    </radialGradient>
   </defs>
 
   <g clip-path="url(#squircle_clip)">
@@ -50,7 +54,7 @@
     <rect width="512" height="512" fill="url(#overlay_gradient)"/>
     
     <!-- Deep Blue Glow behind text -->
-    <circle cx="256" cy="256" r="220" fill="radial-gradient(circle, rgba(0, 180, 216, 0.45) 0%, transparent 65%)"/>
+    <circle cx="256" cy="256" r="220" fill="url(#center_glow)"/>
   </g>
 
   <!-- Border -->

@@ -4,7 +4,7 @@
 // Date: 2026-07-15 | TZ: Asia/Jerusalem
 // Notes: API responses and user data are deliberately never cached by the service worker.
 
-const CACHE_NAME = 'ivrit-sheli-shell-v2.12.3-glassmorphism';
+const CACHE_NAME = 'ivrit-sheli-shell-v2.12.3-hebraic-wordmark';
 const CORE_ASSETS = [
   '/',
   '/manifest.webmanifest',
@@ -29,7 +29,7 @@ const CORE_ASSETS = [
   '/illustrations/regions/negev-field-notes-portrait.webp',
 ];
 const NETWORK_ONLY_PATHS = new Set(['/health/live', '/health/ready', '/version']);
-const PUBLIC_STATIC_PREFIXES = ['/assets/', '/content/', '/icons/', '/illustrations/'];
+const PUBLIC_STATIC_PREFIXES = ['/assets/', '/content/', '/fonts/', '/icons/', '/illustrations/'];
 
 function canCache(response) {
   const cacheControl = response.headers.get('Cache-Control') || '';
@@ -42,8 +42,27 @@ function isPublicStaticPath(pathname) {
     || PUBLIC_STATIC_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 }
 
+const ESSENTIAL_ASSETS = [
+  '/',
+  '/manifest.webmanifest',
+  '/icons/app-icon.svg',
+  '/icons/app-icon-192.png',
+  '/icons/app-icon-512.png',
+  '/fonts/GveretLevin-Regular.ttf',
+  '/content/starter-dictionary-v2.8.json',
+];
+
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_ASSETS)));
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(async (cache) => {
+      // The shell is required: without it there is no offline app.
+      await cache.addAll(ESSENTIAL_ASSETS);
+      // The region art is desirable but optional, and it is ~4.7 MB. Cached one
+      // by one so a single failure costs one picture, not offline mode.
+      const optional = CORE_ASSETS.filter((asset) => !ESSENTIAL_ASSETS.includes(asset));
+      await Promise.allSettled(optional.map((asset) => cache.add(asset)));
+    }),
+  );
   self.skipWaiting();
 });
 

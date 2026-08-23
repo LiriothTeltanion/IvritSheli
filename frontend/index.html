@@ -1,6 +1,10 @@
 <!doctype html>
 <html lang="en" dir="ltr" data-theme="dark">
   <head>
+    <!-- No webfont CDN: this app's CSP is style-src 'self' and
+         font-src 'self' data:, so a Google Fonts link can never resolve here.
+         Brand letterforms are drawn as SVG paths; Hebrew uses the local
+         /fonts/ face with system fallbacks. -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#030912" />
@@ -30,9 +34,6 @@
           ?.setAttribute('content', theme === 'dark' ? '#030912' : '#f7f1e5');
       })();
     </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@700;800;900&family=Alex+Brush&family=Pinyon+Script&family=Frank+Ruhl+Libre:wght@700;800;900&family=David+Libre:wght@700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet" />
     <link rel="icon" type="image/svg+xml" href="/icons/app-icon.svg?v=2.12.2" />
     <link rel="apple-touch-icon" href="/icons/app-icon-192.png?v=2.12.2" />
     <link rel="manifest" href="/manifest.webmanifest" />
