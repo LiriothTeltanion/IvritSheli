@@ -9,6 +9,7 @@ import { createRoot } from 'react-dom/client';
 import App from './App';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { I18nProvider } from './i18n';
+import { skipSceneLayerWarm } from './warmSceneLayer';
 import './styles.css';
 import './v25-private-pilot.css';
 import './learner-mode.css';
@@ -61,24 +62,12 @@ createRoot(root).render(
 );
 
 /*
- * Warm the scene layer once the shell is up.
- *
- * The artwork is a 58 kB gzipped chunk that no first screen draws, so it is off
- * the critical path — but the first vocabulary card does need it, and fetching
- * it while the learner is still reading the welcome means the split never shows
- * as a blank card. Idle time if the browser offers it, a short timer if not.
+ * The scene layer warm-up lives in ./warmSceneLayer and is triggered after
+ * sign-in, not here. The artwork is a ~58 kB gzipped chunk that no signed-out
+ * screen can draw, so fetching it on the login screen spent that much of a slow
+ * connection for nothing. The workbench renders scenes directly and opts out.
  */
-if (!visualQAMode) {
-  const warmSceneLayer = (): void => {
-    void import('./components/SemanticWordIllustration');
-  };
-  // A `'requestIdleCallback' in window` test narrows the else branch to `never`,
-  // because the DOM lib declares the method unconditionally; Safari shipped it
-  // only in 2022, so the runtime check has to be a typeof.
-  if (typeof window.requestIdleCallback === 'function') {
-    window.requestIdleCallback(warmSceneLayer, { timeout: 3000 });
-  } else {
-    window.setTimeout(warmSceneLayer, 1200);
-  }
+if (visualQAMode) {
+  skipSceneLayerWarm();
 }
 

@@ -20,6 +20,7 @@ import { BeginnerOnboarding } from './components/BeginnerOnboarding';
 import { FirstStepsLesson } from './components/FirstStepsLesson';
 import { Icon, type IconName } from './components/Icon';
 import { IvritSheliWordmark } from './components/IvritSheliWordmark';
+import { warmSceneLayer } from './warmSceneLayer';
 import {
   forgetSavedAccount,
   readSavedAccounts,
@@ -390,6 +391,8 @@ export default function App(): React.JSX.Element {
     const provider = user.provider === 'google' || user.provider === 'github'
       ? user.provider
       : undefined;
+    // Now that a learner is in, pull the scene layer in while the browser idles.
+    warmSceneLayer();
     setSavedAccounts(rememberSavedAccount({
       id: user.id,
       displayName,

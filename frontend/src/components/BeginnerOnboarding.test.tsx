@@ -116,7 +116,7 @@ describe('BeginnerOnboarding', () => {
     );
 
     await user.type(screen.getByRole('textbox', { name: /What should we call you\?/ }), 'Marta');
-    await user.click(screen.getByRole('button', { name: /Avatar 👩🏽/i }));
+    await user.click(screen.getByRole('button', { name: /Avatar 4$/i }));
     await user.click(await screen.findByRole('button', { name: /Continue/i }));
     await user.click(await screen.findByRole('button', { name: /I know a few words/i }));
     await user.click(await screen.findByRole('button', { name: /Continue/i }));

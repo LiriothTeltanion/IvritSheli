@@ -268,13 +268,13 @@ export function BeginnerOnboarding({
             <div className="onboarding-avatar-field">
               <span>{t('avatar')}</span>
               <div className="onboarding-avatar-picker">
-                {AVATAR_PRESETS.map((preset) => (
+                {AVATAR_PRESETS.map((preset, index) => (
                   <button
                     key={preset.id}
                     type="button"
                     className={draft.avatarPresetId === preset.id ? 'onboarding-avatar-picker__button active' : 'onboarding-avatar-picker__button'}
                     onClick={() => setDraft((current) => ({ ...current, avatarPresetId: current.avatarPresetId === preset.id ? undefined : preset.id }))}
-                    aria-label={`${t('avatar')} ${preset.emoji}`}
+                    aria-label={`${t('avatar')} ${index + 1}`}
                     aria-pressed={draft.avatarPresetId === preset.id}
                   >
                     <img

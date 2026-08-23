@@ -71,7 +71,7 @@ describe('ProfileMenu', () => {
     const { onIdentityUpdate } = renderMenu();
 
     await user.click(screen.getByRole('button', { name: /Open profile menu/i }));
-    await user.click(screen.getByRole('button', { name: /Avatar 👩🏽/i }));
+    await user.click(screen.getByRole('button', { name: /Avatar 4$/i }));
     await user.click(screen.getByRole('button', { name: /Save/i }));
 
     expect(onIdentityUpdate).toHaveBeenCalledOnce();

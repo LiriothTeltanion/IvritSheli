@@ -158,13 +158,13 @@ export function ProfileMenu({
             <div className="profile-menu__identity-presets">
               <span>{t('avatar')}</span>
               <div>
-                {AVATAR_PRESETS.map((preset) => (
+                {AVATAR_PRESETS.map((preset, index) => (
                   <button
                     key={preset.id}
                     className={`profile-menu__avatar-btn ${identityDraftPreset === preset.id ? 'active' : ''}`}
                     type="button"
                     onClick={() => setIdentityDraftPreset((current) => (current === preset.id ? undefined : preset.id))}
-                    aria-label={`${t('avatar')} ${preset.emoji}`}
+                    aria-label={`${t('avatar')} ${index + 1}`}
                     aria-pressed={identityDraftPreset === preset.id}
                   >
                     <img
