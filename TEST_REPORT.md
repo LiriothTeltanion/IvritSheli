@@ -1,7 +1,8 @@
-# Ivrit Sheli 2.12.0 — Living Hebrew Nocturne Verification Ledger
+# Ivrit Sheli — Verification Ledger
 
-- **Current private source candidate:** `2.12.0` / local artifact / unpublished
-- **Nocturne checkpoint date:** 2026-08-14
+- **Current private source candidate:** `2.12.2` / local artifact / unpublished
+- **Latest gate date:** 2026-08-23 (2.12.2). The 2.12.0 Nocturne gate of
+  2026-08-14 is preserved below as history and is not relabelled.
 - **Current verified public production:** `2.4.0` / Railway / PostgreSQL / verified 2026-07-21
 - **Historical candidate baselines:** `2.11.0` passed 705 frontend and 315
   backend tests plus its 240 × 3 visual matrix on 2026-08-14; `2.10.0` Phase
@@ -21,6 +22,43 @@ required before publication.
 The verified public `2.4.0` production record remains unchanged. Nothing in
 this private artifact claims that 2.12.0 is deployed, tagged, released or
 submitted to Devpost.
+
+## Visual Harmony & Resilience gate — reference Windows machine — 2026-08-23
+
+Recorded from commands actually executed on this date. Anything not listed here
+was **not** run for 2.12.2, whatever an earlier summary may have claimed.
+
+| Gate | Command | Result |
+|---|---|---|
+| Complete frontend suite | `npx vitest run` | **747 passed across 45 files** |
+| TypeScript project build | `npx tsc -b --pretty false` | **Passed** |
+| Production bundle | `npm run build` | **Passed** in 0.78 s; the known non-blocking main-chunk warning remains (index 552.95 kB / 171.38 kB gzip) |
+| Complete backend suite | `.venv\Scripts\python.exe -m pytest backend/tests -q` | **315 passed / 1 PostgreSQL-gated skip** |
+| Backend style | `.venv\Scripts\python.exe -m ruff check backend/src` | **Passed** |
+| Backend types | `.venv\Scripts\python.exe -m mypy backend/src` | **Passed** across 39 source files |
+| Running stack | `backend-local` + `frontend` launch profiles | **Passed**: SQLite offline mode on 8000, Vite on 5173, learner shell renders, no console errors from the app |
+| Visual QA catalogue | `127.0.0.1:5173/?visualQa=1&group=all&size=card` | **240 scene SVGs present in the DOM** |
+
+### What this gate corrected
+
+The backend entered this session at **4 failed / 311 passed**. The four failures
+were guard tests correctly catching regressions that had accumulated in an
+uncommitted working tree: least-privilege roles and RLS `TO <role>` clauses
+stripped from four already-applied migrations, the administrator-`DATABASE_URL`
+guard deleted, a repository cache not invalidated on write, and a Supabase
+bearer path that raised `TypeError` on every request into a bare `except`. All
+five are repaired in `9d8d463`.
+
+### Not run for 2.12.2
+
+- Playwright browser matrix and the 240 × 3 contact matrices.
+- Offline doctor.
+- `scripts/verify_package.py` integrity gate.
+- PostgreSQL 17 / RLS isolation and the no-cache container smoke. Those remain
+  **inherited 2.10.0 Phase 4A.1 evidence** and are not relabelled. The local
+  PostgreSQL path additionally cannot be exercised until `DATABASE_URL`
+  authenticates as `ivrit_sheli_runtime` rather than a superuser.
+- Human five-second recognition, Hebrew-content acceptance and the mother pilot.
 
 ## Living Hebrew Nocturne gate — reference Windows machine — 2026-08-14
 

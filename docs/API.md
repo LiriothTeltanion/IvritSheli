@@ -1,6 +1,6 @@
-# 2.12.0 source-contract note — 2026-08-14
+# 2.12.2 source-contract note — 2026-08-23
 
-This unpublished 2.12.0 candidate inherits the 2.11.0 API surface without
+This unpublished 2.12.2 candidate inherits the 2.11.0 API surface without
 broadening public permissions. Google public sign-in remains **identity-only**
 (`openid profile`). The current change is a client-side visual and responsive-
 asset checkpoint; the verified public deployment remains 2.4.0.

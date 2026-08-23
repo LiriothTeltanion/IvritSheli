@@ -1,9 +1,9 @@
-# Deployment — Ivrit Sheli 2.12.0 private source / 2.4.0 production
+# Deployment — Ivrit Sheli 2.12.2 private source / 2.4.0 production
 
 This guide covers the private SQLite installation, the reproducible PostgreSQL
 Docker stack, the separate HTTPS staging design first established for 2.9.1
 and the frozen public Railway deployment. Production values belong in a
-secrets manager or hosting dashboard, never in Git. Version 2.12.0 dated
+secrets manager or hosting dashboard, never in Git. Version 2.12.2 dated
 2026-08-14 is private and unpublished: the verified live service, tag, GitHub
 Release and Devpost entry remain at 2.4.0 dated 2026-07-21 until the current
 release gates, publication freeze and Kevin's explicit approval are complete.
@@ -358,7 +358,7 @@ pytest backend/tests -q -m "not postgres"   # ordinary run, no database env
 pytest backend/tests -q -m postgres         # separate shell, database env set
 ```
 
-Evidence for the current private candidate, **2.12.0**, lives in
+Evidence for the current private candidate, **2.12.2**, lives in
 `TEST_REPORT.md`; the rollout preconditions above apply to it. Sections that
 remain explicitly dated 2026-07-27 preserve historical 2.9.1 evidence.
 

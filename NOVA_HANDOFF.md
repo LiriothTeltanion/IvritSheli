@@ -1,137 +1,140 @@
 # Ivrit Sheli 2.12.2 — Visual Harmony & Resilience Handoff
 
-Prepared: 2026-08-19 (`Asia/Jerusalem`)
+Prepared: 2026-08-23 (`Asia/Jerusalem`)
 Source state: private / local / unpublished
 Public production intentionally remains: **2.4.0 Contest Edition (2026-07-21)**
 
-## NovaSync operational checkpoint
+## Operational checkpoint
 
 - **Project:** `02 — Ivrit Sheli`
 - **Branch:** `consolidation/ivrit-sheli-2.10-baseline`
-- **Implementation Version:** `2.12.2`
-- **Issue:** `KEV-11` (family/relationship pass), `KEV-14` (avatar harmonization), `KEV-15` (typography & brand identity) are complete. `KEV-12` (Supabase pool verification) and `KEV-13` (Vercel deployment readiness) are queued.
-- **Work completed:** 
-  1. **PostgreSQL Connection Pool:** Thread-safe `queue.Queue` connection cache in `cloud_store.py` providing sub-50ms query latencies and automatic reconnection.
-  2. **15 Vector Avatar Presets:** Redesigned the 15 avatars in a consistent 2D flat editorial vector style with turquoise backgrounds and white circular bezels, with full accessibility `aria-label` emoji support.
-  3. **Hebraized Monumental Typography:** "IVRIT" wordmark with `Cinzel Decorative` + `Frank Ruhl Libre` + embedded Aleph squircle badge + cross-browser fallback colors preventing reload transparency.
-  4. **Nocturne Brand App Icon:** Replaced legacy icon in `frontend/public/icons/app-icon.svg` with a dark squircle Aleph emblem, golden starburst, and coral swoosh.
-  5. **3D Holographic Hero Card:** Cursor-following 3D physics tilt, live Hebrew audio pronunciation via Web Speech API, and ambient Ken Burns regional background carousel.
-- **Tests:** 728/728 Vitest tests across 40 test files in `frontend/`; production TypeScript `tsc -b` and Vite build passed in ~600ms; 315 backend pytest tests passing with one credential-gated skip; strict MyPy across 39 source files passing.
-- **Current URLs:** 
-  - Hot-reload frontend dev server: `http://127.0.0.1:5173/` (start with `cd frontend && npm run dev`)
-  - Production-style backend & bundled UI: `http://127.0.0.1:8000/` (start with `.\scripts\start.ps1`)
-  - Art QA Workbench: `http://127.0.0.1:5173/?visualQa=1&lang=es&group=communication&size=card&journeyArt=1`
-- **Next action:** Proceed with `KEV-12` (Supabase/PostgreSQL live migration tests) and `KEV-13` (Vercel deployment readiness).
-- **Blockers:** None. Remember that public production remains frozen at **2.4.0** until after **2026-08-25** per contest rules. Do not push, tag, or merge publicly.
+- **Implementation version:** `2.12.2`, now stated identically in
+  `frontend/package.json`, `backend/pyproject.toml`,
+  `backend/src/ivrit_sheli/__init__.py`, `frontend/src/release.ts`,
+  `frontend/index.html`, `frontend/public/manifest.webmanifest` and the service
+  worker cache key. Before this session those disagreed, so `/version` and the
+  offline doctor reported a different number than the badge in the interface.
+- **Working tree:** committed. It previously held 12,333 uncommitted insertions
+  and two untracked files that other documents call the operational source of
+  truth (`TASKS.md`, `docs/LIVING_HEBREW_FIELD_NOTES.md`). See `1e4281e`.
 
-The handoff is committed immediately after the implementation checkpoint. Use
-`git rev-parse HEAD` for the handoff-record commit at consumption time; the
-exact implementation commit is recorded above.
+## What this session did
 
-## Learner-facing and visual result
+Four commits, each revertible on its own:
 
-### Dark-first interface
+1. `1e4281e` — checkpoint commit. Captures the accumulated tree, deliberately
+   preserving the regressions listed below rather than hiding them, and adds
+   `.env.local` to `.gitignore` so the Supabase URL and key stay out of history.
+2. `9d8d463` — security repair. Backend goes from 4 failed / 311 passed to
+   **315 passed / 1 skipped**.
+3. `73bf596` — PWA, font and icon repair.
+4. `83c0c7d` — finishes the half-wired sign-in surfaces and the hero.
 
-- A new learner sees the nocturnal navy interface before React mounts; no
-  light flash is required to reach the intended theme.
-- A valid stored light preference still wins on ordinary learner surfaces.
-- Visual QA owns its explicit `theme=light|dark` preview and defaults to dark
-  without overwriting the learner preference.
-- Theme color, install manifest and service-worker cache identity align with
-  the 2.12.0 candidate.
+### Brand
 
-### Seven useful journey paintings
+"Ivrit" is now drawn as hand-authored SVG paths in
+`frontend/src/components/IvritHebraicLetters.tsx`, built on Hebrew square-script
+construction: a heavy roof over every letter with thin stems (Hebrew stresses
+the horizontal, Latin the vertical), a descending corner heel mirrored from ד
+and ר, broad-nib diagonal terminals, and three tagin over the closing T. The
+Hebrew half `שלי` is unchanged.
 
-- Global Be’er Sheva plaza: directions, everyday exchange and public transit.
-- Galilee: adults navigating an olive-lined path.
-- Haifa/Carmel: mountain-to-coast transport context.
-- Tel Aviv/Jaffa: food and social Hebrew.
-- Jerusalem: greetings and everyday encounters.
-- Dead Sea: health, water, travel and shade.
-- Be’er Sheva/Negev: weather and evening transit routines.
+Two consequences beyond appearance. The logo is now identical offline, which
+matters for an install-once PWA. And `app-icon.svg` stopped setting its
+letterforms in `<text font-family="Cinzel">` — an SVG rendered as an app icon or
+through `<img>` can never load a webfont, so the icon had been falling back to a
+different generic serif on every machine.
 
-The six regional paintings have landscape and portrait variants. The global
-hero uses an action-preserving 31% mobile crop. No generated Hebrew text is
-embedded in the raster art; language remains real accessible interface text.
-Dimensions, SHA-256 hashes, provenance and review limits live in
-`docs/VISUAL_ASSET_MANIFEST.md`. Legacy rasters remain preserved for reversible
-history but are no longer the visible journey art.
+### Regressions repaired
 
-### Exact semantic scenes
+All five were confirmed by reading the code, and all five had a failing guard
+test pointing at them:
 
-- Reviewed coverage remains **240 concepts / 240 exact scenes / zero reviewed
-  fallbacks**.
-- The shared figure is visibly adult and uses articulated limbs, hands,
-  trousers/shoes and a sober editorial silhouette in 113 uses.
-- Seven spatial families add recognizable context: diagram, transit,
-  landscape, service, street, interior and tabletop.
-- Communication `ask`, `answer`, `request` and `explain` have different actor
-  poses, bubble origins, arrows, props and sequences.
-- Direction motion no longer drifts right indiscriminately: explicit left/right
-  scenes move in their semantic direction; ambiguous direction scenes use a
-  neutral emphasis.
-- Motion is brief, interaction-triggered and stationary under
-  `prefers-reduced-motion`.
+- Four already-applied migrations had lost every `CREATE ROLE`, `GRANT` and
+  `REVOKE`, and their RLS policies had lost the `TO <role>` clause. A permissive
+  policy with no role applies to `PUBLIC`, and PostgreSQL ORs permissive
+  policies together, so `USING (TRUE) WITH CHECK (TRUE)` made the sibling owner
+  policy irrelevant.
+- The guard refusing an administrator `DATABASE_URL` had been deleted, so a
+  superuser or `BYPASSRLS` connection would silently disable RLS.
+- `autocommit=True` arrived with connection pooling and released the
+  `SELECT ... FOR UPDATE` row lock before the write landed.
+- `CloudLearningRepository._cached_state` was never invalidated on write, so the
+  first read after a write served pre-write state.
+- Supabase bearer authentication had never authenticated a request:
+  `SessionIdentity` was constructed with a field that does not exist and without
+  a required one, raising `TypeError` into a bare `except`.
 
-### Private art workbench
+Also repaired: CSRF could be skipped by presenting an empty `csrf_hash`; JWT
+verification listed HS256 beside JWKS public keys; OAuth callback state was no
+longer bound to the browser outside production; a live Supabase project URL was
+a source-level default.
 
-- VisualQAGallery remains trilingual, searchable and filterable by all 20
-  learning domains.
-- Art receives the dominant card surface at thumbnail, card, hero and compare
-  sizes.
-- `journeyArt=1` opens all seven paintings together; closing it removes those
-  raster nodes so ordinary semantic QA does not pay their ~3.51 MiB weight.
-- Hebrew recognition choices now use concise pointed Hebrew words instead of
-  silently falling back to English glosses.
-- The complete recognition test now covers answer, score and next-scene reset.
+### Learner-facing
+
+- The mobile drawer was keyboard-focusable while closed, took no focus when
+  opened, had no focus trap, did not lock body scroll, and double-flipped in
+  Hebrew so the toggle sat opposite the drawer. All fixed.
+- Hero tap targets went from 24–30 px to a 44 px minimum and body text from
+  9–11.5 px to 12–14 px, which is what the rest of the app already honours and
+  what the target learner needs.
+- Hero surfaces moved from hard-coded `rgba(255,255,255,…)` onto
+  `--surface-soft` / `--border`, so `prefers-contrast: more` reaches them.
+- Light theme: stat numerals no longer half-vanish, and a selected pill no
+  longer looks unselected.
+- Saved learners now exist. `savedAccounts.ts` is a bounded device-local store
+  behind UI that had been built with no data layer at all.
+- The Google Fonts CDN is gone from `index.html` and the wordmark CSS. The
+  app's own CSP is `style-src 'self'` and `font-src 'self' data:`, so those
+  requests could never resolve on the real path — they only loaded on the Vite
+  dev server, which meant port 5173 was showing different typefaces than the
+  app actually ships.
 
 ## Verification boundary
 
-### Verified for this 2.12.0 local checkpoint
+**Executed on 2026-08-23** — full detail in `TEST_REPORT.md`:
 
-- Focused visual/theme tests: 500 passed + `SemanticWordIllustration.test.tsx` (492) for this slice.
-- Complete frontend: 717 passed across 41 files.
-- TypeScript and Vite production build: passed. The existing non-blocking
-  warning for the 513.07 kB main chunk remains.
-- Complete backend: 315 passed / one PostgreSQL-DSN-gated skip.
-- Ruff, strict MyPy (39 source files) and Python compileall: passed.
-- Offline doctor with isolated in-memory databases: 7/7 as 2.12.0, 240 entries.
-- Playwright final matrix: 7 passed / two expected project skips; all 240 exact
-  scenes and all seven paintings passed at mobile 390, tablet 768 and desktop
-  1440. The full recognition flow runs on desktop by design.
-- In-app browser: dark 2.12 title, all seven rasters complete with natural
-  widths above 1000 px, no horizontal overflow, responsive region grid.
-- Package verifier: 217 required files and 387 canonical Git-index SHA-256
-  entries passed, including every new raster and its provenance manifest.
+- Frontend: **747 passed across 45 files**. `tsc -b` clean. Production build
+  clean, with the known main-chunk size warning.
+- Backend: **315 passed / 1 PostgreSQL-gated skip**. Ruff clean. Strict MyPy
+  clean across 39 source files.
+- Both servers brought up and the learner shell rendered; the Visual QA
+  catalogue reported 240 scene SVGs in the DOM.
 
-### Historical evidence only
+**Not executed for 2.12.2, and not inherited as proof of it:** the Playwright
+browser matrix, the 240 × 3 contact matrices, the offline doctor,
+`scripts/verify_package.py`, and PostgreSQL 17 / RLS and container evidence —
+that last remains historical 2.10.0 Phase 4A.1 evidence.
 
-- PostgreSQL 17/RLS isolation, dependency audits and no-cache Docker evidence
-  belong to verified 2.10.0 Phase 4A.1. This visual slice did not rerun or
-  relabel them.
-- Public Railway, tag, GitHub Release and Devpost state remain 2.4.0.
+## Blockers
 
-### Still required
+Stated plainly, because the previous revision of this file said "None" directly
+above a list of unmet requirements:
 
-- Human five-second recognition of confusable clusters, starting with family
-  and relationship diagrams.
-- Hebrew-content and mother-pilot acceptance.
-- Isolated HTTPS staging, two-real-account persistence/isolation and a proven
-  backup/restore path.
-- A deliberate backend rebuild/restart if a 2.12 runtime claim is needed.
+1. **`DATABASE_URL` authenticates as the `postgres` superuser.** That role
+   bypasses RLS, so tenant isolation does not apply, and the restored guard now
+   refuses to start against it. PostgreSQL mode cannot be exercised until an
+   `ivrit_sheli_runtime` role exists in the Supabase project and the URL uses
+   it. The `backend-local` launch profile runs the app in its offline SQLite
+   mode meanwhile.
+2. That superuser password was exposed in a session transcript on 2026-08-23
+   and should be rotated.
+3. Human five-second recognition of confusable clusters, starting with family
+   and relationship diagrams.
+4. Hebrew-content and mother-pilot acceptance.
+5. Isolated HTTPS staging, two-real-account persistence and isolation, and a
+   proven backup/restore path.
+6. `SHA256SUMS.txt` and the package integrity gate need regenerating after this
+   session's file changes.
 
 ## Continuation rules
 
-- Keep `docs/VISUAL_BIBLE.md` as the visual authority.
-- Keep `docs/LIVING_HEBREW_FIELD_NOTES.md` as the operational notebook (defect status + phase-by-phase findings).
-- Improve one semantic ambiguity at a time; meaning must survive thumbnail/card
-  size before decorative polish is accepted.
-- Keep exact semantic SVGs deterministic and local. Cinematic raster art is a
-  complementary large-surface layer, not linguistic evidence.
-- Do not repeat the completed `KEV-10` walkthrough or `KEV-14` saved-word →
-  pronunciation-practice continuation fix.
-- Do not start a broad `api.py` or `repository.py` rewrite. If the visual and
-  learner-facing slice is safely complete, extract only `operations` or
-  `alphabet` behind contract tests.
+- `docs/VISUAL_BIBLE.md` remains the visual authority;
+  `docs/LIVING_HEBREW_FIELD_NOTES.md` remains the operational notebook.
+- Keep the exact semantic SVGs deterministic and local. Cinematic raster art is
+  a complementary large-surface layer, not linguistic evidence.
+- Do not start a broad `api.py` or `repository.py` rewrite.
 - Do not deploy, push, tag, release or alter public judge state during the
-  publication freeze.
+  publication freeze, which runs until after **2026-08-25**.
+- Verify against port 8000, not only 5173. The dev server has no CSP and has
+  already hidden one whole class of defect.

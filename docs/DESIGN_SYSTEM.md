@@ -1,4 +1,4 @@
-# 2.12.0 Living Hebrew Nocturne — 2026-08-14
+# 2.12.2 Visual Harmony & Resilience — 2026-08-23
 
 The current private candidate combines six responsive Israel-region journey
 paintings and one cross-journey hero with **240 exact semantic SVG scenes** for

@@ -1,6 +1,6 @@
-# Ivrit Sheli 2.12.0 — Living Hebrew Nocturne Package Manifest
+# Ivrit Sheli 2.12.2 — Visual Harmony & Resilience Package Manifest
 
-- Source version: `2.12.0`
+- Source version: `2.12.2`
 - Candidate state: private / unpublished / prepared 2026-08-14
 - Source lineage: derived from the clean 2.9.2 Brand & Private Access export supplied for consolidation; `.git`, real secrets, local databases, models, dependency caches and generated audit folders are intentionally absent.
 - Current verified public version: `2.4.0`
@@ -12,7 +12,7 @@
   PostgreSQL/RLS and container results remain attributed to 2.10.0; the 2.11.0
   705-frontend/315-backend checkpoint remains historical evidence only.
 
-## 2.12.0 package purpose
+## 2.12.2 package purpose
 
 This package is a nocturnal editorial visual-system checkpoint, not a public
 release. It keeps the 240/240 exact semantic catalog and adds adult shared

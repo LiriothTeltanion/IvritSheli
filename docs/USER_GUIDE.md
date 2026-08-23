@@ -1,4 +1,4 @@
-# 2.12.0 private-candidate note — 2026-08-14
+# 2.12.2 private-candidate note — 2026-08-23
 
 The private visual QA gallery derives **all 240 exact semantic scenes** and now
 opens dark by default as a trilingual editorial workbench with art-dominant

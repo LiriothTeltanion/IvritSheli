@@ -9,6 +9,7 @@ from urllib.parse import parse_qs, urlparse
 import pytest
 from fastapi.testclient import TestClient
 
+from ivrit_sheli import __version__
 from ivrit_sheli.api import create_app
 from ivrit_sheli.auth import GoogleOAuthClient
 from ivrit_sheli.cloud_repository import STATE_FORMAT, CloudLearningRepository
@@ -703,13 +704,13 @@ def test_operational_endpoints_report_version_storage_and_readiness(tmp_path: Pa
             oauth_client=FakeGitHubOAuth(),
         )
     ) as client:
-        assert client.get("/health/live").json()["version"] == "2.12.0"
+        assert client.get("/health/live").json()["version"] == __version__
         ready = client.get("/health/ready")
         assert ready.status_code == 200
         assert ready.json()["checks"]["postgresql"] is True
         assert ready.json()["checks"]["dictionary_details"]["mode"] == "shared_cloud"
         version = client.get("/version").json()
-        assert version["version"] == "2.12.0"
+        assert version["version"] == __version__
         assert version["storage"] == "postgresql"
 
 

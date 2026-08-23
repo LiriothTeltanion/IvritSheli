@@ -40,7 +40,7 @@
 - [x] **Interactive 3D Holographic Hero Card**:
   - Physics-based mouse tilt, live Web Speech API Hebrew pronunciation of *"הַדֶּרֶךְ שֶׁלְּךָ לְעִבְרִית"*, and multi-region Ken Burns atmospheric background pan (`dead-sea`, `galilee`, `haifa-carmel`, `jerusalem`, `negev`, `tel-aviv-jaffa`).
 - [x] **Full Test Suite & Production Build Parity**:
-  - **728 / 728 Vitest tests** passing across 40 test suites in `frontend/`.
+  - **747 / 747 Vitest tests** passing across 45 test suites in `frontend/` (measured 2026-08-23; the earlier 728/40 figure appears in no ledger).
   - **Vite production build** passes cleanly in <700ms (`tsc -b && vite build`).
   - Fixed `AuthGate.test.tsx` and `App.test.tsx` navigation helper hints and role link assertions.
   - Fixed `backend/src/ivrit_sheli/audio.py` transcribe method indentation.
@@ -49,7 +49,41 @@
 
 ---
 
+### ✅ Completed 2026-08-23 — repair session
+
+- [x] **Hebraized wordmark**: "Ivrit" drawn as SVG paths (`IvritHebraicLetters.tsx`),
+      propagated to all six mount sites and to `app-icon.svg`; PNG icons regenerated.
+- [x] **KEV-SEC: tenant isolation restored** — PostgreSQL roles/GRANTs and RLS
+      `TO <role>` clauses returned to four migrations, administrator-`DATABASE_URL`
+      guard restored, pooled-connection tenant scope and row locking corrected.
+- [x] **KEV-SEC: Supabase bearer path repaired** — it had never authenticated a
+      single request. CSRF and OAuth state binding also restored.
+- [x] **Repository write cache invalidated** — the first read after a write no
+      longer serves pre-write state.
+- [x] **Dead font CDN removed** — blocked by the app's own CSP; it loaded only on
+      the Vite dev server, so 5173 and 8000 disagreed.
+- [x] **Service worker** — cache key bumped, `/fonts/` served, atomic 4.7 MB
+      precache split.
+- [x] **Hero and drawer accessibility** — 44 px targets, readable text, working
+      light theme, `prefers-contrast` reach, drawer focus/inert/scroll-lock, RTL.
+- [x] **Saved learners** — `savedAccounts.ts` plus nine tests, behind UI that had
+      been built with no data layer.
+- [x] **Version identity reconciled** across package.json, pyproject, `__init__`,
+      release.ts, index.html, manifest and the service worker cache key.
+
 ### ⏳ Current & Upcoming Tasks
+
+- [ ] **BLOCKER — Restricted PostgreSQL role (precondition for KEV-12)**:
+  - `DATABASE_URL` currently authenticates as the `postgres` superuser, which
+    bypasses RLS. Create `ivrit_sheli_runtime` in the Supabase project and point
+    the URL at it. Until then use the `backend-local` launch profile.
+  - Rotate the superuser password exposed on 2026-08-23.
+- [ ] **Regenerate `SHA256SUMS.txt`** and pass `scripts/verify_package.py`.
+- [ ] **Avatar weight**: 6.8 MB of photographic JPEGs render as 42 px thumbnails
+      with no `loading="lazy"` and no small variant.
+- [ ] **`שלי` in `app-icon.svg`** still depends on a font the icon cannot load;
+      the PNGs are baked but the SVG favicon varies per machine.
+- [ ] **Main chunk** remains above the 500 kB warning threshold.
 
 - [ ] **KEV-12: Supabase / PostgreSQL Production Compatibility Audit**:
   - Verify migration idempotency with remote PostgreSQL instances.
@@ -57,7 +91,7 @@
 - [ ] **KEV-13: Vercel / Railway Deployment Readiness**:
   - Ensure static asset caching headers, serverless function timeouts, and environment variable fallbacks are documented.
   - Check SPA rewrite routes for all view hashes and query params.
-- [ ] **KEV-15: Speech Synthesis & Recognition Calibration**:
+- [ ] **KEV-17: Speech Synthesis & Recognition Calibration** (was filed as KEV-15, which also named the completed typography work):
   - Validate local Whisper fallback vs browser SpeechRecognition on low-end mobile devices.
   - Test pronunciation confidence scoring across all 22 letters and 5 final forms in `AlphabetStudio`.
 - [ ] **KEV-16: Visual QA Family Consistency Sweep**:

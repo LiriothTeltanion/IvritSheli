@@ -1,7 +1,7 @@
 <div align="center">
   <img src="assets/brand/logo.svg" alt="Ivrit Sheli" width="680" />
 
-  <h1>Ivrit Sheli 2.12.0 — Living Hebrew Nocturne · העברית שלי</h1>
+  <h1>Ivrit Sheli 2.12.2 — Visual Harmony &amp; Resilience · העברית שלי</h1>
   <p><strong>See, hear, recognize and use living Hebrew in a journey that adapts gradually to you.</strong></p>
 
   <p>
@@ -34,7 +34,7 @@
 
 | Surface | Verified state |
 |---|---|
-| Current private source checkout | `2.12.0` · Living Hebrew Nocturne candidate · 2026-08-14 · not deployed or published |
+| Current private source checkout | `2.12.2` · Visual Harmony & Resilience candidate · 2026-08-23 · not deployed or published |
 | Current public deployed application | `2.4.0` · Contest Edition · verified 2026-07-21 |
 | Release implementation commit | `03bf84b9268ff8be528c0fab3c670f9652ee23b0` |
 | Production storage/readiness | PostgreSQL · ready · 48 reviewed dictionary entries |

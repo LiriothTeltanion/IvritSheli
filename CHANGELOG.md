@@ -2,6 +2,91 @@
 
 All notable changes are documented here. Versions follow Semantic Versioning.
 
+## 2.12.2 — Visual Harmony & Resilience — Private candidate — 2026-08-23
+
+Second checkpoint on the same candidate. The version number does not move: an
+unpublished candidate being repaired does not become a new one.
+
+### Brand
+
+- Draws the Latin "Ivrit" as hand-authored SVG paths on Hebrew square-script
+  construction — heavy roof, thin stems, mirrored corner heel, broad-nib
+  terminals and three tagin — instead of setting it in Cinzel Decorative. The
+  logo is now identical offline, which an install-once PWA needs.
+- Stops `app-icon.svg` drawing its wordmark with `<text font-family="Cinzel">`.
+  An SVG rendered as an app icon or through `<img>` cannot load a webfont, so
+  the icon had been falling back to a different generic serif per machine.
+- Regenerates `app-icon-192.png` and `app-icon-512.png`, untouched since
+  2026-08-10 while being the assets that actually ship as the installed
+  home-screen icon, apple-touch-icon and push badge.
+- Replaces an unparseable `fill="radial-gradient(...)"` in the icon with a real
+  `<radialGradient>`; the declaration had been dropped, painting an opaque
+  black disc where a cyan glow was intended.
+
+### Security
+
+- Restores the PostgreSQL least-privilege roles, GRANTs and the RLS `TO <role>`
+  clauses that had been stripped from four already-applied migrations. Without
+  the role clause a permissive `USING (TRUE)` policy applies to `PUBLIC`, and
+  PostgreSQL ORs permissive policies together, so the owner policy beside it
+  was irrelevant.
+- Restores the guard refusing an administrator `DATABASE_URL`; a superuser or
+  `BYPASSRLS` connection silently disables every RLS policy.
+- Returns the tenant setting to transaction scope now that connections are
+  pooled, and removes the `autocommit=True` that had been releasing the
+  `SELECT ... FOR UPDATE` row lock before the write landed.
+- Rewrites the Supabase bearer path, which had never authenticated a request:
+  it constructed `SessionIdentity` with a field that does not exist and without
+  a required one, raising `TypeError` into a bare `except`. HS256 is dropped
+  from the JWKS algorithm list, issuer and audience are verified, the JWKS
+  client is cached and moved off the event loop, and rejections are logged.
+- Makes CSRF enforcement key on how the request authenticated rather than on an
+  empty `csrf_hash`, which any caller could present.
+- Binds OAuth callback state to the browser cookie in every environment again.
+- Removes a live Supabase project URL from the source defaults, and ignores
+  `.env.local`.
+
+### Learner-facing
+
+- Raises hero tap targets from 24–30 px to a 44 px minimum and body text from
+  9–11.5 px to 12–14 px, matching what the rest of the app already honours.
+- Moves hero surfaces onto `--surface-soft` / `--border` so
+  `prefers-contrast: more` reaches them at all.
+- Fixes light theme: stat numerals no longer half-vanish into the card, and a
+  selected pill no longer renders as unselected.
+- Gives the mobile drawer real keyboard behaviour — removed from the tab order
+  while closed, focus enters and is trapped while open, body scroll locked —
+  and stops it double-flipping in Hebrew.
+- Adds device-local saved learners behind UI that had been built with no data
+  layer, so the sign-in screen can offer a familiar name. Stores no token,
+  session or email.
+
+### Removed
+
+- The Google Fonts CDN link and its preconnects, and the wordmark's `@import`.
+  The app's own CSP is `style-src 'self'` and `font-src 'self' data:`, so these
+  could never resolve on the real path; they loaded only on the Vite dev
+  server, which meant port 5173 rendered different typefaces than the app
+  ships. Three of the seven families requested were referenced nowhere.
+
+### Service worker
+
+- Bumps the cache key, without which a redesigned icon stays pinned to the old
+  bytes on every installed PWA.
+- Serves `/fonts/`, which was precached but excluded from the served prefixes,
+  so the cached face was never once read.
+- Stops precaching 4.7 MB with an atomic `addAll`, where one failed region
+  image left the PWA with no offline shell at all.
+
+### Verified
+
+Frontend 747 passed across 45 files; `tsc` and the production build clean.
+Backend 315 passed with one credential-gated skip, from 4 failed / 311 passed
+at the start of the session; ruff and strict MyPy clean across 39 source files.
+The Playwright matrix, contact matrices, offline doctor and package integrity
+gate were **not** run for this checkpoint. Local only: no push, tag, release or
+deployment, and public production remains 2.4.0.
+
 ## 2.12.2 — Visual Harmony & Resilience — Private candidate — 2026-08-19
 
 - Implemented PostgreSQL connection pooling using thread-safe queue in `PostgresCloudStore`, eliminating connection exhaust and reducing warm queries to sub-50ms latency.
