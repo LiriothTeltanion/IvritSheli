@@ -31,11 +31,16 @@ the script can hit.
    digits only, so it needs no percent-encoding in a URL.
 4. Run it. The last statement prints the role's attributes: `rolcanlogin` must
    be true and every other column false.
-5. Put the login in `.env`:
+5. Put the login in `.env`. Do not hand-edit the URL — one command asks for the
+   password, percent-encodes it, tests the login before writing anything, and
+   keeps a `.env.bak`:
 
    ```
-   DATABASE_URL="postgresql://ivrit_sheli_runtime:YOUR_PASSWORD@db.<project>.supabase.co:5432/postgres"
+   pwsh -File scripts/set-runtime-url.ps1
    ```
+
+   It makes no administrative connection and runs no migrations, so there is
+   nothing in it that can fail for a permission reason.
 
 6. Clear the SQL Editor afterwards — the password is plaintext in it.
 
