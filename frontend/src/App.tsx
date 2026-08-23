@@ -20,6 +20,12 @@ import { BeginnerOnboarding } from './components/BeginnerOnboarding';
 import { FirstStepsLesson } from './components/FirstStepsLesson';
 import { Icon, type IconName } from './components/Icon';
 import { IvritSheliWordmark } from './components/IvritSheliWordmark';
+import {
+  forgetSavedAccount,
+  readSavedAccounts,
+  rememberSavedAccount,
+  type SavedAccount,
+} from './savedAccounts';
 import { PreAccountLesson } from './components/PreAccountLesson';
 import { ProfileMenu } from './components/ProfileMenu';
 import { TodayDashboard } from './components/TodayDashboard';
@@ -278,6 +284,7 @@ export default function App(): React.JSX.Element {
   const [visitFinished, setVisitFinished] = useState(false);
   const [theme, toggleTheme] = usePersistentTheme();
   const [identityProfile, setIdentityProfile] = useState<LocalIdentityProfile>({});
+  const [savedAccounts, setSavedAccounts] = useState<SavedAccount[]>(() => readSavedAccounts());
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef<HTMLElement>(null);
   const sidebarToggleRef = useRef<HTMLButtonElement>(null);
@@ -329,19 +336,68 @@ export default function App(): React.JSX.Element {
       if (sidebarRef.current?.contains(target) || sidebarToggleRef.current?.contains(target)) return;
       setSidebarOpen(false);
     };
-    const onEscape = (event: KeyboardEvent): void => {
+    const focusable = (): HTMLElement[] =>
+      Array.from(
+        sidebarRef.current?.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])',
+        ) ?? [],
+      );
+    const onKeyDown = (event: KeyboardEvent): void => {
       if (event.key === 'Escape') {
         setSidebarOpen(false);
         sidebarToggleRef.current?.focus();
+        return;
+      }
+      // Without this, Tab walks straight out of the open drawer into the page
+      // behind it, because the drawer sits before the toggle in DOM order.
+      if (event.key !== 'Tab') return;
+      const items = focusable();
+      if (items.length === 0) return;
+      const first = items[0]!;
+      const last = items[items.length - 1]!;
+      const active = document.activeElement;
+      if (event.shiftKey && (active === first || !sidebarRef.current?.contains(active))) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
       }
     };
+    // Opening a drawer has to take focus with it, or a keyboard user is left
+    // standing outside a menu they just opened.
+    focusable()[0]?.focus();
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
     document.addEventListener('pointerdown', onPointerDown);
-    document.addEventListener('keydown', onEscape);
+    document.addEventListener('keydown', onKeyDown);
     return () => {
+      document.body.style.overflow = previousOverflow;
       document.removeEventListener('pointerdown', onPointerDown);
-      document.removeEventListener('keydown', onEscape);
+      document.removeEventListener('keydown', onKeyDown);
     };
   }, [sidebarOpen]);
+
+  // Remember who has signed in on this device so the sign-in screen can offer a
+  // familiar name and face instead of a blank form. Device-local, and it stores
+  // no token, session or email — only what is needed to draw the button.
+  useEffect(() => {
+    const user = auth?.user;
+    if (!auth?.authenticated || auth.demo || !user?.id) return;
+    const stored = readIdentityProfile(auth);
+    const displayName = stored.displayName?.trim() || user.display_name || '';
+    if (!displayName) return;
+    const provider = user.provider === 'google' || user.provider === 'github'
+      ? user.provider
+      : undefined;
+    setSavedAccounts(rememberSavedAccount({
+      id: user.id,
+      displayName,
+      profileSignature: `${provider ?? 'local'}:${displayName}`,
+      ...(stored.avatarPresetId ? { avatarPresetId: stored.avatarPresetId } : {}),
+      ...(provider ? { provider } : {}),
+    }));
+  }, [auth]);
 
   const refreshCore = useCallback(async (): Promise<void> => {
     try {
@@ -580,6 +636,8 @@ export default function App(): React.JSX.Element {
         notice={authNotice}
         providers={auth?.auth_providers ?? []}
         localCompanionUrl={auth?.local_companion_url ?? null}
+        savedAccounts={savedAccounts}
+        authChecking={authChecking}
         onDemo={() => { void startDemo(); }}
         onRetry={() => { void checkAuth(); }}
       />
@@ -1023,6 +1081,10 @@ export default function App(): React.JSX.Element {
           {view === 'settings' && (
             <SettingsPanel
               profile={profile}
+              savedAccounts={savedAccounts}
+              onDeleteSavedAccount={(accountId) => {
+                setSavedAccounts(forgetSavedAccount(accountId));
+              }}
               {...(auth.user?.provider ? { provider: auth.user.provider } : {})}
               onSaved={(nextProfile, message) => {
                 setProfile(nextProfile);
