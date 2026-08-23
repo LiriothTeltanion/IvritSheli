@@ -19,7 +19,27 @@ NOBYPASSRLS` and grant it exactly the table privileges it needs, and
 password client-side with `PGconn.encrypt_password`, so the plaintext never
 reaches the server's DDL log.
 
-## The short way
+## The simplest way: the SQL Editor
+
+No database password is involved. The Supabase SQL Editor session is already
+authenticated, so this path is immune to every connection and credential problem
+the script can hit.
+
+1. Open the SQL Editor for the project.
+2. Paste `scripts/setup-runtime-role.sql`.
+3. Replace `CAMBIA_ESTA_PASSWORD` with a password you choose — letters and
+   digits only, so it needs no percent-encoding in a URL.
+4. Run it. The last statement prints the role's attributes: `rolcanlogin` must
+   be true and every other column false.
+5. Put the login in `.env`:
+
+   ```
+   DATABASE_URL="postgresql://ivrit_sheli_runtime:YOUR_PASSWORD@db.<project>.supabase.co:5432/postgres"
+   ```
+
+6. Clear the SQL Editor afterwards — the password is plaintext in it.
+
+## The scripted way
 
 One command does everything below except the dashboard click. It reads both
 passwords as secure strings, never echoes or logs them, never writes the

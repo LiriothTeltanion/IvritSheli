@@ -130,8 +130,28 @@ try {
     $env:MIGRATION_DATABASE_URL = $adminUrl
     $env:DATABASE_URL = $runtimeUrl
     try {
-        & $python -m ivrit_sheli.db_admin migrate
-        if ($LASTEXITCODE -ne 0) { throw "The provisioner exited with code $LASTEXITCODE. Nothing was written to .env." }
+        $output = & $python -m ivrit_sheli.db_admin migrate 2>&1 | Tee-Object -Variable captured
+        $output | ForEach-Object { Write-Host $_ }
+        if ($LASTEXITCODE -ne 0) {
+            $text = ($captured | Out-String)
+            # Translate the two failures that actually happen into something you
+            # can act on, instead of an exit code.
+            if ($text -match 'password authentication failed') {
+                Write-Warn "The database rejected the $currentUser password."
+                Write-Host '      It was accepted on an earlier run, so it has changed since.' -ForegroundColor DarkGray
+                Write-Host '      Reset it once more in the dashboard and use exactly that value.' -ForegroundColor DarkGray
+                Write-Host '      Or skip the password entirely: run scripts/setup-runtime-role.sql' -ForegroundColor DarkGray
+                Write-Host '      in the Supabase SQL Editor, which is already authenticated.' -ForegroundColor DarkGray
+            }
+            elseif ($text -match 'SUPERUSER attribute') {
+                Write-Warn 'This administrator role may not set superuser-only attributes.'
+                Write-Host '      Update the repository — this is fixed in ec8845c and later.' -ForegroundColor DarkGray
+            }
+            elseif ($text -match 'could not translate host name|connection timed out|network is unreachable') {
+                Write-Warn 'The database host could not be reached. Check the network, then retry.'
+            }
+            throw "The provisioner failed. Nothing was written to .env."
+        }
     }
     finally {
         # The application must never see the administrator credential.
