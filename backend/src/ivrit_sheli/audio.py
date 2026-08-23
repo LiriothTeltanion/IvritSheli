@@ -88,7 +88,9 @@ class AudioProviderCapacityError(AudioProviderError):
 
     status_code = 429
     code = "audio_provider_capacity"
-    retry_after = 20
+    # Annotated so a provider-supplied Retry-After, which may be absent, can
+    # still overwrite this default on the instance.
+    retry_after: int | None = 20
 
 
 class OpenAIAudioProvider:

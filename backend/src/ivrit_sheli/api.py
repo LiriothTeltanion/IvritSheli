@@ -17,7 +17,8 @@ import time
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from dataclasses import asdict, dataclass
-from datetime import datetime
+from datetime import datetime, timezone
+from functools import lru_cache
 from pathlib import Path
 from typing import Annotated, Any, Literal, cast
 from uuid import uuid4
@@ -48,10 +49,12 @@ from ivrit_sheli.auth import (
 )
 from ivrit_sheli.cloud_repository import CloudLearningRepository
 from ivrit_sheli.cloud_store import (
+    AuthUser,
     CloudSnapshotLimitError,
     CloudStore,
     MemoryCloudStore,
     PostgresCloudStore,
+    SessionIdentity,
     bearer_hash,
 )
 from ivrit_sheli.config import Settings
@@ -642,47 +645,29 @@ def create_app(
         """Enforce auth/demo rules using Supabase JWT Bearer tokens."""
         container = getattr(request.app.state, "services", None)
         identity = None
-        
-        # 1. Try to extract Supabase Bearer token
+        bearer_authenticated = False
+
+        # 1. Try to extract Supabase Bearer token. Only when a project URL is
+        #    actually configured — otherwise the feature stays off rather than
+        #    reaching out to some default host.
         auth_header = request.headers.get("Authorization")
-        if auth_header and auth_header.startswith("Bearer "):
+        if runtime_settings.supabase_url and auth_header and auth_header.startswith("Bearer "):
             token = auth_header[7:]
             try:
-                import jwt
-                from jwt import PyJWKClient
-                from ivrit_sheli.cloud_store import AuthUser, SessionIdentity
-                
-                # Fetch public key dynamically from Supabase
-                jwks_url = f"{runtime_settings.supabase_url}/auth/v1/.well-known/jwks.json"
-                jwks_client = PyJWKClient(jwks_url)
-                signing_key = jwks_client.get_signing_key_from_jwt(token)
-                
-                payload = jwt.decode(
-                    token, 
-                    signing_key.key, 
-                    algorithms=["ES256", "RS256", "HS256"], 
-                    options={"verify_aud": False}
+                identity = await run_in_threadpool(
+                    _resolve_supabase_bearer,
+                    token,
+                    runtime_settings.supabase_url,
                 )
-                
-                user_id = payload.get("sub")
-                email = payload.get("email", "")
-                metadata = payload.get("user_metadata", {})
-                name = metadata.get("full_name", metadata.get("name", "User"))
-                
-                if user_id:
-                    identity = SessionIdentity(
-                        user=AuthUser(
-                            id=user_id,
-                            display_name=name,
-                            provider="google",
-                            login=email,
-                        ),
-                        session_id=token,
-                        csrf_hash="", # Bearer tokens don't need CSRF
-                    )
-            except Exception as e:
-                # Log invalid tokens but don't crash, let it fall through to 401
-                pass
+                bearer_authenticated = identity is not None
+            except Exception:
+                # A malformed or expired token is an ordinary event, not a fault:
+                # fall through so the cookie path or the 401 below decides. Logged
+                # without the token so a credential never reaches the log.
+                LOGGER.info(
+                    "supabase bearer token rejected",
+                    extra={"path": request.url.path},
+                )
 
         # 2. Fallback to existing cookie-based session for backward compatibility / demo mode
         if identity is None:
@@ -727,7 +712,11 @@ def create_app(
             and not identity.user.is_demo
             and _is_private_api_path(request.url.path)
             and request.method not in {"GET", "HEAD", "OPTIONS"}
-            and identity.csrf_hash != ""  # Only enforce CSRF for cookie-based sessions
+            # A Bearer token is never attached cross-site by the browser, so it
+            # carries no CSRF risk. Keying this on how the request authenticated
+            # rather than on an empty csrf_hash means a caller cannot opt out of
+            # the check by presenting a blank one.
+            and not bearer_authenticated
             and not _csrf_valid(request, identity.csrf_hash, runtime_settings)
         ):
             return error_response(
@@ -1013,6 +1002,61 @@ def _dictionary_readiness(container: Services) -> dict[str, Any]:
         # Readiness is intentionally fail-closed and contains no database error details.
         pass
     return details
+
+
+# Supabase access tokens are signed with an asymmetric key published as a JWKS.
+# HS256 must never appear beside those keys: a public key is public, so it also
+# works as a guessable HMAC secret, which is the classic algorithm-confusion
+# attack.
+SUPABASE_JWT_ALGORITHMS = ("ES256", "RS256")
+
+
+@lru_cache(maxsize=4)
+def _supabase_jwk_client(jwks_url: str) -> Any:
+    """Return one cached JWKS client per project.
+
+    Building the client per request meant refetching the key set on every
+    authenticated call, since its cache lives on the instance.
+    """
+    from jwt import PyJWKClient
+
+    return PyJWKClient(jwks_url, cache_keys=True, lifespan=3600, timeout=8)
+
+
+def _resolve_supabase_bearer(token: str, supabase_url: str) -> SessionIdentity | None:
+    """Verify one Supabase access token and map it onto a session identity.
+
+    Called through run_in_threadpool: fetching the key set is blocking network
+    I/O and must not run on the event loop.
+    """
+    import jwt
+
+    base = supabase_url.rstrip("/")
+    signing_key = _supabase_jwk_client(
+        f"{base}/auth/v1/.well-known/jwks.json"
+    ).get_signing_key_from_jwt(token)
+    payload = jwt.decode(
+        token,
+        signing_key.key,
+        algorithms=list(SUPABASE_JWT_ALGORITHMS),
+        audience="authenticated",
+        issuer=f"{base}/auth/v1",
+        options={"require": ["exp", "sub"]},
+    )
+    user_id = payload.get("sub")
+    if not user_id:
+        return None
+    metadata = payload.get("user_metadata") or {}
+    return SessionIdentity(
+        user=AuthUser(
+            id=str(user_id),
+            display_name=metadata.get("full_name") or metadata.get("name") or "Learner",
+            provider="google",
+            login=payload.get("email", ""),
+        ),
+        csrf_hash="",
+        expires_at=datetime.fromtimestamp(int(payload["exp"]), tz=timezone.utc),
+    )
 
 
 def _is_private_api_path(path: str) -> bool:

@@ -41,6 +41,7 @@ def upgrade() -> None:
         CREATE POLICY push_subscription_endpoint_transfer_policy
             ON push_subscriptions
             FOR UPDATE
+            TO ivrit_sheli_runtime
             USING (
                 endpoint_hash = NULLIF(
                     current_setting('app.push_endpoint_hash', true), ''
@@ -54,6 +55,9 @@ def upgrade() -> None:
                     current_setting('app.push_endpoint_hash', true), ''
                 )::CHAR(64)
             );
+
+        REVOKE UPDATE, DELETE
+            ON TABLE push_delivery_state FROM ivrit_sheli_runtime;
         """
     )
 

@@ -519,16 +519,23 @@ class PostgresCloudStore:
         self._dict_row = dict_row
         validate_store_security(session_secret, max_snapshot_bytes)
         self.database_url = database_url.replace("postgres://", "postgresql://", 1)
+        username = unquote(urlparse(self.database_url).username or "")
+        if username != RUNTIME_DATABASE_ROLE:
+            raise ValueError(
+                f"DATABASE_URL must authenticate directly as {RUNTIME_DATABASE_ROLE}"
+            )
         self.session_secret = session_secret
         self.max_snapshot_bytes = max_snapshot_bytes
         self._pool: queue.Queue[Any] = queue.Queue(maxsize=8)
 
     def _create_raw_connection(self) -> Any:
+        # Deliberately NOT autocommit: mutate_state serialises concurrent writers
+        # with SELECT ... FOR UPDATE, and under autocommit every statement is its
+        # own transaction, so the row lock is released before the write lands.
         return self._psycopg.connect(
             self.database_url,
             row_factory=self._dict_row,
             connect_timeout=8,
-            autocommit=True,
         )
 
     def _acquire_connection(self) -> Any:
@@ -556,6 +563,9 @@ class PostgresCloudStore:
             return
         try:
             connection.execute("DISCARD TEMP; RESET ALL;")
+            # That reset opens its own transaction; commit it so the connection
+            # does not sit in the pool idle-in-transaction.
+            connection.commit()
             self._pool.put_nowait(connection)
         except Exception:
             try:
@@ -568,6 +578,16 @@ class PostgresCloudStore:
         connection = self._acquire_connection()
         try:
             yield connection
+        except BaseException:
+            # The connection goes back to the pool, so an aborted transaction has
+            # to be unwound here or the next borrower inherits it.
+            try:
+                connection.rollback()
+            except Exception:
+                pass
+            raise
+        else:
+            connection.commit()
         finally:
             self._release_connection(connection)
 
@@ -575,7 +595,10 @@ class PostgresCloudStore:
     def _tenant_connection(self, user_id: str) -> Iterator[Any]:
         UUID(user_id)
         with self._connection() as connection:
-            connection.execute("SELECT set_config('app.user_id', %s, false)", (user_id,))
+            # is_local=True scopes the tenant to the current transaction. On a
+            # pooled connection a session-scoped setting outlives the request and
+            # the next borrower would read the previous learner's rows.
+            connection.execute("SELECT set_config('app.user_id', %s, true)", (user_id,))
             yield connection
 
     def close(self) -> None:

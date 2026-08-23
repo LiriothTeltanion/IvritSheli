@@ -407,7 +407,9 @@ class Settings:
                 f"{public_base_url}/api/v1/auth/google/callback",
             ).strip().rstrip("/"),
             database_url=value("DATABASE_URL", ""),
-            supabase_url=value("SUPABASE_URL", "https://hythwegtkwuzrzwglivz.supabase.co"),
+            # No default: a live project URL in source would silently point every
+            # deployment at one project. Unset means the Bearer path stays off.
+            supabase_url=value("SUPABASE_URL", ""),
             auth_required=parse_bool(values.get("AUTH_REQUIRED"), app_env == "production"),
             session_secret=value("SESSION_SECRET", ""),
             session_cookie_name=value("SESSION_COOKIE_NAME", "ivrit_session"),

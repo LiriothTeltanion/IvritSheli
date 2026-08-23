@@ -183,6 +183,10 @@ class CloudLearningRepository:
             finally:
                 database.close()
 
+        # The construction-time snapshot is stale the instant anything is
+        # written. Without this, the first read after a write inside the same
+        # request serves the learner their pre-write state.
+        self._cached_state = None
         return self.store.mutate_state(self.user_id, operation)
 
     def run_with_database(
@@ -207,6 +211,7 @@ class CloudLearningRepository:
             finally:
                 database.close()
 
+        self._cached_state = None
         return self.store.mutate_state(self.user_id, mutate)
 
     def ensure_default_profile(self, display_name: str = "Learner") -> None:
@@ -237,6 +242,7 @@ class CloudLearningRepository:
             finally:
                 database.close()
 
+        self._cached_state = None
         return self.store.mutate_state(self.user_id, operation)
 
     def get_item(self, item_id: int) -> dict[str, Any]:
