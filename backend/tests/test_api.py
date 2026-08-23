@@ -522,3 +522,32 @@ def test_validation_and_missing_resources_use_standard_error_envelope(client: Te
     missing = client.get("/api/v1/items/99999")
     assert missing.status_code == 404
     assert missing.json()["error"]["code"] == "not_found"
+
+
+def test_notes_route_publishes_only_the_learner_notebook(client: TestClient) -> None:
+    """The /notes/ route must not hand out the internal documentation set.
+
+    It previously served every file under docs/, unauthenticated, so anyone
+    could read DEPLOYMENT.md, ARCHITECTURE.md and CONNECTORS.md.
+    """
+    published = client.get("/notes/LIVING_HEBREW_FIELD_NOTES.md")
+    assert published.status_code == 200
+    assert published.headers["content-type"].startswith("text/markdown")
+
+    for internal in (
+        "DEPLOYMENT.md",
+        "ARCHITECTURE.md",
+        "CONNECTORS.md",
+        "API.md",
+    ):
+        refused = client.get(f"/notes/{internal}")
+        assert refused.status_code == 404, internal
+
+    # A traversal attempt must never come back as a document. An encoded slash
+    # stops matching this route at all and lands on the SPA fallback, which
+    # answers 200 with the HTML shell — so assert on what was served, not on the
+    # status code.
+    for escape in ("..%2FSECURITY.md", "..", ".env", "..%5C.env"):
+        response = client.get(f"/notes/{escape}")
+        assert not response.headers["content-type"].startswith("text/markdown"), escape
+        assert "MIGRATION_DATABASE_URL" not in response.text, escape

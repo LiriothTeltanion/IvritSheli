@@ -11,6 +11,7 @@ import { CANDIDATE_BADGE, CANDIDATE_LABEL } from '../release';
 import type { AuthProvider, Locale } from '../types';
 import { Icon, type IconName } from './Icon';
 import { IvritSheliWordmark } from './IvritSheliWordmark';
+import { usePrefersReducedMotion } from '../usePrefersReducedMotion';
 import { PreAccountLesson } from './PreAccountLesson';
 import { AVATAR_PRESETS } from '../profileAvatarPresets';
 import { VERSION_HISTORY_COPY } from '../versionHistory';
@@ -155,12 +156,15 @@ export function AuthGate({
 
   const currentSituation: HeroSituation = HERO_SITUATIONS[situationIndex] ?? HERO_SITUATIONS[0]!;
 
+  const prefersReducedMotion = usePrefersReducedMotion();
+
   useEffect(() => {
+    if (prefersReducedMotion) return;
     const timer = setInterval(() => {
       setBgIndex((prev) => (prev + 1) % HERO_BG_IMAGES.length);
     }, 8000);
     return () => clearInterval(timer);
-  }, []);
+  }, [prefersReducedMotion]);
 
   const hasConfiguredProvider = providers.length > 0;
   const googleAvailable = providers.includes('google') || (!hasConfiguredProvider && !localCompanionUrl);
@@ -207,6 +211,7 @@ export function AuthGate({
   };
 
   const handleMouseMoveVisual = (e: React.MouseEvent<HTMLElement>) => {
+    if (prefersReducedMotion) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width - 0.5;
     const y = (e.clientY - rect.top) / rect.height - 0.5;
@@ -352,20 +357,20 @@ export function AuthGate({
           </div>
 
           {/* Trust & Capability Stats Strip (Industry standard social proof) */}
-          <div className="auth-stats-strip" aria-label={locale === 'es' ? 'Métricas de la plataforma' : locale === 'he' ? 'מדדי הפלטפורמה' : 'Platform metrics'}>
+          <div className="auth-stats-strip" aria-label={t('heroMetricsLabel')}>
             <div className="auth-stat-item">
               <span className="auth-stat-value">240+</span>
-              <span className="auth-stat-label">{locale === 'es' ? 'Escenas Semánticas' : locale === 'he' ? 'סצנות סמנטיות' : 'Semantic Scenes'}</span>
+              <span className="auth-stat-label">{t('heroStatScenes')}</span>
             </div>
             <div className="auth-stat-divider" aria-hidden="true" />
             <div className="auth-stat-item">
-              <span className="auth-stat-value">22</span>
-              <span className="auth-stat-label">{locale === 'es' ? 'Letras & Sofit' : locale === 'he' ? 'אותיות וסופיות' : 'Letters & Finals'}</span>
+              <span className="auth-stat-value">27</span>
+              <span className="auth-stat-label">{t('heroStatLetters')}</span>
             </div>
             <div className="auth-stat-divider" aria-hidden="true" />
             <div className="auth-stat-item">
               <span className="auth-stat-value">100%</span>
-              <span className="auth-stat-label">{locale === 'es' ? 'Privacidad Local' : locale === 'he' ? 'פרטיות מקומית' : 'Private & Local'}</span>
+              <span className="auth-stat-label">{t('heroStatPrivate')}</span>
             </div>
           </div>
 
@@ -373,7 +378,7 @@ export function AuthGate({
           <div className="auth-situations-bar">
             <span className="auth-situations-label">
               <Icon name="volume" size={14} />
-              <span>{locale === 'es' ? 'Situaciones de la vida real:' : locale === 'he' ? 'מצבים מהחיים האמיתיים:' : 'Real-life situations:'}</span>
+              <span>{t('heroSituationsLabel')}</span>
             </span>
             <div className="auth-situations-pills">
               {HERO_SITUATIONS.map((s, idx) => (
@@ -470,7 +475,7 @@ export function AuthGate({
           <div className="auth-region-switcher" aria-label="Israel Living Atlas Regions">
             <span className="auth-region-label">
               <Icon name="target" size={13} />
-              <span>{locale === 'es' ? 'Paisaje en vivo:' : locale === 'he' ? 'נוף חי:' : 'Live Landscape:'}</span>
+              <span>{t('heroLandscapeLabel')}</span>
             </span>
             <div className="auth-region-pills">
               {HERO_REGIONS.map((r) => (

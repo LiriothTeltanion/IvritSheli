@@ -714,7 +714,7 @@ const GALLERY_COPY: Record<Locale, GalleryCopy> = {
 
 const IDENTITY_PROFILE_STORAGE_PREFIX = 'ivrit-sheli:learner-identity';
 const IDENTITY_PROFILE_VERSION = 1;
-const NOTEBOOK_REFERENCE_LINK = '/notes/LIVING_HEBREW_FIELD_NOTES.md?v=2.12.0';
+const NOTEBOOK_REFERENCE_LINK = '/notes/LIVING_HEBREW_FIELD_NOTES.md?v=2.12.2';
 
 interface LocalIdentityProfile {
   displayName?: string;

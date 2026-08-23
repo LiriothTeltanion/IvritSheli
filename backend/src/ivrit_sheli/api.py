@@ -1059,6 +1059,11 @@ def _resolve_supabase_bearer(token: str, supabase_url: str) -> SessionIdentity |
     )
 
 
+# The only documents /notes/ may publish. Everything else under docs/ is
+# internal and must not be reachable without authentication.
+PUBLISHED_NOTES = frozenset({"LIVING_HEBREW_FIELD_NOTES.md"})
+
+
 def _is_private_api_path(path: str) -> bool:
     """Identify learner API routes while leaving auth and operational probes public."""
     if not path.startswith(f"{API_PREFIX}/"):
@@ -2760,15 +2765,16 @@ def register_frontend(app: FastAPI, frontend_dist: Path) -> None:
 
     @app.get("/notes/{note_name}", include_in_schema=False)
     async def notebook_markdown(note_name: str) -> Any:
-        if (
-            "/" in note_name
-            or "\\" in note_name
-            or ".." in note_name
-            or note_name.startswith(".")
-        ):
+        # This route exists to publish one learner-facing notebook. Serving the
+        # whole docs/ directory unauthenticated handed out the deployment,
+        # architecture and connector documents to anyone who asked, so the
+        # allowlist — not the traversal guards — is what bounds this endpoint.
+        if note_name not in PUBLISHED_NOTES:
             raise HTTPException(status_code=404, detail="Note file not found")
-        note = notebook_dir / note_name
-        if not note.exists() or not note.is_file():
+        note = (notebook_dir / note_name).resolve()
+        if notebook_dir.resolve() not in note.parents:
+            raise HTTPException(status_code=404, detail="Note file not found")
+        if not note.is_file():
             raise HTTPException(status_code=404, detail="Note file not found")
         return FileResponse(note, media_type="text/markdown; charset=utf-8")
 

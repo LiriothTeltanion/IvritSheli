@@ -17,7 +17,7 @@ export const VERSION_HISTORY_COPY: Record<Locale, { title: string, summary: stri
         highlights: [
           'Implemented PostgreSQL connection pooling with queue caching, dropping warm query latencies to sub-50ms.',
           'Unified 15 diverse vector avatar presets under a consistent 2D flat editorial illustration design language.',
-          'Engineered Hebraized monumental typography for the "Ivrit Sheli" wordmark with Cinzel Decorative and Frank Ruhl Libre.',
+          'Drew the "Ivrit" wordmark as Hebraized letterforms with a heavy roof, thin stems and scribal crowns, so the logo is identical offline.',
           'Introduced interactive 3D Holographic Hero Card with cursor tilt, live speech pronunciation, and Ken Burns region pan.',
           'Polished app-wide fluid view transitions, tactile button states, and modern Nocturne app icon.',
         ],
@@ -139,7 +139,7 @@ export const VERSION_HISTORY_COPY: Record<Locale, { title: string, summary: stri
         highlights: [
           'Pool de conexiones PostgreSQL/Supabase con colas seguras, reduciendo la latencia de consultas a menos de 50ms.',
           'Colección completa de 15 avatares vectoriales homogéneos en estilo editorial 2D plano con fondo turquesa.',
-          'Tipografía monumental de inspiración hebrea para "Ivrit Sheli" con Cinzel Decorative y Frank Ruhl Libre.',
+          'Dibujó el logotipo "Ivrit" con letras de construcción hebrea —techo pesado, palos finos y coronas de escriba—, idéntico sin conexión.',
           'Tarjeta holográfica 3D interactiva en el Hero con inclinación física, audio en vivo y efecto cinematográfico Ken Burns.',
           'Transiciones fluidas en toda la app, pulsaciones táctiles y nuevo icono nocturne.',
         ],

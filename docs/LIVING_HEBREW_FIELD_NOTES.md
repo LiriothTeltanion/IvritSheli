@@ -22,7 +22,7 @@ Estado del trabajo sobre el catálogo SVG y la arquitectura de la app. Cada mét
 | **Pruebas Frontend** | ✅ 733 / 733 | 41 archivos de pruebas |
 | **Pruebas Backend** | ✅ 315 / 315 | FastAPI + SQLite / PostgreSQL pool |
 | **Build Prod** | ✅ Pasa | Vite 8.1.4 |
-| **Identidad Visual** | ✅ 100% | 15 avatares 2D + Logotipo monumental Cinzel Decorative/Frank Ruhl |
+| **Identidad Visual** | ✅ 100% | 15 avatares 2D + Logotipo con letras hebreizadas dibujadas en SVG |
 | **Hero Experience** | ✅ Activo | Tarjeta 3D interactiva + Audio en vivo + Ken Burns Background |
 
 ---
@@ -31,7 +31,7 @@ Estado del trabajo sobre el catálogo SVG y la arquitectura de la app. Cada mét
 
 1. **Pool y Resiliencia en la Nube**: Conexiones a PostgreSQL/Supabase con `queue.Queue` y reutilización de transacciones seguras.
 2. **Armonía Gráfica de Avatares**: 15 presets vectoriales uniformes con fondo turquesa y marco circular blanco.
-3. **Tipografía Hebreizada**: "IVRIT" en *Cinzel Decorative* con remates arquitectónicos semíticos y gradiente luminoso cian-hielo.
+3. **Tipografía Hebreizada**: "IVRIT" dibujado como trazos SVG con construcción de escritura cuadrada hebrea: techo pesado, palos finos, talón de esquina, terminales de pluma y tres tagin.
 4. **Hero 3D Holográfico**: Inclinación en perspectiva física, pronunciación interactiva de *"הַדֶּרֶךְ שֶׁלְּךָ לְעִבְרִית"* y navegación sobre el pliegue.
 
 ---
