@@ -6,7 +6,12 @@ import json
 
 import pytest
 
-from ivrit_sheli.db_admin import main, parse_database_target, validate_database_boundary
+from ivrit_sheli.db_admin import (
+    _assert_role_is_unprivileged,
+    main,
+    parse_database_target,
+    validate_database_boundary,
+)
 
 ADMIN_URL = "postgresql://ivrit_admin:admin-only@postgres:5432/ivrit_sheli"
 RUNTIME_URL = (
@@ -90,3 +95,76 @@ def test_admin_cli_fails_cleanly_when_credentials_are_missing(
 def test_admin_cli_rejects_unexpected_commands(capsys: pytest.CaptureFixture[str]) -> None:
     assert main(["serve"]) == 2
     assert "Usage:" in capsys.readouterr().err
+
+
+class _FakeResult:
+    def __init__(self, row: dict[str, object] | None) -> None:
+        self._row = row
+
+    def fetchone(self) -> dict[str, object] | None:
+        return self._row
+
+
+class _FakeConnection:
+    """Records statements and answers the pg_roles probe with a fixed row."""
+
+    def __init__(self, row: dict[str, object] | None) -> None:
+        self._row = row
+        self.statements: list[str] = []
+
+    def execute(self, statement: object, params: object = None) -> _FakeResult:
+        self.statements.append(str(statement))
+        return _FakeResult(self._row)
+
+
+def _role_row(**overrides: bool) -> dict[str, object]:
+    row: dict[str, object] = {
+        "rolsuper": False,
+        "rolreplication": False,
+        "rolbypassrls": False,
+        "rolcreatedb": False,
+        "rolcreaterole": False,
+        "rolcanlogin": True,
+    }
+    row.update(overrides)
+    return row
+
+
+def test_unprivileged_assertion_accepts_a_correctly_restricted_role() -> None:
+    connection = _FakeConnection(_role_row())
+    _assert_role_is_unprivileged(connection, "ivrit_sheli_runtime")
+
+
+@pytest.mark.parametrize(
+    ("attribute", "name"),
+    (
+        ("rolbypassrls", "BYPASSRLS"),
+        ("rolsuper", "SUPERUSER"),
+        ("rolreplication", "REPLICATION"),
+        ("rolcreatedb", "CREATEDB"),
+        ("rolcreaterole", "CREATEROLE"),
+    ),
+)
+def test_unprivileged_assertion_refuses_a_role_that_kept_a_dangerous_attribute(
+    attribute: str, name: str
+) -> None:
+    """A role holding BYPASSRLS silently disables every RLS policy in the schema.
+
+    The provisioner degrades to whatever the administrator is permitted to set,
+    so this check — not the ALTER statement — is what guarantees the outcome.
+    """
+    connection = _FakeConnection(_role_row(**{attribute: True}))
+    with pytest.raises(RuntimeError, match=name):
+        _assert_role_is_unprivileged(connection, "ivrit_sheli_runtime")
+
+
+def test_unprivileged_assertion_refuses_a_role_that_cannot_log_in() -> None:
+    connection = _FakeConnection(_role_row(rolcanlogin=False))
+    with pytest.raises(RuntimeError, match="cannot log in"):
+        _assert_role_is_unprivileged(connection, "ivrit_sheli_runtime")
+
+
+def test_unprivileged_assertion_refuses_a_missing_role() -> None:
+    connection = _FakeConnection(None)
+    with pytest.raises(RuntimeError, match="does not exist"):
+        _assert_role_is_unprivileged(connection, "ivrit_sheli_runtime")

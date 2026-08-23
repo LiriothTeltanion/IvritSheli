@@ -174,6 +174,72 @@ def _roles_granted_to_member(connection: Any, *, member: str) -> list[str]:
     return [str(row["rolname"]) for row in rows]
 
 
+# PostgreSQL requires the SUPERUSER attribute to set SUPERUSER, REPLICATION or
+# BYPASSRLS on a role — including to their negative forms. On a managed provider
+# such as Supabase the administrator role is deliberately not a superuser, so the
+# hardening statement is refused there even though every attribute it asks for is
+# already the default.
+#
+# Setting them is defence in depth on a database we fully own; asserting them is
+# what actually matters. So: attempt the strict form, fall back to what the
+# server permits, and verify the outcome either way.
+PRIVILEGED_ROLE_ATTRIBUTES = "NOSUPERUSER NOREPLICATION NOBYPASSRLS"
+BASE_ROLE_ATTRIBUTES = "LOGIN NOCREATEDB NOCREATEROLE NOINHERIT"
+
+
+def _alter_role_hardened(connection: Any, role: str, verifier: str) -> None:
+    """Apply the login attributes, degrading to what this administrator may set."""
+    strict = sql.SQL("ALTER ROLE {} WITH " + BASE_ROLE_ATTRIBUTES + " " +
+                     PRIVILEGED_ROLE_ATTRIBUTES + " PASSWORD {}")
+    relaxed = sql.SQL("ALTER ROLE {} WITH " + BASE_ROLE_ATTRIBUTES + " PASSWORD {}")
+    args = (sql.Identifier(role), sql.Literal(verifier))
+
+    connection.execute("SAVEPOINT harden_role")
+    try:
+        connection.execute(strict.format(*args))
+        connection.execute("RELEASE SAVEPOINT harden_role")
+    except psycopg.errors.InsufficientPrivilege:
+        connection.execute("ROLLBACK TO SAVEPOINT harden_role")
+        connection.execute(relaxed.format(*args))
+        connection.execute("RELEASE SAVEPOINT harden_role")
+
+    _assert_role_is_unprivileged(connection, role)
+
+
+def _assert_role_is_unprivileged(connection: Any, role: str) -> None:
+    """Refuse to continue unless the role really lacks every dangerous attribute.
+
+    BYPASSRLS is the one that matters most: a role holding it silently disables
+    every row-level-security policy the schema depends on, which is the whole
+    reason this role exists.
+    """
+    row = connection.execute(
+        "SELECT rolsuper, rolreplication, rolbypassrls, rolcreatedb, rolcreaterole, rolcanlogin"
+        " FROM pg_roles WHERE rolname = %s",
+        (role,),
+    ).fetchone()
+    if row is None:
+        raise RuntimeError(f"{role} does not exist after provisioning")
+    dangerous = [
+        name
+        for name, column in (
+            ("SUPERUSER", "rolsuper"),
+            ("REPLICATION", "rolreplication"),
+            ("BYPASSRLS", "rolbypassrls"),
+            ("CREATEDB", "rolcreatedb"),
+            ("CREATEROLE", "rolcreaterole"),
+        )
+        if row[column]
+    ]
+    if dangerous:
+        raise RuntimeError(
+            f"{role} still holds {', '.join(dangerous)}; refusing to hand the "
+            "application a role that can bypass tenant isolation"
+        )
+    if not row["rolcanlogin"]:
+        raise RuntimeError(f"{role} cannot log in after provisioning")
+
+
 def _harden_runtime_role(connection: Any, *, migration_user: str, password: str) -> None:
     role_exists = connection.execute(
         "SELECT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = %s) AS present",
@@ -194,15 +260,7 @@ def _harden_runtime_role(connection: Any, *, migration_user: str, password: str)
         RUNTIME_DATABASE_ROLE.encode("utf-8"),
         b"scram-sha-256",
     ).decode("utf-8")
-    connection.execute(
-        sql.SQL(
-            "ALTER ROLE {} WITH LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE "
-            "NOINHERIT NOREPLICATION NOBYPASSRLS PASSWORD {}"
-        ).format(
-            sql.Identifier(RUNTIME_DATABASE_ROLE),
-            sql.Literal(verifier),
-        )
-    )
+    _alter_role_hardened(connection, RUNTIME_DATABASE_ROLE, verifier)
 
     if _membership_exists(connection, member=migration_user):
         connection.execute(
@@ -284,15 +342,7 @@ def _harden_push_worker_role(
         PUSH_WORKER_DATABASE_ROLE.encode("utf-8"),
         b"scram-sha-256",
     ).decode("utf-8")
-    connection.execute(
-        sql.SQL(
-            "ALTER ROLE {} WITH LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE "
-            "NOINHERIT NOREPLICATION NOBYPASSRLS PASSWORD {}"
-        ).format(
-            sql.Identifier(PUSH_WORKER_DATABASE_ROLE),
-            sql.Literal(verifier),
-        )
-    )
+    _alter_role_hardened(connection, PUSH_WORKER_DATABASE_ROLE, verifier)
     if _membership_exists(
         connection,
         member=migration_user,
