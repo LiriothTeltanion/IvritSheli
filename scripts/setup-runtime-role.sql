@@ -19,13 +19,24 @@
 DO $$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'ivrit_sheli_runtime') THEN
-    CREATE ROLE ivrit_sheli_runtime NOLOGIN;
+    CREATE ROLE ivrit_sheli_runtime NOLOGIN NOINHERIT;
   END IF;
 END $$;
 
 
 -- 2. Give it a login and a password.
-ALTER ROLE ivrit_sheli_runtime WITH LOGIN PASSWORD 'CAMBIA_ESTA_PASSWORD';
+--
+--    NOINHERIT is not decoration and is not optional: PostgreSQL defaults a new
+--    role to INHERIT, and the application's readiness check refuses to report
+--    ready without it. Together with step 3 it means this login cannot reach a
+--    privilege it was not granted directly — neither by inheriting one nor by
+--    switching roles.
+--
+--    NOSUPERUSER, NOREPLICATION and NOBYPASSRLS are deliberately absent. Setting
+--    them requires the SUPERUSER attribute, which a managed provider's
+--    administrator does not have, and they are already the default. Step 5
+--    verifies them rather than asserting them.
+ALTER ROLE ivrit_sheli_runtime WITH LOGIN NOINHERIT NOCREATEDB NOCREATEROLE PASSWORD 'CAMBIA_ESTA_PASSWORD';
 
 
 -- 3. Strip every membership. NOINHERIT stops privileges being inherited, but it
@@ -72,6 +83,7 @@ GRANT SELECT, INSERT ON TABLE push_delivery_state TO ivrit_sheli_runtime;
 --    reason this role exists. If it comes back true, stop and say so.
 SELECT rolname,
        rolcanlogin   AS "puede entrar (debe ser true)",
+       rolinherit    AS "inherit (debe ser false)",
        rolsuper      AS "superuser (debe ser false)",
        rolbypassrls  AS "bypassrls (debe ser false)",
        rolcreatedb   AS "createdb (debe ser false)",
