@@ -71,22 +71,50 @@ $go = Read-Host "`nReady? (y/N)"
 if ($go -ne 'y') { Write-Warn 'Stopped. Nothing changed.'; exit 1 }
 
 # --- Collect both secrets ----------------------------------------------------
-$adminSecure   = Read-Host "Rotated password for $currentUser" -AsSecureString
-$runtimeSecure = Read-Host 'New password for ivrit_sheli_runtime' -AsSecureString
-$confirmSecure = Read-Host 'Repeat it' -AsSecureString
-
-function ConvertFrom-Secure { param([SecureString]$S)
-    [Runtime.InteropServices.Marshal]::PtrToStringBSTR(
-        [Runtime.InteropServices.Marshal]::SecureStringToBSTR($S))
+# Nothing is echoed. Character counts are, because a silent field is where a
+# stray paste hides: a 141-character "password" is a pasted command block, and
+# you want to see that now rather than after a failed authentication.
+function ConvertFrom-Secure {
+    param([SecureString]$S)
+    $ptr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($S)
+    try { [Runtime.InteropServices.Marshal]::PtrToStringBSTR($ptr) }
+    finally { [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ptr) }
 }
 
-$adminPlain   = ConvertFrom-Secure $adminSecure
-$runtimePlain = ConvertFrom-Secure $runtimeSecure
-$confirmPlain = ConvertFrom-Secure $confirmSecure
+function Read-Secret {
+    param([string]$Prompt, [int]$Suspicious = 72)
+    while ($true) {
+        $secure = Read-Host $Prompt -AsSecureString
+        $plain = ConvertFrom-Secure $secure
+        if ([string]::IsNullOrEmpty($plain)) {
+            Write-Warn 'Nothing entered. Try again.'
+            continue
+        }
+        if ($plain -ne $plain.Trim()) {
+            Write-Warn 'That began or ended with a space. If you pasted it, the space is part of it.'
+        }
+        if ($plain.Length -gt $Suspicious) {
+            Write-Warn "$($plain.Length) characters — that looks like a pasted block, not a password."
+            $keep = Read-Host '  Use it anyway? (y/N)'
+            if ($keep -ne 'y') { continue }
+        }
+        Write-Host "  read $($plain.Length) characters" -ForegroundColor DarkGray
+        return $plain
+    }
+}
+
+$adminPlain = Read-Secret "Rotated password for $currentUser"
+
+$runtimePlain = $null
+for ($attempt = 1; $attempt -le 3; $attempt++) {
+    $first = Read-Secret 'New password for ivrit_sheli_runtime'
+    $again = Read-Secret 'Repeat it'
+    if ($first -eq $again) { $runtimePlain = $first; break }
+    Write-Warn "They do not match ($($first.Length) vs $($again.Length) characters). Attempt $attempt of 3."
+}
+if (-not $runtimePlain) { throw 'The runtime password was not confirmed after three attempts. Nothing changed.' }
 
 try {
-    if ([string]::IsNullOrWhiteSpace($runtimePlain)) { throw 'The runtime password is empty.' }
-    if ($runtimePlain -ne $confirmPlain) { throw 'The two runtime passwords do not match.' }
     if ($runtimePlain -eq $adminPlain) { throw 'The runtime password must differ from the administrator password.' }
 
     $enc = [uri]::EscapeDataString($runtimePlain)
@@ -134,7 +162,7 @@ try {
 }
 finally {
     # Clear the plaintext copies from this process.
-    $adminPlain = $null; $runtimePlain = $null; $confirmPlain = $null
+    $adminPlain = $null; $runtimePlain = $null
     [GC]::Collect()
     Remove-Item Env:DATABASE_URL -ErrorAction SilentlyContinue
 }
