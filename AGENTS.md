@@ -1,5 +1,93 @@
 # Ivrit Sheli collaboration guide
 
+**This file is the contract. Every assistant working on this repository — Claude,
+Codex, Antigravity, or any other — follows the rules in this first section
+before anything else. `CLAUDE.md` points here rather than restating them, so
+there is one source and not several that drift.**
+
+---
+
+## Hard rules
+
+### 1. Public state is frozen until after 2026-08-25
+
+No `push`, `merge`, `tag`, release, deployment, or Devpost change. This is a
+contest boundary, not a preference.
+
+- Public production stays at **2.4.0** (2026-07-21).
+- The private candidate is **2.12.2**.
+- **Local commits are allowed and encouraged.** The freeze governs what leaves
+  this machine, not whether work is protected. Thirteen thousand lines once sat
+  uncommitted because this was read as "commit nothing"; that is the wrong
+  reading.
+- Commit when Kevin asks, and say plainly what the commit contains.
+
+### 2. Never delete a security control to make something start
+
+This already happened. To let the backend boot against a superuser
+`DATABASE_URL`, an assistant removed the guard that refuses one, and stripped
+the least-privilege roles and the RLS `TO <role>` clauses out of four
+already-applied migrations. Both layers of tenant isolation went at once, and
+four guard tests were failing to say so.
+
+If a guard refuses to let something run, the configuration is wrong, not the
+guard. Fix the configuration or stop and report it.
+
+### 3. Verify on port 8000, not only 5173
+
+The Vite dev server applies no Content Security Policy. The app's real policy is
+`style-src 'self'` and `font-src 'self' data:`, so anything fetched from a CDN
+resolves on 5173 and fails on the served path. A whole class of defect hid there
+for weeks. Use `preview_start` with the profiles in `.claude/launch.json`:
+
+- `backend-local` → port 8000, SQLite offline mode, no `DATABASE_URL`
+- `backend` → port 8000, PostgreSQL mode (blocked today; see below)
+- `frontend` → port 5173, hot reload
+
+### 4. Never call something verified that you did not run
+
+Report executed, inferred and unverified results separately, and name what you
+did not run. `TEST_REPORT.md` carries an explicit "not run" list for exactly
+this reason. Do not relabel historical evidence as proof of the current version.
+
+### 5. Open blockers, both needing Kevin
+
+- `DATABASE_URL` authenticates as the `postgres` superuser, which carries
+  `BYPASSRLS`, so row-level security does not apply. Runbook:
+  `docs/SUPABASE_RUNTIME_ROLE.md`. Until it is done, use `backend-local`.
+- That superuser password was exposed on 2026-08-23 and needs rotating.
+
+## Where the current state lives
+
+Read these before proposing work; do not reconstruct state from conversation.
+
+| Source | What it holds |
+|---|---|
+| [Centro de mando](https://claude.ai/code/artifact/23ca714a-9a56-4c4c-955a-aa8f3311808d) | The authority: measured state, what is stale in every other panel, the whole backlog with an owner per row |
+| `TASKS.md` | Task tracker and the panel index |
+| `NOVA_HANDOFF.md` | Current state, what a session changed, open blockers |
+| `TEST_REPORT.md` | Verification ledger, including what was **not** run |
+| `docs/VISUAL_BIBLE.md` | Visual authority, including the wordmark |
+| `docs/ART_DIRECTION_REFERENCES.md` | Art direction and the mistakes already made |
+
+## Checks before calling a slice complete
+
+```bash
+cd frontend && npx tsc -b --pretty false
+cd frontend && npx vitest run
+.venv/Scripts/python.exe -m pytest backend/tests -q
+.venv/Scripts/python.exe -m ruff check backend/src
+.venv/Scripts/python.exe -m mypy backend/src
+```
+
+Before committing:
+
+```bash
+python scripts/generate_checksums.py && python scripts/verify_package.py
+```
+
+---
+
 ## Product direction
 
 Ivrit Sheli should feel like a warm, surprising journey through living Hebrew,
@@ -64,9 +152,3 @@ correct Hebrew RTL. Design loading, empty, error, success, offline and degraded
 states. Run the relevant lint, typecheck, tests, accessibility checks and
 production build before calling a slice complete. Report verified, inferred and
 unverified results separately.
-
-Public state is frozen until after **2026-08-25**: no push, merge, tag, release,
-deployment or Devpost change. Public production stays at **2.4.0** (2026-07-21);
-the private candidate is **2.12.2**. Local commits are allowed and encouraged —
-the freeze is about what leaves this machine, not about leaving work unprotected.
-`TASKS.md` and `NOVA_HANDOFF.md` carry the current state and the open blockers.

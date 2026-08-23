@@ -1,25 +1,27 @@
 # Ivrit Sheli
 
 PWA trilingüe (EN/ES/HE) para aprender hebreo. La usuaria objetivo es la madre
-de Kevin: principiante en hebreo **y** en tecnología.
+de Kevin: principiante en hebreo **y** en tecnología. Cada decisión se juzga
+contra ella.
 
-## Estado
+## Las reglas están en AGENTS.md
 
-- Rama de trabajo: `consolidation/ivrit-sheli-2.10-baseline`
-- Versión privada **2.12.2 — Visual Harmony & Resilience**, sin publicar
-- Producción pública: **2.4.0** (2026-07-21). No se toca.
-- **Congelado hasta después del 2026-08-25**: nada de push, merge, tag, deploy ni cambio de estado público. Commitear solo cuando Kevin lo pida.
+**Lee `AGENTS.md` primero.** Ahí están las reglas duras —el congelamiento hasta
+el 2026-08-25, los bloqueos abiertos, dónde vive el estado, y los comandos de
+comprobación— y son las mismas para todas las IAs que tocan este repositorio.
+Este archivo no las repite: dos copias de una regla se separan, y ya pasó.
 
-## Levantar la app y Puertos
+Lo de abajo es sólo lo específico de trabajar con Claude aquí.
 
-- `frontend` (Vite dev server con hot reload): puerto **5173**  
-  Comando: `cd frontend && npm run dev`
-- `backend` (FastAPI + producción con bundle `dist` servido en `/`): puerto **8000**  
-  Comando: `.\scripts\start.ps1` o `.venv\Scripts\python.exe -m ivrit_sheli.cli run-server`
+## Levantar la app
 
-> **Nota clave**: Si entras a `http://localhost:5173` y no carga, es porque el servidor de Vite no está ejecutándose en una terminal activa. Por otro lado, `http://127.0.0.1:8000/` carga el backend y sirve el frontend pre-compilado en `dist/`.
+Usa `preview_start` con los perfiles de `.claude/launch.json`, nunca Bash:
 
-Mostrador de arte: `http://127.0.0.1:5173/?visualQa=1&group=<dominio>&size=hero`
+- `backend-local` → **8000**, modo SQLite offline (el que funciona hoy)
+- `backend` → **8000**, modo PostgreSQL (falla a propósito: ver bloqueos)
+- `frontend` → **5173**, Vite con recarga en caliente
+
+Mostrador de arte: `http://127.0.0.1:5173/?visualQa=1&group=all&size=card`
 
 ## El sistema visual: lo que no se rompe
 
@@ -34,9 +36,8 @@ sostiene cuatro cosas a la vez:
   (`context` → `meaning` → `anchor`)
 
 No sustituir por imágenes generadas. La autoridad visual es
-`docs/VISUAL_BIBLE.md`; la dirección de arte vigente y los errores ya cometidos
-están en `docs/ART_DIRECTION_REFERENCES.md`, y hay que leerlo antes de tocar
-arte.
+`docs/VISUAL_BIBLE.md` —que ahora también documenta la marca—, y los errores ya
+cometidos están en `docs/ART_DIRECTION_REFERENCES.md`.
 
 Las 76 escenas de familia `diagram` — `family`, `time` y `numbers` son diagrama
 al 100 % — no se pintan nunca. Ahí el esquema es lo que enseña.
@@ -50,13 +51,14 @@ al 100 % — no se pintan nunca. Ahí el esquema es lo que enseña.
    comió el canal alfa casi provoca un cambio destructivo en 99 usos.
 3. **Commitea antes de experimentar.** Un `git checkout --` se llevó tres
    arreglos buenos sin commitear.
-4. **Un cambio por vez**, con render antes y después. Entre medias:
-   `npx tsc -b --pretty false` y
-   `npx vitest run src/components/semanticArtClasses.test.ts`.
+4. **Un cambio por vez**, con render antes y después.
 5. **Si empeora, revierte y dilo.**
 
-Antes de commitear: `python scripts/generate_checksums.py && python
-scripts/verify_package.py`.
+## Presupuesto de sesión
+
+Ya se agotó dos veces por lo mismo: abrir un agente de verificación por hallazgo.
+El tope de fan-out son ~10 agentes, y lo que responde un `grep` no lleva agente.
+Los resultados de una corrida caída se recuperan del `journal.jsonl`.
 
 ## No hacer
 

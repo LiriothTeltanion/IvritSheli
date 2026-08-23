@@ -91,7 +91,8 @@ otro panel, qué sigue siendo cierto y qué ya no. Empieza siempre por ahí.
 - [ ] **BLOCKER — Restricted PostgreSQL role (precondition for KEV-12)**:
   - `DATABASE_URL` currently authenticates as the `postgres` superuser, which
     bypasses RLS. Create `ivrit_sheli_runtime` in the Supabase project and point
-    the URL at it. Step-by-step runbook: `docs/SUPABASE_RUNTIME_ROLE.md`.
+    the URL at it. One command: `pwsh -File scripts/setup-runtime-role.ps1`.
+    Runbook: `docs/SUPABASE_RUNTIME_ROLE.md`.
     Until then use the `backend-local` launch profile.
   - Rotate the superuser password exposed on 2026-08-23.
 - [ ] **Regenerate `SHA256SUMS.txt`** and pass `scripts/verify_package.py`.

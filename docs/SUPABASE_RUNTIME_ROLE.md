@@ -19,7 +19,20 @@ NOBYPASSRLS` and grant it exactly the table privileges it needs, and
 password client-side with `PGconn.encrypt_password`, so the plaintext never
 reaches the server's DDL log.
 
-## Steps
+## The short way
+
+One command does everything below except the dashboard click. It reads both
+passwords as secure strings, never echoes or logs them, never writes the
+administrator URL to disk, and keeps a `.env.bak`:
+
+```
+pwsh -File scripts/setup-runtime-role.ps1
+```
+
+Rotate the `postgres` password in the Supabase dashboard first — the script
+tells you where and waits for you.
+
+## The long way, step by step
 
 1. **Rotate the `postgres` password first.** The current one was exposed in a
    session transcript on 2026-08-23.
