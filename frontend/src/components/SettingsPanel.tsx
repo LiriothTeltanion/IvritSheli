@@ -137,7 +137,7 @@ export function SettingsPanel({
 
   const avatarForPreset = (avatarPresetId?: string): string => {
     const match = AVATAR_PRESETS.find((preset) => preset.id === avatarPresetId);
-    return match?.imageUrl ?? '/assets/avatars/avatar_east_asian_woman_1787021705776.jpg';
+    return match?.imageUrl ?? '/assets/avatars/avatar_east_asian_woman_1787021705776.webp';
   };
 
   const savedAccountProviderLabel = (account: SettingsSavedAccount): string => {

@@ -277,7 +277,15 @@ export function BeginnerOnboarding({
                     aria-label={`${t('avatar')} ${preset.emoji}`}
                     aria-pressed={draft.avatarPresetId === preset.id}
                   >
-                    <img src={preset.imageUrl} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                    <img
+                      src={preset.imageUrl}
+                      alt=""
+                      width={64}
+                      height={64}
+                      loading="lazy"
+                      decoding="async"
+                      style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+                    />
                   </button>
                 ))}
               </div>

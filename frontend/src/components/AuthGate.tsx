@@ -48,7 +48,7 @@ const creatorLinks = {
 
 function avatarForPreset(avatarPresetId?: string): string {
   const match = AVATAR_PRESETS.find((preset) => preset.id === avatarPresetId);
-  return match?.imageUrl ?? '/assets/avatars/avatar_east_asian_woman_1787021705776.jpg';
+  return match?.imageUrl ?? '/assets/avatars/avatar_east_asian_woman_1787021705776.webp';
 }
 
 const HERO_BG_IMAGES = [
@@ -414,7 +414,10 @@ export function AuthGate({
                       src={p.imageUrl}
                       alt=""
                       className="auth-avatar-pill"
+                      width={34}
+                      height={34}
                       loading="lazy"
+                      decoding="async"
                     />
                   ))}
                   <span className="auth-avatar-count">+11</span>
