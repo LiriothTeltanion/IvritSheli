@@ -109,6 +109,56 @@ Hebrew is the hero content.
 - Niqqud must remain readable at learning sizes.
 - Transliteration is an aid, not a replacement for Hebrew; reduce its prominence as the learner progresses.
 
+## The wordmark
+
+`Ivrit Sheli` is one mixed-script lockup with two halves that are made
+differently on purpose.
+
+**"Ivrit" is drawn, not typed.** The letterforms are hand-authored SVG paths in
+`frontend/src/components/IvritHebraicLetters.tsx`, built on Hebrew square-script
+construction so the Latin word reads as Hebrew at a glance without ceasing to be
+legible to a learner who cannot read Hebrew yet. The construction rules, in the
+order of how much work each does:
+
+1. **Reversed stroke contrast.** Hebrew stresses the horizontal: the roof is 17
+   units against stems of 8. Latin does the opposite. This single inversion is
+   what carries the impression.
+2. **A roof over every letter**, wider than the foot beneath it.
+3. **A descending corner heel** on I and T, mirrored from the one at the top
+   right of ד and ר — mirrored because the word is read left to right.
+4. **Broad-nib terminals.** The top right of each roof and the bottom left of
+   each foot are cut on the diagonal, as a chisel pen leaves them. Without this
+   the mark reads as stencil.
+5. **Three tagin** — the crowns a scribe sets over a letter — over the closing T.
+   They are hidden below the compact size, where they would be one pixel tall
+   and would only muddy the roof line.
+
+Two rules follow from drawing it rather than setting it, and both are load
+bearing:
+
+- **The wordmark must never depend on a webfont.** This installs as a PWA and
+  the learner is often offline or on a slow connection; a logo that changes
+  shape when a font fails is not a logo. The same rule is why
+  `frontend/public/icons/app-icon.svg` draws its letterforms as paths: an SVG
+  rendered as an app icon or through `<img>` cannot load a font at all, so any
+  `font-family` there silently falls back and differs per machine.
+- **The app's own CSP forbids it anyway.** `style-src 'self'` and
+  `font-src 'self' data:` mean a Google Fonts link cannot resolve on the served
+  path. Such links resolved only on the Vite dev server, which is how port 5173
+  came to show typefaces the app never ships. Verify brand work on port 8000.
+
+**"שלי" is set**, in the local `Ivrit Signature` face (Gveret Levin, OFL,
+`frontend/public/fonts/`), with system Hebrew fallbacks. It keeps its coral
+signature stroke and its rotation. It is deliberately the handwritten half
+against the monumental half.
+
+Ink comes from `--wordmark-ink-1|2|3` and `--wordmark-crown`, defined for both
+themes, and flattens to `currentColor` under `prefers-contrast: more`.
+
+Open: the icon's `שלי` still depends on a font the icon cannot load. The PNG
+renditions are baked and therefore consistent, but the SVG favicon varies per
+machine. Tracing it to paths would close the last gap.
+
 ## Motion semantics
 
 Motion explains meaning or rewards progress; it does not decorate every surface.

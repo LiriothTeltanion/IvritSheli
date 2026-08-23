@@ -65,5 +65,8 @@ states. Run the relevant lint, typecheck, tests, accessibility checks and
 production build before calling a slice complete. Report verified, inferred and
 unverified results separately.
 
-Public contest materials are frozen until the OpenAI Build Week winner
-announcement. Keep v2.8 work local and private until that restriction expires.
+Public state is frozen until after **2026-08-25**: no push, merge, tag, release,
+deployment or Devpost change. Public production stays at **2.4.0** (2026-07-21);
+the private candidate is **2.12.2**. Local commits are allowed and encouraged —
+the freeze is about what leaves this machine, not about leaving work unprotected.
+`TASKS.md` and `NOVA_HANDOFF.md` carry the current state and the open blockers.

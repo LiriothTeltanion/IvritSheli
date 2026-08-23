@@ -358,6 +358,11 @@ pytest backend/tests -q -m "not postgres"   # ordinary run, no database env
 pytest backend/tests -q -m postgres         # separate shell, database env set
 ```
 
+At publish time, rewrite `og:image` and `twitter:image` in
+`frontend/index.html` from `/social/...` to an absolute URL against
+`PUBLIC_BASE_URL`. Crawlers do not reliably resolve a relative image, and the
+card silently falls back to no image when they cannot.
+
 Evidence for the current private candidate, **2.12.2**, lives in
 `TEST_REPORT.md`; the rollout preconditions above apply to it. Sections that
 remain explicitly dated 2026-07-27 preserve historical 2.9.1 evidence.

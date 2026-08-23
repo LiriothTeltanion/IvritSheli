@@ -34,7 +34,16 @@ Explorer, Experienced and the visual QA workbench.
 
 ## Typography
 
-Use local system fonts. Never bundle font binaries. The stack prioritizes Hebrew-capable system fonts:
+Use local system fonts for interface text, and never fetch a font from a CDN —
+the app's CSP is `style-src 'self'` and `font-src 'self' data:`, so a webfont
+link cannot resolve on the served path and only ever worked on the dev server.
+
+One binary is bundled, deliberately: `GveretLevin-Regular.ttf` (OFL) under
+`frontend/public/fonts/`, for the `שלי` half of the wordmark. A brand mark may
+not change shape offline, and the licence permits redistribution. The Latin half
+needs no font at all — it is drawn as paths. Nothing else may be bundled.
+
+The interface stack prioritizes Hebrew-capable system fonts:
 
 ```css
 font-family: "Noto Sans Hebrew", "Arial Hebrew", "Rubik", Inter, system-ui, sans-serif;

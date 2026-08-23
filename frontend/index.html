@@ -37,6 +37,21 @@
     <link rel="icon" type="image/svg+xml" href="/icons/app-icon.svg?v=2.12.2" />
     <link rel="apple-touch-icon" href="/icons/app-icon-192.png?v=2.12.2" />
     <link rel="manifest" href="/manifest.webmanifest" />
+    <!-- Social card. The image is drawn from the same letterforms as the app,
+         and carries no version badge on purpose: a version in an image is the
+         thing that goes stale. og:image should be rewritten to an absolute URL
+         against PUBLIC_BASE_URL at publish time — see docs/DEPLOYMENT.md. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Ivrit Sheli — Hebrew for the life you actually live" />
+    <meta property="og:description" content="240 hand-drawn scenes, listening and speech practice, and a trilingual interface. Works offline. No tracking." />
+    <meta property="og:image" content="/social/ivrit-sheli-social-preview.png" />
+    <meta property="og:image:width" content="1280" />
+    <meta property="og:image:height" content="640" />
+    <meta property="og:image:alt" content="The Ivrit Sheli wordmark on a nocturnal navy field" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Ivrit Sheli — Hebrew for the life you actually live" />
+    <meta name="twitter:description" content="240 hand-drawn scenes, listening and speech practice, and a trilingual interface. Works offline. No tracking." />
+    <meta name="twitter:image" content="/social/ivrit-sheli-social-preview.png" />
     <title>Ivrit Sheli 2.12.2 · Visual Harmony & Resilience · העברית שלי</title>
   </head>
   <body>
