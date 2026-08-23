@@ -82,47 +82,69 @@ export function SemanticPerson({
       case 'ask': return [[-14, 18, -16], [28, 5, -8]];
       case 'answer': return [[-14, 18, -16], [25, 8, 8]];
       case 'request': return [[0, 18, 0]];
-      case 'explain': return [[-14, 18, -16]];
+      // The gesturing arm ends at (38, -2) and had no hand there, so every
+      // explaining figure pointed with a blunt tube.
+      case 'explain': return [[-14, 18, -16], [38, -2, -6]];
       case 'walk': return [[-13, 18, -18], [22, 18, 18]];
       default: return [[-14, 18, -16], [22, 18, 16]];
     }
   })();
-  const arm = (() => {
-    if (pose === 'wave') {
-      return <path className="semantic-art__skin-line semantic-art__motion-part" d="M8 4 20-8l2-16m0 0-5-7m5 7 5-7m-5 7 8 1" />;
+  /*
+   * The arm geometry, separated from how it is painted.
+   *
+   * A stroke cannot carry an outline, so each arm is drawn twice — a wider copy
+   * in the skin's edge colour, then the skin stroke over it. Keeping the path in
+   * one place is what lets all thirteen poses gain a contour without any of them
+   * being redrawn.
+   */
+  const RESTING_ARM = 'M-8 3q-3 8-6 15';
+  /*
+   * `still` is the arm that hangs; `gesture` is the one the meaning lives in and
+   * the only one that animates. They used to share a single path, so a figure
+   * asking a question swung both arms at once.
+   *
+   * `wave`, `point` and `listen` had no resting arm at all, yet all three placed
+   * a hand at (-14, 18) — exactly where a hanging arm ends. Every waving,
+   * pointing and listening figure in the catalogue therefore had a disc of skin
+   * floating beside its hip, attached to nothing.
+   */
+  const armPath: { still?: string; gesture?: string } = (() => {
+    switch (pose) {
+      // The raised arm stops at the wrist and the hand is drawn below. As three
+      // splayed strokes at the arm's own width it fused into a mitten roughly the
+      // size of the head.
+      case 'wave': return { still: RESTING_ARM, gesture: 'M8 4 19-7l3-15' };
+      case 'point': return { still: `${RESTING_ARM}M8 3q9-7 18-5h12` };
+      case 'listen': return { still: `${RESTING_ARM}M8 3q8-2 9-11l-2-10` };
+      case 'stomach': return { still: 'M-8 5 0 16 10 7M8 5 0 16-9 8' };
+      case 'shiver': return { gesture: 'M-9 5-2 14 7 4M9 5 2 14-7 5' };
+      case 'hold': return { still: 'M-8 5-2 18 0 20M8 5 2 18 0 20' };
+      case 'reach': return { still: 'M-8 3q-5 5-10 9M8 3q10-3 22-5' };
+      case 'ask': return { still: RESTING_ARM, gesture: 'M8 3q9 8 20 2' };
+      case 'answer': return { still: RESTING_ARM, gesture: 'M8 3q8 1 17 5' };
+      case 'request': return { still: 'M-8 3q1 10 8 15M8 3q-1 10-8 15' };
+      case 'explain': return { still: RESTING_ARM, gesture: 'M8 3q10-5 30-5' };
+      default: return { still: 'M-8 3q-3 8-6 15M8 3q5 8 14 15' };
     }
-    if (pose === 'point') {
-      return <path className="semantic-art__skin-line" d="M8 3q9-7 18-5h12" />;
-    }
-    if (pose === 'stomach') {
-      return <path className="semantic-art__skin-line" d="M-8 5 0 16 10 7M8 5 0 16-9 8" />;
-    }
-    if (pose === 'shiver') {
-      return <path className="semantic-art__skin-line semantic-art__motion-part" d="M-9 5-2 14 7 4M9 5 2 14-7 5" />;
-    }
-    if (pose === 'listen') {
-      return <path className="semantic-art__skin-line" d="M8 3q8-2 9-11l-2-10" />;
-    }
-    if (pose === 'hold') {
-      return <path className="semantic-art__skin-line" d="M-8 5-2 18 0 20M8 5 2 18 0 20" />;
-    }
-    if (pose === 'reach') {
-      return <path className="semantic-art__skin-line" d="M-8 3q-5 5-10 9M8 3q10-3 22-5" />;
-    }
-    if (pose === 'ask') {
-      return <path className="semantic-art__skin-line semantic-art__motion-part" d="M-8 3q-3 8-6 15M8 3q9 8 20 2" />;
-    }
-    if (pose === 'answer') {
-      return <path className="semantic-art__skin-line semantic-art__motion-part" d="M-8 3q-3 8-6 15M8 3q8 1 17 5" />;
-    }
-    if (pose === 'request') {
-      return <path className="semantic-art__skin-line" d="M-8 3q1 10 8 15M8 3q-1 10-8 15" />;
-    }
-    if (pose === 'explain') {
-      return <path className="semantic-art__skin-line semantic-art__motion-part" d="M-8 3q-3 8-6 15M8 3q10-5 30-5" />;
-    }
-    return <path className="semantic-art__skin-line" d="M-8 3q-3 8-6 15M8 3q5 8 14 15" />;
   })();
+  const limb = (d: string, motion: boolean): React.JSX.Element => (
+    <>
+      <path className={`semantic-art__limb-edge${motion ? ' semantic-art__motion-part' : ''}`} d={d} />
+      <path className={`semantic-art__skin-line${motion ? ' semantic-art__motion-part' : ''}`} d={d} />
+    </>
+  );
+  const arm = (
+    <>
+      {armPath.still && limb(armPath.still, false)}
+      {armPath.gesture && limb(armPath.gesture, true)}
+      {pose === 'wave' && (
+        <g className="semantic-art__motion-part">
+          <path className="semantic-art__finger" d="M19-26l-2-5M22-27v-6M25.5-26l2.5-5" />
+          <ellipse className="semantic-art__hand" cx="22" cy="-23" rx="4.4" ry="3.8" />
+        </g>
+      )}
+    </>
+  );
   const face = pose === 'stomach' || pose === 'shiver'
     ? 'M-3.2-19q3.2-2.2 6.4 0'
     : pose === 'listen'
@@ -160,7 +182,11 @@ export function SemanticPerson({
       <path className="semantic-art__hair-deep" d="M5-35c3 3 4 6 3 9-2-1-3-2-5-3Z" />
       <path className="semantic-art__hair-lit" d="M-5-30c2-3 5-4 8-4" />
       <path className="semantic-art__shirt" d="M-13 28c1-24 5-35 13-35s12 11 13 35Z" />
-      <path className="semantic-art__shirt-lit" d="M-8-6c-4 4-6 16-7 34h-5c1-21 5-33 10-35Z" />
+      {/* The lit plane, redrawn to sit inside the silhouette. It used to run from
+          x=-8 out to x=-20 while the shirt itself stops at -13, so a pale strip
+          of shirt colour hung in the air past the body's left edge on all 113
+          figures — it read as a sash, or as a bad cut-out. */}
+      <path className="semantic-art__shirt-lit" d="M-13 28c1-24 5-35 13-35-5 6-8 18-8 35Z" />
       <path className="semantic-art__shirt-deep" d="M4-6c6 4 9 16 9 34H6C6 13 5 1 4-6Z" />
       <path className="semantic-art__garment-line" d="M-5-7q5 4 10 0M-11 22h22" />
       {shirt === 'gold' && <path className="semantic-art__garment-line" d="M0-2v23m-2-15h4m-4 7h4" />}
@@ -177,14 +203,24 @@ export function SemanticPerson({
       <path className="semantic-art__nose" d="M1-24v3l2 1" />
       <path className="semantic-art__face" d={face} />
       {arm}
+      {/*
+       * A hand has to be wider than the arm it ends, or it is not a hand.
+       *
+       * These were 3 × 2.15 — six units across — while the arm is a 5.3 stroke
+       * inside a 7.4 contour. The hand was therefore *narrower* than the limb it
+       * terminated and vanished inside it, so every reaching, offering and
+       * handing-over figure in the catalogue ended in a blunt tube. It is the
+       * single most common defect in the `interior` family, where two people
+       * holding one object between them is the standard composition.
+       */}
       {hands.map(([hx, hy, angle]) => (
         <ellipse
           key={`${hx},${hy}`}
           className="semantic-art__hand"
           cx={hx}
           cy={hy}
-          rx="3"
-          ry="2.15"
+          rx="4.4"
+          ry="3.4"
           transform={`rotate(${angle} ${hx} ${hy})`}
         />
       ))}
@@ -224,9 +260,16 @@ export function GrammarMarker({ x, y, feminine, anchor }: {
         d={`M${x} ${y + 12}L${anchor[0]} ${anchor[1]}`}
       />
       <g transform={`translate(${x} ${y})`}>
+        {/*
+         * Base steps, not `-soft` tints. The `-soft` steps become deep tones in
+         * the dark theme — `--semantic-blue-soft` is `#2c4c5e` against a `#15283a`
+         * paper — so the masculine badge sank into the background and read as an
+         * empty ghost box beside a perfectly visible feminine one. A 24-unit
+         * badge is not one of the "large calm areas" the soft steps exist for.
+         */}
         {feminine
-          ? <circle className="semantic-art__coral-soft semantic-art__outlined" cx="0" cy="0" r="12" />
-          : <rect className="semantic-art__blue-soft semantic-art__outlined" x="-12" y="-12" width="24" height="24" rx="3" />}
+          ? <circle className="semantic-art__coral semantic-art__outlined" cx="0" cy="0" r="12" />
+          : <rect className="semantic-art__blue semantic-art__outlined" x="-12" y="-12" width="24" height="24" rx="3" />}
         <circle className="semantic-art__eye" cx="-3.5" cy="-2" r="1.4" />
         <circle className="semantic-art__eye" cx="3.5" cy="-2" r="1.4" />
         <path className="semantic-art__face" d="M-4 4q4 4 8 0" />
@@ -345,15 +388,167 @@ export function CalendarPage({
 }
 
 /**
+ * Material ramps: the tonal steps a single substance runs through.
+ *
+ * A flat fill with a second flat fill laid over it is what reads as clip art.
+ * One continuous ramp from the lit corner to the deep one is what reads as
+ * illustration, and it is the technique the vector style target is built on.
+ *
+ * Materials, unlike the scene frame, hold one value in both themes, so there is
+ * nothing to restate for the dark theme here.
+ */
+const MATERIAL_RAMPS = {
+  crust: ['--semantic-crust-lit', '--semantic-crust', '--semantic-crust-deep'],
+  crumb: ['--semantic-crumb-lit', '--semantic-crumb', '--semantic-crumb-deep'],
+  board: ['--semantic-wood-lit', '--semantic-wood', '--semantic-wood-deep'],
+} as const;
+
+export type SemanticMaterial = keyof typeof MATERIAL_RAMPS;
+
+/**
+ * The materials common enough to be worth ramping in every scene.
+ *
+ * These are reached through `--semantic-ramp-*` and the base fill classes,
+ * rather than through a `fill` attribute per shape, which is what makes the
+ * technique reach all 240 scenes without editing a single path. Only the base
+ * step of each hue is here: `-lit`, `-deep` and `-soft` are the modelling steps
+ * an author places by hand, and a ramp under them would fight the hand.
+ */
+const SCENE_RAMPS = {
+  wood: ['--semantic-wood-lit', '--semantic-wood', '--semantic-wood-deep'],
+  surface: ['--semantic-surface-lit', '--semantic-surface', '--semantic-surface-deep'],
+  metal: ['--semantic-metal-lit', '--semantic-metal', '--semantic-metal-deep'],
+  stone: ['--semantic-stone-lit', '--semantic-stone', '--semantic-stone-deep'],
+  gold: ['--semantic-gold-lit', '--semantic-gold', '--semantic-gold-deep'],
+  coral: ['--semantic-coral-lit', '--semantic-coral', '--semantic-coral-deep'],
+  teal: ['--semantic-teal-lit', '--semantic-teal', '--semantic-teal-deep'],
+  blue: ['--semantic-blue-lit', '--semantic-blue', '--semantic-blue-deep'],
+  green: ['--semantic-green-lit', '--semantic-green', '--semantic-green-deep'],
+  clay: ['--semantic-clay-lit', '--semantic-clay', '--semantic-clay-deep'],
+  plum: ['--semantic-plum-lit', '--semantic-plum', '--semantic-plum-deep'],
+  wall: ['--semantic-wall-lit', '--semantic-wall', '--semantic-wall-deep'],
+  floor: ['--semantic-floor-lit', '--semantic-floor', '--semantic-floor-deep'],
+  // `-pane-`, because `--semantic-window-lit` is the shaft of light through the
+  // glass and not the glass's own lit step.
+  window: ['--semantic-window-pane-lit', '--semantic-window', '--semantic-window-pane-deep'],
+  glass: ['--semantic-glass-lit', '--semantic-glass', '--semantic-glass-deep'],
+  tiles: ['--semantic-tiles-lit', '--semantic-tiles', '--semantic-tiles-deep'],
+  water: ['--semantic-water-lit', '--semantic-water', '--semantic-water-deep'],
+  fur: ['--semantic-fur-lit', '--semantic-fur', '--semantic-fur-deep'],
+} as const;
+
+/*
+ * What this mechanism deliberately cannot reach: the figure.
+ *
+ * A `<stop>` lives in `<defs>` on the `<svg>`, so it inherits custom properties
+ * from there — not from the shape that references the gradient. Measured on a
+ * live scene with two people: their `--semantic-skin` reads `#9f6044` and
+ * `#c9855f` on the figures themselves, and `#c9855f` at the stop. A scene-level
+ * ramp would therefore paint every person in a scene with the first one's skin
+ * and erase the variant system.
+ *
+ * Skin, hair, shirt, trousers and shoes stay flat here and are modelled the
+ * other way instead — by `-lit` and `-deep` planes an author places by hand,
+ * which is what `__shirt-lit` and `__skin-shade` already are.
+ */
+
+/**
+ * The `--semantic-ramp-*` variables for one scene, to be set on its `<svg>`.
+ *
+ * Returns nothing when the scene is not ramped, so the fill classes fall back to
+ * their flat tokens. Diagrams are never ramped — the schema is what teaches
+ * there, and modelling would only blur it — and neither are thumbnails, where a
+ * gradient across a 96 px shape is invisible and costs a definition per scene.
+ */
+export function semanticRampVariables(
+  sceneId: string,
+  ramped: boolean,
+): React.CSSProperties | undefined {
+  if (!ramped) return undefined;
+  const variables: Record<string, string> = {};
+  for (const material of Object.keys(SCENE_RAMPS)) {
+    variables[`--semantic-ramp-${material}`] = `url(#${sceneId}-ramp-${material})`;
+  }
+  return variables as React.CSSProperties;
+}
+
+function SemanticSceneRampDefs({ sceneId }: { sceneId: string }): React.JSX.Element {
+  return (
+    <>
+      {Object.entries(SCENE_RAMPS).map(([material, tokens]) => (
+        <linearGradient
+          key={material}
+          id={`${sceneId}-ramp-${material}`}
+          x1="0"
+          y1="0"
+          x2="0.92"
+          y2="1"
+        >
+          {tokens.map((token, index) => (
+            <stop
+              key={token}
+              offset={`${(index / (tokens.length - 1)) * 100}%`}
+              stopColor={`var(${token})`}
+            />
+          ))}
+        </linearGradient>
+      ))}
+    </>
+  );
+}
+
+/**
+ * Gradient definitions for the materials one scene actually uses.
+ *
+ * The id is prefixed with the scene's own id because `url(#…)` resolves against
+ * the whole document, and the QA gallery mounts the same scene several times on
+ * one page. Angles are in objectBoundingBox units, so one definition lights a
+ * loaf and a bread roll alike and the key light stays in the upper left.
+ */
+export function SemanticMaterialDefs({
+  sceneId,
+  materials,
+}: {
+  sceneId: string;
+  materials: readonly SemanticMaterial[];
+}): React.JSX.Element {
+  return (
+    <defs>
+      {materials.map((material) => (
+        <linearGradient
+          key={material}
+          id={`${sceneId}-${material}`}
+          x1="0"
+          y1="0"
+          x2="0.92"
+          y2="1"
+        >
+          {MATERIAL_RAMPS[material].map((token, index) => (
+            <stop key={token} offset={`${index * 50}%`} stopColor={`var(${token})`} />
+          ))}
+        </linearGradient>
+      ))}
+    </defs>
+  );
+}
+
+/**
  * Shared gradient definitions for one scene.
  *
  * Every stop reads a `--semantic-*` custom property, so the dark theme and the
  * high-contrast overrides keep working through the existing token system
  * instead of needing a second set of artwork.
  */
-export function SemanticSceneDefs({ sceneId }: { sceneId: string }): React.JSX.Element {
+export function SemanticSceneDefs({
+  sceneId,
+  ramped = false,
+}: {
+  sceneId: string;
+  ramped?: boolean;
+}): React.JSX.Element {
   return (
     <defs>
+      {ramped && <SemanticSceneRampDefs sceneId={sceneId} />}
       <linearGradient id={`${sceneId}-paper`} x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stopColor="var(--semantic-paper-lit)" />
         <stop offset="62%" stopColor="var(--semantic-paper)" />
@@ -481,11 +676,13 @@ export function SemanticSceneFrame({
   sceneId,
   template,
   spatialFamily,
+  ramped = false,
 }: {
   hintStage: SemanticHintStage;
   sceneId: string;
   template: VisualTemplate;
   spatialFamily: SpatialSceneFamily;
+  ramped?: boolean;
 }): React.JSX.Element {
   const frameVariant = (() => {
     if (template === 'object-focus') return 'still-life';
@@ -508,7 +705,7 @@ export function SemanticSceneFrame({
   })();
   return (
     <>
-      <SemanticSceneDefs sceneId={sceneId} />
+      <SemanticSceneDefs sceneId={sceneId} ramped={ramped} />
       {/* Presentation attributes lose to any CSS rule, so the high-contrast
           media query can still flatten these back to solid fills. */}
       <rect

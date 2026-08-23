@@ -84,7 +84,7 @@ export function ActionScene({
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
             {/* Rising: the arrow goes up, and he stretches into it. */}
-            <path className="semantic-art__arrow semantic-art__motion-part" d="M68 118V70m-10 12 10-12 10 12" />
+            <path className="semantic-art__arrow semantic-art__motion-part" d="M52 118V70m-10 12 10-12 10 12" />
             <path className="semantic-art__motion semantic-art__motion-part" d="M84 52q10-8 20 0m-14-10q8-6 16 0" />
           </SceneLayer>
         </>
@@ -104,7 +104,7 @@ export function ActionScene({
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
             {/* Trailing motion behind him and an arrow out of the frame. */}
             <path className="semantic-art__motion semantic-art__motion-part" d="M56 84H32m24 14H26m30 14H36" />
-            <path className="semantic-art__arrow semantic-art__motion-part" d="M118 148h44m-12-11 12 11-12 11" />
+            <path className="semantic-art__arrow semantic-art__motion-part" d="M126 148h44m-12-11 12 11-12 11" />
             <ellipse className="semantic-art__prop-shadow" cx="96" cy="160" rx="30" ry="5" />
           </SceneLayer>
         </>
@@ -123,7 +123,7 @@ export function ActionScene({
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
             {/* The arrow points inward, the opposite of `go`. */}
-            <path className="semantic-art__arrow semantic-art__motion-part" d="M186 148h-44m12-11-12 11 12 11" />
+            <path className="semantic-art__arrow semantic-art__motion-part" d="M216 148h-44m12-11-12 11 12 11" />
             <path className="semantic-art__motion semantic-art__motion-part" d="M188 84h22m-18 14h26m-22 14h20" />
             <ellipse className="semantic-art__prop-shadow" cx="146" cy="160" rx="30" ry="5" />
           </SceneLayer>
@@ -281,7 +281,7 @@ export function ActionScene({
             <path className="semantic-art__window-lit" d="M158 68h30l-6 26h-18Z" opacity="0.55" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
-            <SemanticPerson x={58} y={82} shirt="coral" pose="hold" scale={1.05} />
+            <SemanticPerson x={58} y={82} shirt="coral" pose="reach" scale={1.05} />
             <path className="semantic-art__surface semantic-art__outlined" d="M84 68h74v42H84Z" transform="rotate(-4 121 89)" />
             <path className="semantic-art__detail" d="M96 82h50m-50 12h38" transform="rotate(-4 121 89)" />
             <path className="semantic-art__detail semantic-art__detail--thin" d="M96 102h26" transform="rotate(-4 121 89)" />
@@ -292,12 +292,22 @@ export function ActionScene({
               on its own read as a wedge of wood, the same fault that wrecked
               two attempts at `bureaucracy.signature`.
             */}
-            <g transform="rotate(-38 96 100)">
-              <path className="semantic-art__blue semantic-art__outlined" d="M96 92h54v14H96Z" />
-              <path className="semantic-art__blue-deep" d="M132 92h18v14h-18Z" />
-              <path className="semantic-art__ink" d="m96 92-14 7 14 7Z" />
+            {/*
+              Two things were wrong with "held". The pen was 54 units long and 14
+              thick — as wide as the figure's head and three heads long — so it
+              read as a prop lying across the scene rather than as a pen. And the
+              hand gripping it was a lone disc at (82, 88) while the figure's own
+              `hold` pose put both its hands at its belly: a disembodied hand, the
+              same fault as the floating hand beside the hip in `wave`.
+
+              The figure now reaches, and the pen sits at the end of that arm at
+              roughly two thirds the size.
+            */}
+            <g transform="rotate(-38 90 84)">
+              <path className="semantic-art__blue semantic-art__outlined" d="M90 80h32v8H90Z" />
+              <path className="semantic-art__blue-deep" d="M112 80h10v8h-10Z" />
+              <path className="semantic-art__ink" d="m90 80-9 4 9 4Z" />
             </g>
-            <circle className="semantic-art__hand" cx="82" cy="88" r="5" />
             <path className="semantic-art__spark" d="m178 36 4 8 8 4-8 4-4 8-4-8-8-4 8-4Z" />
           </SceneLayer>
         </>

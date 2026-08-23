@@ -104,11 +104,15 @@ export function TransportScene({
             <path className="semantic-art__coral semantic-art__outlined" d="M12 62q10-16 26-16h44v88H12Z" />
             <path className="semantic-art__coral semantic-art__outlined" d="M88 46h64v88H88Z" />
             <path className="semantic-art__coral semantic-art__outlined" d="M158 46h62v88h-62Z" />
+            {/* The far end of the last carriage turns away from the light. This
+                used to be drawn in the anchor layer, after the glass, so it cut a
+                hard vertical seam straight through the lit window and the carriage
+                read as a building standing in front of the train. */}
+            <path className="semantic-art__shade" d="M198 46h22v88h-22Z" />
             <path className="semantic-art__window" d="M22 62h50v26H22Zm74 0h48v26H96Zm70 0h46v26h-46Z" />
             <path className="semantic-art__window-lit" d="M25 65h44v20H25Zm74 0h42v20H99Zm70 0h40v20h-40Z" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            <path className="semantic-art__shade" d="M198 46h22v88h-22Z" />
             <path className="semantic-art__metal-line" d="M82 60v74m70-74v74" />
             <Wheel cx={38} cy={136} r={10} />
             <Wheel cx={68} cy={136} r={10} />
@@ -235,7 +239,12 @@ export function TransportScene({
             <path className="semantic-art__window" d="M102 96h22v8h-22Z" />
             <circle className="semantic-art__ink" cx="100" cy="120" r="6" />
             <circle className="semantic-art__ink" cx="130" cy="120" r="6" />
-            <path className="semantic-art__gloss" d="M96 78 30 162m48-84 66 84" />
+            {/* Kerbs down both sides of the carriageway. Drawn with `__gloss` —
+                translucent white at 3 units — two lines this long and this bright
+                stopped reading as kerbs and started reading as a pair of bars
+                scored across the picture. A kerb is concrete at the edge of a
+                road, so it takes the material grain instead. */}
+            <path className="semantic-art__grain" d="M96 78 30 162m48-84 66 84" />
           </SceneLayer>
         </>
       );
@@ -255,7 +264,15 @@ export function TransportScene({
             <ellipse className="semantic-art__prop-shadow" cx="120" cy="150" rx="88" ry="7" />
             <circle className="semantic-art__rim" cx="58" cy="118" r="30" />
             <circle className="semantic-art__rim" cx="182" cy="118" r="30" />
-            <path className="semantic-art__coral semantic-art__outlined" d="M58 118 96 74h34l22 44h-34Zm38-44 24 44" />
+            {/* A frame is tubes. This was a closed, filled polygon, so the bicycle
+                carried a solid red wedge where its triangle should be — the wheels
+                read, and everything between them read as a sail. Drawn as open
+                strokes it becomes a seat stay, a top tube, a seat tube, a chain
+                stay and a fork, which is what a bicycle is made of. */}
+            <path
+              className="semantic-art__coral-line"
+              d="M58 118 96 74M96 74h34M130 74 118 118M118 118 58 118M130 74 182 118"
+            />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
             <path className="semantic-art__metal-line" d="M130 74 152 62m-22 12 30 44M96 74 84 58h-22" />
@@ -312,12 +329,14 @@ export function TransportScene({
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <SemanticPerson x={74} y={100} shirt="teal" pose="neutral" scale={1.45} />
             {/*
-              Peaked cap, sitting on the crown. The brim used to cross y=74-80,
-              which is exactly where this figure's eyes are at scale 1.45, so
-              the driver had a black bar over his face.
+              Peaked cap, sitting on the crown. Measured rather than eyeballed:
+              at scale 1.45 the eyes land at y=64.5, and the brim used to span
+              y=60..65 — straight across them, so the driver read as blindfolded.
+              An earlier pass moved it from y=74 and left it still crossing. The
+              brim now ends at y=59, five and a half units clear.
             */}
-            <path className="semantic-art__ink semantic-art__outlined" d="M56 60q18-15 36 0v4H56Z" />
-            <path className="semantic-art__ink semantic-art__outlined" d="M50 60h28v5H50Z" />
+            <path className="semantic-art__ink semantic-art__outlined" d="M56 54q18-15 36 0v4H56Z" />
+            <path className="semantic-art__ink semantic-art__outlined" d="M50 54h28v5H50Z" />
             <circle className="semantic-art__gold semantic-art__outlined" cx="74" cy="55" r="4" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>

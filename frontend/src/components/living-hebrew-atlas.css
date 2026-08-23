@@ -292,16 +292,23 @@
 .ivrit-atlas__mini-map {
   position: absolute;
   z-index: 3;
-  top: 0.85rem;
-  inset-inline-end: 0.85rem;
-  width: clamp(5.4rem, 20%, 8.5rem);
-  aspect-ratio: 0.92;
+  top: 1rem;
+  inset-inline-end: 1rem;
+  width: clamp(4.5rem, 16%, 6rem);
+  aspect-ratio: 1;
   overflow: hidden;
-  border: 1px solid rgba(255, 253, 248, 0.7);
-  border-radius: 1rem;
-  background: rgba(255, 253, 248, 0.86);
-  box-shadow: 0 0.8rem 1.8rem rgba(23, 32, 51, 0.22);
-  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  background: rgba(10, 20, 30, 0.5);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), inset 0 0 12px rgba(255,255,255,0.1);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.ivrit-atlas__mini-map:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), inset 0 0 16px rgba(255,255,255,0.2);
 }
 
 .ivrit-atlas__mini-map .ivrit-atlas__scene {
@@ -318,7 +325,7 @@
 .ivrit-atlas__sky { fill: #f9f3df; }
 .ivrit-atlas__sea { opacity: 0.98; }
 .ivrit-atlas__land { opacity: 0.99; }
-.ivrit-atlas__coastline { fill: none; stroke: #5b9fa2; stroke-width: 4; stroke-linecap: round; }
+.ivrit-atlas__coastline { fill: none; stroke: #5b9fa2; stroke-width: 4; stroke-linecap: round; stroke-dasharray: 12 16; animation: coastline-flow 3s linear infinite; }
 .ivrit-atlas__sun { opacity: 0.94; transform-origin: 628px 88px; }
 .ivrit-atlas__cloud { fill: #fffdf8; opacity: 0.72; }
 .ivrit-atlas__journey-line { fill: none; stroke: rgba(15, 118, 110, 0.48); stroke-width: 5; stroke-linecap: round; stroke-dasharray: 3 17; animation: atlasRoute 900ms ease-out both; }
@@ -330,7 +337,7 @@
 .ivrit-atlas__carmel { fill: #6d916a; }
 .ivrit-atlas__terrace { fill: none; stroke: #e5d5a9; stroke-width: 7; stroke-linecap: round; }
 .ivrit-atlas__tower { fill: #fff8e6; stroke: #375d60; stroke-width: 4; }
-.ivrit-atlas__tower-light { fill: #d99b2b; stroke: #375d60; stroke-width: 4; stroke-linejoin: round; }
+.ivrit-atlas__tower-light { fill: #d99b2b; stroke: #375d60; stroke-width: 4; stroke-linejoin: round; animation: tower-pulse 2s alternate infinite ease-in-out; }
 .ivrit-atlas__city { fill: #fff9e9; stroke: #4c606e; stroke-width: 6; stroke-linejoin: round; }
 .ivrit-atlas__window { fill: none; stroke: #d99b2b; stroke-width: 5; stroke-linecap: round; }
 .ivrit-atlas__jaffa { fill: #d7a86b; stroke: #784f35; stroke-width: 5; }
@@ -468,6 +475,7 @@ button.ivrit-atlas__marker:focus-visible {
   font-weight: 760;
   line-height: 1.4;
   text-align: start;
+  animation: badge-glow 2.5s infinite;
 }
 
 .ivrit-atlas__visual-note > span {
@@ -502,6 +510,23 @@ button.ivrit-atlas__marker:focus-visible {
   color: #526070;
   font-size: 0.75rem;
   font-weight: 650;
+}
+
+.ivrit-atlas__region-tag {
+  display: inline-block;
+  color: var(--atlas-teal, #0f766e);
+  font-size: 0.72rem;
+  font-weight: 750;
+  font-style: normal;
+  margin-top: 2px;
+}
+
+.ivrit-atlas__visual-tag {
+  display: inline-block;
+  color: #0f766e;
+  font-size: 0.74rem;
+  font-weight: 800;
+  margin-top: 3px;
 }
 
 .ivrit-atlas-backdrop {
@@ -544,6 +569,22 @@ button.ivrit-atlas__marker:focus-visible {
   0% { opacity: 0; stroke-width: 8; }
   48% { opacity: 1; stroke-width: 5; }
   100% { opacity: 0.78; stroke-width: 4; }
+}
+
+@keyframes coastline-flow {
+  from { stroke-dashoffset: 60; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes tower-pulse {
+  from { opacity: 0.7; fill: #d99b2b; filter: drop-shadow(0 0 2px rgba(217,155,43,0.3)); }
+  to { opacity: 1; fill: #ffe066; filter: drop-shadow(0 0 8px rgba(255,224,102,0.85)); }
+}
+
+@keyframes badge-glow {
+  0% { box-shadow: 0 0.6rem 1.4rem rgba(23, 32, 51, 0.12), 0 0 0 0 rgba(217, 155, 43, 0.4); }
+  70% { box-shadow: 0 0.6rem 1.4rem rgba(23, 32, 51, 0.12), 0 0 0 10px rgba(217, 155, 43, 0); }
+  100% { box-shadow: 0 0.6rem 1.4rem rgba(23, 32, 51, 0.12), 0 0 0 0 rgba(217, 155, 43, 0); }
 }
 
 @media (max-width: 900px) {

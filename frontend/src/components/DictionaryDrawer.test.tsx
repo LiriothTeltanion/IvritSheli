@@ -289,7 +289,7 @@ describe('DictionaryDrawer', () => {
     );
 
     await user.click(await screen.findByRole('button', { name: 'Pronunciation' }));
-    expect(await screen.findByText('Audio playback failed: playback blocked')).toBeInTheDocument();
+    expect(await screen.findByText('The audio would not play. Tap the button again.')).toBeInTheDocument();
   });
 
   it('keeps newly learned state scoped to the selected dictionary entry', async () => {

@@ -3,8 +3,6 @@
 
 import type { DictionaryVisual, Locale } from './types';
 
-export type WordIllustrationKind = 'greeting' | 'gratitude' | 'please' | 'yes' | 'no';
-
 export interface LocalizedText {
   en: string;
   es: string;
@@ -22,7 +20,6 @@ export interface StarterWord {
   exampleTranslation: LocalizedText;
   visualKey: string;
   visualEmoji: string;
-  illustration: WordIllustrationKind;
   illustrationAlt: LocalizedText;
 }
 
@@ -42,7 +39,6 @@ export const starterWords: readonly StarterWord[] = [
     },
     visualKey: 'greetings.hello',
     visualEmoji: '👋',
-    illustration: 'greeting',
     illustrationAlt: {
       en: 'Two neighbors facing each other and waving hello',
       es: 'Dos vecinos frente a frente saludándose con la mano',
@@ -64,7 +60,6 @@ export const starterWords: readonly StarterWord[] = [
     },
     visualKey: 'greetings.thanks',
     visualEmoji: '🙏',
-    illustration: 'gratitude',
     illustrationAlt: {
       en: 'Two neighbors sharing a small gift with gratitude',
       es: 'Dos vecinos compartiendo un pequeño regalo con gratitud',
@@ -86,7 +81,6 @@ export const starterWords: readonly StarterWord[] = [
     },
     visualKey: 'greetings.please',
     visualEmoji: '🤲',
-    illustration: 'please',
     illustrationAlt: {
       en: 'Two neighbors politely passing a glass of water',
       es: 'Dos vecinos pasando un vaso de agua con amabilidad',
@@ -108,7 +102,6 @@ export const starterWords: readonly StarterWord[] = [
     },
     visualKey: 'greetings.yes',
     visualEmoji: '✅',
-    illustration: 'yes',
     illustrationAlt: {
       en: 'A clear green check meaning yes',
       es: 'Una marca verde clara que significa sí',
@@ -130,7 +123,6 @@ export const starterWords: readonly StarterWord[] = [
     },
     visualKey: 'greetings.no',
     visualEmoji: '❌',
-    illustration: 'no',
     illustrationAlt: {
       en: 'A gentle coral cross meaning no',
       es: 'Una cruz coral amable que significa no',

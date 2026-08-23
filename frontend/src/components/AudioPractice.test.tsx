@@ -353,7 +353,7 @@ describe('AudioPractice', () => {
     await user.type(transcriptInput, 'שלום עולם');
     await user.click(screen.getByRole('button', { name: 'Understand transcript' }));
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('Local dictionary unavailable');
+    expect(await screen.findByRole('alert')).toHaveTextContent('Something did not work. Try again in a moment.');
     expect(transcriptInput).toHaveValue('שלום עולם');
   });
 

@@ -27,6 +27,7 @@ def settings(tmp_path: Path) -> Settings:
     data_dir = tmp_path / "data"
     return Settings.from_env(
         {
+            "IVRIT_LOCAL_ONLY": "true",
             "APP_DATA_DIR": str(data_dir),
             "APP_DB_PATH": str(data_dir / "learning.db"),
             "DICTIONARY_DB_PATH": str(data_dir / "dictionary.db"),

@@ -165,3 +165,11 @@ A learner should identify the intended sense in about five seconds without readi
 ## Release rule
 
 A beautiful asset does not override Ivrit Sheli's release-truth discipline. New visuals are source-complete only after semantic-key coverage, automated checks and package verification pass; they become release evidence only after the relevant browser matrix is rerun and recorded.
+
+## Cuaderno del hebreo vivo
+
+The consolidated operations + visual review notebook for this private candidate is maintained in:
+
+- `docs/LIVING_HEBREW_FIELD_NOTES.md`
+
+Use it as the source of truth for the 2.12.0 repintado progress before resuming code work or handoff.

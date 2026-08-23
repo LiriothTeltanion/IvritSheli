@@ -8,15 +8,18 @@ function renderMenu(online = true, localMode = false): {
   onOpenSettings: ReturnType<typeof vi.fn>;
   onLogout: ReturnType<typeof vi.fn>;
   onFinishVisit: ReturnType<typeof vi.fn>;
+  onIdentityUpdate: ReturnType<typeof vi.fn>;
 } {
   const onOpenSettings = vi.fn();
   const onLogout = vi.fn();
   const onFinishVisit = vi.fn();
+  const onIdentityUpdate = vi.fn();
   render(
     <I18nProvider>
       <ProfileMenu
         avatarUrl={null}
         identityName="Kevin"
+        identityAvatarPresetId="preset-amber"
         workspaceLabel="Personal workspace"
         learnerMode="guided"
         level="A0"
@@ -26,10 +29,11 @@ function renderMenu(online = true, localMode = false): {
         onOpenSettings={onOpenSettings}
         onLogout={onLogout}
         onFinishVisit={onFinishVisit}
+        onIdentityUpdate={onIdentityUpdate}
       />
     </I18nProvider>,
   );
-  return { onOpenSettings, onLogout, onFinishVisit };
+  return { onOpenSettings, onLogout, onFinishVisit, onIdentityUpdate };
 }
 
 describe('ProfileMenu', () => {
@@ -44,6 +48,34 @@ describe('ProfileMenu', () => {
     await user.click(screen.getByRole('radio', { name: 'Busy' }));
     expect(screen.getByRole('radio', { name: 'Busy' })).toHaveAttribute('aria-checked', 'true');
     expect(localStorage.getItem('ivrit-sheli:focus-status')).toBe('busy');
+  });
+
+  it('saves learner identity only when changed', async () => {
+    const user = userEvent.setup();
+    const { onIdentityUpdate } = renderMenu();
+
+    await user.click(screen.getByRole('button', { name: /Open profile menu/i }));
+    expect(screen.getByRole('button', { name: /Save/i })).toBeDisabled();
+
+    await user.clear(screen.getByRole('textbox', { name: /Your name/i }));
+    await user.type(screen.getByRole('textbox', { name: /Your name/i }), 'Kira');
+    await user.click(screen.getByRole('button', { name: /Save/i }));
+
+    expect(onIdentityUpdate).toHaveBeenCalledOnce();
+    expect(onIdentityUpdate).toHaveBeenCalledWith('Kira', 'preset-amber');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('updates avatar preset and keeps name when unchanged', async () => {
+    const user = userEvent.setup();
+    const { onIdentityUpdate } = renderMenu();
+
+    await user.click(screen.getByRole('button', { name: /Open profile menu/i }));
+    await user.click(screen.getByRole('button', { name: /Avatar 👩🏽/i }));
+    await user.click(screen.getByRole('button', { name: /Save/i }));
+
+    expect(onIdentityUpdate).toHaveBeenCalledOnce();
+    expect(onIdentityUpdate).toHaveBeenCalledWith('Kevin', 'preset-dark');
   });
 
   it('closes with Escape and restores focus to the trigger', async () => {

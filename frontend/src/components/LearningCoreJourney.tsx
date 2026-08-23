@@ -65,7 +65,7 @@ export function LearningCoreJourney({
   onStartReview,
   onRefresh,
 }: LearningCoreJourneyProps): React.JSX.Element {
-  const { locale, label, t } = useI18n();
+  const { errorText, label, locale, t } = useI18n();
   const { readOnly } = useSessionAccess();
   const copy = learningCoreCopy(locale);
   const fallback = useMemo(() => buildLocalLearningCore(dashboard, learnerMode), [dashboard, learnerMode]);
@@ -123,7 +123,7 @@ export function LearningCoreJourney({
       setOverview(local.overview);
       setNext(local.next);
       setSource('local');
-      setLoadError(reason instanceof Error ? reason.message : String(reason));
+      setLoadError(errorText(reason));
     } finally {
       if (generation === loadGeneration.current) setLoading(false);
     }
@@ -264,7 +264,7 @@ export function LearningCoreJourney({
         await load();
         setFeedback(copy.activityConflict);
       } else {
-        setFeedback(reason instanceof Error ? reason.message : String(reason));
+        setFeedback(errorText(reason));
       }
       // load() above resets the flag, so this must run after it.
       setFeedbackIsError(true);
@@ -371,6 +371,7 @@ export function LearningCoreJourney({
                 onWordClick={onOpenDictionary}
                 className="learning-focus-hebrew"
                 as="h3"
+                niqqudHighlight={true}
               />
             )}
             {(!productionRecall || answerRevealed) && activity.item.transliteration && learnerMode !== 'experienced' && (

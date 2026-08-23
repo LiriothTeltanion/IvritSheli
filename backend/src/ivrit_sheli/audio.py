@@ -83,6 +83,14 @@ class AudioNoSpeech(AudioProviderError):
     code = "audio_no_speech"
 
 
+class AudioProviderCapacityError(AudioProviderError):
+    """Raised when cloud transcription is temporarily saturated."""
+
+    status_code = 429
+    code = "audio_provider_capacity"
+    retry_after = 20
+
+
 class OpenAIAudioProvider:
     """Server-side OpenAI speech-to-text and text-to-speech adapter.
 
@@ -101,6 +109,71 @@ class OpenAIAudioProvider:
     ) -> None:
         self.settings = settings
         self.session = session or requests.Session()
+
+    @staticmethod
+    def _parse_openai_error(payload: Any) -> tuple[str | None, str | None]:
+        """Read machine code and message from an OpenAI error payload."""
+        if not isinstance(payload, dict):
+            return (None, None)
+        error_payload = payload.get("error")
+        if not isinstance(error_payload, dict):
+            return (None, None)
+        code = error_payload.get("code")
+        if code is not None:
+            code = str(code)
+        message = error_payload.get("message")
+        return (code, str(message) if message is not None else None)
+
+    @staticmethod
+    def _safe_json(response: requests.Response) -> dict[str, Any] | None:
+        """Best-effort JSON read from an HTTP response."""
+        try:
+            parsed = response.json()
+        except ValueError:
+            return None
+        return parsed if isinstance(parsed, dict) else None
+
+    @staticmethod
+    def _parse_retry_after(value: str | None) -> int | None:
+        """Extract a bounded integer `Retry-After` value."""
+        if not value:
+            return None
+        try:
+            seconds = int(value.strip())
+        except ValueError:
+            return None
+        if seconds <= 0:
+            return None
+        return min(seconds, 120)
+
+    def _is_capacity_error(
+        self,
+        status_code: int,
+        error_code: str | None,
+        message: str | None,
+    ) -> bool:
+        """Detect provider saturation from OpenAI status/error metadata."""
+        if status_code == 429:
+            return True
+        normalized_code = (error_code or "").lower()
+        normalized_message = (message or "").lower()
+        capacity_tokens = (
+            "capacity",
+            "overloaded",
+            "overload",
+            "busy",
+            "too many requests",
+            "rate limit",
+            "service temporarily unavailable",
+            "currently unavailable",
+            "temporarily unavailable",
+        )
+        return (
+            status_code == 503 and (
+                normalized_code in {"rate_limit_exceeded", "service_overloaded"}
+                or any(token in normalized_message for token in capacity_tokens)
+            )
+        )
 
     def transcribe(self, audio_path: Path, language: str = "he") -> dict[str, Any]:
         """Transcribe an audio file.
@@ -133,7 +206,21 @@ class OpenAIAudioProvider:
                     },
                     timeout=(10, 120),
                 )
-            response.raise_for_status()
+            if not response.ok:
+                error_payload = self._safe_json(response)
+                error_code, error_message = self._parse_openai_error(error_payload)
+                if self._is_capacity_error(
+                    response.status_code,
+                    error_code,
+                    error_message,
+                ):
+                    error = AudioProviderCapacityError(
+                        f"OpenAI speech transcription is temporarily unavailable: "
+                        f"{error_message or 'service is at capacity'}"
+                    )
+                    error.retry_after = self._parse_retry_after(response.headers.get("Retry-After"))
+                    raise error
+                response.raise_for_status()
             payload = response.json()
         except (requests.RequestException, OSError, ValueError) as error:
             raise AudioProviderError(f"Speech transcription failed: {error}") from error
@@ -403,6 +490,7 @@ class AudioService:
         result: dict[str, Any]
         duration_seconds: float | None = None
         audio_deleted = False
+        reported_mode: TranscriptionMode = selected_mode
         try:
             validate_audio_file(audio_path)
             if selected_mode == "self_hosted":
@@ -433,7 +521,22 @@ class AudioService:
                     )
                 if not self.settings.allow_cloud_processing:
                     raise ValueError("Cloud processing is disabled in server settings")
-                result = self.provider.transcribe(audio_path, language=language)
+                try:
+                    result = self.provider.transcribe(audio_path, language=language)
+                except AudioProviderCapacityError as error:
+                    if self.self_hosted_provider.available:
+                        LOGGER.warning(
+                            "OpenAI STT capacity; falling back to self-hosted provider: %s",
+                            error,
+                        )
+                        result = self.self_hosted_provider.transcribe(
+                            audio_path,
+                            language=language,
+                            duration_seconds=duration_seconds,
+                        )
+                        reported_mode = "self_hosted"
+                    else:
+                        raise
             else:
                 raise ValueError(f"Unsupported transcription mode: {selected_mode}")
         finally:
@@ -456,7 +559,7 @@ class AudioService:
                 if duration_seconds is not None
                 else None,
             ),
-            "mode": selected_mode,
+            "mode": reported_mode,
             "audio_deleted": audio_deleted and worker_audio_deleted,
         }
 

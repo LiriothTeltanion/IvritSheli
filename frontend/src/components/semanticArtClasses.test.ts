@@ -108,6 +108,56 @@ function classesDeclaring(property: 'stroke' | 'fill'): Set<string> {
   return found;
 }
 
+describe('semantic art tokens', () => {
+  it('only reads custom properties the stylesheet defines', () => {
+    /*
+     * An undefined custom property is not an error anywhere in the pipeline. In
+     * a `fill` it falls through to whatever fallback the `var()` carries, which
+     * is usually harmless; in a gradient `stop-color` there is no fallback and
+     * the initial value is *black*. `--semantic-surface-lit` and
+     * `--semantic-surface-deep` existed only as literals inside their own class
+     * rules, so the first ramp that read them turned a paper ticket and a
+     * prescription into brushed chrome across every scene that draws paper.
+     *
+     * `--semantic-ramp-*` is deliberately exempt: it is set as an inline style
+     * from React, never declared in the sheet, and every reader passes a flat
+     * token as its fallback.
+     */
+    const defined = new Set(
+      Array.from(css.matchAll(/(--semantic-[a-zA-Z0-9-]+)\s*:/g), (m) => m[1]!),
+    );
+    const sources: Record<string, string> = { './semantic-word-illustration.css': css, ...scenes };
+    const primitives = Object.values(
+      import.meta.glob('./semantic-scenes/SemanticScenePrimitives.tsx', {
+        query: '?raw',
+        import: 'default',
+        eager: true,
+      }),
+    ).join('\n') as string;
+    sources['./semantic-scenes/SemanticScenePrimitives.tsx'] = primitives;
+
+    const missing: string[] = [];
+    for (const [path, source] of Object.entries(sources)) {
+      for (const hit of source.matchAll(/var\(\s*(--semantic-[a-zA-Z0-9-]+)/g)) {
+        const token = hit[1]!;
+        if (defined.has(token) || token.startsWith('--semantic-ramp-')) continue;
+        const use = `${path}: ${token}`;
+        if (!missing.includes(use)) missing.push(use);
+      }
+      // Gradient stops name their tokens as bare strings in a ramp table, where
+      // there is no `var(` for the pattern above to catch.
+      for (const hit of source.matchAll(/'(--semantic-[a-zA-Z0-9-]+)'/g)) {
+        const token = hit[1]!;
+        if (defined.has(token)) continue;
+        const use = `${path}: ${token}`;
+        if (!missing.includes(use)) missing.push(use);
+      }
+    }
+
+    expect(missing).toEqual([]);
+  });
+});
+
 describe('semantic art classes', () => {
   it('only uses class names the stylesheet defines', () => {
     const defined = new Set(

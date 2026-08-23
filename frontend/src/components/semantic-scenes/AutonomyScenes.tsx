@@ -87,7 +87,11 @@ export function AutonomyScene({ visualKey, hintStage }: AutonomySceneProps): Rea
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__paper semantic-art__outlined" d="M18 20h204v140H18Z" fill="var(--semantic-paper)" />
-            <path className="semantic-art__route" d="M36 132c28-42 50-4 76-48 22-38 56-4 84-42" />
+            {/* The route now leaves the pointing hand and runs to the pin. It used
+                to start at x=36 and cross straight through the figure's chest —
+                a 5-unit coral stroke over the torso, which read as a scarf or a
+                tongue rather than as a way to somewhere. */}
+            <path className="semantic-art__route" d="M105 108c22-14 34 4 50-12 8-8 14-8 20-13" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <path className="semantic-art__coral semantic-art__outlined" d="M160 48c0-19 30-19 30 0 0 19-15 35-15 35s-15-16-15-35Z" />

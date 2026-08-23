@@ -19,7 +19,7 @@ interface QuickCaptureProps {
 }
 
 export function QuickCapture({ open, onClose, onCreated }: QuickCaptureProps): React.JSX.Element | null {
-  const { t } = useI18n();
+  const { errorText, t } = useI18n();
   const { readOnly, readOnlyReason } = useSessionAccess();
   const [hebrew, setHebrew] = useState('');
   const [english, setEnglish] = useState('');
@@ -52,7 +52,7 @@ export function QuickCapture({ open, onClose, onCreated }: QuickCaptureProps): R
       setSpanish('');
       onClose();
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : String(reason));
+      setError(errorText(reason));
     } finally {
       setSaving(false);
     }

@@ -36,7 +36,16 @@ const isPrivateQAHost = (hostname: string): boolean => {
   const private172 = hostname.match(/^172\.(\d{1,2})\./u);
   return private172 ? Number(private172[1]) >= 16 && Number(private172[1]) <= 31 : false;
 };
-const visualQARequested = new URLSearchParams(window.location.search).get('visualQa') === '1';
+const currentLocation = new URL(window.location.href);
+const currentSearch = currentLocation.searchParams;
+const currentPath = currentLocation.pathname.toLowerCase().replace(/\/+$/u, '');
+const visualQARequested = (
+  currentSearch.get('visualQa') === '1'
+  || currentSearch.get('visualqa') === '1'
+  || currentPath === '/visual-qa'
+  || currentPath === '/gallery'
+  || currentPath === '/art-gallery'
+);
 const visualQAMode = visualQARequested && (import.meta.env.DEV || isPrivateQAHost(window.location.hostname));
 
 createRoot(root).render(
@@ -72,3 +81,4 @@ if (!visualQAMode) {
     window.setTimeout(warmSceneLayer, 1200);
   }
 }
+

@@ -31,6 +31,7 @@ import { WorkScene } from './semantic-scenes/WorkScenes';
 import {
   SemanticSceneFrame as SceneFrame,
   SemanticSceneVignette as SceneVignette,
+  semanticRampVariables,
   type SpatialSceneFamily,
 } from './semantic-scenes/SemanticScenePrimitives';
 import './semantic-word-illustration.css';
@@ -130,30 +131,43 @@ function motionDirectionFor(visualKey: A0VisualKey): SemanticMotionDirection {
 function ReviewedScene({
   visualKey,
   hintStage,
+  sceneId,
 }: {
   visualKey: A0VisualKey;
   hintStage: SemanticHintStage;
+  sceneId: string;
 }): React.JSX.Element {
-  const scene = FamilyRelationshipScene({ visualKey, hintStage })
-    ?? CoreGreetingTimeScene({ visualKey, hintStage })
-    ?? CoreDailyScene({ visualKey, hintStage })
-    ?? GreetingTimeScene({ visualKey, hintStage })
-    ?? FamilyPlaceScene({ visualKey, hintStage })
-    ?? FoodHomeScene({ visualKey, hintStage })
-    ?? NumberScene({ visualKey, hintStage })
-    ?? NatureScene({ visualKey, hintStage })
-    ?? WeatherScene({ visualKey, hintStage })
-    ?? TransportScene({ visualKey, hintStage })
-    ?? HealthScene({ visualKey, hintStage })
-    ?? ShoppingScene({ visualKey, hintStage })
-    ?? ActionScene({ visualKey, hintStage })
-    ?? CommunicationScene({ visualKey, hintStage })
-    ?? WorkScene({ visualKey, hintStage })
-    ?? AutonomyScene({ visualKey, hintStage })
-    ?? RegisterScene({ visualKey, hintStage })
-    ?? ServicesScene({ visualKey, hintStage })
-    ?? HousingScene({ visualKey, hintStage })
-    ?? BureaucracyScene({ visualKey, hintStage });
+  /*
+   * A scene that models a material with a gradient needs an id of its own:
+   * `url(#…)` resolves against the whole document, and the QA gallery mounts the
+   * same scene several times on one page, so a fixed id would make every copy
+   * read the first one's definition.
+   *
+   * Passed as one object rather than as a fresh literal per call, so the modules
+   * that do not model a material yet keep their current signature instead of all
+   * twenty having to declare a prop they ignore.
+   */
+  const props = { visualKey, hintStage, sceneId };
+  const scene = FamilyRelationshipScene(props)
+    ?? CoreGreetingTimeScene(props)
+    ?? CoreDailyScene(props)
+    ?? GreetingTimeScene(props)
+    ?? FamilyPlaceScene(props)
+    ?? FoodHomeScene(props)
+    ?? NumberScene(props)
+    ?? NatureScene(props)
+    ?? WeatherScene(props)
+    ?? TransportScene(props)
+    ?? HealthScene(props)
+    ?? ShoppingScene(props)
+    ?? ActionScene(props)
+    ?? CommunicationScene(props)
+    ?? WorkScene(props)
+    ?? AutonomyScene(props)
+    ?? RegisterScene(props)
+    ?? ServicesScene(props)
+    ?? HousingScene(props)
+    ?? BureaucracyScene(props);
   if (!scene) {
     throw new Error(`Missing semantic scene renderer for ${visualKey}`);
   }
@@ -180,10 +194,18 @@ export function SemanticWordIllustration({
   const motionCue = motionCueFor(visual.key, recipe.template);
   const motionDirection = motionDirectionFor(visual.key);
   const title = visual.alt[locale] || visual.alt.en || visual.alt.es || visual.alt.he;
+  /*
+   * Diagrams are never ramped: there the schema is what teaches, and modelling
+   * a kinship marker or a numeral in three tones only blurs it. Thumbnails are
+   * not ramped either — a gradient across a 96 px shape is invisible, and the
+   * exhaustive QA matrix mounts hundreds of them at once.
+   */
+  const ramped = spatialFamily !== 'diagram' && size !== 'thumbnail';
 
   return (
     <svg
       className={`semantic-art semantic-art--${size} ${className}`.trim()}
+      style={semanticRampVariables(titleId, ramped)}
       viewBox="0 0 240 180"
       role={decorative ? undefined : 'img'}
       aria-hidden={decorative ? true : undefined}
@@ -208,8 +230,9 @@ export function SemanticWordIllustration({
         sceneId={titleId}
         template={recipe.template}
         spatialFamily={spatialFamily}
+        ramped={ramped}
       />
-      <ReviewedScene visualKey={visual.key} hintStage={hintStage} />
+      <ReviewedScene visualKey={visual.key} hintStage={hintStage} sceneId={titleId} />
       <SceneVignette sceneId={titleId} />
     </svg>
   );

@@ -65,6 +65,9 @@ def cloud_settings(
             "SESSION_COOKIE_SECURE": "false",
             "GITHUB_CLIENT_ID": "fake-client",
             "GITHUB_CLIENT_SECRET": "fake-secret",
+            "GOOGLE_AUTH_CLIENT_ID": "",
+            "GOOGLE_AUTH_CLIENT_SECRET": "",
+            "GOOGLE_AUTH_REDIRECT_URI": "",
             "PUBLIC_BASE_URL": "http://127.0.0.1:8000",
             "DEBUG": "true",
     }
@@ -89,6 +92,9 @@ def production_cloud_settings(
         "GITHUB_CLIENT_ID": "client-id",
         "GITHUB_CLIENT_SECRET": "client-secret",
         "GITHUB_REDIRECT_URI": "https://ivrit.example/api/v1/auth/github/callback",
+        "GOOGLE_AUTH_CLIENT_ID": "",
+        "GOOGLE_AUTH_CLIENT_SECRET": "",
+        "GOOGLE_AUTH_REDIRECT_URI": "",
         "ALLOWED_ORIGINS": "",
         "DEBUG": "false",
     }
@@ -745,20 +751,7 @@ def test_production_settings_fail_closed_and_accept_only_https_oauth(tmp_path: P
             }
         )
 
-    settings = Settings.from_env(
-        {
-            "APP_ENV": "production",
-            "APP_DATA_DIR": str(tmp_path / "safe"),
-            "DATABASE_URL": "postgresql://ivrit_sheli_runtime:password@db/ivrit",
-            "AUTH_REQUIRED": "true",
-            "SESSION_SECRET": "production-test-secret-with-more-than-32-chars",
-            "SESSION_COOKIE_SECURE": "true",
-            "PUBLIC_BASE_URL": "https://ivrit.example",
-            "GITHUB_CLIENT_ID": "client-id",
-            "GITHUB_CLIENT_SECRET": "client-secret",
-            "GITHUB_REDIRECT_URI": "https://ivrit.example/api/v1/auth/github/callback",
-        }
-    )
+    settings = production_cloud_settings(tmp_path)
     assert settings.allowed_origins == ("https://ivrit.example",)
     assert settings.auth_providers == ("github",)
 

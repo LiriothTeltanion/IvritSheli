@@ -404,8 +404,11 @@ export function GreetingTimeScene({
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wall semantic-art__outlined" d="M20 24h200v130H20Z" />
             <path className="semantic-art__window semantic-art__outlined" d="M145 37h54v55h-54Z" />
-            {/* Night sky in the pane, and moonlight falling across the room. */}
-            <path className="semantic-art__water-deep" d="M148 40h48v49h-48Z" />
+            {/* Night sky in the pane, and moonlight falling across the room.
+                The sky used to be painted with the deep *water* token — the same
+                fault as milk poured from the water class. A sky is not a body of
+                water, and it now has a token that says so. */}
+            <path className="semantic-art__night-sky" d="M148 40h48v49h-48Z" />
             <path className="semantic-art__detail semantic-art__detail--thin" d="M172 37v55m-27-27h54" />
             <CrescentMoon x={166} y={61} scale={0.5} />
             <path className="semantic-art__shade" d="M20 24h200v130H20Z" />

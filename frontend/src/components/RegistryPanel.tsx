@@ -39,7 +39,7 @@ export function RegistryPanel({
   onWordClick: (word: string) => void;
   onExploreDictionary?: (() => void) | undefined;
 }): React.JSX.Element {
-  const { label, locale, t } = useI18n();
+  const { errorText, label, locale, t } = useI18n();
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState<RegistryStatusFilter>('all');
   const [due, setDue] = useState<RegistryDueFilter>('all');
@@ -75,7 +75,7 @@ export function RegistryPanel({
           });
         })
         .catch((reason: unknown) => {
-          if (active) setError(reason instanceof Error ? reason.message : String(reason));
+          if (active) setError(errorText(reason));
         })
         .finally(() => {
           if (active) setLoading(false);

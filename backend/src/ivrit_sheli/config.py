@@ -200,6 +200,7 @@ class Settings:
         "http://127.0.0.1:8000/api/v1/auth/google/callback"
     )
     database_url: str = ""
+    supabase_url: str = ""
     auth_required: bool = False
     session_secret: str = ""
     session_cookie_name: str = "ivrit_session"
@@ -406,6 +407,7 @@ class Settings:
                 f"{public_base_url}/api/v1/auth/google/callback",
             ).strip().rstrip("/"),
             database_url=value("DATABASE_URL", ""),
+            supabase_url=value("SUPABASE_URL", "https://hythwegtkwuzrzwglivz.supabase.co"),
             auth_required=parse_bool(values.get("AUTH_REQUIRED"), app_env == "production"),
             session_secret=value("SESSION_SECRET", ""),
             session_cookie_name=value("SESSION_COOKIE_NAME", "ivrit_session"),

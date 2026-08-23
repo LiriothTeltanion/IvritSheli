@@ -60,12 +60,16 @@ describe('LivingHebrewAtlas', () => {
   });
 
   it('uses the accessible mixed-script wordmark in the reusable lockup', () => {
-    render(<IvritSheliBrandLockup locale="es" />);
+    const { container } = render(<IvritSheliBrandLockup locale="es" />);
 
     const lockup = screen.getByLabelText('Ivrit Sheli — Hebreo para la vida real');
     expect(lockup).toHaveAttribute('dir', 'ltr');
     expect(screen.getByRole('img', { name: 'Ivrit Sheli' })).toHaveAttribute('dir', 'ltr');
-    expect(screen.getByText('Ivrit')).toHaveAttribute('dir', 'ltr');
+    // The Latin half is drawn rather than typed, so it carries no text node; the
+    // direction isolation still has to be declared on its wrapper.
+    const latin = container.querySelector('.ivrit-wordmark__latin');
+    expect(latin).toHaveAttribute('dir', 'ltr');
+    expect(latin?.querySelector('svg')).toBeInTheDocument();
     expect(screen.getByText('שלי')).toHaveAttribute('lang', 'he');
     expect(screen.getByText('שלי')).toHaveAttribute('dir', 'rtl');
   });

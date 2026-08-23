@@ -118,7 +118,7 @@ export function BeginnerOnboarding({
   onSkip,
   onIdentitySetup,
 }: BeginnerOnboardingProps): React.JSX.Element {
-  const { setLocale, t } = useI18n();
+  const { errorText, setLocale, t } = useI18n();
   const initial = useMemo(() => readStoredDraft(storageKey, profile), [profile, storageKey]);
   const [step, setStep] = useState(initial.step);
   const [draft, setDraft] = useState<OnboardingDraft>(initial.draft);
@@ -184,18 +184,14 @@ export function BeginnerOnboarding({
     }],
   });
 
-  const advance = async (): Promise<void> => {
+  const advance = (event?: React.MouseEvent): void => {
+    event?.preventDefault();
     const nextStep = Math.min(3, step + 1);
-    setSaving(true);
+    setStep(nextStep);
     setError('');
-    try {
-      await api.updateProfile(profileUpdate(nextStep, false));
-      setStep(nextStep);
-    } catch (reason) {
-      setError(reason instanceof Error ? reason.message : String(reason));
-    } finally {
-      setSaving(false);
-    }
+    void api.updateProfile(profileUpdate(nextStep, false)).catch((reason) => {
+      console.warn('Background onboarding sync:', reason);
+    });
   };
 
   const finish = async (): Promise<void> => {
@@ -207,7 +203,7 @@ export function BeginnerOnboarding({
       onIdentitySetup?.(draft.displayName.trim() || draft.displayName || profile.display_name, draft.avatarPresetId);
       onFinished(updated);
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : String(reason));
+      setError(errorText(reason));
     } finally {
       setSaving(false);
     }
@@ -281,7 +277,7 @@ export function BeginnerOnboarding({
                     aria-label={`${t('avatar')} ${preset.emoji}`}
                     aria-pressed={draft.avatarPresetId === preset.id}
                   >
-                    <span>{preset.emoji}</span>
+                    <img src={preset.imageUrl} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                   </button>
                 ))}
               </div>

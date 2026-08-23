@@ -160,11 +160,11 @@ const alphabetBase = [
   ['tav', 'ת', 'Tav'],
 ] as const;
 const alphabetFinals = [
-  ['final-kaf', 'ך', 'Final Kaf', 'kaf'],
-  ['final-mem', 'ם', 'Final Mem', 'mem'],
-  ['final-nun', 'ן', 'Final Nun', 'nun'],
-  ['final-pe', 'ף', 'Final Pe', 'pe'],
-  ['final-tsadi', 'ץ', 'Final Tsadi', 'tsadi'],
+  ['final_kaf', 'ך', 'Final Kaf', 'kaf'],
+  ['final_mem', 'ם', 'Final Mem', 'mem'],
+  ['final_nun', 'ן', 'Final Nun', 'nun'],
+  ['final_pe', 'ף', 'Final Pe', 'pe'],
+  ['final_tsadi', 'ץ', 'Final Tsadi', 'tsadi'],
 ] as const;
 const alphabetUnits = [
   ...alphabetBase.map(([key, letter, name], index) => ({

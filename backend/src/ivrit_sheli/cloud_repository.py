@@ -64,10 +64,13 @@ class CloudLearningRepository:
         self.user_id = user_id
         self.display_name = display_name
         self.seed_demo = seed_demo
+        self._cached_state: dict[str, Any] | None = None
         self._ensure_initialized()
 
     def _ensure_initialized(self) -> None:
-        if self.store.read_state(self.user_id):
+        state = self.store.read_state(self.user_id)
+        if state:
+            self._cached_state = state
             return
 
         def initialize(current: dict[str, Any]) -> tuple[dict[str, Any], None]:
@@ -84,6 +87,7 @@ class CloudLearningRepository:
                 database.close()
 
         self.store.mutate_state(self.user_id, initialize)
+        self._cached_state = self.store.read_state(self.user_id)
 
     def _hydrate(self, state: dict[str, Any]) -> tuple[Database, LearningRepository]:
         database = Database(Path(":memory:"))
@@ -160,7 +164,9 @@ class CloudLearningRepository:
         }
 
     def _read(self, method: str, *args: Any, **kwargs: Any) -> Any:
-        database, repository = self._hydrate(self.store.read_state(self.user_id))
+        state = self._cached_state or self.store.read_state(self.user_id)
+        self._cached_state = None  # Only reuse once; subsequent reads fetch fresh
+        database, repository = self._hydrate(state)
         try:
             target = getattr(repository, method)
             return target(*args, **kwargs)

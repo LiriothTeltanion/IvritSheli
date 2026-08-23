@@ -1,0 +1,479 @@
+/* Hebrew Stroke Animation Canvas Styles */
+
+.stroke-viewer {
+  --stroke-grid-soft: rgba(149, 231, 238, 0.22);
+  --stroke-grid-baseline: rgba(149, 231, 238, 0.46);
+  --stroke-print-start: #f1fdff;
+  --stroke-print-mid: #67e8f9;
+  --stroke-print-end: #06b6d4;
+  --stroke-cursive-start: #ff9caf;
+  --stroke-cursive-mid: #ff3b5c;
+  --stroke-cursive-end: #d80f3b;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1.1rem;
+  border-radius: 1.25rem;
+  background: rgba(8, 22, 38, 0.55);
+  border: 1px solid rgba(34, 211, 238, 0.22);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+}
+
+.stroke-viewer__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.stroke-viewer__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--teal);
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.stroke-viewer__modes {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 99rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.stroke-viewer__mode-btn {
+  min-height: auto !important;
+  padding: 5px 12px !important;
+  border-radius: 99rem !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: var(--text-muted) !important;
+  font-size: 0.82rem !important;
+  font-weight: 700 !important;
+  cursor: pointer;
+  transition: all 0.2s ease !important;
+}
+
+.stroke-viewer__mode-btn:hover {
+  color: var(--text) !important;
+}
+
+.stroke-viewer__mode-btn.is-active {
+  background: linear-gradient(135deg, var(--teal-fill, #14b8a6), var(--cyan-fill, #06b6d4)) !important;
+  color: #021210 !important;
+  box-shadow: 0 2px 10px rgba(20, 184, 166, 0.35) !important;
+}
+
+.stroke-viewer__canvas-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  max-width: 220px;
+  margin: 0 auto;
+  border-radius: 1.2rem;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(34, 211, 238, 0.08), transparent 70%),
+    rgba(4, 13, 24, 0.7);
+  border: 1px solid rgba(34, 211, 238, 0.2);
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.stroke-viewer__canvas-container::before,
+.stroke-viewer__canvas-container::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+}
+
+.stroke-viewer__canvas-container::before {
+  inset: 0;
+  background:
+    repeating-linear-gradient(12deg, transparent 0 12px, rgba(164, 226, 232, 0.018) 13px 14px),
+    repeating-linear-gradient(102deg, transparent 0 21px, rgba(255, 255, 255, 0.018) 22px 23px);
+  mix-blend-mode: screen;
+}
+
+.stroke-viewer__canvas-container::after {
+  inset: 0.7rem;
+  border: 1px solid rgba(125, 211, 219, 0.08);
+  border-radius: 0.85rem;
+}
+
+.stroke-viewer__grid-lines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.72;
+}
+
+.stroke-grid-line {
+  vector-effect: non-scaling-stroke;
+}
+
+.stroke-grid-line--soft {
+  stroke: var(--stroke-grid-soft);
+}
+
+.stroke-grid-line--baseline {
+  stroke: var(--stroke-grid-baseline);
+}
+
+.stroke-viewer__svg {
+  width: 85%;
+  height: 85%;
+  overflow: visible;
+}
+
+/* Animated Strokes */
+.stroke-glyph-ghost {
+  font-size: 64px;
+  font-weight: 800;
+  pointer-events: none;
+  user-select: none;
+  text-anchor: middle;
+  dominant-baseline: central;
+  fill: transparent;
+  stroke-width: 0.72px;
+  paint-order: stroke;
+  opacity: 0.11;
+  transition: opacity 0.3s ease;
+}
+
+.stroke-glyph-ghost.is-print {
+  font-family: var(--font-hebrew), 'Assistant', 'Frank Ruhl Libre', sans-serif;
+  stroke: #62d7e6;
+}
+
+.stroke-glyph-ghost.is-cursive {
+  font-family: 'Gveret Levin', 'Ivrit Signature', 'David Libre', cursive;
+  stroke: #ff6b83;
+  font-size: 68px;
+  opacity: 0.09;
+}
+
+.stroke-glyph-active {
+  font-size: 64px;
+  font-weight: 800;
+  pointer-events: none;
+  user-select: none;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+.stroke-glyph-active.is-print {
+  font-family: var(--font-hebrew), 'Assistant', 'Frank Ruhl Libre', sans-serif;
+  filter: drop-shadow(0 0 12px rgba(34, 211, 238, 0.4));
+}
+
+.stroke-glyph-active.is-cursive {
+  font-family: 'Gveret Levin', 'Ivrit Signature', 'David Libre', cursive;
+  font-size: 68px;
+  filter: drop-shadow(0 0 12px rgba(255, 59, 92, 0.4));
+}
+
+.stroke-viewer__svg.is-print {
+  --stroke-edge-width: 12.4;
+  --stroke-body-width: 10.2;
+  --stroke-highlight-width: 1.35;
+  --stroke-ink-edge: rgba(2, 35, 46, 0.72);
+  --stroke-ink-highlight: rgba(255, 255, 255, 0.34);
+}
+
+.stroke-viewer__svg.is-cursive {
+  --stroke-edge-width: 9.4;
+  --stroke-body-width: 7.25;
+  --stroke-highlight-width: 1.1;
+  --stroke-ink-edge: rgba(72, 5, 24, 0.72);
+  --stroke-ink-highlight: rgba(255, 232, 236, 0.34);
+}
+
+.stroke-path-ink-edge,
+.stroke-path-active,
+.stroke-path-highlight {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 0.1s linear;
+}
+
+.stroke-path-ink-edge {
+  stroke: var(--stroke-ink-edge);
+  stroke-width: var(--stroke-edge-width);
+  opacity: 0.82;
+}
+
+.stroke-path-active {
+  stroke-width: var(--stroke-body-width);
+}
+
+.stroke-path-highlight {
+  stroke: var(--stroke-ink-highlight);
+  stroke-width: var(--stroke-highlight-width);
+  opacity: 0.7;
+  transform: translate(-0.35px, -0.45px);
+  pointer-events: none;
+}
+
+.stroke-path-ink-edge.is-animating,
+.stroke-path-active.is-animating,
+.stroke-path-highlight.is-animating {
+  animation: drawStroke 1.08s cubic-bezier(0.3, 0.68, 0.25, 1) forwards;
+}
+
+@keyframes drawStroke {
+  0% {
+    stroke-dashoffset: 400;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.stroke-order-badge {
+  font-size: 8.3px;
+  font-weight: 900;
+  fill: #ffffff;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+.stroke-order-badge-bg {
+  fill: var(--teal);
+  stroke: rgba(226, 255, 252, 0.88);
+  stroke-width: 0.75px;
+  filter: drop-shadow(0 2px 4px rgba(2, 12, 20, 0.72));
+}
+
+.stroke-order-badge-bg.is-cursive {
+  fill: #ff3b5c;
+  stroke: rgba(255, 235, 239, 0.92);
+  filter: drop-shadow(0 2px 4px rgba(54, 4, 17, 0.68));
+}
+
+.stroke-order-marker {
+  opacity: 0;
+  animation: strokeBadgeReveal 0.3s ease forwards;
+}
+
+@keyframes strokeBadgeReveal {
+  from { opacity: 0; transform: scale(0.78); transform-origin: center; }
+  to { opacity: 1; transform: scale(1); transform-origin: center; }
+}
+
+.stroke-viewer__controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-top: 0.2rem;
+}
+
+.stroke-viewer__play-btn {
+  min-height: 38px !important;
+  padding: 0 16px !important;
+  border-radius: 99rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  background: rgba(20, 184, 166, 0.18) !important;
+  border: 1px solid rgba(20, 184, 166, 0.4) !important;
+  color: var(--teal) !important;
+  font-size: 0.85rem !important;
+  font-weight: 750 !important;
+  cursor: pointer;
+  transition: all 0.2s ease !important;
+}
+
+.stroke-viewer__play-btn:hover {
+  background: var(--teal) !important;
+  color: #021210 !important;
+  box-shadow: 0 0 16px var(--teal) !important;
+  transform: translateY(-1px) !important;
+}
+
+.stroke-viewer__hint {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--text-soft);
+  line-height: 1.45;
+  text-align: center;
+}
+
+:root[data-theme='light'] .stroke-viewer {
+  --stroke-grid-soft: rgba(15, 118, 110, 0.18);
+  --stroke-grid-baseline: rgba(15, 118, 110, 0.36);
+  --stroke-print-start: #0b5f63;
+  --stroke-print-mid: #0f8f86;
+  --stroke-print-end: #087c91;
+  --stroke-cursive-start: #c92d4b;
+  --stroke-cursive-mid: #ac1637;
+  --stroke-cursive-end: #7e102b;
+  background: rgba(255, 254, 250, 0.9);
+  border-color: rgba(15, 118, 110, 0.24);
+  box-shadow: 0 14px 34px rgba(83, 66, 35, 0.11);
+}
+
+:root[data-theme='light'] .stroke-viewer__modes {
+  background: rgba(23, 32, 51, 0.045);
+  border-color: rgba(23, 32, 51, 0.1);
+}
+
+:root[data-theme='light'] .stroke-viewer__canvas-container {
+  background:
+    radial-gradient(circle at 50% 44%, rgba(255, 255, 255, 0.95), transparent 58%),
+    linear-gradient(145deg, #fffdf7, #f3ead9);
+  border-color: rgba(15, 118, 110, 0.24);
+  box-shadow:
+    inset 0 0 34px rgba(130, 96, 44, 0.08),
+    0 10px 24px rgba(83, 66, 35, 0.08);
+}
+
+:root[data-theme='light'] .stroke-viewer__canvas-container::before {
+  background:
+    repeating-linear-gradient(12deg, transparent 0 12px, rgba(115, 82, 38, 0.025) 13px 14px),
+    repeating-linear-gradient(102deg, transparent 0 21px, rgba(15, 118, 110, 0.018) 22px 23px);
+  mix-blend-mode: multiply;
+}
+
+:root[data-theme='light'] .stroke-glyph-ghost.is-print {
+  stroke: #0f766e;
+}
+
+:root[data-theme='light'] .stroke-glyph-ghost.is-cursive {
+  stroke: #9f1635;
+}
+
+:root[data-theme='light'] .stroke-viewer__svg.is-print {
+  --stroke-ink-edge: rgba(3, 56, 60, 0.72);
+  --stroke-ink-highlight: rgba(232, 255, 251, 0.5);
+}
+
+:root[data-theme='light'] .stroke-viewer__svg.is-cursive {
+  --stroke-ink-edge: rgba(80, 7, 27, 0.72);
+  --stroke-ink-highlight: rgba(255, 226, 232, 0.46);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stroke-path-ink-edge,
+  .stroke-path-active,
+  .stroke-path-highlight {
+    animation-delay: 0s !important;
+    stroke-dashoffset: 0;
+  }
+
+  .stroke-order-marker {
+    animation-delay: 0s !important;
+    opacity: 1;
+  }
+}
+
+/*
+ * Cursive accuracy layer.
+ * The hand-authored centerlines describe movement, but they are not font
+ * outlines. They therefore recede after drawing and the installed Hebrew
+ * handwriting face becomes the legible, authoritative final form.
+ */
+.stroke-glyph-final {
+  pointer-events: none;
+  user-select: none;
+  text-anchor: middle;
+  dominant-baseline: central;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.stroke-glyph-final.is-cursive {
+  font: 400 72px/1 'Gveret Levin', 'Ivrit Signature', 'David Libre', cursive;
+  stroke: rgba(81, 7, 28, 0.66);
+  stroke-width: 0.7px;
+  paint-order: stroke fill;
+  filter: drop-shadow(0 7px 10px rgba(64, 4, 19, 0.3));
+  animation: revealCursiveGlyph 0.5s cubic-bezier(0.2, 0.82, 0.2, 1) forwards;
+}
+
+.stroke-viewer__svg.is-cursive .stroke-glyph-ghost {
+  opacity: 0.035;
+}
+
+.stroke-viewer__svg.is-cursive .stroke-path-ink-edge {
+  stroke-width: 4.4;
+  opacity: 0.16;
+}
+
+.stroke-viewer__svg.is-cursive .stroke-path-active {
+  stroke-width: 2.35;
+  opacity: 0.34;
+}
+
+.stroke-viewer__svg.is-cursive .stroke-path-highlight {
+  display: none;
+}
+
+.stroke-viewer__svg.is-cursive .stroke-path-ink-edge.is-animating,
+.stroke-viewer__svg.is-cursive .stroke-path-active.is-animating {
+  animation-name: drawCursiveGesture;
+}
+
+.stroke-viewer__svg.is-cursive .stroke-order-marker {
+  display: none;
+}
+
+@keyframes drawCursiveGesture {
+  0% {
+    stroke-dashoffset: 1;
+    opacity: 0;
+  }
+  18% {
+    opacity: 0.34;
+  }
+  76% {
+    stroke-dashoffset: 0;
+    opacity: 0.28;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0.06;
+  }
+}
+
+@keyframes revealCursiveGlyph {
+  from {
+    opacity: 0;
+    transform: translateY(2px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+:root[data-theme='light'] .stroke-glyph-final.is-cursive {
+  stroke: rgba(86, 8, 29, 0.58);
+  filter: drop-shadow(0 7px 9px rgba(92, 49, 37, 0.18));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stroke-glyph-final.is-cursive {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .stroke-viewer__svg.is-cursive .stroke-path-ink-edge,
+  .stroke-viewer__svg.is-cursive .stroke-path-active {
+    opacity: 0.06;
+  }
+}

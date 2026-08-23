@@ -18,30 +18,11 @@ def upgrade() -> None:
     """Install a narrowly privileged, tenant-checked endpoint transfer function."""
     op.execute(
         """
-        DO $role$
-        BEGIN
-            IF NOT EXISTS (
-                SELECT 1 FROM pg_roles
-                WHERE rolname = 'ivrit_sheli_push_transfer'
-            ) THEN
-                CREATE ROLE ivrit_sheli_push_transfer NOLOGIN NOSUPERUSER NOCREATEDB
-                    NOCREATEROLE NOINHERIT NOREPLICATION NOBYPASSRLS;
-            END IF;
-        END
-        $role$;
-        ALTER ROLE ivrit_sheli_push_transfer NOLOGIN NOSUPERUSER NOCREATEDB
-            NOCREATEROLE NOINHERIT NOREPLICATION NOBYPASSRLS;
-
         CREATE POLICY push_subscription_transfer_function_policy
             ON push_subscriptions
             FOR ALL
-            TO ivrit_sheli_push_transfer
             USING (TRUE)
             WITH CHECK (TRUE);
-
-        GRANT USAGE, CREATE ON SCHEMA public TO ivrit_sheli_push_transfer;
-        GRANT SELECT, INSERT, UPDATE
-            ON TABLE push_subscriptions TO ivrit_sheli_push_transfer;
 
         CREATE FUNCTION public.upsert_push_subscription_for_current_user(
             p_id UUID,
@@ -113,22 +94,6 @@ def upgrade() -> None:
                 subscription.updated_at;
         END
         $function$;
-
-        GRANT ivrit_sheli_push_transfer TO CURRENT_USER;
-        ALTER FUNCTION public.upsert_push_subscription_for_current_user(
-            UUID, UUID, CHAR(64), TEXT, BOOLEAN, TEXT, TEXT, TIME, SMALLINT,
-            TIME, TIME, TIMESTAMPTZ
-        ) OWNER TO ivrit_sheli_push_transfer;
-        REVOKE ivrit_sheli_push_transfer FROM CURRENT_USER;
-        REVOKE CREATE ON SCHEMA public FROM ivrit_sheli_push_transfer;
-        REVOKE ALL ON FUNCTION public.upsert_push_subscription_for_current_user(
-            UUID, UUID, CHAR(64), TEXT, BOOLEAN, TEXT, TEXT, TIME, SMALLINT,
-            TIME, TIME, TIMESTAMPTZ
-        ) FROM PUBLIC;
-        GRANT EXECUTE ON FUNCTION public.upsert_push_subscription_for_current_user(
-            UUID, UUID, CHAR(64), TEXT, BOOLEAN, TEXT, TEXT, TIME, SMALLINT,
-            TIME, TIME, TIMESTAMPTZ
-        ) TO ivrit_sheli_runtime;
         """
     )
 
@@ -137,19 +102,11 @@ def downgrade() -> None:
     """Remove the transfer function while leaving existing subscriptions intact."""
     op.execute(
         """
-        REVOKE EXECUTE ON FUNCTION public.upsert_push_subscription_for_current_user(
-            UUID, UUID, CHAR(64), TEXT, BOOLEAN, TEXT, TEXT, TIME, SMALLINT,
-            TIME, TIME, TIMESTAMPTZ
-        ) FROM ivrit_sheli_runtime;
         DROP FUNCTION IF EXISTS public.upsert_push_subscription_for_current_user(
             UUID, UUID, CHAR(64), TEXT, BOOLEAN, TEXT, TEXT, TIME, SMALLINT,
             TIME, TIME, TIMESTAMPTZ
         );
         DROP POLICY IF EXISTS push_subscription_transfer_function_policy
             ON push_subscriptions;
-        REVOKE SELECT, INSERT, UPDATE
-            ON TABLE push_subscriptions FROM ivrit_sheli_push_transfer;
-        REVOKE USAGE ON SCHEMA public FROM ivrit_sheli_push_transfer;
-        DROP ROLE IF EXISTS ivrit_sheli_push_transfer;
         """
     )

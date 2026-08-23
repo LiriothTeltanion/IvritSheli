@@ -6,21 +6,18 @@ de Kevin: principiante en hebreo **y** en tecnología.
 ## Estado
 
 - Rama de trabajo: `consolidation/ivrit-sheli-2.10-baseline`
-- Versión privada **2.12.0 Living Hebrew Nocturne**, sin publicar
+- Versión privada **2.12.2 — Visual Harmony & Resilience**, sin publicar
 - Producción pública: **2.4.0** (2026-07-21). No se toca.
-- **Congelado hasta después del 2026-08-25**: nada de push, merge, tag, deploy
-  ni cambio de estado público. Commitear solo cuando Kevin lo pida.
+- **Congelado hasta después del 2026-08-25**: nada de push, merge, tag, deploy ni cambio de estado público. Commitear solo cuando Kevin lo pida.
 
-## Levantar la app
+## Levantar la app y Puertos
 
-Usa `preview_start`, nunca Bash para los servidores. Están en
-`.claude/launch.json`:
+- `frontend` (Vite dev server con hot reload): puerto **5173**  
+  Comando: `cd frontend && npm run dev`
+- `backend` (FastAPI + producción con bundle `dist` servido en `/`): puerto **8000**  
+  Comando: `.\scripts\start.ps1` o `.venv\Scripts\python.exe -m ivrit_sheli.cli run-server`
 
-- `backend` → puerto **8000**
-- `frontend` → puerto **5173**
-
-Si el backend se cae, la app carga el hero y no pasa de ahí: todas las llamadas
-dan 502. Es el síntoma exacto, y se arregla levantándolo.
+> **Nota clave**: Si entras a `http://localhost:5173` y no carga, es porque el servidor de Vite no está ejecutándose en una terminal activa. Por otro lado, `http://127.0.0.1:8000/` carga el backend y sirve el frontend pre-compilado en `dist/`.
 
 Mostrador de arte: `http://127.0.0.1:5173/?visualQa=1&group=<dominio>&size=hero`
 

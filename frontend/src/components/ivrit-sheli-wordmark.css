@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@700;800;900&family=David+Libre:wght@700&display=swap');
+
 @font-face {
   font-family: "Ivrit Signature";
   src: url("/fonts/GveretLevin-Regular.ttf") format("truetype");
@@ -7,94 +9,188 @@
 }
 
 :root {
-  --brand-signature: #ff6b6f;
-  --brand-signature-shadow: rgba(255, 107, 111, 0.2);
+  --brand-signature: #ff3b5c;
+  --brand-signature-shadow: rgba(255, 59, 92, 0.45);
+  --brand-cyan-underline: #22d3ee;
+  --brand-cyan-shadow: rgba(34, 211, 238, 0.5);
+  /* Ink of the drawn Hebraized letters, dark-first like the rest of the app. */
+  --wordmark-ink-1: #ffffff;
+  --wordmark-ink-2: #a5f3fc;
+  --wordmark-ink-3: #22d3ee;
+  --wordmark-crown: #f5cb73;
 }
 
 :root[data-theme="light"] {
-  --brand-signature: #b42335;
-  --brand-signature-shadow: rgba(180, 35, 53, 0.16);
+  --brand-signature: #d90429;
+  --brand-signature-shadow: rgba(217, 4, 41, 0.25);
+  --brand-cyan-underline: #0284c7;
+  --brand-cyan-shadow: rgba(2, 132, 199, 0.35);
+  --wordmark-ink-1: #0d2436;
+  --wordmark-ink-2: #10557a;
+  --wordmark-ink-3: #0284c7;
+  --wordmark-crown: #8a5a0c;
 }
 
 .ivrit-wordmark {
   position: relative;
   display: inline-flex;
   align-items: baseline;
-  gap: var(--ivrit-wordmark-gap, 0.3rem);
+  gap: var(--ivrit-wordmark-gap, 0.5rem);
   min-width: max-content;
-  padding-block: 0.1rem 0.16rem;
-  color: var(--text, #172033);
+  padding-block: 0.12rem 0.25rem;
+  color: var(--text, #ffffff);
   direction: ltr;
   line-height: 1;
   isolation: isolate;
   unicode-bidi: isolate;
+  user-select: none;
+  cursor: pointer;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), filter 0.3s ease;
 }
 
+.ivrit-wordmark:hover {
+  transform: translateY(-1px) scale(1.02);
+  filter: drop-shadow(0 4px 16px rgba(34, 211, 238, 0.35));
+}
+
+.ivrit-wordmark__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  align-self: center;
+  filter: drop-shadow(0 3px 12px rgba(34, 211, 238, 0.45));
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ivrit-wordmark--compact .ivrit-wordmark__icon {
+  width: 28px;
+  height: 28px;
+}
+
+.ivrit-wordmark__icon img,
+.ivrit-wordmark__icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+}
+
+.ivrit-wordmark:hover .ivrit-wordmark__icon {
+  transform: rotate(-5deg) scale(1.08);
+}
+
+.ivrit-wordmark__text {
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+/* Hebraized "Ivrit" letterforms with the cyan underline.
+   The wrapper carries the underline and the size; `font-size` still drives the
+   mark, so every existing size override in styles.css keeps working. */
 .ivrit-wordmark__latin {
-  color: currentColor;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 1.28rem;
-  font-weight: 850;
-  letter-spacing: -0.055em;
-  line-height: 0.9;
-  white-space: nowrap;
+  position: relative;
+  display: inline-block;
+  font-size: 1.7rem;
+  line-height: 1;
+  filter: drop-shadow(0 2px 10px rgba(103, 232, 249, 0.35));
 }
 
+/* The viewBox bottom edge is the Latin baseline, so the drawn word aligns with
+   the Hebrew signature beside it under `align-items: baseline`. */
+.ivrit-wordmark__glyphs {
+  display: block;
+  height: 0.84em;
+  width: auto;
+  overflow: visible;
+}
+
+.ivrit-wordmark__latin::after {
+  content: "";
+  position: absolute;
+  /* Below the drawn baseline, which is the wrapper's own bottom edge. */
+  inset: auto 0 -0.13em 0;
+  height: 0.085em;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #67e8f9 0%, var(--brand-cyan-underline) 65%, rgba(34, 211, 238, 0.1) 100%);
+  box-shadow: 0 0 10px var(--brand-cyan-shadow);
+  transform: scaleX(0.96);
+  transform-origin: left center;
+}
+
+:root[data-theme="light"] .ivrit-wordmark__latin {
+  filter: drop-shadow(0 2px 8px rgba(2, 132, 199, 0.22));
+}
+
+.ivrit-wordmark--compact .ivrit-wordmark__latin {
+  font-size: 1.25rem;
+}
+
+/* The scribal crowns are a hair over one pixel tall on a compact lockup, where
+   they would only muddy the roof line. Show them where they can be read. */
+.ivrit-wordmark--compact .ivrit-wordmark__crowns {
+  display: none;
+}
+
+/* High contrast: drop the gradient and the glow for flat, maximally separated
+   ink. Learners using this mode need edges, not atmosphere. */
+@media (prefers-contrast: more) {
+  .ivrit-wordmark__latin {
+    filter: none;
+  }
+
+  .ivrit-wordmark {
+    --wordmark-ink-1: currentColor;
+    --wordmark-ink-2: currentColor;
+    --wordmark-ink-3: currentColor;
+    --wordmark-crown: currentColor;
+  }
+}
+
+/* Hebrew Cursive "שלי" with Red Underline */
 .ivrit-wordmark__signature {
   position: relative;
-  z-index: 1;
+  display: inline-block;
+  font-family: "Ivrit Signature", "Gveret Levin", "David Libre", cursive, sans-serif;
+  font-size: 1.98rem;
+  font-weight: 700;
+  font-style: normal;
+  line-height: 0.72;
   color: var(--brand-signature);
-  font-family: "Ivrit Signature", "Segoe Print", "Guttman Yad-Brush", var(--font-hebrew, Arial), cursive;
-  font-size: 1.34rem;
-  font-weight: 400;
-  letter-spacing: -0.07em;
-  line-height: 0.75;
-  text-shadow: 0 0.28rem 0.8rem var(--brand-signature-shadow);
-  transform: translateY(0.04em) rotate(-4deg);
-  transform-origin: center;
-  white-space: nowrap;
-  unicode-bidi: isolate;
+  transform: rotate(-5deg) translateY(0.08em);
+  transform-origin: right center;
+  filter: drop-shadow(0 2px 10px var(--brand-signature-shadow));
+  text-shadow: 0 0 14px var(--brand-signature-shadow);
+  padding-bottom: 0.18rem;
+  transition: transform 0.25s ease, filter 0.25s ease;
+  user-select: none;
 }
 
 .ivrit-wordmark__signature::after {
   content: "";
   position: absolute;
-  z-index: -1;
-  inset: auto -0.08rem -0.2rem 0.05rem;
-  height: 0.12rem;
+  z-index: 1;
+  inset: auto -0.12rem -0.1rem -0.05rem;
+  height: 0.18rem;
   border-radius: 999px;
-  background: currentColor;
-  opacity: 0.48;
-  transform: rotate(-2deg) scaleX(0.88);
+  background: linear-gradient(90deg, #ff758c 0%, var(--brand-signature) 50%, #ff1744 100%);
+  box-shadow: 0 0 12px var(--brand-signature-shadow);
+  opacity: 0.92;
+  transform: rotate(-2deg) scaleX(1.04);
   transform-origin: center;
 }
 
-.ivrit-wordmark--compact {
-  --ivrit-wordmark-gap: 0.24rem;
-}
-
-.ivrit-wordmark--compact .ivrit-wordmark__latin {
-  font-size: 1.05rem;
-}
-
 .ivrit-wordmark--compact .ivrit-wordmark__signature {
-  font-size: 1.08rem;
+  font-size: 1.35rem;
+  transform: rotate(-4deg) translateY(0.04em);
+  padding-bottom: 0.12rem;
 }
 
-@media (prefers-contrast: more) {
-  .ivrit-wordmark__signature {
-    color: #ff7b7f;
-    text-shadow: none;
-  }
-
-  :root[data-theme="light"] .ivrit-wordmark__signature {
-    color: #8f1024;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .ivrit-wordmark,
-  .ivrit-wordmark * {
-    transition: none !important;
-  }
+.ivrit-wordmark:hover .ivrit-wordmark__signature {
+  transform: rotate(-2deg) scale(1.08) translateY(0.04em);
+  filter: drop-shadow(0 4px 16px var(--brand-signature));
 }

@@ -1,6 +1,9 @@
 // Module: progress analytics
 // Purpose: Turn mastery, accuracy, confidence, and recurring mistakes into clear next actions.
 // Author: Kevin "Lirioth" Cusnir
+// Module: progress analytics
+// Purpose: Turn mastery, accuracy, confidence, and recurring mistakes into clear next actions.
+// Author: Kevin "Lirioth" Cusnir
 // Date: 2026-07-15 | TZ: Asia/Jerusalem
 // Notes: Comments in ENGLISH; emojis sparingly.
 
@@ -11,6 +14,7 @@ import { AchievementGrid } from './AchievementGrid';
 import { Icon } from './Icon';
 import { LearningSkillMap } from './LearningSkillMap';
 import { MetricRing } from './MetricRing';
+import { SRSRetentionCurve } from './SRSRetentionCurve';
 import { XPBar } from './XPBar';
 
 export function ProgressPanel({
@@ -108,6 +112,12 @@ export function ProgressPanel({
           <MetricRing value={averageConfidence} label={t('confidence')} />
         </div>
       </section>
+
+      <SRSRetentionCurve
+        progress={progress}
+        locale={locale}
+        onStartReview={onStartPractice}
+      />
 
       <LearningSkillMap progress={progress} cefrBand={cefrBand} />
 

@@ -264,9 +264,17 @@ export function NatureScene({
             <ellipse className="semantic-art__prop-shadow" cx="118" cy="132" rx="52" ry="7" />
             <path className="semantic-art__gold semantic-art__outlined" d="M84 128q-8-44 16-52h30q22 10 14 52Z" />
             <circle className="semantic-art__gold semantic-art__outlined" cx="112" cy="62" r="28" />
-            {/* Ears and muzzle: what separates a dog from a cat at a glance. */}
-            <path className="semantic-art__gold semantic-art__outlined" d="M88 44q-16-6-16 16 12 8 20-4Zm48 0q16-6 16 16-12 8-20-4Z" />
-            <ellipse className="semantic-art__surface semantic-art__outlined" cx="112" cy="74" rx="16" ry="12" />
+            {/*
+              Ears and muzzle: what separates a dog from a cat at a glance — and,
+              it turns out, from a teddy bear. Two small round nubs sitting on top
+              of a round head over a stark white snout patch is a bear, and that
+              is what this read as. Long ears that hang down the sides of the head
+              are the signal; the muzzle takes a lighter step of the dog's own
+              colour instead of the near-white surface token.
+            */}
+            <path className="semantic-art__gold semantic-art__outlined" d="M92 40c-20 0-26 20-22 36 4 14 16 10 20-2Z" />
+            <path className="semantic-art__gold semantic-art__outlined" d="M132 40c20 0 26 20 22 36-4 14-16 10-20-2Z" />
+            <ellipse className="semantic-art__gold-lit semantic-art__outlined" cx="112" cy="74" rx="16" ry="12" />
             <ellipse className="semantic-art__ink" cx="112" cy="68" rx="6" ry="4" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
@@ -295,21 +303,24 @@ export function NatureScene({
             {/* The band of shade it chose to lie in. */}
             <path className="semantic-art__shade" d="M12 20h118v142H12Z" />
           </SceneLayer>
+          {/* The cat was drawn entirely in `__metal` — a cool blue-grey with a
+              gloss — so it read as a ceramic figurine rather than as an animal
+              asleep on a warm floor. Fur is a material and now has a token. */}
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <ellipse className="semantic-art__prop-shadow" cx="106" cy="136" rx="62" ry="7" />
-            <path className="semantic-art__metal semantic-art__outlined" d="M50 132q-6-32 26-34h44q26 4 22 34Z" />
-            <circle className="semantic-art__metal semantic-art__outlined" cx="62" cy="82" r="24" />
+            <path className="semantic-art__fur semantic-art__outlined" d="M50 132q-6-32 26-34h44q26 4 22 34Z" />
+            <circle className="semantic-art__fur semantic-art__outlined" cx="62" cy="82" r="24" />
             {/* Pointed ears, the clearest cat-versus-dog signal. */}
-            <path className="semantic-art__metal semantic-art__outlined" d="m44 66-4-20 20 10Zm36 0 4-20-20 10Z" />
-            <path className="semantic-art__metal semantic-art__outlined semantic-art__motion-part" d="M142 130q30 4 32-24-16-4-20 12" />
+            <path className="semantic-art__fur semantic-art__outlined" d="m44 66-4-20 20 10Zm36 0 4-20-20 10Z" />
+            <path className="semantic-art__fur semantic-art__outlined semantic-art__motion-part" d="M142 130q30 4 32-24-16-4-20 12" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
             <path className="semantic-art__detail" d="M53 78v8m18-8v8" />
             <path className="semantic-art__detail semantic-art__detail--thin" d="M62 92v4m-6 4q6 4 12 0M34 90h-16m16 6-16 4m56-10h16m-16 6 16 4" />
             <path className="semantic-art__gloss" d="M46 68q8-8 18-6" />
             {/* Front paws tucked, and stripes: a resting street cat. */}
-            <ellipse className="semantic-art__metal semantic-art__outlined" cx="64" cy="128" rx="13" ry="7" />
-            <ellipse className="semantic-art__metal semantic-art__outlined" cx="90" cy="130" rx="13" ry="7" />
+            <ellipse className="semantic-art__fur semantic-art__outlined" cx="64" cy="128" rx="13" ry="7" />
+            <ellipse className="semantic-art__fur semantic-art__outlined" cx="90" cy="130" rx="13" ry="7" />
             <path className="semantic-art__grain" d="M84 104v18m14-20v20m14-18v16" />
             <path className="semantic-art__shade" d="M110 100q22 6 20 32h-24Z" />
           </SceneLayer>

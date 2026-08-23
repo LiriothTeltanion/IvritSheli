@@ -16,7 +16,13 @@ function LocalizedErrorFallback({ message }: { message: string }): React.JSX.Ele
     <main className="fatal-error">
       <div className="fatal-error__icon"><Icon name="bug" size={38} /></div>
       <h1>{t('unexpectedProblem')}</h1>
-      <p>{message}</p>
+      {/*
+        The exception text used to be printed here. It is React's own English
+        message — "Cannot read properties of undefined" and the like — shown to a
+        learner on the one screen where she is already worried. It stays in the
+        console for whoever is debugging; `componentDidCatch` logs it below.
+      */}
+      <p>{t('unexpectedProblemDetail')}</p>
       <button type="button" className="primary-button" onClick={() => window.location.reload()}>{t('reloadSafely')}</button>
     </main>
   );

@@ -1,0 +1,236 @@
+[
+  {
+    "n": 1,
+    "alt": "food.bread, estado actual",
+    "title": "food.bread",
+    "note": "Cúpula cerrada y rellenos planos → miga a la vista y degradado de corteza",
+    "file": "001-food.bread__estado_actual.jpg",
+    "mime": "jpeg",
+    "size": 15417
+  },
+  {
+    "n": 2,
+    "alt": "greetings.hello, estado actual",
+    "title": "greetings.hello",
+    "note": "Manopla del tamaño de la cabeza y mano flotando en la cadera → mano y dos brazos",
+    "file": "002-greetings.hello__estado_actual.jpg",
+    "mime": "jpeg",
+    "size": 22228
+  },
+  {
+    "n": 3,
+    "alt": "food.tasty, estado actual",
+    "title": "food.tasty",
+    "note": "Un tercer brazo sin mano acabando en el aire → alcanza el plato",
+    "file": "003-food.tasty__estado_actual.jpg",
+    "mime": "jpeg",
+    "size": 14996
+  },
+  {
+    "n": 4,
+    "alt": "nature.cat, estado actual",
+    "title": "nature.cat",
+    "note": "El gato pintado con el token del metal → pelaje cálido",
+    "file": "004-nature.cat__estado_actual.jpg",
+    "mime": "jpeg",
+    "size": 13589
+  },
+  {
+    "n": 5,
+    "alt": "food.cheese, estado actual",
+    "title": "food.cheese",
+    "note": "Cuchillo sin mango flotando sobre el queso → reposa en el plato",
+    "file": "005-food.cheese__estado_actual.jpg",
+    "mime": "jpeg",
+    "size": 15649
+  },
+  {
+    "n": 6,
+    "alt": "actions.write, estado actual",
+    "title": "actions.write",
+    "note": "Lápiz gigante y mano suelta → pluma a escala, sostenida",
+    "file": "006-actions.write__estado_actual.jpg",
+    "mime": "jpeg",
+    "size": 16632
+  },
+  {
+    "n": 7,
+    "alt": "food.milk, estado actual",
+    "title": "food.milk",
+    "note": "Leche vertida con el token del agua → material propio",
+    "file": "007-food.milk__estado_actual.jpg",
+    "mime": "jpeg",
+    "size": 14521
+  },
+  {
+    "n": 8,
+    "alt": "food.coffee, estado actual",
+    "title": "food.coffee",
+    "note": "Café con el token de la tinta y vapor azul → infusión y vapor",
+    "file": "008-food.coffee__estado_actual.jpg",
+    "mime": "jpeg",
+    "size": 16925
+  },
+  {
+    "n": 9,
+    "alt": "register.many_thanks, estado actual",
+    "title": "register.many_thanks",
+    "note": "Brazos acabando en romo sobre el regalo → manos que lo sostienen",
+    "file": "009-register.many_thanks__estado_actual.jpg",
+    "mime": "jpeg",
+    "size": 16029
+  },
+  {
+    "n": 10,
+    "alt": "housing.committee, estado actual",
+    "title": "housing.committee",
+    "note": "Tres figuras sin manos visibles → tres manos que se dan",
+    "file": "010-housing.committee__estado_actual.jpg",
+    "mime": "jpeg",
+    "size": 20521
+  },
+  {
+    "n": 11,
+    "alt": "nature.dog, estado actual",
+    "title": "nature.dog",
+    "note": "Orejas redondas arriba y hocico blanco: un osito → orejas caídas y hocico dorado",
+    "file": "011-nature.dog__estado_actual.jpg",
+    "mime": "jpeg",
+    "size": 14074
+  },
+  {
+    "n": 12,
+    "alt": "autonomy.where_can, estado actual",
+    "title": "autonomy.where_can",
+    "note": "La ruta cruzaba el pecho como una bufanda → sale de la mano que señala",
+    "file": "012-autonomy.where_can__estado_actual.jpg",
+    "mime": "jpeg",
+    "size": 12488
+  },
+  {
+    "n": 13,
+    "alt": "greetings.excuse_me, estado actual",
+    "title": "greetings.excuse_me",
+    "note": "Tres brazos en la figura del medio → dos",
+    "file": "013-greetings.excuse_me__estado_actual.jpg",
+    "mime": "jpeg",
+    "size": 19329
+  },
+  {
+    "n": 14,
+    "alt": "actions.come, estado actual",
+    "title": "actions.come",
+    "note": "La flecha atravesaba a la figura → queda a su derecha, señalando la puerta",
+    "file": "014-actions.come__estado_actual.jpg",
+    "mime": "jpeg",
+    "size": 14595
+  },
+  {
+    "n": 15,
+    "alt": "transport.bicycle, estado actual",
+    "title": "transport.bicycle",
+    "note": "El cuadro era un polígono relleno: una cuña roja → tubos",
+    "file": "015-transport.bicycle__estado_actual.jpg",
+    "mime": "jpeg",
+    "size": 17350
+  },
+  {
+    "n": 16,
+    "alt": "shopping.buy, estado actual",
+    "title": "shopping.buy",
+    "note": "Las bolsas flotaban a 60 unidades de la mano más cercana → cuelgan de las manos",
+    "file": "016-shopping.buy__estado_actual.jpg",
+    "mime": "jpeg",
+    "size": 12764
+  },
+  {
+    "n": 17,
+    "alt": "places.school, estado actual",
+    "title": "places.school",
+    "note": "La mochila tapaba al alumno de los hombros a la cabeza → va detrás y a su tamaño",
+    "file": "017-places.school__estado_actual.jpg",
+    "mime": "jpeg",
+    "size": 17234
+  },
+  {
+    "n": 18,
+    "alt": "home.door, estado actual",
+    "title": "home.door",
+    "note": "Un cuadrilátero marrón sin dedos ni muñeca → una mano en el pomo, con antebrazo",
+    "file": "018-home.door__estado_actual.jpg",
+    "mime": "jpeg",
+    "size": 16661
+  },
+  {
+    "n": 19,
+    "alt": "food.water, estado actual",
+    "title": "food.water",
+    "note": "La etiqueta flotaba por encima del hombro de la jarra → pegada al cuerpo",
+    "file": "019-food.water__estado_actual.jpg",
+    "mime": "jpeg",
+    "size": 15510
+  },
+  {
+    "n": 20,
+    "alt": "health.doctor, estado actual",
+    "title": "health.doctor",
+    "note": "La bata tapaba los brazos: el médico no tenía ninguno → mangas y manos",
+    "file": "020-health.doctor__estado_actual.jpg",
+    "mime": "jpeg",
+    "size": 14035
+  },
+  {
+    "n": 21,
+    "alt": "transport.train, estado actual",
+    "title": "transport.train",
+    "note": "La sombra iba después del cristal y cortaba la ventana → detrás",
+    "file": "021-transport.train__estado_actual.jpg",
+    "mime": "jpeg",
+    "size": 16391
+  },
+  {
+    "n": 22,
+    "alt": "weather.winter, estado actual",
+    "title": "weather.winter",
+    "note": "Las botas se hundían en la pared → goma verde",
+    "file": "022-weather.winter__estado_actual.jpg",
+    "mime": "jpeg",
+    "size": 14286
+  },
+  {
+    "n": 23,
+    "alt": "shopping.money, estado actual",
+    "title": "shopping.money",
+    "note": "Cúpula acostillada con pedúnculo y hoja: una calabaza → un saco atado",
+    "file": "023-shopping.money__estado_actual.jpg",
+    "mime": "jpeg",
+    "size": 14729
+  },
+  {
+    "n": 24,
+    "alt": "bureaucracy.clerk, estado actual",
+    "title": "bureaucracy.clerk",
+    "note": "Las manos quedaban justo detrás del mostrador → por encima",
+    "file": "024-bureaucracy.clerk__estado_actual.jpg",
+    "mime": "jpeg",
+    "size": 15673
+  },
+  {
+    "n": 25,
+    "alt": "transport.driver, estado actual",
+    "title": "transport.driver",
+    "note": "La visera cruzaba los ojos: iba vendado → despejada, medida",
+    "file": "025-transport.driver__estado_actual.jpg",
+    "mime": "jpeg",
+    "size": 16461
+  },
+  {
+    "n": 26,
+    "alt": "work.manager, estado actual",
+    "title": "work.manager",
+    "note": "El brazo que señala acababa en muñón → mano",
+    "file": "026-work.manager__estado_actual.jpg",
+    "mime": "jpeg",
+    "size": 16400
+  }
+]

@@ -200,14 +200,18 @@ export function PreAccountLesson({ onReady }: PreAccountLessonProps): React.JSX.
       <div className="pre-account-lesson__actions">
         <button
           type="button"
-          className="primary-button primary-button--large"
+          className="primary-button primary-button--large pre-account-lesson__continue"
           onClick={advance}
           disabled={!correct}
         >
           {index === lessonWords.length - 1 ? t('preAccountFinish') : t('nextWord')}
           <Icon name={index === lessonWords.length - 1 ? 'check' : 'chevron'} size={19} />
         </button>
-        <button type="button" className="text-button" onClick={skip}>
+      <button
+        type="button"
+        className="secondary-button secondary-button--large pre-account-lesson__skip"
+        onClick={skip}
+      >
           {t('preAccountSkip')}
         </button>
       </div>

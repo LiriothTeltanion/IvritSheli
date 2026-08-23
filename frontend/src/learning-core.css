@@ -178,13 +178,18 @@
   list-style: none;
 }
 
+/* Cyberpunk energy line */
 .learning-phase-rail::before {
   content: '';
   position: absolute;
   z-index: 0;
   inset: 1.18rem 4% auto;
-  height: 2px;
-  background: var(--border);
+  height: 3px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--teal) 0%, var(--cyan) 50%, var(--surface-raised) 100%);
+  background-size: 200% auto;
+  animation: fill-progress 3s linear infinite;
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.4);
 }
 
 .learning-phase-rail > li {
@@ -197,6 +202,7 @@
   gap: 0.55rem;
 }
 
+/* Neon Orbs */
 .learning-phase-rail > li > span {
   width: 2.35rem;
   height: 2.35rem;
@@ -208,14 +214,30 @@
   color: var(--text-muted);
   font-size: 0.76rem;
   font-weight: 850;
+  transition: all 0.3s ease;
 }
 
 .learning-phase-rail > li > div { display: grid; gap: 0.2rem; }
-.learning-phase-rail > li strong { color: var(--text-soft); font-size: 0.76rem; line-height: 1.25; }
+.learning-phase-rail > li strong { color: var(--text-soft); font-size: 0.76rem; line-height: 1.25; transition: color 0.3s ease; }
 .learning-phase-rail > li small { display: none; color: var(--text-muted); font-size: 0.7rem; line-height: 1.4; }
-.learning-phase-rail > li.is-complete > span { border-color: var(--warm-teal, var(--teal)); background: var(--warm-teal, var(--teal)); color: white; }
-.learning-phase-rail > li.is-current > span { border-color: var(--warm-coral, var(--rose)); background: color-mix(in srgb, var(--warm-coral-soft, var(--surface-raised)) 62%, var(--surface-solid)); color: var(--warm-coral, var(--rose)); box-shadow: 0 0 0 0.3rem color-mix(in srgb, var(--warm-coral, var(--rose)) 10%, transparent); }
-.learning-phase-rail > li.is-current strong { color: var(--text); }
+
+/* Completed Nodes: Glowing Teal */
+.learning-phase-rail > li.is-complete > span { 
+  border-color: var(--teal); 
+  background: var(--teal); 
+  color: #000; 
+  box-shadow: 0 0 12px rgba(34, 211, 238, 0.5);
+}
+
+/* Current Node: Pulsating Cyan */
+.learning-phase-rail > li.is-current > span { 
+  border-color: var(--cyan); 
+  background: color-mix(in srgb, var(--cyan) 20%, var(--surface-solid)); 
+  color: var(--cyan); 
+  animation: pulse-ring 2s infinite;
+  box-shadow: 0 0 15px var(--cyan);
+}
+.learning-phase-rail > li.is-current strong { color: var(--cyan); text-shadow: 0 0 8px rgba(34, 211, 238, 0.4); }
 .learning-core-journey--experienced .learning-phase-rail > li.is-current small { display: block; }
 
 .learning-core-focus-grid {
@@ -522,18 +544,94 @@
 
 .curriculum-track-setting {
   min-inline-size: 0;
-  margin: 1.15rem 0 0;
+  margin: 1.25rem 0 0;
   padding: 0;
   border: 0;
 }
 
-.curriculum-track-setting > legend { color: var(--text); font-weight: 800; }
-.curriculum-track-setting > p { margin: 0.35rem 0 0.75rem; color: var(--text-soft); font-size: 0.82rem; line-height: 1.45; }
-.curriculum-track-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.55rem; }
-.curriculum-track-option { min-height: 8.5rem; padding: 0.8rem; display: grid; align-content: start; justify-items: start; gap: 0.35rem; border: 1px solid var(--border); border-radius: 0.85rem; background: var(--surface-solid); color: var(--text); text-align: start; cursor: pointer; }
-.curriculum-track-option > span { min-height: 1.7rem; color: var(--warm-teal, var(--teal)); font-size: 1.25rem; font-weight: 850; }
-.curriculum-track-option > small { color: var(--text-soft); font-size: 0.72rem; line-height: 1.4; }
-.curriculum-track-option.active { border-color: var(--warm-teal, var(--teal)); background: var(--warm-teal-soft, var(--surface-raised)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--warm-teal, var(--teal)) 10%, transparent); }
+.curriculum-track-setting > legend {
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 800;
+  margin-bottom: 0.25rem;
+}
+
+.curriculum-track-setting > p {
+  margin: 0.25rem 0 0.85rem;
+  color: var(--text-soft);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.curriculum-track-options {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+}
+
+.curriculum-track-option {
+  min-height: auto !important;
+  padding: 14px 18px !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-start !important;
+  gap: 14px !important;
+  border: 1px solid rgba(34, 211, 238, 0.18) !important;
+  border-radius: 14px !important;
+  background: rgba(8, 22, 38, 0.6) !important;
+  backdrop-filter: blur(16px) !important;
+  color: var(--text) !important;
+  text-align: start !important;
+  cursor: pointer !important;
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease !important;
+  width: 100% !important;
+}
+
+.curriculum-track-option:hover:not(:disabled) {
+  border-color: var(--teal) !important;
+  background: rgba(34, 211, 238, 0.08) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25) !important;
+}
+
+.curriculum-track-option.active {
+  border-color: var(--cyan) !important;
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.2), rgba(6, 182, 212, 0.12)) !important;
+  box-shadow: 0 0 20px rgba(34, 211, 238, 0.25), inset 0 0 0 1px rgba(34, 211, 238, 0.4) !important;
+}
+
+.curriculum-track-option .track-icon {
+  font-size: 1.45rem !important;
+  line-height: 1 !important;
+  flex: 0 0 auto !important;
+  margin-top: 2px !important;
+  padding: 6px;
+  border-radius: 8px;
+  background: rgba(34, 211, 238, 0.1);
+}
+
+.curriculum-track-option .track-text {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 3px !important;
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+}
+
+.curriculum-track-option .track-text strong {
+  display: block !important;
+  font-size: 0.95rem !important;
+  font-weight: 750 !important;
+  color: #ffffff !important;
+  line-height: 1.3 !important;
+}
+
+.curriculum-track-option .track-text small {
+  display: block !important;
+  font-size: 0.8rem !important;
+  color: #94a3b8 !important;
+  line-height: 1.4 !important;
+}
 
 [dir='rtl'] .learning-skill-preview .text-button svg,
 [dir='rtl'] .learning-core-degraded button + svg { transform: rotate(180deg); }

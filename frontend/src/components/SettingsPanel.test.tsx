@@ -10,6 +10,7 @@ import { I18nProvider } from '../i18n';
 import { SessionAccessProvider } from '../session';
 import type { AuthState, Profile } from '../types';
 import { SettingsPanel } from './SettingsPanel';
+import type { AppTheme } from '../hooks/usePersistentTheme';
 
 const PROFILE: Profile = {
   id: 1,
@@ -52,19 +53,27 @@ function restoreUrlMethod(name: 'createObjectURL' | 'revokeObjectURL', descripto
 
 function renderSettings(
   access: { readOnly: boolean; localMode: boolean },
+  onThemeChange: (theme: AppTheme) => void = vi.fn(),
   onAccountDeleted = vi.fn(),
 ): ReturnType<typeof render> {
   return render(
     <I18nProvider>
-      <SessionAccessProvider
-        readOnly={access.readOnly}
-        readOnlyReason="Demo"
-        localMode={access.localMode}
-        recordingOwnerScope={access.localMode ? 'local:device' : 'cloud:42'}
-      >
-        <SettingsPanel profile={PROFILE} provider="google" onSaved={vi.fn()} onAccountDeleted={onAccountDeleted} />
-      </SessionAccessProvider>
-    </I18nProvider>,
+        <SessionAccessProvider
+          readOnly={access.readOnly}
+          readOnlyReason="Demo"
+          localMode={access.localMode}
+          recordingOwnerScope={access.localMode ? 'local:device' : 'cloud:42'}
+        >
+          <SettingsPanel
+            profile={PROFILE}
+            provider="google"
+            onSaved={vi.fn()}
+            onThemeChange={onThemeChange}
+            onAccountDeleted={onAccountDeleted}
+            onDeleteSavedAccount={vi.fn()}
+          />
+        </SessionAccessProvider>
+      </I18nProvider>,
   );
 }
 
@@ -82,11 +91,23 @@ describe('SettingsPanel account data controls', () => {
     expect(screen.getByText('Signed in with Google')).toBeInTheDocument();
   });
 
+  it('switches theme preferences through the settings controls', async () => {
+    const onThemeChange = vi.fn();
+    const user = userEvent.setup();
+    renderSettings({ readOnly: false, localMode: false }, onThemeChange);
+
+    await user.click(screen.getByRole('button', { name: /Dark/ }));
+    await waitFor(() => expect(onThemeChange).toHaveBeenCalledWith('dark'));
+    await user.click(screen.getByRole('button', { name: /Light/ }));
+    await waitFor(() => expect(onThemeChange).toHaveBeenCalledWith('light'));
+    expect(onThemeChange).toHaveBeenCalledTimes(2);
+  });
+
   it('hides account deletion from local and demo workspaces', () => {
     const { unmount } = render(
       <I18nProvider>
         <SessionAccessProvider readOnly={false} readOnlyReason="" localMode>
-          <SettingsPanel profile={PROFILE} onSaved={vi.fn()} onAccountDeleted={vi.fn()} />
+          <SettingsPanel profile={PROFILE} onSaved={vi.fn()} onAccountDeleted={vi.fn()} onDeleteSavedAccount={vi.fn()} />
         </SessionAccessProvider>
       </I18nProvider>,
     );
@@ -101,7 +122,7 @@ describe('SettingsPanel account data controls', () => {
     const deleteAccount = vi.spyOn(api, 'deleteAccount').mockResolvedValue(ANONYMOUS);
     const onAccountDeleted = vi.fn();
     const user = userEvent.setup();
-    renderSettings({ readOnly: false, localMode: false }, onAccountDeleted);
+    renderSettings({ readOnly: false, localMode: false }, undefined, onAccountDeleted);
 
     await user.click(screen.getByRole('button', { name: 'Delete my account' }));
     const deleteForever = screen.getByRole('button', { name: 'Delete forever' });
@@ -200,6 +221,7 @@ describe('SettingsPanel account data controls', () => {
             provider="google"
             onSaved={vi.fn()}
             onAccountDeleted={vi.fn()}
+            onDeleteSavedAccount={vi.fn()}
           />
         </SessionAccessProvider>
       </I18nProvider>,
@@ -225,7 +247,7 @@ describe('SettingsPanel account data controls', () => {
     const onAccountDeleted = vi.fn();
     const user = userEvent.setup();
 
-    renderSettings({ readOnly: false, localMode: false }, onAccountDeleted);
+    renderSettings({ readOnly: false, localMode: false }, undefined, onAccountDeleted);
 
     await user.click(screen.getByRole('button', { name: 'Delete my account' }));
     await user.click(screen.getByRole('checkbox', { name: /account data and its recordings/i }));
@@ -281,7 +303,7 @@ describe('SettingsPanel account data controls', () => {
     const user = userEvent.setup();
     renderSettings({ readOnly: false, localMode: false });
 
-    await user.selectOptions(screen.getByRole('combobox', { name: 'Hebrew level' }), 'B2');
+    await user.click(screen.getByRole('button', { name: /B2/i }));
     await user.click(screen.getByRole('button', { name: /Formal & professional/i }));
     await user.click(screen.getByRole('button', { name: 'Save' }));
 

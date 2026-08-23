@@ -367,7 +367,11 @@ export function FamilyPlaceScene({
             <>
               <SemanticPerson x={53} y={121} shirt="gold" pose="walk" scale={0.58} />
               <SemanticPerson x={148} y={121} shirt="teal" facing="left" pose="walk" scale={0.55} />
-              <circle className="semantic-art__green semantic-art__outlined" cx="190" cy="37" r="10" />
+              {/* A street tree, on the pavement. This was a bare green disc at
+                  (190, 37) — high in the night sky, with no trunk and nothing
+                  under it — so it read as an unexplained green moon. */}
+              <path className="semantic-art__wood-line" d="M196 143v-24" />
+              <circle className="semantic-art__green semantic-art__outlined" cx="196" cy="110" r="12" />
               {/* Traffic signal and a car: a city is busy, not merely tall. */}
               <path className="semantic-art__ink semantic-art__outlined" d="M74 100h14v30H74Z" />
               <circle className="semantic-art__coral" cx="81" cy="108" r="4" />
@@ -440,8 +444,11 @@ export function FamilyPlaceScene({
               <path className="semantic-art__detail semantic-art__detail--thin" d="M85 56v24m-21 0q10-26 21-24m21 24Q96 54 85 56m43 24q-11-27-22-24" />
               <path className="semantic-art__shade" d="M85 56q22-2 43 24H85Z" />
               <path className="semantic-art__wood semantic-art__outlined" d="M82 79h6v69h-6Z" />
-              <path className="semantic-art__surface semantic-art__outlined" d="M139 121h55l-7 27h-55Z" />
-              <path className="semantic-art__gloss" d="M144 125h46" />
+              {/* A striped towel spread on the sand. It was an upright white
+                  rectangle set into a dark frame and hinged to a teal slab, which
+                  read as an open laptop sitting on the beach. */}
+              <path className="semantic-art__surface semantic-art__outlined" d="M138 130h60l-5 18h-60Z" />
+              <path className="semantic-art__coral-line" d="M144 135h50m-52 6h50m-52 6h48" />
             </>
           )}
           anchor={(
@@ -504,8 +511,12 @@ export function FamilyPlaceScene({
           meaning={(
             <>
               <path className="semantic-art__blue semantic-art__outlined" d="M99 99h43v56H99Z" />
+              {/* The satchel goes on before the child and behind them, and it is
+                  a satchel-sized 14 units rather than 28. Drawn after and at full
+                  size it covered the pupil from the shoulders up — head, face and
+                  all — so what walked into school was a red cylinder with legs. */}
+              <path className="semantic-art__coral semantic-art__outlined" d="M58 120h14v18H58Zm0 0 7-6 7 6" />
               <SemanticPerson x={73} y={125} shirt="gold" pose="walk" scale={0.61} />
-              <path className="semantic-art__coral semantic-art__outlined" d="M54 110h28v29H54Zm0 0 14-12 14 12" />
             </>
           )}
           anchor={(

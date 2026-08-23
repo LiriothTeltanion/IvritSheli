@@ -14,6 +14,8 @@ import type {
   LocalizedText,
 } from '../types';
 import { createHebrewUtterance } from '../voicePreference';
+import { HebrewText } from './HebrewText';
+import { HebrewStrokeViewer } from './HebrewStrokeViewer';
 import { Icon } from './Icon';
 import './alphabet-studio.css';
 
@@ -247,7 +249,7 @@ export function AlphabetStudio({
   onWordClick: (word: string) => void;
   onProgress: () => void;
 }): React.JSX.Element {
-  const { locale } = useI18n();
+  const { errorText, locale } = useI18n();
   const { readOnly, readOnlyReason } = useSessionAccess();
   const strings = copy[locale];
   const [catalog, setCatalog] = useState<AlphabetCatalog | null>(null);
@@ -279,7 +281,7 @@ export function AlphabetStudio({
       pendingIdempotencyKey.current = newIdempotencyKey();
     } catch (reason) {
       if (!mountedRef.current) return;
-      setLoadError(reason instanceof Error ? reason.message : strings.unavailable);
+      setLoadError(errorText(reason));
     } finally {
       if (mountedRef.current) setLoading(false);
     }
@@ -361,9 +363,7 @@ export function AlphabetStudio({
         setSelectedKey(authoritativeKey);
         setAttemptState('error');
         setAttemptMessage(
-          reason instanceof Error
-            ? `${strings.submitError} ${reason.message}`
-            : strings.submitError,
+          strings.submitError,
         );
       })
       .finally(() => {
@@ -417,9 +417,7 @@ export function AlphabetStudio({
           if (!mountedRef.current) return;
           setAttemptState('error');
           setAttemptMessage(
-            refreshReason instanceof Error
-              ? `${strings.submitError} ${refreshReason.message}`
-              : strings.submitError,
+            strings.submitError,
           );
         } finally {
           if (mountedRef.current) setActivityLoading(false);
@@ -428,9 +426,7 @@ export function AlphabetStudio({
       }
       setAttemptState('error');
       setAttemptMessage(
-        reason instanceof Error
-          ? `${strings.submitError} ${reason.message}`
-          : strings.submitError,
+        strings.submitError,
       );
     }
   };
@@ -589,9 +585,29 @@ export function AlphabetStudio({
       )}
 
       <article className="alphabet-letter card">
-        <div className="alphabet-letter__glyph" aria-hidden="true">
-          <span lang="he" dir="rtl">{selectedUnit.letter}</span>
-          {selectedUnit.is_final && <small>{strings.finalForm}</small>}
+        <div className="alphabet-letter__glyph">
+          <div className="alphabet-letter__glyph-showcase" aria-hidden="true">
+            <span className="alphabet-glyph__print" lang="he" dir="rtl">{selectedUnit.letter}</span>
+            <span className="alphabet-glyph__cursive" lang="he" dir="rtl" title="כתב">{selectedUnit.letter}</span>
+          </div>
+          <div className="alphabet-glyph__meta">
+            {selectedUnit.is_final && <small className="alphabet-glyph__badge">{strings.finalForm}</small>}
+            <button
+              type="button"
+              className={`alphabet-glyph__audio-btn ${voiceState === 'playing' ? 'is-playing' : ''}`}
+              onClick={() => speak(selectedUnit.tts_text || selectedUnit.name_niqqud)}
+              aria-label={`${selectedUnit.letter} (${localized(selectedUnit.name, locale)})`}
+            >
+              <Icon name="volume" size={16} />
+              <span>{localized(selectedUnit.name, locale)}</span>
+            </button>
+          </div>
+          <HebrewStrokeViewer
+            letterKey={selectedUnit.key}
+            letter={selectedUnit.letter}
+            letterName={localized(selectedUnit.name, locale)}
+            locale={locale}
+          />
         </div>
         <div className="alphabet-letter__content">
           <header>
@@ -599,7 +615,7 @@ export function AlphabetStudio({
               <span className={`alphabet-stage is-${stage}`}>{stageLabel}</span>
               <p className="eyebrow">{strings.selectedLetter}</p>
               <h3>
-                <span lang="he" dir="rtl">{selectedUnit.name_niqqud}</span>
+                <HebrewText text={selectedUnit.name_niqqud} as="span" niqqudHighlight={true} />
                 <small dir="ltr">{selectedUnit.transliteration}</small>
               </h3>
             </div>
@@ -668,7 +684,7 @@ export function AlphabetStudio({
           <section className="alphabet-example" aria-labelledby="alphabet-example-title">
             <div>
               <p className="eyebrow" id="alphabet-example-title">{strings.example}</p>
-              <strong lang="he" dir="rtl">{selectedUnit.example.niqqud}</strong>
+              <HebrewText text={selectedUnit.example.niqqud} as="strong" niqqudHighlight={true} />
               <span dir="ltr">{selectedUnit.example.transliteration}</span>
               <p>{localized(selectedUnit.example.meaning, locale)}</p>
             </div>

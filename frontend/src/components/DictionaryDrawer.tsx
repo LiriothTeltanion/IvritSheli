@@ -14,6 +14,7 @@ import { createHebrewUtterance } from '../voicePreference';
 import { DictionaryVisualCue } from './DictionaryVisualCue';
 import { HebrewText } from './HebrewText';
 import { Icon } from './Icon';
+import { ShoreshTreeViewer } from './ShoreshTreeViewer';
 
 function safeExternalUrl(value: string | null): string | null {
   if (!value) return null;
@@ -42,7 +43,7 @@ interface DictionaryDrawerProps {
 }
 
 export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, onLearned, onPracticeWord }: DictionaryDrawerProps): React.JSX.Element | null {
-  const { locale, label, t } = useI18n();
+  const { errorText, label, locale, t } = useI18n();
   const { readOnly, readOnlyReason } = useSessionAccess();
   const [entries, setEntries] = useState<DictionaryEntry[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -103,7 +104,7 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
       })
       .catch((reason: unknown) => {
         if (mountedRef.current && generation === requestGenerationRef.current) {
-          setError(reason instanceof Error ? reason.message : String(reason));
+          setError(errorText(reason));
         }
       })
       .finally(() => {
@@ -149,7 +150,7 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
       setSelectedIndex(0);
     } catch (reason) {
       if (!mountedRef.current || generation !== requestGenerationRef.current) return;
-      setError(reason instanceof Error ? reason.message : String(reason));
+      setError(errorText(reason));
     } finally {
       if (mountedRef.current && generation === requestGenerationRef.current) setLoading(false);
     }
@@ -170,7 +171,7 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
       setSelectedIndex(0);
     } catch (reason) {
       if (!mountedRef.current || generation !== requestGenerationRef.current) return;
-      setError(reason instanceof Error ? reason.message : String(reason));
+      setError(errorText(reason));
     } finally {
       if (mountedRef.current && generation === requestGenerationRef.current) setLoading(false);
     }
@@ -190,7 +191,7 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
       setSearch(root);
     } catch (reason) {
       if (!mountedRef.current || generation !== requestGenerationRef.current) return;
-      setError(reason instanceof Error ? reason.message : String(reason));
+      setError(errorText(reason));
     } finally {
       if (mountedRef.current && generation === requestGenerationRef.current) setLoading(false);
     }
@@ -232,9 +233,9 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
     void audio.play().catch((reason: unknown) => {
       if (audioRef.current !== audio) return;
       audioRef.current = null;
-      setError(t('audioPlaybackFailed', {
-        error: reason instanceof Error ? reason.message : String(reason),
-      }));
+      // No interpolated detail: the browser's media errors are English strings
+      // the learner can do nothing with, and the sentence already says what to do.
+      setError(t('audioPlaybackFailed'));
     });
   };
 
@@ -250,7 +251,7 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
       onLearned?.();
     } catch (reason) {
       if (!mountedRef.current) return;
-      setError(reason instanceof Error ? reason.message : String(reason));
+      setError(errorText(reason));
     } finally {
       if (mountedRef.current) setAdding(false);
     }
@@ -331,7 +332,7 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
                   />
                 </div>
               )}
-              <HebrewText text={entry.display_niqqud || entry.word} onWordClick={onOpenWord} className="dictionary-word" as="h2" />
+              <HebrewText text={entry.display_niqqud || entry.word} onWordClick={onOpenWord} className="dictionary-word" as="h2" niqqudHighlight={true} />
               <button type="button" className="voice-orb" onClick={play} aria-label={t('pronunciation')}>
                 <Icon name="volume" size={24} />
               </button>
@@ -413,7 +414,7 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
                 <div className="example-stack">
                   {entry.examples.map((example) => (
                     <article key={example.id}>
-                      <HebrewText text={example.hebrew_text} onWordClick={onOpenWord} className="example-hebrew" as="p" />
+                      <HebrewText text={example.hebrew_text} onWordClick={onOpenWord} className="example-hebrew" as="p" niqqudHighlight={true} />
                       {(locale === 'es' ? example.translation_es ?? example.translation_en : example.translation_en ?? example.translation_es) && (
                         <p>{locale === 'es' ? example.translation_es ?? example.translation_en : example.translation_en ?? example.translation_es}</p>
                       )}
@@ -423,6 +424,14 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
                 </div>
               </section>
             )}
+
+            <section className="drawer-section dictionary-shoresh-section">
+              <ShoreshTreeViewer
+                initialRoot={entry.root || 'כ-ת-ב'}
+                locale={locale}
+                onWordClick={onOpenWord}
+              />
+            </section>
 
             <details className="dictionary-more">
               <summary><Icon name="book" size={18} /> <span>{t('moreWordDetails')}</span><Icon name="chevron" size={17} /></summary>
@@ -450,7 +459,7 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
                     <div className="form-grid">
                       {entry.forms.slice(0, 16).map((form) => (
                         <button key={form.id} type="button" onClick={() => onOpenWord(form.form)}>
-                          <HebrewText text={form.form} />
+                          <HebrewText text={form.form} niqqudHighlight={true} />
                           <small>{form.tags.map(label).join(' · ')}</small>
                         </button>
                       ))}

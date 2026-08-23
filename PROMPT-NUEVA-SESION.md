@@ -11,10 +11,9 @@ errores que ya se cometieron para que no los repitas.
 ## Dónde estamos
 
 - Repositorio: `IvritSheli`, rama `consolidation/ivrit-sheli-2.10-baseline`
-- Versión privada **2.12.0 Living Hebrew Nocturne**, sin publicar
+- Versión privada **2.12.2 — Visual Harmony & Resilience**, sin publicar
 - Producción pública sigue siendo **2.4.0** (2026-07-21) y no se toca
-- **Congelado hasta después del 2026-08-25**: nada de push, merge, tag, deploy
-  ni cambios de estado público
+- **Congelado hasta después del 2026-08-25**: nada de push, merge, tag, deploy ni cambios de estado público
 - El árbol debe estar limpio. Si no lo está, para y dímelo.
 
 ## La tarea

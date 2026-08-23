@@ -275,22 +275,30 @@
   background: var(--surface-soft);
   color: var(--text);
   cursor: pointer;
-  transition: transform 180ms var(--ease), border-color 180ms var(--ease), background 180ms var(--ease);
+  transition: transform 180ms var(--ease), border-color 180ms var(--ease), background 180ms var(--ease), box-shadow 180ms var(--ease);
 }
 
 .alphabet-grid__letter:hover {
-  border-color: var(--border-strong);
-  transform: translateY(-2px);
+  border-color: var(--teal);
+  background: rgba(34, 211, 238, 0.08);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25), 0 0 12px rgba(34, 211, 238, 0.2);
 }
 
 .alphabet-grid__letter[aria-pressed="true"] {
-  border-color: var(--teal);
-  background: color-mix(in srgb, var(--teal) 13%, var(--surface));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--teal) 45%, transparent);
+  border-color: var(--cyan);
+  background: color-mix(in srgb, var(--teal) 18%, var(--surface));
+  box-shadow: 0 0 18px rgba(34, 211, 238, 0.35), inset 0 0 0 1px rgba(34, 211, 238, 0.6);
 }
 
 .alphabet-grid__letter.is-final {
   background: color-mix(in srgb, var(--gold) 10%, var(--surface-soft));
+  border-color: color-mix(in srgb, var(--gold) 35%, var(--border));
+}
+
+.alphabet-grid__letter.is-final:hover {
+  border-color: var(--gold);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25), 0 0 12px rgba(234, 179, 8, 0.25);
 }
 
 .alphabet-grid__letter b {
@@ -316,40 +324,115 @@
 .alphabet-letter {
   padding: clamp(1rem, 3vw, 1.75rem);
   display: grid;
-  grid-template-columns: minmax(9rem, 14rem) minmax(0, 1fr);
-  gap: clamp(1rem, 4vw, 2.4rem);
+  grid-template-columns: minmax(18rem, 22rem) minmax(0, 1fr);
+  gap: clamp(1.2rem, 4vw, 2.4rem);
   background:
     linear-gradient(155deg, color-mix(in srgb, var(--gold) 8%, transparent), transparent 40%),
     var(--surface);
 }
 
+@media (max-width: 960px) {
+  .alphabet-letter {
+    grid-template-columns: 1fr;
+  }
+}
+
 .alphabet-letter__glyph {
   min-height: 15rem;
-  padding: 1rem;
-  display: grid;
-  place-items: center;
-  align-content: center;
-  gap: 0.75rem;
-  border: 1px solid color-mix(in srgb, var(--gold) 34%, var(--border));
+  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  border: 1px solid rgba(34, 211, 238, 0.28);
   border-radius: 1.5rem;
   background:
-    radial-gradient(circle at 50% 38%, color-mix(in srgb, var(--gold) 25%, transparent), transparent 60%),
-    var(--surface-soft);
+    radial-gradient(circle at 50% 35%, rgba(34, 211, 238, 0.12), transparent 70%),
+    rgba(9, 26, 44, 0.45);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
-.alphabet-letter__glyph > span {
-  color: var(--text);
-  font: 850 clamp(6rem, 14vw, 9rem)/0.9 var(--font-hebrew);
-  text-shadow: 0 0.08em 0 color-mix(in srgb, var(--gold) 28%, transparent);
+.alphabet-letter__glyph-showcase {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1rem, 2.5vw, 2rem);
+  padding: 0.5rem 1rem;
+  overflow: visible;
 }
 
-.alphabet-letter__glyph small {
-  padding: 0.3rem 0.55rem;
+.alphabet-glyph__print {
+  font: 850 clamp(4.5rem, 9vw, 6.5rem)/1.1 var(--font-hebrew);
+  background: linear-gradient(135deg, #ffffff 40%, var(--teal) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 20px rgba(34, 211, 238, 0.35));
+  padding: 0.1em 0.2em;
+  display: inline-block;
+  overflow: visible;
+}
+
+.alphabet-glyph__cursive {
+  font: 700 clamp(4.2rem, 8.5vw, 6rem)/1.2 'Gveret Levin', 'Ivrit Signature', 'David Libre', cursive;
+  background: linear-gradient(135deg, #ff859b 20%, #ff3b5c 70%, #ff1744 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 16px rgba(255, 59, 92, 0.35));
+  padding: 0.15em 0.4em;
+  display: inline-block;
+  overflow: visible;
+}
+
+.alphabet-glyph__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.alphabet-glyph__badge {
+  padding: 0.25rem 0.65rem;
   border-radius: 99rem;
-  background: color-mix(in srgb, var(--gold) 15%, var(--surface));
+  background: rgba(234, 179, 8, 0.15);
+  border: 1px solid rgba(234, 179, 8, 0.35);
   color: var(--gold);
-  font-size: 1rem;
+  font-size: 0.85rem;
   font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.alphabet-glyph__audio-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 99rem;
+  background: rgba(20, 184, 166, 0.15);
+  border: 1px solid rgba(20, 184, 166, 0.35);
+  color: var(--teal);
+  font-size: 0.85rem;
+  font-weight: 750;
+  cursor: pointer;
+  transition: transform 0.18s, background 0.18s, box-shadow 0.18s;
+}
+
+.alphabet-glyph__audio-btn:hover {
+  background: rgba(20, 184, 166, 0.28);
+  transform: translateY(-1px);
+  box-shadow: 0 0 14px rgba(20, 184, 166, 0.4);
+}
+
+.alphabet-glyph__audio-btn.is-playing {
+  background: var(--teal);
+  color: #021210;
+  box-shadow: 0 0 20px var(--teal);
 }
 
 .alphabet-letter__content {
@@ -649,21 +732,24 @@
 
 .alphabet-practice__options button {
   min-width: 0;
-  min-height: 5rem;
+  min-height: 5.2rem;
   padding: 0.6rem;
   display: grid;
   place-items: center;
   gap: 0.2rem;
   border: 1px solid var(--border);
-  border-radius: 1rem;
+  border-radius: 1.1rem;
   background: var(--surface-soft);
   color: var(--text);
   cursor: pointer;
+  transition: transform 0.2s var(--ease), border-color 0.2s, background 0.2s, box-shadow 0.2s;
 }
 
 .alphabet-practice__options button:hover:not(:disabled) {
-  border-color: var(--teal);
-  background: color-mix(in srgb, var(--teal) 10%, var(--surface));
+  border-color: var(--cyan);
+  background: color-mix(in srgb, var(--teal) 14%, var(--surface));
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 16px rgba(34, 211, 238, 0.3);
 }
 
 .alphabet-practice__options button:disabled {
@@ -672,7 +758,11 @@
 }
 
 .alphabet-practice__options b {
-  font: 850 2rem/1.15 var(--font-hebrew);
+  font: 850 2.2rem/1.15 var(--font-hebrew);
+  background: linear-gradient(135deg, #ffffff 40%, var(--teal) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .alphabet-practice__options span {

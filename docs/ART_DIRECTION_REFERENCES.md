@@ -10,6 +10,20 @@ the three layers the app reveals one at a time to teach.
 Their only job is to fix, per spatial family, the light, the material and the
 depth that a hand-authored SVG then has to reach.
 
+## User-provided candidate pack (review only)
+
+`Repintado Nocturne.html` from your latest upload was parsed into a local
+review bundle:
+
+- Location: `docs/art-direction/repintado-nocturne-candidates/`
+- Manifest: `docs/art-direction/repintado-nocturne-candidates/manifest.json`
+- Coverage: **26** scenes (not yet the full 240)
+- Status: review candidate only; not shipped and not replacing the canonical SVG
+  scenes.
+
+Use this pack as an optional second-pass art benchmark before running another
+full 240-image rendering wave.
+
 ## Why one reference per spatial family and not per scene
 
 The 2.12 scene system already records a spatial family on every illustration
@@ -159,6 +173,67 @@ Against the committed reference palette, the gaps are specific: crust wants
 the catalogue is close — `__surface-deep` at `#f2ebdf` is the nearest and is
 still far too pale.
 
+### Shade, resolved as a multiplier — 2026-08-15
+
+`__shade` was one translucent violet, alpha-composited over every material
+alike, which is why the shadow side of bread came out the same violet-grey as
+the shadow side of a teal kettle. It is now an opaque tone applied with
+`mix-blend-mode: multiply`, across all 88 scenes that use it plus
+`__shirt-shade`, `__facade-shade`, `__spatial-shade` and `__hatch`.
+
+A shadow is a surface receiving less light, so it keeps that surface's hue and
+only loses value. Multiplying gives that for free — no per-object shade colour to
+author, nothing to keep in sync.
+
+**Two numbers decide whether this reads as an improvement or as damage.**
+
+1. *Saturation.* A multiplier tints toward its own hue, so a strongly violet one
+   reproduces the exact fault it is meant to fix. At `#9f95b0` the white milk
+   carton's shaded face came out lilac and the medicine capsule's shaded end went
+   with it. The value is now near-neutral with only a whisper of cool:
+   `#ded9e0` light, `#b9b6c1` dark.
+2. *Strength.* Matched by arithmetic to what the old 16% / 32% wash produced, so
+   the change reads as "shadow carries hue" and never as "shadow got heavier".
+   On white in the dark theme the old wash gave `rgb(171,171,179)`; the
+   multiplier gives `rgb(174,171,190)`.
+
+## The shared figure — 2026-08-15
+
+One component, 113 scenes. Four defects, three of them structural rather than
+stylistic, and all four invisible until the figure was rendered at hero size.
+
+1. **The figure was outlined in `--semantic-ink`**, so every person in the
+   catalogue was rimmed in near-white on the dark theme. `__hair` had already
+   fixed this for itself years earlier, with a comment saying exactly why. Skin,
+   cloth and denim are materials too, and each variant now carries its own
+   `--semantic-skin-edge`, `--semantic-garment-edge` and
+   `--semantic-trouser-edge`.
+2. **A hand with no arm.** `wave`, `point` and `listen` all placed a hand at
+   `(-14, 18)` — precisely where a hanging arm ends — but drew no arm to it. Every
+   waving, pointing and listening figure had a disc of skin floating beside its
+   hip. Found by checking each pose's hand coordinates against the end point of
+   its arm path; worth repeating whenever a pose is added.
+3. **The lit plane of the shirt fell outside the shirt.** `__shirt-lit` ran from
+   x=-8 out to x=-20 while the shirt silhouette stops at -13, so a pale strip of
+   shirt colour hung in the air past the body's left edge. It read as a sash.
+4. **The raised hand was the size of the head.** Three splayed strokes at the
+   arm's own 5.3 width fuse into a mitten. It is now a palm with fingers at a
+   thinner `__finger` weight.
+
+Two techniques worth reusing:
+
+- **A stroke cannot carry an outline, so draw it twice** — a wider copy in the
+  edge colour underneath, then the stroke on top. `__limb-edge` gives all
+  thirteen poses a contour without any of their geometry being redrawn.
+- **Separate the arm that hangs from the arm that gestures.** They shared one
+  path, so `__motion-part` swung both at once and a figure asking a question
+  waved its idle arm too.
+
+High contrast: `__skin-line` used to sit in the group that paints notation —
+arrows, motion cues, rain — in `currentColor`, so in high contrast every figure
+had white sticks for arms above a skin-coloured head. Arms keep their skin now
+and take a heavier contour instead.
+
 **Resolved 2026-08-14.** `--semantic-shade` is `rgba(16, 8, 28, 0.32)` — a
 translucent 32% wash, scoped to `.semantic-art` rather than to `:root`, which
 is why a root lookup returned nothing. The earlier "opaque near-black" reading
@@ -180,17 +255,42 @@ Method note for whoever measures next: read the raw computed string, never a
 converted one, and read it from a node that is already inside a rendered scene
 rather than one injected into the SVG. Both mistakes were made here.
 
-### Open finding — materials wearing the wrong token
+### Materials wearing the wrong token — swept 2026-08-15
 
-`food.milk` pours **teal** milk: the stream and the filled glass both use the
-water token. It is the same fault as the bread scored in blue-grey with the
-generic ink token — a material borrowing a class whose name describes a
-different substance.
+The finding was `food.milk` pouring **teal** milk from the water token. The
+sweep that followed mapped every use of the liquid and ink classes back to the
+scene it appears in, and found five more. All six are fixed.
 
-Worth a sweep rather than a single fix: every scene where the token's name and
-the depicted material disagree. The measured palette table above is what makes
-that sweep possible, because the fault is invisible in the markup and only
-shows once the colour is known.
+| Scene | Was | Should be | What it looked like |
+|---|---|---|---|
+| `food.milk` | `__water`, `__water-stream` | `__milk`, `__milk-stream` | a carton pouring teal |
+| `food.tea` | `__water-stream` + `__gold-soft` | `__brew-stream`, `__brew` | teal stream into a glass that changed substance with the theme |
+| `food.coffee` | `__ink` | `__brew-deep` | navy coffee: `__ink` is `#26384a` in the dark theme |
+| `food.coffee` | `__ink` on the spoon | `__metal` | a navy blot on the saucer |
+| `greetings.good_night` | `__water-deep` | `__night-sky` | a sky painted as a body of water |
+| every hot drink | `__steam` grouped with `__motion` | `__steam` with `--semantic-steam` | **blue vapour**, in all ten scenes that steam |
+
+The steam one is the widest and was the hardest to see: `__steam` appeared in
+the detail group *and* again, later in the sheet, in a rule that paints motion
+cues blue. The later rule won. Motion cues are blue on purpose — they are
+notation, not substance — but steam off a cup is the thing itself. `__breath`
+stays blue: it is a cue for cold, drawn where no real vapour would show.
+
+New tokens: `__milk`/`-lit`/`-deep`, `__brew`/`-lit`/`-deep` (tea at the base
+step, coffee at the deep one, which is the real relationship between them),
+`__night-sky`, `--semantic-steam`.
+
+**What the sweep did *not* find.** `__ink` has 81 uses and almost all are
+correct: tyres, tarmac, pupils, barcodes, silhouettes, boots. `__ink` is a dark
+near-black and those are dark near-black things. Only the two coffee shapes were
+wrong. Likewise most `__water` uses are genuinely water — the sea in four
+`places` scenes, rain, a shower, a leak, a glass offered in `greetings.please`,
+and the sea drawn on a map in `housing.address`.
+
+Method that made the sweep possible, and worth repeating for the next class of
+fault: map each use of a suspect class back to its enclosing `case '<key>'`, then
+judge scene by scene. The fault is invisible in the markup — `__water` on a
+glass looks perfectly reasonable until you know what is in the glass.
 
 ## Corrected target — 2026-08-14, late
 
@@ -223,3 +323,221 @@ So the working rule from here: **take colour, light direction and material
 behaviour from the paintings; take rendering technique from the vector
 example.** The paintings say what a crust is made of. The vector example says
 how to draw it with paths.
+
+## `food.bread` repainted — 2026-08-14, and what it taught
+
+The first scene rebuilt against the vector target, and the pattern the rest of
+the `tabletop` family follows. Verified on screen in both themes, at 96 px, in
+`prefers-contrast: more`, and with the three teaching layers revealed one at a
+time.
+
+### The finding that matters most: ink inverts, materials do not
+
+`--semantic-ink` is `#22323f` in the light theme and `#e4edf6` in the dark one.
+`__outlined` reads it, so **in the dark theme every form in the catalogue is
+rimmed in near-white.** That is the same defect as the rim light that turned the
+loaf into a glass cloche, applied 240 times, and it is the exact opposite of
+what the vector target asks for — a dark outline around each form is named there
+as the single largest contributor to the illustrated look.
+
+The rule that replaces it, for materials that own a `-deep` step:
+
+> **A material's contour is its own darkest step, not the scene's ink.**
+
+It cost two CSS rules on `food.bread` and it was a larger visible gain than the
+gradient was. It is written as `[data-visual-layer] .semantic-art__x.semantic-art__outlined`
+so it outranks the depth-of-field rules by specificity rather than by source
+order, and it is restated inside `prefers-contrast: more` so high contrast still
+wins back its single strong line.
+
+**Known limit, not yet resolved.** This cannot be applied blindly to every
+material. A bright fill on a dark ground separates by its own value and wants a
+dark contour; a *dark* fill on the dark theme's navy paper is currently held
+apart from the background by that near-white line, and giving it a dark contour
+would dissolve its silhouette. The rule is safe for light and warm materials and
+has to be decided per material, not per catalogue.
+
+### The other four defects, all confirmed on screen first
+
+1. **A closed dome reads as a helmet.** The crumb face is what says bread. This
+   is the composition point, not a rendering one.
+2. **`__gold-soft` under `__gold` made the loaf change substance with the
+   theme** — `#f9e4b6`, a pale tint, in light; `#8f6a2e`, a dark ochre, in dark.
+   Bread now has materials of its own that hold one value in both themes, as
+   wood and stone already do.
+3. **A hard-edged `__shade` wedge cut the dome in two.** A ramp replaces it. A
+   flat shape laid over a flat fill is what reads as clip art; there is no
+   separate shade shape on the loaf at all now.
+4. **The board was `__surface`** — the cool near-white — so a white slab sat
+   under the bread in both themes. And drawn as a deep receding trapezoid its
+   back corners stuck out past the loaf on both sides and it read as a paper
+   boat. It is a wood slab seen nearly edge-on: lit top face, deep front edge.
+
+### New measured tokens
+
+Crust and crumb bases are the committed reference palette exactly; the lit and
+deep steps extend that ramp. Like `__wood` and `__stone` these are materials, so
+they are identical in light and dark — it is the scene *frame* that responds to
+the theme.
+
+| Token | Fill | Note |
+|---|---|---|
+| `__crust-lit` | `#e2994a` | |
+| `__crust` | `#c47732` | committed palette, exactly |
+| `__crust-deep` | `#8a4a1e` | also the crust's contour and its scoring |
+| `__crumb-lit` | `#f5e4bc` | |
+| `__crumb` | `#e9cf9b` | committed palette, exactly |
+| `__crumb-deep` | `#d2b27f` | also the crumb ring |
+| `__crumb-speck` | `#b08350` | warm brown, never grey |
+
+`__wood`, `__wood-lit` and `__wood-deep` were promoted from hard-coded hexes to
+tokens at unchanged values, so a gradient stop can read them.
+
+### How a gradient reaches a shape
+
+`url(#…)` resolves against the whole document and the QA workbench mounts the
+same scene several times on one page, so a fixed gradient id would make every
+copy read the first one's definition. The scene's own id is therefore threaded
+down to the scene modules and prefixed onto every gradient id.
+
+Two mechanics worth knowing before touching this again:
+
+- **A CSS `fill` outranks a `fill` presentation attribute.** A class that hands
+  its fill to a gradient must declare no fill of its own, or the ramp is
+  silently flattened. `__paper` and `__ground` already worked this way;
+  `__crust`, `__crumb` and `__board` follow them. High contrast is where the
+  flat token comes back.
+- Ramp angles are in `objectBoundingBox` units, so one definition lights a loaf
+  and a bread roll alike and the key light stays in the upper left.
+
+## Reaching all 240 scenes without editing 240 scenes — 2026-08-15
+
+Hand-authoring a `fill` attribute per shape works for one scene and does not
+scale to a catalogue. The technique that does:
+
+1. `SemanticSceneFrame` defines a ramp per common material under the scene's own
+   id.
+2. `SemanticWordIllustration` sets `--semantic-ramp-<material>` on the `<svg>`,
+   pointing at those ids.
+3. The **existing** base fill classes read it:
+   `fill: var(--semantic-ramp-wood, var(--semantic-wood))`.
+
+No scene file is touched, and every shape already drawn in `__wood`, `__gold`,
+`__surface`, `__metal`, `__stone`, `__coral`, `__teal`, `__blue`, `__green`,
+`__clay` or `__plum` gains modelling at once.
+
+**The flat token in that fallback is load-bearing, not tidiness.** A `url()`
+fill whose target is missing paints nothing, and this catalogue has shipped
+solid black cards exactly that way. The fallback means a scene rendered without
+a frame — a unit test, a future surface — degrades to the old flat fill instead
+of to a black hole.
+
+Only the **base** step of each hue is ramped. `-lit`, `-deep` and `-soft` are
+modelling steps an author placed by hand, and a ramp underneath them would fight
+the hand that placed them.
+
+**Not applied to diagrams, and not applied to thumbnails.** Diagrams are
+excluded in both the ramp and the material-contour rules — the schema is what
+teaches there. Thumbnails are excluded because a gradient across a 96 px shape
+is invisible and would cost a definition per scene in the exhaustive QA matrix.
+Verified by reading the live DOM, not by reading the CSS: no `diagram` scene
+carries a ramp variable, and every `diagram` material outline still measures the
+old ink colour `#e4edf6`.
+
+### The bug this produced, and the guard that now catches it
+
+`--semantic-surface-lit` and `--semantic-surface-deep` **did not exist as
+tokens.** They were literals inside their own class rules. A gradient stop
+reading `var(--semantic-surface-lit)` therefore resolved to nothing, and a
+`stop-color` has no fallback — its initial value is **black**. Every paper
+object in the catalogue turned to brushed chrome: the bus ticket, the
+prescription, the shelf.
+
+This is the same family as every other defect in this document — a name that
+looked like it named a colour — but with a new twist: an undefined custom
+property is silent everywhere else in the pipeline and catastrophic in a
+gradient stop.
+
+`semanticArtClasses.test.ts` now has a fourth guard: **every `--semantic-*` read
+in the stylesheet, in the scene modules or in a ramp table must be declared
+somewhere in the stylesheet.** It checks 134 reads against 85 declarations, and
+it fails on exactly those two tokens if the fix is reverted.
+
+### Coverage, and the hard limit — measured 2026-08-15
+
+Counted over the 164 non-diagram scenes as rendered: **768 of 773 reachable
+material uses are ramped, 99%.** What is left is `__cloud` (2 uses) and
+`__hot` (3).
+
+Ramped: `wood`, `surface`, `metal`, `stone`, `gold`, `coral`, `teal`, `blue`,
+`green`, `clay`, `plum`, `wall`, `floor`, `window`, `glass`, `tiles`, `water`,
+plus the bread's own `crust`, `crumb` and `board`.
+
+**The figure — 334 uses — cannot use this mechanism at all, and that is a
+measured limit rather than a decision.** A `<stop>` lives in `<defs>` on the
+`<svg>`, so it inherits custom properties from there and not from the shape that
+references the gradient. Probed on a live `greetings.hello`: the two figures
+read `--semantic-skin` as `#9f6044` and `#c9855f` respectively, while the same
+property at the `<stop>` reads `#c9855f`. A scene-level ramp would paint every
+person with the first one's skin and erase the four-variant character system.
+Skin, hair, shirt, trousers and shoes therefore stay flat here and keep the
+other modelling method — `-lit` and `-deep` planes placed by hand, which is what
+`__shirt-lit` and `__skin-shade` already were.
+
+A further 45 uses are `__ink`, which is not a material: tyres, tarmac, pupils,
+barcodes, silhouettes.
+
+**Cost, stated rather than hidden.** Seventeen ramps are emitted per ramped
+scene whether or not the scene uses them, so a card carries about 68 extra
+nodes. Thumbnails and diagrams are excluded, which is most of the exhaustive QA
+matrix. Trimming to the materials a scene actually uses would need the scene's
+class list at frame-render time, which the frame does not have.
+
+### Cast shadows multiply too — 2026-08-15
+
+`__shade` multiplying while `__prop-shadow` and `__contact` stayed violet washes
+put the two side by side in every scene: the shaded face of a loaf carried the
+crust's hue while the shadow it dropped on the board did not. Both multiply now,
+at strengths matched to the old washes.
+
+One mechanic worth keeping: **the contact pool fades to white, not to
+transparent.** White is multiply's identity — no change — whereas interpolating
+an opaque colour to `transparent` passes through transparent *black* and darkens
+the midpoint of the gradient.
+
+While there: the dark theme declared `--semantic-contact-core` twice in the same
+rule. The first was dead from the day it was written. There is one now.
+
+### Materials that take a dark contour, and materials that must not
+
+Applied: `__crust`, `__crumb`, `__board`, `__wood`, `__gold`, `__clay`,
+`__stone`, and — after the correction below — `__coral`, `__teal`, `__blue`,
+`__green`, `__plum`, each with its `-lit` step.
+
+**Correction, 2026-08-15.** Those last five were withheld on the reasoning that
+a dark contour on the dark theme's navy paper would dissolve the silhouette.
+That reasoning was wrong, and measuring the ratios is what showed it: on navy it
+is the **fill** that separates an object from the background — coral sits far
+above navy in value — and what the contour is actually for is the boundary
+between one form and the next. The near-white ink line was doing the opposite
+job, tracing the whole silhouette against the background, which is exactly the
+sticker outline the note on `__outlined` complains about. Rendered across
+coffee, tea, tree and bus in all four modes: every one improved and none lost
+its silhouette.
+
+Their base steps hold one value across both themes, so they qualify under the
+same rule as wood and gold. The `-soft` steps are excluded and stay on the ink,
+which is correct: those **do** invert with the theme, so an adaptive line is
+what they want.
+
+That is the general shape of the rule, stated properly at last:
+
+> A material that holds one value across both themes takes a contour from its
+> own darkest step. A material that follows the theme keeps the ink, because
+> the ink follows the theme with it.
+
+Measured on the rendered catalogue: **835 of 1066 outlined shapes now take a
+material contour, 78%.** Of the 231 that do not, roughly 192 are correctly
+adaptive — `__wall` (76) and the five `-soft` tints (99) follow the theme, and
+`__ink` (17) is not a material. The genuinely unfinished remainder is about 39
+shapes: `surface-deep`, `blue-deep`, `metal-deep` and `awning`.

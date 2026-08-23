@@ -222,8 +222,11 @@ export function WeatherScene({
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
             {/* Two boots on the floor. */}
             <ellipse className="semantic-art__prop-shadow" cx="60" cy="140" rx="40" ry="6" />
-            <path className="semantic-art__ink semantic-art__outlined" d="M30 92h20v34h16v14H30Z" />
-            <path className="semantic-art__ink semantic-art__outlined" d="M66 92h20v34h16v14H66Z" />
+            {/* Rubber, not ink. `__ink` measures #26384a in the dark theme and the
+                wall behind measures #314051, so the pair read as empty outlines
+                drawn on the wall rather than as boots standing on the floor. */}
+            <path className="semantic-art__green-deep semantic-art__outlined" d="M30 92h20v34h16v14H30Z" />
+            <path className="semantic-art__green-deep semantic-art__outlined" d="M66 92h20v34h16v14H66Z" />
             <path className="semantic-art__gloss" d="M35 98v24m36-24v24" />
             {/* Hat and scarf on the hook beside the door. */}
             <path className="semantic-art__metal-line" d="M60 24v12" />

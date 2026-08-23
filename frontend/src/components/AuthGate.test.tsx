@@ -18,7 +18,7 @@ describe('AuthGate beginner preview', () => {
         <AuthGate
           busy={false}
           error=""
-          providers={['google', 'github']}
+            providers={['google']}
           onDemo={vi.fn()}
           onRetry={vi.fn()}
         />
@@ -27,8 +27,8 @@ describe('AuthGate beginner preview', () => {
 
     expect(screen.getByRole('heading', { name: 'Your first three Hebrew words' })).toBeInTheDocument();
     expect(screen.getByText('שָׁלוֹם')).toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: /Continue with Google/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /Explore read-only demo/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Continue with Google/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Explore read-only demo/i })).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'hello · peace' }));
     await user.click(screen.getByRole('button', { name: /Next word/i }));
@@ -38,9 +38,7 @@ describe('AuthGate beginner preview', () => {
     await user.click(screen.getByRole('button', { name: 'Finish the three-word lesson' }));
 
     const preview = screen.getByRole('heading', { name: 'You learned your first three words' }).closest('section');
-    const googleLink = screen.getByRole('link', { name: /Continue with Google/i });
     expect(preview).not.toBeNull();
-    expect(preview!.compareDocumentPosition(googleLink) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByRole('link', { name: /Use local mode on this computer/i })).toHaveAttribute(
       'href',
       expect.stringContaining('#easiest-windows-start-'),

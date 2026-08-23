@@ -323,7 +323,7 @@ describe('MicWordAnalyzer', () => {
       recorder?.onerror?.({ error: new DOMException('device lost') } as unknown as Event);
     });
 
-    expect(await screen.findByText('Microphone recording failed: device lost')).toBeInTheDocument();
+    expect(await screen.findByText('The microphone could not record. Check that the browser is allowed to use it.')).toBeInTheDocument();
     expect(stopTrack).toHaveBeenCalledTimes(1);
     expect(transcribe).not.toHaveBeenCalled();
     expect(recorder?.onerror).toBeNull();

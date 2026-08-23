@@ -4,7 +4,7 @@
 // Date: 2026-07-15 | TZ: Asia/Jerusalem
 // Notes: API responses and user data are deliberately never cached by the service worker.
 
-const CACHE_NAME = 'ivrit-sheli-shell-v2.12.0-nocturne-r1';
+const CACHE_NAME = 'ivrit-sheli-shell-v2.12.3-glassmorphism';
 const CORE_ASSETS = [
   '/',
   '/manifest.webmanifest',
@@ -14,6 +14,7 @@ const CORE_ASSETS = [
   '/fonts/GveretLevin-Regular.ttf',
   '/content/starter-dictionary-v2.8.json',
   '/assets/illustrations/israel-living-atlas-field-notes.webp',
+  '/assets/illustrations/morning-hebrew-welcome.webp',
   '/illustrations/regions/galilee-field-notes.webp',
   '/illustrations/regions/galilee-field-notes-portrait.webp',
   '/illustrations/regions/haifa-carmel-field-notes.webp',

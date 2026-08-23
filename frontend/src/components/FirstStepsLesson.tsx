@@ -37,7 +37,7 @@ export function FirstStepsLesson({
   onClose,
   onOpenWord,
 }: FirstStepsLessonProps): React.JSX.Element {
-  const { locale, t } = useI18n();
+  const { errorText, locale, t } = useI18n();
   const safeInitialIndex = Math.max(0, Math.min(starterWords.length, initialIndex));
   const [index, setIndex] = useState(safeInitialIndex);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -84,7 +84,7 @@ export function FirstStepsLesson({
       }
       setResultSaved(true);
     } catch (reason) {
-      setResultError(reason instanceof Error ? reason.message : String(reason));
+      setResultError(errorText(reason));
     } finally {
       setSavingResult(false);
     }
@@ -106,7 +106,7 @@ export function FirstStepsLesson({
     try {
       await onComplete();
     } catch (reason) {
-      setResultError(reason instanceof Error ? reason.message : String(reason));
+      setResultError(errorText(reason));
     } finally {
       setFinishing(false);
     }

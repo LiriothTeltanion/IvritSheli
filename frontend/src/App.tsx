@@ -17,21 +17,21 @@ import { SessionAccessProvider } from './session';
 import type { AuthState, Dashboard, GamificationStatus, LearnerMode, LearnTab, Locale, Profile, ProgressData, ViewKey } from './types';
 import { AuthGate } from './components/AuthGate';
 import { BeginnerOnboarding } from './components/BeginnerOnboarding';
-import { DictionaryDrawer } from './components/DictionaryDrawer';
 import { FirstStepsLesson } from './components/FirstStepsLesson';
 import { Icon, type IconName } from './components/Icon';
 import { IvritSheliWordmark } from './components/IvritSheliWordmark';
 import { PreAccountLesson } from './components/PreAccountLesson';
 import { ProfileMenu } from './components/ProfileMenu';
-import { QuickCapture } from './components/QuickCapture';
 import { TodayDashboard } from './components/TodayDashboard';
 import { VisitFinished } from './components/VisitFinished';
 import { XPBar } from './components/XPBar';
 
 const AICoach = lazy(async () => ({ default: (await import('./components/AICoach')).AICoach }));
 const ConnectorPanel = lazy(async () => ({ default: (await import('./components/ConnectorPanel')).ConnectorPanel }));
+const DictionaryDrawer = lazy(async () => ({ default: (await import('./components/DictionaryDrawer')).DictionaryDrawer }));
 const LearnPanel = lazy(async () => ({ default: (await import('./components/LearnPanel')).LearnPanel }));
 const ProgressPanel = lazy(async () => ({ default: (await import('./components/ProgressPanel')).ProgressPanel }));
+const QuickCapture = lazy(async () => ({ default: (await import('./components/QuickCapture')).QuickCapture }));
 const SettingsPanel = lazy(async () => ({ default: (await import('./components/SettingsPanel')).SettingsPanel }));
 
 interface DictionaryTarget {
@@ -184,6 +184,31 @@ function navigationLabelKey(
   return item === 'learn' ? 'learn' : item;
 }
 
+type NavigationHintKey =
+  | 'navTodayHint'
+  | 'navWordsHint'
+  | 'navLearnHint'
+  | 'navCoachHint'
+  | 'navProgressHint'
+  | 'navDictionaryHint'
+  | 'navAudioHint'
+  | 'navConnectorsHint'
+  | 'navHelpHint'
+  | 'navSettingsHint';
+
+function navigationHintKey(key: ViewKey, mode: LearnerMode): NavigationHintKey {
+  if (key === 'today') return 'navTodayHint';
+  if (key === 'learn') return mode === 'guided' ? 'navWordsHint' : 'navLearnHint';
+  if (key === 'coach') return 'navCoachHint';
+  if (key === 'progress') return 'navProgressHint';
+  if (key === 'dictionary') return 'navDictionaryHint';
+  if (key === 'audio') return 'navAudioHint';
+  if (key === 'connectors') return 'navConnectorsHint';
+  if (key === 'help') return 'navHelpHint';
+  if (key === 'settings') return 'navSettingsHint';
+  return 'navTodayHint';
+}
+
 function learnerModeLabelKey(learnerMode: LearnerMode): 'guidedMode' | 'explorerMode' | 'experiencedMode' {
   return learnerMode === 'guided'
     ? 'guidedMode'
@@ -222,7 +247,7 @@ function learnViewTab(view: ViewKey, fallbackTab: LearnTab): LearnTab {
 }
 
 export default function App(): React.JSX.Element {
-  const { locale, setLocale, t } = useI18n();
+  const { locale, setLocale, t, errorText } = useI18n();
   const [view, setView] = useState<ViewKey>('today');
   const [learnTab, setLearnTab] = useState<LearnTab>('review');
   const [dashboard, setDashboard] = useState<Dashboard | null>(null);
@@ -320,11 +345,9 @@ export default function App(): React.JSX.Element {
 
   const refreshCore = useCallback(async (): Promise<void> => {
     try {
-      const [nextDashboard, nextProfile, nextGamification] = await Promise.all([
-        api.dashboard(),
-        api.profile(),
-        api.gamification(),
-      ]);
+      const nextDashboard = await api.dashboard();
+      const nextProfile = await api.profile();
+      const nextGamification = await api.gamification();
       setDashboard(nextDashboard);
       setProfile(nextProfile);
       setGamification(nextGamification);
@@ -349,7 +372,7 @@ export default function App(): React.JSX.Element {
     } catch (reason) {
       configureApiSession(null);
       setAuth(null);
-      setAuthError(reason instanceof Error ? reason.message : String(reason));
+      setAuthError(errorText(reason));
     } finally {
       setAuthChecking(false);
     }
@@ -494,7 +517,7 @@ export default function App(): React.JSX.Element {
       configureApiSession(nextAuth);
       setAuth(nextAuth);
     } catch (reason) {
-      setAuthError(reason instanceof Error ? reason.message : String(reason));
+      setAuthError(errorText(reason));
     } finally {
       setDemoBusy(false);
     }
@@ -515,11 +538,21 @@ export default function App(): React.JSX.Element {
       setCaptureOpen(false);
       setDictionaryTarget(null);
       setFirstStepsOpen(false);
+      setVisitFinished(false);
+      setDashboard(null);
+      setProfile(null);
+      setProgress(null);
+      setGamification(null);
       setError('');
     } catch (reason) {
       clearAuthForLocalSwitch({
         errorMessage: silent ? '' : reason instanceof Error ? reason.message : String(reason),
       });
+      setVisitFinished(false);
+      setDashboard(null);
+      setProfile(null);
+      setProgress(null);
+      setGamification(null);
     } finally {
       setLoggingOut(false);
     }
@@ -748,9 +781,13 @@ export default function App(): React.JSX.Element {
                   className={view === item.key ? 'active' : ''}
                   onClick={() => handleSetView(item.key)}
                   aria-current={view === item.key ? 'page' : undefined}
+                  aria-label={`${t(navigationLabelKey(item.key, learnerMode))}. ${t(navigationHintKey(item.key, learnerMode))}`}
                 >
                   <Icon name={item.icon} size={20} />
-                  <span>{t(navigationLabelKey(item.key, learnerMode))}</span>
+                  <span>
+                    <strong className="side-nav__label">{t(navigationLabelKey(item.key, learnerMode))}</strong>
+                    <small className="side-nav__hint">{t(navigationHintKey(item.key, learnerMode))}</small>
+                  </span>
                   {item.key === 'learn' && dashboard.today.due_reviews > 0 && <b>{dashboard.today.due_reviews}</b>}
                 </button>
               ))}
@@ -945,6 +982,7 @@ export default function App(): React.JSX.Element {
               }}
               onOpenProgress={() => handleSetView('progress')}
               onOpenCoach={() => handleSetView('coach')}
+              onOpenSettings={() => handleSetView('settings')}
               onRefresh={() => { void refreshCore(); }}
             />
           )}
@@ -1050,35 +1088,42 @@ export default function App(): React.JSX.Element {
             type="button"
             className={view === item.key ? 'active' : ''}
             onClick={() => handleSetView(item.key)}
+            aria-label={`${t(item.labelKey)}. ${t(navigationHintKey(item.key, learnerMode))}`}
           >
             <Icon name={item.icon} size={21} /><span>{t(item.labelKey)}</span>
           </button>
         ))}
       </nav>
 
-      <QuickCapture
-        open={captureOpen}
-        onClose={() => setCaptureOpen(false)}
-        onCreated={() => {
-          setToast(t('captured'));
-          void refreshCore();
-        }}
-      />
-      <DictionaryDrawer
-        word={dictionaryTarget?.word ?? null}
-        initialEntryId={dictionaryTarget?.entryId}
-        onClose={() => setDictionaryTarget(null)}
-        onOpenWord={openDictionary}
-        onLearned={() => {
-          setToast(t('captured'));
-          void refreshCore();
-        }}
-        onPracticeWord={(target) => {
-          setPracticeTarget(target);
-          setDictionaryTarget(null);
-          goToLearn('audio');
-        }}
-      />
+      <Suspense fallback={null}>
+        {captureOpen && (
+          <QuickCapture
+            open={captureOpen}
+            onClose={() => setCaptureOpen(false)}
+            onCreated={() => {
+              setToast(t('captured'));
+              void refreshCore();
+            }}
+          />
+        )}
+        {Boolean(dictionaryTarget?.word) && (
+          <DictionaryDrawer
+            word={dictionaryTarget?.word ?? null}
+            initialEntryId={dictionaryTarget?.entryId}
+            onClose={() => setDictionaryTarget(null)}
+            onOpenWord={openDictionary}
+            onLearned={() => {
+              setToast(t('captured'));
+              void refreshCore();
+            }}
+            onPracticeWord={(target) => {
+              setPracticeTarget(target);
+              setDictionaryTarget(null);
+              goToLearn('audio');
+            }}
+          />
+        )}
+      </Suspense>
       {toast && <div className="toast" role="status"><Icon name="check" size={17} /> {toast}</div>}
     </div>
     </SessionAccessProvider>

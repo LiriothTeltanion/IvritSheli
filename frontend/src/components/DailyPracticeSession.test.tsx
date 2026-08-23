@@ -230,7 +230,7 @@ describe('DailyPracticeSession', () => {
     await user.click(await screen.findByRole('button', { name: 'Start practice' }));
     await user.click(await screen.findByRole('button', { name: 'Reveal meaning' }));
     await user.click(screen.getByRole('button', { name: 'I met this word' }));
-    expect(await screen.findByRole('alert')).toHaveTextContent('Temporary network error');
+    expect(await screen.findByRole('alert')).toHaveTextContent('Something did not work. Try again in a moment.');
     await user.click(screen.getByRole('button', { name: 'I met this word' }));
 
     await waitFor(() => expect(submit).toHaveBeenCalledTimes(2));

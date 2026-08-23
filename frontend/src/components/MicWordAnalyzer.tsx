@@ -54,7 +54,7 @@ export function MicWordAnalyzer({
   initialWord?: string;
   cloudAvailable?: boolean;
 }): React.JSX.Element {
-  const { locale, t } = useI18n();
+  const { errorText, locale, t } = useI18n();
   const { readOnly, readOnlyReason } = useSessionAccess();
   const [cloud, setCloud] = useState(false);
   const [acquiring, setAcquiring] = useState(false);
@@ -178,7 +178,7 @@ export function MicWordAnalyzer({
         && analysisGenerationRef.current === analysisGeneration
         && (captureGeneration === undefined || isCurrentCapture(captureGeneration))
       ) {
-        setError(reason instanceof Error ? reason.message : String(reason));
+        setError(errorText(reason));
       }
     } finally {
       if (
@@ -231,7 +231,7 @@ export function MicWordAnalyzer({
       })
       .catch((reason: unknown) => {
         if (!isCurrentCapture(generation)) return;
-        setError(reason instanceof Error ? reason.message : String(reason));
+        setError(errorText(reason));
         processingRef.current = false;
         setLoading(false);
       })
@@ -266,7 +266,7 @@ export function MicWordAnalyzer({
       const recorderError = (event as Event & { error?: DOMException }).error;
       failCapture(
         generation,
-        t('microphoneRecordingFailed', { error: recorderError?.message ?? t('unknownError') }),
+        t('microphoneRecordingFailed'),
       );
     };
     recorder.onstop = () => finishCloudRecording(recorder, generation);
@@ -281,7 +281,7 @@ export function MicWordAnalyzer({
       try {
         recorder.stop();
       } catch (reason) {
-        failCapture(generation, reason instanceof Error ? reason.message : String(reason));
+        failCapture(generation, errorText(reason));
         return;
       }
       releaseStream();
@@ -363,7 +363,7 @@ export function MicWordAnalyzer({
         startBrowserRecognition(generation);
       }
     } catch (reason) {
-      failCapture(generation, reason instanceof Error ? reason.message : String(reason));
+      failCapture(generation, errorText(reason));
     }
   };
 
@@ -393,7 +393,7 @@ export function MicWordAnalyzer({
       } catch (reason) {
         failCapture(
           captureGenerationRef.current,
-          reason instanceof Error ? reason.message : String(reason),
+          errorText(reason),
         );
       }
       releaseStream();

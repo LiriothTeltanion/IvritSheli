@@ -17,6 +17,7 @@ import { enMessages } from './en';
 import { esMessages } from './es';
 import { heMessages } from './he';
 import { codeLabels } from './codeLabels';
+import { describeError, errorMessages } from './errorMessages';
 
 const catalogues = { en: enMessages, es: esMessages, he: heMessages } as const;
 
@@ -58,6 +59,68 @@ describe('interface copy catalogues', () => {
       }
     }
     expect(mismatched).toEqual([]);
+  });
+});
+
+describe('learner-facing error copy', () => {
+  /*
+   * Same guard as the interface catalogues, for the same reason — but this one
+   * also has to hold a floor the others do not. Every other message has a call
+   * site that can be seen on screen during review; these appear only when
+   * something fails, which is exactly when nobody is looking. A code that drops
+   * out of Spanish would surface as `undefined` in front of a learner who has
+   * just watched the app break.
+   */
+  it('carries exactly the same error codes in all three languages', () => {
+    const en = Object.keys(errorMessages.en).sort();
+    expect(Object.keys(errorMessages.es).sort()).toEqual(en);
+    expect(Object.keys(errorMessages.he).sort()).toEqual(en);
+  });
+
+  it('leaves no error message empty in any language', () => {
+    const empty: string[] = [];
+    for (const [locale, table] of Object.entries(errorMessages)) {
+      for (const [code, text] of Object.entries(table)) {
+        if (text.trim() === '') empty.push(`${locale}.${code}`);
+      }
+    }
+    expect(empty).toEqual([]);
+  });
+
+  it('always answers with a sentence, whatever was thrown', () => {
+    /*
+     * The point of the whole file: nothing reaches the learner as raw English
+     * prose off an exception, and nothing reaches her as `undefined` either.
+     */
+    const thrown: unknown[] = [
+      new Error('Request failed (500)'),
+      { code: 'database_unavailable' },
+      { code: 'a_code_nobody_has_written_copy_for_yet' },
+      new TypeError('Failed to fetch'),
+      'a bare string',
+      undefined,
+      null,
+    ];
+    for (const locale of ['en', 'es', 'he'] as const) {
+      for (const reason of thrown) {
+        const text = describeError(reason, locale);
+        expect(typeof text).toBe('string');
+        expect(text.trim()).not.toBe('');
+      }
+    }
+  });
+
+  it('maps a known code to that language, not to English', () => {
+    expect(describeError({ code: 'database_unavailable' }, 'es'))
+      .toBe(errorMessages.es.database_unavailable);
+    expect(describeError({ code: 'database_unavailable' }, 'he'))
+      .toBe(errorMessages.he.database_unavailable);
+  });
+
+  it('reads a dropped network as the connection message', () => {
+    // `fetch` reports a vanished network as a bare TypeError and nothing else.
+    expect(describeError(new TypeError('Failed to fetch'), 'es'))
+      .toBe(errorMessages.es.network_required);
   });
 });
 

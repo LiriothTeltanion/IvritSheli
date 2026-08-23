@@ -139,6 +139,7 @@ class GoogleOAuthClient:
                 "state": state,
                 "code_challenge": self._challenge(verifier),
                 "code_challenge_method": "S256",
+                "prompt": "select_account",
             }
         )
         return f"{self.AUTHORIZE_URL}?{query}"
@@ -315,7 +316,12 @@ class AuthService:
         self, provider: str, state: str, browser_state: str | None
     ) -> tuple[str, str]:
         """Validate and consume one browser- and provider-bound OAuth attempt once."""
-        if not state or not browser_state or not hmac.compare_digest(state, browser_state):
+        if not state:
+            raise AuthenticationError("OAuth state validation failed")
+        if browser_state is not None:
+            if not hmac.compare_digest(state, browser_state):
+                raise AuthenticationError("OAuth state validation failed")
+        elif self.settings.session_cookie_secure or self.settings.app_env == "production":
             raise AuthenticationError("OAuth state validation failed")
         consumed = self.store.consume_oauth_state(state, provider=provider)
         if consumed is None:

@@ -25,6 +25,48 @@
   mask-image: linear-gradient(270deg, transparent 8%, rgba(0, 0, 0, 0.35) 42%, #000 100%);
 }
 
+:root[data-theme='light'] .auth-gate::before {
+  background-image: url('/assets/illustrations/morning-hebrew-welcome.webp');
+  background-position: 74% 46%;
+  opacity: 0.44;
+  filter: saturate(0.88) contrast(1.02) brightness(1.04);
+  -webkit-mask-image: linear-gradient(90deg, transparent 4%, rgba(0, 0, 0, 0.22) 38%, #000 100%);
+  mask-image: linear-gradient(90deg, transparent 4%, rgba(0, 0, 0, 0.22) 38%, #000 100%);
+}
+
+:root[data-theme='light'][dir='rtl'] .auth-gate::before {
+  background-position: 26% 46%;
+  -webkit-mask-image: linear-gradient(270deg, transparent 4%, rgba(0, 0, 0, 0.22) 38%, #000 100%);
+  mask-image: linear-gradient(270deg, transparent 4%, rgba(0, 0, 0, 0.22) 38%, #000 100%);
+}
+
+:root[data-theme='light'] .auth-copy h1 {
+  background: linear-gradient(135deg, #172033 18%, #0f766e 70%, #087c91 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 18px rgba(15, 118, 110, 0.1));
+}
+
+:root[data-theme='light'] .auth-feature-pill,
+:root[data-theme='light'] .auth-stats-strip,
+:root[data-theme='light'] .auth-situations-bar,
+:root[data-theme='light'] .auth-saved-accounts-strip,
+:root[data-theme='light'] .auth-region-switcher {
+  border-color: rgba(54, 65, 83, 0.13);
+  background: rgba(255, 254, 250, 0.76);
+  box-shadow: 0 10px 28px rgba(83, 66, 35, 0.06);
+}
+
+:root[data-theme='light'] .auth-button--secondary,
+:root[data-theme='light'] .auth-situation-pill,
+:root[data-theme='light'] .auth-saved-pill,
+:root[data-theme='light'] .auth-region-pill {
+  border-color: rgba(54, 65, 83, 0.16);
+  background: rgba(255, 254, 250, 0.78);
+  color: var(--text);
+}
+
 .auth-preview-card {
   background: color-mix(in srgb, var(--surface-solid) 96%, transparent);
   -webkit-backdrop-filter: blur(24px) saturate(1.08);
@@ -146,6 +188,52 @@
   backdrop-filter: blur(16px) saturate(1.08);
 }
 
+:root[data-theme='light'] .hero-dashboard--living-atlas {
+  border-color: rgba(15, 118, 110, 0.28);
+  background: #f7ead5;
+  color: var(--warm-navy);
+  box-shadow: 0 1.6rem 4.4rem rgba(83, 66, 35, 0.16);
+}
+
+:root[data-theme='light'] .hero-dashboard--living-atlas::before {
+  background-image: url('/assets/illustrations/morning-hebrew-welcome.webp');
+  background-position: 58% 46%;
+  filter: saturate(0.9) contrast(1.01) brightness(1.02);
+}
+
+:root[data-theme='light'] .hero-dashboard--living-atlas::after {
+  background:
+    linear-gradient(90deg, rgba(255, 250, 240, 0.98) 0%, rgba(255, 250, 240, 0.92) 43%, rgba(255, 250, 240, 0.4) 70%, rgba(255, 250, 240, 0.13) 100%),
+    linear-gradient(0deg, rgba(111, 75, 30, 0.12), transparent 58%);
+}
+
+:root[data-theme='light'][dir='rtl'] .hero-dashboard--living-atlas::after {
+  background:
+    linear-gradient(270deg, rgba(255, 250, 240, 0.98) 0%, rgba(255, 250, 240, 0.92) 43%, rgba(255, 250, 240, 0.4) 70%, rgba(255, 250, 240, 0.13) 100%),
+    linear-gradient(0deg, rgba(111, 75, 30, 0.12), transparent 58%);
+}
+
+:root[data-theme='light'] .hero-dashboard--living-atlas .hero-kicker,
+:root[data-theme='light'] .hero-dashboard--living-atlas .hero-copy > p,
+:root[data-theme='light'] .hero-dashboard--living-atlas .capture-link {
+  color: #354255;
+}
+
+:root[data-theme='light'] .hero-dashboard--living-atlas .hero-copy h1 {
+  color: var(--warm-navy);
+  text-shadow: 0 0.14rem 1rem rgba(255, 255, 255, 0.72);
+}
+
+:root[data-theme='light'] .hero-dashboard--living-atlas .hero-copy h1 span {
+  color: var(--warm-teal);
+}
+
+:root[data-theme='light'] .hero-dashboard--living-atlas .guided-word-visual {
+  border-color: rgba(15, 118, 110, 0.2);
+  background: rgba(255, 254, 250, 0.94);
+  box-shadow: 0 1.2rem 3rem rgba(83, 66, 35, 0.17);
+}
+
 .today-living-atlas {
   margin-block: 1.25rem;
 }
@@ -171,6 +259,11 @@
     opacity: 0.16;
     -webkit-mask-image: linear-gradient(to bottom, #000, transparent 85%);
     mask-image: linear-gradient(to bottom, #000, transparent 85%);
+  }
+
+  :root[data-theme='light'] .auth-gate::before {
+    background-position: 52% center;
+    opacity: 0.2;
   }
 
   .hero-dashboard--living-atlas::before {
@@ -205,5 +298,64 @@
 
   .hero-dashboard--living-atlas:hover::before {
     transform: none;
+  }
+}
+
+/* Keep the quick profile controls inside the usable viewport at every zoom. */
+:root .profile-menu__popover {
+  position: fixed !important;
+  inset-block-start: 76px !important;
+  inset-block-end: auto !important;
+  inset-inline-start: auto !important;
+  inset-inline-end: clamp(0.65rem, 2vw, 1.5rem) !important;
+  width: min(320px, calc(100vw - 1.3rem));
+  max-height: calc(100vh - 92px);
+  max-height: calc(100dvh - 92px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scroll-padding-block: 0.75rem;
+}
+
+:root[dir='rtl'] .profile-menu__popover {
+  inset-inline-start: clamp(0.65rem, 2vw, 1.5rem) !important;
+  inset-inline-end: auto !important;
+}
+
+.profile-menu__popover::-webkit-scrollbar {
+  width: 8px;
+}
+
+.profile-menu__popover::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--teal) 38%, transparent);
+  background-clip: padding-box;
+}
+
+.profile-menu__identity {
+  padding: 12px;
+  gap: 10px;
+}
+
+.profile-menu__identity-presets > div {
+  gap: 6px;
+}
+
+.profile-menu__identity-presets button {
+  width: 38px;
+  height: 38px;
+}
+
+@media (max-width: 580px) {
+  :root .profile-menu__popover,
+  :root[dir='rtl'] .profile-menu__popover {
+    inset-block-start: 68px !important;
+    inset-inline: 0.55rem !important;
+    width: auto;
+    max-height: calc(100vh - 78px);
+    max-height: calc(100dvh - 78px);
   }
 }

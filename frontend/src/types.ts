@@ -5,7 +5,7 @@
 // Notes: Comments in ENGLISH; emojis sparingly.
 
 export type Locale = 'en' | 'es' | 'he';
-export type ViewKey = 'today' | 'learn' | 'coach' | 'progress' | 'connectors' | 'settings' | 'help';
+export type ViewKey = 'today' | 'learn' | 'dictionary' | 'audio' | 'coach' | 'progress' | 'connectors' | 'settings' | 'help';
 export type LearnTab = 'path' | 'alphabet' | 'practice' | 'review' | 'dictionary' | 'audio' | 'collection';
 export type VoiceStyle = 'masculine' | 'feminine';
 export type LearnerMode = 'guided' | 'explorer' | 'experienced';

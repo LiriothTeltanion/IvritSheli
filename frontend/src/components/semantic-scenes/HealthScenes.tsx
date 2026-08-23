@@ -58,6 +58,15 @@ export function HealthScene({
             <path className="semantic-art__detail semantic-art__detail--thin" d="M94 109v44" />
             {/* Lapels, folded back off the opening. */}
             <path className="semantic-art__detail semantic-art__detail--thin" d="m76 96 18 13 18-13" />
+            {/*
+              Sleeves and hands, on top of the coat. The coat is an opaque slab
+              from x=60 to x=128 and the figure's own arms hang underneath it, so
+              the doctor had no arms at all — the only limb evidence was a brown
+              crescent peeking past one edge, a hand attached to nothing.
+            */}
+            <path className="semantic-art__surface-line" d="M83 108q-4 11-9 21m22-21q7 11 20 21" />
+            <ellipse className="semantic-art__hand" cx="74" cy="130" rx="6" ry="4.6" transform="rotate(-16 74 130)" />
+            <ellipse className="semantic-art__hand" cx="125" cy="130" rx="6" ry="4.6" transform="rotate(16 125 130)" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
             {/* Stethoscope hung round the neck, below the collar. */}

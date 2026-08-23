@@ -427,7 +427,7 @@ def main(argv: list[str] | None = None) -> int:
             display_name=args.display_name,
         )
         if args.init:
-            print(f"Initialized local data in {settings.data_dir} ✅")
+            print(f"Initialized local data in {settings.data_dir} [OK]")
         if args.seed:
             result = seed_all(
                 repository,
@@ -437,7 +437,7 @@ def main(argv: list[str] | None = None) -> int:
             print(
                 "Seeded "
                 f"{result['learning_items']} learning items and "
-                f"{result['dictionary_entries']} dictionary entries ✅"
+                f"{result['dictionary_entries']} dictionary entries [OK]"
             )
 
         import_path = args.dictionary_jsonl
@@ -449,7 +449,7 @@ def main(argv: list[str] | None = None) -> int:
                 args.dictionary_url,
                 import_path,
             )
-            print(f"Downloaded dictionary to {downloaded} ✅")
+            print(f"Downloaded dictionary to {downloaded} [OK]")
         if import_path:
             stats = dictionary.import_jsonl(
                 import_path,
@@ -458,17 +458,17 @@ def main(argv: list[str] | None = None) -> int:
             )
             print(
                 f"Imported {stats.entries_imported} entries, "
-                f"{stats.forms_imported} forms, and {stats.senses_imported} senses ✅"
+                f"{stats.forms_imported} forms, and {stats.senses_imported} senses [OK]"
             )
 
         if args.export_json:
             destination = repository.export_json(args.export_json)
-            print(f"Exported learner data to {destination} ✅")
+            print(f"Exported learner data to {destination} [OK]")
         if args.import_json:
             result = repository.import_json(args.import_json)
             print(
                 "Restored "
-                f"{result['rows_restored']} learner rows from {result['source']} ✅"
+                f"{result['rows_restored']} learner rows from {result['source']} [OK]"
             )
 
         profile_updates = {
@@ -485,13 +485,13 @@ def main(argv: list[str] | None = None) -> int:
             print(
                 "Updated Learning Core profile: "
                 f"track={profile['curriculum_track']}, "
-                f"band={profile['cefr_band']}, mode={profile['learner_mode']} ✅"
+                f"band={profile['cefr_band']}, mode={profile['learner_mode']} [OK]"
             )
         if args.learning_core_status:
             print(json.dumps(repository.learning_core_state(), ensure_ascii=False, indent=2))
     except (OSError, ValueError, sqlite3.Error, RuntimeError) as error:
         LOGGER.error("%s", error)
-        print(f"Operation failed: {error} ❌", file=sys.stderr)
+        print(f"Operation failed: {error}", file=sys.stderr)
         return 1
     finally:
         if database:

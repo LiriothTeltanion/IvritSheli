@@ -454,7 +454,11 @@ export function BureaucracyScene({
             <path className="semantic-art__detail semantic-art__detail--thin" d="M32 40h30m-30 12h22" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
-            <SemanticPerson x={142} y={88} facing="left" shirt="blue" pose="hold" scale={1} />
+            {/* Raised ten units. `hold` brings both hands together at local
+                (0, 20), which at y=88 landed at y=108 — exactly the line of the
+                counter bar drawn over it. The hands were behind the counter, so
+                the forearms tapered to points and simply stopped. */}
+            <SemanticPerson x={142} y={78} facing="left" shirt="blue" pose="hold" scale={1} />
             {/*
               Two panes with a real opening between them. A single sheet of
               glass across the whole window buried the clerk behind it — the

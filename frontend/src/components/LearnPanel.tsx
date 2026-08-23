@@ -38,7 +38,7 @@ export function LearnPanel({
   onWordClick: (word: string, entryId?: number) => void;
   onRefresh: () => void;
 }): React.JSX.Element {
-  const { locale, label, t } = useI18n();
+  const { errorText, label, locale, t } = useI18n();
   const { readOnly, readOnlyReason } = useSessionAccess();
   const [tab, setTab] = useState<LearnTab>(initialTab);
   const [query, setQuery] = useState('');
@@ -72,7 +72,7 @@ export function LearnPanel({
       setDictionaryResults(results);
     } catch (reason) {
       if (!mountedRef.current || generation !== searchGenerationRef.current) return;
-      setMessage(reason instanceof Error ? reason.message : String(reason));
+      setMessage(errorText(reason));
     } finally {
       if (mountedRef.current && generation === searchGenerationRef.current) setLoading(false);
     }
@@ -89,7 +89,7 @@ export function LearnPanel({
       setMessage(t('captured'));
       onRefresh();
     } catch (reason) {
-      setMessage(reason instanceof Error ? reason.message : String(reason));
+      setMessage(errorText(reason));
     }
   };
 

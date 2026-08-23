@@ -59,6 +59,20 @@ It replaces the visible use of the geographically impossible legacy collage
 `israel-living-atlas-v2.5.webp`. The legacy file is preserved for reversible
 history but must not be presented as an accurate map.
 
+### Light-mode everyday-life welcome
+
+`frontend/public/assets/illustrations/morning-hebrew-welcome.webp` is a
+byte-identical promoted copy of the approved interior art-direction reference.
+It is used only on light-theme welcome and Today hero surfaces, where the warm
+breakfast conversation communicates everyday spoken Hebrew without pretending
+to be a geographic map. SHA-256:
+`37ac8d3e98f0ce7128919d59d552da2796aa1713a5e2909e5f4de1afd54daaf8`.
+
+Known semantic limit: the scene reads as breakfast and conversation, not as a
+literal greeting gesture. It is atmosphere for the learning journey and is not
+evidence for language, translation, pronunciation or geography. The original
+reference remains preserved under `docs/art-direction/`.
+
 ### Prompt summaries
 
 - Shared art direction: mature editorial realism, discreet gouache/digital-matte

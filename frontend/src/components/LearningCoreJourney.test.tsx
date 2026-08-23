@@ -377,12 +377,12 @@ describe('LearningCoreJourney', () => {
     await user.type(await screen.findByPlaceholderText('Write what you remember…'), 'learning');
     await user.click(screen.getByRole('button', { name: 'I remembered — submit recall' }));
 
-    expect(await screen.findByText('Network unreachable')).toBeInTheDocument();
+    expect(await screen.findByText('Something did not work. Try again in a moment.')).toBeInTheDocument();
 
     await user.type(screen.getByPlaceholderText('Write what you remember…'), ' more');
 
     // The attempt was never saved; hiding that on the next keystroke would mislead.
-    expect(screen.getByText('Network unreachable')).toBeInTheDocument();
+    expect(screen.getByText('Something did not work. Try again in a moment.')).toBeInTheDocument();
   });
 
   it('never asks for more evidence once reading support has fully faded', async () => {
@@ -508,7 +508,7 @@ describe('LearningCoreJourney', () => {
     await user.type(await screen.findByPlaceholderText('Write what you remember…'), 'learning');
     const action = screen.getByRole('button', { name: 'I remembered — submit recall' });
     await user.click(action);
-    expect(await screen.findByText('Connection interrupted after send')).toBeInTheDocument();
+    expect(await screen.findByText('You need a connection to save this. Reconnect and try again.')).toBeInTheDocument();
     await user.click(action);
 
     await waitFor(() => expect(submit).toHaveBeenCalledTimes(2));

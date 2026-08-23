@@ -51,13 +51,13 @@ export function CoreGreetingTimeScene({
             <SemanticPerson x={117} y={109} shirt="teal" pose="walk" scale={1.18} />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            {/* The arm stops short of the next passenger. It used to end at their
-                cheek, which reads as a shove rather than as squeezing past. */}
-            <path className="semantic-art__skin-line" d="M124 104c12-6 22-8 32-7" />
-            <circle className="semantic-art__hand" cx="157" cy="97" r="4" />
+            {/* A third arm used to be drawn here, reaching to the right, while the
+                walking figure's own pose already draws two hanging from its
+                shoulders. Three arms. The walk and the arrow carry "squeezing
+                past" on their own. */}
             <path
               className="semantic-art__arrow semantic-art__motion-part"
-              d="M91 146h54m-13-11 13 11-13 11"
+              d="M143 146h26m-13-11 13 11-13 11"
             />
             <path
               className="semantic-art__motion semantic-art__motion-part"
@@ -147,7 +147,7 @@ export function CoreGreetingTimeScene({
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
             <path
               className="semantic-art__arrow semantic-art__motion-part"
-              d="M99 148H51m12-11-12 11 12 11m78-11h48m-12-11 12 11-12 11"
+              d="M122 148H88m12-11-12 11 12 11M196 148h32m-12-11 12 11-12 11"
             />
             {/*
               A bag at the feet of the one leaving. There used to be a heart

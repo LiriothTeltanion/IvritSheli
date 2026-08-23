@@ -19,7 +19,7 @@ function initialTheme(): AppTheme {
   return 'dark';
 }
 
-export function usePersistentTheme(): [AppTheme, () => void] {
+export function usePersistentTheme(): [AppTheme, () => void, (next: AppTheme) => void] {
   const [theme, setTheme] = useState<AppTheme>(initialTheme);
 
   useEffect(() => {
@@ -33,6 +33,9 @@ export function usePersistentTheme(): [AppTheme, () => void] {
     }
   }, [theme]);
 
+  const setExplicitTheme = (next: AppTheme): void => {
+    setTheme(next);
+  };
   const toggleTheme = (): void => setTheme((current) => current === 'dark' ? 'light' : 'dark');
-  return [theme, toggleTheme];
+  return [theme, toggleTheme, setExplicitTheme];
 }

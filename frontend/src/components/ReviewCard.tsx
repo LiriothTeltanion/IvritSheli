@@ -28,7 +28,7 @@ export function ReviewCard({
   onComplete,
   onStartPractice,
 }: ReviewCardProps): React.JSX.Element {
-  const { locale, label, t } = useI18n();
+  const { errorText, label, locale, t } = useI18n();
   const { readOnly, readOnlyReason } = useSessionAccess();
   const [items, setItems] = useState<LearningItem[]>([]);
   const [index, setIndex] = useState(0);
@@ -42,7 +42,7 @@ export function ReviewCard({
     let mounted = true;
     api.nextReviews(12)
       .then((result) => { if (mounted) setItems(result); })
-      .catch((reason: unknown) => { if (mounted) setMessage(reason instanceof Error ? reason.message : String(reason)); })
+      .catch((reason: unknown) => { if (mounted) setMessage(errorText(reason)); })
       .finally(() => { if (mounted) setLoading(false); });
     return () => { mounted = false; };
   }, [active]);
@@ -88,7 +88,7 @@ export function ReviewCard({
         setIndex((current) => current + 1);
       }, 450);
     } catch (reason) {
-      setMessage(reason instanceof Error ? reason.message : String(reason));
+      setMessage(errorText(reason));
     } finally {
       setSubmitting(false);
     }

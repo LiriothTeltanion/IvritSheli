@@ -114,7 +114,7 @@ export function ProfileMenu({
     action();
   };
 
-  const activePresetEmoji = AVATAR_PRESETS.find((preset) => preset.id === identityAvatarPresetId)?.emoji;
+  const activePresetImageUrl = AVATAR_PRESETS.find((preset) => preset.id === identityAvatarPresetId)?.imageUrl;
   const profileButtonLabel = `${t('openProfileMenu')}: ${identityName}`;
   const hasIdentityChanges = identityDraftName.trim() !== identityName || identityDraftPreset !== identityAvatarPresetId;
   const canSaveIdentity = hasIdentityChanges && identityDraftName.trim().length > 0;
@@ -133,8 +133,8 @@ export function ProfileMenu({
       >
         {avatarUrl
           ? <img src={avatarUrl} alt="" referrerPolicy="no-referrer" />
-          : activePresetEmoji
-            ? <span>{activePresetEmoji}</span>
+          : activePresetImageUrl
+            ? <img src={activePresetImageUrl} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
             : <span>{identityName.slice(0, 1).toUpperCase()}</span>}
         <i className={online ? '' : 'is-offline'} />
       </button>
@@ -161,12 +161,13 @@ export function ProfileMenu({
                 {AVATAR_PRESETS.map((preset) => (
                   <button
                     key={preset.id}
+                    className={`profile-menu__avatar-btn ${identityDraftPreset === preset.id ? 'active' : ''}`}
                     type="button"
-                    className={identityDraftPreset === preset.id ? 'active' : ''}
                     onClick={() => setIdentityDraftPreset((current) => (current === preset.id ? undefined : preset.id))}
                     aria-label={`${t('avatar')} ${preset.emoji}`}
+                    aria-pressed={identityDraftPreset === preset.id}
                   >
-                    <span>{preset.emoji}</span>
+                    <img src={preset.imageUrl} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                   </button>
                 ))}
               </div>

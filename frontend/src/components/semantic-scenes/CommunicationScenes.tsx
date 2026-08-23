@@ -149,6 +149,10 @@ export function CommunicationScene({
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <SemanticPerson x={62} y={108} shirt="blue" pose="point" scale={1.02} />
             <SemanticPerson x={184} y={110} shirt="gold" facing="left" pose="listen" scale={0.98} />
+            {/* An offset copy behind the card, the same drop shadow a speech
+                bubble uses. Without it the card read as a hole punched in the
+                scene rather than as something one of them is offering. */}
+            <path className="semantic-art__bubble-shadow" d="M96 92h52v34H96Z" transform="translate(3 4)" />
             <path className="semantic-art__surface semantic-art__outlined" d="M96 92h52v34H96Z" />
             <path className="semantic-art__detail semantic-art__detail--thin" d="M104 102h36m-36 9h24" />
           </SceneLayer>

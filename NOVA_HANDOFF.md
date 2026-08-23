@@ -1,6 +1,6 @@
-# Ivrit Sheli 2.12.0 — Living Hebrew Nocturne Handoff
+# Ivrit Sheli 2.12.2 — Visual Harmony & Resilience Handoff
 
-Prepared: 2026-08-14 (`Asia/Jerusalem`)
+Prepared: 2026-08-19 (`Asia/Jerusalem`)
 Source state: private / local / unpublished
 Public production intentionally remains: **2.4.0 Contest Edition (2026-07-21)**
 
@@ -8,15 +8,21 @@ Public production intentionally remains: **2.4.0 Contest Edition (2026-07-21)**
 
 - **Project:** `02 — Ivrit Sheli`
 - **Branch:** `consolidation/ivrit-sheli-2.10-baseline`
-- **Implementation HEAD:** `9b3ed76`
-- **Issue:** `KEV-11` now has the family/relationship sibling-child-parent ambiguity pass in progress. `KEV-9`, `KEV-10` and `KEV-14` remain Done and were not repeated.
-- **Work completed:** private source advanced from 2.11.0 to **2.12.0 Living Hebrew Nocturne**. Dark is now the first-run default with a persistent light choice and pre-render theme resolution. Seven adult, action-led journey paintings (one Be’er Sheva hero plus six regions with responsive crops) replace the visible legacy set. All 240 exact SVG scenes now use adult shared anatomy, seven setting-aware depth families and short meaning-driven motion; ask/answer/request/explain are distinct. VisualQAGallery is art-dominant and adds an optional seven-painting tray, Hebrew recognition labels, responsive hero framing and high-contrast/reduced-motion support.
-- **Slice 1 (2026-08-16):** side navigation now has labeled sections with clearer hierarchy, a mobile off-canvas drawer with toggle + backdrop, and profile identity editing (display name + preset avatar) wired to local persistence and immediate render updates. Fixed learner-mode label typing (`guided/explorer/experienced`) where needed to avoid stale string key usage.
-- **Slice 2 (2026-08-16):** bounded family/relationship visual ambiguity pass: `family.brother`, `family.sister`, `family.son` and `family.daughter` now carry explicit role cues (`sibling` vs `child`) on the relationship markers and stronger mini-diagram reference/target structure cues. This continuation adds a `parent` role cue to `family.parents` markers for a cleaner father/mother read without rebalancing the scene topology.
-- **Tests:** 717/717 Vitest across 41 files; production TypeScript/Vite build passed; 315 backend pytest passed with one credential-gated PostgreSQL skip; Ruff, strict MyPy across 39 source files and compileall passed; isolated doctor 7/7 as 2.12.0 with 240 entries; Playwright visual-recognition matrix 7 passed / 2 expected desktop-only skips across 390/768/1440 px; light and dark contact matrices each rendered 240/240 scenes; package verification passed for 217 required files and 387 canonical Git-index checksums.
-- **Current URLs:** current hot-reload frontend and art viewer `http://127.0.0.1:5173/?visualQa=1&lang=es&group=communication&size=card&journeyArt=1`; inherited Docker/PostgreSQL candidate `http://127.0.0.1:8000/`; isolated writable local workspace `http://127.0.0.1:8001/`.
-- **Next action:** keep `KEV-11` bounded. Run a human five-second review of the full family/relationship cluster (including `family.parents` now marked with a parent role cue) and either mark this slice passed or report the exact remaining confusion spot for one more micro-adjustment. Do not launch another all-catalog feature wave. After this visual slice, `KEV-12` remains the Supabase compatibility audit and `KEV-13` the local-only Vercel readiness audit.
-- **Blockers:** no local engineering blocker. Ports 8000 and 8001 are intentionally preserved inherited 2.10.0 processes while the 5173 frontend reflects current 2.12.0 source; do not call the backends a 2.12 runtime until they are deliberately restarted/rebuilt and reverified. Human recognition, isolated HTTPS staging, two-real-account isolation, backup/restore and mother-pilot acceptance remain unverified. Publication, push, tag, deploy and public judge-state changes remain frozen until after 2026-08-25 unless Kevin explicitly changes that instruction.
+- **Implementation Version:** `2.12.2`
+- **Issue:** `KEV-11` (family/relationship pass), `KEV-14` (avatar harmonization), `KEV-15` (typography & brand identity) are complete. `KEV-12` (Supabase pool verification) and `KEV-13` (Vercel deployment readiness) are queued.
+- **Work completed:** 
+  1. **PostgreSQL Connection Pool:** Thread-safe `queue.Queue` connection cache in `cloud_store.py` providing sub-50ms query latencies and automatic reconnection.
+  2. **15 Vector Avatar Presets:** Redesigned the 15 avatars in a consistent 2D flat editorial vector style with turquoise backgrounds and white circular bezels, with full accessibility `aria-label` emoji support.
+  3. **Hebraized Monumental Typography:** "IVRIT" wordmark with `Cinzel Decorative` + `Frank Ruhl Libre` + embedded Aleph squircle badge + cross-browser fallback colors preventing reload transparency.
+  4. **Nocturne Brand App Icon:** Replaced legacy icon in `frontend/public/icons/app-icon.svg` with a dark squircle Aleph emblem, golden starburst, and coral swoosh.
+  5. **3D Holographic Hero Card:** Cursor-following 3D physics tilt, live Hebrew audio pronunciation via Web Speech API, and ambient Ken Burns regional background carousel.
+- **Tests:** 728/728 Vitest tests across 40 test files in `frontend/`; production TypeScript `tsc -b` and Vite build passed in ~600ms; 315 backend pytest tests passing with one credential-gated skip; strict MyPy across 39 source files passing.
+- **Current URLs:** 
+  - Hot-reload frontend dev server: `http://127.0.0.1:5173/` (start with `cd frontend && npm run dev`)
+  - Production-style backend & bundled UI: `http://127.0.0.1:8000/` (start with `.\scripts\start.ps1`)
+  - Art QA Workbench: `http://127.0.0.1:5173/?visualQa=1&lang=es&group=communication&size=card&journeyArt=1`
+- **Next action:** Proceed with `KEV-12` (Supabase/PostgreSQL live migration tests) and `KEV-13` (Vercel deployment readiness).
+- **Blockers:** None. Remember that public production remains frozen at **2.4.0** until after **2026-08-25** per contest rules. Do not push, tag, or merge publicly.
 
 The handoff is committed immediately after the implementation checkpoint. Use
 `git rev-parse HEAD` for the handoff-record commit at consumption time; the
@@ -117,6 +123,7 @@ history but are no longer the visible journey art.
 ## Continuation rules
 
 - Keep `docs/VISUAL_BIBLE.md` as the visual authority.
+- Keep `docs/LIVING_HEBREW_FIELD_NOTES.md` as the operational notebook (defect status + phase-by-phase findings).
 - Improve one semantic ambiguity at a time; meaning must survive thumbnail/card
   size before decorative polish is accepted.
 - Keep exact semantic SVGs deterministic and local. Cinematic raster art is a

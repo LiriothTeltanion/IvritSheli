@@ -11,70 +11,133 @@ import type { A0VisualKey } from '../../visuals/a0VisualRecipes';
 import type { SemanticHintStage } from '../SemanticWordIllustration';
 import {
   SceneLayer,
+  SemanticMaterialDefs,
   SemanticPerson,
 } from './SemanticScenePrimitives';
 
 interface FoodHomeSceneProps {
   visualKey: A0VisualKey;
   hintStage: SemanticHintStage;
+  sceneId: string;
 }
 
 export function FoodHomeScene({
   visualKey,
   hintStage,
+  sceneId,
 }: FoodHomeSceneProps): React.JSX.Element | null {
   switch (visualKey) {
+    /*
+     * The pattern scene for the tabletop family, drawn against the vector style
+     * target rather than against the paintings: one continuous ramp per
+     * material, a dark line around each form, and a loaf that is cut open.
+     *
+     * What it replaces, and why each of those was wrong: the loaf was a closed
+     * dome, which reads as a helmet — the crumb face is what says bread. Its
+     * crust was `__gold-soft` under `__gold`, two flat fills, and `__gold-soft`
+     * is a pale tint in the light theme and a dark ochre in the dark one, so the
+     * loaf changed substance with the theme. An opaque white `__highlight` arc
+     * across it read as the rim of a glass cloche. The far side carried a
+     * hard-edged `__shade` wedge that cut the dome in two. And the small slice
+     * beside it was `__gold-soft` speckled with `__shade`, which is a violet
+     * wash — a spotted egg, not a crumb.
+     */
     case 'food.bread':
       return (
         <>
+          <SemanticMaterialDefs sceneId={sceneId} materials={['crust', 'crumb', 'board']} />
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
-            <path className="semantic-art__wood semantic-art__outlined" d="M23 126h194v25H23Z" />
-            <path className="semantic-art__grain" d="M31 133h178M31 140h178M31 146h116" />
-            <path className="semantic-art__surface semantic-art__outlined" d="M37 112h166l-11 17H48Z" />
-            <ellipse className="semantic-art__prop-shadow" cx="121" cy="125" rx="80" ry="7" />
+            {/* A slab seen nearly edge-on: a lit top face and a deep front edge.
+                Drawn as a deep receding trapezoid instead, its back corners
+                stuck out past the loaf on both sides and the board read as a
+                paper boat. It also used to be `__surface`, a cool near-white,
+                which put a white slab under the bread in both themes. */}
+            <path
+              className="semantic-art__board semantic-art__outlined"
+              d="M42 112h156l14 20H28Z"
+              fill={`url(#${sceneId}-board)`}
+            />
+            {/* `__board` here is carrying the dark wood contour, not a gradient:
+                the front edge takes its flat fill from `__wood-deep`. Without it
+                the edge kept the scene's ink outline, which is near-white in the
+                dark theme and put a bright rim around the slab. */}
+            <path
+              className="semantic-art__wood-deep semantic-art__board semantic-art__outlined"
+              d="M28 132h184v10a5 5 0 0 1-5 5H33a5 5 0 0 1-5-5Z"
+            />
+            <path className="semantic-art__grain" d="M46 118h146M38 138h164M38 143h108" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
+            <ellipse className="semantic-art__prop-shadow" cx="122" cy="116" rx="76" ry="6" />
+            {/* The crust runs bright at the lit upper left to deep brown at the
+                lower right in one ramp. No separate shade wedge: a flat shape
+                laid over a flat fill is exactly what read as clip art. */}
             <path
-              className="semantic-art__gold-soft semantic-art__outlined"
-              d="M48 111c3-42 30-70 72-70s70 28 73 70c-24 18-120 18-145 0Z"
+              className="semantic-art__crust semantic-art__outlined"
+              d="M52 112c-2-45 26-72 70-72s72 27 70 72c-37 10-103 10-140 0Z"
+              fill={`url(#${sceneId}-crust)`}
             />
+            {/* The lit shoulder, in the crust's own colour rather than in white.
+                It moved to the far end, which is the crust that is
+                still visible now that the near end is a cut face. */}
+            <path className="semantic-art__crust-lit" d="M126 44c33 5 55 28 58 60-8-30-27-51-58-56Z" />
+            {/*
+              The cut face, and where it sits is the whole scene.
+              It used to be an oval centred on the dome, which is not what a cut
+              loaf looks like — it is what a hard hat looks like: a smooth shell
+              with a pale panel inset in the middle of it. A loaf is cut at one
+              END, so the crumb is a large face flush against the near silhouette
+              with the crust arching over it and running away to the far end. A
+              rim of crust stays visible all round the face.
+            */}
             <path
-              className="semantic-art__gold semantic-art__outlined"
-              d="M57 103c10-31 32-50 63-50s54 19 64 50c-29 12-97 12-127 0Z"
+              className="semantic-art__crumb semantic-art__outlined"
+              d="M58 110c-1-40 24-64 63-64 13 9 17 37 8 68-27 8-55 6-71-4Z"
+              fill={`url(#${sceneId}-crumb)`}
             />
-            <path className="semantic-art__gold-lit" d="M57 103c9-28 28-46 55-49-16 12-24 30-26 53-13-1-22-2-29-4Z" />
-            {/* The far side of the crust turns away from the light. */}
-            <path className="semantic-art__shade" d="M147 47c26 13 44 36 46 64-11 8-27 12-45 14 9-27 7-56-1-78Z" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            {/* Scoring is a cut in the crust, so it takes the crust's own darker
-                brown. Painted with the generic ink class it came out blue-grey,
-                and no bread on earth is scored in blue. */}
-            <path className="semantic-art__wood-line" d="M78 91c7-18 15-29 25-34m-1 41c7-22 16-36 27-43m0 43c7-21 16-34 27-39" />
-            <path className="semantic-art__highlight" d="M69 109c29 9 72 10 103 1" />
-            {/* Sesame on the crust, scattered rather than ranked. */}
+            {/* Rings first, then speckle: cream with warm brown grain. The specks
+                are deliberately unequal and never level in pairs — two matched
+                marks side by side on a rounded form read as eyes, which is how
+                the previous slice turned into a face. */}
+            <path className="semantic-art__crumb-ring" d="M68 104c-3-28 12-44 28-44 17 0 28 16 26 44-16 6-38 6-54 0" />
+            <path className="semantic-art__crumb-ring" d="M80 100c-2-17 7-27 16-27 9 0 15 10 14 27-10 4-21 4-30 0" />
+            <circle className="semantic-art__crumb-speck" cx="74" cy="68" r="2.4" />
+            <circle className="semantic-art__crumb-speck" cx="64" cy="82" r="1.9" />
+            <circle className="semantic-art__crumb-speck" cx="88" cy="58" r="2" />
+            <circle className="semantic-art__crumb-speck" cx="106" cy="64" r="1.4" />
+            <circle className="semantic-art__crumb-speck" cx="114" cy="80" r="2.7" />
+            <circle className="semantic-art__crumb-speck" cx="78" cy="90" r="2.1" />
+            <circle className="semantic-art__crumb-speck" cx="96" cy="95" r="2.2" />
+            <circle className="semantic-art__crumb-speck" cx="120" cy="91" r="1.7" />
+            <circle className="semantic-art__crumb-speck" cx="86" cy="102" r="2.3" />
+            <circle className="semantic-art__crumb-speck" cx="116" cy="100" r="1.9" />
+            <circle className="semantic-art__crumb-speck" cx="122" cy="108" r="1.5" />
+            {/* Scoring: thick, dark brown, curving with the surface. It sits on the
+                far crust now — the near end is a cut face, and a cut removes the
+                scoring along with the crust it was cut into. */}
             <path
-              className="semantic-art__gloss"
-              d="M84 74h3m14-9h3m16 12h3m11-14h3m14 16h3M96 88h3m30 4h3"
+              className="semantic-art__crust-score"
+              d="M140 50c-4 14-7 27-9 40M160 48c-3 13-6 25-8 38M178 56c-3 11-5 20-6 30"
             />
-            {/* A cut slice: proof that the loaf is bread and not a stone. */}
-            <path className="semantic-art__gold-soft semantic-art__outlined" d="M27 121c1-19 8-30 20-30s19 11 20 30Z" />
-            {/* Crumb. Two large holes sitting level and symmetrical on a small
-                dome do not read as an open crumb — they read as a pair of eyes,
-                and the slice turned into a face. Smaller, more of them, none of
-                them aligned with another. */}
-            <circle className="semantic-art__shade" cx="38" cy="112" r="2.4" />
-            <circle className="semantic-art__shade" cx="47" cy="105" r="1.7" />
-            <circle className="semantic-art__shade" cx="54" cy="114" r="2.1" />
-            <circle className="semantic-art__shade" cx="45" cy="118" r="1.4" />
-            <circle className="semantic-art__shade" cx="58" cy="107" r="1.5" />
-            {/* The knife lies on the board. It used to float diagonally in the
-                air above the loaf, bladed but handleless, and read as a grey
-                rectangle rather than a tool. */}
-            <ellipse className="semantic-art__prop-shadow" cx="168" cy="126" rx="30" ry="3" />
-            <path className="semantic-art__metal semantic-art__outlined" d="M139 119h45l4 3-4 3h-45Z" />
-            <path className="semantic-art__gloss" d="M143 120h40" />
-            <path className="semantic-art__wood semantic-art__outlined" d="M184 117h16a3 3 0 0 1 3 3v3a3 3 0 0 1-3 3h-16Z" />
+            {/* A roll in front of the loaf: a second whole form, which gives the
+                cut one its scale and keeps the left of the board occupied. */}
+            <ellipse className="semantic-art__prop-shadow" cx="56" cy="114" rx="23" ry="4" />
+            <path
+              className="semantic-art__crust semantic-art__outlined"
+              d="M34 114c0-15 10-25 22-25s22 10 22 25c-13 6-31 6-44 0Z"
+              fill={`url(#${sceneId}-crust)`}
+            />
+            <path className="semantic-art__crust-lit" d="M38 106c2-11 9-17 18-17-9 3-15 8-16 18Z" />
+            <path className="semantic-art__crust-score" d="M56 96c-1 6-1 12 0 17" />
+            {/* The knife lies on the board's top face, in front of the loaf. It
+                used to float diagonally in the air above it, bladed but
+                handleless, and read as a grey rectangle rather than a tool. */}
+            <ellipse className="semantic-art__prop-shadow" cx="158" cy="131" rx="36" ry="3" />
+            <path className="semantic-art__metal semantic-art__outlined" d="M118 122h58l5 4-5 4h-58Z" />
+            <path className="semantic-art__gloss" d="M123 124h50" />
+            <path className="semantic-art__wood semantic-art__outlined" d="M176 121h18a4 4 0 0 1 4 4v2a4 4 0 0 1-4 4h-18Z" />
           </SceneLayer>
         </>
       );
@@ -100,9 +163,16 @@ export function FoodHomeScene({
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
             <ellipse className="semantic-art__prop-shadow" cx="176" cy="143" rx="26" ry="5" />
-            <path className="semantic-art__surface semantic-art__outlined" d="M155 83h42l-5 59h-32Z" />
-            <path className="semantic-art__water" d="M159 105c10 4 22-3 36 0l-3 34h-31Z" />
-            <path className="semantic-art__water-stream" d="M123 59c22 7 40 20 51 39" />
+            {/* The tumbler is glass, not an opaque white block: it used to be
+                `__surface`, the cool near-white, which made it read as a second
+                carton standing beside the first. */}
+            <path className="semantic-art__glass semantic-art__outlined" d="M155 83h42l-5 59h-32Z" />
+            {/* Milk, with a material of its own. Both the pour and the filled
+                glass used to be the water token, so this scene poured teal. */}
+            <path className="semantic-art__milk" d="M159 105c10 4 22-3 36 0l-3 34h-31Z" />
+            {/* The milk settles darker at the bottom of the glass. */}
+            <path className="semantic-art__milk-deep" d="M161 128h30l-1 11h-28Z" />
+            <path className="semantic-art__milk-stream" d="M123 59c22 7 40 20 51 39" />
             <path className="semantic-art__gloss" d="M163 92v44" />
             <path className="semantic-art__highlight" d="M166 92h8" />
           </SceneLayer>
@@ -128,15 +198,22 @@ export function FoodHomeScene({
             <path className="semantic-art__coral semantic-art__outlined" d="M160 84c39-8 43 38 3 39" />
             {/* Right third of the cup, plus the shadow the cup drops on its saucer. */}
             <path className="semantic-art__shade" d="M136 78h26v40c0 10-8 17-26 21 6-19 6-43 0-61Z" />
-            <ellipse className="semantic-art__ink semantic-art__outlined" cx="109" cy="76" rx="51" ry="13" />
+            {/* The coffee itself. It was `__ink` — the class that paints symbols
+                and text — which measures `#26384a` in the dark theme, so the cup
+                held navy blue. Coffee is the deep step of the same brew as the
+                tea two scenes up. */}
+            <ellipse className="semantic-art__brew-deep semantic-art__outlined" cx="109" cy="76" rx="51" ry="13" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
             {/* Crema: the pale ring that says brewed coffee, not black paint. */}
             <ellipse className="semantic-art__gloss" cx="109" cy="76" rx="38" ry="8" />
             <path className="semantic-art__steam semantic-art__motion-part" d="M82 64c-13-17 14-20 1-41m28 41c-13-17 14-20 1-41m28 41c-13-17 14-20 1-41" />
-            <ellipse className="semantic-art__ink semantic-art__outlined" cx="188" cy="130" rx="12" ry="7" transform="rotate(-28 188 130)" />
-            <path className="semantic-art__detail semantic-art__detail--thin" d="M185 133c4 3 8 5 12 6" />
-            <path className="semantic-art__highlight" d="M184 125c3 2 5 5 7 9" />
+            {/* The spoon. Its bowl was `__ink`, the class that paints symbols and
+                text, so a teaspoon lay on the saucer as a navy blot. A spoon is
+                metal, and the catalogue has a metal to say so. */}
+            <ellipse className="semantic-art__metal semantic-art__outlined" cx="188" cy="130" rx="12" ry="7" transform="rotate(-28 188 130)" />
+            <path className="semantic-art__metal-line" d="M185 133c4 3 8 5 12 6" />
+            <path className="semantic-art__gloss" d="M184 125c3 2 5 5 7 9" />
           </SceneLayer>
         </>
       );
@@ -167,10 +244,19 @@ export function FoodHomeScene({
             <circle className="semantic-art__gold semantic-art__outlined" cx="86" cy="28" r="6" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            <path className="semantic-art__water-stream" d="M151 97c15 5 25 13 32 24" />
+            {/* Tea, poured and standing. The stream was the water token, so it
+                arrived teal; the glass was `__gold-soft`, which is a pale tint
+                in the light theme and a dark ochre in the dark one, so the tea
+                changed substance with the theme. */}
+            {/* A spout to pour from. The pot had none: the tea simply began in
+                mid-air beside the body and the glass was already full, so the
+                drink had arrived from nowhere. */}
+            <path className="semantic-art__teal semantic-art__outlined" d="M127 62q24 5 28 28l-11 4q-4-19-20-24Z" />
+            <path className="semantic-art__teal-deep" d="M144 94l11-4q1 6-1 10Z" />
+            <path className="semantic-art__brew-stream" d="M150 96c13 6 23 15 30 26" />
             <ellipse className="semantic-art__prop-shadow" cx="187" cy="147" rx="24" ry="5" />
             <path className="semantic-art__glass semantic-art__outlined" d="M166 103h43l-6 44h-31Z" />
-            <path className="semantic-art__gold-soft" d="M171 121c10 4 21-3 34 0l-3 23h-29Z" />
+            <path className="semantic-art__brew" d="M171 121c10 4 21-3 34 0l-3 23h-29Z" />
             <path className="semantic-art__gloss" d="M172 108v34" />
             <path className="semantic-art__detail semantic-art__detail--thin" d="M185 106v23m0 0 11 8" />
             <path className="semantic-art__green semantic-art__outlined" d="M191 75c14-12 28-3 25 12-13 6-22 2-25-12Z" />
@@ -240,8 +326,14 @@ export function FoodHomeScene({
             <circle className="semantic-art__surface semantic-art__outlined" cx="166" cy="101" r="13" />
             <path className="semantic-art__shade" d="M166 88a13 13 0 0 1 0 26 10 18 0 0 0 0-26Z" />
             <circle className="semantic-art__surface semantic-art__outlined" cx="102" cy="112" r="8" />
-            <path className="semantic-art__metal semantic-art__outlined" d="m177 39 12-4 25 82-11 4Z" />
-            <path className="semantic-art__gloss" d="m183 40 23 76" />
+            {/* The knife lies on the plate in front of the wedge. It used to be a
+                handleless blade floating diagonally across the cheese and running
+                off the top right — the same defect the bread's knife had, and it
+                read as a grey rectangle rather than as a tool. */}
+            <ellipse className="semantic-art__prop-shadow" cx="97" cy="151" rx="44" ry="3" />
+            <path className="semantic-art__metal semantic-art__outlined" d="M55 142h56l5 4-5 4H55Z" />
+            <path className="semantic-art__gloss" d="M60 144h48" />
+            <path className="semantic-art__wood semantic-art__outlined" d="M116 141h18a4 4 0 0 1 4 4v2a4 4 0 0 1-4 4h-18Z" />
           </SceneLayer>
         </>
       );
@@ -311,24 +403,31 @@ export function FoodHomeScene({
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
-            <path className="semantic-art__wood semantic-art__outlined" d="M87 115h132v35H87Z" />
-            <path className="semantic-art__grain" d="M95 124h116M95 133h116M95 142h80" />
-            <path className="semantic-art__detail semantic-art__detail--thin" d="M105 150v13m95-13v13" />
+            {/* The table follows the plate left, so the plate keeps a rim of table
+                under it instead of overhanging into the air. */}
+            <path className="semantic-art__wood semantic-art__outlined" d="M75 115h132v35H75Z" />
+            <path className="semantic-art__grain" d="M83 124h116M83 133h116M83 142h80" />
+            <path className="semantic-art__detail semantic-art__detail--thin" d="M93 150v13m95-13v13" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
-            <SemanticPerson x={55} y={106} shirt="coral" pose="hold" />
+            {/* `hold` already draws both arms down to the belly, and a third arm
+                was then drawn on top of them as a bare `__skin-line` — a 55-unit
+                skin-coloured tube with no contour and no hand, ending in mid-air
+                above the plate. The figure had three arms. `reach` gives it one
+                arm that actually goes to the food, and the plate has come far
+                enough left for the hand to land on it. */}
+            <SemanticPerson x={55} y={106} shirt="coral" pose="reach" />
             {/* An open, delighted mouth — below the eyes, not across them. */}
             <path className="semantic-art__face" d="M49 89q6 7 12 0" />
-            <path className="semantic-art__skin-line" d="M67 109c18-18 30-29 43-35" />
             <path className="semantic-art__motion" d="M37 64q8-7 16 0m6 0q8-7 16 0" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            <ellipse className="semantic-art__prop-shadow" cx="155" cy="118" rx="52" ry="10" />
-            <ellipse className="semantic-art__surface semantic-art__outlined" cx="153" cy="111" rx="50" ry="20" />
-            <ellipse className="semantic-art__gloss" cx="153" cy="111" rx="37" ry="13" />
-            <path className="semantic-art__green semantic-art__outlined" d="M118 108c13-18 27-13 31 2-13 9-23 8-31-2Z" />
-            <path className="semantic-art__gold semantic-art__outlined" d="M149 106c15-19 33-14 37 3-15 9-27 8-37-3Z" />
-            <circle className="semantic-art__coral semantic-art__outlined" cx="178" cy="113" r="7" />
+            <ellipse className="semantic-art__prop-shadow" cx="137" cy="118" rx="52" ry="10" />
+            <ellipse className="semantic-art__surface semantic-art__outlined" cx="135" cy="111" rx="50" ry="20" />
+            <ellipse className="semantic-art__gloss" cx="135" cy="111" rx="37" ry="13" />
+            <path className="semantic-art__green semantic-art__outlined" d="M100 108c13-18 27-13 31 2-13 9-23 8-31-2Z" />
+            <path className="semantic-art__gold semantic-art__outlined" d="M131 106c15-19 33-14 37 3-15 9-27 8-37-3Z" />
+            <circle className="semantic-art__coral semantic-art__outlined" cx="160" cy="113" r="7" />
             <path className="semantic-art__spark semantic-art__motion-part" d="m195 55 5 10 10 5-10 5-5 10-5-10-10-5 10-5Z" />
           </SceneLayer>
         </>
@@ -475,7 +574,11 @@ export function FoodHomeScene({
             <path className="semantic-art__wood-deep" d="M74 113h82v6H74Z" />
             {/* Four legs: two front, two behind and inset so they read as depth. */}
             <path className="semantic-art__wood semantic-art__outlined" d="M78 119h9v38h-9Zm65 0h9v38h-9Z" />
-            <path className="semantic-art__wood-deep" d="M92 113h7v32h-7Zm38 0h7v32h-7Z" />
+            {/* The back pair reached y=145 and the stretcher sits at 144, so they
+                ended exactly on it and never touched the floor — the back half of
+                the chair hung in the air. They now run to 152, still short of the
+                front pair's 157 because they stand further back. */}
+            <path className="semantic-art__wood-deep" d="M92 113h7v39h-7Zm38 0h7v39h-7Z" />
             <path className="semantic-art__wood semantic-art__outlined" d="M78 138h74v6H78Z" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
@@ -511,7 +614,14 @@ export function FoodHomeScene({
             <path className="semantic-art__metal semantic-art__outlined" d="M83 56h9v14h-9Zm0 60h9v14h-9Z" />
             <circle className="semantic-art__gold semantic-art__outlined" cx="162" cy="99" r="8" />
             <circle className="semantic-art__gloss" cx="160" cy="97" r="3" />
-            <path className="semantic-art__skin semantic-art__outlined" d="M197 82c-17 1-28 8-34 19l11 17 30-13Z" />
+            {/* A hand on the knob, with a forearm that leaves the frame. It was a
+                single shapeless quadrilateral — no fingers, no wrist, nothing
+                attaching it to a person — so it read as a brown card floating
+                beside the handle rather than as somebody opening the door. */}
+            <path className="semantic-art__limb-edge" d="M224 118 190 104" />
+            <path className="semantic-art__skin-line" d="M224 118 190 104" />
+            <ellipse className="semantic-art__hand" cx="180" cy="101" rx="12" ry="9" transform="rotate(-14 180 101)" />
+            <path className="semantic-art__finger" d="M172 94q-9 2-10 8m11 1q-9 1-10 6m11 2q-8 1-9 5" />
             <path className="semantic-art__motion" d="M72 57C44 74 42 111 70 131m-13-14 13 14-17 4" />
           </SceneLayer>
         </>

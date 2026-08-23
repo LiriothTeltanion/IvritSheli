@@ -1,31 +1,100 @@
 <svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title description">
-  <title id="title">Ivrit Sheli app icon</title>
-  <desc id="description">A warm learning card with the Hebrew letter aleph and a red handwritten accent.</desc>
+  <title id="title">Ivrit Sheli App Icon</title>
+  <desc id="description">Professional premium icon for Ivrit Sheli with Tel Aviv background and sleek typography.</desc>
   <defs>
-    <linearGradient id="night" x1="48" y1="34" x2="470" y2="488" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#173B53"/>
-      <stop offset="1" stop-color="#0B1D30"/>
+    <clipPath id="squircle_clip">
+      <rect width="512" height="512" rx="115" />
+    </clipPath>
+    <linearGradient id="overlay_gradient" x1="0" y1="0" x2="0" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#020c1b" stop-opacity="0.10"/>
+      <stop offset="50%" stop-color="#010710" stop-opacity="0.30"/>
+      <stop offset="100%" stop-color="#000205" stop-opacity="0.60"/>
     </linearGradient>
-    <linearGradient id="paper" x1="92" y1="76" x2="418" y2="422" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#FFF9EC"/>
-      <stop offset="1" stop-color="#F5E6C7"/>
+    <linearGradient id="border_gradient" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#64ffda"/>
+      <stop offset="50%" stop-color="#00b4d8"/>
+      <stop offset="100%" stop-color="#03045e"/>
     </linearGradient>
-    <filter id="shadow" x="28" y="36" width="456" height="430" filterUnits="userSpaceOnUse">
-      <feDropShadow dx="0" dy="22" stdDeviation="24" flood-color="#06111C" flood-opacity="0.38"/>
-    </filter>
+    <linearGradient id="text_gradient" x1="120" y1="180" x2="390" y2="280" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="60%" stop-color="#e2e8f0"/>
+      <stop offset="100%" stop-color="#94a3b8"/>
+    </linearGradient>
+    <linearGradient id="accent_gradient" x1="160" y1="300" x2="360" y2="400" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ff0a54"/>
+      <stop offset="50%" stop-color="#ff477e"/>
+      <stop offset="100%" stop-color="#ff7096"/>
+    </linearGradient>
+    <linearGradient id="cyan_bar_grad" x1="130" y1="280" x2="380" y2="280" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#67e8f9"/>
+      <stop offset="60%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+    <linearGradient id="coral_bar_grad" x1="140" y1="410" x2="370" y2="410" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ff758c"/>
+      <stop offset="50%" stop-color="#ff3b5c"/>
+      <stop offset="100%" stop-color="#ff1744"/>
+    </linearGradient>
+    <linearGradient id="wordmark_ink_grad" x1="84" y1="178" x2="380" y2="256" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="58%" stop-color="#a5f3fc"/>
+      <stop offset="100%" stop-color="#22d3ee"/>
+    </linearGradient>
   </defs>
-  <rect width="512" height="512" rx="128" fill="url(#night)"/>
-  <path d="M72 350C126 308 176 325 226 289C285 246 346 250 440 182V430H72V350Z" fill="#2D7D74" opacity="0.28"/>
-  <g filter="url(#shadow)">
-    <rect x="60" y="54" width="392" height="368" rx="104" fill="url(#paper)"/>
-    <rect x="60.75" y="54.75" width="390.5" height="366.5" rx="103.25" stroke="#E8C78C" stroke-width="1.5"/>
+
+  <g clip-path="url(#squircle_clip)">
+    <!-- Base Image Background -->
+    <image href="data:image/jpeg;base64,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" x="0" y="0" width="512" height="512" preserveAspectRatio="xMidYMid slice" opacity="1.0" />
+    
+    <!-- Navy Blue Darkening Gradient Overlay -->
+    <rect width="512" height="512" fill="url(#overlay_gradient)"/>
+    
+    <!-- Deep Blue Glow behind text -->
+    <circle cx="256" cy="256" r="220" fill="radial-gradient(circle, rgba(0, 180, 216, 0.45) 0%, transparent 65%)"/>
   </g>
-  <circle cx="379" cy="123" r="38" fill="#F4BC52"/>
-  <path d="M379 72V58M379 188V174M328 123H314M444 123H430M343 87L333 77M425 169L415 159M415 87L425 77M333 169L343 159" stroke="#F4BC52" stroke-width="10" stroke-linecap="round"/>
-  <text x="252" y="310" text-anchor="middle" font-size="224" font-family="Arial, sans-serif" font-weight="700" fill="#153E4D">א</text>
-  <path d="M153 346C198 331 253 350 302 335C331 326 356 309 376 289" stroke="#C93448" stroke-width="17" stroke-linecap="round"/>
-  <path d="M176 375C221 362 266 375 321 359" stroke="#C93448" stroke-width="8" stroke-linecap="round" opacity="0.72"/>
-  <circle cx="132" cy="128" r="10" fill="#2D7D74"/>
-  <circle cx="159" cy="128" r="10" fill="#E39B3D"/>
-  <circle cx="186" cy="128" r="10" fill="#C93448"/>
+
+  <!-- Border -->
+  <rect x="8" y="8" width="496" height="496" rx="107" stroke="url(#border_gradient)" stroke-width="8" opacity="0.9"/>
+  <rect x="24" y="24" width="464" height="464" rx="95" stroke="#ffffff" stroke-width="2" opacity="0.1"/>
+  
+  <path d="M 0,256 C 256,150 256,362 512,256" stroke="url(#border_gradient)" stroke-width="2" opacity="0.25" fill="none" />
+  
+  <g>
+    <!-- IVRIT: Hebraized letterforms drawn as paths. Never use <text> here — an
+         SVG rendered as an app icon or through <img> cannot load a webfont, so
+         any font-family silently falls back and the brand changes shape. -->
+    <g transform="translate(77.06 159.65) scale(1.1471)" opacity="0.35">
+      <path d="M6 16 H40 L44 21 V33 H29 V74 H39 V84 H14 L11 80 V74 H21 V33 H14 V43 H6 Z" fill="#64ffda" fill-rule="evenodd"/>
+      <path d="M56 16 H76 L80 21 V33 H56 Z M92 16 H112 L116 21 V33 H92 Z M58 33 H67 L86 75.1 L105 33 H114 L91 84 H81 Z" fill="#64ffda" fill-rule="evenodd"/>
+      <path d="M128 16 H168 L172 21 V60 L188 84 H176 L160 60 H136 V84 H131 L128 80 Z M136 33 H164 V50 H136 Z" fill="#64ffda" fill-rule="evenodd"/>
+      <path d="M200 16 H234 L238 21 V33 H223 V74 H233 V84 H208 L205 80 V74 H215 V33 H208 V43 H200 Z" fill="#64ffda" fill-rule="evenodd"/>
+      <path d="M250 16 H302 L306 21 V33 H282 V74 H292 V84 H267 L264 80 V74 H274 V33 H258 V43 H250 Z" fill="#64ffda" fill-rule="evenodd"/>
+    </g>
+    <g transform="translate(77.06 157.65) scale(1.1471)">
+      <path d="M266.5 16 L265 7 L269.5 16 Z" fill="#f5cb73"/>
+      <path d="M276.5 16 L278 7 L279.5 16 Z" fill="#f5cb73"/>
+      <path d="M286.5 16 L291 7 L289.5 16 Z" fill="#f5cb73"/>
+      <path d="M6 16 H40 L44 21 V33 H29 V74 H39 V84 H14 L11 80 V74 H21 V33 H14 V43 H6 Z" fill="url(#wordmark_ink_grad)" fill-rule="evenodd"/>
+      <path d="M56 16 H76 L80 21 V33 H56 Z M92 16 H112 L116 21 V33 H92 Z M58 33 H67 L86 75.1 L105 33 H114 L91 84 H81 Z" fill="url(#wordmark_ink_grad)" fill-rule="evenodd"/>
+      <path d="M128 16 H168 L172 21 V60 L188 84 H176 L160 60 H136 V84 H131 L128 80 Z M136 33 H164 V50 H136 Z" fill="url(#wordmark_ink_grad)" fill-rule="evenodd"/>
+      <path d="M200 16 H234 L238 21 V33 H223 V74 H233 V84 H208 L205 80 V74 H215 V33 H208 V43 H200 Z" fill="url(#wordmark_ink_grad)" fill-rule="evenodd"/>
+      <path d="M250 16 H302 L306 21 V33 H282 V74 H292 V84 H267 L264 80 V74 H274 V33 H258 V43 H250 Z" fill="url(#wordmark_ink_grad)" fill-rule="evenodd"/>
+    </g>
+
+    <!-- Calligraphic Cyan Stroke -->
+    <path d="M 90 282 C 180 260, 320 255, 430 280 C 330 295, 200 295, 90 282 Z" fill="url(#cyan_bar_grad)"/>
+    <!-- Highlight on stroke -->
+    <path d="M 100 280 C 190 265, 310 262, 410 280 C 320 288, 210 288, 100 280 Z" fill="#ffffff" opacity="0.4"/>
+  </g>
+
+  <g>
+    <!-- Sheli Typography -->
+    <text x="256" y="372" text-anchor="middle" font-family="'Gveret Levin', 'Caveat', cursive" font-size="105" font-weight="900" letter-spacing="4" fill="#ff0a54" opacity="0.5">שלי</text>
+    <text x="256" y="370" text-anchor="middle" font-family="'Gveret Levin', 'Caveat', cursive" font-size="105" font-weight="900" letter-spacing="4" fill="url(#accent_gradient)">שלי</text>
+    
+    <!-- Calligraphic Red Signature Stroke (Organic Tapering Brush) -->
+    <path d="M 140 405 C 220 380, 270 385, 370 395 C 400 398, 380 402, 350 402 C 280 402, 200 410, 140 405 Z" fill="url(#coral_bar_grad)"/>
+    <!-- Highlight on stroke -->
+    <path d="M 142 404 C 220 384, 270 387, 360 396 C 370 397, 360 399, 340 399 C 270 399, 200 406, 142 404 Z" fill="#ffffff" opacity="0.35"/>
+  </g>
 </svg>

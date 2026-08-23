@@ -6,6 +6,7 @@ import { api, ApiError } from '../api';
 import { useI18n } from '../i18n';
 import { useSessionAccess } from '../session';
 import { starterVisualByKey } from '../starterWords';
+import { useOnlineStatus } from '../hooks/useOnlineStatus';
 import { createHebrewUtterance } from '../voicePreference';
 import type {
   Dashboard,
@@ -208,7 +209,7 @@ export function DailyPracticeSession({
   onWordClick,
   onRefresh,
 }: DailyPracticeSessionProps): React.JSX.Element {
-  const { locale, t } = useI18n();
+  const { errorText, locale, t } = useI18n();
   const strings = copy[locale];
   const { readOnly, localMode } = useSessionAccess();
   const [session, setSession] = useState<PracticeSession | null>(null);
@@ -222,7 +223,7 @@ export function DailyPracticeSession({
   const [introDismissed, setIntroDismissed] = useState(false);
   const [visualHintRevealed, setVisualHintRevealed] = useState(false);
   const [confidence, setConfidence] = useState(3);
-  const [online, setOnline] = useState(() => navigator.onLine);
+  const online = useOnlineStatus();
   const attemptKeyRef = useRef<string | null>(null);
   const startedAtRef = useRef(Date.now());
 
@@ -235,7 +236,7 @@ export function DailyPracticeSession({
       setIntroDismissed(response.session.current_step > 0 || response.session.events.length > 0);
       setNotice('');
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : strings.loadError);
+      setError(errorText(reason));
     } finally {
       setLoading(false);
     }
@@ -244,17 +245,6 @@ export function DailyPracticeSession({
   useEffect(() => {
     void load();
   }, [load]);
-
-  useEffect(() => {
-    const handleOnline = (): void => setOnline(true);
-    const handleOffline = (): void => setOnline(false);
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, []);
 
   const resetStepState = (): void => {
     setAnswer('');
@@ -343,7 +333,7 @@ export function DailyPracticeSession({
         await load();
         setNotice(strings.conflict);
       } else {
-        setError(reason instanceof Error ? reason.message : String(reason));
+        setError(errorText(reason));
       }
     } finally {
       setBusy(false);

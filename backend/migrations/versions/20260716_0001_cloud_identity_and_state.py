@@ -18,20 +18,9 @@ def upgrade() -> None:
     """Install the v2 cloud identity and tenant persistence schema."""
     op.execute(
         """
-        DO $role$
-        BEGIN
-            IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'ivrit_sheli_runtime') THEN
-                CREATE ROLE ivrit_sheli_runtime NOLOGIN NOSUPERUSER NOCREATEDB
-                    NOCREATEROLE NOINHERIT NOREPLICATION NOBYPASSRLS;
-            END IF;
-        END
-        $role$;
-        ALTER ROLE ivrit_sheli_runtime NOSUPERUSER NOCREATEDB NOCREATEROLE
-            NOINHERIT NOREPLICATION NOBYPASSRLS;
-
         CREATE TABLE users (
             id UUID PRIMARY KEY,
-            provider TEXT NOT NULL CHECK (provider IN ('github', 'demo')),
+            provider TEXT NOT NULL CHECK (provider IN ('github', 'google', 'demo')),
             provider_user_id TEXT NOT NULL,
             login TEXT,
             display_name TEXT NOT NULL,
@@ -80,15 +69,6 @@ def upgrade() -> None:
             WITH CHECK (
                 user_id = NULLIF(current_setting('app.user_id', true), '')::uuid
             );
-
-        REVOKE CREATE ON SCHEMA public FROM PUBLIC;
-        REVOKE ALL ON TABLE alembic_version, users, sessions, oauth_states, learner_states
-            FROM PUBLIC;
-        GRANT USAGE ON SCHEMA public TO ivrit_sheli_runtime;
-        GRANT SELECT ON TABLE alembic_version TO ivrit_sheli_runtime;
-        GRANT SELECT, INSERT, UPDATE, DELETE
-            ON TABLE users, sessions, oauth_states, learner_states
-            TO ivrit_sheli_runtime;
         """
     )
 
@@ -97,15 +77,9 @@ def downgrade() -> None:
     """Remove v2 cloud state in dependency order."""
     op.execute(
         """
-        REVOKE SELECT, INSERT, UPDATE, DELETE
-            ON TABLE users, sessions, oauth_states, learner_states
-            FROM ivrit_sheli_runtime;
-        REVOKE SELECT ON TABLE alembic_version FROM ivrit_sheli_runtime;
-        REVOKE USAGE ON SCHEMA public FROM ivrit_sheli_runtime;
         DROP TABLE IF EXISTS learner_states;
         DROP TABLE IF EXISTS oauth_states;
         DROP TABLE IF EXISTS sessions;
         DROP TABLE IF EXISTS users;
-        DROP ROLE IF EXISTS ivrit_sheli_runtime;
         """
     )

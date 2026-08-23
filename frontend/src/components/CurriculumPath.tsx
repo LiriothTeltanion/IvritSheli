@@ -78,7 +78,7 @@ export function CurriculumPath({
   onStartPractice: () => void;
   onOpenAlphabet: () => void;
 }): React.JSX.Element {
-  const { locale } = useI18n();
+  const { errorText, locale } = useI18n();
   const strings = copy[locale];
   const [path, setPath] = useState<CurriculumPathData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -90,7 +90,7 @@ export function CurriculumPath({
     try {
       setPath(await api.curriculumPath());
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : strings.unavailable);
+      setError(errorText(reason));
     } finally {
       setLoading(false);
     }

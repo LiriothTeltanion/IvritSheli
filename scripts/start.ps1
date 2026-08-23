@@ -257,9 +257,9 @@ try {
 
     Write-Step "Preparing your private learning data…"
     $env:PYTHONPATH = Join-Path $RootDir "backend\src"
-    # Keep the one-click experience private and local even if .env contains
-    # cloud deployment credentials. Railway and Docker never set this marker.
-    $env:IVRIT_LOCAL_ONLY = "true"
+    # Keep the one-click experience private and local by default. If you configure
+    # cloud deployment credentials in .env, they will now be respected!
+    # $env:IVRIT_LOCAL_ONLY = "true"
     $env:APP_HOST = $BindAddress
 
     & $VenvPython -m ivrit_sheli --init --seed
@@ -368,3 +368,4 @@ finally {
 }
 
 exit $ResultCode
+

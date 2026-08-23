@@ -271,6 +271,17 @@ describe('read-only API guard', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
+  it('reports timeout as a stable timeout code for read requests', async () => {
+    const fetchMock = vi.fn().mockRejectedValue(new DOMException('Request timed out', 'TimeoutError'));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(api.dictionarySearch('שלום')).rejects.toMatchObject({
+      status: 408,
+      code: 'timeout',
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
   it('keeps learning-core phase, mastery, schedule, and XP decisions on the server', async () => {
     document.cookie = 'ivrit_csrf=csrf-learning-core; path=/';
     const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({

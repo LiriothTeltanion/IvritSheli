@@ -87,16 +87,25 @@ export function ShoppingScene({
               the tie. The old shape was a rounded lump with two stripes.
             */}
             <ellipse className="semantic-art__prop-shadow" cx="100" cy="128" rx="62" ry="9" />
-            <path className="semantic-art__clay semantic-art__outlined" d="M74 68q-32 22-30 40 0 18 56 18t56-18q2-18-30-40Z" />
-            <path className="semantic-art__clay-lit" d="M74 68q-26 18-28 36 8 12 28 16-10-28 0-52Z" />
-            <path className="semantic-art__clay-deep" d="M126 68q32 22 30 40-8 12-28 16 12-28-2-56Z" />
-            {/* Folds fanning out from where the cord pulls the cloth in. */}
-            <path className="semantic-art__grain" d="M92 74q-14 22-12 46m24-46q-4 24-2 48m14-48q10 22 10 44" />
+            <path className="semantic-art__clay semantic-art__outlined" d="M86 62q-26 26-24 46 0 18 38 18t38-18q2-20-24-46Z" />
+            <path className="semantic-art__clay-lit" d="M86 62q-22 22-22 42 8 12 24 14-8-30-2-56Z" />
+            <path className="semantic-art__clay-deep" d="M114 62q26 26 24 46-8 12-24 14 10-30 0-60Z" />
+            {/*
+              Every pumpkin cue at once, is what this was: a dome wider than it was
+              tall, vertical ribs down its front, a rounded knob on top and a small
+              gold leaf at its shoulder. A sack is taller than it is wide, its
+              folds radiate from the tie rather than running straight down, and the
+              cloth above the cord twists up in a soft gather rather than closing
+              into a stem. Drawn with sharp flared corners it read as a star, so
+              the gather is two rounded lobes leaning against each other. The leaf
+              is gone.
+            */}
+            <path className="semantic-art__grain" d="M94 70q-20 18-26 36m32-36q-6 24-6 46m12-46q18 18 22 34" />
             {/* Gathered neck above the tie, then the cord itself. */}
-            <path className="semantic-art__clay semantic-art__outlined" d="M78 68q6-22 22-22t22 22Z" />
-            <path className="semantic-art__grain" d="M88 66q4-14 12-16m12 16q-2-13-8-16" />
-            <path className="semantic-art__metal-line" d="M76 68q24-8 48 0" />
-            <path className="semantic-art__gold semantic-art__outlined" d="M116 62q12-4 16 4-10 6-16-4Z" />
+            <path className="semantic-art__clay semantic-art__outlined" d="M86 62q-2-16 6-22 6-5 4-14 4 9 10 12 8 5 6 24Z" />
+            <path className="semantic-art__grain" d="M90 58q2-10 8-16m12 16q-2-10-6-15" />
+            <path className="semantic-art__metal-line" d="M84 64q16-6 32 0" />
+            
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
             <Note x={148} y={78} w={72} h={38} />
@@ -205,17 +214,26 @@ export function ShoppingScene({
             <path className="semantic-art__floor" d="M12 134h216v28H12Z" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
-            <SemanticPerson x={110} y={104} shirt="coral" pose="hold" scale={1.35} />
+            {/*
+              `hold` puts both hands together at the belly, so the two bags —
+              parked at the far edges of the card, 60 units from the nearest hand —
+              simply hung in the air with their handles closing on nothing. A
+              hanging pose puts a hand at each side, and the bags now hang from
+              those hands.
+            */}
+            <SemanticPerson x={110} y={104} shirt="coral" pose="neutral" scale={1.35} />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            {/* Two full bags, one in each hand, with handles that pull taut. */}
-            <ellipse className="semantic-art__prop-shadow" cx="112" cy="150" rx="70" ry="6" />
-            <path className="semantic-art__teal semantic-art__outlined" d="M40 108h44v42H40Z" />
-            <path className="semantic-art__metal-line" d="M50 108q12-16 24 0" />
-            <path className="semantic-art__coral semantic-art__outlined" d="M148 108h44v42h-44Z" />
-            <path className="semantic-art__metal-line" d="M158 108q12-16 24 0" />
-            <path className="semantic-art__green semantic-art__outlined" d="M48 108q10-14 22 0Zm112 0q10-14 22 0Z" />
-            <path className="semantic-art__gloss" d="M46 116v28m112-28v28" />
+            {/* One bag per hand. They are drawn after the figure, so they hang in
+                front of the legs, which is where carried bags actually are. */}
+            <ellipse className="semantic-art__prop-shadow" cx="112" cy="160" rx="66" ry="6" />
+            <path className="semantic-art__metal-line" d="M80 138q11-12 22 0" />
+            <path className="semantic-art__teal semantic-art__outlined" d="M72 138h38v22H72Z" />
+            <path className="semantic-art__green semantic-art__outlined" d="M80 138q11-11 22 0Z" />
+            <path className="semantic-art__metal-line" d="M129 138q11-12 22 0" />
+            <path className="semantic-art__coral semantic-art__outlined" d="M121 138h38v22h-38Z" />
+            <path className="semantic-art__gold semantic-art__outlined" d="M129 138q11-11 22 0Z" />
+            <path className="semantic-art__gloss" d="M78 144v12m49-12v12" />
           </SceneLayer>
         </>
       );

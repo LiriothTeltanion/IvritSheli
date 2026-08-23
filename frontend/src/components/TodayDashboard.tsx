@@ -18,6 +18,7 @@ import { DictionaryVisualCue } from './DictionaryVisualCue';
 import { LivingHebrewAtlas, type AtlasRegionId } from './LivingHebrewAtlas';
 import { MetricRing } from './MetricRing';
 import { PersonalCoachCard } from './PersonalCoachCard';
+import { DailyMetrics } from './DailyMetrics';
 
 interface TodayDashboardProps {
   dashboard: Dashboard;
@@ -31,6 +32,7 @@ interface TodayDashboardProps {
   onOpenAudio: (hebrew?: string, itemId?: number) => void;
   onOpenProgress: () => void;
   onOpenCoach: () => void;
+  onOpenSettings?: () => void;
   onRefresh: () => void;
 }
 
@@ -46,6 +48,7 @@ export function TodayDashboard({
   onOpenAudio,
   onOpenProgress,
   onOpenCoach,
+  onOpenSettings,
   onRefresh,
 }: TodayDashboardProps): React.JSX.Element {
   const { locale, label, t } = useI18n();
@@ -205,6 +208,8 @@ export function TodayDashboard({
         </div>
       </section>
 
+      <DailyMetrics dashboard={dashboard} />
+
       {learnerMode === 'guided' ? (
         <details className="guided-how card">
           <summary>
@@ -357,6 +362,29 @@ export function TodayDashboard({
           {dashboard.recommendations.length === 0 && <p className="muted-copy">{t('captureFirstRecommendation')}</p>}
         </div>
       </section>}
+
+      <section className="cross-section-nav card" aria-label="Ecosistema de Aprendizaje">
+        <header className="section-heading">
+          <div><span className="eyebrow"><Icon name="sparkles" size={16} /> Navegación Rápida</span><h2>Tu Ecosistema</h2></div>
+        </header>
+        <div className="cross-section-links">
+          <button type="button" className="glass-card" onClick={onOpenDictionary}>
+            <span className="orb dictionary-orb"><Icon name="book" /></span>
+            <strong>Diccionario</strong>
+            <small>Explora vocabulario</small>
+          </button>
+          <button type="button" className="glass-card" onClick={() => window.scrollTo({ top: 400, behavior: 'smooth' })}>
+            <span className="orb atlas-orb"><Icon name="sparkles" /></span>
+            <strong>Atlas Vivo</strong>
+            <small>Viaja por Israel</small>
+          </button>
+          <button type="button" className="glass-card" onClick={onOpenSettings}>
+            <span className="orb settings-orb"><Icon name="settings" /></span>
+            <strong>Ajustes</strong>
+            <small>Configura tu perfil</small>
+          </button>
+        </div>
+      </section>
     </div>
   );
 }

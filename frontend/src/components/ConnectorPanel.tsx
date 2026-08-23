@@ -35,7 +35,7 @@ const connectorMeta = {
 } as const satisfies Record<string, { titleKey: string; descriptionKey: string; icon: IconName }>;
 
 export function ConnectorPanel({ onImported }: { onImported: () => void }): React.JSX.Element {
-  const { locale, label, t } = useI18n();
+  const { errorText, label, locale, t } = useI18n();
   const { readOnly, readOnlyReason } = useSessionAccess();
   const [connectors, setConnectors] = useState<ConnectorState[]>([]);
   const [previews, setPreviews] = useState<ConnectorPreview[]>([]);
@@ -44,7 +44,7 @@ export function ConnectorPanel({ onImported }: { onImported: () => void }): Reac
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    void api.connectors().then(setConnectors).catch((reason: unknown) => setMessage(reason instanceof Error ? reason.message : String(reason)));
+    void api.connectors().then(setConnectors).catch((reason: unknown) => setMessage(errorText(reason)));
   }, []);
 
   const previewIcs = async (file: File): Promise<void> => {
@@ -55,7 +55,7 @@ export function ConnectorPanel({ onImported }: { onImported: () => void }): Reac
       setPreviews(result as unknown as ConnectorPreview[]);
       setMessage(t('safeEventPreviews', { count: result.length }));
     } catch (reason) {
-      setMessage(reason instanceof Error ? reason.message : String(reason));
+      setMessage(errorText(reason));
     } finally {
       setLoading(false);
     }
@@ -71,7 +71,7 @@ export function ConnectorPanel({ onImported }: { onImported: () => void }): Reac
       setMessage(t('phrasesAdded', { count: result.count }));
       onImported();
     } catch (reason) {
-      setMessage(reason instanceof Error ? reason.message : String(reason));
+      setMessage(errorText(reason));
     }
   };
 

@@ -74,3 +74,4 @@ if (-not $SkipBuild) {
 Write-Host "Ivrit Sheli is ready ✅"
 Write-Host "Start with .\START_IVRIT_SHELI.bat or .\scripts\start.ps1"
 Write-Host "Developers can still use .\scripts\run-dev.ps1 for hot reload."
+

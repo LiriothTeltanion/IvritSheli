@@ -1,0 +1,243 @@
+/* Shoresh Tree & Binyanim Conjugator Styles */
+
+.shoresh-viewer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.25rem;
+  border-radius: 1.25rem;
+  background: rgba(8, 22, 38, 0.6);
+  border: 1px solid rgba(34, 211, 238, 0.2);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.shoresh-viewer__header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.shoresh-viewer__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--teal);
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.shoresh-viewer__header p {
+  margin: 0.25rem 0 0;
+  color: #94a3b8;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.shoresh-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.shoresh-pill {
+  min-height: 38px !important;
+  padding: 6px 16px !important;
+  border-radius: 99rem !important;
+  border: 1px solid rgba(34, 211, 238, 0.25) !important;
+  background: rgba(4, 13, 24, 0.7) !important;
+  color: var(--text-soft) !important;
+  font-size: 1.05rem !important;
+  font-weight: 750 !important;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.shoresh-pill:hover {
+  border-color: var(--teal) !important;
+  background: rgba(34, 211, 238, 0.12) !important;
+  color: #ffffff !important;
+  transform: translateY(-2px) !important;
+}
+
+.shoresh-pill.is-active {
+  border-color: var(--cyan) !important;
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.25), rgba(6, 182, 212, 0.2)) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 16px rgba(34, 211, 238, 0.3) !important;
+}
+
+.shoresh-tabs {
+  display: inline-flex;
+  padding: 4px;
+  border-radius: 99rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  width: fit-content;
+}
+
+.shoresh-tab-btn {
+  min-height: 36px !important;
+  padding: 6px 16px !important;
+  border-radius: 99rem !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: var(--text-muted) !important;
+  font-size: 0.85rem !important;
+  font-weight: 750 !important;
+  cursor: pointer;
+  transition: all 0.2s ease !important;
+}
+
+.shoresh-tab-btn.is-active {
+  background: linear-gradient(135deg, var(--teal-fill, #14b8a6), var(--cyan-fill, #06b6d4)) !important;
+  color: #021210 !important;
+  box-shadow: 0 2px 10px rgba(20, 184, 166, 0.35) !important;
+}
+
+/* Tree Canvas */
+.shoresh-tree-canvas {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.shoresh-root-anchor {
+  padding: 1.25rem;
+  border-radius: 1.2rem;
+  background: radial-gradient(circle at 50% 50%, rgba(20, 184, 166, 0.15), transparent 75%), rgba(4, 13, 24, 0.8);
+  border: 1px solid rgba(34, 211, 238, 0.35);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+
+.shoresh-root-title {
+  color: var(--teal);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.shoresh-root-glyphs {
+  font: 850 2.2rem/1.2 var(--font-hebrew);
+  color: #ffffff;
+  letter-spacing: 0.15em;
+  text-shadow: 0 0 20px rgba(34, 211, 238, 0.5);
+}
+
+.shoresh-root-anchor small {
+  color: #94a3b8;
+  font-size: 0.88rem;
+}
+
+/* Words Grid */
+.shoresh-words-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.shoresh-word-card {
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(4, 13, 24, 0.6);
+  border: 1px solid rgba(34, 211, 238, 0.16);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  text-align: start;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.shoresh-word-card:hover {
+  border-color: var(--teal);
+  background: rgba(34, 211, 238, 0.1);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.shoresh-word-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.shoresh-category-badge {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--teal);
+  text-transform: uppercase;
+}
+
+.shoresh-binyan-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 99rem;
+  background: rgba(234, 179, 8, 0.15);
+  color: var(--gold);
+  border: 1px solid rgba(234, 179, 8, 0.3);
+}
+
+.shoresh-word-hebrew {
+  font: 800 1.5rem/1.2 var(--font-hebrew);
+  color: #ffffff;
+}
+
+.shoresh-word-translit {
+  color: #38bdf8;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.shoresh-word-meaning {
+  margin: 2px 0 0;
+  color: #cbd5e1;
+  font-size: 0.85rem;
+  line-height: 1.35;
+}
+
+/* Binyanim Matrix */
+.shoresh-binyanim-matrix {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.binyan-card {
+  padding: 16px;
+  border-radius: 14px;
+  background: rgba(4, 13, 24, 0.6);
+  border: 1px solid rgba(34, 211, 238, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.binyan-name {
+  color: var(--teal);
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.binyan-card small {
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+
+.binyan-card strong {
+  color: #ffffff;
+  font-size: 1.15rem;
+  margin-top: 4px;
+}

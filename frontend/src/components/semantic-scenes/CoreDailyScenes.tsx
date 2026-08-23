@@ -125,10 +125,14 @@ export function CoreDailyScene({
                 d="M27 28h87l14 21-34 90H18L0 58Z"
                 transform="rotate(-17 62 84)"
               />
+              {/* The label sits on the bottle. It used to start at y=18 while the
+                  bottle's own top edge is at y=28, and it turned about its own
+                  centre rather than the bottle's, so it hung in the air above the
+                  shoulder instead of being stuck to it. */}
               <path
                 className="semantic-art__surface semantic-art__outlined"
-                d="M91 18h37v22H91Z"
-                transform="rotate(-17 109 29)"
+                d="M38 44h58v22H38Z"
+                transform="rotate(-17 62 84)"
               />
               <path
                 className="semantic-art__highlight"
@@ -220,8 +224,14 @@ export function CoreDailyScene({
           )}
           anchor={(
             <>
+              {/* Fork and knife. Drawn with `__detail`, which reads
+                  `--semantic-detail-ink` — a teal-grey in the dark theme — the
+                  cutlery came out blue and read as tally marks beside the
+                  platter rather than as metal. They also carried `__motion-part`,
+                  so they twitched on hover; the steam is the motion cue here,
+                  not the cutlery. */}
               <path
-                className="semantic-art__detail semantic-art__motion-part"
+                className="semantic-art__metal-line"
                 d="M37 59v77m-9-77v30m18-30v30m157-30v77"
               />
               <path

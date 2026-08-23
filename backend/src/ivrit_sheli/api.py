@@ -639,16 +639,62 @@ def create_app(
     )
 
     async def authorization_middleware(request: Request, call_next: Any) -> Any:
-        """Resolve synchronous sessions off-loop, then enforce auth/demo/CSRF rules."""
+        """Enforce auth/demo rules using Supabase JWT Bearer tokens."""
         container = getattr(request.app.state, "services", None)
         identity = None
-        session_token = request.cookies.get(runtime_settings.session_cookie_name)
-        if container is not None and session_token:
-            identity = await run_in_threadpool(
-                container.auth.resolve,
-                session_token,
-            )
+        
+        # 1. Try to extract Supabase Bearer token
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header[7:]
+            try:
+                import jwt
+                from jwt import PyJWKClient
+                from ivrit_sheli.cloud_store import AuthUser, SessionIdentity
+                
+                # Fetch public key dynamically from Supabase
+                jwks_url = f"{runtime_settings.supabase_url}/auth/v1/.well-known/jwks.json"
+                jwks_client = PyJWKClient(jwks_url)
+                signing_key = jwks_client.get_signing_key_from_jwt(token)
+                
+                payload = jwt.decode(
+                    token, 
+                    signing_key.key, 
+                    algorithms=["ES256", "RS256", "HS256"], 
+                    options={"verify_aud": False}
+                )
+                
+                user_id = payload.get("sub")
+                email = payload.get("email", "")
+                metadata = payload.get("user_metadata", {})
+                name = metadata.get("full_name", metadata.get("name", "User"))
+                
+                if user_id:
+                    identity = SessionIdentity(
+                        user=AuthUser(
+                            id=user_id,
+                            display_name=name,
+                            provider="google",
+                            login=email,
+                        ),
+                        session_id=token,
+                        csrf_hash="", # Bearer tokens don't need CSRF
+                    )
+            except Exception as e:
+                # Log invalid tokens but don't crash, let it fall through to 401
+                pass
+
+        # 2. Fallback to existing cookie-based session for backward compatibility / demo mode
+        if identity is None:
+            session_token = request.cookies.get(runtime_settings.session_cookie_name)
+            if container is not None and session_token:
+                identity = await run_in_threadpool(
+                    container.auth.resolve,
+                    session_token,
+                )
+                
         request.state.session_identity = identity
+        
         if (
             runtime_settings.cloud_mode
             and runtime_settings.auth_required
@@ -661,6 +707,7 @@ def create_app(
                 "authentication_required",
                 "Sign in with Google or GitHub, or enter the seeded demonstration.",
             )
+            
         if (
             identity is not None
             and identity.user.is_demo
@@ -674,11 +721,13 @@ def create_app(
                 "demo_read_only",
                 "This seeded demonstration is read-only. Sign in to save your progress.",
             )
+            
         if (
             identity is not None
             and not identity.user.is_demo
             and _is_private_api_path(request.url.path)
             and request.method not in {"GET", "HEAD", "OPTIONS"}
+            and identity.csrf_hash != ""  # Only enforce CSRF for cookie-based sessions
             and not _csrf_valid(request, identity.csrf_hash, runtime_settings)
         ):
             return error_response(
@@ -2648,6 +2697,7 @@ def register_frontend(app: FastAPI, frontend_dist: Path) -> None:
         Development uses Vite; production Docker uses this fallback.
     """
     assets_dir = frontend_dist / "assets"
+    notebook_dir = Path(__file__).resolve().parents[3] / "docs"
     if assets_dir.exists():
         app.mount("/assets", StaticFiles(directory=assets_dir), name="frontend-assets")
 
@@ -2655,7 +2705,7 @@ def register_frontend(app: FastAPI, frontend_dist: Path) -> None:
     async def root() -> Any:
         index = frontend_dist / "index.html"
         if index.exists():
-            return FileResponse(index)
+            return FileResponse(index, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
         return JSONResponse(
             {
                 "name": "Ivrit Sheli",
@@ -2663,6 +2713,20 @@ def register_frontend(app: FastAPI, frontend_dist: Path) -> None:
                 "message": "Frontend is not built. Run npm install && npm run build in frontend/.",
             }
         )
+
+    @app.get("/notes/{note_name}", include_in_schema=False)
+    async def notebook_markdown(note_name: str) -> Any:
+        if (
+            "/" in note_name
+            or "\\" in note_name
+            or ".." in note_name
+            or note_name.startswith(".")
+        ):
+            raise HTTPException(status_code=404, detail="Note file not found")
+        note = notebook_dir / note_name
+        if not note.exists() or not note.is_file():
+            raise HTTPException(status_code=404, detail="Note file not found")
+        return FileResponse(note, media_type="text/markdown; charset=utf-8")
 
     @app.get("/{path:path}", include_in_schema=False)
     async def spa_fallback(path: str) -> Any:
@@ -2674,7 +2738,7 @@ def register_frontend(app: FastAPI, frontend_dist: Path) -> None:
             return FileResponse(candidate)
         index = frontend_dist / "index.html"
         if index.exists():
-            return FileResponse(index)
+            return FileResponse(index, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
         raise HTTPException(status_code=404, detail="Frontend is not built")
 
 

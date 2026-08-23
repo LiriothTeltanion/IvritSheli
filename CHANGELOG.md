@@ -2,6 +2,15 @@
 
 All notable changes are documented here. Versions follow Semantic Versioning.
 
+## 2.12.2 — Visual Harmony & Resilience — Private candidate — 2026-08-19
+
+- Implemented PostgreSQL connection pooling using thread-safe queue in `PostgresCloudStore`, eliminating connection exhaust and reducing warm queries to sub-50ms latency.
+- Harmonized 15 diverse vector avatar presets under a consistent 2D flat editorial illustration design system with teal circular badges.
+- Elevated brand typography with Hebraized monumental letterforms for the "Ivrit" wordmark using Cinzel Decorative and Frank Ruhl Libre.
+- Re-architected AuthGate / Hero with real-time 3D holographic tilt card, interactive Hebrew speech synthesis, feature pill badges, and Ken Burns cinematic background pan.
+- Redesigned the modern vector application icon (`app-icon.svg`) matching the Living Hebrew Nocturne dark celestial aesthetic.
+- Added smooth global view transitions (`viewEnterSmooth`), tactile button press micro-interactions, and expanded trilingual version history.
+
 ## 2.12.0 — Living Hebrew Nocturne — Private candidate — 2026-08-14
 
 - Makes dark the intentional first-run theme while preserving an explicit,

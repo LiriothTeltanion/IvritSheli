@@ -17,3 +17,9 @@ up its `data-spatial-family` and open that reference.
 
 These are art-direction references. They are not shipped, not precached and not
 part of the bundle. Nothing here is learner-facing.
+
+The source files in this folder remain references. A reviewed, byte-identical
+copy of `interior--greetings.good_morning.webp` is promoted separately as
+`frontend/public/assets/illustrations/morning-hebrew-welcome.webp` for the
+light-theme welcome surfaces. Its product role and known semantic limit are
+recorded in `docs/VISUAL_ASSET_MANIFEST.md`.

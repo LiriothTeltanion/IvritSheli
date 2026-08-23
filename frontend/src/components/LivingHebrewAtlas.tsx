@@ -24,6 +24,7 @@ export interface AtlasRegion {
   id: AtlasRegionId;
   name: LocalizedCopy;
   theme: LocalizedCopy;
+  culturalTag?: LocalizedCopy;
   image: string;
   portraitImage: string;
   imageAlt: LocalizedCopy;
@@ -51,6 +52,7 @@ export const atlasRegions: readonly AtlasRegion[] = [
     id: 'galilee',
     name: { en: 'Galilee', es: 'Galilea', he: 'הגליל' },
     theme: { en: 'Nature and directions', es: 'Naturaleza y orientación', he: 'טבע והתמצאות בדרך' },
+    culturalTag: { en: 'Sea of Galilee & Olive Groves', es: 'Mar de Galilea y Olivos', he: 'הכנרת ועצי זית' },
     image: '/illustrations/regions/galilee-field-notes.webp',
     portraitImage: '/illustrations/regions/galilee-field-notes-portrait.webp',
     imageAlt: {
@@ -65,6 +67,7 @@ export const atlasRegions: readonly AtlasRegion[] = [
     id: 'haifa-carmel',
     name: { en: 'Haifa & Carmel', es: 'Haifa y el Carmelo', he: 'חיפה והכרמל' },
     theme: { en: 'Transport between mountain and coast', es: 'Transporte entre montaña y costa', he: 'תחבורה בין ההר לחוף' },
+    culturalTag: { en: 'Mount Carmel & Port Breeze', es: 'Monte Carmelo y Brisa del Puerto', he: 'הר הכרמל ובריזת הנמל' },
     image: '/illustrations/regions/haifa-carmel-field-notes.webp',
     portraitImage: '/illustrations/regions/haifa-carmel-field-notes-portrait.webp',
     imageAlt: {
@@ -79,6 +82,7 @@ export const atlasRegions: readonly AtlasRegion[] = [
     id: 'tel-aviv-jaffa',
     name: { en: 'Tel Aviv & Jaffa', es: 'Tel Aviv y Jaffa', he: 'תל אביב ויפו' },
     theme: { en: 'Food and social Hebrew', es: 'Comida y hebreo social', he: 'אוכל ועברית חברתית' },
+    culturalTag: { en: 'Gordon Beach & Night Cafe', es: 'Playa Gordon y Cafés', he: 'חוף גורדון ובתי קפה' },
     image: '/illustrations/regions/tel-aviv-jaffa-field-notes.webp',
     portraitImage: '/illustrations/regions/tel-aviv-jaffa-field-notes-portrait.webp',
     imageAlt: {
@@ -93,6 +97,7 @@ export const atlasRegions: readonly AtlasRegion[] = [
     id: 'jerusalem',
     name: { en: 'Jerusalem', es: 'Jerusalén', he: 'ירושלים' },
     theme: { en: 'Greetings and everyday encounters', es: 'Saludos y encuentros cotidianos', he: 'ברכות ומפגשים מחיי היומיום' },
+    culturalTag: { en: 'Machane Yehuda & Stone Alleys', es: 'Machane Yehuda y Callejuelas', he: 'מחנה יהודה וסמטאות אבן' },
     image: '/illustrations/regions/jerusalem-field-notes.webp',
     portraitImage: '/illustrations/regions/jerusalem-field-notes-portrait.webp',
     imageAlt: {
@@ -107,6 +112,7 @@ export const atlasRegions: readonly AtlasRegion[] = [
     id: 'dead-sea',
     name: { en: 'Dead Sea', es: 'Mar Muerto', he: 'ים המלח' },
     theme: { en: 'Health, travel, and wellbeing', es: 'Salud, viajes y bienestar', he: 'בריאות, טיולים ורווחה' },
+    culturalTag: { en: 'Mineral Salt & Masada Oasis', es: 'Sal Mineral y Oasis de Masada', he: 'מי מלח ומצדה' },
     image: '/illustrations/regions/dead-sea-field-notes.webp',
     portraitImage: '/illustrations/regions/dead-sea-field-notes-portrait.webp',
     imageAlt: {
@@ -121,6 +127,7 @@ export const atlasRegions: readonly AtlasRegion[] = [
     id: 'negev',
     name: { en: 'Be’er Sheva & Negev', es: 'Be’er Sheva y el Néguev', he: 'באר שבע והנגב' },
     theme: { en: 'Weather and desert routines', es: 'Clima y rutinas del desierto', he: 'מזג אוויר ושגרה מדברית' },
+    culturalTag: { en: 'Ramon Crater & Bedouin Tea', es: 'Cráter Ramón y Té del Desierto', he: 'מכתש רמון ותה מדברי' },
     image: '/illustrations/regions/negev-field-notes.webp',
     portraitImage: '/illustrations/regions/negev-field-notes-portrait.webp',
     imageAlt: {
@@ -340,6 +347,9 @@ export function LivingHebrewAtlas({
                     <span className="ivrit-atlas__region-copy">
                       <strong lang={locale}>{localized(region.name, locale)}</strong>
                       <small lang={locale}>{localized(region.theme, locale)}</small>
+                      {region.culturalTag && (
+                        <em className="ivrit-atlas__region-tag" lang={locale}>✦ {localized(region.culturalTag, locale)}</em>
+                      )}
                     </span>
                     <span className="ivrit-atlas__region-status" lang={locale}>{status}</span>
                   </button>
@@ -355,6 +365,9 @@ export function LivingHebrewAtlas({
                     <span className="ivrit-atlas__region-copy">
                       <strong lang={locale}>{localized(region.name, locale)}</strong>
                       <small lang={locale}>{localized(region.theme, locale)}</small>
+                      {region.culturalTag && (
+                        <em className="ivrit-atlas__region-tag" lang={locale}>✦ {localized(region.culturalTag, locale)}</em>
+                      )}
                     </span>
                     <span className="ivrit-atlas__region-status" lang={locale}>{status}</span>
                   </>
@@ -385,6 +398,9 @@ export function LivingHebrewAtlas({
           <p>
             <strong lang={locale}>{localized(activeRegionData.name, locale)}</strong>
             <small lang={locale}>{localized(activeRegionData.theme, locale)}</small>
+            {activeRegionData.culturalTag && (
+              <span className="ivrit-atlas__visual-tag" lang={locale}>📍 {localized(activeRegionData.culturalTag, locale)}</span>
+            )}
           </p>
         </div>
       </div>

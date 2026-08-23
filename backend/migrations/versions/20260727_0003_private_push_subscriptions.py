@@ -18,19 +18,6 @@ def upgrade() -> None:
     """Store only encrypted subscription documents behind the existing tenant boundary."""
     op.execute(
         """
-        DO $role$
-        BEGIN
-            IF NOT EXISTS (
-                SELECT 1 FROM pg_roles WHERE rolname = 'ivrit_sheli_push_worker'
-            ) THEN
-                CREATE ROLE ivrit_sheli_push_worker NOLOGIN NOSUPERUSER NOCREATEDB
-                    NOCREATEROLE NOINHERIT NOREPLICATION NOBYPASSRLS;
-            END IF;
-        END
-        $role$;
-        ALTER ROLE ivrit_sheli_push_worker NOLOGIN NOSUPERUSER NOCREATEDB
-            NOCREATEROLE NOINHERIT NOREPLICATION NOBYPASSRLS;
-
         CREATE TABLE push_subscriptions (
             id UUID PRIMARY KEY,
             user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -54,7 +41,6 @@ def upgrade() -> None:
         ALTER TABLE push_subscriptions ENABLE ROW LEVEL SECURITY;
         ALTER TABLE push_subscriptions FORCE ROW LEVEL SECURITY;
         CREATE POLICY push_subscription_owner_policy ON push_subscriptions
-            TO ivrit_sheli_runtime
             USING (
                 user_id = NULLIF(current_setting('app.user_id', true), '')::uuid
             )
@@ -62,7 +48,6 @@ def upgrade() -> None:
                 user_id = NULLIF(current_setting('app.user_id', true), '')::uuid
             );
         CREATE POLICY push_subscription_worker_policy ON push_subscriptions
-            TO ivrit_sheli_push_worker
             USING (TRUE)
             WITH CHECK (TRUE);
 
@@ -80,7 +65,6 @@ def upgrade() -> None:
         ALTER TABLE push_delivery_state ENABLE ROW LEVEL SECURITY;
         ALTER TABLE push_delivery_state FORCE ROW LEVEL SECURITY;
         CREATE POLICY push_delivery_owner_policy ON push_delivery_state
-            TO ivrit_sheli_runtime
             USING (
                 user_id = NULLIF(current_setting('app.user_id', true), '')::uuid
             )
@@ -88,19 +72,8 @@ def upgrade() -> None:
                 user_id = NULLIF(current_setting('app.user_id', true), '')::uuid
             );
         CREATE POLICY push_delivery_worker_policy ON push_delivery_state
-            TO ivrit_sheli_push_worker
             USING (TRUE)
             WITH CHECK (TRUE);
-
-        REVOKE ALL ON TABLE push_subscriptions, push_delivery_state FROM PUBLIC;
-        GRANT SELECT, INSERT, UPDATE, DELETE
-            ON TABLE push_subscriptions TO ivrit_sheli_runtime;
-        GRANT SELECT, INSERT
-            ON TABLE push_delivery_state TO ivrit_sheli_runtime;
-        GRANT USAGE ON SCHEMA public TO ivrit_sheli_push_worker;
-        GRANT SELECT, UPDATE ON TABLE push_subscriptions TO ivrit_sheli_push_worker;
-        GRANT SELECT, INSERT, UPDATE ON TABLE push_delivery_state
-            TO ivrit_sheli_push_worker;
         """
     )
 
@@ -109,17 +82,7 @@ def downgrade() -> None:
     """Remove push subscriptions without touching learner state or identities."""
     op.execute(
         """
-        REVOKE SELECT, INSERT, UPDATE, DELETE
-            ON TABLE push_subscriptions FROM ivrit_sheli_runtime;
-        REVOKE SELECT, INSERT, UPDATE, DELETE
-            ON TABLE push_delivery_state FROM ivrit_sheli_runtime;
-        REVOKE SELECT, UPDATE
-            ON TABLE push_subscriptions FROM ivrit_sheli_push_worker;
-        REVOKE SELECT, INSERT, UPDATE
-            ON TABLE push_delivery_state FROM ivrit_sheli_push_worker;
-        REVOKE USAGE ON SCHEMA public FROM ivrit_sheli_push_worker;
         DROP TABLE IF EXISTS push_delivery_state;
         DROP TABLE IF EXISTS push_subscriptions;
-        DROP ROLE IF EXISTS ivrit_sheli_push_worker;
         """
     )

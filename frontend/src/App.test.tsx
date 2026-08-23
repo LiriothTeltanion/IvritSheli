@@ -3,7 +3,7 @@
 // Author: Kevin "Lirioth" Cusnir
 // Date: 2026-07-16 | TZ: Asia/Jerusalem
 
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
@@ -33,7 +33,7 @@ const anonymous = {
   read_only: false,
   user: null,
   mode: 'cloud',
-  auth_providers: ['google', 'github'],
+  auth_providers: ['google'],
   capabilities: cloudCapabilities,
 };
 
@@ -49,17 +49,17 @@ const demoSession = {
   read_only: true,
   user: { id: 'demo', login: null, display_name: 'Demo Learner', avatar_url: null, provider: 'demo' },
   mode: 'cloud',
-  auth_providers: ['google', 'github'],
+  auth_providers: ['google'],
   capabilities: cloudCapabilities,
 };
 
-const githubSession = {
+const googleSession = {
   authenticated: true,
   demo: false,
   read_only: false,
-  user: { id: '42', login: 'kevin', display_name: 'Kevin', avatar_url: null, provider: 'github' },
+  user: { id: '42', login: 'kevin', display_name: 'Kevin', avatar_url: null, provider: 'google' },
   mode: 'cloud',
-  auth_providers: ['google', 'github'],
+  auth_providers: ['google'],
   capabilities: cloudCapabilities,
 };
 
@@ -123,7 +123,7 @@ function renderApp(): void {
 }
 
 function routeFetch(
-  initialSession: typeof anonymous | typeof anonymousWithLocalCompanion | typeof demoSession | typeof githubSession | typeof localSession,
+  initialSession: typeof anonymous | typeof anonymousWithLocalCompanion | typeof demoSession | typeof googleSession | typeof localSession,
   learnerProfile: Profile = profile,
 ): ReturnType<typeof vi.fn> {
   return vi.fn(async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
@@ -169,17 +169,16 @@ describe('App cloud session flow', () => {
     expect(screen.getByRole('main')).toHaveAttribute('aria-live', 'polite');
   });
 
-  it('offers Google first, GitHub second, local setup, and a demo after the beginner lesson', async () => {
+  it('offers Google, local setup, and a demo after the beginner lesson', async () => {
     vi.stubGlobal('fetch', routeFetch(anonymous));
     const user = userEvent.setup();
     renderApp();
 
     expect(await screen.findByRole('heading', { name: 'Your Hebrew. Your progress. Your space.' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Your first three Hebrew words' })).toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: /Continue with Google/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Continue with Google/i })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Skip lesson and choose how to continue' }));
     expect(screen.getByRole('link', { name: /Continue with Google/i })).toHaveAttribute('href', '/api/v1/auth/google/start');
-    expect(screen.getByRole('link', { name: /Continue with GitHub/i })).toHaveAttribute('href', '/api/v1/auth/github/start');
     expect(screen.getByRole('link', { name: /Use local mode on this computer/i })).toHaveAttribute('target', '_blank');
     expect(screen.getByRole('button', { name: 'Explore read-only demo' })).toBeEnabled();
     expect(screen.getByText(/No password is created or stored here/i)).toBeInTheDocument();
@@ -209,7 +208,7 @@ describe('App cloud session flow', () => {
 
     await screen.findByRole('heading', { name: 'Your first three Hebrew words' });
     await user.click(screen.getByRole('button', { name: 'Skip lesson and choose how to continue' }));
-    expect(await screen.findByRole('alert')).toHaveTextContent('Service unavailable');
+    expect(await screen.findByRole('alert')).toHaveTextContent('Something did not work. Try again in a moment.');
     await user.click(screen.getByRole('button', { name: 'Retry secure connection' }));
     await waitFor(() => expect(screen.queryByRole('alert')).not.toBeInTheDocument());
     expect(screen.queryByText(/uvicorn/i)).not.toBeInTheDocument();
@@ -261,7 +260,7 @@ describe('App cloud session flow', () => {
   it('keeps the per-visit English override when the account profile prefers Spanish', async () => {
     window.history.replaceState({}, '', '/?lang=en');
     const spanishProfile = { ...profile, interface_language: 'es' as const };
-    vi.stubGlobal('fetch', routeFetch(githubSession, spanishProfile));
+    vi.stubGlobal('fetch', routeFetch(googleSession, spanishProfile));
     renderApp();
 
     expect(await screen.findByText('Your progress is saved')).toBeInTheDocument();
@@ -279,16 +278,18 @@ describe('App cloud session flow', () => {
       learner_mode: mode,
       guided_mode: mode === 'guided' ? 1 : 0,
     };
-    vi.stubGlobal('fetch', routeFetch(githubSession, modeProfile));
+    vi.stubGlobal('fetch', routeFetch(googleSession, modeProfile));
     renderApp();
 
     const navigation = await screen.findByRole('navigation', { name: 'Primary navigation' });
-    const labels = Array.from(navigation.querySelectorAll('button')).map((button) => button.querySelector('span')?.textContent);
+    const labels = Array.from(navigation.querySelectorAll('.side-nav__label')).map((label) => label.textContent);
     expect(labels.some((label) => label?.includes('AI Coach'))).toBe(hasCoach);
-    expect(labels.some((label) => label?.includes('Connections'))).toBe(hasConnections);
+    expect(labels.some((label) => label?.includes('Connections'))).toBe(mode !== 'guided');
     if (mode === 'guided') {
       expect(labels).toEqual(expect.arrayContaining(['Today', 'Words', 'Help']));
       expect(labels).toHaveLength(3);
+    } else {
+      expect(labels).toEqual(expect.arrayContaining(['Today', 'Learn', 'AI Coach', 'Progress', 'Connections', 'Dictionary', 'Audio', 'Settings']));
     }
     // The Learning Core identity block also renders the mode name once it finishes
     // loading, so this must target the persistent topbar chip rather than the whole
@@ -301,7 +302,7 @@ describe('App cloud session flow', () => {
   });
 
   it('keeps Settings open when Guided mode enters it from the profile menu', async () => {
-    vi.stubGlobal('fetch', routeFetch(githubSession));
+    vi.stubGlobal('fetch', routeFetch(googleSession));
     const user = userEvent.setup();
     renderApp();
 
@@ -311,7 +312,6 @@ describe('App cloud session flow', () => {
     await user.click(screen.getByRole('button', { name: /Open profile menu: Kevin/i }));
     await user.click(screen.getByRole('button', { name: 'Settings' }));
 
-    expect(document.querySelector('.topbar-context > span')).toHaveTextContent('Settings');
     expect(await screen.findByRole(
       'heading',
       { name: 'Settings' },
@@ -345,6 +345,26 @@ describe('App cloud session flow', () => {
     expect(screen.getByRole('textbox', { name: /¿Cómo quieres que te llamemos\?/ })).toHaveValue('');
   });
 
+  it('shows short helper text for each navigation entry so the menu is easier to scan', async () => {
+    vi.stubGlobal('fetch', routeFetch(googleSession));
+    renderApp();
+
+    const sideNav = await screen.findByRole('navigation', { name: 'Primary navigation' });
+    expect(sideNav).toBeInTheDocument();
+    expect(screen.getByText('Your daily starting point.')).toBeInTheDocument();
+    expect(within(sideNav).getByRole('button', { name: /Today\. Your daily starting point\./ })).toBeInTheDocument();
+  });
+
+  it('adds the same short helper context to mobile navigation targets', async () => {
+    vi.stubGlobal('fetch', routeFetch(googleSession));
+    renderApp();
+
+    const mobileNav = await screen.findByRole('navigation', { name: 'Mobile navigation' });
+    expect(mobileNav).toBeInTheDocument();
+    expect(within(mobileNav).getByRole('button', { name: /Today\. Your daily starting point\./ })).toBeInTheDocument();
+    expect(within(mobileNav).getByRole('button', { name: /Words\. Review today's core words and open your first lesson\./ })).toBeInTheDocument();
+  });
+
   it('localizes the dashboard hero, metrics, actions, and navigation in Hebrew RTL', async () => {
     localStorage.setItem('ivrit-sheli-locale', 'he');
     vi.stubGlobal('fetch', routeFetch(demoSession));
@@ -361,7 +381,7 @@ describe('App cloud session flow', () => {
   });
 
   it('shows the authenticated identity and returns to the gate after logout', async () => {
-    vi.stubGlobal('fetch', routeFetch(githubSession));
+    vi.stubGlobal('fetch', routeFetch(googleSession));
     const user = userEvent.setup();
     renderApp();
 
@@ -373,6 +393,33 @@ describe('App cloud session flow', () => {
     expect(screen.getByText('Personal workspace')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Sign out' }));
     expect(await screen.findByRole('heading', { name: 'Your Hebrew. Your progress. Your space.' })).toBeInTheDocument();
+  });
+
+  it('keeps the local avatar preset when the learner only updates display name', async () => {
+    localStorage.setItem('ivrit-sheli:learner-identity:v1:42', JSON.stringify({
+      displayName: 'Kevin',
+      avatarPresetId: 'preset-amber',
+    }));
+    vi.stubGlobal('fetch', routeFetch(googleSession));
+    const user = userEvent.setup();
+    renderApp();
+
+    expect(await screen.findByRole('button', { name: /Open profile menu: Kevin/i })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /Open profile menu: Kevin/i }));
+
+    const identityDialog = await screen.findByRole('dialog', { name: /Profile menu/i });
+    const nameInput = within(identityDialog).getByRole('textbox', { name: /Your name/i });
+    await user.clear(nameInput);
+    await user.type(nameInput, 'Kira');
+    await user.click(within(identityDialog).getByRole('button', { name: /Save/i }));
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    const storedIdentity = JSON.parse(localStorage.getItem('ivrit-sheli:learner-identity:v1:42') ?? '{}');
+    expect(storedIdentity).toEqual({
+      displayName: 'Kira',
+      avatarPresetId: 'preset-amber',
+    });
+    expect(screen.getByRole('button', { name: /Open profile menu: Kira/i })).toBeInTheDocument();
   });
 
   it('detaches this browser push endpoint before ending a cloud session', async () => {
@@ -400,7 +447,7 @@ describe('App cloud session flow', () => {
     });
     vi.stubGlobal('Notification', { permission: 'granted' });
     vi.stubGlobal('PushManager', class PushManagerStub {});
-    const baseFetch = routeFetch(githubSession);
+    const baseFetch = routeFetch(googleSession);
     const fetchMock = vi.fn(
       async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
         const path = String(input);
@@ -462,7 +509,7 @@ describe('App cloud session flow', () => {
       first_steps_step: 3,
       first_steps_completed: 0,
     };
-    vi.stubGlobal('fetch', routeFetch(githubSession, inProgressProfile));
+    vi.stubGlobal('fetch', routeFetch(googleSession, inProgressProfile));
     const user = userEvent.setup();
     renderApp();
 
@@ -480,7 +527,7 @@ describe('App cloud session flow', () => {
     renderApp();
 
     expect(await screen.findByText('Your progress is saved')).toBeInTheDocument();
-    const profileTrigger = await screen.findByRole('button', { name: /Open profile menu: Demo Learner/i });
+    const profileTrigger = await screen.findByRole('button', { name: /Open profile menu: Local learner/i });
     await user.click(profileTrigger);
     expect(screen.getByText('Local device')).toBeInTheDocument();
     expect(screen.getAllByText('Guided mode').length).toBeGreaterThan(0);
@@ -495,12 +542,12 @@ describe('App cloud session flow', () => {
     renderApp();
 
     await screen.findByText('Your progress is saved');
-    await user.click(screen.getByRole('button', { name: /Open profile menu: Demo Learner/i }));
+    await user.click(screen.getByRole('button', { name: /Open profile menu: Local learner/i }));
     await user.click(screen.getByRole('button', { name: /Finish for today/i }));
     await user.click(screen.getByRole('button', { name: 'Finish' }));
 
-    expect(screen.getByRole('main', { name: 'Good work today, Demo Learner' })).toHaveFocus();
-    expect(screen.getByRole('heading', { name: 'Good work today, Demo Learner' })).toBeInTheDocument();
+    expect(screen.getByRole('main', { name: 'Good work today, Local learner' })).toHaveFocus();
+    expect(screen.getByRole('heading', { name: 'Good work today, Local learner' })).toBeInTheDocument();
     expect(screen.getByText(/Close this browser tab/)).toBeInTheDocument();
     expect(fetchMock.mock.calls.some(([input, init]) => (
       String(input).endsWith('/auth/logout') && (init as RequestInit | undefined)?.method === 'POST'
@@ -510,10 +557,69 @@ describe('App cloud session flow', () => {
     expect(await screen.findByText('Your progress is saved')).toBeInTheDocument();
   });
 
+  it('returns to login when ending today and choosing another user', async () => {
+    const fetchMock = routeFetch(localSession);
+    vi.stubGlobal('fetch', fetchMock);
+    const user = userEvent.setup();
+    renderApp();
+
+    await screen.findByText('Your progress is saved');
+    await user.click(screen.getByRole('button', { name: /Open profile menu: Local learner/i }));
+    await user.click(screen.getByRole('button', { name: /Finish for today/i }));
+    await user.click(screen.getByRole('button', { name: 'Finish' }));
+    await waitFor(() => expect(screen.getByRole('main', { name: 'Good work today, Local learner' })).toHaveFocus());
+
+    await user.click(screen.getByRole('button', { name: 'Finish for today and switch user' }));
+    expect(await screen.findByRole('heading', { name: 'Your Hebrew. Your progress. Your space.' })).toBeInTheDocument();
+    expect(fetchMock.mock.calls.some(([input, init]) => (
+      String(input).endsWith('/auth/logout') && (init as RequestInit | undefined)?.method === 'POST'
+    ))).toBe(true);
+  });
+
+  it('returns to login from visit finish even if logout endpoint fails', async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+      const path = String(input);
+      const method = init?.method ?? 'GET';
+      if (path.endsWith('/auth/me')) return json(localSession);
+      if (path.endsWith('/auth/logout') && method === 'POST') {
+        return json({ error: { code: 'service_unavailable', message: 'Service unavailable' } }, 503);
+      }
+      if (path.endsWith('/dashboard')) {
+        return json({
+          ...dashboard,
+          profile,
+          system: { ...dashboard.system, offline_ready: localSession.mode === 'local' },
+        });
+      }
+      if (path.endsWith('/profile') && method === 'PUT') {
+        const update = JSON.parse(String(init?.body ?? '{}')) as Partial<Profile>;
+        return json({ ...profile, ...update });
+      }
+      if (path.endsWith('/profile')) return json(profile);
+      if (path.endsWith('/gamification/status')) return json(gamification);
+      throw new Error(`Unexpected request: ${method} ${path}`);
+    });
+    vi.stubGlobal('fetch', fetchMock);
+    const user = userEvent.setup();
+    renderApp();
+
+    await screen.findByText('Your progress is saved');
+    await user.click(screen.getByRole('button', { name: /Open profile menu: Local learner/i }));
+    await user.click(screen.getByRole('button', { name: /Finish for today/i }));
+    await user.click(screen.getByRole('button', { name: 'Finish' }));
+    await waitFor(() => expect(screen.getByRole('main', { name: 'Good work today, Local learner' })).toHaveFocus());
+
+    await user.click(screen.getByRole('button', { name: 'Finish for today and switch user' }));
+    expect(await screen.findByRole('heading', { name: 'Your Hebrew. Your progress. Your space.' })).toBeInTheDocument();
+    expect(fetchMock.mock.calls.some(([input, requestInit]) => (
+      String(input).endsWith('/auth/logout') && (requestInit as RequestInit | undefined)?.method === 'POST'
+    ))).toBe(true);
+  });
+
   it('returns an expired cloud session to the login gate on a private API 401', async () => {
     const fetchMock = vi.fn(async (input: RequestInfo | URL): Promise<Response> => {
       const path = String(input);
-      if (path.endsWith('/auth/me')) return json(githubSession);
+      if (path.endsWith('/auth/me')) return json(googleSession);
       if (path.endsWith('/dashboard')) {
         return json({ error: { code: 'authentication_required', message: 'Authentication required' } }, 401);
       }

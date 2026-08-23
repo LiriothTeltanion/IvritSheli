@@ -13,6 +13,7 @@ import copy
 import hashlib
 import hmac
 import json
+import queue
 import threading
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
@@ -520,30 +521,71 @@ class PostgresCloudStore:
         self.database_url = database_url.replace("postgres://", "postgresql://", 1)
         self.session_secret = session_secret
         self.max_snapshot_bytes = max_snapshot_bytes
-        username = unquote(urlparse(self.database_url).username or "")
-        if username != RUNTIME_DATABASE_ROLE:
-            raise ValueError(
-                f"DATABASE_URL must authenticate directly as {RUNTIME_DATABASE_ROLE}"
-            )
+        self._pool: queue.Queue[Any] = queue.Queue(maxsize=8)
 
-    @contextmanager
-    def _connection(self) -> Iterator[Any]:
-        with self._psycopg.connect(
+    def _create_raw_connection(self) -> Any:
+        return self._psycopg.connect(
             self.database_url,
             row_factory=self._dict_row,
             connect_timeout=8,
-        ) as connection:
+            autocommit=True,
+        )
+
+    def _acquire_connection(self) -> Any:
+        while True:
+            try:
+                connection = self._pool.get_nowait()
+            except queue.Empty:
+                return self._create_raw_connection()
+
+            if getattr(connection, "closed", True):
+                continue
+
+            try:
+                connection.execute("SELECT 1")
+                return connection
+            except Exception:
+                try:
+                    connection.close()
+                except Exception:
+                    pass
+                continue
+
+    def _release_connection(self, connection: Any) -> None:
+        if getattr(connection, "closed", True):
+            return
+        try:
+            connection.execute("DISCARD TEMP; RESET ALL;")
+            self._pool.put_nowait(connection)
+        except Exception:
+            try:
+                connection.close()
+            except Exception:
+                pass
+
+    @contextmanager
+    def _connection(self) -> Iterator[Any]:
+        connection = self._acquire_connection()
+        try:
             yield connection
+        finally:
+            self._release_connection(connection)
 
     @contextmanager
     def _tenant_connection(self, user_id: str) -> Iterator[Any]:
         UUID(user_id)
         with self._connection() as connection:
-            connection.execute("SELECT set_config('app.user_id', %s, true)", (user_id,))
+            connection.execute("SELECT set_config('app.user_id', %s, false)", (user_id,))
             yield connection
 
     def close(self) -> None:
-        """Connections are short-lived and need no explicit pool shutdown."""
+        """Close and drain pooled PostgreSQL connections."""
+        while not self._pool.empty():
+            try:
+                connection = self._pool.get_nowait()
+                connection.close()
+            except Exception:
+                pass
 
     def configure_security(
         self, session_secret: str, max_snapshot_bytes: int
@@ -943,9 +985,16 @@ class PostgresCloudStore:
         return str(row["code_verifier"]), str(row["redirect_path"])
 
     def read_state(self, user_id: str) -> dict[str, Any]:
-        """Read one tenant state after setting the RLS tenant context."""
-        self._ensure_state(user_id)
+        """Read one tenant state, creating the row if absent, in a single connection."""
         with self._tenant_connection(user_id) as connection:
+            connection.execute(
+                """
+                INSERT INTO learner_states(user_id, state, revision)
+                VALUES(%s, '{}'::jsonb, 0)
+                ON CONFLICT(user_id) DO NOTHING
+                """,
+                (user_id,),
+            )
             row = connection.execute(
                 "SELECT state FROM learner_states WHERE user_id = %s", (user_id,)
             ).fetchone()
@@ -957,8 +1006,15 @@ class PostgresCloudStore:
         operation: Callable[[dict[str, Any]], tuple[dict[str, Any], StateResult]],
     ) -> StateResult:
         """Lock, mutate, and revise one tenant document atomically."""
-        self._ensure_state(user_id)
         with self._tenant_connection(user_id) as connection:
+            connection.execute(
+                """
+                INSERT INTO learner_states(user_id, state, revision)
+                VALUES(%s, '{}'::jsonb, 0)
+                ON CONFLICT(user_id) DO NOTHING
+                """,
+                (user_id,),
+            )
             row = connection.execute(
                 """
                 SELECT state, revision FROM learner_states

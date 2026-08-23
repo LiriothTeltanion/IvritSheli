@@ -46,6 +46,8 @@ import type {
 
 const API_PREFIX = '/api/v1';
 const OFFLINE_STARTER_ENTRY_COUNT = 240;
+const API_REQUEST_TIMEOUT_MS = 30_000;
+const AUTH_ME_REQUEST_TIMEOUT_MS = 4_500;
 const OFFLINE_FORBIDDEN_FIELDS = new Set([
   'csrf',
   'email',
@@ -73,6 +75,47 @@ export function configureApiSession(session: Pick<AuthState, 'read_only'> | null
   readOnlySession = Boolean(session?.read_only);
 }
 
+function createTimeoutSignal(timeoutMs: number): AbortSignal | null {
+  const maybeTimeout = (AbortSignal as {
+    timeout?: (milliseconds: number) => AbortSignal;
+  }).timeout;
+  if (typeof maybeTimeout !== 'function') return null;
+  return maybeTimeout(timeoutMs);
+}
+
+function requestSignal(initSignal: AbortSignal | null | undefined, timeoutMs: number): AbortSignal | null {
+  const timeoutSignal = createTimeoutSignal(timeoutMs);
+
+  if (!initSignal) return timeoutSignal;
+  if (initSignal.aborted) return initSignal;
+  if (!timeoutSignal) return initSignal;
+
+  const controller = new AbortController();
+
+  const existingAbort = (): void => {
+    if (!controller.signal.aborted) {
+      controller.abort(initSignal.reason ?? new DOMException('Request aborted', 'AbortError'));
+    }
+  };
+
+  const timeoutAbort = (): void => {
+    if (!controller.signal.aborted) {
+      const reason = (timeoutSignal as AbortSignal & { reason?: unknown }).reason
+        ?? new DOMException('Request timed out', 'TimeoutError');
+      controller.abort(reason);
+    }
+  };
+
+  initSignal.addEventListener('abort', existingAbort, { once: true });
+  timeoutSignal.addEventListener('abort', timeoutAbort, { once: true });
+  controller.signal.addEventListener('abort', () => {
+    initSignal.removeEventListener('abort', existingAbort);
+    timeoutSignal.removeEventListener('abort', timeoutAbort);
+  }, { once: true });
+
+  return controller.signal;
+}
+
 function readCsrfCookie(): string {
   if (typeof document === 'undefined') return '';
   const prefix = 'ivrit_csrf=';
@@ -96,7 +139,14 @@ export class ApiError extends Error {
   }
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+type RequestInitWithTimeout = Omit<RequestInit, 'signal'> & {
+  signal?: AbortSignal | null;
+  timeoutMs?: number;
+};
+
+async function request<T>(path: string, init?: RequestInitWithTimeout): Promise<T> {
+  const { timeoutMs, ...requestInit } = init ?? {};
+  const signal = requestSignal(requestInit.signal, timeoutMs ?? API_REQUEST_TIMEOUT_MS);
   const method = (init?.method ?? 'GET').toUpperCase();
   const isReadRequest = ['GET', 'HEAD', 'OPTIONS'].includes(method);
   const csrfToken = isReadRequest ? '' : readCsrfCookie();
@@ -111,16 +161,24 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   let response: Response;
   try {
     response = await fetch(`${API_PREFIX}${path}`, {
-      ...init,
+      ...requestInit,
       credentials: 'include',
       headers: {
         Accept: 'application/json',
-        ...(init?.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
+        ...(requestInit?.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
         ...(csrfToken ? { 'X-CSRF-Token': csrfToken } : {}),
-        ...init?.headers,
+        ...requestInit.headers,
       },
+      ...(signal ? { signal } : {}),
     });
   } catch (reason) {
+    if (reason instanceof DOMException && reason.name === 'TimeoutError') {
+      throw new ApiError(
+        'The request timed out while waiting for a response.',
+        408,
+        'timeout',
+      );
+    }
     if (!isReadRequest && reason instanceof TypeError) {
       throw new ApiError(
         'A network connection is required to save this change. Reconnect and try again.',
@@ -337,8 +395,16 @@ function searchOfflineEntries(entries: DictionaryEntry[], query: string): Dictio
 }
 
 export const api = {
-  authMe: (): Promise<AuthState> => request('/auth/me'),
+  authMe: (init?: RequestInitWithTimeout): Promise<AuthState> => request('/auth/me', init),
   startDemo: (): Promise<AuthState> => request('/auth/demo', { method: 'POST' }),
+  startGoogle: (nextPath?: string): Promise<{ authorize_url: string }> => {
+    const query = nextPath ? `?next=${encodeURIComponent(nextPath)}` : '';
+    return request(`/auth/google/start${query}`, {
+      headers: {
+        Accept: 'application/json',
+      },
+    });
+  },
   logout: (): Promise<AuthState> => request('/auth/logout', { method: 'POST' }),
   deleteAccount: (): Promise<AuthState> => request('/account', {
     method: 'DELETE',

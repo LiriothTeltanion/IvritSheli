@@ -121,6 +121,7 @@ export function classifyCaptureFailure(reason: unknown): Exclude<CaptureStatus, 
   if (reason instanceof ApiError) {
     if (reason.status === 408 || reason.code.includes('timeout')) return 'timeout';
     if (reason.code.includes('no_speech')) return 'no_speech';
+    if (reason.code.includes('audio_provider_capacity')) return 'service_unavailable';
     if (
       reason.status === 413
       || reason.status === 415
@@ -182,7 +183,7 @@ export function AudioPractice({
   onWordClick: (word: string) => void;
   cloudAvailable?: boolean;
 }): React.JSX.Element {
-  const { label, locale, t } = useI18n();
+  const { errorText, label, locale, t } = useI18n();
   const { readOnly, readOnlyReason, recordingOwnerScope } = useSessionAccess();
   const secureContext = isSecureMicrophoneContext();
   const mediaRecorderAvailable = Boolean(navigator.mediaDevices?.getUserMedia)
@@ -422,7 +423,7 @@ export function AudioPractice({
       }
     } catch (reason) {
       if (mountedRef.current && playGenerationRef.current === playGeneration) {
-        setError(reason instanceof Error ? reason.message : String(reason));
+        setError(errorText(reason));
         speakBrowser(target);
       }
     } finally {
@@ -446,7 +447,7 @@ export function AudioPractice({
     startLockRef.current = false;
     const status = explicitStatus ?? classifyCaptureFailure(reason);
     setCaptureStatus(status);
-    setError(reason instanceof ApiError ? reason.message : '');
+    setError(errorText(reason));
   };
 
   const understandTranscript = async (
@@ -471,7 +472,7 @@ export function AudioPractice({
       }
     } catch (reason) {
       if (mountedRef.current && transcriptAnalysisGenerationRef.current === generation) {
-        setTranscriptAnalysisError(reason instanceof Error ? reason.message : String(reason));
+        setTranscriptAnalysisError(errorText(reason));
       }
     } finally {
       if (mountedRef.current && transcriptAnalysisGenerationRef.current === generation) {
@@ -777,7 +778,7 @@ export function AudioPractice({
       }
     } catch (reason) {
       if (mountedRef.current && scoreGenerationRef.current === scoreGeneration) {
-        setError(reason instanceof Error ? reason.message : String(reason));
+        setError(errorText(reason));
       }
     }
   };

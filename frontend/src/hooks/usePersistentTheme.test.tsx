@@ -31,6 +31,14 @@ describe('usePersistentTheme', () => {
     expect(window.localStorage.getItem('ivrit-sheli-theme')).toBe('dark');
   });
 
+  it('supports explicit theme updates from settings controls', () => {
+    const { result } = renderHook(() => usePersistentTheme());
+    act(() => result.current[2]('light'));
+
+    expect(result.current[0]).toBe('light');
+    expect(window.localStorage.getItem('ivrit-sheli-theme')).toBe('light');
+  });
+
   it('ignores an invalid saved value', () => {
     window.localStorage.setItem('ivrit-sheli-theme', 'system');
     const { result } = renderHook(() => usePersistentTheme());

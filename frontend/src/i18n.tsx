@@ -10,6 +10,7 @@ import { enMessages } from './locales/en';
 import { esMessages } from './locales/es';
 import { heMessages } from './locales/he';
 import { codeLabels } from './locales/codeLabels';
+import { describeError } from './locales/errorMessages';
 
 type MessageKey = keyof typeof messages.en;
 type MessageValues = Record<string, string | number>;
@@ -22,6 +23,15 @@ interface I18nContextValue {
   setLocale: (locale: Locale) => void;
   t: (key: MessageKey, values?: MessageValues) => string;
   label: (code: string) => string;
+  /**
+   * The sentence to show the learner when something failed.
+   *
+   * Pass whatever was caught. Never render `reason.message`: the messages on
+   * `ApiError` and on the backend's error envelope are English prose meant for
+   * logs, and rendering them is how every failure in this trilingual app used to
+   * speak English.
+   */
+  errorText: (reason: unknown) => string;
 }
 
 const I18nContext = createContext<I18nContextValue | null>(null);
@@ -63,6 +73,7 @@ export function I18nProvider({ children }: { children: ReactNode }): React.JSX.E
         );
       },
       label: (code) => codeLabels[locale][code] ?? code.replaceAll('_', ' '),
+      errorText: (reason) => describeError(reason, locale),
     }),
     [locale, setLocale],
   );

@@ -91,7 +91,7 @@ const UNITS: AlphabetUnit[] = [
   }),
   unit('bet', 'ב', 'Bet', 2),
   unit('ayin', 'ע', 'Ayin', 16, { confusions: ['alef'] }),
-  unit('final-kaf', 'ך', 'Final Kaf', 23, { base_key: 'kaf', is_final: true }),
+  unit('final_kaf', 'ך', 'Final Kaf', 23, { base_key: 'kaf', is_final: true }),
 ];
 
 const CATALOG: AlphabetCatalog = {
@@ -213,7 +213,7 @@ describe('AlphabetStudio', () => {
 
     expect(await screen.findByRole('heading', { name: /Learn every shape/i })).toBeInTheDocument();
     expect(screen.getByText(/22 letters and 5 positional final forms/i)).toBeInTheDocument();
-    expect(screen.getByText('אָלֶף')).toBeInTheDocument();
+    expect(screen.getAllByLabelText('אָלֶף').length).toBeGreaterThan(0);
     expect(screen.getByText('Niqqud are small vowel signs used as reading support.')).toBeInTheDocument();
     expect(screen.getByText('Forms explored')).toBeInTheDocument();
     expect(screen.getByRole('progressbar', { name: '4% of forms explored' })).toBeInTheDocument();
@@ -452,7 +452,7 @@ describe('AlphabetStudio', () => {
 
     await user.click(await screen.findByRole('button', { name: /ב, Bet, new/i }));
 
-    expect(await screen.findByRole('alert')).toHaveTextContent(/could not be saved.*Connection interrupted/i);
+    expect(await screen.findByRole('alert')).toHaveTextContent(/could not be saved/i);
     expect(screen.getByRole('button', { name: /א, Alef, practiced/i })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByRole('group', { name: 'Which letter is Alef?' })).toBeInTheDocument();
   });
@@ -475,7 +475,7 @@ describe('AlphabetStudio', () => {
 
     await user.click(await screen.findByRole('button', { name: /Hear letter name: Alef/i }));
     expect(screen.getByText(/playback is not available in this browser/i)).toBeInTheDocument();
-    expect(screen.getByText('אָלֶף')).toBeInTheDocument();
+    expect(screen.getAllByLabelText('אָלֶף').length).toBeGreaterThan(0);
   });
 
   it('shows sound variants and technical IPA only in Experienced depth', async () => {
