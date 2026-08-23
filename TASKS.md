@@ -22,6 +22,21 @@
 
 ---
 
+## 🧭 Paneles de seguimiento
+
+El **Centro de mando** manda sobre los demás: dice el estado real y, para cada
+otro panel, qué sigue siendo cierto y qué ya no. Empieza siempre por ahí.
+
+| Panel | Qué cubre | Estado |
+|---|---|---|
+| [Centro de mando](https://claude.ai/code/artifact/23ca714a-9a56-4c4c-955a-aa8f3311808d) | Estado real, los otros paneles, y todo lo pendiente con dueño | **Autoridad** |
+| [Escaneo del repositorio](https://claude.ai/code/artifact/13fc2920-210f-465d-859e-ebd541716e67) | Estado medido, reparaciones, peso, bloqueos | Al día (23 ago) |
+| [Repintado Nocturne](https://claude.ai/code/artifact/dd431abf-e079-4e6d-9f0f-320346ec2432) | Las 240 escenas: cobertura, defectos, familias, antes/después | Cuerpo válido, cabecera vencida (17 ago) |
+| [Sistema de ilustración](https://claude.ai/code/artifact/b91c5fb8-f9f6-498e-a539-0bfb60fa13f7) | Paleta, reglas de dibujo, láminas por categoría | Muestra 144 de 240 escenas (9 ago) |
+| [Inventario · Imágenes](https://claude.ai/code/artifact/d049d2fd-997f-4adb-92db-3fd7a7a9b9f5) | Inventario de recursos gráficos | Sin revisar (19 jul) |
+
+---
+
 ## 📋 Master Task Tracker
 
 ### ✅ Completed Tasks (v2.12.2 & Recent Sessions)
