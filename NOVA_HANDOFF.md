@@ -111,14 +111,16 @@ that last remains historical 2.10.0 Phase 4A.1 evidence.
 Stated plainly, because the previous revision of this file said "None" directly
 above a list of unmet requirements:
 
-1. **`DATABASE_URL` authenticates as the `postgres` superuser.** That role
-   bypasses RLS, so tenant isolation does not apply, and the restored guard now
-   refuses to start against it. PostgreSQL mode cannot be exercised until an
-   `ivrit_sheli_runtime` role exists in the Supabase project and the URL uses
-   it. The `backend-local` launch profile runs the app in its offline SQLite
-   mode meanwhile.
-2. That superuser password was exposed in a session transcript on 2026-08-23
-   and should be rotated.
+1. ~~`DATABASE_URL` authenticates as the `postgres` superuser.~~ **Closed
+   2026-08-23.** `ivrit_sheli_runtime` exists on the project, the application
+   authenticates as it, `/health/ready` returns 200 with `postgresql: true`, and
+   tenant isolation was demonstrated against the live database — each learner
+   sees only her own state, cross-tenant writes affect nothing, and the role
+   cannot disable RLS, create tables, or switch roles. Evidence in
+   `TEST_REPORT.md`.
+2. **Rotate the `postgres` password.** It was exposed in session transcripts on
+   2026-08-23. Nothing depends on it any more — the application authenticates as
+   the restricted role — so rotating it breaks nothing.
 3. Human five-second recognition of confusable clusters, starting with family
    and relationship diagrams.
 4. Hebrew-content and mother-pilot acceptance.

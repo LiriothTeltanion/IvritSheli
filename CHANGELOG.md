@@ -78,6 +78,29 @@ unpublished candidate being repaired does not become a new one.
 - Stops precaching 4.7 MB with an atomic `addAll`, where one failed region
   image left the PWA with no offline shell at all.
 
+### Tenant isolation, now demonstrated rather than asserted
+
+The restricted `ivrit_sheli_runtime` role was provisioned on the project's
+PostgreSQL 17.6 instance and the application authenticates as it.
+`/health/ready` returns 200 with `postgresql: true`, satisfying all eleven
+conditions the readiness check enforces.
+
+Isolation was then exercised against the live database with two throwaway
+learners, each holding one private state row:
+
+- each saw exactly its own row and never the other's;
+- a cross-tenant `UPDATE` affected zero rows;
+- with no tenant context set, zero rows were visible;
+- `ALTER TABLE ... DISABLE ROW LEVEL SECURITY`, `CREATE TABLE` in `public`, and
+  `SET ROLE postgres` were all refused with `InsufficientPrivilege`;
+- both throwaway learners were deleted, leaving nothing behind.
+
+This is the property the security repair above existed to restore. Provisioning
+on a managed provider needed two corrections along the way: the administrator
+role there is not a superuser, so the hardening statement had to degrade to what
+it may set and verify the outcome instead of asserting it; and the role must be
+`NOINHERIT`, which PostgreSQL does not default to.
+
 ### Verified
 
 Frontend 747 passed across 45 files; `tsc` and the production build clean.

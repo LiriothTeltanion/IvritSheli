@@ -50,12 +50,18 @@ Report executed, inferred and unverified results separately, and name what you
 did not run. `TEST_REPORT.md` carries an explicit "not run" list for exactly
 this reason. Do not relabel historical evidence as proof of the current version.
 
-### 5. Open blockers, both needing Kevin
+### 5. The database is on a restricted role — keep it that way
 
-- `DATABASE_URL` authenticates as the `postgres` superuser, which carries
-  `BYPASSRLS`, so row-level security does not apply. Runbook:
-  `docs/SUPABASE_RUNTIME_ROLE.md`. Until it is done, use `backend-local`.
-- That superuser password was exposed on 2026-08-23 and needs rotating.
+Since 2026-08-23 the application authenticates as `ivrit_sheli_runtime`, which
+cannot bypass row-level security, create objects, or switch into another role.
+Tenant isolation is demonstrated against the live database in `TEST_REPORT.md`.
+
+`MIGRATION_DATABASE_URL` is an administrator credential and the application must
+never receive it. If a schema change needs one, it is a one-shot provisioning
+step outside the app: `docs/SUPABASE_RUNTIME_ROLE.md`.
+
+Still open: the `postgres` password was exposed on 2026-08-23 and needs
+rotating. Nothing depends on it now, so rotating it breaks nothing.
 
 ## Where the current state lives
 

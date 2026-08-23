@@ -88,7 +88,15 @@ otro panel, qué sigue siendo cierto y qué ya no. Empieza siempre por ahí.
 
 ### ⏳ Current & Upcoming Tasks
 
-- [ ] **BLOCKER — Restricted PostgreSQL role (precondition for KEV-12)**:
+- [x] **Restricted PostgreSQL role — DONE 2026-08-23**:
+  - `ivrit_sheli_runtime` provisioned via the SQL Editor; the app authenticates as
+    it and `/health/ready` returns 200 with `postgresql: true`.
+  - Tenant isolation demonstrated on the live database: each learner sees only her
+    own row, cross-tenant writes affect 0 rows, and the role cannot disable RLS,
+    create tables in `public`, or `SET ROLE`. See `TEST_REPORT.md`.
+- [ ] **Rotate the `postgres` password** — exposed 2026-08-23. Nothing depends on
+      it now, so rotating it breaks nothing.
+- [ ] ~~BLOCKER — Restricted PostgreSQL role (precondition for KEV-12)~~:
   - `DATABASE_URL` currently authenticates as the `postgres` superuser, which
     bypasses RLS. Create `ivrit_sheli_runtime` in the Supabase project and point
     the URL at it. One command: `pwsh -File scripts/setup-runtime-role.ps1`.

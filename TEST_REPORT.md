@@ -39,6 +39,35 @@ was **not** run for 2.12.2, whatever an earlier summary may have claimed.
 | Running stack | `backend-local` + `frontend` launch profiles | **Passed**: SQLite offline mode on 8000, Vite on 5173, learner shell renders, no console errors from the app |
 | Visual QA catalogue | `127.0.0.1:5173/?visualQa=1&group=all&size=card` | **240 scene SVGs present in the DOM** |
 
+### PostgreSQL tenant isolation — executed against the live project — 2026-08-23
+
+The gate that had been skipped since 2.9 for want of a restricted credential.
+`ivrit_sheli_runtime` now exists on the project's PostgreSQL 17.6 instance and
+the application authenticates as it.
+
+| Property | Method | Result |
+|---|---|---|
+| Role attributes | `pg_roles` for the connected role | **canlogin true; super, inherit, bypassrls, createdb, createrole, replication all false; 0 memberships; cannot CREATE in public** |
+| Runtime readiness | `GET /health/ready` | **200 `status: ready`, `postgresql: true`** — all eleven conditions in `PostgresCloudStore.ready()` |
+| RLS coverage | `pg_class` / `pg_policies` | `learner_states`, `push_subscriptions`, `push_delivery_state` all **enabled and forced**; 1, 4 and 2 policies |
+| Cross-tenant read | Two throwaway learners, one private state row each, read under each tenant context | **Each saw exactly its own row. Neither saw the other's.** |
+| Cross-tenant write | Learner A `UPDATE` against learner B's row | **0 rows affected** |
+| No-tenant read | `SELECT` with `app.user_id` unset | **0 rows visible** |
+| Privilege escape | `ALTER TABLE ... DISABLE ROW LEVEL SECURITY`, `CREATE TABLE` in public, `SET ROLE postgres` | **All three refused** with `InsufficientPrivilege` |
+| Cleanup | `DELETE` on the throwaway learners, cascading | **2 deleted, 0 left behind** |
+
+This is the property the session's security repair existed to restore: an
+earlier working tree had stripped the RLS `TO <role>` clauses out of four
+applied migrations and deleted the guard refusing an administrator
+`DATABASE_URL`, which together made every learner's state readable by every
+other. It is now demonstrated on real infrastructure rather than asserted.
+
+`test_postgres_integration.py::test_real_postgres_idempotent_provisioning_least_privilege_and_rls`
+remains skipped: it additionally requires `MIGRATION_DATABASE_URL`, an
+administrator credential the application must never hold, and it provisions and
+drops roles — not something to run against a live project. The table above
+covers the same isolation property by observation instead.
+
 ### What this gate corrected
 
 The backend entered this session at **4 failed / 311 passed**. The four failures
@@ -54,10 +83,10 @@ five are repaired in `9d8d463`.
 - Playwright browser matrix and the 240 × 3 contact matrices.
 - Offline doctor.
 - `scripts/verify_package.py` integrity gate.
-- PostgreSQL 17 / RLS isolation and the no-cache container smoke. Those remain
-  **inherited 2.10.0 Phase 4A.1 evidence** and are not relabelled. The local
-  PostgreSQL path additionally cannot be exercised until `DATABASE_URL`
-  authenticates as `ivrit_sheli_runtime` rather than a superuser.
+- The no-cache container smoke. That remains **inherited 2.10.0 Phase 4A.1
+  evidence** and is not relabelled. PostgreSQL/RLS isolation is no longer on
+  this list: it was executed against the live project on 2026-08-23 and is
+  recorded above.
 - Human five-second recognition, Hebrew-content acceptance and the mother pilot.
 
 ## Living Hebrew Nocturne gate — reference Windows machine — 2026-08-14
