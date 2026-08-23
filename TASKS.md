@@ -76,7 +76,8 @@
 - [ ] **BLOCKER — Restricted PostgreSQL role (precondition for KEV-12)**:
   - `DATABASE_URL` currently authenticates as the `postgres` superuser, which
     bypasses RLS. Create `ivrit_sheli_runtime` in the Supabase project and point
-    the URL at it. Until then use the `backend-local` launch profile.
+    the URL at it. Step-by-step runbook: `docs/SUPABASE_RUNTIME_ROLE.md`.
+    Until then use the `backend-local` launch profile.
   - Rotate the superuser password exposed on 2026-08-23.
 - [ ] **Regenerate `SHA256SUMS.txt`** and pass `scripts/verify_package.py`.
 - [ ] **Avatar weight**: 6.8 MB of photographic JPEGs render as 42 px thumbnails
