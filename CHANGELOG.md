@@ -126,9 +126,32 @@ version. Public production remains 2.4.0 and is frozen until after 2026-08-25.
   replacing it, and is clamped to 0.8–2.0 on the client as well as the server.
 - Models `text_scale` and `focus_status` in the `Profile` type. Neither was
   there, which is why neither could be read.
-- Known and not fixed: 63 declarations are 10 px or smaller, seventeen of them
-  8 px. They scale now, but they start below a legible size. Raising them moves
-  layout, so it is a design decision.
+- Raises every size below 12 px to `--text-2xs`, the floor: 149 declarations,
+  seventeen of them 8 px and one 7 px. Nothing in the project sets text smaller
+  than that now. Verified with no horizontal overflow at 1280 px in Spanish and
+  in Hebrew RTL.
+- Ships **Assistant** as the interface typeface, self-hosted, one variable
+  family covering Latin and Hebrew at 29 kB for both subsets. The stylesheet
+  had named `Inter` and shipped nothing, so the app was set in whatever the
+  operating system offered — Segoe UI, SF Pro or Roboto depending on the
+  device. Three learners, three different products; the same fault the wordmark
+  had before its letterforms were drawn. `--font-sans` and `--font-hebrew` are
+  now the same family, so the interface and the language it teaches share one
+  voice.
+- Adds a type scale (`--text-2xs` through `--text-4xl`). There were 151 distinct
+  font sizes and no scale. Converting the remaining ad-hoc values is
+  incremental; new work uses the rungs.
+
+### Stylesheet integrity
+
+- Closes an `@media (prefers-contrast: more)` block that had never been closed.
+  A selector list inside it ended with no declaration block, and the brace that
+  should have followed was missing, so **758 lines and 133 rules** — the guided
+  help, the local sign-in button, the learning journey, the cross-section links
+  — sat inside the media query and applied only to a learner whose operating
+  system is set to high contrast. Nobody else had ever seen them.
+  Predates this session: the imbalance is present in every recent commit.
+  The dangling selectors are removed rather than guessed at.
 
 ### Tests and documentation
 

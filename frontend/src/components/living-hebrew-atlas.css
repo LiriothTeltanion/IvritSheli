@@ -213,7 +213,7 @@
   border-radius: 50%;
   background: #f1e7d0;
   color: #5f4b27;
-  font-size: 0.7rem;
+  font-size: var(--text-2xs);
   font-weight: 900;
 }
 
@@ -256,7 +256,7 @@
   grid-column: 3;
   grid-row: 2;
   color: var(--atlas-teal);
-  font-size: 0.68rem;
+  font-size: var(--text-2xs);
   font-weight: 780;
   text-align: start;
 }
@@ -448,7 +448,7 @@ button.ivrit-atlas__marker {
   background: rgba(255, 253, 248, 0.98);
   box-shadow: 0 0.35rem 0.9rem rgba(23, 32, 51, 0.11);
   color: var(--atlas-art-ink);
-  font-size: 0.7rem;
+  font-size: var(--text-2xs);
   font-weight: 850;
   line-height: 1.25;
   text-align: center;
@@ -524,7 +524,7 @@ button.ivrit-atlas__marker:focus-visible {
 .ivrit-atlas__region-tag {
   display: inline-block;
   color: var(--atlas-teal, #0f766e);
-  font-size: 0.72rem;
+  font-size: var(--text-2xs);
   font-weight: 750;
   font-style: normal;
   margin-top: 2px;
@@ -533,7 +533,7 @@ button.ivrit-atlas__marker:focus-visible {
 .ivrit-atlas__visual-tag {
   display: inline-block;
   color: #0f766e;
-  font-size: 0.74rem;
+  font-size: var(--text-2xs);
   font-weight: 800;
   margin-top: 3px;
 }

@@ -70,7 +70,7 @@
 .visual-qa__facts div { padding: 12px 10px; border-inline-end: 1px solid var(--qa-rule); }
 .visual-qa__facts div:last-child { border-inline-end: 0; }
 .visual-qa__facts dt { font-size: clamp(1.55rem, 2.4vw, 2.25rem); font-weight: 900; line-height: 1; }
-.visual-qa__facts dd { margin: 6px 0 0; color: var(--text-soft); font-size: 0.7rem; font-weight: 760; line-height: 1.25; }
+.visual-qa__facts dd { margin: 6px 0 0; color: var(--text-soft); font-size: var(--text-2xs); font-weight: 760; line-height: 1.25; }
 
 .visual-qa__journey {
   margin-top: 14px;
@@ -90,7 +90,7 @@
 }
 
 .visual-qa__journey > header span { display: grid; gap: 4px; }
-.visual-qa__journey > header small { color: var(--warm-gold); font-size: 0.7rem; font-weight: 900; letter-spacing: 0.12em; text-transform: uppercase; }
+.visual-qa__journey > header small { color: var(--warm-gold); font-size: var(--text-2xs); font-weight: 900; letter-spacing: 0.12em; text-transform: uppercase; }
 .visual-qa__journey > header strong { font-size: clamp(1rem, 1.8vw, 1.28rem); line-height: 1.25; }
 .visual-qa__journey > header output { color: var(--text-soft); font-size: 0.78rem; font-weight: 780; }
 .visual-qa__journey > header button {
@@ -232,7 +232,7 @@
 
 .visual-qa__saved-account-text { display: grid; gap: 2px; min-width: 0; }
 .visual-qa__saved-account-text strong { line-height: 1.1; }
-.visual-qa__saved-account-text small { color: var(--text-soft); font-size: 0.74rem; }
+.visual-qa__saved-account-text small { color: var(--text-soft); font-size: var(--text-2xs); }
 
 .visual-qa__saved-account-actions {
   display: grid;
@@ -258,7 +258,7 @@
 
 .visual-qa__notebook > header small {
   color: var(--text-soft);
-  font-size: 0.74rem;
+  font-size: var(--text-2xs);
   letter-spacing: 0.04em;
 }
 
@@ -295,7 +295,7 @@
 
 .visual-qa__history-header small {
   color: var(--warm-gold);
-  font-size: 0.72rem;
+  font-size: var(--text-2xs);
   letter-spacing: 0.09em;
   text-transform: uppercase;
   font-weight: 860;
@@ -350,7 +350,7 @@
   display: grid;
   gap: 4px;
   color: var(--text-soft);
-  font-size: 0.74rem;
+  font-size: var(--text-2xs);
 }
 
 .visual-qa__notebook-grid article {
@@ -369,7 +369,7 @@
 }
 
 .visual-qa__notebook-grid dl div { display: grid; gap: 2px; }
-.visual-qa__notebook-grid dt { font-size: 0.74rem; color: var(--text-soft); font-weight: 780; }
+.visual-qa__notebook-grid dt { font-size: var(--text-2xs); color: var(--text-soft); font-weight: 780; }
 .visual-qa__notebook-grid dd { margin: 0; font-weight: 780; }
 
 .visual-qa__notebook-grid ul {
@@ -471,8 +471,8 @@
   text-align: start;
 }
 .visual-qa__domains button span { display: flex; align-items: baseline; gap: 7px; }
-.visual-qa__domains button small { color: var(--text-muted); font-size: 0.62rem; letter-spacing: 0.08em; }
-.visual-qa__domains button b { min-width: 2ch; font-size: 0.74rem; }
+.visual-qa__domains button small { color: var(--text-muted); font-size: var(--text-2xs); letter-spacing: 0.08em; }
+.visual-qa__domains button b { min-width: 2ch; font-size: var(--text-2xs); }
 .visual-qa__domains button:hover { color: var(--text); }
 .visual-qa__domains button.active { color: var(--text); background: color-mix(in srgb, var(--warm-teal) 12%, transparent); box-shadow: inset 3px 0 var(--warm-teal); }
 [dir="rtl"] .visual-qa__domains button.active { box-shadow: inset -3px 0 var(--warm-teal); }
@@ -491,7 +491,7 @@
 .visual-qa__toolbar label,
 .visual-qa__segmented { display: grid; gap: 6px; }
 .visual-qa__toolbar label > span,
-.visual-qa__segmented > span { color: var(--text-muted); font-size: 0.66rem; font-weight: 850; letter-spacing: 0.08em; text-transform: uppercase; }
+.visual-qa__segmented > span { color: var(--text-muted); font-size: var(--text-2xs); font-weight: 850; letter-spacing: 0.08em; text-transform: uppercase; }
 .visual-qa__toolbar input,
 .visual-qa__toolbar select {
   min-height: 46px;
@@ -552,7 +552,7 @@
   border-block-end: 2px solid var(--qa-rule-strong);
   font-size: 1.35rem;
 }
-.visual-qa__chapter span { color: var(--warm-coral); font-size: 0.72rem; letter-spacing: 0.12em; }
+.visual-qa__chapter span { color: var(--warm-coral); font-size: var(--text-2xs); letter-spacing: 0.12em; }
 
 .visual-qa__catalog > article {
   --qa-domain-accent: var(--warm-teal);
@@ -590,7 +590,7 @@
   gap: 10px;
   border-bottom: 1px solid var(--qa-rule);
   color: var(--text-muted);
-  font-size: 0.64rem;
+  font-size: var(--text-2xs);
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -604,7 +604,7 @@
   border-bottom: 1px solid var(--qa-rule);
 }
 .visual-qa__sizes figure { width: 100%; margin: 0; display: grid; gap: 5px; justify-items: center; }
-.visual-qa__sizes figcaption { color: var(--text-muted); font-size: 0.65rem; font-weight: 820; }
+.visual-qa__sizes figcaption { color: var(--text-muted); font-size: var(--text-2xs); font-weight: 820; }
 .visual-qa__catalog--thumbnail .visual-qa__sizes { align-self: center; }
 .visual-qa__catalog--thumbnail .semantic-art { max-width: 210px; margin-inline: auto; filter: none; }
 .visual-qa__catalog--card .semantic-art,
@@ -618,14 +618,14 @@
 
 .visual-qa__recipe { grid-area: recipe; margin: 0; display: grid; gap: 6px; }
 .visual-qa__recipe div { padding-top: 6px; display: grid; grid-template-columns: 70px 1fr; gap: 7px; border-top: 1px solid var(--qa-rule); }
-.visual-qa__recipe dt { color: var(--qa-domain-accent); font-size: 0.63rem; font-weight: 900; letter-spacing: 0.07em; text-transform: uppercase; }
+.visual-qa__recipe dt { color: var(--qa-domain-accent); font-size: var(--text-2xs); font-weight: 900; letter-spacing: 0.07em; text-transform: uppercase; }
 .visual-qa__recipe dd { margin: 0; color: var(--text-soft); font-size: 0.75rem; line-height: 1.35; }
 
 .visual-qa__catalog article > details { grid-area: details; border-top: 1px solid var(--qa-rule); color: var(--text-soft); }
 .visual-qa__catalog article > details > summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; font-size: 0.76rem; font-weight: 780; }
 .visual-qa__catalog article > details dl { margin: 0 0 8px; display: grid; gap: 7px; }
 .visual-qa__catalog article > details dl div { display: grid; grid-template-columns: 34px 1fr; gap: 8px; }
-.visual-qa__catalog article > details dt { color: var(--qa-domain-accent); font-size: 0.7rem; font-weight: 900; }
+.visual-qa__catalog article > details dt { color: var(--qa-domain-accent); font-size: var(--text-2xs); font-weight: 900; }
 .visual-qa__catalog article > details dd { margin: 0; font-size: 0.78rem; line-height: 1.45; }
 
 .visual-qa__catalog--hero > article { grid-template-columns: minmax(0, 1.15fr) minmax(168px, 0.85fr); }
@@ -637,7 +637,7 @@
 .visual-qa__catalog--compare .visual-qa__sizes figure { max-width: 100%; overflow: hidden; }
 .visual-qa__catalog--compare .semantic-art { filter: none; }
 .visual-qa__reference-image { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; background: color-mix(in srgb, var(--bg-deep) 20%, transparent); }
-.visual-qa__reference-missing { width: 100%; min-height: 110px; margin: 0; display: grid; place-content: center; text-align: center; color: var(--text-soft); background: color-mix(in srgb, var(--surface-solid) 45%, transparent); font-size: 0.73rem; border: 1px dashed var(--qa-rule); }
+.visual-qa__reference-missing { width: 100%; min-height: 110px; margin: 0; display: grid; place-content: center; text-align: center; color: var(--text-soft); background: color-mix(in srgb, var(--surface-solid) 45%, transparent); font-size: var(--text-2xs); border: 1px dashed var(--qa-rule); }
 .visual-qa__empty { grid-column: 1 / -1; padding: 34px; border: 1px dashed var(--qa-rule-strong); color: var(--text-soft); text-align: center; }
 .visual-qa--error { display: grid; place-content: center; }
 
@@ -661,7 +661,7 @@
   .visual-qa__identity h1 { font-size: clamp(2.1rem, 12vw, 3.15rem); }
   .visual-qa__facts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .visual-qa__facts div { padding: 10px 8px; }
-  .visual-qa__facts dd { font-size: 0.64rem; }
+  .visual-qa__facts dd { font-size: var(--text-2xs); }
   .visual-qa__journey > header { grid-template-columns: 1fr auto; padding: 15px; }
   .visual-qa__journey > header output { text-align: end; }
   .visual-qa__journey > header button { grid-column: 1 / -1; width: 100%; }

@@ -38,7 +38,7 @@
   right: 12px;
   background: #f43f5e;
   color: #ffffff;
-  font-size: 0.65rem;
+  font-size: var(--text-2xs);
   font-weight: 900;
   letter-spacing: 0.08em;
   padding: 2px 7px;

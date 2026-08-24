@@ -44,6 +44,25 @@ not distribute VAPID keys or live Push subscriptions.
 
 Google Calendar, Gmail, and Drive are optional read-only integrations. No Google credentials are distributed. Users configure their own OAuth application and consent scopes.
 
+## Assistant interface typeface
+
+Added 2026-08-24. The whole interface, in all three languages, is set in
+Assistant — a variable family that covers Latin and Hebrew, so the language
+being taught and the interface teaching it share one voice. It is distributed
+under the SIL Open Font License 1.1.
+
+Two subsets are shipped, both weight 200–800 in a single variable file:
+`assistant-latin.woff2` (22 kB, and sufficient for Spanish accents) and
+`assistant-hebrew.woff2` (7 kB). The latin-ext subset is deliberately not
+shipped.
+
+- Source: https://github.com/google/fonts/tree/main/ofl/assistant
+- Upstream project: https://github.com/hafontia/Assistant
+- Bundled license: `frontend/public/fonts/Assistant-OFL.txt`
+
+Assistant derives from Source Sans Pro, whose own notice is carried inside the
+bundled OFL file. Preserve that file when redistributing.
+
 ## Gveret Levin Hebrew handwriting font
 
 The red `שלי` signature in the application wordmark uses

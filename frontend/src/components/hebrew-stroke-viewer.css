@@ -242,7 +242,7 @@
 }
 
 .stroke-order-badge {
-  font-size: 0.5188rem;
+  font-size: var(--text-2xs);
   font-weight: 900;
   fill: #ffffff;
   text-anchor: middle;

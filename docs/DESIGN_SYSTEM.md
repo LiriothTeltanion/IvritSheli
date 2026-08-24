@@ -49,6 +49,31 @@ The interface stack prioritizes Hebrew-capable system fonts:
 font-family: "Noto Sans Hebrew", "Arial Hebrew", "Rubik", Inter, system-ui, sans-serif;
 ```
 
+## One typeface, ours, for both scripts
+
+The interface is set in **Assistant**, served from our own origin at
+`/fonts/assistant-{latin,hebrew}.woff2`. One variable family, weights 200–800,
+29 kB for both subsets, SIL OFL.
+
+Self-hosting is a requirement and not a preference: `style-src 'self'` and
+`font-src 'self' data:` mean a Google Fonts link cannot resolve on the served
+path. Such links appear to work only on the Vite dev server, which is how port
+5173 came to show typefaces the application never shipped. **Verify font work
+on port 8000.**
+
+Until 2026-08-24 the stylesheet named `Inter` and shipped nothing, so the app
+was set in whatever the operating system offered — Segoe UI on Windows, SF Pro
+on a Mac, Roboto on Android. Three learners, three different products. It is
+the same fault the wordmark had before its letterforms were drawn, and the
+same fix.
+
+Assistant covers Latin and Hebrew, so `--font-sans` and `--font-hebrew` now
+name the same family. The system Hebrew faces remain as the fallback for the
+first paint and for anyone who blocks web fonts.
+
+Do not add a second interface typeface. If a new script is needed, extend
+Assistant's subsets rather than introducing another family.
+
 ## Text size belongs to the reader
 
 Every `font-size` in this project is in `rem`, and the root is
@@ -74,9 +99,10 @@ The conversion divided each pixel value by 16, so nothing moved at the default
 size and everything moves together at any other. Verified by rendering the
 signed-out screen at a 24 px root before and after.
 
-**Still open:** 63 of those declarations are 10 px or smaller, seventeen of
-them 8 px. They now scale, but they start below any legibility floor. Raising
-them changes layout, so it is a design decision rather than a mechanical one.
+**Closed 2026-08-24:** 149 declarations sat below 12 px — seventeen at 8 px
+and one at 7 px. All of them now use `--text-2xs`, the floor. Nothing in this
+project sets text smaller than that. Verified with no horizontal overflow at
+1280 px in Spanish and in Hebrew RTL.
 
 ## Icons
 

@@ -96,7 +96,7 @@
   border: 1px solid color-mix(in srgb, var(--border, #cbd7d2) 72%, transparent);
   border-radius: 999px;
   color: var(--text-muted, #60706f);
-  font-size: 0.7rem;
+  font-size: var(--text-2xs);
   font-style: normal;
   font-weight: 750;
   letter-spacing: 0.04em;
@@ -198,7 +198,7 @@
   background: color-mix(in srgb, var(--accent, #0f766e) 11%, transparent);
   border-radius: 999px;
   color: var(--accent, #0f766e);
-  font-size: 0.72rem;
+  font-size: var(--text-2xs);
   font-weight: 800;
   padding: 0.2rem 0.45rem;
 }

@@ -72,7 +72,7 @@
   border-radius: 0.75rem;
   background: color-mix(in srgb, var(--teal) 12%, var(--surface));
   color: var(--teal);
-  font-size: 0.72rem;
+  font-size: var(--text-2xs);
   font-weight: 900;
 }
 
@@ -95,7 +95,7 @@
   border-radius: 999px;
   background: var(--surface-hover);
   color: var(--text-muted);
-  font-size: 0.68rem;
+  font-size: var(--text-2xs);
 }
 
 .curriculum-lesson h3 {
@@ -126,7 +126,7 @@
 
 .curriculum-lesson__status {
   color: var(--text-muted);
-  font-size: 0.72rem;
+  font-size: var(--text-2xs);
   font-weight: 750;
   text-align: end;
 }
