@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/brand/logo.svg" alt="Ivrit Sheli" width="680" />
+  <img src="assets/brand/wordmark-nocturne.svg" alt="Ivrit Sheli" width="680" />
 
   <h1>Ivrit Sheli 2.12.2 — Visual Harmony &amp; Resilience · העברית שלי</h1>
   <p><strong>See, hear, recognize and use living Hebrew in a journey that adapts gradually to you.</strong></p>

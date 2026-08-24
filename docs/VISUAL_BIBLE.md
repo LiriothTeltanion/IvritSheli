@@ -166,6 +166,31 @@ stroke-order teaching lines for a learner practising handwriting — one skeleto
 path per letter, meant to be stroked. A letter's shape is its outline, and the
 two are not interchangeable.
 
+### One mark, and where it lives
+
+There is exactly one Ivrit Sheli lockup, and three files carry it. They are not
+three designs; they are the same contours at three jobs.
+
+| File | Job |
+|---|---|
+| `frontend/src/components/IvritHebraicLetters.tsx` | The "Ivrit" outlines. The source. |
+| `frontend/public/icons/app-icon.svg` | The installed PWA icon. |
+| `assets/brand/wordmark-nocturne.svg` | The README and anything read outside the app. |
+
+The third is generated — `python scripts/build_brand_wordmark.py` — from the
+first two, so the mark cannot drift between the app and the page that
+introduces it. Do not hand-edit it. It carries its own dark plate on purpose:
+GitHub renders a README in either theme, and cyan-on-white ink would vanish in
+one of them.
+
+Retired 2026-08-24: `assets/brand/logo.svg`, `app-icon.svg`, `brand-mark.svg`
+and `wordmark-monochrome.svg`. They were a complete second identity — cream
+card, Arial `א`, `Inter` and `Segoe Print` set in `<text>` — that no longer
+matched anything the app shipped, and that changed shape on every machine for
+the reason above. `README.md` had been showing one of them as the product's
+face. `assets/brand/kc-lt-signature.*` is not part of this and is never
+touched: it is Kevin's personal mark, reserved in `THIRD_PARTY_NOTICES.md`.
+
 ## Motion semantics
 
 Motion explains meaning or rewards progress; it does not decorate every surface.
