@@ -1024,6 +1024,10 @@ legend {
 .auth-hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-bottom: 16px; }
 .auth-button { min-height: 52px; padding: 0 22px; border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid transparent; text-decoration: none; font-weight: 760; font-size: 14px; cursor: pointer; transition: transform .22s var(--ease), border-color .22s, background .22s, box-shadow .22s; }
 .auth-button:hover:not(:disabled) { transform: translateY(-2px); }
+/* An anchor cannot carry :disabled, so the in-flight state needs its own rule.
+   Without one the class was inert and the link still navigated mid-sign-in. */
+.auth-button.is-disabled { opacity: .55; pointer-events: none; cursor: default; }
+.auth-button.is-disabled:hover { transform: none; }
 .auth-button--primary { color: #03110f; background: linear-gradient(135deg, var(--teal-fill), var(--cyan-fill)); box-shadow: 0 13px 34px rgba(32,209,181,.22); }
 .auth-button--glow { animation: authBtnPulse 3.5s ease-in-out infinite alternate; }
 @keyframes glow-pulse {

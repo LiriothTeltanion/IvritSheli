@@ -187,7 +187,10 @@ test.describe('keyboard and accessibility', () => {
     await page.keyboard.press('Enter');
     const dialog = page.getByRole('dialog', { name: /profile menu/i });
     await expect(dialog).toBeVisible();
-    await expect(dialog.getByRole('radio', { name: /available/i })).toBeFocused();
+    // The dialog takes focus itself. Landing on "first focusable" was unstable:
+    // it followed whatever was added at the top of the panel, and by 2.12.2 that
+    // was the first of fifteen avatar thumbnails.
+    await expect(dialog).toBeFocused();
 
     await page.keyboard.press('Escape');
     await expect(dialog).toBeHidden();

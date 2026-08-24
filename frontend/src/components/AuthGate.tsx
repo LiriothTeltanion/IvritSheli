@@ -166,8 +166,13 @@ export function AuthGate({
     return () => clearInterval(timer);
   }, [prefersReducedMotion]);
 
-  const hasConfiguredProvider = providers.length > 0;
-  const googleAvailable = providers.includes('google') || (!hasConfiguredProvider && !localCompanionUrl);
+  const googleAvailable =
+    providers.includes('google')
+    // While the session is still resolving we do not yet know the providers.
+    // Show the primary action optimistically rather than flashing an empty
+    // screen, but stop once the answer is in: a button that cannot work is
+    // worse than one that appears a moment late.
+    || (authChecking && !localCompanionUrl);
   const retryDisabled = busy || Boolean(authChecking);
   const hasStoredAccounts = savedAccounts.length > 0;
   const [showAccessChoices, setShowAccessChoices] = useState(false);
@@ -330,12 +335,17 @@ export function AuthGate({
           <div className="auth-hero-actions">
             {googleAvailable && (
               <a
-                className={`auth-button auth-button--primary auth-button--glow ${googleDisabled ? 'disabled' : ''}`}
+                className={`auth-button auth-button--primary auth-button--glow ${googleDisabled ? 'is-disabled' : ''}`}
                 href="/api/v1/auth/google/start"
+                aria-disabled={googleDisabled || undefined}
                 onClick={(e) => {
+                  if (googleDisabled) {
+                    e.preventDefault();
+                    return;
+                  }
                   if (onContinueWithGoogle) {
                     e.preventDefault();
-                    if (!googleDisabled) handleContinueGoogle();
+                    handleContinueGoogle();
                   }
                 }}
               >

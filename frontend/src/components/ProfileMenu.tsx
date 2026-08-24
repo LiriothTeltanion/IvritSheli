@@ -71,14 +71,31 @@ export function ProfileMenu({
     finishConfirmationOpenRef.current = finishConfirmationOpen;
   }, [finishConfirmationOpen]);
 
+  /* Written synchronously as well as through the effect above. An effect runs
+     after render, and the focusout handler reads this ref during the focus move
+     that opening the confirmation causes — one tick too early. */
+  const setFinishConfirmation = (next: boolean): void => {
+    finishConfirmationOpenRef.current = next;
+    setFinishConfirmationOpen(next);
+  };
+
   useEffect(() => {
     if (!open) return;
-    const firstItem = menuRef.current?.querySelector<HTMLElement>('button');
-    firstItem?.focus();
+    // Focus the dialog itself rather than whatever happens to be its first
+    // button. The APG allows either, and "first focusable" is unstable: it
+    // silently follows whatever gets added at the top of the panel.
+    menuRef.current?.focus();
     const closeOnEscape = (event: KeyboardEvent): void => {
       if (event.key !== 'Escape' || finishConfirmationOpenRef.current) return;
       setOpen(false);
       triggerRef.current?.focus();
+    };
+    const closeOnFocusOut = (event: FocusEvent): void => {
+      if (finishConfirmationOpenRef.current) return;
+      const next = event.relatedTarget;
+      if (!(next instanceof Node)) return;
+      if (menuRef.current?.contains(next) || triggerRef.current?.contains(next)) return;
+      setOpen(false);
     };
     const closeOnPointer = (event: PointerEvent): void => {
       if (finishConfirmationOpenRef.current) return;
@@ -86,9 +103,12 @@ export function ProfileMenu({
       if (!(target instanceof Node) || menuRef.current?.contains(target) || triggerRef.current?.contains(target)) return;
       setOpen(false);
     };
+    const panel = menuRef.current;
+    panel?.addEventListener('focusout', closeOnFocusOut);
     document.addEventListener('keydown', closeOnEscape);
     document.addEventListener('pointerdown', closeOnPointer);
     return () => {
+      panel?.removeEventListener('focusout', closeOnFocusOut);
       document.removeEventListener('keydown', closeOnEscape);
       document.removeEventListener('pointerdown', closeOnPointer);
     };
@@ -140,7 +160,14 @@ export function ProfileMenu({
       </button>
 
       {open && (
-        <div ref={menuRef} id={menuId} className="profile-menu__popover" role="dialog" aria-label={t('profileMenu')}>
+        <div
+          ref={menuRef}
+          id={menuId}
+          className="profile-menu__popover"
+          role="dialog"
+          aria-label={t('profileMenu')}
+          tabIndex={-1}
+        >
           <section className="profile-menu__identity">
             <header>
               <strong>{t('preferredName')}</strong>
@@ -226,7 +253,7 @@ export function ProfileMenu({
           <button
             type="button"
             className="profile-menu__finish"
-            onClick={() => setFinishConfirmationOpen(true)}
+            onClick={() => setFinishConfirmation(true)}
           >
             <Icon name="power" size={18} />
             <span><strong>{t('finishForToday')}</strong><small>{t('finishForTodayMenuDetail')}</small></span>
@@ -241,9 +268,9 @@ export function ProfileMenu({
       <FinishVisitDialog
         open={finishConfirmationOpen}
         online={online}
-        onCancel={() => setFinishConfirmationOpen(false)}
+        onCancel={() => setFinishConfirmation(false)}
         onConfirm={() => {
-          setFinishConfirmationOpen(false);
+          setFinishConfirmation(false);
           setOpen(false);
           onFinishVisit();
         }}

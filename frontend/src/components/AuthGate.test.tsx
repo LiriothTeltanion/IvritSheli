@@ -98,6 +98,46 @@ describe('AuthGate beginner preview', () => {
     expect(screen.queryByRole('link', { name: /Continue with GitHub/i })).not.toBeInTheDocument();
   });
 
+  it('hides Google once the session resolves with no provider configured', () => {
+    // The primary action used to render whenever nothing was configured, so a
+    // backend without Google credentials still showed the big button and a
+    // learner pressing it reached an endpoint that cannot work.
+    render(
+      <I18nProvider>
+        <AuthGate busy={false} error="" providers={[]} onDemo={vi.fn()} onRetry={vi.fn()} />
+      </I18nProvider>,
+    );
+
+    expect(screen.queryByRole('link', { name: /Continue with Google/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /demo/i })).toBeInTheDocument();
+  });
+
+  it('shows Google optimistically while the session is still resolving', () => {
+    // Not a flash of an empty screen: until the providers are known, offering
+    // the usual way in is better than offering nothing.
+    render(
+      <I18nProvider>
+        <AuthGate busy={false} error="" providers={[]} authChecking onDemo={vi.fn()} onRetry={vi.fn()} />
+      </I18nProvider>,
+    );
+
+    expect(screen.getByRole('link', { name: /Continue with Google/i })).toBeInTheDocument();
+  });
+
+  it('really disables the Google link while a sign-in is in flight', () => {
+    // An <a> cannot carry :disabled. The old code set a class with no matching
+    // CSS rule, so the link looked identical and still navigated.
+    render(
+      <I18nProvider>
+        <AuthGate busy error="" providers={['google']} googleBusy onDemo={vi.fn()} onRetry={vi.fn()} />
+      </I18nProvider>,
+    );
+
+    const link = screen.getByRole('link', { name: /Continue with Google/i });
+    expect(link).toHaveAttribute('aria-disabled', 'true');
+    expect(link.className).toContain('is-disabled');
+  });
+
   it('shows a post-deletion local cleanup warning separately from authentication errors', () => {
     const { container } = render(
       <I18nProvider>

@@ -91,6 +91,21 @@ describe('ProfileMenu', () => {
     expect(trigger).toHaveFocus();
   });
 
+  it('takes focus to the dialog itself, not to the first avatar thumbnail', async () => {
+    // "First focusable" is unstable: it follows whatever is added at the top of
+    // the panel. When the identity section arrived, opening your own profile
+    // landed on "Avatar 1" and buried Settings and Sign out behind sixteen tab
+    // stops.
+    const user = userEvent.setup();
+    renderMenu();
+
+    await user.click(screen.getByRole('button', { name: /Open profile menu/i }));
+
+    const dialog = screen.getByRole('dialog', { name: /profile menu/i });
+    expect(dialog).toHaveFocus();
+    expect(screen.getByRole('button', { name: /Avatar 1$/i })).not.toHaveFocus();
+  });
+
   it('gives local learners an honest finish action without a meaningless sign out', async () => {
     const user = userEvent.setup();
     const { onFinishVisit, onLogout } = renderMenu(true, true);
