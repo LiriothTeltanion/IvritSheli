@@ -63,6 +63,31 @@ step outside the app: `docs/SUPABASE_RUNTIME_ROLE.md`.
 Still open: the `postgres` password was exposed on 2026-08-23 and needs
 rotating. Nothing depends on it now, so rotating it breaks nothing.
 
+## Two lanes to the database, and which is which
+
+Reads and tenant data go through the runtime role. Schema changes go through
+Alembic. Nothing goes through pasted SQL any more.
+
+```bash
+# Ask the database anything, as the application sees it — RLS applies.
+python scripts/db.py "SELECT count(*) FROM users"
+python scripts/db.py --tenant <uuid> "SELECT * FROM learner_states"
+python scripts/db.py --check          # the twelve readiness conditions
+
+# Apply pending schema work. Kevin runs this; it needs the administrator
+# credential, which the application must never hold.
+pwsh -File scripts/db-apply.ps1
+```
+
+`scripts/db.py` authenticates as `ivrit_sheli_runtime`, exactly as the
+application does, so what it shows is what the application can see rather than
+what an administrator can. An inspection tool that bypassed row-level security
+would answer a different question than the one being asked.
+
+If a change needs DDL, write an Alembic migration. Do not hand Kevin SQL to
+paste into a dashboard — that was a workaround for not having the restricted
+role, and the role exists now.
+
 ## Where the current state lives
 
 Read these before proposing work; do not reconstruct state from conversation.
