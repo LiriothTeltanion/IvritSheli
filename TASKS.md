@@ -124,14 +124,11 @@ otro panel, qué sigue siendo cierto y qué ya no. Empieza siempre por ahí.
     already public rather than change public state — Kevin's call, not an
     agent's.
 
+- [x] **Local mode unburied — DONE 2026-08-24**: the workspace link stands with
+      Google and the demo instead of behind the lesson; the lesson records that
+      it was seen so the local welcome does not repeat it; and the GitHub
+      instructions link no longer shares a label with the workspace link.
 - [ ] **Signed-out screen, remaining structure** (mapped 2026-08-24, unfixed):
-  - Local mode is double-gated: the link only appears after the three-word
-    lesson is finished or skipped, while Google and the demo sit outside that
-    gate and are always visible. Then the same lesson is shown a second time in
-    the local welcome (`App.tsx:732`).
-  - Two different controls carry the identical label `continueLocalSetup`; one
-    opens the working local workspace, the other a GitHub README full of
-    terminal commands, in a new tab.
   - `googleAvailable`'s optimistic branch is unreachable — `App.tsx` returns
     the loading screen whenever `authChecking` is true — and its comment
     describes a protection that does not exist. `googleBusy` is never passed.

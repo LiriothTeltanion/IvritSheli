@@ -27,7 +27,7 @@ import {
   rememberSavedAccount,
   type SavedAccount,
 } from './savedAccounts';
-import { PreAccountLesson } from './components/PreAccountLesson';
+import { hasSeenIntroLesson, markIntroLessonSeen, PreAccountLesson } from './components/PreAccountLesson';
 import { ProfileMenu } from './components/ProfileMenu';
 import { TodayDashboard } from './components/TodayDashboard';
 import { VisitFinished } from './components/VisitFinished';
@@ -714,11 +714,16 @@ export default function App(): React.JSX.Element {
       return false;
     }
   })();
+  /* 2026-08-24: `hasSeenIntroLesson` is the missing half. The same three-word
+     lesson runs on the signed-out screen and here, and neither told the other,
+     so a learner arriving by the local route did it, followed the link, and was
+     handed it again. Whichever screen she met it on, she meets it once. */
   const needsLocalWelcome = needsOnboarding
     && auth.mode === 'local'
     && Number(profile.onboarding_step || 0) === 0
     && !localWelcomeComplete
-    && !localWelcomeCompleteOnDevice;
+    && !localWelcomeCompleteOnDevice
+    && !hasSeenIntroLesson();
 
   if (needsLocalWelcome) {
     return (
@@ -758,6 +763,7 @@ export default function App(): React.JSX.Element {
             } catch {
               // The learner can still continue when device storage is unavailable.
             }
+            markIntroLessonSeen();
             setLocalWelcomeComplete(true);
           }} />
         </section>

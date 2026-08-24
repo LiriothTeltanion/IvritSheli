@@ -45,10 +45,14 @@ describe('AuthGate beginner preview', () => {
 
     const preview = screen.getByRole('heading', { name: 'You learned your first three words' }).closest('section');
     expect(preview).not.toBeNull();
-    expect(screen.getByRole('link', { name: /Use local mode on this computer/i })).toHaveAttribute(
-      'href',
-      expect.stringContaining('#easiest-windows-start-'),
-    );
+    /* Renamed 2026-08-24: this link carried the identical label to the one
+       that opens her working local workspace. It does something quite
+       different -- a developer README, in a new tab -- so it now says so, and
+       says that it leaves the app. */
+    const instructions = screen.getByRole('link', { name: /How to set up local mode on this computer/i });
+    expect(instructions).toHaveAttribute('href', expect.stringContaining('#easiest-windows-start-'));
+    expect(instructions).toHaveAttribute('target', '_blank');
+    expect(instructions).toHaveTextContent(/opens in a new tab/i);
     expect(screen.getByRole('button', { name: /Explore read-only demo/i })).toBeInTheDocument();
     expect(screen.getByText(/No account, saved progress, XP, or score was created/i)).toBeInTheDocument();
   });
@@ -77,11 +81,22 @@ describe('AuthGate beginner preview', () => {
     await user.click(screen.getByRole('button', { name: 'Skip lesson and choose how to continue' }));
     expect(screen.getByText('Lesson skipped. Nothing was saved, and you can return whenever you want.')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Continue with Google/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Use local mode on this computer/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /How to set up local mode on this computer/i })).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: /Explore read-only demo/i }));
     expect(onDemo).toHaveBeenCalledOnce();
-    expect(localStorage).toHaveLength(0);
+
+    /* Changed 2026-08-24, deliberately, and worth stating plainly. This used to
+       assert localStorage was completely empty. One flag is written now --
+       that the intro lesson has been seen -- so a learner arriving by the
+       local route is not handed the same three words a second time.
+
+       The screen's promise is "No account, saved progress, XP, or score was
+       created", and that still holds exactly: the flag is a boolean, carries
+       no identity, and belongs to this browser. Asserting the contents rather
+       than the count keeps the promise checkable instead of merely counted. */
+    expect(localStorage).toHaveLength(1);
+    expect(localStorage.getItem('ivrit-sheli:intro-lesson-seen')).toBe('true');
   });
 
   it('keeps the region she chose instead of moving on without her', async () => {

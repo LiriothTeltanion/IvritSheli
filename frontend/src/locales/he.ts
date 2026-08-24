@@ -516,6 +516,8 @@ export const heMessages = {
     preAccountChoosePathDetail: 'השתמשו ב-Google כדי לשמור התקדמות בפרופיל הלומד הזה ולהמשיך בין מכשירים, או לסייר בהדגמה לקריאה בלבד.',
     quickStartHint: 'רוצים להתחיל עכשיו? בחרו פרופיל שמור למטה או התחברו שוב עם Google.',
     continueLocalSetup: 'שימוש במצב מקומי במחשב הזה',
+    localSetupInstructions: 'איך להתקין מצב מקומי במחשב הזה',
+    opensInNewTab: 'נפתח בלשונית חדשה',
     continueLocalSetupDetail: 'פתיחת הוראות התקנה; הפעולה אינה שומרת את הפעלת הדפדפן הזאת.',
     continueLocalWorkspaceDetail: 'פתיחת סביבת הלימוד הפרטית והניתנת לעריכה במחשב הזה.',
     privacyPolicy: 'מדיניות פרטיות',

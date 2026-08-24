@@ -516,6 +516,8 @@ export const enMessages = {
     preAccountChoosePathDetail: 'Use Google to save your progress for this learner profile and continue across devices, or explore the read-only demo.',
     quickStartHint: 'Want to continue now? Use a saved profile below, or sign in again with Google.',
     continueLocalSetup: 'Use local mode on this computer',
+    localSetupInstructions: 'How to set up local mode on this computer',
+    opensInNewTab: 'opens in a new tab',
     continueLocalSetupDetail: 'Opens installation instructions; it does not save this browser session.',
     continueLocalWorkspaceDetail: 'Opens your writable private workspace directly on this computer.',
     privacyPolicy: 'Privacy policy',

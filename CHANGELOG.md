@@ -76,6 +76,21 @@ version. Public production remains 2.4.0 and is frozen until after 2026-08-25.
   pressing something else, which started a different voice. Leaving the screen
   also silences it, which it previously did not.
 - Replaces two identical copies of the speech code with one helper.
+- Unburies local mode. The link to the learner's own writable workspace sat
+  behind `showAccessChoices` — she had to finish or skip a three-word Hebrew
+  lesson before it appeared — while Google and the demo were never gated. The
+  most private route, and the only one that works with no internet, was the
+  only one with a toll gate. It now stands with the other two.
+- Stops teaching the same lesson twice. `PreAccountLesson` renders on the
+  signed-out screen and again in the local-mode welcome, and neither told the
+  other, so a learner arriving by the local route did the three words, followed
+  the link, and met them again. A device-local flag now records that she has
+  seen it. It is a boolean and carries no identity; the screen's promise that
+  no account, progress, XP or score was created still holds exactly.
+- Splits a label that pointed at two different destinations. Both the working
+  local-workspace link and a link to a GitHub README of terminal commands read
+  `Use local mode on this computer`. The second now reads `How to set up local
+  mode on this computer` and says that it opens in a new tab.
 
 ### Tests and documentation
 

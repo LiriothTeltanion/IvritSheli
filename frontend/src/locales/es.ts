@@ -516,6 +516,8 @@ export const esMessages = {
     preAccountChoosePathDetail: 'Usa Google para guardar tu progreso con este perfil de aprendiz y continuar en cualquier dispositivo, o explora la demo de solo lectura.',
     quickStartHint: '¿Quieres empezar ya? Usa un perfil guardado o inicia sesión otra vez con Google.',
     continueLocalSetup: 'Usar el modo local en esta computadora',
+    localSetupInstructions: 'Cómo instalar el modo local en esta computadora',
+    opensInNewTab: 'se abre en una pestaña nueva',
     continueLocalSetupDetail: 'Abre las instrucciones de instalación; no guarda esta sesión del navegador.',
     continueLocalWorkspaceDetail: 'Abre directamente tu espacio privado y editable en esta computadora.',
     privacyPolicy: 'Política de privacidad',

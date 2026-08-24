@@ -12,6 +12,7 @@ import type { AuthProvider, Locale } from '../types';
 import { Icon, type IconName } from './Icon';
 import { IvritSheliWordmark } from './IvritSheliWordmark';
 import { usePrefersReducedMotion } from '../usePrefersReducedMotion';
+import { markIntroLessonSeen } from './PreAccountLesson';
 import { PreAccountLesson } from './PreAccountLesson';
 import { AVATAR_PRESETS } from '../profileAvatarPresets';
 import { VERSION_HISTORY_COPY } from '../versionHistory';
@@ -419,6 +420,22 @@ export function AuthGate({
               {busy ? <span className="spinner" /> : <Icon name="play" size={18} />}
               {busy ? t('startingDemo') : t('exploreDemo')}
             </button>
+
+            {/* 2026-08-24: this used to sit behind showAccessChoices, so the
+                one route that keeps everything on her own computer -- the most
+                private of the three, and the only one that works with no
+                internet -- was the only one she had to finish or skip a Hebrew
+                quiz to reach. Google and the demo were never gated. It stands
+                with them now. */}
+            {localCompanionUrl && (
+              <div className="auth-companion-row">
+                <a className="auth-link-subtle" href={localCompanionUrl}>
+                  <Icon name="shield" size={16} />
+                  <span>{t('continueLocalSetup')}</span>
+                </a>
+                <p className="auth-companion-detail">{t('continueLocalWorkspaceDetail')}</p>
+              </div>
+            )}
           </div>
 
           {/* Trust & Capability Stats Strip (Industry standard social proof) */}
@@ -461,20 +478,13 @@ export function AuthGate({
           </div>
 
           {/* Beginner Onboarding Preview */}
-          <PreAccountLesson onReady={() => setShowAccessChoices(true)} />
+          <PreAccountLesson onReady={() => {
+            markIntroLessonSeen();
+            setShowAccessChoices(true);
+          }} />
 
           {showAccessChoices && (
             <>
-              {localCompanionUrl && (
-                <div className="auth-companion-row">
-                  <a className="auth-link-subtle" href={localCompanionUrl}>
-                    <Icon name="shield" size={16} />
-                    <span>{t('continueLocalSetup')}</span>
-                  </a>
-                  <p className="auth-companion-detail">{t('continueLocalWorkspaceDetail')}</p>
-                </div>
-              )}
-
               {/* Community Avatar Stack (Showcasing all 15 vector avatars) */}
               <div className="auth-community-stack">
                 <div className="auth-avatar-group">
@@ -658,6 +668,13 @@ export function AuthGate({
         <div className="auth-links-row">
           {!localCompanionUrl && (
             <>
+              {/* 2026-08-24: this carried the identical label to the link
+                  above, `continueLocalSetup`. One opens her working private
+                  workspace; this one opens a developer README full of terminal
+                  commands, in a tab she did not ask for. Anyone telling her
+                  "press Use local mode on this computer" could have sent her
+                  to either. It says what it is now, and says that it leaves
+                  the app. */}
               <a
                 className="auth-link-subtle"
                 href={creatorLinks.localSetup}
@@ -665,7 +682,8 @@ export function AuthGate({
                 rel="noreferrer"
               >
                 <Icon name="shield" size={16} />
-                <span>{t('continueLocalSetup')}</span>
+                <span>{t('localSetupInstructions')}</span>
+                <small className="auth-link-aside">({t('opensInNewTab')})</small>
               </a>
               <span className="auth-divider">·</span>
             </>

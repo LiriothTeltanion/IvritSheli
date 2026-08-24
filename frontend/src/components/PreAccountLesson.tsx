@@ -26,6 +26,32 @@ function browserSpeechAvailable(): boolean {
     && typeof window.SpeechSynthesisUtterance === 'function';
 }
 
+/* 2026-08-24: the lesson was rendered in two places -- the signed-out screen
+   and the local-mode welcome -- and neither told the other. A learner taking
+   the local route did the same three words, finished them, followed the link,
+   and was handed the same three words again. Repeating a lesson she just
+   finished makes her doubt the first attempt registered.
+
+   Device-local and deliberately not tied to an account: on the signed-out
+   screen there is no account yet. */
+const INTRO_LESSON_SEEN_KEY = 'ivrit-sheli:intro-lesson-seen';
+
+export function markIntroLessonSeen(): void {
+  try {
+    window.localStorage.setItem(INTRO_LESSON_SEEN_KEY, 'true');
+  } catch {
+    // Private browsing: she simply meets the lesson once more. Not a failure.
+  }
+}
+
+export function hasSeenIntroLesson(): boolean {
+  try {
+    return window.localStorage.getItem(INTRO_LESSON_SEEN_KEY) === 'true';
+  } catch {
+    return false;
+  }
+}
+
 export function PreAccountLesson({ onReady }: PreAccountLessonProps): React.JSX.Element {
   const { locale, t } = useI18n();
   const [index, setIndex] = useState(0);

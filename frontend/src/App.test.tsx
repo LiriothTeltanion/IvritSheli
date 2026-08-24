@@ -183,7 +183,11 @@ describe('App cloud session flow', () => {
     expect(screen.getByRole('main')).toHaveAttribute('aria-live', 'polite');
   });
 
-  it('offers Google, local setup, and a demo after the beginner lesson', async () => {
+  /* Renamed 2026-08-24. Nothing here happens "after" the lesson: the Google
+     link is asserted while the lesson is still on screen, and the lesson is
+     skipped rather than completed. All three routes are offered from the
+     first second, which as of today includes the local one. */
+  it('offers Google, the local route and a demo from the first screen', async () => {
     vi.stubGlobal('fetch', routeFetch(anonymous));
     const user = userEvent.setup();
     renderApp();
@@ -193,7 +197,7 @@ describe('App cloud session flow', () => {
     expect(screen.getByRole('link', { name: /Continue with Google/i })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Skip lesson and choose how to continue' }));
     expect(screen.getByRole('link', { name: /Continue with Google/i })).toHaveAttribute('href', '/api/v1/auth/google/start');
-    expect(screen.getByRole('link', { name: /Use local mode on this computer/i })).toHaveAttribute('target', '_blank');
+    expect(screen.getByRole('link', { name: /How to set up local mode on this computer/i })).toHaveAttribute('target', '_blank');
     expect(screen.getByRole('button', { name: 'Explore read-only demo' })).toBeEnabled();
     expect(screen.getByText(/No password is created or stored here/i)).toBeInTheDocument();
 
