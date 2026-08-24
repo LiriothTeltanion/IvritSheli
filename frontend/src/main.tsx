@@ -1,8 +1,9 @@
-// Module: React entry point
-// Purpose: Mount the trilingual app with global error recovery and localization context.
+// Module: Frontend Entrypoint
+// Purpose: Bootstraps React, provides contexts (i18n, DB, Auth), and defines core lazy-loaded routes.
 // Author: Kevin "Lirioth" Cusnir
-// Date: 2026-07-15 | TZ: Asia/Jerusalem
-// Notes: Comments in ENGLISH; emojis sparingly.
+// Last Updated: 2026-08-24 00:09 (Asia/Jerusalem) by Antigravity (Cleanup & Comments Pass)
+// Notes: Comments in ENGLISH; emojis sparingly. StrictMode is intentionally
+//        enabled to surface React 19 concurrent rendering issues early.
 
 import { lazy, StrictMode, Suspense } from 'react';
 import { createRoot } from 'react-dom/client';

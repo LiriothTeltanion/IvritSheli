@@ -1,8 +1,9 @@
 // Module: Vite configuration
 // Purpose: Configure React, local API proxying, production output, and the Vitest browser environment.
 // Author: Kevin "Lirioth" Cusnir
-// Date: 2026-07-15 | TZ: Asia/Jerusalem
-// Notes: Comments in ENGLISH; emojis sparingly.
+// Last Updated: 2026-08-24 00:03 (Asia/Jerusalem) by Antigravity
+// Notes: Comments in ENGLISH; emojis sparingly. The react-vendor split (8533c85)
+//        keeps the entry chunk under the 500 kB warning threshold.
 
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vitest/config';

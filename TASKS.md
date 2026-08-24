@@ -103,25 +103,38 @@ otro panel, qué sigue siendo cierto y qué ya no. Empieza siempre por ahí.
     Runbook: `docs/SUPABASE_RUNTIME_ROLE.md`.
     Until then use the `backend-local` launch profile.
   - Rotate the superuser password exposed on 2026-08-23.
-- [ ] **Regenerate `SHA256SUMS.txt`** and pass `scripts/verify_package.py`.
-- [ ] **Avatar weight**: 6.8 MB of photographic JPEGs render as 42 px thumbnails
-      with no `loading="lazy"` and no small variant.
-- [ ] **`שלי` in `app-icon.svg`** still depends on a font the icon cannot load;
-      the PNGs are baked but the SVG favicon varies per machine.
-- [ ] **Main chunk** remains above the 500 kB warning threshold.
+- [x] **Regenerate `SHA256SUMS.txt`** and pass `scripts/verify_package.py`.
+- [x] **Avatar weight**: 15 photographic avatars are now ~127 KB total as .webp thumbnails with `loading="lazy"` and `decoding="async"`.
+- [x] **`app-icon.svg` — DONE 2026-08-24**:
+  - `שלי` is now real Gveret Levin contours, extracted from the TTF with
+    `fontTools`. The icon contains no `<text>` and no `font-family` at all, which
+    was the actual defect: an SVG rendered as an app icon cannot load a font.
+  - Background replaced with a 512 px crop of `conceptual_bg_city.jpg`, scrim
+    deepened so the wordmark survives the brighter image. Legible at 32 px.
+    Both PNG renditions regenerated.
+- [x] **Main chunk** remains below the 500 kB warning threshold (~373 KB) thanks to Rolldown `advancedChunks` and `React.lazy`.
 
 - [ ] **KEV-12: Supabase / PostgreSQL Production Compatibility Audit**:
   - Verify migration idempotency with remote PostgreSQL instances.
   - Validate pool behavior when network drops or SSL handshakes renegotiate.
+  - Partially done 2026-08-23: the restricted role is provisioned and tenant
+    isolation is demonstrated against the live database. Idempotency under
+    repeated deploys and pool behaviour on network loss remain untested.
 - [ ] **KEV-13: Vercel / Railway Deployment Readiness**:
-  - Ensure static asset caching headers, serverless function timeouts, and environment variable fallbacks are documented.
+  - `frontend/vercel.json` now carries the SPA rewrite and immutable asset
+    caching. Serverless timeouts and environment-variable fallbacks are still
+    undocumented.
   - Check SPA rewrite routes for all view hashes and query params.
-- [ ] **KEV-17: Speech Synthesis & Recognition Calibration** (was filed as KEV-15, which also named the completed typography work):
-  - Validate local Whisper fallback vs browser SpeechRecognition on low-end mobile devices.
-  - Test pronunciation confidence scoring across all 22 letters and 5 final forms in `AlphabetStudio`.
 - [ ] **KEV-16: Visual QA Family Consistency Sweep**:
-  - Visual inspection of the 240 semantic SVG scenes in `VisualQAGallery` across all 20 categories (`http://localhost:5173/?visualQa=1`).
-  - Verify dark and light theme contrast parity across mobile (390px), tablet (768px), and desktop (1440px).
+  - Visual inspection of the 240 semantic SVG scenes in `VisualQAGallery` across
+    all 20 categories (`http://localhost:5173/?visualQa=1&group=all&size=card`).
+  - Verify dark and light theme contrast parity across mobile (390px), tablet
+    (768px) and desktop (1440px).
+- [ ] **KEV-17: Speech Synthesis & Recognition Calibration**:
+  - Validate local Whisper fallback vs browser SpeechRecognition on low-end
+    mobile devices.
+  - Test pronunciation confidence scoring across all 22 letters and 5 final
+    forms in `AlphabetStudio`.
 
 ---
 

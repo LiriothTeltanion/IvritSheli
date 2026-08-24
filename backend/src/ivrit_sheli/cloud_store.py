@@ -5,6 +5,9 @@ Cloud mode serializes that mature relational domain state into one PostgreSQL JS
 per user. Explicit tenant predicates are reinforced by PostgreSQL row-level security against
 missing or incorrect predicates; the packaged dictionary remains in its optimized read-only
 SQLite database.
+
+Author: Kevin "Lirioth" Cusnir & Claude Pro Coder
+Last Updated: 2026-08-24 00:03 (Asia/Jerusalem) by Antigravity (Cleanup & Comments Pass)
 """
 
 from __future__ import annotations

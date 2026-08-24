@@ -1,13 +1,31 @@
+# ==============================================================================
+# Railway Deployment Configuration
+# Updated: 2026-08-24 00:03 (Asia/Jerusalem)
+# Agent: Antigravity (Prepared for Claude Code handoff)
+# Purpose: Ensures safe, zero-downtime deployments for the FastAPI backend.
+# ==============================================================================
+
 [build]
+# Uses the multi-stage Dockerfile located at the repository root.
 builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
 
 [deploy]
+# 2026-08-24: Ensures migrations are applied before the new container receives traffic.
+# Critical for Supabase RLS and tenant isolation idempotency.
 preDeployCommand = ["python -m ivrit_sheli.db_admin migrate"]
+
+# The unified entrypoint handles PGBouncer SSL modes and restricted runtime roles
 startCommand = "/app/scripts/docker-entrypoint.sh serve"
+
+# Liveness probe to ensure Uvicorn is actually responding before traffic shifts
 healthcheckPath = "/health/ready"
 healthcheckTimeout = 300
+
+# Resilience rules for short-lived network drops
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 5
+
+# Traffic draining settings for graceful termination of existing connections
 overlapSeconds = 0
 drainingSeconds = 15

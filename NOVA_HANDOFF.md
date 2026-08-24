@@ -1,8 +1,25 @@
 # Ivrit Sheli 2.12.2 — Visual Harmony & Resilience Handoff
 
-Prepared: 2026-08-23 (`Asia/Jerusalem`)
-Source state: private / local / unpublished
-Public production intentionally remains: **2.4.0 Contest Edition (2026-07-21)**
+**Last Updated**: 2026-08-24 00:16 (`Asia/Jerusalem`)
+**Prepared by**: Antigravity (Handoff targeted for Claude Code at 02:41 AM)
+**Source state**: private / local / unpublished
+**Public production intentionally remains**: **2.4.0 Contest Edition (2026-07-21)**
+
+## Antigravity pass — 2026-08-24, 00:03 to 00:19
+
+- **Concept art**: four Imagen pieces in
+  `docs/art-direction/repintado-nocturne-candidates/`, with prompt guidelines in
+  `docs/IMAGE_PROMPTS_SKILL.md`.
+- **Infrastructure**: `frontend/vercel.json` for SPA rewrites and asset caching.
+  `railway.toml` gained explanatory comments; its `preDeployCommand` was already
+  present.
+- **Visuals**: reworked `.score-strip` in `frontend/src/styles.css`.
+- **Documentation**: author and timestamp headers on `main.tsx`,
+  `vite.config.ts` and `cloud_store.py`.
+
+The version this file carried was corrected back from `2.12.3-PRE` to `2.12.2`:
+no other version surface names a 2.12.3, and eleven of them were aligned on
+2026-08-23 specifically to end that kind of drift.
 
 ## Operational checkpoint
 
@@ -140,3 +157,39 @@ above a list of unmet requirements:
   publication freeze, which runs until after **2026-08-25**.
 - Verify against port 8000, not only 5173. The dev server has no CSP and has
   already hidden one whole class of defect.
+
+## The app icon — done 2026-08-24
+
+Both items Antigravity handed over are complete.
+
+**`שלי` is real Gveret Levin now.** The contours were extracted from
+`frontend/public/fonts/GveretLevin-Regular.ttf` with `fontTools`, flipped from
+font space into SVG space, and laid out right to left. They are filled outlines,
+not strokes. Rejecting the skeletons in `hebrewLetterStrokes.ts` was correct:
+those are handwriting stroke-order teaching lines, which is a different thing
+from a letter's shape.
+
+The icon now contains **no `<text>` and no `font-family` at all**. That was the
+real defect — an SVG rendered as an app icon or through `<img>` cannot load a
+font, so every `font-family` in it fell back differently on every machine.
+
+**Background**: replaced with a 512 px crop of `conceptual_bg_city.jpg`, taken
+from the clean skyline on the right of that image, away from the device frame
+and the nav bar the concept mockup has baked into it. The scrim was deepened and
+a band added behind the lettering, because the sharper crop is far brighter than
+the blurred image it replaced and the wordmark was disappearing into the lit
+towers.
+
+One correction on the brief: the resolution of an already-embedded image cannot
+be increased. Upscaling invents pixels and looks worse. Using a
+higher-resolution source is what actually helps, and that is what this did.
+
+Verified legible at 128, 64, 48 and 32 px. Both PNG renditions regenerated.
+
+### Concept art
+
+Four pieces live in `docs/art-direction/repintado-nocturne-candidates/`:
+`conceptual_bg_city.jpg`, `conceptual_header_alef.jpg`,
+`conceptual_ai_coach.jpg` and `conceptual_dictionary_card.jpg`. They are UI
+mockups rather than clean plates — each has device chrome baked in, so any use
+needs a crop, as the icon background did.
