@@ -95,6 +95,7 @@ Read these before proposing work; do not reconstruct state from conversation.
 | Source | What it holds |
 |---|---|
 | [Centro de mando](https://claude.ai/code/artifact/23ca714a-9a56-4c4c-955a-aa8f3311808d) | The authority: measured state, what is stale in every other panel, the whole backlog with an owner per row |
+| `COMO-CORRER-COSAS.md` | Which commands are Kevin's and which are yours, and where he runs them |
 | `TASKS.md` | Task tracker and the panel index |
 | `NOVA_HANDOFF.md` | Current state, what a session changed, open blockers |
 | `TEST_REPORT.md` | Verification ledger, including what was **not** run |
