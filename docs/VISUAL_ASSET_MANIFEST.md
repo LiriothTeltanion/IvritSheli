@@ -30,6 +30,35 @@ source history but are no longer selected by the current UI.
   where UI copy accompanies the art, and the complete browser/accessibility
   matrix. Generated imagery must not be described as documentary photography.
 
+## Brand assets — 2026-08-24
+
+Every letterform in the icon and the social card is a drawn path. An SVG
+rendered as an app icon, a favicon or through `<img>` cannot load a font, so any
+`font-family` in one of these files resolves differently on every machine. The
+Latin half was drawn on 2026-08-23; the Hebrew signature followed on 2026-08-24,
+its contours extracted from the bundled TTF with `fontTools`.
+
+The icon background is a 512 px crop of
+`docs/art-direction/repintado-nocturne-candidates/conceptual_bg_city.jpg`, taken
+from the clean skyline on its right side — that concept piece is a UI mockup and
+has a device frame and nav bar baked into it, so it cannot be used whole.
+
+| File | Size | SHA-256 | Note |
+|---|---|---|---|
+| `frontend/public/icons/app-icon.svg` | 73,859 bytes | `99c28e47007e8d897cabc8b6c5399ed31ae03410a425e6b4999649f008d674a5` | App icon and favicon. All letterforms are paths; no `<text>`, no `font-family`. |
+| `frontend/public/icons/app-icon-192.png` | 58,829 bytes | `8a7d32f70cedc65ef11bbe69bbc345db51b331835ecc4e16d9ad7e948f30f70e` | Installed home-screen icon, apple-touch-icon and push badge. |
+| `frontend/public/icons/app-icon-512.png` | 319,376 bytes | `cd666daf996d5ab0e274e8961f28f241dfb66ae06ed7c33a1327a95a654d0409` | Maskable install icon. |
+| `assets/social/ivrit-sheli-social-preview.png` | 479,652 bytes | `7f8056f43f30053c8599a703349960cd2311e02493406c7100873bddc52ca158` | og:image and twitter:card. Drawn from the same letterforms; carries no version badge. |
+| `frontend/public/fonts/GveretLevin-Regular.ttf` | 59,788 bytes | `05c443395d48b97f43469da4fb08772a4c612fda306348577dbc40a1267912b1` | The one bundled font binary (OFL). Source of the Hebrew signature contours. |
+
+### Concept art
+
+Four Imagen pieces in `docs/art-direction/repintado-nocturne-candidates/`:
+`conceptual_bg_city.jpg`, `conceptual_header_alef.jpg`, `conceptual_ai_coach.jpg`
+and `conceptual_dictionary_card.jpg`. They are UI mockups rather than clean
+plates; any use needs a crop. Prompt guidelines are in
+`docs/IMAGE_PROMPTS_SKILL.md`.
+
 ### Regional journey assets
 
 | ID | Learning action and regional anchors | Landscape file | Portrait file |

@@ -34,13 +34,13 @@
 
 | Surface | Verified state |
 |---|---|
-| Current private source checkout | `2.12.2` · Visual Harmony & Resilience candidate · 2026-08-23 · not deployed or published |
+| Current private source checkout | `2.12.2` · Visual Harmony & Resilience candidate · 2026-08-24 · not deployed or published |
 | Current public deployed application | `2.4.0` · Contest Edition · verified 2026-07-21 |
 | Release implementation commit | `03bf84b9268ff8be528c0fab3c670f9652ee23b0` |
 | Production storage/readiness | PostgreSQL · ready · 48 reviewed dictionary entries |
 | Deployment verification | Successful on 2026-07-21 |
 | Release verification | 151 unique backend tests + 62 frontend tests = 213 passed; main CI and CodeQL passed |
-| Candidate verification | **2.12.0 local visual candidate (2026-08-14):** verification is recorded in `TEST_REPORT.md`; PostgreSQL/RLS, dependency and no-cache container evidence remains inherited from verified 2.10.0 Phase 4A.1. This is **not** staging/public verification. |
+| Candidate verification | Recorded in `TEST_REPORT.md`. **PostgreSQL tenant isolation was executed against the live database on 2026-08-23** — each learner sees only her own state, cross-tenant writes affect nothing, and the runtime role cannot disable RLS or switch roles. Dependency and no-cache container evidence remains inherited from verified 2.10.0 Phase 4A.1. This is **not** staging or public verification. |
 | GitHub publication | [`v2.4.0`](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.4.0), dated 2026-07-21, is the published tag and GitHub Release |
 | Live account evidence | Identity-only Google sign-in, onboarding state and the authenticated session persisted across reload; logout returned to the English landing page and remained signed out after reload |
 | Live judge-path evidence | The English entry link and four-stop read-only guided tour passed production browser checks |

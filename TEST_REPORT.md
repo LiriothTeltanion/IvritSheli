@@ -39,6 +39,15 @@ was **not** run for 2.12.2, whatever an earlier summary may have claimed.
 | Running stack | `backend-local` + `frontend` launch profiles | **Passed**: SQLite offline mode on 8000, Vite on 5173, learner shell renders, no console errors from the app |
 | Visual QA catalogue | `127.0.0.1:5173/?visualQa=1&group=all&size=card` | **240 scene SVGs present in the DOM** |
 
+### Brand independence from webfonts — 2026-08-24
+
+| Check | Method | Result |
+|---|---|---|
+| No font dependency in the icon | grep for `<text` and `font-family` in `app-icon.svg` | **Zero of each** |
+| Hebrew contours match the bundled face | `fontTools` glyph extraction from `GveretLevin-Regular.ttf`, upem 1000 | 3 contours: `uni05D9`, `uni05DC`, `uni05E9` |
+| Legibility | Rendered at 128, 64, 48, 32 and 16 px | Wordmark and signature both distinguishable to 32 px |
+| Renditions | `app-icon-192.png`, `app-icon-512.png` regenerated from the SVG | Match the source |
+
 ### PostgreSQL tenant isolation — executed against the live project — 2026-08-23
 
 The gate that had been skipped since 2.9 for want of a restricted credential.

@@ -155,9 +155,16 @@ against the monumental half.
 Ink comes from `--wordmark-ink-1|2|3` and `--wordmark-crown`, defined for both
 themes, and flattens to `currentColor` under `prefers-contrast: more`.
 
-Open: the icon's `שלי` still depends on a font the icon cannot load. The PNG
-renditions are baked and therefore consistent, but the SVG favicon varies per
-machine. Tracing it to paths would close the last gap.
+Closed 2026-08-24: the icon's `שלי` is drawn too. Its contours were extracted
+from `frontend/public/fonts/GveretLevin-Regular.ttf` with `fontTools`, flipped
+out of font space and laid out right to left as filled outlines.
+`frontend/public/icons/app-icon.svg` now contains no `<text>` and no
+`font-family` at all, so the mark is the same shape on every machine.
+
+Do not use the `cursiveStrokes` in `hebrewLetterStrokes.ts` for this. Those are
+stroke-order teaching lines for a learner practising handwriting — one skeleton
+path per letter, meant to be stroked. A letter's shape is its outline, and the
+two are not interchangeable.
 
 ## Motion semantics
 

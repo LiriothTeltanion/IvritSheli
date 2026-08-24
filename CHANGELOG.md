@@ -78,6 +78,28 @@ unpublished candidate being repaired does not become a new one.
 - Stops precaching 4.7 MB with an atomic `addAll`, where one failed region
   image left the PWA with no offline shell at all.
 
+### The app icon no longer depends on a font — 2026-08-24
+
+`frontend/public/icons/app-icon.svg` contained `<text>` elements naming Cinzel
+and Gveret Levin. An SVG rendered as an app icon, a favicon, or through `<img>`
+cannot load a font, so both halves of the mark fell back to whatever generic
+face the machine happened to have. The brand was a different shape on every
+device, and had been for as long as the icon existed.
+
+- "IVRIT" became drawn paths on 2026-08-23.
+- `שלי` follows now: the real Gveret Levin contours, extracted from the bundled
+  TTF with `fontTools`, flipped out of font space and laid out right to left as
+  filled outlines. The icon holds no `<text>` and no `font-family` at all.
+- The background is a 512 px crop of the new `conceptual_bg_city.jpg` concept
+  art, taken from the clean skyline away from the device frame that mockup has
+  baked in. The scrim was deepened and a band added behind the lettering,
+  because the sharper crop is much brighter than the blurred image it replaced.
+- Legibility verified at 128, 64, 48 and 32 px. Both PNG renditions regenerated.
+
+The stroke data in `hebrewLetterStrokes.ts` was deliberately not used: those are
+handwriting stroke-order teaching lines, one skeleton path per letter, which is
+a different thing from a letter's outline.
+
 ### Tenant isolation, now demonstrated rather than asserted
 
 The restricted `ivrit_sheli_runtime` role was provisioned on the project's

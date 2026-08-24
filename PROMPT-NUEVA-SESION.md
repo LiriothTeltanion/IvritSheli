@@ -74,9 +74,9 @@ En este orden, salvo que Kevin diga otra cosa:
 2. Peso: 6,8 MB de avatares JPEG fotográficos se renderizan como miniaturas de
    42 px, sin `loading="lazy"` ni variante pequeña. Es lo más caro que carga la
    app para la usuaria objetivo.
-3. `שלי` en `app-icon.svg` sigue dependiendo de una fuente que el icono no
-   puede cargar. Los PNG ya están horneados, pero el favicon SVG varía por
-   máquina. Convertirlo a trazos lo cerraría.
+3. ~~`שלי` en `app-icon.svg`.~~ Hecho el 2026-08-24: los contornos reales de
+   Gveret Levin, extraídos del `.ttf`. El icono ya no tiene ni `<text>` ni
+   `font-family`.
 4. Partir el chunk principal, que sigue por encima de 500 kB.
 5. Reconocimiento humano de cinco segundos en los grupos confundibles,
    empezando por los diagramas de familia y parentesco.
