@@ -49,6 +49,41 @@ The interface stack prioritizes Hebrew-capable system fonts:
 font-family: "Noto Sans Hebrew", "Arial Hebrew", "Rubik", Inter, system-ui, sans-serif;
 ```
 
+## Never show a truncated explanation
+
+A sentence cut off mid-word does not read as a shortened label. It reads as the
+application having broken, and a beginner has no way to tell the difference.
+
+Two were found on 2026-08-24 by walking the app at 1280 px and 390 px:
+
+- The read-only demo banner set its explanation to `white-space: nowrap` with
+  an ellipsis, and `display: none` below the tablet breakpoint. So the one
+  sentence saying what the demonstration does and does not save could never be
+  read to the end on a desktop, and never appeared at all on a phone — the
+  learner most likely to need it. It wraps now.
+- The topbar repeated the product tagline and clipped it to `Hebreo c…`. That
+  one is genuinely decorative and lives in two other places, so it is hidden
+  until there is room for the whole of it rather than sliced.
+
+The rule that separates the two: **an explanation wraps, a decoration hides.**
+Never slice either.
+
+## Targets a finger can find
+
+44 px is the figure this project uses for anything a learner presses. WCAG
+relaxes it for links inline in a run of text, and that exception is real — but
+it does not cover a button that merely happens to be small.
+
+Measured and corrected on 2026-08-24: the pronunciation button on the sign-in
+screen (32 px tall, and the control most likely to be pressed first), the
+capture button (39 px wide), the theme toggle (42 px), and the footer links
+(18 px, below even the 24 px minimum, now 32 px).
+
+The Hebrew word tokens are the interesting case. Tapping a word to look it up
+is the central gesture of this application, so they are not incidental inline
+links even though they are inline elements. They are padded to 46 px tall. A
+two-letter word is still narrow, and that is inherent to the word.
+
 ## Nothing inline, ever, on the served path
 
 The application's own Content Security Policy is `script-src 'self'` with no

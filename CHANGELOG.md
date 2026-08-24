@@ -111,6 +111,34 @@ version. Public production remains 2.4.0 and is frozen until after 2026-08-25.
   state creates no session, does not swap an existing one, and redirects to the
   root rather than to the `next` path the original attempt requested.
 
+### Walking the application
+
+Every item below was found by an automated walk through the app at 1280 px and
+390 px, checking each view for unnamed controls, missing alternative text,
+duplicate ids, targets under 44 px, text clipped by its box, skipped heading
+levels and console errors.
+
+- The read-only demo banner could never be read to the end. Its explanation was
+  `white-space: nowrap` with an ellipsis on a desktop and `display: none` on a
+  phone, so the sentence describing what the demonstration does and does not
+  save was cut off mid-word for everyone. It wraps now, and appears on a phone.
+- The topbar clipped the product tagline to `Hebreo c…`. It is decorative and
+  appears in two other places, so it is now shown whole above 1500 px and
+  hidden below, rather than sliced.
+- Four controls were under 44 px and are not: the sign-in pronunciation button
+  (32 px), the capture button (39 px), the theme toggle (42 px), and the footer
+  and creator links (18 px, now 32 px).
+- Hebrew word tokens are padded to 46 px. Tapping a word to look it up is the
+  central gesture of the app, so they are not incidental inline links.
+
+Checked and deliberately not changed: the phone view reported a horizontal
+scroll of 414 px against a 390 px viewport. It is transient, occurring during a
+view transition, and `body` carries `overflow-x: hidden`, so a person cannot
+actually scroll sideways — verified by trying. Nothing was "fixed".
+
+After the changes, `Palabras` and `Ayuda` audit clean at both sizes, and no
+text is clipped anywhere.
+
 ### Signed-out screen, continued
 
 - Derives the community strip's numbers from the avatar catalogue. `.slice(0, 4)`,
