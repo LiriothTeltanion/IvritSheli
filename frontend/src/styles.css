@@ -1116,6 +1116,9 @@ legend {
 .auth-saved-pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 99px; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12); color: var(--text); font-size: 12px; font-weight: 600; cursor: pointer; transition: background .18s, border-color .18s; }
 .auth-saved-pill img { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; }
 .auth-saved-pill:hover:not(:disabled) { background: rgba(255, 255, 255, 0.1); border-color: var(--teal); }
+/* 2026-08-24: the strip needs to say what a tap actually does. See the note in
+   AuthGate.tsx -- these are name-and-face shortcuts, not a way past Google. */
+.auth-saved-accounts-hint { margin: 2px 0 0; color: var(--text-muted); font-size: 11.5px; line-height: 1.45; }
 
 /* Israel Living Atlas Interactive Background Switcher */
 .auth-region-switcher { margin-top: 24px; padding: 12px 16px; border-radius: 16px; background: rgba(255, 255, 255, 0.025); border: 1px solid rgba(255, 255, 255, 0.07); backdrop-filter: blur(14px); display: flex; flex-direction: column; gap: 8px; }

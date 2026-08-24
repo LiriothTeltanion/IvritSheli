@@ -288,6 +288,8 @@ export const enMessages = {
     heroStatPrivate: 'Private & Local',
     heroSituationsLabel: 'Real-life situations:',
     heroLandscapeLabel: 'Live Landscape:',
+    heroRegionSwitcher: 'Regions of the Israel Living Atlas',
+    continueAsLearner: 'Continue as {name}',
     rtlNative: 'Native RTL',
     builtBy: 'Built by Kevin “Lirioth” Cusnir',
     planDescription: 'Your Hebrew plan has been rebuilt from due reviews, confidence, recurring mistakes, and the situations that matter most.',

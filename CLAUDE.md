@@ -60,6 +60,16 @@ Ya se agotó dos veces por lo mismo: abrir un agente de verificación por hallaz
 El tope de fan-out son ~10 agentes, y lo que responde un `grep` no lleva agente.
 Los resultados de una corrida caída se recuperan del `journal.jsonl`.
 
+## Componentes compartidos que no se duplican
+
+- **`ChoiceGroup`** (`frontend/src/components/ChoiceGroup.tsx`) — todo control
+  de «elige exactamente uno». Había seis hechos a mano y los seis estaban mal,
+  de dos maneras opuestas. Si necesitas un séptimo, úsalo; no escribas otro.
+  El contrato está en `docs/DESIGN_SYSTEM.md`.
+- **`assets/brand/wordmark-nocturne.svg`** — se genera con
+  `python scripts/build_brand_wordmark.py` desde los trazos que ya trae la app.
+  No lo edites a mano.
+
 ## No hacer
 
 - Reescribir `api.py` o `repository.py`.

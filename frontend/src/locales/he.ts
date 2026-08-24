@@ -288,6 +288,8 @@ export const heMessages = {
     heroStatPrivate: 'פרטיות מקומית',
     heroSituationsLabel: 'מצבים מהחיים האמיתיים:',
     heroLandscapeLabel: 'נוף חי:',
+    heroRegionSwitcher: 'אזורי האטלס החי של ישראל',
+    continueAsLearner: 'להמשיך בתור {name}',
     rtlNative: 'תמיכה טבעית ב-RTL',
     builtBy: 'נבנה על ידי קווין ״ליריוט״ קוסניר',
     planDescription: 'תוכנית העברית שלך נבנתה מחדש לפי החזרות להיום, רמת הביטחון, טעויות חוזרות והמצבים החשובים לך באמת.',

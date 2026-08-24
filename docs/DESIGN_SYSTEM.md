@@ -99,6 +99,26 @@ was seven separate stops to tab past.
 a radio inside a radiogroup is for one choice among several, and it is the one
 that lets a screen reader say "2 of 7".
 
+## Ambient motion yields to a choice
+
+Anything that moves on its own — a carousel, a rotating background, an
+autoplaying preview — stops the moment the learner expresses a preference about
+it, and does not resume.
+
+The signed-out screen taught this the hard way. Its eight-second landscape
+carousel and its six region buttons wrote the same state, with no pause on
+interaction, so tapping "Jerusalem" held for at most eight seconds before the
+app moved on by itself and kept moving. For a beginner that does not read as a
+slideshow; it reads as the computer doing things on its own, or as having
+pressed the wrong thing.
+
+A control that reflects ambient state also has to report it: the region buttons
+carry `aria-pressed`, so the current selection is announced rather than being
+conveyed by colour alone.
+
+`prefers-reduced-motion: reduce` already suppresses these entirely; that is a
+separate requirement and neither substitutes for the other.
+
 ## Motion
 
 Motion is restrained to onboarding step changes, progress, card hover/press feedback, recording state, gentle illustration sparkles and learning-result reveals. Expensive layout animation is avoided; interactive transforms use short shared timing tokens.

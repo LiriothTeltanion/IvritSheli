@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { I18nProvider } from '../i18n';
@@ -10,7 +10,13 @@ describe('AuthGate beginner preview', () => {
     window.history.replaceState({}, '', '/?lang=en');
   });
 
-  it('teaches three useful words before presenting account, local, or demo choices', async () => {
+  /* Renamed 2026-08-24. The old name -- "teaches three useful words before
+     presenting account, local, or demo choices" -- was contradicted by lines
+     below it, which find the Google link and the demo button while the lesson
+     is still on screen. Both live outside the showAccessChoices branch and are
+     always visible; the lesson gates only the local-companion row. The test is
+     good, the claim was not. */
+  it('offers the lesson alongside the account, local and demo choices, and creates nothing', async () => {
     const user = userEvent.setup();
 
     render(
@@ -47,7 +53,12 @@ describe('AuthGate beginner preview', () => {
     expect(screen.getByText(/No account, saved progress, XP, or score was created/i)).toBeInTheDocument();
   });
 
-  it('lets returning learners skip directly to the available access choices', async () => {
+  /* Renamed 2026-08-24. Skipping does not cause the choices to appear -- they
+     were never hidden. What the skip actually does is confirm nothing was
+     saved. "Returning learners" was unsupported too: no savedAccounts prop is
+     passed here, so no returning-learner control renders. That case is covered
+     by its own test below. */
+  it('confirms nothing was saved when the lesson is skipped, and starts the demo', async () => {
     const onDemo = vi.fn();
     const user = userEvent.setup();
 
@@ -71,6 +82,84 @@ describe('AuthGate beginner preview', () => {
     await user.click(screen.getByRole('button', { name: /Explore read-only demo/i }));
     expect(onDemo).toHaveBeenCalledOnce();
     expect(localStorage).toHaveLength(0);
+  });
+
+  it('keeps the region she chose instead of moving on without her', async () => {
+    vi.useFakeTimers();
+    try {
+      render(
+        <I18nProvider>
+          <AuthGate busy={false} error="" providers={['google']} onDemo={vi.fn()} onRetry={vi.fn()} />
+        </I18nProvider>,
+      );
+
+      const jerusalem = screen.getByRole('button', { name: 'Jerusalem' });
+      act(() => { jerusalem.click(); });
+      expect(jerusalem).toHaveAttribute('aria-pressed', 'true');
+
+      /* The carousel used to write the same state as the pills, so eight
+         seconds later her choice was gone and the highlight kept wandering.
+         Three full intervals is well past the point the old code moved on. */
+      act(() => { vi.advanceTimersByTime(8000 * 3); });
+
+      expect(screen.getByRole('button', { name: 'Jerusalem' })).toHaveAttribute('aria-pressed', 'true');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('rotates the landscape on its own until she expresses a preference', async () => {
+    vi.useFakeTimers();
+    try {
+      render(
+        <I18nProvider>
+          <AuthGate busy={false} error="" providers={['google']} onDemo={vi.fn()} onRetry={vi.fn()} />
+        </I18nProvider>,
+      );
+
+      const pressedNow = (): string | null | undefined => screen
+        .getAllByRole('button', { pressed: true })
+        .find((button) => button.className.includes('auth-region-pill'))
+        ?.textContent;
+
+      const before = pressedNow();
+      act(() => { vi.advanceTimersByTime(8000); });
+      expect(pressedNow()).not.toBe(before);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('tells a returning learner what tapping her own name will actually do', () => {
+    render(
+      <I18nProvider>
+        <AuthGate
+          busy={false}
+          error=""
+          providers={['google']}
+          onDemo={vi.fn()}
+          onRetry={vi.fn()}
+          savedAccounts={[{ id: 'u1', displayName: 'Ana', avatarPresetId: 'preset-oasis' }]}
+        />
+      </I18nProvider>,
+    );
+
+    /* The strip cannot sign her straight in: savedAccounts.ts stores no email
+       by design, so there is nothing to hand Google. The sentence explaining
+       that already existed in all three locales and was never rendered. */
+    expect(screen.getByRole('button', { name: 'Continue as Ana' })).toBeInTheDocument();
+    expect(screen.getByText(/Choose Google to continue with that learner/i)).toBeInTheDocument();
+  });
+
+  it('names the region switcher in the learner\'s own language', () => {
+    window.history.replaceState({}, '', '/?lang=es');
+    render(
+      <I18nProvider>
+        <AuthGate busy={false} error="" providers={['google']} onDemo={vi.fn()} onRetry={vi.fn()} />
+      </I18nProvider>,
+    );
+
+    expect(screen.getByLabelText('Regiones del Atlas Vivo de Israel')).toBeInTheDocument();
   });
 
   it('links directly to the configured writable companion without inventing OAuth providers', async () => {

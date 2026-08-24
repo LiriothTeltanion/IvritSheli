@@ -63,6 +63,30 @@ step outside the app: `docs/SUPABASE_RUNTIME_ROLE.md`.
 Still open: the `postgres` password was exposed on 2026-08-23 and needs
 rotating. Nothing depends on it now, so rotating it breaks nothing.
 
+### 6. The learner's explicit choice outranks everything — added 2026-08-24
+
+Three separate bugs turned out to be the same bug wearing different clothes,
+and all three were found by reading rather than by anyone reporting them.
+
+- The sign-in screen rotated its background every eight seconds using the same
+  state variable the region buttons wrote, so a learner who tapped "Jerusalem"
+  was moved somewhere else eight seconds later, and kept being moved.
+- The identity provider's display name outranked the profile name, so a rename
+  survived only in the browser it was typed in — Google rewrites its copy on
+  every login.
+- The provider's photo outranked the avatar she picked, so the picker had no
+  visible effect even on the device where she used it.
+
+The rule: **when a person expresses a preference, it wins, and it stays won.**
+Ambient behaviour — a carousel, a default, a value fetched from a provider —
+yields to an explicit choice and does not quietly take it back. If a choice
+cannot be honoured, say so in the interface rather than appearing to accept it.
+
+That last clause is not hypothetical. The saved-learner buttons looked like
+one-tap sign-in and could not be: the device stores no email, on purpose. The
+honest sentence already existed in all three locales and had never been
+rendered. It is rendered now.
+
 ## Two lanes to the database, and which is which
 
 Reads and tenant data go through the runtime role. Schema changes go through

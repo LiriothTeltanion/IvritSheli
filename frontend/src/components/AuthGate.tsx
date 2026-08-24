@@ -36,7 +36,6 @@ interface AuthGateProps {
   savedAccounts?: AuthGateSavedAccount[];
   googleBusy?: boolean;
   onContinueWithGoogle?: () => void;
-  onContinueSavedAccount?: (account?: AuthGateSavedAccount) => void;
 }
 
 const creatorLinks = {
@@ -146,10 +145,14 @@ export function AuthGate({
   savedAccounts = [],
   googleBusy = false,
   onContinueWithGoogle,
-  onContinueSavedAccount,
 }: AuthGateProps): React.JSX.Element {
   const { errorText, locale, setLocale, t } = useI18n();
   const [bgIndex, setBgIndex] = useState(0);
+  /* 2026-08-24: the carousel and the region pills wrote the same bgIndex, so
+     eight seconds after tapping "Jerusalem" the app moved her somewhere else
+     and kept moving every eight seconds. To a beginner that reads as the
+     computer acting on its own. An explicit choice ends the rotation. */
+  const [regionPinned, setRegionPinned] = useState(false);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [situationIndex, setSituationIndex] = useState(0);
@@ -159,12 +162,12 @@ export function AuthGate({
   const prefersReducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
-    if (prefersReducedMotion) return;
+    if (prefersReducedMotion || regionPinned) return;
     const timer = setInterval(() => {
       setBgIndex((prev) => (prev + 1) % HERO_BG_IMAGES.length);
     }, 8000);
     return () => clearInterval(timer);
-  }, [prefersReducedMotion]);
+  }, [prefersReducedMotion, regionPinned]);
 
   const googleAvailable =
     providers.includes('google')
@@ -205,13 +208,15 @@ export function AuthGate({
     }
   };
 
-  const handleContinueSavedAccount = (event: React.MouseEvent, account?: AuthGateSavedAccount): void => {
+  /* 2026-08-24: this used to accept the account and route it through an
+     optional onContinueSavedAccount that App.tsx never passed, so every tap
+     fell through to a generic Google flow with the account silently dropped.
+     The fall-through is the only behaviour there has ever been; it is now the
+     only one written down. Restoring a real hint needs an identifier this
+     device does not keep on purpose -- see the note by the strip. */
+  const handleContinueSavedAccount = (event: React.MouseEvent): void => {
     event.preventDefault();
     if (googleDisabled) return;
-    if (onContinueSavedAccount) {
-      onContinueSavedAccount(account);
-      return;
-    }
     void handleContinueGoogle();
   };
 
@@ -469,7 +474,8 @@ export function AuthGate({
                     key={account.id}
                     type="button"
                     className="auth-saved-pill"
-                    onClick={(e) => handleContinueSavedAccount(e, account)}
+                    aria-label={t('continueAsLearner', { name: account.displayName })}
+                    onClick={handleContinueSavedAccount}
                     disabled={googleDisabled}
                   >
                     <img src={avatarForPreset(account.avatarPresetId)} alt="" />
@@ -478,11 +484,20 @@ export function AuthGate({
                   </button>
                 ))}
               </div>
+              {/* 2026-08-24: this sentence existed in all three locales and was
+                  never rendered, so the strip looked like it would sign her
+                  straight in. It cannot: savedAccounts.ts deliberately stores
+                  no email, so there is nothing to hand Google as a hint, and
+                  resolving one server-side from a user id would disclose an
+                  address to anyone who guessed an id. The tap is worth keeping
+                  -- recognising her own face beats reading five options -- but
+                  the promise has to match. */}
+              <p className="auth-saved-accounts-hint">{t('storedAccountsHint')}</p>
             </div>
           )}
 
           {/* Israel Living Atlas Interactive Background Switcher */}
-          <div className="auth-region-switcher" aria-label="Israel Living Atlas Regions">
+          <div className="auth-region-switcher" aria-label={t('heroRegionSwitcher')}>
             <span className="auth-region-label">
               <Icon name="target" size={13} />
               <span>{t('heroLandscapeLabel')}</span>
@@ -493,7 +508,11 @@ export function AuthGate({
                   key={r.id}
                   type="button"
                   className={`auth-region-pill ${bgIndex === r.id ? 'is-active' : ''}`}
-                  onClick={() => setBgIndex(r.id)}
+                  aria-pressed={bgIndex === r.id}
+                  onClick={() => {
+                    setBgIndex(r.id);
+                    setRegionPinned(true);
+                  }}
                 >
                   {locale === 'he' ? r.labelHe : locale === 'es' ? r.labelEs : r.labelEn}
                 </button>

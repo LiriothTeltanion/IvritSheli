@@ -288,6 +288,8 @@ export const esMessages = {
     heroStatPrivate: 'Privacidad local',
     heroSituationsLabel: 'Situaciones de la vida real:',
     heroLandscapeLabel: 'Paisaje en vivo:',
+    heroRegionSwitcher: 'Regiones del Atlas Vivo de Israel',
+    continueAsLearner: 'Continuar como {name}',
     rtlNative: 'RTL nativo',
     builtBy: 'Creado por Kevin “Lirioth” Cusnir',
     planDescription: 'Tu plan de hebreo se ha reconstruido con los repasos pendientes, la confianza, los errores recurrentes y las situaciones que más importan.',
