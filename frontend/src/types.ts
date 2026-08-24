@@ -184,6 +184,12 @@ export interface Profile {
   niqqud_mode: 'always' | 'difficult' | 'hidden';
   weekly_rest_day: number;
   cloud_consent: number;
+  /* Both have existed on the server since migration 6 and neither was ever
+     modelled here, so nothing could read them. text_scale is now what drives
+     the root font size; focus_status is still device-local in ProfileMenu and
+     is listed so the next reader knows the column is there. */
+  text_scale?: number;
+  focus_status?: 'available' | 'busy';
   onboarding_step?: number;
   onboarding_completed?: number | boolean;
   guided_mode?: number | boolean;

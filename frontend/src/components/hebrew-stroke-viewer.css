@@ -136,7 +136,7 @@
 
 /* Animated Strokes */
 .stroke-glyph-ghost {
-  font-size: 64px;
+  font-size: 4rem;
   font-weight: 800;
   pointer-events: none;
   user-select: none;
@@ -157,12 +157,12 @@
 .stroke-glyph-ghost.is-cursive {
   font-family: 'Gveret Levin', 'Ivrit Signature', 'David Libre', cursive;
   stroke: #ff6b83;
-  font-size: 68px;
+  font-size: 4.25rem;
   opacity: 0.09;
 }
 
 .stroke-glyph-active {
-  font-size: 64px;
+  font-size: 4rem;
   font-weight: 800;
   pointer-events: none;
   user-select: none;
@@ -177,7 +177,7 @@
 
 .stroke-glyph-active.is-cursive {
   font-family: 'Gveret Levin', 'Ivrit Signature', 'David Libre', cursive;
-  font-size: 68px;
+  font-size: 4.25rem;
   filter: drop-shadow(0 0 12px rgba(255, 59, 92, 0.4));
 }
 
@@ -242,7 +242,7 @@
 }
 
 .stroke-order-badge {
-  font-size: 8.3px;
+  font-size: 0.5188rem;
   font-weight: 900;
   fill: #ffffff;
   text-anchor: middle;

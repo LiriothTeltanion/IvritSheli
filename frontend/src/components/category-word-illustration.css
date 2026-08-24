@@ -95,7 +95,7 @@
 
 .category-art__word-cue text {
   font-family: "Segoe UI Emoji", "Apple Color Emoji", sans-serif;
-  font-size: 31px;
+  font-size: 1.9375rem;
   text-anchor: middle;
   dominant-baseline: central;
 }

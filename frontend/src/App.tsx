@@ -598,6 +598,19 @@ export default function App(): React.JSX.Element {
   );
   const pageTitle = t(pageTitleKey);
 
+  /* 2026-08-24: her chosen text size reaches the page. The root is
+     `calc(100% * var(--text-scale))`, so this multiplies the size her browser
+     is already set to rather than replacing it -- a learner who enlarged text
+     system-wide keeps that, and this scales on top.
+
+     Clamped to the same 0.8-2.0 the server enforces, because a corrupt or
+     hand-edited value must not be able to make the interface unusable. */
+  useEffect(() => {
+    const requested = Number(profile?.text_scale ?? 1);
+    const scale = Number.isFinite(requested) ? Math.min(2, Math.max(0.8, requested)) : 1;
+    document.documentElement.style.setProperty('--text-scale', String(scale));
+  }, [profile?.text_scale]);
+
   const updateIdentityProfile = (nextProfile: LocalIdentityProfile): void => {
     setIdentityProfile(nextProfile);
     /* The device copy is written first and unconditionally: renaming yourself

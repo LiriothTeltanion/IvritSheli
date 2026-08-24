@@ -1112,7 +1112,7 @@
 
 .semantic-art__minute-label {
   fill: var(--semantic-detail-ink);
-  font-size: 13px;
+  font-size: 0.8125rem;
   font-weight: 900;
   letter-spacing: -0.04em;
   text-anchor: middle;
@@ -1441,20 +1441,20 @@
 .semantic-art__currency {
   fill: var(--semantic-symbol-ink);
   font-family: Arial, sans-serif;
-  font-size: 23px;
+  font-size: 1.4375rem;
   font-weight: 900;
   text-anchor: middle;
   dominant-baseline: central;
 }
 
 .semantic-art__currency--small {
-  font-size: 18px;
+  font-size: 1.125rem;
 }
 
 .semantic-art__calendar-marker {
   fill: var(--semantic-symbol-ink);
   font-family: Arial, sans-serif;
-  font-size: 13px;
+  font-size: 0.8125rem;
   font-weight: 900;
   text-anchor: middle;
   dominant-baseline: central;
@@ -1465,13 +1465,13 @@
 .semantic-art__numeral {
   fill: var(--semantic-symbol-ink);
   font-family: Arial, sans-serif;
-  font-size: 30px;
+  font-size: 1.875rem;
   font-weight: 900;
   text-anchor: middle;
   dominant-baseline: central;
 }
 
-.semantic-art__numeral--small { font-size: 17px; }
+.semantic-art__numeral--small { font-size: 1.0625rem; }
 .semantic-art__numeral--onDark { fill: var(--semantic-surface); }
 
 /* The counting row: one dot per unit, so the amount can always be counted

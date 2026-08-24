@@ -111,9 +111,28 @@ version. Public production remains 2.4.0 and is frozen until after 2026-08-25.
   state creates no session, does not swap an existing one, and redirects to the
   root rather than to the `next` path the original attempt requested.
 
+### Typography
+
+- Text now honours the size the reader asked for. `body` carried
+  `font-size: 16px`, which pinned the root and made every `rem` in the
+  stylesheet a fixed size wearing a relative unit's clothes; a learner who
+  enlarged text in her browser or on her phone got nothing from it.
+- Converts all 177 `px` font sizes to `rem` across five stylesheets. Each value
+  is divided by 16, so nothing moves at the default size and everything moves
+  together at any other. Verified by rendering the signed-out screen at a 24 px
+  root before and after.
+- Wires `text_scale`, a profiles column that has existed since migration 6 and
+  that no client had ever read. It multiplies the browser's size rather than
+  replacing it, and is clamped to 0.8–2.0 on the client as well as the server.
+- Models `text_scale` and `focus_status` in the `Profile` type. Neither was
+  there, which is why neither could be read.
+- Known and not fixed: 63 declarations are 10 px or smaller, seventeen of them
+  8 px. They scale now, but they start below a legible size. Raising them moves
+  layout, so it is a design decision.
+
 ### Tests and documentation
 
-- Frontend 757 → 779 across 47 files; backend 324 → 325, one skipped for
+- Frontend 757 → 780 across 47 files; backend 324 → 325, one skipped for
   want of credentials.
 - Renames two `AuthGate` tests whose names claimed behaviour their own
   assertions contradicted, and one schema test named for a version it had

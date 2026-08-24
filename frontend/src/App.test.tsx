@@ -3,7 +3,7 @@
 // Author: Kevin "Lirioth" Cusnir
 // Date: 2026-07-16 | TZ: Asia/Jerusalem
 
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
@@ -597,6 +597,31 @@ describe('App cloud session flow', () => {
     expect(fetchMock.mock.calls.some(([input, init]) => (
       String(input).endsWith('/auth/logout') && (init as RequestInit | undefined)?.method === 'POST'
     ))).toBe(true);
+  });
+
+  it('applies the text size the learner asked for, and refuses an impossible one', async () => {
+    /* text_scale has been a profiles column since migration 6 and no client
+       had ever read it. The root is calc(100% * var(--text-scale)), so this
+       multiplies whatever size her browser is already set to rather than
+       replacing it. */
+    const large: Profile = { ...profile, text_scale: 1.6 };
+    vi.stubGlobal('fetch', routeFetch(googleSession, large));
+    renderApp();
+
+    await waitFor(() => expect(
+      document.documentElement.style.getPropertyValue('--text-scale'),
+    ).toBe('1.6'));
+    cleanup();
+
+    // The server enforces 0.8-2.0. A value that got past it -- a hand-edited
+    // export, a corrupt row -- must not be able to make the app unusable.
+    const absurd: Profile = { ...profile, text_scale: 40 };
+    vi.stubGlobal('fetch', routeFetch(googleSession, absurd));
+    renderApp();
+
+    await waitFor(() => expect(
+      document.documentElement.style.getPropertyValue('--text-scale'),
+    ).toBe('2'));
   });
 
   it('greets the learner by the name she chose, not the one Google holds', async () => {

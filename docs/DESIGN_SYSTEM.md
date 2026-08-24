@@ -49,6 +49,35 @@ The interface stack prioritizes Hebrew-capable system fonts:
 font-family: "Noto Sans Hebrew", "Arial Hebrew", "Rubik", Inter, system-ui, sans-serif;
 ```
 
+## Text size belongs to the reader
+
+Every `font-size` in this project is in `rem`, and the root is
+`calc(100% * var(--text-scale, 1))`. Do not write `font-size` in `px`, and do
+not pin the root back to a pixel value.
+
+The two halves matter for different people:
+
+- `100%` is the size the reader has set for text in her browser or on her
+  phone. An older beginner is the likeliest person to have changed it, and it
+  is the setting this app used to discard.
+- `--text-scale` is her `text_scale` profile value (0.8–2.0, migration 6),
+  applied by `App.tsx` and clamped there as well as on the server. It
+  multiplies her browser setting rather than replacing it, so a learner who
+  enlarged text system-wide keeps that and scales on top.
+
+Until 2026-08-24 neither worked. `body` carried `font-size: 16px`, which made
+every `rem` in the stylesheet a fixed size wearing a relative unit's clothes,
+and 177 declarations were in `px`, which ignore the root entirely. `text_scale`
+had been stored for months with no client reading it.
+
+The conversion divided each pixel value by 16, so nothing moved at the default
+size and everything moves together at any other. Verified by rendering the
+signed-out screen at a 24 px root before and after.
+
+**Still open:** 63 of those declarations are 10 px or smaller, seventeen of
+them 8 px. They now scale, but they start below any legibility floor. Raising
+them changes layout, so it is a design decision rather than a mechanical one.
+
 ## Icons
 
 The frontend includes a small custom inline SVG icon set. Icons inherit `currentColor`, include titles where needed, and are never the only indication of state.
