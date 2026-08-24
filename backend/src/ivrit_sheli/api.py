@@ -247,6 +247,8 @@ class ProfilePayload(StrictModel):
     cefr_band: CefrBand | None = None
     text_scale: float | None = Field(default=None, ge=0.8, le=2.0)
     focus_status: Literal["available", "busy"] | None = None
+    # No min_length: "" is how a learner clears the avatar she picked.
+    avatar_preset_id: str | None = Field(default=None, max_length=64)
     goals: list[dict[str, Any]] | None = None
 
 

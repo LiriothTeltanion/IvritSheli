@@ -333,7 +333,7 @@ test.describe('visual recognition expansion', () => {
     expect(animationNames.length).toBeGreaterThan(0);
     expect(animationNames.every((name) => name === 'none')).toBe(true);
 
-    await page.getByRole('button', { name: 'Dark' }).click();
+    await page.getByRole('radio', { name: 'Dark' }).click();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
     await page.getByRole('button', { name: 'HE', exact: true }).click();
     await expect(page.locator('html')).toHaveAttribute('lang', 'he');

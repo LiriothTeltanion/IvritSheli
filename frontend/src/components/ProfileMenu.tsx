@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { useI18n } from '../i18n';
 import { AVATAR_PRESETS } from '../profileAvatarPresets';
 import type { LearnerMode } from '../types';
+import { ChoiceGroup } from './ChoiceGroup';
 import { FinishVisitDialog } from './FinishVisitDialog';
 import { Icon } from './Icon';
 
@@ -151,10 +152,13 @@ export function ProfileMenu({
         aria-controls={open ? menuId : undefined}
         onClick={() => setOpen((current) => !current)}
       >
-        {avatarUrl
-          ? <img src={avatarUrl} alt="" referrerPolicy="no-referrer" />
-          : activePresetImageUrl
-            ? <img src={activePresetImageUrl} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+        {/* The preset comes first because the learner picked it. avatarUrl is
+            the provider's photo, refreshed from Google on every login, so
+            testing it first made the picker below have no visible effect. */}
+        {activePresetImageUrl
+          ? <img src={activePresetImageUrl} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+          : avatarUrl
+            ? <img src={avatarUrl} alt="" referrerPolicy="no-referrer" />
             : <span>{identityName.slice(0, 1).toUpperCase()}</span>}
         <i className={online ? '' : 'is-offline'} />
       </button>
@@ -228,24 +232,19 @@ export function ProfileMenu({
               <small>{online ? t('networkOnlineDetail') : t('networkOfflineDetail')}</small>
             </span>
           </div>
-          <div className="profile-menu__focus" role="group" aria-label={t('focusStatus')}>
+          <div className="profile-menu__focus">
             <span>{t('focusStatus')}</span>
-            <div>
-              {(['available', 'busy'] as const).map((status) => (
-                <button
-                  key={status}
-                  type="button"
-                  role="radio"
-                  aria-checked={focusStatus === status}
-                  className={focusStatus === status ? 'active' : ''}
-                  onClick={() => chooseFocusStatus(status)}
-                >
-                  <i aria-hidden="true" />
-                  {t(status)}
-                </button>
-              ))}
-            </div>
-            <small>{t('focusStatusDeviceOnly')}</small>
+            <ChoiceGroup
+              value={focusStatus}
+              onChange={chooseFocusStatus}
+              label={t('focusStatus')}
+              describedBy={`${menuId}-focus-note`}
+              options={(['available', 'busy'] as const).map((status) => ({
+                value: status,
+                label: (<><i aria-hidden="true" />{t(status)}</>),
+              }))}
+            />
+            <small id={`${menuId}-focus-note`}>{t('focusStatusDeviceOnly')}</small>
           </div>
           <button type="button" onClick={() => runAndClose(onOpenSettings)}>
             <Icon name="settings" size={18} /> {t('settings')}

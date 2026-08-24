@@ -163,15 +163,27 @@ function writeIdentityProfile(auth: AuthState | null, profile: LocalIdentityProf
   }
 }
 
-function readIdentityDisplayName(auth: AuthState | null, profile: Profile, readProfileName: string | null): string {
-  const override = readIdentityProfile(auth).displayName?.trim();
-  if (override) return override;
-  if (readProfileName) return readProfileName;
-  return profile.display_name;
-}
+/* The profiles column default, which BeginnerOnboarding already treats as
+   unset. It is the one name that must not outrank the session's, because it
+   means nobody has chosen anything yet. */
+const UNSET_PROFILE_NAME = 'Learner';
 
-function readIdentityAvatarPreset(auth: AuthState | null): string | undefined {
-  return readIdentityProfile(auth).avatarPresetId;
+/* The name the learner chose for herself wins over the one her identity
+   provider holds. The provider's is rewritten from Google on every login, so
+   preferring it silently undid her rename on every device but the one she
+   typed it on.
+
+   This costs nothing when she has never renamed herself: the cloud repository
+   seeds profiles.display_name from the provider name at first sign-in, so both
+   sources agree. The session name is still the fallback, and in local mode
+   ("Local learner") it is the only one there is. */
+function readIdentityDisplayName(auth: AuthState | null, profile: Profile): string {
+  const chosen = profile.display_name?.trim();
+  return readIdentityProfile(auth).displayName?.trim()
+    || (chosen && chosen !== UNSET_PROFILE_NAME ? chosen : undefined)
+    || auth?.user?.display_name?.trim()
+    || chosen
+    || UNSET_PROFILE_NAME;
 }
 
 function navigationForLearnerMode(mode: LearnerMode): NavigationSection[] {
@@ -565,7 +577,18 @@ export default function App(): React.JSX.Element {
 
   const updateIdentityProfile = (nextProfile: LocalIdentityProfile): void => {
     setIdentityProfile(nextProfile);
+    /* The device copy is written first and unconditionally: renaming yourself
+       has always worked offline and must keep working. The server write is
+       what carries the change to the next device. */
     writeIdentityProfile(auth, nextProfile);
+    const displayName = nextProfile.displayName?.trim();
+    void api.updateProfile({
+      ...(displayName ? { display_name: displayName } : {}),
+      // '' is the cleared state; undefined would be dropped and the old face kept.
+      avatar_preset_id: nextProfile.avatarPresetId ?? '',
+    }).then(setProfile).catch(() => {
+      // The device copy stands in until the next successful sync.
+    });
   };
 
   const startDemo = async (): Promise<void> => {
@@ -789,8 +812,10 @@ export default function App(): React.JSX.Element {
 
   const localMode = auth.mode === 'local';
   const learnerMode = activeLearnerMode;
-  const identityName = readIdentityDisplayName(auth, profile, auth.user?.display_name ?? profile.display_name);
-  const identityAvatarPresetId = identityProfile.avatarPresetId;
+  const identityName = readIdentityDisplayName(auth, profile);
+  /* Local first so an offline pick stays visible until it syncs, then the
+     server, which is what makes it survive a new device. */
+  const identityAvatarPresetId = identityProfile.avatarPresetId ?? (profile.avatar_preset_id || undefined);
   const recordingOwnerScope = deviceRecordingOwnerScope({
     mode: auth.mode,
     ...(auth.user?.id ? { userId: auth.user.id } : {}),

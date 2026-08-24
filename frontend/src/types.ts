@@ -175,6 +175,8 @@ export interface AuthState {
 export interface Profile {
   id: number;
   display_name: string;
+  /** The avatar the learner picked. Optional: a server that predates it omits it. */
+  avatar_preset_id?: string;
   interface_language: Locale;
   hebrew_level: string;
   daily_minutes: number;

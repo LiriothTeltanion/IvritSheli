@@ -31,9 +31,15 @@ def feedback_payload(key: str = "coach.feedback.0001") -> dict[str, object]:
     }
 
 
-def test_schema_v8_contains_personalization_notifications_and_speech_evidence(
+def test_schema_head_is_stamped_and_carries_every_migrated_column(
     repository: LearningRepository,
 ) -> None:
+    """A tripwire on the migration ladder, not a description of one release.
+
+    The literal below is deliberate: a migration inserted anywhere but the end,
+    or one added without a thought for what it costs, fails here first. When you
+    add a legitimate migration, raise the number and assert what it created.
+    """
     connection = repository.database.connect()
     version = connection.execute(
         "SELECT value FROM app_meta WHERE key = 'schema_version'"
@@ -45,7 +51,7 @@ def test_schema_v8_contains_personalization_notifications_and_speech_evidence(
         ).fetchall()
     }
 
-    assert SCHEMA_VERSION == 9
+    assert SCHEMA_VERSION == 10
     assert version is not None and int(version["value"]) == SCHEMA_VERSION
     assert {
         "learning_feedback",
@@ -57,6 +63,11 @@ def test_schema_v8_contains_personalization_notifications_and_speech_evidence(
         for row in connection.execute("PRAGMA table_info(audio_attempts)").fetchall()
     }
     assert "evidence_key" in audio_columns
+    profile_columns = {
+        str(row["name"])
+        for row in connection.execute("PRAGMA table_info(profiles)").fetchall()
+    }
+    assert {"text_scale", "focus_status", "avatar_preset_id"}.issubset(profile_columns)
 
 
 def test_feedback_is_idempotent_bounded_and_reset_keeps_learning(

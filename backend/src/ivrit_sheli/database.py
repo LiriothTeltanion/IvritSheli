@@ -529,6 +529,24 @@ MIGRATIONS = (
         ON alphabet_attempts(letter_key, created_at DESC);
         """,
     ),
+    Migration(
+        version=10,
+        name="learner_chosen_avatar",
+        sql="""
+        -- The face a learner picks for herself belongs to the learner, so it
+        -- lives on the profile she owns. It must never go on `users`, whose
+        -- display_name and avatar_url are overwritten from the identity
+        -- provider on every single login.
+        --
+        -- Empty string, not NULL, is the "no avatar chosen" state: the API
+        -- drops None from an update payload, so a nullable column could be
+        -- set but never cleared. The length check is the only server-side
+        -- rule; which ids are valid is a frontend catalogue, and duplicating
+        -- it here would create a second copy to drift.
+        ALTER TABLE profiles ADD COLUMN avatar_preset_id TEXT NOT NULL DEFAULT ''
+            CHECK (length(avatar_preset_id) <= 64);
+        """,
+    ),
 )
 SCHEMA_VERSION = MIGRATIONS[-1].version
 

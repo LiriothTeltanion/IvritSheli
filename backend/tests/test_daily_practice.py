@@ -310,10 +310,11 @@ def test_profile_fields_and_export_include_daily_learning_state(
     tmp_path: Path,
 ) -> None:
     profile = repository.update_profile(
-        {"text_scale": 1.4, "focus_status": "busy"}
+        {"text_scale": 1.4, "focus_status": "busy", "avatar_preset_id": "preset-oasis"}
     )
     assert profile["text_scale"] == 1.4
     assert profile["focus_status"] == "busy"
+    assert profile["avatar_preset_id"] == "preset-oasis"
     repository.practice_today()
 
     destination = repository.export_json(tmp_path / "export.json")
@@ -324,6 +325,31 @@ def test_profile_fields_and_export_include_daily_learning_state(
         "curriculum_progress",
     } <= payload["tables"].keys()
     assert payload["tables"]["profiles"][0]["text_scale"] == 1.4
+    assert payload["tables"]["profiles"][0]["avatar_preset_id"] == "preset-oasis"
+
+
+def test_avatar_preset_can_be_cleared_and_rejects_malformed_ids(
+    repository: LearningRepository,
+) -> None:
+    """The avatar is the learner's, so she must be able to take it off again.
+
+    An empty string is the cleared state rather than NULL: the API drops None
+    from an update payload before it reaches here, so a nullable column could
+    be set and never unset.
+    """
+    assert repository.get_profile()["avatar_preset_id"] == ""
+
+    repository.update_profile({"avatar_preset_id": "preset-earth"})
+    assert repository.get_profile()["avatar_preset_id"] == "preset-earth"
+
+    assert repository.update_profile({"avatar_preset_id": ""})["avatar_preset_id"] == ""
+
+    for rejected in ("Preset-Earth", "preset earth", "preset/../etc", "p" * 65):
+        with pytest.raises(ValueError):
+            repository.update_profile({"avatar_preset_id": rejected})
+
+    # A rejected write leaves the stored value alone.
+    assert repository.get_profile()["avatar_preset_id"] == ""
 
 
 def test_cloud_snapshot_persists_daily_session_and_isolates_tenants() -> None:

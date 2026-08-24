@@ -135,4 +135,59 @@ describe('ProfileMenu', () => {
     expect(onFinishVisit).toHaveBeenCalledOnce();
     expect(onLogout).not.toHaveBeenCalled();
   });
+
+  it('shows the avatar the learner picked, not the one her provider holds', () => {
+    // The provider photo is refreshed from Google on every login, so testing it
+    // first meant the picker inside this very menu had no visible effect.
+    render(
+      <I18nProvider>
+        <ProfileMenu
+          avatarUrl="https://lh3.googleusercontent.com/provider-photo"
+          identityName="Kevin"
+          identityAvatarPresetId="preset-oasis"
+          workspaceLabel="Personal workspace"
+          learnerMode="guided"
+          level="A0"
+          localMode={false}
+          online
+          loggingOut={false}
+          onOpenSettings={vi.fn()}
+          onLogout={vi.fn()}
+          onFinishVisit={vi.fn()}
+          onIdentityUpdate={vi.fn()}
+        />
+      </I18nProvider>,
+    );
+
+    const trigger = screen.getByRole('button', { name: /Open profile menu/i });
+    const image = trigger.querySelector('img');
+    expect(image).toHaveAttribute('src', expect.stringContaining('/assets/avatars/'));
+    expect(image).not.toHaveAttribute('src', 'https://lh3.googleusercontent.com/provider-photo');
+  });
+
+  it('falls back to the provider photo only when no avatar was chosen', () => {
+    render(
+      <I18nProvider>
+        <ProfileMenu
+          avatarUrl="https://lh3.googleusercontent.com/provider-photo"
+          identityName="Kevin"
+          identityAvatarPresetId={undefined}
+          workspaceLabel="Personal workspace"
+          learnerMode="guided"
+          level="A0"
+          localMode={false}
+          online
+          loggingOut={false}
+          onOpenSettings={vi.fn()}
+          onLogout={vi.fn()}
+          onFinishVisit={vi.fn()}
+          onIdentityUpdate={vi.fn()}
+        />
+      </I18nProvider>,
+    );
+
+    expect(
+      screen.getByRole('button', { name: /Open profile menu/i }).querySelector('img'),
+    ).toHaveAttribute('src', 'https://lh3.googleusercontent.com/provider-photo');
+  });
 });

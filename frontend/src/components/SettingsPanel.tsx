@@ -22,6 +22,7 @@ import { useOnlineStatus } from '../hooks/useOnlineStatus';
 import { resolveLearnerMode } from '../learnerMode';
 import { useSessionAccess } from '../session';
 import type { AuthState, CefrBand, CurriculumTrack, LearnerMode, Locale, Profile } from '../types';
+import { ChoiceGroup } from './ChoiceGroup';
 import { Icon } from './Icon';
 import { PersonalizationSettingsCard } from './PersonalizationSettingsCard';
 import { ReminderSettingsCard } from './ReminderSettingsCard';
@@ -377,20 +378,21 @@ export function SettingsPanel({
             <p className="settings-note">{t('interfaceLanguageHelp')}</p>
             <div className="theme-setting">
               <div className="settings-field-group__label">{t('interfaceTheme')}</div>
-              <div className="theme-cards" role="radiogroup" aria-label={t('interfaceTheme')}>
-                {(['dark', 'light'] as const).map((themeValue) => (
-                  <button
-                    key={themeValue}
-                    type="button"
-                    className={theme === themeValue ? 'active' : ''}
-                    onClick={() => onThemeChange?.(themeValue)}
-                    aria-pressed={theme === themeValue}
-                  >
-                    <span>{themeValue === 'dark' ? '🌙' : '☀️'}</span>
-                    <strong>{themeValue === 'dark' ? t('themeDark') : t('themeLight')}</strong>
-                  </button>
-                ))}
-              </div>
+              <ChoiceGroup
+                className="theme-cards"
+                value={theme}
+                onChange={(next) => onThemeChange?.(next)}
+                label={t('interfaceTheme')}
+                options={(['dark', 'light'] as const).map((themeValue) => ({
+                  value: themeValue,
+                  label: (
+                    <>
+                      <span>{themeValue === 'dark' ? '🌙' : '☀️'}</span>
+                      <strong>{themeValue === 'dark' ? t('themeDark') : t('themeLight')}</strong>
+                    </>
+                  ),
+                }))}
+              />
               <p className="settings-note">{t('themeDescription')}</p>
             </div>
             <div className="language-cards">
@@ -415,8 +417,16 @@ export function SettingsPanel({
         {(activeTab === 'all' || activeTab === 'learning') && (
           <section className="card settings-card">
             <header className="section-heading"><div><span className="eyebrow"><Icon name="target" size={15} /> {locale === 'es' ? 'Nivel & Metodología' : locale === 'he' ? 'רמה ומסלול' : 'Level & Methodology'}</span><h2>{t('hebrewLevel')}</h2></div></header>
-            <div className="cefr-selector" role="radiogroup" aria-label={t('hebrewLevel')} id="cefr-settings-disclosure">
-              {([
+            <ChoiceGroup
+              className="cefr-selector"
+              optionClassName="cefr-card"
+              activeClassName="is-active"
+              value={cefrBand as CefrBand}
+              onChange={(value) => setDraft((current) => ({ ...current, hebrew_level: value, cefr_band: value }))}
+              label={t('hebrewLevel')}
+              describedBy="cefr-settings-disclosure"
+              disabled={readOnly}
+              options={([
                 ['A0', t('levelNewTitle')],
                 ['A1', t('levelBeginner')],
                 ['A2', t('levelElementary')],
@@ -424,23 +434,17 @@ export function SettingsPanel({
                 ['B2', t('levelUpperIntermediate')],
                 ['C1', t('levelAdvanced')],
                 ['C2', 'Fluent'],
-              ] as [string, string][]).map(([band, desc]) => (
-                <button
-                  key={band}
-                  type="button"
-                  className={`cefr-card${cefrBand === band ? ' is-active' : ''}`}
-                  onClick={() => {
-                    const value = band as CefrBand;
-                    setDraft((current) => ({ ...current, hebrew_level: value, cefr_band: value }));
-                  }}
-                  aria-pressed={cefrBand === band}
-                  disabled={readOnly}
-                >
-                  <span className="cefr-card__badge">{band}</span>
-                  <span className="cefr-card__label">{desc}</span>
-                </button>
-              ))}
-            </div>
+              ] as [CefrBand, string][]).map(([band, desc]) => ({
+                value: band,
+                ariaLabel: `${band} — ${desc}`,
+                label: (
+                  <>
+                    <span className="cefr-card__badge">{band}</span>
+                    <span className="cefr-card__label">{desc}</span>
+                  </>
+                ),
+              }))}
+            />
             <p className="settings-note" id="cefr-settings-disclosure">{learningCopy.cefrSettingsDisclosure}</p>
             <div className="curriculum-track-setting">
               <div className="settings-field-group__label">{learningCopy.curriculumTitle}</div>
@@ -510,8 +514,15 @@ export function SettingsPanel({
               disabled={readOnly}
             />
             <div className="settings-field-group__label" style={{ marginTop: 14 }}>{t('weeklyRestDay')}</div>
-            <div className="day-picker" role="radiogroup" aria-label={t('weeklyRestDay')}>
-              {([
+            <ChoiceGroup
+              className="day-picker"
+              optionClassName="day-chip"
+              activeClassName="is-active"
+              value={draft.weekly_rest_day}
+              onChange={(day) => setDraft((current) => ({ ...current, weekly_rest_day: day }))}
+              label={t('weeklyRestDay')}
+              disabled={readOnly}
+              options={([
                 [0, locale === 'es' ? 'Lu' : locale === 'he' ? 'ב' : 'Mo'],
                 [1, locale === 'es' ? 'Ma' : locale === 'he' ? 'ג' : 'Tu'],
                 [2, locale === 'es' ? 'Mi' : locale === 'he' ? 'ד' : 'We'],
@@ -519,19 +530,8 @@ export function SettingsPanel({
                 [4, locale === 'es' ? 'Vi' : locale === 'he' ? 'ו' : 'Fr'],
                 [5, locale === 'es' ? 'Sá' : locale === 'he' ? 'ש' : 'Sa'],
                 [6, locale === 'es' ? 'Do' : locale === 'he' ? 'א' : 'Su'],
-              ] as [number, string][]).map(([day, label]) => (
-                <button
-                  key={day}
-                  type="button"
-                  className={`day-chip${draft.weekly_rest_day === day ? ' is-active' : ''}`}
-                  onClick={() => setDraft((current) => ({ ...current, weekly_rest_day: day }))}
-                  aria-pressed={draft.weekly_rest_day === day}
-                  disabled={readOnly}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+              ] as [number, string][]).map(([day, label]) => ({ value: day, label }))}
+            />
             <p className="settings-note">{t('restDayNote')}</p>
           </section>
         )}
@@ -543,37 +543,35 @@ export function SettingsPanel({
             <div className="reading-aid-group">
               <div className="reading-aid-row">
                 <span>{t('transliteration')}</span>
-                <div className="reading-aid-options" role="radiogroup" aria-label={t('transliteration')}>
-                  {(['always', 'hints', 'hidden'] as const).map((mode) => (
-                    <button
-                      key={mode}
-                      type="button"
-                      className={`reading-aid-chip${draft.transliteration_mode === mode ? ' is-active' : ''}`}
-                      onClick={() => setDraft((current) => ({ ...current, transliteration_mode: mode }))}
-                      aria-pressed={draft.transliteration_mode === mode}
-                      disabled={readOnly}
-                    >
-                      {mode === 'always' ? t('always') : mode === 'hints' ? t('hints') : t('hidden')}
-                    </button>
-                  ))}
-                </div>
+                <ChoiceGroup
+                  className="reading-aid-options"
+                  optionClassName="reading-aid-chip"
+                  activeClassName="is-active"
+                  value={draft.transliteration_mode}
+                  onChange={(mode) => setDraft((current) => ({ ...current, transliteration_mode: mode }))}
+                  label={t('transliteration')}
+                  disabled={readOnly}
+                  options={(['always', 'hints', 'hidden'] as const).map((mode) => ({
+                    value: mode,
+                    label: mode === 'always' ? t('always') : mode === 'hints' ? t('hints') : t('hidden'),
+                  }))}
+                />
               </div>
               <div className="reading-aid-row">
                 <span>{t('niqqud')}</span>
-                <div className="reading-aid-options" role="radiogroup" aria-label={t('niqqud')}>
-                  {(['always', 'difficult', 'hidden'] as const).map((mode) => (
-                    <button
-                      key={mode}
-                      type="button"
-                      className={`reading-aid-chip${draft.niqqud_mode === mode ? ' is-active' : ''}`}
-                      onClick={() => setDraft((current) => ({ ...current, niqqud_mode: mode as Profile['niqqud_mode'] }))}
-                      aria-pressed={draft.niqqud_mode === mode}
-                      disabled={readOnly}
-                    >
-                      {mode === 'always' ? t('always') : mode === 'difficult' ? t('difficultOnly') : t('hidden')}
-                    </button>
-                  ))}
-                </div>
+                <ChoiceGroup
+                  className="reading-aid-options"
+                  optionClassName="reading-aid-chip"
+                  activeClassName="is-active"
+                  value={draft.niqqud_mode}
+                  onChange={(mode) => setDraft((current) => ({ ...current, niqqud_mode: mode }))}
+                  label={t('niqqud')}
+                  disabled={readOnly}
+                  options={(['always', 'difficult', 'hidden'] as const).map((mode) => ({
+                    value: mode,
+                    label: mode === 'always' ? t('always') : mode === 'difficult' ? t('difficultOnly') : t('hidden'),
+                  }))}
+                />
               </div>
             </div>
             <div className="hebrew-preview-glass" dir="rtl" lang="he">

@@ -11,6 +11,7 @@ from __future__ import annotations
 import hashlib
 import hmac
 import json
+import re
 import sqlite3
 from dataclasses import asdict
 from datetime import datetime, timedelta, timezone
@@ -2792,6 +2793,7 @@ class LearningRepository:
             "cefr_band",
             "text_scale",
             "focus_status",
+            "avatar_preset_id",
         }
         clean: dict[str, Any] = {
             key: value for key, value in payload.items() if key in allowed_fields
@@ -2824,6 +2826,16 @@ class LearningRepository:
             "busy",
         }:
             raise ValueError("focus_status must be available or busy")
+        if "avatar_preset_id" in clean:
+            # An empty string is the deliberate "no avatar" state. Beyond that
+            # this only guards shape, not membership: the catalogue of preset
+            # ids lives in the frontend, and a second copy here would drift.
+            preset = str(clean["avatar_preset_id"])
+            if preset and not re.fullmatch(r"[a-z0-9-]{1,64}", preset):
+                raise ValueError(
+                    "avatar_preset_id must be up to 64 lowercase letters, digits or hyphens"
+                )
+            clean["avatar_preset_id"] = preset
         if "cloud_consent" in clean:
             clean["cloud_consent"] = int(bool(clean["cloud_consent"]))
         if "onboarding_step" in clean and not 0 <= int(clean["onboarding_step"]) <= 4:

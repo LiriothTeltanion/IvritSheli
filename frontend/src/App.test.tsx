@@ -126,6 +126,20 @@ function routeFetch(
   initialSession: typeof anonymous | typeof anonymousWithLocalCompanion | typeof demoSession | typeof googleSession | typeof localSession,
   learnerProfile: Profile = profile,
 ): ReturnType<typeof vi.fn> {
+  /* The server seeds profiles.display_name from the provider name at first
+     sign-in (cloud_repository.py ensure_default_profile), so a session and its
+     profile never disagree unless the learner renamed herself. Reflect that
+     here, or every session test silently exercises a state the product cannot
+     reach. Callers passing their own profile keep it verbatim -- that is how
+     the rename case is expressed. */
+  const sessionProfile: Profile = learnerProfile === profile && 'user' in initialSession && initialSession.user
+    ? {
+      ...learnerProfile,
+      display_name: initialSession.mode === 'local'
+        ? 'Learner'
+        : initialSession.user.display_name,
+    }
+    : learnerProfile;
   return vi.fn(async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
     const path = String(input);
     const method = init?.method ?? 'GET';
@@ -135,15 +149,15 @@ function routeFetch(
     if (path.endsWith('/dashboard')) {
       return json({
         ...dashboard,
-        profile: learnerProfile,
+        profile: sessionProfile,
         system: { ...dashboard.system, offline_ready: initialSession.mode === 'local' },
       });
     }
     if (path.endsWith('/profile') && method === 'PUT') {
       const update = JSON.parse(String(init?.body ?? '{}')) as Partial<Profile>;
-      return json({ ...learnerProfile, ...update });
+      return json({ ...sessionProfile, ...update });
     }
-    if (path.endsWith('/profile')) return json(learnerProfile);
+    if (path.endsWith('/profile')) return json(sessionProfile);
     if (path.endsWith('/gamification/status')) return json(gamification);
     throw new Error(`Unexpected request: ${method} ${path}`);
   });
@@ -255,7 +269,11 @@ describe('App cloud session flow', () => {
     await user.click(screen.getByRole('button', { name: 'hello · peace' }));
     await waitFor(() => expect(screen.getByRole('button', { name: /Next word/i })).toBeEnabled());
     expect(fetchMock.mock.calls.some(([, init]) => init?.method === 'PUT')).toBe(false);
-  }, 10_000);
+    /* No explicit cap. This boots the app, starts the demo, opens First Steps
+       and answers a card; the suite-wide 30s in vite.config.ts exists for
+       exactly this kind of jsdom-bound test. A hand-set 10s here made it fail
+       or pass depending on what else the machine was doing. */
+  });
 
   it('keeps the per-visit English override when the account profile prefers Spanish', async () => {
     window.history.replaceState({}, '', '/?lang=en');
@@ -315,7 +333,8 @@ describe('App cloud session flow', () => {
     expect(await screen.findByRole(
       'heading',
       { name: 'Settings' },
-      { timeout: 5_000 },
+      // The settings panel is a lazily imported chunk; 5s was borderline.
+      { timeout: 15_000 },
     )).toBeInTheDocument();
     expect(navigation.querySelectorAll('button')).toHaveLength(3);
   });
@@ -576,7 +595,38 @@ describe('App cloud session flow', () => {
     ))).toBe(true);
   });
 
+  it('greets the learner by the name she chose, not the one Google holds', async () => {
+    /* The provider name is rewritten from Google on every login, so preferring
+       it silently undid her rename everywhere except the browser she typed it
+       in. Her own profile is the source of truth for who she is. */
+    const renamed: Profile = { ...profile, display_name: 'Ana' };
+    vi.stubGlobal('fetch', routeFetch(googleSession, renamed));
+    renderApp();
+
+    expect(
+      await screen.findByRole('button', { name: /Open profile menu: Ana/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /Open profile menu: Kevin/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('falls back to the session name while no name has been chosen', async () => {
+    // 'Learner' is the profiles column default: it means nobody has chosen
+    // anything, so it must not outrank the name on the session.
+    const unnamed: Profile = { ...profile, display_name: 'Learner' };
+    vi.stubGlobal('fetch', routeFetch(googleSession, unnamed));
+    renderApp();
+
+    expect(
+      await screen.findByRole('button', { name: /Open profile menu: Kevin/i }),
+    ).toBeInTheDocument();
+  });
+
   it('returns to login from visit finish even if logout endpoint fails', async () => {
+    // Local mode has no identity provider, so the profile carries the unset
+    // default and the session label is the only name there is.
+    const localProfile: Profile = { ...profile, display_name: 'Learner' };
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
       const path = String(input);
       const method = init?.method ?? 'GET';
@@ -587,15 +637,15 @@ describe('App cloud session flow', () => {
       if (path.endsWith('/dashboard')) {
         return json({
           ...dashboard,
-          profile,
+          profile: localProfile,
           system: { ...dashboard.system, offline_ready: localSession.mode === 'local' },
         });
       }
       if (path.endsWith('/profile') && method === 'PUT') {
         const update = JSON.parse(String(init?.body ?? '{}')) as Partial<Profile>;
-        return json({ ...profile, ...update });
+        return json({ ...localProfile, ...update });
       }
-      if (path.endsWith('/profile')) return json(profile);
+      if (path.endsWith('/profile')) return json(localProfile);
       if (path.endsWith('/gamification/status')) return json(gamification);
       throw new Error(`Unexpected request: ${method} ${path}`);
     });

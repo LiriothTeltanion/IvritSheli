@@ -96,9 +96,9 @@ describe('SettingsPanel account data controls', () => {
     const user = userEvent.setup();
     renderSettings({ readOnly: false, localMode: false }, onThemeChange);
 
-    await user.click(screen.getByRole('button', { name: /Dark/ }));
+    await user.click(screen.getByRole('radio', { name: /Dark/ }));
     await waitFor(() => expect(onThemeChange).toHaveBeenCalledWith('dark'));
-    await user.click(screen.getByRole('button', { name: /Light/ }));
+    await user.click(screen.getByRole('radio', { name: /Light/ }));
     await waitFor(() => expect(onThemeChange).toHaveBeenCalledWith('light'));
     expect(onThemeChange).toHaveBeenCalledTimes(2);
   });
@@ -303,7 +303,7 @@ describe('SettingsPanel account data controls', () => {
     const user = userEvent.setup();
     renderSettings({ readOnly: false, localMode: false });
 
-    await user.click(screen.getByRole('button', { name: /B2/i }));
+    await user.click(screen.getByRole('radio', { name: /^B2 / }));
     await user.click(screen.getByRole('button', { name: /Formal & professional/i }));
     await user.click(screen.getByRole('button', { name: 'Save' }));
 

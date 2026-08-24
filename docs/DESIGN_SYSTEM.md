@@ -69,6 +69,36 @@ An illustration is never evidence for meaning, grammar or cultural usage. Source
 See [Vocabulary illustration system](VOCABULARY_ILLUSTRATION_SYSTEM.md) for
 the exact-scene catalog, progressive-layer boundary and fallback contract.
 
+## Choosing exactly one thing
+
+Every "pick one of these" control goes through `ChoiceGroup`
+(`frontend/src/components/ChoiceGroup.tsx`). Interface theme, Hebrew level,
+weekly rest day, transliteration, niqqud and focus status all use it. Do not
+hand-roll a seventh.
+
+It is one tab stop. Arrow keys move within the group and wrap; Home and End
+jump to the ends; selection follows focus, exactly as a native radio group
+behaves. Horizontal arrows mirror under RTL, so a learner reading Hebrew is not
+walked backwards through her own options. Disabled options are stepped over
+rather than landed on.
+
+The caller keeps its CSS: `className` for the container, `optionClassName` for
+each option, `activeClassName` for the selected one — which is why the existing
+`day-chip is-active` and `reading-aid-chip is-active` styling survived the
+move unchanged.
+
+This exists because all six of these controls were previously wrong, in two
+opposite directions. Five put `role="radiogroup"` on the container and left the
+children as buttons with `aria-pressed` — a radio group containing no radios,
+announced as a toggle that could be un-pressed, when the choice cannot be
+un-made. The sixth did the mirror image: `role="radio"` children inside a
+`role="group"`. None had a roving tabindex, so the seven-day rest-day picker
+was seven separate stops to tab past.
+
+`aria-pressed` is for a control that is on or off on its own. `aria-checked` on
+a radio inside a radiogroup is for one choice among several, and it is the one
+that lets a screen reader say "2 of 7".
+
 ## Motion
 
 Motion is restrained to onboarding step changes, progress, card hover/press feedback, recording state, gentle illustration sparkles and learning-result reveals. Expensive layout animation is avoided; interactive transforms use short shared timing tokens.

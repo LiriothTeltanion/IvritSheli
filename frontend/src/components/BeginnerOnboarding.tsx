@@ -165,6 +165,9 @@ export function BeginnerOnboarding({
 
   const profileUpdate = (onboardingStep: number, completed: boolean): Partial<Profile> => ({
     display_name: draft.displayName.trim() || profile.display_name,
+    // Same payload as the name, so the face she picks here is durable from the
+    // first save rather than living only in this browser.
+    avatar_preset_id: draft.avatarPresetId ?? '',
     interface_language: draft.locale,
     // Returning learners outside the beginner choices must never be silently downgraded.
     hebrew_level: isBeginnerLevel(profile.hebrew_level) ? draft.level : profile.hebrew_level,
