@@ -412,8 +412,21 @@ def test_github_oauth_login_csrf_logout_and_replay_protection(tmp_path: Path) ->
             params={"code": "again", "state": state},
             follow_redirects=False,
         )
-        assert replay.status_code == 400
-        assert replay.json()["error"]["code"] == "authentication_failed"
+        # 2026-08-24: a replayed callback used to answer 400 with a JSON body.
+        # It now redirects, because a learner whose sign-in fails must land in
+        # the application and not on a raw error document at an /api/ address.
+        # The security property is untouched, and is asserted here directly
+        # rather than inferred from a status code: the used state buys no
+        # session, and the redirect goes to the application root carrying an
+        # error code -- never to the `next` path the original attempt asked for.
+        assert replay.status_code == 303
+        assert replay.headers["location"] == "/?auth_error=authentication_failed"
+        assert "ivrit_session=" not in replay.headers.get("set-cookie", "")
+        # The legitimate session from earlier in this test is untouched: the
+        # replay neither created a session nor swapped the one already held.
+        still_signed_in = client.get("/api/v1/auth/me").json()
+        assert still_signed_in["authenticated"] is True
+        assert still_signed_in["user"]["login"] == "learner-primary"
 
         logged_out = client.post(
             "/api/v1/auth/logout",
@@ -571,8 +584,17 @@ def test_github_oauth_cancel_returns_safely_and_consumes_state(tmp_path: Path) -
             params={"error": "access_denied", "state": state},
             follow_redirects=False,
         )
-        assert replay.status_code == 400
-        assert replay.json()["error"]["code"] == "authentication_failed"
+        # 2026-08-24: a replayed callback used to answer 400 with a JSON body.
+        # It now redirects, because a learner whose sign-in fails must land in
+        # the application and not on a raw error document at an /api/ address.
+        # The security property is untouched, and is asserted here directly
+        # rather than inferred from a status code: the used state buys no
+        # session, and the redirect goes to the application root carrying an
+        # error code -- never to the `next` path the original attempt asked for.
+        assert replay.status_code == 303
+        assert replay.headers["location"] == "/?auth_error=authentication_failed"
+        assert "ivrit_session=" not in replay.headers.get("set-cookie", "")
+        assert client.get("/api/v1/auth/me").json()["authenticated"] is False
 
 
 def test_cloud_repository_isolates_users_with_colliding_item_ids() -> None:

@@ -144,6 +144,14 @@ function codeOf(reason: unknown): string {
  * mapped to the connection message rather than to the generic one — that is the
  * single most likely failure in a flat with unreliable wifi.
  */
+/* 2026-08-24. A failed OAuth callback comes back as a code in the URL rather
+   than as a thrown error, because the failure happened on the server and the
+   browser was redirected. Same table, same guarantee of a real sentence. */
+export function describeErrorCode(code: string, locale: Locale): string {
+  const table = errorMessages[locale];
+  return table[code] ?? table.fallback!;
+}
+
 export function describeError(reason: unknown, locale: Locale): string {
   const table = errorMessages[locale];
   const code = codeOf(reason);

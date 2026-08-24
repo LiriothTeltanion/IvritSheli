@@ -92,6 +92,25 @@ version. Public production remains 2.4.0 and is frozen until after 2026-08-25.
   `Use local mode on this computer`. The second now reads `How to set up local
   mode on this computer` and says that it opens in a new tab.
 
+### Sign-in
+
+- A sign-in that fails on the server now returns the learner to the
+  application with a translated explanation, instead of leaving her on a raw
+  JSON error document at an `/api/` address with no interface and no way back.
+  The provider-cancelled path already redirected; the failure paths did not.
+  Found by Kevin hitting `OAuth state validation failed` on a local run.
+- The redirect target is always the application root. It is never taken from
+  the request, because the state that would carry a safe destination is exactly
+  what failed to validate.
+- The error arrives as a code rather than a sentence, so switching interface
+  language re-renders it in the new one. The copy for `authentication_failed`
+  already existed in all three catalogues and had never been reachable from
+  this path.
+- Two replay-protection tests asserted a 400 status. They now assert the
+  property that actually matters and that a status code only implied: a used
+  state creates no session, does not swap an existing one, and redirects to the
+  root rather than to the `next` path the original attempt requested.
+
 ### Tests and documentation
 
 - Frontend 757 → 779 across 47 files; backend 324 → 325, one skipped for

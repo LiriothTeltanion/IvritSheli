@@ -21,6 +21,7 @@ from datetime import datetime, timezone
 from functools import lru_cache
 from pathlib import Path
 from typing import Annotated, Any, Literal, cast
+from urllib.parse import quote
 from uuid import uuid4
 from zoneinfo import ZoneInfo
 
@@ -1164,6 +1165,27 @@ def _oauth_state_cookie_name(provider: Literal["github", "google"]) -> str:
     return "ivrit_oauth_state" if provider == "github" else "ivrit_google_oauth_state"
 
 
+def _oauth_failure_redirect(
+    settings: Settings,
+    provider: Literal["github", "google"],
+    reason: str,
+) -> RedirectResponse:
+    """Send a failed sign-in back to the application, not to a page of JSON.
+
+    2026-08-24. A callback that raised left the learner looking at a raw error
+    document at an /api/ URL: no interface, no explanation she could read, and
+    no way back except typing the address again. The provider-cancelled path
+    already redirected; only the failure paths did not.
+
+    The destination is always the application root. It is never taken from the
+    request, because the state that would have carried a safe redirect target
+    is precisely what failed to validate.
+    """
+    response = RedirectResponse(f"/?auth_error={quote(reason, safe='')}", status_code=303)
+    _clear_oauth_state_cookie(response, settings, provider)
+    return response
+
+
 def _oauth_callback_path(provider: Literal["github", "google"]) -> str:
     return f"{API_PREFIX}/auth/{provider}/callback"
 
@@ -1273,17 +1295,23 @@ def register_routes(app: FastAPI) -> None:
         container = services(request)
         browser_state = request.cookies.get(_oauth_state_cookie_name("github"))
         if error is not None:
-            redirect_path = container.auth.cancel_github(state, browser_state)
+            try:
+                redirect_path = container.auth.cancel_github(state, browser_state)
+            except AuthenticationError:
+                return _oauth_failure_redirect(container.settings, "github", "authentication_failed")
             response = RedirectResponse(redirect_path, status_code=303)
             _clear_oauth_state_cookie(response, container.settings, "github")
             return response
         if code is None:
-            raise AuthenticationError("GitHub did not return an authorization code")
-        grant, redirect_path = container.auth.finish_github(
-            code,
-            state,
-            browser_state,
-        )
+            return _oauth_failure_redirect(container.settings, "github", "authentication_failed")
+        try:
+            grant, redirect_path = container.auth.finish_github(
+                code,
+                state,
+                browser_state,
+            )
+        except AuthenticationError:
+            return _oauth_failure_redirect(container.settings, "github", "authentication_failed")
         container.auth.logout(request.cookies.get(container.settings.session_cookie_name))
         response = RedirectResponse(redirect_path, status_code=303)
         _clear_oauth_state_cookie(response, container.settings, "github")
@@ -1314,17 +1342,24 @@ def register_routes(app: FastAPI) -> None:
         container = services(request)
         browser_state = request.cookies.get(_oauth_state_cookie_name("google"))
         if error is not None:
-            redirect_path = container.auth.cancel_google(state, browser_state)
+            try:
+                redirect_path = container.auth.cancel_google(state, browser_state)
+            except AuthenticationError:
+                # Cancelling with a stale state is not worth an error page.
+                return _oauth_failure_redirect(container.settings, "google", "authentication_failed")
             response = RedirectResponse(redirect_path, status_code=303)
             _clear_oauth_state_cookie(response, container.settings, "google")
             return response
         if code is None:
-            raise AuthenticationError("Google did not return an authorization code")
-        grant, redirect_path = container.auth.finish_google(
-            code,
-            state,
-            browser_state,
-        )
+            return _oauth_failure_redirect(container.settings, "google", "authentication_failed")
+        try:
+            grant, redirect_path = container.auth.finish_google(
+                code,
+                state,
+                browser_state,
+            )
+        except AuthenticationError:
+            return _oauth_failure_redirect(container.settings, "google", "authentication_failed")
         container.auth.logout(request.cookies.get(container.settings.session_cookie_name))
         response = RedirectResponse(redirect_path, status_code=303)
         _clear_oauth_state_cookie(response, container.settings, "google")

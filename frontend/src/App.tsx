@@ -8,6 +8,7 @@ import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } fro
 import { api, AUTH_REQUIRED_EVENT, configureApiSession } from './api';
 import { deviceRecordingOwnerScope } from './deviceAudioStorage';
 import { localeOverrideFromSearch, useI18n } from './i18n';
+import { describeErrorCode } from './locales/errorMessages';
 import { useOnlineStatus } from './hooks/useOnlineStatus';
 import { usePersistentTheme } from './hooks/usePersistentTheme';
 import { resolveLearnerMode } from './learnerMode';
@@ -278,6 +279,28 @@ export default function App(): React.JSX.Element {
   const [auth, setAuth] = useState<AuthState | null>(null);
   const [authChecking, setAuthChecking] = useState(true);
   const [authError, setAuthError] = useState('');
+  /* 2026-08-24: a sign-in that fails on the server redirects back here with
+     `?auth_error=<code>` rather than leaving the learner on a page of JSON at
+     an /api/ address she cannot read and cannot leave.
+
+     Read once at first render and immediately cleared from the address bar, so
+     a reload does not resurrect an error she has already seen. The code is
+     kept rather than the sentence, so switching language re-renders it in the
+     new one instead of freezing the message she first met. */
+  const [authErrorCode, setAuthErrorCode] = useState<string>(() => {
+    if (typeof window === 'undefined') return '';
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('auth_error');
+    if (!code) return '';
+    params.delete('auth_error');
+    const query = params.toString();
+    window.history.replaceState(
+      {},
+      '',
+      `${window.location.pathname}${query ? `?${query}` : ''}${window.location.hash}`,
+    );
+    return code;
+  });
   const [authNotice, setAuthNotice] = useState('');
   const [demoBusy, setDemoBusy] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
@@ -594,6 +617,7 @@ export default function App(): React.JSX.Element {
   const startDemo = async (): Promise<void> => {
     setDemoBusy(true);
     setAuthError('');
+    setAuthErrorCode('');
     try {
       const nextAuth = await api.startDemo();
       configureApiSession(nextAuth);
@@ -658,7 +682,7 @@ export default function App(): React.JSX.Element {
     return (
       <AuthGate
         busy={demoBusy}
-        error={authError}
+        error={authError || (authErrorCode ? describeErrorCode(authErrorCode, locale) : '')}
         notice={authNotice}
         providers={auth?.auth_providers ?? []}
         localCompanionUrl={auth?.local_companion_url ?? null}
