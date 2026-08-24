@@ -152,6 +152,14 @@ version. Public production remains 2.4.0 and is frozen until after 2026-08-25.
   system is set to high contrast. Nobody else had ever seen them.
   Predates this session: the imbalance is present in every recent commit.
   The dangling selectors are removed rather than guessed at.
+- Adds `stylesheetIntegrity.test.ts`, a guard for the class of fault rather
+  than the instance. It checks every stylesheet for a block left open, a
+  closing brace with nothing open, a selector list written at mixed
+  indentation, and any text below the 12 px floor. The indentation check is
+  the one that would have caught the splice itself: gluing two rules together
+  produces a legal selector list, so no syntax check could see it.
+  Verified by reintroducing the exact fault in a throwaway file and confirming
+  all three checks fail on it.
 
 ### Tests and documentation
 
