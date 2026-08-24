@@ -5,7 +5,7 @@
 // Notes: Navigation uses a normal link so OAuth remains keyboard- and browser-friendly.
 
 import { useCallback, useState, useEffect } from 'react';
-import { api } from '../api';
+import { api, OFFLINE_STARTER_ENTRY_COUNT } from '../api';
 import { useI18n } from '../i18n';
 import { CANDIDATE_BADGE, CANDIDATE_LABEL } from '../release';
 import type { AuthProvider, Locale } from '../types';
@@ -51,6 +51,10 @@ function avatarForPreset(avatarPresetId?: string): string {
   const match = AVATAR_PRESETS.find((preset) => preset.id === avatarPresetId);
   return match?.imageUrl ?? '/assets/avatars/avatar_east_asian_woman_1787021705776.webp';
 }
+
+/* How many faces the community strip shows before it starts counting. The
+   remainder is derived, never written down twice. */
+const AVATAR_FACES_SHOWN = 4;
 
 const HERO_BG_IMAGES = [
   '/illustrations/regions/dead-sea.webp',
@@ -209,11 +213,27 @@ export function AuthGate({
 
   const googleAvailable =
     providers.includes('google')
-    // While the session is still resolving we do not yet know the providers.
-    // Show the primary action optimistically rather than flashing an empty
-    // screen, but stop once the answer is in: a button that cannot work is
-    // worse than one that appears a moment late.
+    /* While the session is still resolving we do not yet know the providers.
+       Show the primary action optimistically rather than flashing an empty
+       screen, but stop once the answer is in: a button that cannot work is
+       worse than one that appears a moment late.
+
+       2026-08-24, correcting this comment: in the application this branch is
+       unreachable. App.tsx renders a loading screen for the whole time
+       `authChecking` is true and only passes `false` here, so the flash it
+       describes cannot happen and this never prevents anything. It is left in
+       place because the component is also used on its own, and because the
+       reasoning holds if App ever stops covering that state — but it is a
+       defence against a hypothetical, not a live one, and the comment used to
+       claim otherwise. */
     || (authChecking && !localCompanionUrl);
+
+  /* The real gap the comment above was gesturing at, and never covered: when
+     the server has no provider configured, `googleAvailable` is false and the
+     screen simply omits its primary action. A learner is left with a demo
+     button and a link to a developer README, and nothing tells her why the
+     obvious way in is missing. Silence reads as breakage. */
+  const noWayToSignIn = !googleAvailable && !localCompanionUrl;
   const retryDisabled = busy || Boolean(authChecking);
   const hasStoredAccounts = savedAccounts.length > 0;
   const [showAccessChoices, setShowAccessChoices] = useState(false);
@@ -411,6 +431,16 @@ export function AuthGate({
               </a>
             )}
 
+            {noWayToSignIn && (
+              <div className="auth-signin-unavailable" role="status">
+                <Icon name="shield" size={17} />
+                <span>
+                  <strong>{t('signInUnavailableTitle')}</strong>
+                  <small>{t('signInUnavailableDetail')}</small>
+                </span>
+              </div>
+            )}
+
             <button
               className="auth-button auth-button--secondary"
               type="button"
@@ -441,7 +471,7 @@ export function AuthGate({
           {/* Trust & Capability Stats Strip (Industry standard social proof) */}
           <div className="auth-stats-strip" aria-label={t('heroMetricsLabel')}>
             <div className="auth-stat-item">
-              <span className="auth-stat-value">240+</span>
+              <span className="auth-stat-value">{OFFLINE_STARTER_ENTRY_COUNT}+</span>
               <span className="auth-stat-label">{t('heroStatScenes')}</span>
             </div>
             <div className="auth-stat-divider" aria-hidden="true" />
@@ -487,8 +517,12 @@ export function AuthGate({
             <>
               {/* Community Avatar Stack (Showcasing all 15 vector avatars) */}
               <div className="auth-community-stack">
+                {/* 2026-08-24: this used to read `.slice(0, 4)`, a hardcoded
+                    `+11` and a hardcoded `15 Avatars` — three numbers coupled
+                    by hand to one array. Adding a sixteenth avatar would have
+                    left two of them lying, silently and on the front door. */}
                 <div className="auth-avatar-group">
-                  {AVATAR_PRESETS.slice(0, 4).map((p) => (
+                  {AVATAR_PRESETS.slice(0, AVATAR_FACES_SHOWN).map((p) => (
                     <img
                       key={p.id}
                       src={p.imageUrl}
@@ -500,10 +534,14 @@ export function AuthGate({
                       decoding="async"
                     />
                   ))}
-                  <span className="auth-avatar-count">+11</span>
+                  <span className="auth-avatar-count">
+                    +{AVATAR_PRESETS.length - AVATAR_FACES_SHOWN}
+                  </span>
                 </div>
                 <span className="auth-community-label">
-                  <strong>15 Avatars</strong> · {t('appTagline')}
+                  <strong>{t('heroAvatarCount', { count: String(AVATAR_PRESETS.length) })}</strong>
+                  {' · '}
+                  {t('appTagline')}
                 </span>
               </div>
             </>

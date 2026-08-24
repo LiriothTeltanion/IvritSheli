@@ -1195,6 +1195,21 @@ legend {
 .auth-saved-accounts-hint { margin: 2px 0 0; color: var(--text-muted); font-size: var(--text-2xs); line-height: 1.45; }
 /* 2026-08-24: tells the reader a link leaves the app before she follows it. */
 .auth-link-aside { margin-inline-start: 4px; color: var(--text-muted); font-size: var(--text-2xs); font-weight: 500; }
+/* 2026-08-24: shown only when the server has no sign-in provider configured.
+   Without it the screen just omits its primary action, which reads as broken. */
+.auth-signin-unavailable {
+  padding: 12px 14px;
+  border: 1px solid color-mix(in srgb, var(--gold) 32%, var(--border));
+  border-radius: 13px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: color-mix(in srgb, var(--gold) 8%, var(--surface-soft));
+  color: var(--text);
+}
+.auth-signin-unavailable svg { flex: 0 0 auto; margin-top: 2px; color: var(--gold); }
+.auth-signin-unavailable > span { min-width: 0; display: grid; gap: 3px; }
+.auth-signin-unavailable small { color: var(--text-soft); font-size: var(--text-2xs); line-height: 1.45; }
 
 /* Israel Living Atlas Interactive Background Switcher */
 .auth-region-switcher { margin-top: 24px; padding: 12px 16px; border-radius: 16px; background: rgba(255, 255, 255, 0.025); border: 1px solid rgba(255, 255, 255, 0.07); backdrop-filter: blur(14px); display: flex; flex-direction: column; gap: 8px; }

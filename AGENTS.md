@@ -87,6 +87,33 @@ one-tap sign-in and could not be: the device stores no email, on purpose. The
 honest sentence already existed in all three locales and had never been
 rendered. It is rendered now.
 
+### 7. The demo takes ten seconds here and that is not a bug — measured 2026-08-24
+
+Starting the read-only demo against the Supabase database takes 10.6–13.1 s
+from this machine. Before treating that as a defect, know what it is made of.
+
+A single `SELECT 1`, on an already-open pooled connection, costs **2.5 s**.
+That is pure distance between this laptop and the Supabase region; it is not
+the application. `ensure_demo_user` is 5.9 s, `create_session` 4.3 s, and
+seeding the demo repository 5.8 s — which is four to six round trips, not four
+to six seconds of work. On a backend sitting near its database the same path is
+tens of milliseconds.
+
+**Do not optimise against this number.** Tuning for a latency production will
+not have is how correct code gets broken.
+
+One real observation did come out of it, and it is left deliberately unfixed:
+every `with store._connection()` costs three extra round trips beyond the query
+itself. `_acquire_connection` runs `SELECT 1` as a liveness probe, and
+`_release_connection` runs `DISCARD TEMP; RESET ALL` and then commits. So the
+useful query is one of four.
+
+That multiplier is real everywhere, not only here, and removing the liveness
+probe in favour of retrying once on a dead pooled connection would cut it.
+It has not been done because `cloud_store.py` is where tenant isolation lives,
+the win is invisible at production latency, and rule 2 exists. Raise it with
+Kevin before touching it.
+
 ## Two lanes to the database, and which is which
 
 Reads and tenant data go through the runtime role. Schema changes go through

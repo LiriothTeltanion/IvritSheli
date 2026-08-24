@@ -45,7 +45,11 @@ import type {
 } from './types';
 
 const API_PREFIX = '/api/v1';
-const OFFLINE_STARTER_ENTRY_COUNT = 240;
+/* Exported so the sign-in screen can state the catalogue size without
+   writing the number down a second time. It is the same figure the offline
+   dictionary is validated against below, so the claim on the front door and
+   the contract the app enforces cannot drift apart. */
+export const OFFLINE_STARTER_ENTRY_COUNT = 240;
 const API_REQUEST_TIMEOUT_MS = 30_000;
 const AUTH_ME_REQUEST_TIMEOUT_MS = 4_500;
 const OFFLINE_FORBIDDEN_FIELDS = new Set([

@@ -111,6 +111,25 @@ version. Public production remains 2.4.0 and is frozen until after 2026-08-25.
   state creates no session, does not swap an existing one, and redirects to the
   root rather than to the `next` path the original attempt requested.
 
+### Signed-out screen, continued
+
+- Derives the community strip's numbers from the avatar catalogue. `.slice(0, 4)`,
+  `+11` and `15 Avatars` were three hand-written numbers coupled to one array;
+  a sixteenth avatar would have left two of them lying on the front door.
+- Derives the scene count from `OFFLINE_STARTER_ENTRY_COUNT`, the same figure
+  the offline dictionary is validated against, so the claim and the contract
+  cannot drift apart.
+- Explains a missing sign-in instead of silently omitting it. When the server
+  has no provider configured and there is no local companion, the screen used
+  to drop its primary action and say nothing — a learner met a page whose
+  obvious way in had vanished, which reads as breakage rather than as
+  configuration. The notice does not appear when the local workspace is
+  available, because then there is a perfectly good route.
+- Corrects a comment that claimed the optimistic Google branch prevents a flash
+  of an empty screen. It cannot: `App.tsx` renders a loading screen for the
+  whole time `authChecking` is true. The branch stays for the component's own
+  sake; the claim does not.
+
 ### The served path
 
 - Moves the theme boot script out of `index.html` and into

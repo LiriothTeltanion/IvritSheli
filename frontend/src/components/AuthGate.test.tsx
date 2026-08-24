@@ -1,7 +1,9 @@
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { OFFLINE_STARTER_ENTRY_COUNT } from '../api';
 import { I18nProvider } from '../i18n';
+import { AVATAR_PRESETS } from '../profileAvatarPresets';
 import { AuthGate } from './AuthGate';
 
 describe('AuthGate beginner preview', () => {
@@ -284,6 +286,52 @@ describe('AuthGate beginner preview', () => {
 
     expect(screen.queryByRole('link', { name: /Continue with Google/i })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: /demo/i })).toBeInTheDocument();
+
+    /* Added 2026-08-24. Hiding a button that cannot work was right; leaving
+       nothing in its place was not. A learner met a screen whose obvious way
+       in had simply vanished, with no word about why, which reads as breakage
+       rather than as configuration. */
+    expect(screen.getByText(/Sign-in is not set up on this server/i)).toBeInTheDocument();
+    expect(screen.getByText(/You can still explore the demonstration/i)).toBeInTheDocument();
+  });
+
+  it('says nothing about sign-in when the local workspace is the way in', () => {
+    // A machine running the local companion has a perfectly good route, so the
+    // notice would be alarming and wrong.
+    render(
+      <I18nProvider>
+        <AuthGate
+          busy={false}
+          error=""
+          providers={[]}
+          localCompanionUrl="http://127.0.0.1:8001"
+          onDemo={vi.fn()}
+          onRetry={vi.fn()}
+        />
+      </I18nProvider>,
+    );
+
+    expect(screen.queryByText(/Sign-in is not set up on this server/i)).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Use local mode on this computer/i })).toBeInTheDocument();
+  });
+
+  it('states the catalogue size and the avatar count from the data itself', async () => {
+    // All three of these were written by hand — `.slice(0, 4)`, `+11` and
+    // `15 Avatars` — coupled to one array with nothing keeping them honest.
+    const user = userEvent.setup();
+    render(
+      <I18nProvider>
+        <AuthGate busy={false} error="" providers={['google']} onDemo={vi.fn()} onRetry={vi.fn()} />
+      </I18nProvider>,
+    );
+
+    // The catalogue size sits in the always-visible hero.
+    expect(screen.getByText(String(OFFLINE_STARTER_ENTRY_COUNT) + '+')).toBeInTheDocument();
+
+    // The community strip still waits for the lesson to resolve.
+    await user.click(screen.getByRole('button', { name: 'Skip lesson and choose how to continue' }));
+    expect(screen.getByText(String(AVATAR_PRESETS.length) + ' avatars')).toBeInTheDocument();
+    expect(screen.getByText('+' + String(AVATAR_PRESETS.length - 4))).toBeInTheDocument();
   });
 
   it('shows Google optimistically while the session is still resolving', () => {
