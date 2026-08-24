@@ -43,14 +43,6 @@ interface RepintadoReferenceEntry {
   note: string;
 }
 
-interface VisualSavedAccount {
-  id: string;
-  displayName: string;
-  avatarPresetId?: string;
-  provider?: 'google' | 'github';
-  profileSignature: string;
-}
-
 interface VersionHistoryEntry {
   name: string;
   date: string;
@@ -751,53 +743,6 @@ function avatarForPreset(avatarPresetId?: string): string {
   return match?.imageUrl ?? '/assets/avatars/avatar_east_asian_woman_1787021705776.webp';
 }
 
-function readSavedAccounts(): VisualSavedAccount[] {
-  try {
-    const seen = new Set<string>();
-    const seenProfiles = new Set<string>();
-    const accounts: VisualSavedAccount[] = [];
-    const prefix = identityStoragePrefix();
-    for (let index = 0; index < window.localStorage.length; index += 1) {
-      const key = window.localStorage.key(index);
-      if (!key?.startsWith(prefix)) continue;
-      const raw = window.localStorage.getItem(key);
-      if (!raw) continue;
-      let parsed: unknown;
-      try {
-        parsed = JSON.parse(raw);
-      } catch {
-        continue;
-      }
-      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) continue;
-      const profile = parsed as Partial<LocalIdentityProfile>;
-      const displayName = typeof profile.displayName === 'string' ? profile.displayName.trim() : '';
-      if (!displayName) continue;
-      const avatarPresetId = typeof profile.avatarPresetId === 'string' ? profile.avatarPresetId.trim() : '';
-      const id = key.slice(prefix.length);
-      if (!id || seen.has(id)) continue;
-      const provider = parseAuthProvider(profile.provider);
-      const profileSignature = identityProfileSignatureForStorage(
-        displayName,
-        avatarPresetId,
-        provider,
-      );
-      if (seenProfiles.has(profileSignature)) continue;
-      seen.add(id);
-      seenProfiles.add(profileSignature);
-      accounts.push({
-        id,
-        displayName,
-        profileSignature,
-        ...(avatarPresetId ? { avatarPresetId } : {}),
-        ...(provider ? { provider } : {}),
-      });
-    }
-    return accounts;
-  } catch {
-    return [];
-  }
-}
-
 const QA_CATEGORIES = [...new Set(A0_SEMANTIC_VISUAL_KEYS.map((key) => key.split('.', 1)[0]!))];
 const QA_VIEWS: readonly QAView[] = ['thumbnail', 'card', 'hero', 'compare'];
 
@@ -899,7 +844,6 @@ export function VisualQAGallery(): React.JSX.Element {
   const copy = GALLERY_COPY[locale];
   const [entries, setEntries] = useState<QAVocabularyEntry[]>([]);
   const [error, setError] = useState('');
-  const [accessError, setAccessError] = useState('');
   const [theme, setTheme] = useState<'light' | 'dark'>(initialTheme);
   const [journeyReviewOpen, setJourneyReviewOpen] = useState(initialJourneyReview);
   const [referenceReviewOpen, setReferenceReviewOpen] = useState(initialRepintadoReferenceVisible);
@@ -914,11 +858,6 @@ export function VisualQAGallery(): React.JSX.Element {
   const [pilotSeed, setPilotSeed] = useState(0);
   const [repintadoManifest, setRepintadoManifest] = useState<Map<string, RepintadoReferenceEntry>>(new Map());
   const [repintadoManifestLoaded, setRepintadoManifestLoaded] = useState(false);
-  const [savedAccounts, setSavedAccounts] = useState<VisualSavedAccount[]>([]);
-  const [savedAccountsRevision, setSavedAccountsRevision] = useState(0);
-  const [googleBusy, setGoogleBusy] = useState(false);
-  const [googleBusyForId, setGoogleBusyForId] = useState<string | null>(null);
-  const [googleConfigured, setGoogleConfigured] = useState<boolean | null>(null);
   const exactKeys = useMemo(() => new Set<string>(A0_SEMANTIC_VISUAL_KEYS), []);
   const exactSceneCount = A0_SEMANTIC_VISUAL_KEYS.length;
 
@@ -985,24 +924,6 @@ export function VisualQAGallery(): React.JSX.Element {
     };
   }, []);
 
-  useEffect(() => {
-    setSavedAccounts(readSavedAccounts());
-  }, [savedAccountsRevision]);
-
-  useEffect(() => {
-    let active = true;
-    void api.authMe()
-      .then((state) => {
-        if (!active) return;
-        setGoogleConfigured((state.auth_providers ?? []).includes('google'));
-      })
-      .catch(() => {
-        if (active) setGoogleConfigured(false);
-      });
-    return () => {
-      active = false;
-    };
-  }, []);
 
   useEffect(() => {
     const previousTheme = document.documentElement.dataset.theme;
@@ -1119,30 +1040,6 @@ export function VisualQAGallery(): React.JSX.Element {
     );
   };
 
-  const startGoogleSignIn = async (accountId?: string): Promise<void> => {
-    if (googleBusy) return;
-    setGoogleBusyForId(accountId ?? null);
-    setGoogleBusy(true);
-    setAccessError('');
-    try {
-      const nextPath = `${window.location.pathname}${window.location.search}`;
-      const { authorize_url } = await api.startGoogle(nextPath);
-      window.location.assign(authorize_url);
-    } catch (reason: unknown) {
-      setAccessError(errorText(reason));
-    } finally {
-      setGoogleBusy(false);
-      setGoogleBusyForId(null);
-    }
-  };
-
-  const handleSavedAccountStart = async (account: VisualSavedAccount): Promise<void> => {
-    await startGoogleSignIn(account.id);
-  };
-
-  const savedAccountProviderLabel = (account: VisualSavedAccount): string => {
-    return account.provider === 'google' ? copy.accountSavedByGoogle : copy.accountProviderUnknown;
-  };
 
   if (error) {
     return <main className="visual-qa visual-qa--error"><h1>{copy.unavailable}</h1><p>{error}</p></main>;
@@ -1167,66 +1064,6 @@ export function VisualQAGallery(): React.JSX.Element {
         </dl>
       </header>
 
-      <section className="visual-qa__entry" aria-labelledby="visual-qa-access-title">
-        <header>
-          <strong id="visual-qa-access-title">{copy.accessTitle}</strong>
-          <p>{copy.accessHint}</p>
-        </header>
-        <div className="visual-qa__entry-actions">
-          <button
-            type="button"
-            className="visual-qa__google-entry"
-            onClick={() => {
-              void startGoogleSignIn();
-            }}
-            disabled={googleBusy || googleConfigured === false}
-          >
-            {googleBusy ? copy.startingGoogle : copy.continueGoogle}
-          </button>
-        </div>
-        {accessError && <p className="visual-qa__access-error" role="alert">{accessError}</p>}
-        {googleConfigured === false && (
-          <p className="visual-qa__access-error" role="alert">
-            {copy.googleUnavailable}
-          </p>
-        )}
-
-        <section className="visual-qa__saved-accounts" aria-label={copy.savedAccountsTitle}>
-          <h2>{copy.savedAccountsTitle}</h2>
-          {savedAccounts.length === 0 ? (
-            <p>{copy.noSavedAccounts}</p>
-          ) : (
-            <div className="visual-qa__saved-accounts-list">
-              {savedAccounts.map((account) => (
-                <article key={account.id} className="visual-qa__saved-account-card">
-                  <img
-                    className="visual-qa__saved-account-avatar"
-                    src={avatarForPreset(account.avatarPresetId)}
-                    alt=""
-                    style={{ width: 42, height: 42, borderRadius: '50%', objectFit: 'cover' }}
-                  />
-                  <div className="visual-qa__saved-account-text">
-                    <strong>{account.displayName}</strong>
-                    <small>{savedAccountProviderLabel(account)}</small>
-                  </div>
-                  <div className="visual-qa__saved-account-actions">
-                    <button
-                      type="button"
-                      className="secondary-button"
-                      onClick={() => {
-                        void handleSavedAccountStart(account);
-                      }}
-                      disabled={googleBusy}
-                    >
-                      {googleBusyForId === account.id ? copy.startingGoogle : copy.continueWithSavedAccount}
-                    </button>
-                  </div>
-                </article>
-              ))}
-            </div>
-          )}
-        </section>
-      </section>
 
         <section className="visual-qa__notebook" aria-labelledby="visual-qa-notebook-title">
         <header>
