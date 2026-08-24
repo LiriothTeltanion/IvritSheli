@@ -18,11 +18,11 @@ Nova, continuamos Ivrit Sheli. Antes de proponer nada, lee en este orden:
   Los commits locales sí, y se agradecen.
 - Árbol limpio. Si lo encuentras sucio, para y dímelo.
 
-## Medido el 2026-08-24
+## Medido el 2026-08-24, por la tarde
 
-Frontend **757/757** en 46 archivos · backend **324** con un salto por
+Frontend **779/779** en 47 archivos · backend **325** con un salto por
 credenciales · `tsc`, `ruff` y `mypy` estricto limpios · build limpio ·
-integridad de paquete **220 archivos / 531 checksums** · `/health/ready` en
+integridad de paquete **217 archivos / 531 checksums** · `/health/ready` en
 **200 ready** con `postgresql: true`.
 
 **No ejecutado**: matriz de navegador Playwright, matrices de contacto 240 × 3,
@@ -82,38 +82,43 @@ de desarrollo. Verifica en 8000, no en 5173.
 
 ## Pendiente, con plan concreto
 
-De 122 hallazgos auditados quedan **14**, todos con archivo y línea. Los graves
-y altos están cerrados.
+De los 14 que quedaban el 2026-08-24 por la mañana, **quedan 3**, y la sesión
+de la tarde encontró seis más leyendo. Todo está en `TASKS.md`, y el detalle
+por lote en `CHANGELOG.md` bajo *Unreleased*.
 
-**Marca duplicada (6)** — `assets/brand/logo.svg`, `app-icon.svg`,
-`brand-mark.svg` y `wordmark-monochrome.svg` son una identidad *diurna* completa
-que contradice la nocturna, sin uso en la app, con las letras en `<text>`. El
-README las muestra como identidad principal en la línea 2. Borrar esas cuatro,
-arreglar `README.md:2`, quitar cuatro líneas de
-`scripts/verify_package.py:238-241`, y regenerar checksums (nunca editarlos a
-mano). **`assets/brand/kc-lt-signature.*` NO se toca**: es la firma personal de
-Kevin y está reservada en `THIRD_PARTY_NOTICES.md:71`.
+**Cerrado el 2026-08-24:** la identidad de marca duplicada; los seis grupos de
+opción única (ahora `ChoiceGroup`); el nombre y el avatar de la usuaria por
+encima de los del proveedor, con columna en el servidor; el carrusel que le
+pisaba la región elegida; la tira de usuarios guardados, que ahora dice lo que
+puede hacer; 1,21 MB de fotos reducidos a una; y el audio que no se podía
+detener.
 
-**Pantalla sin sesión (4)** — `AuthGate.tsx`: 29 controles y cinco caminos que
-compiten para una principiante. Las píldoras de región las pisa el carrusel cada
-8 s. La ruta de un toque para quien vuelve es el control más enterrado.
-`AuthGate.test.tsx:13` se llama por un comportamiento que sus propias
-aserciones contradicen.
+**Abierto, con archivo y línea en `TASKS.md`:**
 
-**Identidad (3)** — `App.tsx:792` prefiere el nombre del proveedor OAuth al que
-la learner eligió. `App.tsx:566` escribe el renombrado solo en `localStorage`.
-`types.ts:175`: el avatar no tiene campo en el servidor, así que ningún arreglo
-de cliente lo salva al cambiar de dispositivo. Y la app le dice «puedes
-cambiarlo en Ajustes», donde no hay campo.
-
-**Radios de estado (1)** — `ProfileMenu.tsx:204`: `role="radio"` sin `tabindex`
-rodante ni navegación por flechas.
+- La estructura de la pantalla sin sesión: el modo local está detrás de una
+  lección que Google y la demo no tienen que pasar, y luego la misma lección se
+  repite; dos controles distintos con la misma etiqueta van a destinos
+  distintos; una rama muerta con un comentario que describe una protección
+  inexistente; un historial de doce versiones en la puerta de entrada; e inglés
+  fijo en una pantalla trilingüe.
+- El panel de ilustración va 96 escenas por detrás.
+- La cabecera de Repintado Nocturne afirma cosas que ya no son ciertas.
 
 ## De Kevin
 
-1. **Actualizar `MIGRATION_DATABASE_URL` en el panel de Railway** con la
-   contraseña rotada el 2026-08-24. `railway.toml` corre `db_admin migrate`
-   antes de cada despliegue y con la vieja falla. **Es lo único roto.**
+1. **Railway está caído y sus credenciales están vencidas.** `railway.toml` en
+   `main` corre `db_admin migrate` antes de cada despliegue con
+   `MIGRATION_DATABASE_URL`; la contraseña de Supabase se rotó el 2026-08-24,
+   así que ese paso falla. Se arregla en el panel de Railway, cambiando esa
+   variable y `DATABASE_URL` — `db_admin.py:84` exige que apunten al mismo
+   servidor, puerto y base.
+   **Ojo con lo que no arregla:** `main` no se toca desde el 2026-07-21, así que
+   un redespliegue vuelve a publicar la **2.4.0**. Nada del trabajo de agosto
+   está ahí. Publicar la app de verdad es fusionar `consolidation/…`, y eso lo
+   prohíbe el congelamiento hasta pasado el 25.
+   Guardar una variable dispara un despliegue, que la regla 1 prohíbe; como
+   `main` no ha cambiado, restauraría exactamente lo que ya era público en vez
+   de cambiarlo. Es decisión de Kevin, no de un agente.
 2. Reconocimiento humano de cinco segundos en los diagramas de familia.
 3. Aceptación del contenido hebreo y la prueba con su mamá.
 

@@ -21,6 +21,34 @@ The version this file carried was corrected back from `2.12.3-PRE` to `2.12.2`:
 no other version surface names a 2.12.3, and eleven of them were aligned on
 2026-08-23 specifically to end that kind of drift.
 
+## Claude Code pass — 2026-08-24, afternoon
+
+Four commits, each with its documentation in the same commit. Read `CHANGELOG.md`
+under Unreleased for the itemised list; this is what changed in kind.
+
+**Everything here came from reading, not from a report.** Nobody had noticed
+any of it, which is the argument for the mapping pass that found them.
+
+1. `90c6b7c` — a second brand identity, unused by the app, was still the face
+   of the README. Retired; the replacement is generated from the app's own
+   contours so the two cannot drift.
+2. `6b411e3` — six single-choice controls, all broken in two opposite ways, now
+   share one `ChoiceGroup`. And the learner's own name and avatar now outrank
+   the ones her identity provider holds, with a server column so the avatar
+   survives a new device.
+3. `faac90e` — the sign-in screen was overwriting her chosen region every eight
+   seconds, and the saved-learner strip promised a one-tap return it cannot
+   deliver.
+4. `3deb2a2` — that screen fetched 1.21 MB of photographs to show one, and
+   could start speech it offered no way to stop.
+
+The common thread is now `AGENTS.md` hard rule 6: **an explicit choice outranks
+ambient behaviour, and if a choice cannot be honoured, say so.**
+
+Measured after the last of them: frontend **779/779** across 47 files, backend
+**325** with one skipped for want of credentials, `tsc`/`ruff`/`mypy` strict
+clean, package gate 217 required files / 531 checksums.
+
 ## Operational checkpoint
 
 - **Project:** `02 — Ivrit Sheli`

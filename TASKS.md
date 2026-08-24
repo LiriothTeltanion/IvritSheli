@@ -86,7 +86,60 @@ otro panel, qué sigue siendo cierto y qué ya no. Empieza siempre por ahí.
 - [x] **Version identity reconciled** across package.json, pyproject, `__init__`,
       release.ts, index.html, manifest and the service worker cache key.
 
+### ✅ Completed 2026-08-24 — brand, accessibility, identity, signed-out screen
+
+- [x] **One identity, generated** — retired the four unused `assets/brand/`
+      files that were a whole second identity in `<text>`, and pointed
+      `README.md` at `wordmark-nocturne.svg`, built by
+      `scripts/build_brand_wordmark.py` from the contours the app ships.
+- [x] **`ChoiceGroup`** — all six single-choice controls moved onto one correct
+      implementation. Roving tabindex, arrows that wrap, RTL mirroring. The
+      seven-day rest-day picker was seven tab stops; it is now one.
+- [x] **Her name and her face outrank the provider's** — profile name beats the
+      Google name, a rename reaches the server, the `avatar_preset_id` column
+      exists (schema 10), and the avatar she picked beats the provider photo.
+- [x] **The carousel stops when she chooses a region** — the two shared one
+      state variable, so a choice held for at most eight seconds.
+- [x] **The saved-learner strip says what it can do** — the honest sentence
+      existed in all three locales and had never been rendered.
+- [x] **One landscape photograph at first paint, not six** — 1.21 MB down to
+      163 kB on the screen that already withholds a 58 kB chunk on principle.
+- [x] **The voice can be stopped** — the pronunciation button was
+      cancel-and-restart only, and speech outlived the screen.
+
 ### ⏳ Current & Upcoming Tasks
+
+- [ ] **Railway is down and its credentials are stale — Kevin's, 5 minutes**:
+  - `railway.toml` on `main` runs `db_admin migrate` before every deploy, using
+    `MIGRATION_DATABASE_URL`. The Supabase password was rotated 2026-08-24, so
+    that variable holds a dead credential and the pre-deploy step fails.
+  - Update it, and `DATABASE_URL`, in the Railway dashboard. `db_admin.py:84`
+    requires both to name the same host, port and database.
+  - **What this does not do:** `main` has not moved since 2026-07-21, so a
+    redeploy republishes 2.4.0. None of this month's work is on it. Publishing
+    the current app means merging `consolidation/…`, which the freeze forbids
+    until after 2026-08-25.
+  - Note: saving a variable triggers a deploy, which hard rule 1 forbids.
+    Because `main` is unchanged it would restore the same 2.4.0 that was
+    already public rather than change public state — Kevin's call, not an
+    agent's.
+
+- [ ] **Signed-out screen, remaining structure** (mapped 2026-08-24, unfixed):
+  - Local mode is double-gated: the link only appears after the three-word
+    lesson is finished or skipped, while Google and the demo sit outside that
+    gate and are always visible. Then the same lesson is shown a second time in
+    the local welcome (`App.tsx:732`).
+  - Two different controls carry the identical label `continueLocalSetup`; one
+    opens the working local workspace, the other a GitHub README full of
+    terminal commands, in a new tab.
+  - `googleAvailable`'s optimistic branch is unreachable — `App.tsx` returns
+    the loading screen whenever `authChecking` is true — and its comment
+    describes a protection that does not exist. `googleBusy` is never passed.
+  - A twelve-release changelog and two candidate version badges sit on the
+    front door.
+  - Hardcoded English on a trilingual screen: `15 Avatars`, `+11`, `240+`,
+    `27`, `100%`, and both release badges.
+
 
 - [x] **Restricted PostgreSQL role — DONE 2026-08-23**:
   - `ivrit_sheli_runtime` provisioned via the SQL Editor; the app authenticates as
