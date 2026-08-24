@@ -111,6 +111,23 @@ version. Public production remains 2.4.0 and is frozen until after 2026-08-25.
   state creates no session, does not swap an existing one, and redirects to the
   root rather than to the `next` path the original attempt requested.
 
+### The served path
+
+- Moves the theme boot script out of `index.html` and into
+  `public/theme-boot.js`. The application's CSP is `script-src 'self'` with no
+  `'unsafe-inline'`, so the inline version never ran in production — only on
+  the Vite dev server, which sends no such header. Its entire purpose is to
+  apply the learner's chosen theme before the first paint, so a learner who had
+  chosen the light theme met a dark flash on every real load. Confirmed zero
+  CSP violations on port 8000 after the move; there was one before.
+- Teaches the service worker about it. `/theme-boot.js` sits at the site root,
+  outside every cached prefix, so it would have been fetched from the network
+  every time and failed offline — restoring the flash for the learner who is
+  offline most. It is now an essential precached asset.
+- Precaches the two Assistant subsets, so the app keeps its own typeface
+  offline instead of falling back to whatever the device has.
+- Bumps the shell cache name so installed copies pick all of this up.
+
 ### Typography
 
 - Text now honours the size the reader asked for. `body` carried

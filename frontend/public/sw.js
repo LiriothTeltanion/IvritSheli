@@ -4,7 +4,7 @@
 // Date: 2026-07-15 | TZ: Asia/Jerusalem
 // Notes: API responses and user data are deliberately never cached by the service worker.
 
-const CACHE_NAME = 'ivrit-sheli-shell-v2.12.2-hebraic-wordmark';
+const CACHE_NAME = 'ivrit-sheli-shell-v2.12.2-assistant-and-theme-boot';
 const CORE_ASSETS = [
   '/',
   '/manifest.webmanifest',
@@ -12,6 +12,12 @@ const CORE_ASSETS = [
   '/icons/app-icon-192.png',
   '/icons/app-icon-512.png',
   '/fonts/GveretLevin-Regular.ttf',
+  // 2026-08-24: the interface typeface. Without these the app falls back to
+  // whatever the device happens to have, which is the state it was in before
+  // Assistant was bundled -- a different-looking product per machine, and the
+  // Hebrew set in a different face from the interface around it.
+  '/fonts/assistant-latin.woff2',
+  '/fonts/assistant-hebrew.woff2',
   '/content/starter-dictionary-v2.8.json',
   '/assets/illustrations/israel-living-atlas-field-notes.webp',
   '/assets/illustrations/morning-hebrew-welcome.webp',
@@ -39,11 +45,19 @@ function canCache(response) {
 function isPublicStaticPath(pathname) {
   return pathname === '/manifest.webmanifest'
     || pathname === '/sw.js'
+    // 2026-08-24: this one sits at the root rather than under a cached prefix,
+    // so without naming it here it would be fetched from the network every
+    // time and would simply fail offline -- bringing back the flash of the
+    // wrong theme for exactly the learner who is offline most.
+    || pathname === '/theme-boot.js'
     || PUBLIC_STATIC_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 }
 
 const ESSENTIAL_ASSETS = [
   '/',
+  // Essential, not optional: it runs before the first paint, and a page that
+  // cannot load it shows the wrong theme until the application catches up.
+  '/theme-boot.js',
   '/manifest.webmanifest',
   '/icons/app-icon.svg',
   '/icons/app-icon-192.png',

@@ -49,6 +49,34 @@ The interface stack prioritizes Hebrew-capable system fonts:
 font-family: "Noto Sans Hebrew", "Arial Hebrew", "Rubik", Inter, system-ui, sans-serif;
 ```
 
+## Nothing inline, ever, on the served path
+
+The application's own Content Security Policy is `script-src 'self'` with no
+`'unsafe-inline'` and no hash. An inline `<script>` in `index.html` therefore
+does not run in production — and runs perfectly on the Vite dev server, which
+sends no such header.
+
+This caught the theme boot script, which existed precisely to apply the
+learner's chosen theme *before the first paint*. On 5173 it worked. On 8000,
+and so for every real learner, the browser refused it and the page painted dark
+before React caught up and switched to light. A learner who had chosen the
+light theme met a flash on every single load.
+
+It now lives at `frontend/public/theme-boot.js`, referenced with a `src`, which
+`'self'` allows. It must stay render-blocking — no `defer`, no `async`, no
+module type.
+
+Two consequences to keep in mind for anything else placed at the site root:
+
+- `sw.js` caches by prefix (`/assets/`, `/content/`, `/fonts/`, `/icons/`,
+  `/illustrations/`) plus a short list of exact paths. A file at the root is
+  cached by neither unless it is named explicitly, so it fails offline.
+- A render-blocking script must be in `ESSENTIAL_ASSETS`, not the optional
+  list, or the first offline load shows the wrong theme.
+
+**This is the same trap three times now**: Google Fonts, the wordmark's
+webfont, and now this. Port 5173 will tell you it works. Verify on 8000.
+
 ## One typeface, ours, for both scripts
 
 The interface is set in **Assistant**, served from our own origin at

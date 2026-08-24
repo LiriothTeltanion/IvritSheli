@@ -20,39 +20,33 @@
 // detectable, and only by counting. The indentation check below is what would
 // have caught the splice itself.
 //
-// A browser forgiving a mistake is not the same as the mistake being harmless.
+// The stylesheets are read through `import.meta.glob` rather than `node:fs`,
+// so this file needs no Node type definitions and cannot break `tsc -b`.
 
-import { readFileSync, readdirSync, statSync } from 'node:fs';
-import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-const SOURCE_ROOT = join(process.cwd(), 'src');
-
-function stylesheets(directory: string): string[] {
-  return readdirSync(directory).flatMap((entry) => {
-    const full = join(directory, entry);
-    if (statSync(full).isDirectory()) return stylesheets(full);
-    return full.endsWith('.css') ? [full] : [];
-  });
-}
+const SOURCES = import.meta.glob('./**/*.css', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
 
 /** Replace comments with spaces, keeping every newline so line numbers hold. */
 function withoutComments(css: string): string {
   return css.replace(/\/\*[\s\S]*?\*\//g, (block) => block.replace(/[^\n]/g, ' '));
 }
 
-const FILES = stylesheets(SOURCE_ROOT);
-const CASES = FILES.map((file) => [file.slice(SOURCE_ROOT.length + 1), file] as const);
+const CASES: [string, string][] = Object.entries(SOURCES).map(([path, css]) => [path, css]);
 
 describe('stylesheet integrity', () => {
   it('finds stylesheets to check', () => {
     // A refactor that moves the CSS elsewhere must not turn this suite into a
     // silent no-op that keeps reporting success over an empty list.
-    expect(FILES.length).toBeGreaterThan(10);
+    expect(CASES.length).toBeGreaterThan(10);
   });
 
-  it.each(CASES)('closes every block it opens: %s', (_name, file) => {
-    const css = withoutComments(readFileSync(file, 'utf8'));
+  it.each(CASES)('closes every block it opens: %s', (_path, source) => {
+    const css = withoutComments(source);
     let depth = 0;
     let firstNegative: number | null = null;
 
@@ -70,13 +64,13 @@ describe('stylesheet integrity', () => {
     expect(depth, 'a block left open at end of file').toBe(0);
   });
 
-  it.each(CASES)('keeps a selector list at one indentation: %s', (_name, file) => {
-    const lines = withoutComments(readFileSync(file, 'utf8')).split('\n');
+  it.each(CASES)('keeps a selector list at one indentation: %s', (_path, source) => {
+    const lines = withoutComments(source).split('\n');
     const spliced: string[] = [];
 
     // A selector list is the run of lines ending in `,` that leads to a `{`.
     // Its members are written at one indentation by convention, so a member at
-    // a different one means two separate rules have been glued together --
+    // a different one means two separate rules have been glued together —
     // which is exactly what happened when the media query lost its brace, and
     // is not something a syntax check can see.
     let run: { line: number; indent: number; text: string }[] = [];
@@ -85,9 +79,7 @@ describe('stylesheet integrity', () => {
       if (closedByBrace && run.length > 1) {
         const indents = new Set(run.map((entry) => entry.indent));
         if (indents.size > 1) {
-          spliced.push(
-            run.map((e) => `  line ${e.line}: ${' '.repeat(0)}"${e.text}"`).join('\n'),
-          );
+          spliced.push(run.map((entry) => `  line ${entry.line}: "${entry.text}"`).join('\n'));
         }
       }
       run = [];
@@ -99,8 +91,8 @@ describe('stylesheet integrity', () => {
       const indent = raw.length - raw.trimStart().length;
 
       // Only track lines that look like selectors, never declaration values:
-      // a multi-line `background:` also ends its lines with commas.
-      const looksLikeSelector = !text.includes(':') || /^[.#&:\[*]/.test(text);
+      // a multi-line `background` also ends its lines with commas.
+      const looksLikeSelector = !text.includes(':') || /^[.#&:[*]/.test(text);
 
       if (text.endsWith(',') && looksLikeSelector) {
         run.push({ line: index + 1, indent, text });
@@ -120,8 +112,8 @@ describe('stylesheet integrity', () => {
     expect(spliced, `selector lists at mixed indentation:\n${spliced.join('\n\n')}`).toEqual([]);
   });
 
-  it.each(CASES)('sets no text smaller than the floor: %s', (_name, file) => {
-    const css = withoutComments(readFileSync(file, 'utf8'));
+  it.each(CASES)('sets no text smaller than the floor: %s', (_path, source) => {
+    const css = withoutComments(source);
     const tooSmall: string[] = [];
 
     // px is banned outright: it ignores the root, so it ignores both the

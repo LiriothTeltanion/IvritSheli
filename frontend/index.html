@@ -14,26 +14,13 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Ivrit Sheli" />
-    <script>
-      (() => {
-        let theme = 'dark';
-        try {
-          const params = new URLSearchParams(window.location.search);
-          const previewTheme = params.get('theme');
-          if (params.get('visualQa') === '1') {
-            theme = previewTheme === 'light' || previewTheme === 'dark' ? previewTheme : 'dark';
-          } else {
-            const savedTheme = window.localStorage.getItem('ivrit-sheli-theme');
-            if (savedTheme === 'light' || savedTheme === 'dark') theme = savedTheme;
-          }
-        } catch {
-          // The dark product default remains available without persistent storage.
-        }
-        document.documentElement.dataset.theme = theme;
-        document.querySelector('meta[name="theme-color"]')
-          ?.setAttribute('content', theme === 'dark' ? '#030912' : '#f7f1e5');
-      })();
-    </script>
+    <!-- 2026-08-24: this was written inline here and the application's own CSP
+         (`script-src 'self'`, no `'unsafe-inline'`, no hash) refused to run it
+         on the served path. It ran only on the Vite dev server, which sends no
+         such header — so the theme looked correct on 5173 and a learner who
+         had chosen the light theme met a dark flash on every real load.
+         Render-blocking on purpose: it must finish before anything is drawn. -->
+    <script src="/theme-boot.js"></script>
     <link rel="icon" type="image/svg+xml" href="/icons/app-icon.svg?v=2.12.2" />
     <link rel="apple-touch-icon" href="/icons/app-icon-192.png?v=2.12.2" />
     <link rel="manifest" href="/manifest.webmanifest" />
