@@ -64,10 +64,22 @@ version. Public production remains 2.4.0 and is frozen until after 2026-08-25.
 - Removes `onContinueSavedAccount`, an optional prop nothing passed, whose
   presence made the strip look as though it routed the chosen account
   somewhere. Every tap has always fallen through to a generic Google flow.
+- Fetches one landscape photograph at first paint instead of six. All six were
+  mounted at once — 1.21 MB — with five of them at `opacity: 0`. The next
+  arrives a beat after the screen settles, seven seconds before the rotation
+  needs it, and a region the learner picks arrives immediately. A learner who
+  chooses a region, or who has `prefers-reduced-motion` set, now downloads one.
+- Drops `fetchPriority="high"` from the 302 kB decorative hero illustration. It
+  is `aria-hidden` and was competing with the text and controls.
+- Gives the pronunciation button a stop. It could only cancel-and-restart, so a
+  learner who set the voice off by accident could not silence it except by
+  pressing something else, which started a different voice. Leaving the screen
+  also silences it, which it previously did not.
+- Replaces two identical copies of the speech code with one helper.
 
 ### Tests and documentation
 
-- Frontend 757 → 776 across 47 files; backend 324 → 325, one skipped for
+- Frontend 757 → 779 across 47 files; backend 324 → 325, one skipped for
   want of credentials.
 - Renames two `AuthGate` tests whose names claimed behaviour their own
   assertions contradicted, and one schema test named for a version it had

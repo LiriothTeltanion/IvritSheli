@@ -573,6 +573,7 @@ export const enMessages = {
     lessonProgress: 'Lesson progress',
     lookListenRemember: 'Look, listen, and remember',
     hearWord: 'Hear this word',
+    stopAudio: 'Stop',
     whatDoesItMean: 'What does it mean?',
     wonderful: 'Wonderful!',
     almostThere: 'Almost there.',

@@ -573,6 +573,7 @@ export const esMessages = {
     lessonProgress: 'Progreso de la lección',
     lookListenRemember: 'Mira, escucha y recuerda',
     hearWord: 'Escuchar esta palabra',
+    stopAudio: 'Detener',
     whatDoesItMean: '¿Qué significa?',
     wonderful: '¡Muy bien!',
     almostThere: 'Casi.',

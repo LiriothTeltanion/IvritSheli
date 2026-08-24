@@ -151,6 +151,76 @@ describe('AuthGate beginner preview', () => {
     expect(screen.getByText(/Choose Google to continue with that learner/i)).toBeInTheDocument();
   });
 
+  it('fetches one landscape photograph at first paint, not all six', () => {
+    /* The six region .webp files total 1.21 MB. Five of them sit at opacity 0,
+       so mounting them all spent a slow connection on pictures nobody sees.
+       main.tsx withholds a 58 kB chunk from this same screen for that reason. */
+    const { container } = render(
+      <I18nProvider>
+        <AuthGate busy={false} error="" providers={['google']} onDemo={vi.fn()} onRetry={vi.fn()} />
+      </I18nProvider>,
+    );
+
+    expect(container.querySelectorAll('.auth-bg-img')).toHaveLength(1);
+  });
+
+  it('brings in the next photograph before the carousel needs it', () => {
+    vi.useFakeTimers();
+    try {
+      const { container } = render(
+        <I18nProvider>
+          <AuthGate busy={false} error="" providers={['google']} onDemo={vi.fn()} onRetry={vi.fn()} />
+        </I18nProvider>,
+      );
+
+      // Queued for after the first screen settles, seven seconds before the
+      // 8s rotation reaches it.
+      act(() => { vi.advanceTimersByTime(1500); });
+      expect(container.querySelectorAll('.auth-bg-img')).toHaveLength(2);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('lets her stop the voice she started', async () => {
+    const speak = vi.fn((utterance: SpeechSynthesisUtterance) => {
+      utterance.onstart?.(new Event('start') as SpeechSynthesisEvent);
+    });
+    const cancel = vi.fn();
+    vi.stubGlobal('speechSynthesis', { speak, cancel, getVoices: () => [] });
+    vi.stubGlobal('SpeechSynthesisUtterance', class {
+      text: string;
+      lang = '';
+      rate = 1;
+      onstart: ((event: Event) => void) | null = null;
+      onend: ((event: Event) => void) | null = null;
+      onerror: ((event: Event) => void) | null = null;
+      constructor(text: string) { this.text = text; }
+    });
+
+    try {
+      const user = userEvent.setup();
+      render(
+        <I18nProvider>
+          <AuthGate busy={false} error="" providers={['google']} onDemo={vi.fn()} onRetry={vi.fn()} />
+        </I18nProvider>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Hear this word' }));
+      expect(speak).toHaveBeenCalledOnce();
+
+      /* Before this, every press cancelled and restarted: a learner who set it
+         off by accident had no way to make the device stop talking. */
+      const stop = screen.getByRole('button', { name: 'Stop' });
+      await user.click(stop);
+      expect(cancel).toHaveBeenCalled();
+      expect(speak).toHaveBeenCalledOnce();
+      expect(screen.getByRole('button', { name: 'Hear this word' })).toBeInTheDocument();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
   it('names the region switcher in the learner\'s own language', () => {
     window.history.replaceState({}, '', '/?lang=es');
     render(

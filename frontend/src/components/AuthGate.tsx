@@ -4,7 +4,7 @@
 // Date: 2026-07-16 | TZ: Asia/Jerusalem
 // Notes: Navigation uses a normal link so OAuth remains keyboard- and browser-friendly.
 
-import { useState, useEffect } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { api } from '../api';
 import { useI18n } from '../i18n';
 import { CANDIDATE_BADGE, CANDIDATE_LABEL } from '../release';
@@ -153,6 +153,16 @@ export function AuthGate({
      and kept moving every eight seconds. To a beginner that reads as the
      computer acting on its own. An explicit choice ends the rotation. */
   const [regionPinned, setRegionPinned] = useState(false);
+  /* 2026-08-24: all six region photographs were mounted at once -- 1.21 MB
+     fetched to display one, with the other five at opacity 0. main.tsx already
+     withholds a 58 kB scene chunk from this very screen because "fetching it
+     on the login screen spent that much of a slow connection for nothing";
+     this was twenty times that. Only the visible photograph is mounted at
+     first paint. Its successor arrives a beat later, seven seconds before the
+     carousel needs it, and a region she picks is mounted at once. */
+  const [mountedBackgrounds, setMountedBackgrounds] = useState<ReadonlySet<number>>(
+    () => new Set([0]),
+  );
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [situationIndex, setSituationIndex] = useState(0);
@@ -161,6 +171,21 @@ export function AuthGate({
 
   const prefersReducedMotion = usePrefersReducedMotion();
 
+  /* Leaving the screen must silence it. Without this the utterance keeps
+     playing over whatever the learner navigated to. */
+  useEffect(() => () => {
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+  }, []);
+
+  const mountBackground = useCallback((index: number): void => {
+    setMountedBackgrounds((current) => {
+      if (current.has(index)) return current;
+      const next = new Set(current);
+      next.add(index);
+      return next;
+    });
+  }, []);
+
   useEffect(() => {
     if (prefersReducedMotion || regionPinned) return;
     const timer = setInterval(() => {
@@ -168,6 +193,18 @@ export function AuthGate({
     }, 8000);
     return () => clearInterval(timer);
   }, [prefersReducedMotion, regionPinned]);
+
+  /* Fetch the next photograph after the first screen has settled, not during
+     it. Nothing is queued when the rotation is stopped -- by her choice or by
+     prefers-reduced-motion -- so those learners download one image, not six. */
+  useEffect(() => {
+    if (prefersReducedMotion || regionPinned) return;
+    const timer = setTimeout(
+      () => mountBackground((bgIndex + 1) % HERO_BG_IMAGES.length),
+      1200,
+    );
+    return () => clearTimeout(timer);
+  }, [bgIndex, mountBackground, prefersReducedMotion, regionPinned]);
 
   const googleAvailable =
     providers.includes('google')
@@ -232,32 +269,43 @@ export function AuthGate({
     setTilt({ x: 0, y: 0 });
   };
 
-  const handlePlayHeroAudio = (e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
+  /* 2026-08-24: this was written out twice, identically, in the two handlers
+     below. Speaking is one behaviour and now has one implementation. */
+  const speakHebrew = useCallback((hebrew: string): void => {
     if (!('speechSynthesis' in window)) return;
     window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(currentSituation.hebrew.replace(/[\u0591-\u05C7]/g, ''));
+    const utterance = new SpeechSynthesisUtterance(hebrew.replace(/[\u0591-\u05C7]/g, ''));
     utterance.lang = 'he-IL';
     utterance.rate = 0.88;
     utterance.onstart = () => setIsPlayingAudio(true);
     utterance.onend = () => setIsPlayingAudio(false);
     utterance.onerror = () => setIsPlayingAudio(false);
     window.speechSynthesis.speak(utterance);
+  }, []);
+
+  const stopHebrew = useCallback((): void => {
+    if (!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    setIsPlayingAudio(false);
+  }, []);
+
+  /* The only control that could start speech offered no way to end it: every
+     press cancelled and restarted, so a learner who set it off by accident
+     could not make the device stop talking except by pressing something else,
+     which started a different voice. Pressing it while it speaks now stops it. */
+  const handlePlayHeroAudio = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (isPlayingAudio) {
+      stopHebrew();
+      return;
+    }
+    speakHebrew(currentSituation.hebrew);
   };
 
   const handleSelectSituation = (idx: number) => {
     setSituationIndex(idx);
     const target: HeroSituation = HERO_SITUATIONS[idx] ?? HERO_SITUATIONS[0]!;
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(target.hebrew.replace(/[\u0591-\u05C7]/g, ''));
-      utterance.lang = 'he-IL';
-      utterance.rate = 0.88;
-      utterance.onstart = () => setIsPlayingAudio(true);
-      utterance.onend = () => setIsPlayingAudio(false);
-      utterance.onerror = () => setIsPlayingAudio(false);
-      window.speechSynthesis.speak(utterance);
-    }
+    speakHebrew(target.hebrew);
   };
 
   return (
@@ -265,6 +313,7 @@ export function AuthGate({
       {/* Background with Ken Burns cinematic pan */}
       <div className="auth-bg-carousel" aria-hidden="true">
         {HERO_BG_IMAGES.map((src, idx) => (
+          !mountedBackgrounds.has(idx) ? null : (
           <img
             key={src}
             src={src}
@@ -282,6 +331,7 @@ export function AuthGate({
               zIndex: bgIndex === idx ? 1 : 0,
             }}
           />
+          )
         ))}
         <div className="auth-bg-overlay" />
       </div>
@@ -510,6 +560,7 @@ export function AuthGate({
                   className={`auth-region-pill ${bgIndex === r.id ? 'is-active' : ''}`}
                   aria-pressed={bgIndex === r.id}
                   onClick={() => {
+                    mountBackground(r.id);
                     setBgIndex(r.id);
                     setRegionPinned(true);
                   }}
@@ -534,7 +585,9 @@ export function AuthGate({
             alt=""
             aria-hidden="true"
             decoding="async"
-            fetchPriority="high"
+            /* 2026-08-24: was fetchPriority="high". 302 kB of decoration was
+               competing with the text and controls she actually needs. It is
+               aria-hidden; it can wait its turn. */
           />
           <div className="auth-visual__halo" aria-hidden="true" />
           
@@ -558,11 +611,11 @@ export function AuthGate({
                   type="button"
                   className={`auth-audio-btn ${isPlayingAudio ? 'is-playing' : ''}`}
                   onClick={handlePlayHeroAudio}
-                  title={t('pronunciation')}
-                  aria-label={t('pronunciation')}
+                  title={isPlayingAudio ? t('stopAudio') : t('hearWord')}
+                  aria-label={isPlayingAudio ? t('stopAudio') : t('hearWord')}
                 >
-                  <Icon name="volume" size={17} />
-                  <span>{isPlayingAudio ? '▶ ...' : currentSituation.transliteration}</span>
+                  <Icon name={isPlayingAudio ? 'stop' : 'volume'} size={17} />
+                  <span>{isPlayingAudio ? t('stopAudio') : currentSituation.transliteration}</span>
                 </button>
                 <div className={`auth-audio-equalizer ${isPlayingAudio ? 'is-active' : ''}`} aria-hidden="true">
                   <span className="eq-bar eq-bar--1" />

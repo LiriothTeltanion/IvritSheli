@@ -573,6 +573,7 @@ export const heMessages = {
     lessonProgress: 'התקדמות בשיעור',
     lookListenRemember: 'מסתכלים, מקשיבים וזוכרים',
     hearWord: 'לשמוע את המילה',
+    stopAudio: 'עצירה',
     whatDoesItMean: 'מה המשמעות?',
     wonderful: 'נהדר!',
     almostThere: 'כמעט.',
