@@ -50,6 +50,21 @@ const API_PREFIX = '/api/v1';
    dictionary is validated against below, so the claim on the front door and
    the contract the app enforces cannot drift apart. */
 export const OFFLINE_STARTER_ENTRY_COUNT = 240;
+
+/* 2026-08-25: the sign-in screen stated `27` as a bare literal while the app
+   already knew the number authoritatively — the backend derives it from the
+   alphabet itself and `AlphabetStudio` renders `base_letters + final_forms`
+   straight from the catalogue. The signed-out screen cannot fetch that
+   catalogue: it is the screen that fought its first paint down from 1.21 MB to
+   163 kB, and a round trip to print two digits would undo that. So the figure
+   is written once, here, and `alphabet_facts()` on the backend is now derived
+   rather than declared, with a test on each side. Hebrew has 22 letters; five
+   of them take a different shape at the end of a word, which is 27 shapes to
+   recognise but never 27 letters. */
+export const HEBREW_BASE_LETTERS = 22;
+export const HEBREW_FINAL_FORMS = 5;
+export const HEBREW_LETTER_FORM_COUNT = HEBREW_BASE_LETTERS + HEBREW_FINAL_FORMS;
+
 const API_REQUEST_TIMEOUT_MS = 30_000;
 const AUTH_ME_REQUEST_TIMEOUT_MS = 4_500;
 const OFFLINE_FORBIDDEN_FIELDS = new Set([

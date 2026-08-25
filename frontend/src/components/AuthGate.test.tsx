@@ -1,9 +1,16 @@
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { OFFLINE_STARTER_ENTRY_COUNT } from '../api';
+import {
+  api,
+  HEBREW_BASE_LETTERS,
+  HEBREW_FINAL_FORMS,
+  HEBREW_LETTER_FORM_COUNT,
+  OFFLINE_STARTER_ENTRY_COUNT,
+} from '../api';
 import { I18nProvider } from '../i18n';
 import { AVATAR_PRESETS } from '../profileAvatarPresets';
+import { CANDIDATE_DATE, CANDIDATE_VERSION } from '../release';
 import { AuthGate } from './AuthGate';
 
 describe('AuthGate beginner preview', () => {
@@ -383,5 +390,84 @@ describe('AuthGate beginner preview', () => {
       'src',
       '/assets/illustrations/israel-living-atlas-field-notes.webp',
     );
+  });
+
+  it('starts sign-in the same way from the primary button as from a saved learner', async () => {
+    /* 2026-08-25: the screen had two ways to begin one sign-in. The saved
+       pills asked the server for an authorize URL carrying the current path
+       with any stale `error` parameters removed; the primary button took its
+       raw href instead, because the JS path was gated on a prop App.tsx never
+       passes. A learner who arrived on `/?error=access_denied`, read the
+       message and pressed the big button was returned to the same URL with
+       the same error still in it. Guard the class of fault: whichever control
+       she uses, the request is the same one and the error is gone. */
+    const user = userEvent.setup();
+    window.history.replaceState({}, '', '/?lang=en&error=access_denied&error_code=401');
+    const assign = vi.fn();
+    Object.defineProperty(window, 'location', {
+      configurable: true,
+      value: { ...window.location, assign, search: window.location.search },
+    });
+    const startGoogle = vi
+      .spyOn(api, 'startGoogle')
+      .mockResolvedValue({ authorize_url: 'https://accounts.example/authorize' });
+
+    render(
+      <I18nProvider>
+        <AuthGate busy={false} error="" providers={['google']} onDemo={vi.fn()} onRetry={vi.fn()} />
+      </I18nProvider>,
+    );
+
+    await user.click(screen.getByRole('link', { name: /Continue with Google/i }));
+
+    expect(startGoogle).toHaveBeenCalledTimes(1);
+    const nextPath = String(startGoogle.mock.calls[0]?.[0] ?? '');
+    expect(nextPath).toContain('lang=en');
+    expect(nextPath).not.toContain('error');
+    await vi.waitFor(() => expect(assign).toHaveBeenCalledWith('https://accounts.example/authorize'));
+  });
+
+  it('states only figures it can derive, and no claim the cloud path would break', async () => {
+    /* `27` was a literal beside a catalogue that already knew it, and `100%`
+       sat over "Private & Local" on the screen whose primary button hands the
+       session to Google and stores progress in Supabase from that moment. */
+    render(
+      <I18nProvider>
+        <AuthGate busy={false} error="" providers={['google']} onDemo={vi.fn()} onRetry={vi.fn()} />
+      </I18nProvider>,
+    );
+
+    expect(screen.getByText(String(HEBREW_LETTER_FORM_COUNT))).toBeInTheDocument();
+    expect(HEBREW_LETTER_FORM_COUNT).toBe(HEBREW_BASE_LETTERS + HEBREW_FINAL_FORMS);
+    expect(screen.getByText('Third-party trackers')).toBeInTheDocument();
+    expect(screen.queryByText('100%')).not.toBeInTheDocument();
+    expect(screen.queryByText(/Private & Local/i)).not.toBeInTheDocument();
+  });
+
+  it('names the build once, in her language, and never states a date it cannot keep true', async () => {
+    /* Two English badges said the same thing on a trilingual front door, and
+       the longer one carried a hand-written date three days behind the build
+       it labelled. */
+    const user = userEvent.setup();
+    const { container } = render(
+      <I18nProvider>
+        <AuthGate busy={false} error="" providers={['google']} onDemo={vi.fn()} onRetry={vi.fn()} />
+      </I18nProvider>,
+    );
+
+    expect(container.querySelectorAll('.auth-candidate-badge')).toHaveLength(1);
+    expect(container.querySelector('.auth-version')).toBeNull();
+    /* Scoped to the header on purpose. The same date appears further down in
+       the version history, where a changelog entry naturally carries its own
+       date and stays true; what must not reappear is a build label in the
+       masthead that a human has to remember to move. */
+    const header = container.querySelector('.auth-header');
+    expect(header?.textContent ?? '').not.toContain(CANDIDATE_DATE);
+    expect(screen.getByText(/Private candidate/i)).toBeInTheDocument();
+
+    /* Switch the way she would, with the control on the screen. */
+    await user.click(screen.getByRole('button', { name: 'ES' }));
+    expect(screen.getByText(/Candidata privada/i)).toBeInTheDocument();
+    expect(screen.getByText(CANDIDATE_VERSION)).toBeInTheDocument();
   });
 });

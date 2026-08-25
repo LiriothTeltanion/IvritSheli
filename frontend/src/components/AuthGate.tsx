@@ -5,9 +5,9 @@
 // Notes: Navigation uses a normal link so OAuth remains keyboard- and browser-friendly.
 
 import { useCallback, useState, useEffect } from 'react';
-import { api, OFFLINE_STARTER_ENTRY_COUNT } from '../api';
+import { api, HEBREW_LETTER_FORM_COUNT, OFFLINE_STARTER_ENTRY_COUNT } from '../api';
 import { useI18n } from '../i18n';
-import { CANDIDATE_BADGE, CANDIDATE_LABEL } from '../release';
+import { CANDIDATE_VERSION } from '../release';
 import type { AuthProvider, Locale } from '../types';
 import { Icon, type IconName } from './Icon';
 import { IvritSheliWordmark } from './IvritSheliWordmark';
@@ -362,9 +362,23 @@ export function AuthGate({
       <div className="auth-grid" aria-hidden="true" />
 
       <header className="auth-header">
+        {/* 2026-08-25: the front door stated the same fact twice, in English
+            only, on a screen whose whole point is that it speaks three
+            languages — `PRIVATE CANDIDATE 2.12.2` beside the wordmark and
+            `v2.12.2 private candidate · 2026-08-19` in the corner. The date
+            was the worse half: it is the first of this candidate's three
+            checkpoints (CHANGELOG carries 2.12.2 at 08-19 and again at 08-23,
+            deliberately, plus unreleased work at 08-24), so the build said
+            08-19 while containing six days of later repairs. A date that only
+            a human remembers to move is a date that lies; it is gone, and the
+            version number, which is generated from one typed source, stays.
+            The version itself stays LTR inside <bdi> so `2.12.2` is not
+            reordered when the interface is Hebrew. */}
         <a className="auth-brand" href="/" aria-label={`${t('appName')} — ${t('home')}`}>
           <IvritSheliWordmark label={t('appName')} />
-          <small>{CANDIDATE_BADGE}</small>
+          <small className="auth-candidate-badge">
+            {t('releaseCandidateBadge')} <bdi dir="ltr">{CANDIDATE_VERSION}</bdi>
+          </small>
         </a>
         <div className="auth-header__actions">
           <div className="locale-switch auth-locale" aria-label={t('interfaceLanguage')}>
@@ -377,7 +391,6 @@ export function AuthGate({
               </button>
             ))}
           </div>
-          <span className="auth-version">{CANDIDATE_LABEL}</span>
         </div>
       </header>
 
@@ -414,15 +427,34 @@ export function AuthGate({
                 className={`auth-button auth-button--primary auth-button--glow ${googleDisabled ? 'is-disabled' : ''}`}
                 href="/api/v1/auth/google/start"
                 aria-disabled={googleDisabled || undefined}
+                /* 2026-08-25: this screen had two ways to start the same
+                   sign-in and used both. The saved-learner pills went through
+                   `handleContinueGoogle`, which asks the server for an
+                   authorize URL carrying the path she is on and drops any
+                   stale `error`, `error_code` and `error_description` from the
+                   query first. This button, the primary one, took the raw
+                   href instead — because the JS path ran only `if
+                   (onContinueWithGoogle)`, a prop `App.tsx` has never passed.
+                   So the two controls behaved differently: a learner who
+                   arrived on `/?error=access_denied`, read the message, and
+                   pressed the big button was sent back to the same URL with
+                   the same error still in it after signing in, while the small
+                   pill beside it would have cleaned it up. One action, one
+                   path. The href stays a real href so the link still works
+                   with JavaScript off and keeps its keyboard and
+                   open-in-new-tab behaviour. */
                 onClick={(e) => {
                   if (googleDisabled) {
                     e.preventDefault();
                     return;
                   }
-                  if (onContinueWithGoogle) {
-                    e.preventDefault();
-                    handleContinueGoogle();
-                  }
+                  /* A modified click means she asked the browser for a new tab
+                     or window. Taking that over would be the same discourtesy
+                     as the carousel overwriting her chosen region: let it go
+                     to the href untouched. */
+                  if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+                  e.preventDefault();
+                  void handleContinueGoogle();
                 }}
               >
                 <span className="google-mark" aria-hidden="true">G</span>
@@ -476,13 +508,25 @@ export function AuthGate({
             </div>
             <div className="auth-stat-divider" aria-hidden="true" />
             <div className="auth-stat-item">
-              <span className="auth-stat-value">27</span>
+              <span className="auth-stat-value">{HEBREW_LETTER_FORM_COUNT}</span>
               <span className="auth-stat-label">{t('heroStatLetters')}</span>
             </div>
             <div className="auth-stat-divider" aria-hidden="true" />
+            {/* 2026-08-25: this said `100%` over "Private & Local" — in Spanish
+                "Privacidad local", in Hebrew "פרטיות מקומית". On the demo and
+                the local workspace that is true. On the primary path it is not:
+                the button beside it signs her into Google and her progress
+                lives in Supabase from that moment on. A claim that is false in
+                the flow the screen is steering her towards is the kind of
+                user-facing claim AGENTS.md forbids weakening, and the fix is
+                not to soften the wording but to state something that is true
+                in every mode and can be checked. Zero third-party trackers is
+                that: there is no analytics script in the bundle, and the app's
+                own `connect-src 'self'` forbids the browser from reaching any
+                other host even if one were added. */}
             <div className="auth-stat-item">
-              <span className="auth-stat-value">100%</span>
-              <span className="auth-stat-label">{t('heroStatPrivate')}</span>
+              <span className="auth-stat-value">0</span>
+              <span className="auth-stat-label">{t('heroStatTrackers')}</span>
             </div>
           </div>
 

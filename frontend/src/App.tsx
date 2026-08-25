@@ -13,7 +13,7 @@ import { useOnlineStatus } from './hooks/useOnlineStatus';
 import { usePersistentTheme } from './hooks/usePersistentTheme';
 import { resolveLearnerMode } from './learnerMode';
 import { unsubscribeFromDailyPractice } from './pushNotifications';
-import { CANDIDATE_BADGE, CANDIDATE_LABEL } from './release';
+import { CANDIDATE_VERSION } from './release';
 import { SessionAccessProvider } from './session';
 import type { AuthState, Dashboard, GamificationStatus, LearnerMode, LearnTab, Locale, Profile, ProgressData, ViewKey } from './types';
 import { AuthGate } from './components/AuthGate';
@@ -895,9 +895,19 @@ export default function App(): React.JSX.Element {
         id="app-sidebar"
         className={`sidebar ${sidebarOpen ? 'is-open' : ''}`}
       >
+        {/* 2026-08-25: the signed-out screen was repaired first and this was
+            left behind for a day, which made it worse rather than better — one
+            build naming itself two different ways depending on which screen you
+            were on. Same treatment now: one badge, in her language, and no
+            hand-written date. The duplicate that sat in the sidebar footer
+            (`v2.12.2 private candidate · 2026-08-19`) is gone; the version is
+            still reachable in Settings, which is where a support question
+            actually looks for it. */}
         <div className="brand-lockup">
           <IvritSheliWordmark label={t('appName')} />
-          <span>{CANDIDATE_BADGE}</span>
+          <span>
+            {t('releaseCandidateBadge')} <bdi dir="ltr">{CANDIDATE_VERSION}</bdi>
+          </span>
         </div>
         <nav className="side-nav" aria-label={t('primaryNavigation')}>
           {visibleNavigation.map((section) => (
@@ -929,7 +939,6 @@ export default function App(): React.JSX.Element {
         </div>
           <div className="sidebar-footer">
            <div className="privacy-mini"><Icon name="target" size={17} /><span><strong>{t(learnerModeLabelKey(learnerMode))}</strong><small>{t('level')} {profile.cefr_band ?? profile.hebrew_level}</small></span></div>
-          <span className="version-label">{CANDIDATE_LABEL}</span>
         </div>
       </aside>
 

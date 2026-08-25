@@ -9,6 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
 import { configureApiSession } from './api';
 import { I18nProvider } from './i18n';
+import { CANDIDATE_DATE, CANDIDATE_VERSION } from './release';
 import type { LearnerMode, Profile } from './types';
 
 const cloudCapabilities = {
@@ -401,6 +402,27 @@ describe('App cloud session flow', () => {
     expect(screen.getByRole('navigation', { name: 'ניווט בנייד' })).toBeInTheDocument();
     expect(document.documentElement).toHaveAttribute('dir', 'rtl');
     expect(screen.queryByText('Your Hebrew plan has been rebuilt from due reviews, confidence, recurring mistakes, and the situations that matter most.')).not.toBeInTheDocument();
+  });
+
+  it('names the build the same way inside the app as on the way in', async () => {
+    /* 2026-08-25. The signed-out screen was repaired a day before this one, and
+       for that day the same build named itself two different ways depending on
+       which screen you were looking at — "Candidata privada 2.12.2" on the door
+       and "PRIVATE CANDIDATE 2.12.2" in the sidebar behind it. Repairing half a
+       duplication leaves a worse duplication than the one you started with.
+
+       The sidebar also carried "v2.12.2 private candidate · 2026-08-19", a date
+       nothing kept true: it names this candidate's first checkpoint, and the
+       build has carried later repairs since. Both are gone. */
+    localStorage.setItem('ivrit-sheli-locale', 'es');
+    vi.stubGlobal('fetch', routeFetch(demoSession));
+    renderApp();
+
+    const sidebar = await screen.findByRole('complementary');
+    expect(within(sidebar).getByText(/Candidata privada/i)).toBeInTheDocument();
+    expect(within(sidebar).getByText(CANDIDATE_VERSION)).toBeInTheDocument();
+    expect(sidebar.textContent ?? '').not.toContain(CANDIDATE_DATE);
+    expect(sidebar.textContent ?? '').not.toContain('PRIVATE CANDIDATE');
   });
 
   it('shows the authenticated identity and returns to the gate after logout', async () => {

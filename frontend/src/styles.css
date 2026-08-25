@@ -228,7 +228,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .privacy-mini { display: flex; align-items: center; gap: 8px; color: var(--green); }
 .privacy-mini span { display: grid; }
 .privacy-mini strong { color: var(--text-soft); font-size: var(--text-2xs); }
-.privacy-mini small, .version-label { color: var(--text-muted); font-size: var(--text-2xs); }
+.privacy-mini small { color: var(--text-muted); font-size: var(--text-2xs); }
 
 .main-column { min-width: 0; }
 .topbar { position: sticky; top: 0; z-index: 15; height: var(--topbar-height); padding: 0 clamp(20px, 3vw, 46px); display: flex; align-items: center; justify-content: space-between; gap: 20px; background: color-mix(in srgb, var(--bg) 77%, transparent); backdrop-filter: blur(22px); border-bottom: 1px solid var(--border); }
@@ -1059,7 +1059,6 @@ legend {
 .auth-brand > small { color: var(--teal); font-size: var(--text-2xs); font-weight: 850; letter-spacing: .22em; }
 .auth-header__actions { display: flex; align-items: center; gap: 13px; }
 .auth-locale { background: rgba(255,255,255,.025); }
-.auth-version { padding: 7px 10px; border: 1px solid var(--border); border-radius: 99px; color: var(--text-muted); font-size: var(--text-2xs); letter-spacing: .08em; }
 
 /* Ken Burns Background Effect */
 .auth-bg-carousel { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
@@ -1452,7 +1451,6 @@ button:disabled, input:disabled, textarea:disabled, select:disabled { cursor: no
 @media (max-width: 680px) {
   .auth-gate { padding-inline: 16px; }
   .auth-brand > small { display: none; }
-  .auth-version { display: none; }
   .auth-stage { gap: 20px; padding-top: 25px; }
   .auth-copy h1 { margin-top: 14px; font-size: clamp(40px, 12vw, 54px); }
   .auth-lead { font-size: 0.9375rem; }
