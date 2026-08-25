@@ -1190,11 +1190,22 @@ FINAL_FORMS = tuple(unit for unit in HEBREW_ALPHABET if unit.is_final)
 
 
 def alphabet_facts() -> dict[str, Any]:
-    """Return stable facts that prevent the five final forms being miscounted."""
+    """Return stable facts that prevent the five final forms being miscounted.
+
+    2026-08-25: these three counts were literals — 22, 5, 27 — written one line
+    below the tuples that already hold exactly those letters, while
+    ``repository.py`` reported the same facts as ``len(BASE_ALPHABET)`` and
+    ``len(FINAL_FORMS)``. Two sources for one number is how a number starts
+    lying: adding or correcting a letter would have moved one and left the
+    other, and this is the function whose whole stated purpose is to stop the
+    alphabet being miscounted. They are derived now, and
+    ``test_hebrew_alphabet.py`` fails if the derivation and the letters ever
+    disagree.
+    """
     return {
-        "base_letters": 22,
-        "final_forms": 5,
-        "total_forms": 27,
+        "base_letters": len(BASE_ALPHABET),
+        "final_forms": len(FINAL_FORMS),
+        "total_forms": len(HEBREW_ALPHABET),
         "direction": "rtl",
         "has_case": False,
         "letter_count_note": _text(

@@ -19,6 +19,7 @@ from ivrit_sheli.hebrew_alphabet import (
     BASE_ALPHABET,
     FINAL_FORMS,
     HEBREW_ALPHABET,
+    alphabet_facts,
     alphabet_unit,
     build_alphabet_activity,
 )
@@ -73,6 +74,44 @@ def test_reviewed_catalog_has_22_letters_and_five_positional_finals() -> None:
     assert all(
         unit.example.word in reviewed_dictionary_words for unit in HEBREW_ALPHABET
     )
+
+
+def test_every_reported_letter_count_is_derived_from_the_alphabet_itself() -> None:
+    """No copy of 22 / 5 / 27 may be written by hand anywhere that reports it.
+
+    2026-08-25: three places stated these counts and every one of them was a
+    literal — ``alphabet_facts()``, whose docstring says its purpose is to stop
+    the final forms being miscounted; the reading track in
+    ``local_learning_engine``; and ``27`` on the signed-out screen. Only
+    ``repository.py`` derived them. They agreed on the day this was written,
+    which is exactly why nobody noticed: correcting or adding a letter would
+    have moved the derived report and left the three literals behind, and the
+    front door would have gone on stating a number the alphabet no longer had.
+
+    The trilingual prose is checked too. A note that reads "Hebrew has 22
+    letters" beside a catalogue of 23 is the same defect wearing sentences.
+    """
+    facts = alphabet_facts()
+    assert facts["base_letters"] == len(BASE_ALPHABET)
+    assert facts["final_forms"] == len(FINAL_FORMS)
+    assert facts["total_forms"] == len(HEBREW_ALPHABET)
+    assert facts["base_letters"] + facts["final_forms"] == facts["total_forms"]
+
+    reading_track = LocalLearningEngine().curriculum_path(
+        {"cefr_band": "A0", "learner_mode": "guided"},
+        {},
+        available_concepts=0,
+    )["reading_track"]
+    assert reading_track["base_letters"] == len(BASE_ALPHABET)
+    assert reading_track["final_forms"] == len(FINAL_FORMS)
+    assert reading_track["total_forms"] == len(HEBREW_ALPHABET)
+
+    note = facts["letter_count_note"]
+    assert set(note) >= {"en", "es", "he"}
+    for locale in ("en", "es", "he"):
+        sentence = str(note[locale])
+        assert str(len(BASE_ALPHABET)) in sentence
+        assert str(len(HEBREW_ALPHABET)) in sentence
 
 
 def test_catalog_labels_modern_variants_and_uses_pointed_names_for_tts() -> None:

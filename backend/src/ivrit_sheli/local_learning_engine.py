@@ -11,7 +11,12 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any, Literal
 
-from ivrit_sheli.hebrew_alphabet import public_alphabet_units
+from ivrit_sheli.hebrew_alphabet import (
+    BASE_ALPHABET,
+    FINAL_FORMS,
+    HEBREW_ALPHABET,
+    public_alphabet_units,
+)
 
 PRACTICE_CONTRACT_VERSION = "2.8"
 CURRICULUM_CONTRACT_VERSION = "2.8"
@@ -244,9 +249,12 @@ class LocalLearningEngine:
             "lessons": lessons,
             "reading_track": {
                 "approach": "sound_first",
-                "base_letters": 22,
-                "final_forms": 5,
-                "total_forms": 27,
+                # 2026-08-25: the third hand-written copy of the same three
+                # numbers, in a file that already imports the alphabet it was
+                # counting. Derived now, like `alphabet_facts()`.
+                "base_letters": len(BASE_ALPHABET),
+                "final_forms": len(FINAL_FORMS),
+                "total_forms": len(HEBREW_ALPHABET),
                 "entries": list(HEBREW_READING_TRACK),
                 "units": public_alphabet_units(),
                 "progress": alphabet,
