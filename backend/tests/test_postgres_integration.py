@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+from collections.abc import Iterator
 from pathlib import Path
 from urllib.parse import quote, urlsplit, urlunsplit
 from uuid import uuid4
@@ -48,6 +49,51 @@ def _database_url_for_role(database_url: str, role: str, password: str) -> str:
         f"{rendered_host}{rendered_port}"
     )
     return urlunsplit((parsed.scheme, netloc, parsed.path, parsed.query, ""))
+
+
+@pytest.fixture
+def live_database_left_as_found() -> Iterator[str]:
+    """Undo this file's two destructive steps whether the test passes or fails.
+
+    Added 2026-08-25. The integration test below does two things to the real
+    database that are only safe because it puts them back, and it put them back
+    on the success path alone — there was no ``try``/``finally`` in its 539
+    lines. Both leftovers are worse than a red test:
+
+    * It creates a role with ``CREATEDB`` and grants it to
+      ``ivrit_sheli_runtime`` on purpose, to prove the second provisioning pass
+      removes that escalation path. An assertion failing before the drop leaves
+      a live escalation path granted to the application's own role.
+    * It overwrites ``alembic_version`` with ``'stale-test-head'`` to prove
+      ``ready()`` refuses a database that is not at head, then restores it. A
+      failure in between leaves the database claiming a revision that does not
+      exist, which is what ``db_admin migrate`` and the Railway pre-deploy step
+      both read before they will do anything.
+
+    Yielding the role name rather than letting the test invent one is what makes
+    the teardown able to find it. Cleanup is best-effort and never masks the
+    original failure: if the database is unreachable, the test's own error is
+    the more useful one.
+    """
+    role_name = f"ivrit_sheli_escalation_{uuid4().hex}"
+    try:
+        yield role_name
+    finally:
+        if MIGRATION_URL:
+            admin_url = MIGRATION_URL.replace("postgres://", "postgresql://", 1)
+            try:
+                with psycopg.connect(admin_url, row_factory=dict_row) as connection:
+                    connection.execute(
+                        sql.SQL("DROP ROLE IF EXISTS {}").format(
+                            sql.Identifier(role_name)
+                        )
+                    )
+                    connection.execute(
+                        "UPDATE alembic_version SET version_num = %s",
+                        (MIGRATION_HEAD,),
+                    )
+            except Exception:  # noqa: BLE001 - the test's own failure matters more
+                pass
 
 
 def test_migration_graph_has_one_v29_head() -> None:
@@ -127,12 +173,16 @@ def test_runtime_store_rejects_an_administrator_url_before_connecting() -> None:
     not HAS_POSTGRES_BOUNDARY,
     reason="requires MIGRATION_DATABASE_URL and restricted DATABASE_URL",
 )
-def test_real_postgres_idempotent_provisioning_least_privilege_and_rls() -> None:
+def test_real_postgres_idempotent_provisioning_least_privilege_and_rls(
+    live_database_left_as_found: str,
+) -> None:
     """Exercise two-DSN provisioning, auth state, cleanup, and SQL-level denial."""
     assert MIGRATION_URL is not None
     assert RUNTIME_URL is not None
     nonce = uuid4().hex
-    escalation_role = f"ivrit_sheli_escalation_{nonce}"
+    # The name comes from the fixture so its teardown can drop the role even
+    # when an assertion below never reaches the drop.
+    escalation_role = live_database_left_as_found
     push_password = f"integration-push-{nonce}"
     push_url = _database_url_for_role(
         MIGRATION_URL,
