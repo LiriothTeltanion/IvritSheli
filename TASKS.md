@@ -9,16 +9,26 @@
 
 ## 🎯 Active Status & Quick Server Guide
 
-| Service | Port / URL | Command | Purpose |
+| Service | Port / URL | Launch profile | Purpose |
 |---|---|---|---|
-| **Vite Dev Server (Frontend)** | `http://localhost:5173/` | `cd frontend && npm run dev` | Hot-reloading React development, UI live changes, Visual QA Gallery. |
-| **FastAPI Backend (Production-style)** | `http://127.0.0.1:8000/` | `.\scripts\start.ps1` or `python -m ivrit_sheli.cli run-server` | Serves REST API (`/api/v1/*`) and static built production bundle (`frontend/dist`). |
-| **Local Companion Workspace** | `http://127.0.0.1:8001/` | (Optional companion) | Direct writable local workspace for offline-first learners. |
+| **Vite Dev Server (Frontend)** | `http://127.0.0.1:5173/` | `frontend` | Hot-reloading React development, UI live changes, Visual QA Gallery. |
+| **Vite Dev Server (alternate port)** | `http://127.0.0.1:5179/` | `frontend-alt` | The same dev server when 5173 is taken by something else. |
+| **FastAPI Backend — SQLite offline** | `http://127.0.0.1:8000/` | `backend-local` | REST API (`/api/v1/*`) plus the built bundle (`frontend/dist`), no `DATABASE_URL`. |
+| **FastAPI Backend — PostgreSQL** | `http://127.0.0.1:8000/` | `backend` | Same server against Supabase. **Same port as `backend-local`; mutually exclusive.** |
+| **FastAPI Backend — PostgreSQL, own port** | `http://127.0.0.1:8100/` | `backend-pg` | Added 2026-08-24 so both storage modes can run side by side. |
+| **Local Companion Workspace** | `http://127.0.0.1:8001/` | (Optional companion) | Direct writable local workspace for offline-first learners. `LOCAL_COMPANION_URL` points here — do not borrow this port. |
 
 > [!NOTE]
-> **Why `localhost:5173` might not load while `127.0.0.1:8000` does:**  
-> Port `8000` is the FastAPI server which serves the pre-built `frontend/dist`.  
-> Port `5173` is the Vite development server. If Vite is not running in an active terminal (`npm run dev`), port `5173` will not respond. Always start `cd frontend && npm run dev` when developing and testing real-time UI changes!
+> **Why `5173` might not respond while `8000` does.**
+> `8000` is FastAPI serving the pre-built `frontend/dist`; `5173` is Vite, and
+> only answers while the dev server runs. Measured 2026-08-24: on Kevin's
+> machine `5173` is held by **Bitpip Lab**, a different project of his
+> (`AI-Shared/apps/bitpip-lab`). Check who owns the port before killing
+> anything — `Get-NetTCPConnection -LocalPort 5173 -State Listen` — and use
+> `frontend-alt` on 5179 instead.
+>
+> Rule 3 in `AGENTS.md` still stands: a CSP defect is invisible on the Vite
+> port and only appears on the served path, so confirm on the backend port too.
 
 ---
 
@@ -128,14 +138,37 @@ otro panel, qué sigue siendo cierto y qué ya no. Empieza siempre por ahí.
       Google and the demo instead of behind the lesson; the lesson records that
       it was seen so the local welcome does not repeat it; and the GitHub
       instructions link no longer shares a label with the workspace link.
-- [ ] **Signed-out screen, remaining structure** (mapped 2026-08-24, unfixed):
-  - `googleAvailable`'s optimistic branch is unreachable — `App.tsx` returns
-    the loading screen whenever `authChecking` is true — and its comment
-    describes a protection that does not exist. `googleBusy` is never passed.
-  - A twelve-release changelog and two candidate version badges sit on the
-    front door.
-  - Hardcoded English on a trilingual screen: `15 Avatars`, `+11`, `240+`,
-    `27`, `100%`, and both release badges.
+- [x] **Signed-out screen, remaining structure — DONE 2026-08-25**:
+  - **Two sign-in paths, now one.** The finding this list did not have. The
+    primary Google button used its raw href while the saved-learner pills went
+    through `api.startGoogle`, which preserves the current path and strips a
+    stale `error` from the query. Same action, two behaviours; a learner who
+    arrived on `/?error=…` and pressed the big button kept the error after
+    signing in. Unified, with modified clicks still opening a new tab.
+  - **`27` and `100%`.** `27` is derived from one typed constant now, and the
+    three hand-written copies of 22 / 5 / 27 on the backend derive from the
+    alphabet. `100%` over "Private & Local" was false on the path the screen
+    steers her towards — the button beside it hands the session to Google and
+    the progress to Supabase — and is now zero third-party trackers, which the
+    bundle and `connect-src 'self'` both enforce.
+  - **Two English badges, now one localised one**, without the hand-written
+    date that named this candidate's first checkpoint while the build carried
+    six days of later work.
+  - Already fixed on 2026-08-24 and wrongly still listed here: `15 Avatars`,
+    `+11` and `240+` are derived from their data, and the `googleAvailable`
+    comment no longer claims a protection that does not exist. `googleBusy` is
+    still passed by no caller, but it is a real optional prop with a guard test
+    and composes into `googleDisabled`; left as is deliberately.
+- [x] **One build, one name — DONE 2026-08-25**: the signed-in shell still said
+      `PRIVATE CANDIDATE 2.12.2` and `v2.12.2 private candidate · 2026-08-19`
+      after the signed-out screen had been repaired, so for a day the same build
+      named itself two ways depending on the screen — which is worse than the
+      duplication it replaced. Both use the localised badge now, and
+      `CANDIDATE_LABEL` no longer carries a date any surface can show.
+- [ ] **Twelve-release changelog on the front door** — deliberately left. It is
+      inside a collapsed `<details>`, and for a contest entry a judge reading
+      the version history is plausibly the point. It is developer furniture on
+      a beginner's first screen, so it is Kevin's call, not an agent's.
 
 
 - [x] **Restricted PostgreSQL role — DONE 2026-08-23**:
@@ -165,11 +198,29 @@ otro panel, qué sigue siendo cierto y qué ya no. Empieza siempre por ahí.
 - [x] **Main chunk** remains below the 500 kB warning threshold (~373 KB) thanks to Rolldown `advancedChunks` and `React.lazy`.
 
 - [ ] **KEV-12: Supabase / PostgreSQL Production Compatibility Audit**:
-  - Verify migration idempotency with remote PostgreSQL instances.
-  - Validate pool behavior when network drops or SSL handshakes renegotiate.
   - Partially done 2026-08-23: the restricted role is provisioned and tenant
-    isolation is demonstrated against the live database. Idempotency under
-    repeated deploys and pool behaviour on network loss remain untested.
+    isolation is demonstrated against the live database.
+  - **Pool behaviour on network loss — DONE 2026-08-25.** It had no coverage at
+    all: the only tests naming `PostgresCloudStore` were the credential-gated
+    live ones, so an ordinary run exercised none of the pool.
+    `backend/tests/test_cloud_pool.py` adds ten deterministic fault-injection
+    tests, and the liveness probe was mutation-checked — remove it and the pool
+    hands out the dead connection, and the test says so.
+  - **Idempotency, by reading — DONE 2026-08-25.** Provisioning is idempotent by
+    construction: both role hardeners test for the role before `CREATE ROLE`,
+    the `ALTER ROLE` is idempotent, and the membership `REVOKE` is conditional.
+  - [ ] **Idempotency, proven live — needs Kevin.** The proof is
+    `test_real_postgres_idempotent_provisioning_least_privilege_and_rls`, which
+    runs `provision_postgres` twice against the real project. It needs
+    `MIGRATION_DATABASE_URL`, and it mutates the live database, so no agent
+    should run it unasked. **It is now safe to run**, which it was not before:
+    it creates a `CREATEDB` role granted to `ivrit_sheli_runtime` and
+    overwrites `alembic_version` with `'stale-test-head'` on purpose, and undid
+    both only on the success path — there was no `try`/`finally` in its 539
+    lines. A `live_database_left_as_found` fixture now guarantees the cleanup.
+  - [ ] Still uncovered: a real SSL renegotiation, and repeated deploys against
+    a genuinely remote instance. Injected failures prove the recovery logic,
+    not that psycopg raises what the fake raises.
 - [ ] **KEV-13: Vercel / Railway Deployment Readiness**:
   - `frontend/vercel.json` now carries the SPA rewrite and immutable asset
     caching. Serverless timeouts and environment-variable fallbacks are still

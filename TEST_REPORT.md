@@ -98,6 +98,66 @@ five are repaired in `9d8d463`.
   recorded above.
 - Human five-second recognition, Hebrew-content acceptance and the mother pilot.
 
+## Signed-out screen and connection pool — reference Windows machine — 2026-08-25
+
+Recorded from commands actually executed on this date.
+
+| Gate | Command | Result |
+|---|---|---|
+| Complete frontend suite | `npx vitest run` | **853 passed across 48 files** |
+| TypeScript project build | `npx tsc -b --pretty false` | **Passed** |
+| Production bundle | `npm run build` | **Passed** in 2.47 s; main chunk 379.21 kB / 117.94 kB gzip, below the 500 kB threshold and down from 552.95 kB at the 2026-08-23 gate |
+| Package integrity | `.venv\Scripts\python.exe scripts/verify_package.py` | **Passed**: 217 required files and all packaged assets |
+| Warm return load | fresh tab on the served port, service worker active | **First contentful paint 724 ms**, interactive 496 ms, 52 kB over the network; 14 of 21 resources served from the service worker |
+| Complete backend suite | `.venv\Scripts\python.exe -m pytest backend/tests -q` | **336 passed / 1 PostgreSQL-gated skip** |
+| Backend style | `.venv\Scripts\python.exe -m ruff check backend/src backend/tests` | **Passed** |
+| Backend types | `.venv\Scripts\python.exe -m mypy backend/src` | **Passed** across 39 source files |
+| Restricted-role readiness | `.venv\Scripts\python.exe scripts/db.py --check` | **12/12 conditions hold** against the live Supabase project |
+| PostgreSQL backend boot | `backend-pg` profile on 8100 | **Passed**: `/health/ready` returns `postgresql: true`, dictionary in `shared_cloud` mode, 244 entries |
+| SQLite offline backend boot | `backend-local` profile on 8000 | **Passed**: `/health/ready` ready, `device_local`, 244 entries |
+| Vite dev server | `frontend-alt` profile on 5179 | **Passed**: learner shell renders, no console errors |
+
+### KEV-12 — what this run does and does not settle
+
+**Settled.** The connection pool had **no test coverage at all** before today:
+the only tests naming `PostgresCloudStore` were the credential-gated live ones,
+so on an ordinary run nothing exercised `_acquire_connection`,
+`_release_connection` or the queue. `backend/tests/test_cloud_pool.py` adds ten
+deterministic fault-injection tests for the transport failures KEV-12 names —
+a connection that died while pooled, one already closed, one that dies mid
+request, a reset that fails, a reset whose commit fails, a pool full of dead
+connections, the bounded ceiling, and draining. The liveness probe was
+mutation-checked: with the probe removed, the pool hands out the dead
+connection, and the test catches it.
+
+**Also settled, by reading rather than by running:** provisioning is idempotent
+by construction — `_harden_runtime_role` and `_harden_push_worker_role` both
+test for the role before `CREATE ROLE`, the `ALTER ROLE` hardening is
+idempotent, and the membership `REVOKE` is conditional.
+
+**Not run: the live idempotency proof.**
+`test_real_postgres_idempotent_provisioning_least_privilege_and_rls` is the
+test that actually runs `provision_postgres` twice against the real project.
+It stays skipped because this environment has no `MIGRATION_DATABASE_URL`, and
+it was **not** run with Kevin's administrator credential because it mutates the
+live database and he had not asked for that. Before it is ever run, know what
+it does: it creates a `CREATEDB` role and grants it to `ivrit_sheli_runtime` on
+purpose, and it overwrites `alembic_version` with `'stale-test-head'`.
+
+Both of those were undone **only on the success path** — there was no
+`try`/`finally` in the test's 539 lines. A failed assertion in the wrong place
+left either a live escalation path granted to the application's own role, or a
+database claiming a revision that does not exist, which is the row
+`db_admin migrate` and the Railway pre-deploy step read before they will act.
+A `live_database_left_as_found` fixture now guarantees both are undone whether
+the test passes or fails. That repair is what makes the test safe to run; it
+still has not been run.
+
+**Still not covered by anything:** pool behaviour during a real SSL
+renegotiation, and migration idempotency against a genuinely remote instance
+under repeated deploys. Injected failures prove the recovery logic; they do not
+prove psycopg raises what this fake raises.
+
 ## Living Hebrew Nocturne gate — reference Windows machine — 2026-08-14
 
 | Gate | Command | Result |

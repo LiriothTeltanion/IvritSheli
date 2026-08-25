@@ -1,6 +1,6 @@
 # Ivrit Sheli 2.12.2 — Visual Harmony & Resilience Handoff
 
-**Last Updated**: 2026-08-24 00:16 (`Asia/Jerusalem`)
+**Last Updated**: 2026-08-25 (`Asia/Jerusalem`)
 **Prepared by**: Antigravity (Handoff targeted for Claude Code at 02:41 AM)
 **Source state**: private / local / unpublished
 **Public production intentionally remains**: **2.4.0 Contest Edition (2026-07-21)**
@@ -20,6 +20,64 @@
 The version this file carried was corrected back from `2.12.3-PRE` to `2.12.2`:
 no other version surface names a 2.12.3, and eleven of them were aligned on
 2026-08-23 specifically to end that kind of drift.
+
+## Claude Code pass — 2026-08-25, signed-out screen
+
+Two things about the environment, both of which contradicted what the documents
+said, and both measured rather than assumed:
+
+- **The PostgreSQL launch profile no longer fails.** `CLAUDE.md` said "falla a
+  propósito". `scripts/db.py --check` returns 12/12 and a backend booted
+  against Supabase answers `/health/ready` with `postgresql: true` and the
+  dictionary in `shared_cloud` mode. What is still down is Railway, which is a
+  separate thing with a separate row in `TASKS.md`.
+- **`backend` and `backend-local` are the same port**, so they can never run
+  together. A `backend-pg` profile on **8100** was added so both storage modes
+  can be up at once. Port 5173 on Kevin's machine belongs to Bitpip Lab, a
+  different project; `frontend-alt` on 5179 exists for exactly that.
+
+The work itself was the signed-out screen. The item in `TASKS.md` was partly
+stale — three of the numbers it listed had been derived on 2026-08-24 — and the
+largest defect on that screen was not in the list at all: **the primary Google
+button and the saved-learner pills started the same sign-in by two different
+routes**, and only one of them cleaned a stale `error` out of the query first.
+See `CHANGELOG.md` under Unreleased for the four items.
+
+The second batch was KEV-12. The finding there is that **the connection pool had
+no test coverage at all** — the only tests naming `PostgresCloudStore` are the
+credential-gated live ones, so an ordinary run exercised none of the code that
+decides what happens when the transport, rather than the query, fails. Ten
+fault-injection tests now do, and the liveness probe was mutation-checked.
+
+The live idempotency test remains unrun, deliberately: it needs Kevin's
+administrator credential and it mutates the real database. It is now *safe* to
+run, which it was not — it creates a `CREATEDB` role granted to
+`ivrit_sheli_runtime` and writes `'stale-test-head'` into `alembic_version` on
+purpose, and undid both only on the success path.
+
+A third item came from Kevin looking at the running app: the signed-in shell
+still carried the English badge and the stale date that the signed-out screen
+had just lost. **Repairing half a duplication left a worse duplication than the
+one it started with** — one build naming itself two ways depending on the
+screen. Both surfaces now use the same localised badge, `CANDIDATE_LABEL` no
+longer embeds a date any surface could show, and `App.test.tsx` guards it.
+
+Measured after: frontend **853/853** across 48 files, backend **336 passed, 1
+skipped** for want of credentials, `tsc -b`, `ruff` and `mypy --strict` clean,
+production build 2.47 s with the main chunk at 379 kB, package gate 217 required
+files, and `scripts/db.py --check` at 12/12 against the live project.
+
+Why the app feels faster, measured rather than assumed: on a warm return the
+first contentful paint is **724 ms** and only **52 kB** crosses the network,
+because 14 of 21 resources come from the service worker. That precache was
+repaired on 2026-08-23; the main chunk is 31 % smaller than at that gate; and
+the signed-out screen went from 1.21 MB of photographs to 163 kB.
+
+Not verified: the signed-out screen was confirmed through rendered-DOM tests
+and by grepping the built bundle, **not by looking at it in a browser**. Every
+local origin carries an authenticated session — the offline SQLite mode signs
+itself in, and cookies ignore the port — so seeing it would have meant ending
+Kevin's session, which he had not asked for.
 
 ## Claude Code pass — 2026-08-24, afternoon
 

@@ -2,10 +2,95 @@
 
 All notable changes are documented here. Versions follow Semantic Versioning.
 
-## Unreleased — private candidate work — 2026-08-24
+## Unreleased — private candidate work — 2026-08-25
 
 Still 2.12.2: an unpublished candidate being repaired does not become a new
 version. Public production remains 2.4.0 and is frozen until after 2026-08-25.
+
+### Signed-out screen — 2026-08-25
+
+- **One sign-in, one path.** The screen had two ways to begin the same Google
+  sign-in and used both. The saved-learner pills asked the server for an
+  authorize URL carrying the page she was on, with any stale `error`,
+  `error_code` and `error_description` stripped from the query first. The
+  primary button — the one a beginner presses — fell through to its raw href,
+  because the JavaScript path ran only `if (onContinueWithGoogle)`, a prop
+  `App.tsx` has never passed. A learner who landed on `/?error=access_denied`,
+  read the message and pressed the big button was returned to the same URL with
+  the same error still in it. Both controls now take the same path. The href
+  stays a real href, and a modified click still opens a new tab.
+- **`27` is derived, not written down.** The letter count was a literal on the
+  front door. It is now one typed constant shared with the offline catalogue
+  claim, and the three backend copies of 22 / 5 / 27 — including the one inside
+  `alphabet_facts()`, whose stated purpose is to stop the final forms being
+  miscounted — are derived from the alphabet itself. A new test fails if any of
+  them, or the trilingual prose beside them, drifts from the letters.
+- **`100%` over "Private & Local" is gone.** It sat beside the button that
+  signs her into Google and moves her progress to Supabase, so it was false in
+  the flow the screen steers her towards. Replaced with zero third-party
+  trackers — true in every mode, and enforced rather than asserted: there is no
+  analytics script in the bundle and the app's own `connect-src 'self'` forbids
+  the browser reaching any other host.
+- **One build label, in her language.** `PRIVATE CANDIDATE 2.12.2` and
+  `v2.12.2 private candidate · 2026-08-19` stated the same fact twice, in
+  English only, on a trilingual screen. The date was the worse half: it names
+  this candidate's first checkpoint while the build carries six days of later
+  repairs, and only a human remembering to edit it kept it true. One localised
+  badge remains, with the version isolated in `<bdi>` so it is not reordered
+  under RTL. The two orphaned CSS rules went with it.
+
+### One build, one name — 2026-08-25
+
+- **Repairing half a duplication left a worse one.** The signed-out screen was
+  given a single localised build badge; the signed-in shell behind it kept
+  `PRIVATE CANDIDATE 2.12.2` beside the wordmark and
+  `v2.12.2 private candidate · 2026-08-19` in the sidebar footer. For a day the
+  same build named itself two different ways depending on which screen you were
+  on, and in English on a trilingual interface. Both now use the same localised
+  badge, with the version isolated in `<bdi>`.
+- `CANDIDATE_LABEL` no longer embeds `CANDIDATE_DATE`, so no surface can state
+  that date again. It names this candidate's first checkpoint, and `CHANGELOG`
+  carries 2.12.2 at 08-19 and again at 08-23 on purpose, with unreleased work
+  later still. The constant stays for the changelog and the tests; it is out of
+  every rendered label.
+- The orphaned `.version-label` rule went with the element. `App.test.tsx` gains
+  a guard: the sidebar must name the build in the reader's language, and must
+  contain neither the English badge nor the date.
+
+### PostgreSQL pool and the live provisioning test — 2026-08-25
+
+- **The connection pool had no tests.** The only tests naming
+  `PostgresCloudStore` were the credential-gated live ones, so on an ordinary
+  run nothing exercised `_acquire_connection`, `_release_connection` or the
+  bounded queue — the code that decides what happens when the network, rather
+  than the query, is what failed. `backend/tests/test_cloud_pool.py` adds ten
+  deterministic tests with the failures injected rather than provoked: a
+  connection that died while pooled, one already closed, one that dies mid
+  request, a reset that fails, a reset whose commit fails, a pool where every
+  connection is dead, the ceiling that stops a burst exhausting Supabase, and
+  draining. The liveness probe was mutation-checked — removing it makes the
+  pool hand out the dead connection, and the test catches that.
+- **The live provisioning test could leave the database broken on failure.** It
+  creates a `CREATEDB` role and grants it to `ivrit_sheli_runtime` on purpose,
+  and overwrites `alembic_version` with `'stale-test-head'` on purpose, to
+  prove the second provisioning pass removes the first and that `ready()`
+  refuses the second. It undid both only if every assertion passed: there was
+  no `try`/`finally` in its 539 lines. A failure in the wrong place left either
+  a live escalation path granted to the application's own role, or a database
+  claiming a revision that does not exist — the row `db_admin migrate` and the
+  Railway pre-deploy step both read before they will do anything. A
+  `live_database_left_as_found` fixture now guarantees the cleanup either way.
+  The test itself is still skipped and still unrun; this is what makes running
+  it safe when Kevin decides to.
+
+### Tooling
+
+- Adds a `backend-pg` launch profile on port 8100. `backend` and
+  `backend-local` are two modes of one server on port 8000 and can never run
+  together; this lets both storage modes be up at once.
+- Corrects `CLAUDE.md`, which said the PostgreSQL profile fails on purpose.
+  Measured 2026-08-25: `scripts/db.py --check` returns 12/12 and the backend
+  reports `postgresql: true`. Railway is separately broken and unrelated.
 
 ### Brand
 

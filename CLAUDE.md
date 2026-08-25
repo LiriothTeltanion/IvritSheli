@@ -17,11 +17,26 @@ Lo de abajo es sólo lo específico de trabajar con Claude aquí.
 
 Usa `preview_start` con los perfiles de `.claude/launch.json`, nunca Bash:
 
-- `backend-local` → **8000**, modo SQLite offline (el que funciona hoy)
-- `backend` → **8000**, modo PostgreSQL (falla a propósito: ver bloqueos)
+- `backend-local` → **8000**, modo SQLite offline
+- `backend` → **8000**, modo PostgreSQL. **Mismo puerto que el anterior: son
+  dos modos del mismo servidor y no pueden correr a la vez.**
+- `backend-pg` → **8100**, el mismo modo PostgreSQL en un puerto propio, para
+  tener los dos modos levantados en paralelo (añadido 2026-08-24)
 - `frontend` → **5173**, Vite con recarga en caliente
+- `frontend-alt` → **5179**, el mismo Vite cuando 5173 está ocupado
+
+Dos cosas medidas el 2026-08-24 que contradicen lo que aquí decía antes:
+
+1. **El modo PostgreSQL ya no falla.** Decía «falla a propósito» desde que
+   `DATABASE_URL` apuntaba al superusuario. Hoy `/health/ready` devuelve
+   `postgresql: true` y `scripts/db.py --check` da 12/12. Lo que sigue caído es
+   Railway, que es otra cosa: ver `TASKS.md`.
+2. **5173 puede no ser tuyo.** En esta máquina lo ocupa Bitpip Lab
+   (`AI-Shared/apps/bitpip-lab`), que no es este proyecto. Antes de matar un
+   `node.exe` en 5173, mira de quién es; si es Bitpip, usa `frontend-alt`.
 
 Mostrador de arte: `http://127.0.0.1:5173/?visualQa=1&group=all&size=card`
+(o `5179` si estás en `frontend-alt`)
 
 ## El sistema visual: lo que no se rompe
 
