@@ -147,7 +147,32 @@ otro panel, qué sigue siendo cierto y qué ya no. Empieza siempre por ahí.
     `consolidation/…` — 87 commits, a clean fast-forward.
   - Choosing a paid plan is Kevin's; no agent enters payment details.
 
-- [ ] **Four tables have RLS disabled, and Supabase calls it CRITICAL** — seen in
+- [x] **Four tables closed to the REST API — migration written and rehearsed
+      2026-08-26; Kevin applies it.** `20260826_0007`.
+  - **Worse than the advisor said.** `anon` and `authenticated` held
+    SELECT, INSERT, UPDATE, DELETE, **TRUNCATE**, REFERENCES and TRIGGER on
+    `users`, `sessions`, `oauth_states` and `alembic_version`, with RLS off.
+    Anyone with the project's publishable key could have read every
+    `token_hash` and `csrf_hash`, or truncated the session table.
+  - **Why the policy differs from `learner_states`.** These are not tenant data;
+    they are how the tenant is discovered. `_resolve_session` looks a session up
+    by `token_hash` *in order to learn who the user is*, so there is no
+    `app.user_id` to filter on yet. A tenant-scoped policy would deny every
+    login. The boundary is drawn by role: runtime sees all, REST roles see none.
+  - `alembic_version` is enabled but **not forced**, because the owner is the
+    migration role and forcing it would lock migrations out of the table that
+    records migrations. The runtime role keeps SELECT, which `ready()` needs.
+  - **Rehearsed on a throwaway PostgreSQL 17, never first on the live project.**
+    All seven migrations from scratch; then, as the runtime role: INSERT,
+    SELECT, UPDATE and DELETE on `users` and `sessions`, session lookup by
+    `token_hash`, and `alembic_version` readable. As a simulated `anon`: SELECT
+    denied on all four and TRUNCATE denied. Then `downgrade` to 0006 and
+    `upgrade` again — clean both ways.
+  - [ ] **Kevin runs `pwsh -File scripts/db-apply.ps1`** — hard rule 5. After it:
+        confirm sign-in still works, `scripts/db.py --check` still returns 12/12,
+        and the Supabase advisor drops those four CRITICAL rows.
+
+- [ ] ~~Four tables have RLS disabled, and Supabase calls it CRITICAL~~ — seen in
       the project's own security advisor on 2026-08-26:
   - `public.users`, `public.sessions`, `public.oauth_states` and
     `public.alembic_version` are flagged **RLS Disabled in Public**. Lower-severity
