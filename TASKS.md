@@ -147,6 +147,32 @@ otro panel, qué sigue siendo cierto y qué ya no. Empieza siempre por ahí.
     `consolidation/…` — 87 commits, a clean fast-forward.
   - Choosing a paid plan is Kevin's; no agent enters payment details.
 
+- [ ] **The Supabase database is IPv6-only, and containers are not** — found
+      2026-08-26, and it changes what "deploy anywhere" means here:
+  - `db.hythwegtkwuzrzwglivz.supabase.co` resolves to **one AAAA record and no
+    A record at all**. Kevin's laptop has IPv6, which is why local development
+    and `backend-pg` work. A Docker container gets IPv4-only networking by
+    default, so the production image starts, passes every configuration guard,
+    and dies at `psycopg.OperationalError: Network is unreachable` against
+    `2406:da1c:...` port 5432. Reproduced locally with `ivritsheli:main-check`.
+  - **The workaround is Supabase's pooler (Supavisor)**, which has IPv4. But its
+    username is `<role>.<project-ref>`, and `cloud_store.py` requires
+    `urlparse(url).username` to equal `ivrit_sheli_runtime` exactly. So the
+    pooler URL trips the application's own guard.
+  - **Do not delete that guard** — hard rule 2. The correct change is to teach it
+    the pooler form while still proving the role is the restricted one. Verify
+    the exact Supavisor username format against the dashboard first; it is
+    stated from memory here and has not been checked.
+  - **This is probably invisible on Railway**, whose internal networking is IPv6
+    and whose own `Postgres` service lives beside the app. It only bites when the
+    app runs somewhere else and reaches Supabase across the public internet.
+
+- [ ] **Quotes in `.env` survive `docker --env-file`** — `DATABASE_URL="postgres…"`
+      is written with quotes, which Python's loader strips and Docker's does not.
+      The container then receives a value that does not start with `postgresql://`
+      and fails with a message that never mentions quoting. Cost twenty minutes
+      on 2026-08-26; strip quotes when bulk-importing variables anywhere.
+
 - [ ] **`faster-whisper` is 630 MB of image that production does not use**:
   - The branch image is 989 MB against `main`'s 360 MB, and the difference is
     `faster-whisper==1.2.1` and its runtime.
