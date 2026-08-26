@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import urlparse
 
-from ivrit_sheli.cloud_store import RUNTIME_DATABASE_ROLE
+from ivrit_sheli.cloud_store import RUNTIME_DATABASE_ROLE, database_url_role
 
 SUPPORTED_APP_ENVS = frozenset({"development", "local", "test", "production"})
 
@@ -758,8 +758,9 @@ class Settings:
         if self.app_env == "production" and self.auth_required:
             if not self.database_url.startswith(("postgresql://", "postgres://")):
                 raise ValueError("Production authentication requires a PostgreSQL DATABASE_URL")
-            database_username = urlparse(self.database_url).username or ""
-            if database_username != RUNTIME_DATABASE_ROLE:
+            # Accepts the session pooler's `<role>.<project-ref>` form; see
+            # `database_url_role`. Widens the string, not the identity.
+            if database_url_role(self.database_url) != RUNTIME_DATABASE_ROLE:
                 raise ValueError(
                     f"Production DATABASE_URL must authenticate as {RUNTIME_DATABASE_ROLE}"
                 )

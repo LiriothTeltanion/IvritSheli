@@ -164,7 +164,32 @@ otro panel, qué sigue siendo cierto y qué ya no. Empieza siempre por ahí.
     lock the application out of its own login path. It needs an Alembic migration
     with policies written deliberately, and Kevin runs migrations — hard rule 5.
 
-- [ ] **The Supabase database is IPv6-only, and containers are not** — found
+- [x] **The Supabase database is IPv6-only — SOLVED 2026-08-26 via the session pooler**:
+  - `db.<ref>.supabase.co` publishes one AAAA record and **no A record**, so no
+    container can reach it. Supabase says so in its own Connect dialog: *"Direct
+    connections use IPv6 by default."*
+  - The **session pooler** is the documented answer and is **IPv4 proxied for
+    free**: `aws-0-ap-southeast-2.pooler.supabase.com:5432`, three IPv4
+    addresses, no IPv6. Use the **session** pooler, not the transaction one —
+    this application holds `SELECT … FOR UPDATE` row locks and uses
+    transaction-scoped `set_config`, which transaction mode does not preserve.
+  - It authenticates as `<role>.<project-ref>`, so the three URL-string guards
+    now read the role before the dot. **The guard that matters was not touched:**
+    `ready()` still asks the database for `session_user` and `current_user`.
+  - Verified through the pooler against the live project: both report
+    `ivrit_sheli_runtime`, `rolsuper` false, `rolbypassrls` false, and
+    `learner_states` returns **0 rows without a tenant context**. Then the
+    production container itself: **`Up (healthy)`, `postgresql: true`**.
+  - `backend/tests/test_pooler_role.py` pins what the widening admits.
+    `postgres.<ref>` — a real superuser DSN in the same shape — is still refused.
+
+- [ ] **Dictionary count differs between source and image** — the container
+      reports **240** entries where a source run reports **244**. Both say
+      `shared_cloud`. Not a blocker and not chased on 2026-08-26; likely
+      `DICTIONARY_DB_PATH` or bundled `data/` drift. Check before publishing,
+      because "244 entries" appears in the ledger.
+
+- [ ] ~~The Supabase database is IPv6-only, and containers are not~~ — superseded above: — found
       2026-08-26, and it changes what "deploy anywhere" means here:
   - `db.hythwegtkwuzrzwglivz.supabase.co` resolves to **one AAAA record and no
     A record at all**. Kevin's laptop has IPv6, which is why local development

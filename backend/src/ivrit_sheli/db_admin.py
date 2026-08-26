@@ -83,7 +83,7 @@ def validate_database_boundary(
         raise ValueError(
             "MIGRATION_DATABASE_URL and DATABASE_URL must target the same host, port, and database"
         )
-    if runtime.user != RUNTIME_DATABASE_ROLE:
+    if (runtime.user or "").split(".", 1)[0] != RUNTIME_DATABASE_ROLE:
         raise ValueError(
             f"DATABASE_URL must authenticate directly as {RUNTIME_DATABASE_ROLE}"
         )

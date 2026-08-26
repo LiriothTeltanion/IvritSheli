@@ -30,6 +30,32 @@ from ivrit_sheli.migrations import MIGRATION_HEAD
 
 DEMO_USER_ID = "00000000-0000-4000-8000-000000000042"
 RUNTIME_DATABASE_ROLE = "ivrit_sheli_runtime"
+
+
+def database_url_role(database_url: str) -> str:
+    """Return the PostgreSQL role a DSN authenticates as, ignoring pooler routing.
+
+    Added 2026-08-26, because the direct Supabase host is IPv6-only and nothing
+    that runs in a container can reach it. Measured: `db.<ref>.supabase.co`
+    publishes one AAAA record and no A record at all, so the production image
+    starts, passes every guard and dies on `Network is unreachable`. Supabase's
+    session pooler is the documented answer -- "IPv4 proxied for free" -- and it
+    authenticates as `<role>.<project-ref>` rather than `<role>`.
+
+    That suffix is a routing hint for the pooler, not a different identity: the
+    database still reports `ivrit_sheli_runtime` for both `session_user` and
+    `current_user`, verified against the live project through the pooler on the
+    day this was written, along with `rolsuper` false, `rolbypassrls` false and
+    zero rows visible in `learner_states` without a tenant context.
+
+    So this widens what the *string* is allowed to look like, and nothing else.
+    The check that carries the weight is in `ready()`, which asks the database
+    who it is rather than trusting the URL, and that one is untouched. Splitting
+    on the first dot is deliberate: `postgres.<ref>` still fails, because the
+    role before the dot must match exactly.
+    """
+    username = unquote(urlparse(database_url).username or "")
+    return username.split(".", 1)[0]
 PUSH_WORKER_DATABASE_ROLE = "ivrit_sheli_push_worker"
 OAUTH_PROVIDERS = frozenset({"github", "google"})
 StateResult = TypeVar("StateResult")
@@ -522,8 +548,7 @@ class PostgresCloudStore:
         self._dict_row = dict_row
         validate_store_security(session_secret, max_snapshot_bytes)
         self.database_url = database_url.replace("postgres://", "postgresql://", 1)
-        username = unquote(urlparse(self.database_url).username or "")
-        if username != RUNTIME_DATABASE_ROLE:
+        if database_url_role(self.database_url) != RUNTIME_DATABASE_ROLE:
             raise ValueError(
                 f"DATABASE_URL must authenticate directly as {RUNTIME_DATABASE_ROLE}"
             )
