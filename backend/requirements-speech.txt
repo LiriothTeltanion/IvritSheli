@@ -1,0 +1,17 @@
+# Optional: the private Faster Whisper transcription worker.
+#
+# Date: 2026-08-26 | TZ: Asia/Jerusalem
+#
+# Split out of requirements.txt on 2026-08-26, measured rather than guessed: it
+# and its runtime account for 629 MB of a 989 MB production image, against
+# 360 MB without. It is gated by SELF_HOSTED_SPEECH_ENABLED, which defaults to
+# false and is set nowhere in any deployment, and `self_hosted_speech.py` probes
+# for it with importlib.util.find_spec and falls back to browser recognition
+# when it is absent. So on a metered or free host it was weight paid for and
+# never loaded.
+#
+# Install it only where the feature is actually turned on:
+#     python -m pip install -r backend/requirements-speech.txt
+#
+# Nothing in backend/tests requires it: the availability probe is injected.
+faster-whisper==1.2.1

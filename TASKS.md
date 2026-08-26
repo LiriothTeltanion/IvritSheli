@@ -268,7 +268,15 @@ otro panel, qué sigue siendo cierto y qué ya no. Empieza siempre por ahí.
       and fails with a message that never mentions quoting. Cost twenty minutes
       on 2026-08-26; strip quotes when bulk-importing variables anywhere.
 
-- [ ] **`faster-whisper` is 630 MB of image that production does not use**:
+- [x] **`faster-whisper` split out of the production install — DONE 2026-08-26.**
+      The image went from **989 MB to 412 MB**, measured. It lives in
+      `backend/requirements-speech.txt` now and is installed only where
+      `SELF_HOSTED_SPEECH_ENABLED` is actually on. Verified after: the slim image
+      boots against the pooler to `status: ready`, `postgresql: true`,
+      `self_hosted_speech: not_required`, and the backend suite is unchanged at
+      346 passed. Nothing in `backend/tests` needed it — the availability probe
+      is injected.
+- [ ] ~~`faster-whisper` is 630 MB of image that production does not use~~:
   - The branch image is 989 MB against `main`'s 360 MB, and the difference is
     `faster-whisper==1.2.1` and its runtime.
   - It is gated by `SELF_HOSTED_SPEECH_ENABLED`, which **defaults to `False`**

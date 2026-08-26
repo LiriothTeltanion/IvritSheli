@@ -10,7 +10,8 @@ python-multipart==0.0.32
 psycopg[binary]==3.3.4
 SQLAlchemy==2.0.51
 alembic==1.18.5
-faster-whisper==1.2.1
+# faster-whisper moved to requirements-speech.txt on 2026-08-26: 629 MB of
+# image for a feature no deployment enables. See that file.
 pywebpush==2.3.0
 cryptography==50.0.0
 PyJWT==2.13.0
