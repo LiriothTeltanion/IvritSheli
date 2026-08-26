@@ -7,6 +7,39 @@
 
 ---
 
+## 🚀 Live — 2026-08-26, 19:30 Asia/Jerusalem
+
+**https://colin-changelog-favorite-predicted.trycloudflare.com**
+
+A Cloudflare quick tunnel in front of the production image on Kevin's own
+always-on machine, against Supabase through the session pooler. Verified over the
+public address: `/health/ready` 200 `postgresql: true`, front page 200 in 0.26 s,
+CSP and HSTS intact.
+
+**Read this before assuming it is a deployment.** The URL is randomly assigned
+and **changes whenever the tunnel restarts**, and the app is reachable only while
+Kevin's machine and both processes are up. To bring it back:
+
+```bash
+"/c/Program Files (x86)/cloudflared/cloudflared" tunnel --url http://localhost:8500
+docker start ivrit-live      # already has --restart unless-stopped
+```
+
+Then set `PUBLIC_BASE_URL`, `ALLOWED_ORIGINS` and `GOOGLE_AUTH_REDIRECT_URI` to
+the **new** tunnel address and recreate the container, or the app will refuse
+requests whose origin does not match.
+
+- [ ] **Google sign-in does not work over the tunnel.** The address is not in the
+      OAuth client's authorised redirect URIs, and it changes each restart. The
+      signed-out screen states this instead of failing silently. The read-only
+      demonstration works fully.
+- [ ] **A real host is still open.** Railway wants a plan (trial expired by time;
+      $4.54 of the grant unspent). Hugging Face now charges for Docker Spaces —
+      its form says so outright. Vercel cannot run this backend at all: the pool
+      lives in process memory. When there is $5 or a better free option, this
+      becomes a fifteen-minute job, because `deploy/huggingface/NOTES.md` already
+      lists every variable, which are secrets, and the two post-deploy steps.
+
 ## 🎯 Active Status & Quick Server Guide
 
 | Service | Port / URL | Launch profile | Purpose |

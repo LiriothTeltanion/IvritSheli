@@ -1,6 +1,6 @@
 # Ivrit Sheli 2.12.2 — Visual Harmony & Resilience Handoff
 
-**Last Updated**: 2026-08-25 (`Asia/Jerusalem`)
+**Last Updated**: 2026-08-26 19:30 (`Asia/Jerusalem`)
 **Prepared by**: Antigravity (Handoff targeted for Claude Code at 02:41 AM)
 **Source state**: private / local / unpublished
 **Public production intentionally remains**: **2.4.0 Contest Edition (2026-07-21)**
@@ -20,6 +20,49 @@
 The version this file carried was corrected back from `2.12.3-PRE` to `2.12.2`:
 no other version surface names a 2.12.3, and eleven of them were aligned on
 2026-08-23 specifically to end that kind of drift.
+
+## Claude Code pass — 2026-08-26, all day, ending 19:30 Asia/Jerusalem
+
+**The application is publicly reachable for the first time since 2.4.0:**
+https://colin-changelog-favorite-predicted.trycloudflare.com
+
+Eleven commits. What each of them cost to learn is in its own message; this is
+the shape.
+
+**Two bugs Kevin found by using the app**, neither catchable by the suite as it
+stands: the Claro theme card could not change the theme — the fourth prop in this
+codebase declared, styled, tested in isolation and never wired, now `AGENTS.md`
+hard rule 8 — and the mobile drawer's sections were dead to touch, because a
+backdrop at `z-index: 30` covered a drawer at `20`. jsdom performs no hit
+testing, so the suite stayed green while the menu was unreachable; that is hard
+rule 9, with `sidebarStacking.test.ts` reading the stylesheet as its guard.
+
+**The profile menu was reordered** on his instruction: it opened on an editing
+form before it said whose menu it was. Fifteen avatar tiles moved to Settings;
+streak, level and mastery took the space.
+
+**Three findings that changed what "deploy" means here.** The Supabase host
+publishes only an AAAA record, so no container could ever reach it — the session
+pooler, IPv4 and free, is the answer, and the three URL-string guards learned the
+`<role>.<project-ref>` form without the live identity check moving an inch.
+`PyJWT` had six advisories open, two of them live on the JWKS path. And `anon`
+held TRUNCATE on `sessions`; migration `20260826_0007` closed all four auth
+tables and was rehearsed on a throwaway before touching the real project.
+
+**Two numbers stopped lying.** 244 dictionary entries described a laptop, never a
+build — it was 240 curated words, three demo seeds and a duplicate row. And the
+image dropped from 989 MB to 412 MB by not installing a feature no deployment
+turns on.
+
+**Measured at the end:** frontend 858 across 49 files, backend 346 with one
+credential-gated skip, `tsc`, `ruff`, strict `mypy` clean, package gate 217
+files, `scripts/db.py --check` 12/12, and the public URL answering
+`postgresql: true` in 0.26 s.
+
+**Not verified, and it matters:** Google sign-in over the tunnel, because the
+address is not in the OAuth client and changes on restart. Human recognition,
+Hebrew-content acceptance and the pilot with Kevin's mother remain open — the
+last of which starts tonight, which is the point of all of this.
 
 ## Claude Code pass — 2026-08-25, signed-out screen
 

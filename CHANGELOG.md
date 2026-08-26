@@ -82,6 +82,26 @@ menu with a link instead, and the space given to what he has actually earned.
   five columns, and three on a narrow menu, both of which divide fifteen
   exactly. The count itself stays derived from `AVATAR_PRESETS`.
 
+### Published — 2026-08-26, 19:30 Asia/Jerusalem
+
+- **https://colin-changelog-favorite-predicted.trycloudflare.com** — reachable from any phone. A Cloudflare quick tunnel in front of the
+  production image on Kevin's own always-on machine.
+- Verified through the public address: `/health/ready` 200 with
+  `postgresql: true`; the front page 200 in 0.26 s serving the real document
+  title; and `Strict-Transport-Security`, `content-security-policy` and
+  `x-frame-options: DENY` all intact over the tunnel.
+- **Why not a host.** Railway needs a paid plan — the trial expired by time, with
+  $4.54 of the grant unspent. **Hugging Face now charges for Docker Spaces**;
+  its own form says "Gradio and Docker Spaces require a paid plan. Static Spaces
+  stay free for everyone." Static cannot run FastAPI, and neither can Vercel:
+  serverless functions leave the eight-connection pool nowhere to live.
+- **The tunnel is honest about what it is.** The URL is random and changes when
+  the tunnel restarts, and the app is up only while the machine is. Good enough
+  for Kevin's mother to test tonight from an Android phone; not a deployment.
+- Google sign-in does not work over it yet — the address is not in the OAuth
+  client's authorised redirect URIs. The signed-out screen says so and offers the
+  demonstration, which is what the 2026-08-24 honesty repair was for.
+
 ### Security — the token library had six advisories against it
 
 - **`PyJWT` 2.8.0 → 2.13.0.** `pip-audit` is in the release gate in

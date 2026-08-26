@@ -98,6 +98,48 @@ five are repaired in `9d8d463`.
   recorded above.
 - Human five-second recognition, Hebrew-content acceptance and the mother pilot.
 
+## Published and publicly reachable — 2026-08-26, 19:30 Asia/Jerusalem
+
+**https://colin-changelog-favorite-predicted.trycloudflare.com**
+
+The first time this application has been reachable from outside Kevin's machine
+since public 2.4.0 on 2026-07-21, and the first time ever for 2.12.2.
+
+| Check | Result |
+|---|---|
+| `/health/ready` through the public URL | **200**, `status: ready`, `postgresql: true`, `shared_cloud`, 240 entries |
+| Front page through the public URL | **200**, 3390 bytes, **0.26 s** |
+| Served document | `Ivrit Sheli 2.12.2 · Visual Harmony & Resilience · העברית שלי` |
+| Security headers over the tunnel | `Strict-Transport-Security`, `content-security-policy: default-src 'self'`, `x-frame-options: DENY` |
+| Container | `Up (healthy)`, `--restart unless-stopped` |
+| Database | Supabase through the **session pooler**, hardened by `20260826_0007` |
+
+### What this is, precisely
+
+A **Cloudflare quick tunnel** in front of the production image running on Kevin's
+own machine, which is on 24/7 and mains-powered. It is not a hosted deployment:
+the URL is randomly assigned and changes when the tunnel restarts, and the app is
+reachable only while both the tunnel and the container are running.
+
+It exists because the free options ran out. Railway needs a plan — the trial
+expired by time, not credit, and $4.54 of the grant is still unspent. **Hugging
+Face now charges for Docker Spaces**: the create-Space form states plainly that
+"Gradio and Docker Spaces require a paid plan. Static Spaces stay free for
+everyone." A static Space cannot host a FastAPI process, and neither can Vercel,
+whose functions give the in-memory connection pool nowhere to live.
+
+### What works and what does not, over this URL
+
+Working: the read-only demonstration, all 240 scenes, audio, the trilingual
+interface, and every screen.
+
+**Not working: Google sign-in.** `GOOGLE_AUTH_REDIRECT_URI` points at this
+tunnel, but the address is not yet in the Google OAuth client's authorised
+redirect URIs, and it changes on every tunnel restart. The signed-out screen says
+so honestly rather than failing silently — it renders "Este servidor no tiene el
+inicio de sesión configurado" and offers the demonstration instead, which is the
+behaviour added on 2026-08-24 for exactly this case.
+
 ## Migration 20260826_0007 applied to the live project — 2026-08-26, evening
 
 Applied with `pwsh -File scripts/db-apply.ps1`, after being rehearsed end to end
