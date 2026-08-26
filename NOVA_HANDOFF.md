@@ -1,9 +1,31 @@
 # Ivrit Sheli 2.12.2 — Visual Harmony & Resilience Handoff
 
-**Last Updated**: 2026-08-26 19:30 (`Asia/Jerusalem`)
+**Last Updated**: 2026-08-27 (`Asia/Jerusalem`)
 **Prepared by**: Antigravity (Handoff targeted for Claude Code at 02:41 AM)
 **Source state**: private / local / unpublished
-**Public production intentionally remains**: **2.4.0 Contest Edition (2026-07-21)**
+**Latest published release**: **2.4.0 Contest Edition (2026-07-21)**; its former
+Railway service was offline when checked on 2026-08-26
+
+## Codex pass — 2026-08-27, README and formal browser gate
+
+The privacy-reviewed 2.12.2 README visual selection now has five WebP assets and
+an exact provenance/hash ledger under `assets/readme/proof/2.12.2`. The former
+17-PNG candidate set remains preserved and excluded from the selected proof.
+
+The formal Playwright suite ran against the FastAPI-served production bundle on
+port 8000, with CSP active: **35 passed, 40 intentional project-scoped skips and
+0 failed in 330.1 s**. It covers the three configured viewports, the 240-scene
+compare gallery, EN/ES/HE, RTL, reduced motion, 200% text reflow, responsive
+journey art and axe. The run exposed and closed topbar overflow at the 720 CSS-px
+zoom boundary and internal Alphabet Studio clipping; it also corrected stale
+navigation/theme selectors and activated native lazy-loaded journey art before
+asserting its dimensions.
+
+This remains local evidence. It does not prove providers, PostgreSQL, hosted
+persistence, a durable deployment, or publication. Human recognition,
+generated contact-sheet inspection, Hebrew-content acceptance, isolated HTTPS
+staging, two-real-account isolation, backup/restore and the pilot with Kevin's
+mother remain open.
 
 ## Antigravity pass — 2026-08-24, 00:03 to 00:19
 
@@ -23,8 +45,10 @@ no other version surface names a 2.12.3, and eleven of them were aligned on
 
 ## Claude Code pass — 2026-08-26, all day, ending 19:30 Asia/Jerusalem
 
-**The application is publicly reachable for the first time since 2.4.0:**
-https://colin-changelog-favorite-predicted.trycloudflare.com
+**Historical external diagnostic:** a Cloudflare Quick Tunnel briefly exposed
+the Docker/PostgreSQL runtime. Its random hostname is intentionally omitted;
+the session was not a publication or durable hosted demo and no current
+availability is claimed.
 
 Eleven commits. What each of them cost to learn is in its own message; this is
 the shape.
@@ -56,7 +80,7 @@ turns on.
 
 **Measured at the end:** frontend 858 across 49 files, backend 346 with one
 credential-gated skip, `tsc`, `ruff`, strict `mypy` clean, package gate 217
-files, `scripts/db.py --check` 12/12, and the public URL answering
+files, `scripts/db.py --check` 12/12, and the temporary external path answering
 `postgresql: true` in 0.26 s.
 
 **Not verified, and it matters:** Google sign-in over the tunnel, because the
@@ -247,10 +271,11 @@ a source-level default.
 - Both servers brought up and the learner shell rendered; the Visual QA
   catalogue reported 240 scene SVGs in the DOM.
 
-**Not executed for 2.12.2, and not inherited as proof of it:** the Playwright
-browser matrix, the 240 × 3 contact matrices, the offline doctor,
-`scripts/verify_package.py`, and PostgreSQL 17 / RLS and container evidence —
-that last remains historical 2.10.0 Phase 4A.1 evidence.
+**At this 2026-08-23 checkpoint, and not inherited as proof of it:** the
+Playwright browser matrix, the 240 × 3 contact matrices, the offline doctor,
+`scripts/verify_package.py`, and PostgreSQL 17 / RLS and container evidence had
+not been executed. Later 2.12.2 evidence is recorded at the top of this handoff
+and in `TEST_REPORT.md`.
 
 ## Blockers
 
@@ -272,8 +297,10 @@ above a list of unmet requirements:
 4. Hebrew-content and mother-pilot acceptance.
 5. Isolated HTTPS staging, two-real-account persistence and isolation, and a
    proven backup/restore path.
-6. `SHA256SUMS.txt` and the package integrity gate need regenerating after this
-   session's file changes.
+6. ~~`SHA256SUMS.txt` and the package integrity gate need regenerating.~~
+   **Closed 2026-08-27:** 555 canonical Git-index checksums generated after
+   explicit staging; `scripts/verify_package.py` passed 217 required files and
+   all packaged assets.
 
 ## Continuation rules
 
@@ -282,8 +309,9 @@ above a list of unmet requirements:
 - Keep the exact semantic SVGs deterministic and local. Cinematic raster art is
   a complementary large-surface layer, not linguistic evidence.
 - Do not start a broad `api.py` or `repository.py` rewrite.
-- Do not deploy, push, tag, release or alter public judge state during the
-  publication freeze, which runs until after **2026-08-25**.
+- Do not push, merge, tag, release, deploy or alter Devpost unless Kevin
+  explicitly authorizes that specific action. Local reviewed commits are
+  allowed; one publication action never authorizes the next.
 - Verify against port 8000, not only 5173. The dev server has no CSP and has
   already hidden one whole class of defect.
 

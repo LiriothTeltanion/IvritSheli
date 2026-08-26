@@ -23,6 +23,10 @@ frontend/dist/
 frontend/coverage/
 frontend/test-results/
 frontend/playwright-report/
+frontend/.playwright-cli/
+
+# Isolated, review-only browser captures. Promotion to public assets is manual.
+/output/playwright/readme-capture/
 
 # Local research and verification artifacts
 tmp/

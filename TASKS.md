@@ -2,43 +2,28 @@
 
 **Current Version:** `2.12.2 — Visual Harmony & Resilience`  
 **Baseline Branch:** `consolidation/ivrit-sheli-2.10-baseline`  
-**State:** Private / Local / Verified  
-**Public Contest Boundary:** The contest freeze **expired on 2026-08-25**. Public production is still **2.4.0 Contest Edition (2026-07-21)** because `main` has not moved since then, not because anything forbids moving it. Publishing is now a decision, not a prohibition — and it is Kevin's, per `AGENTS.md` hard rule 1.
+**State:** Private / local candidate; verification is scoped in `TEST_REPORT.md`
+**Public Contest Boundary:** The contest freeze **expired on 2026-08-25**. The
+latest published release remains **2.4.0 Contest Edition (2026-07-21)** because
+`main` has not moved since then. Its former hosted service is currently offline.
+Publishing is now a decision, not a prohibition — and it is Kevin's, per
+`AGENTS.md` hard rule 1.
 
 ---
 
-## 🚀 Live — 2026-08-26, 19:30 Asia/Jerusalem
+## 🌐 Hosting status — checked 2026-08-26
 
-**https://colin-changelog-favorite-predicted.trycloudflare.com**
+No durable hosted demo is currently verified. A Cloudflare Quick Tunnel briefly
+exposed the Docker/PostgreSQL runtime for diagnostics at 19:30 Asia/Jerusalem;
+the random hostname is intentionally omitted and must not be treated as a
+product URL. That session observed `/health/ready` 200 with PostgreSQL plus CSP
+and HSTS, but it did not prove a durable deployment or exact-current source.
 
-A Cloudflare quick tunnel in front of the production image on Kevin's own
-always-on machine, against Supabase through the session pooler. Verified over the
-public address: `/health/ready` 200 `postgresql: true`, front page 200 in 0.26 s,
-CSP and HSTS intact.
-
-**Read this before assuming it is a deployment.** The URL is randomly assigned
-and **changes whenever the tunnel restarts**, and the app is reachable only while
-Kevin's machine and both processes are up. To bring it back:
-
-```bash
-"/c/Program Files (x86)/cloudflared/cloudflared" tunnel --url http://localhost:8500
-docker start ivrit-live      # already has --restart unless-stopped
-```
-
-Then set `PUBLIC_BASE_URL`, `ALLOWED_ORIGINS` and `GOOGLE_AUTH_REDIRECT_URI` to
-the **new** tunnel address and recreate the container, or the app will refuse
-requests whose origin does not match.
-
-- [ ] **Google sign-in does not work over the tunnel.** The address is not in the
-      OAuth client's authorised redirect URIs, and it changes each restart. The
-      signed-out screen states this instead of failing silently. The read-only
-      demonstration works fully.
-- [ ] **A real host is still open.** Railway wants a plan (trial expired by time;
-      $4.54 of the grant unspent). Hugging Face now charges for Docker Spaces —
-      its form says so outright. Vercel cannot run this backend at all: the pool
-      lives in process memory. When there is $5 or a better free option, this
-      becomes a fifteen-minute job, because `deploy/huggingface/NOTES.md` already
-      lists every variable, which are secrets, and the two post-deploy steps.
+- [ ] Select a future host only through a current provider/cost decision brief.
+- [ ] Re-run the performance evidence with application and database co-located.
+- [ ] Configure and verify OAuth only in isolated HTTPS staging after Kevin
+      authorizes the provider changes.
+- [ ] Keep the read-only demo honest whenever sign-in is unavailable.
 
 ## 🎯 Active Status & Quick Server Guide
 
@@ -83,6 +68,17 @@ otro panel, qué sigue siendo cierto y qué ya no. Empieza siempre por ahí.
 ## 📋 Master Task Tracker
 
 ### ✅ Completed Tasks (v2.12.2 & Recent Sessions)
+
+- [x] **Formal 2.12.2 browser matrix on the real served path — 2026-08-27**:
+  - FastAPI port 8000 with the production bundle and CSP, not Vite-only proof.
+  - **35 Playwright passes / 40 intentional project-scoped skips / 0 failures**
+    across 390 px, 768 px and 1440 px in 330.1 s.
+  - Covered the 240-scene compare gallery, EN/ES/HE, RTL, reduced motion, 200%
+    text reflow, journey-art responsiveness and axe.
+  - Closed the 720 CSS-px topbar overflow and hidden Alphabet Studio clipping;
+    corrected stale E2E navigation/theme contracts and native lazy-load setup.
+  - [ ] Generate and inspect the separate contact-sheet matrix; browser DOM
+        assertions do not replace human five-second recognition.
 
 - [x] **PostgreSQL Connection Pooling (`cloud_store.py`)**:
   - Implemented thread-safe `queue.Queue` connection pool with automatic health checks (`SELECT 1`), recycling dead connections and eliminating reconnection overhead.
@@ -401,7 +397,10 @@ otro panel, qué sigue siendo cierto y qué ya no. Empieza siempre por ahí.
     Runbook: `docs/SUPABASE_RUNTIME_ROLE.md`.
     Until then use the `backend-local` launch profile.
   - Rotate the superuser password exposed on 2026-08-23.
-- [x] **Regenerate `SHA256SUMS.txt`** and pass `scripts/verify_package.py`.
+- [x] **Current staged-index checksum gate — DONE 2026-08-27** — regenerated
+      555 canonical Git-index checksums only after explicit staging;
+      `scripts/verify_package.py` passed 217 required files and all packaged
+      assets.
 - [x] **Avatar weight**: 15 photographic avatars are now ~127 KB total as .webp thumbnails with `loading="lazy"` and `decoding="async"`.
 - [x] **`app-icon.svg` — DONE 2026-08-24**:
   - `שלי` is now real Gveret Levin contours, extracted from the TTF with
@@ -461,9 +460,11 @@ otro panel, qué sigue siendo cierto y qué ya no. Empieza siempre por ahí.
    - Always run `npm test -- --run` in `frontend/` before calling a change complete.
    - Run `npm run build` in `frontend/` to ensure strict TypeScript typechecking passes.
    - Run `.venv\Scripts\python.exe -m pytest backend/tests` for backend changes.
-3. **Contest Freeze Boundary**:
-   - **DO NOT** execute `git push`, `git merge`, or alter remote production state until after **2026-08-25**.
-   - All commits and experimental work remain strictly local and private.
+3. **Publication Boundary**:
+   - Do not push, merge, tag, release, deploy or alter Devpost unless Kevin
+     explicitly asks for that specific action.
+   - Reviewed local commits are allowed and remain private until separately
+     authorized for publication.
 4. **SVG Integrity**:
    - The 240 semantic SVG illustrations are code-generated and deterministic (~383 kB total). Do NOT replace them with heavy raster images.
    - Preserve CSS variable tokens `--semantic-*`, layers (`context` → `meaning` → `anchor`), and RTL direction handling.

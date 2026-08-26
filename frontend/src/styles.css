@@ -961,6 +961,34 @@ legend {
   .bug-card form { grid-template-columns: 1fr; }
 }
 
+/* At 200% browser zoom a 1440px display exposes 720 CSS pixels. Compact the
+   utility cluster before that accessibility boundary so it cannot push the
+   profile control outside the viewport. The tighter header gap also keeps the
+   same controls inside a 390px RTL viewport when text is enlarged to 200%. */
+@media (max-width: 760px) {
+  .topbar { gap: 8px; }
+  .network-chip,
+  .locale-switch,
+  .capture-button span { display: none; }
+  .topbar-actions { min-width: 0; gap: 6px; }
+  .capture-button { width: 44px; height: 44px; padding: 0; justify-content: center; }
+}
+
+/* On a narrow phone, enlarged text can make the labelled wordmark and the four
+   essential utility controls wider than one line. Let the sticky header grow
+   into two lines instead of freezing the wordmark in pixels or clipping either
+   group. At the default text scale they still fit on one line. */
+@media (max-width: 430px) {
+  .topbar {
+    height: auto;
+    min-height: var(--topbar-height);
+    flex-wrap: wrap;
+    padding-block: 8px;
+  }
+  .mobile-brand { min-width: 0; }
+  .topbar-actions { margin-inline-start: auto; }
+}
+
 @media (max-width: 680px) {
   .network-chip, .locale-switch, .capture-button span { display: none; }
   .topbar-actions { gap: 6px; }

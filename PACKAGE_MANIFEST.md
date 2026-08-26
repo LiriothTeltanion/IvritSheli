@@ -1,14 +1,22 @@
 # Ivrit Sheli 2.12.2 — Visual Harmony & Resilience Package Manifest
 
 - Source version: `2.12.2`
-- Candidate state: private / unpublished / prepared 2026-08-14
+- Candidate state: private / unpublished; current working-tree evidence refreshed 2026-08-27
 - Source lineage: derived from the clean 2.9.2 Brand & Private Access export supplied for consolidation; `.git`, real secrets, local databases, models, dependency caches and generated audit folders are intentionally absent.
 - Current verified public version: `2.4.0`
 - Visual catalog: **240 reviewed concepts / 240 exact semantic scenes / 0 reviewed category fallbacks**
-- Final source integrity gate: **passed for 217 required files / 387 canonical
-  Git-index SHA-256 entries**. The prior 2.11.0 checkpoint verified 202 / 372.
-- Candidate test evidence: Phase 4A.1 passed **1,047 local automated checks** on 2026-08-13, including the complete browser/accessibility matrix and disposable PostgreSQL coverage. Human recognition, isolated staging/pilot and explicit publication approval remain required; see `TEST_REPORT.md`.
-- Current 2.12.0 verification is recorded in `TEST_REPORT.md`. Prior
+- Current source integrity gate: **passed on 2026-08-27** — 217 required files
+  and all packaged assets verified by `scripts/verify_package.py`, with **555
+  canonical Git-index SHA-256 entries**. The prior 2.11.0 checkpoint verified
+  202 required files / 372 canonical entries.
+- Current browser evidence: the 2026-08-27 formal Playwright run against the
+  FastAPI-served bundle on port 8000 with CSP passed **35 cases**, intentionally
+  skipped **40 project-scoped cases**, and failed **0** among 75 listed cases in
+  330.1 s. It covered 390, 768 and 1440 px projects and rendered all 240 exact
+  scenes at thumbnail, card and hero sizes. Generated contact-sheet inspection
+  and human recognition remain open.
+- Historical test evidence: Phase 4A.1 passed **1,047 local automated checks** on 2026-08-13, including the complete browser/accessibility matrix and disposable PostgreSQL coverage. Human recognition, isolated staging/pilot and explicit publication approval remain required; see `TEST_REPORT.md`.
+- Current 2.12.2 verification is recorded in `TEST_REPORT.md`. Prior
   PostgreSQL/RLS and container results remain attributed to 2.10.0; the 2.11.0
   705-frontend/315-backend checkpoint remains historical evidence only.
 
@@ -33,7 +41,7 @@ starter entry should need one.
 
 > The inventory below is a preserved 2.9.1-era record. Its 72/168 visual split,
 > six single-crop region files and 72-scene QA count describe that historical
-> package, not the current 2.12.0 package summarized above.
+> package, not the current 2.12.2 package summarized above.
 
 # Ivrit Sheli 2.9.1 — Hebrew Alphabet Studio Package Manifest
 

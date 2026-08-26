@@ -39,7 +39,10 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/test-setup.ts',
     css: true,
-    exclude: ['e2e/**', 'node_modules/**', 'dist/**'],
+    // Capture contracts use Node's built-in test runner because they spawn the
+    // CLI and inspect real PNG bytes. Keep that harness out of Vitest instead
+    // of reporting its `node:test` cases as an empty Vitest suite.
+    exclude: ['e2e/**', 'scripts/**', 'node_modules/**', 'dist/**'],
     globals: true,
     maxWorkers: 4,
     // The exact-scene catalog grew from 72 lean scenes to the complete 240-scene reviewed catalog,

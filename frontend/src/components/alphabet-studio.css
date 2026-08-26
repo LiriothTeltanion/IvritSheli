@@ -498,7 +498,7 @@
 
 .alphabet-sounds > div {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
   gap: 0.6rem;
 }
 
@@ -833,7 +833,24 @@
   .alphabet-studio__header,
   .alphabet-letter,
   .alphabet-studio--experienced .alphabet-letter {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .alphabet-letter > * { min-width: 0; }
+
+  .alphabet-letter__glyph { padding-inline: 0.5rem; }
+
+  .alphabet-letter__glyph-showcase {
+    min-width: 0;
+    flex-wrap: wrap;
+    padding-inline: 0;
+  }
+
+  .alphabet-letter__content { grid-template-columns: minmax(0, 1fr); }
+
+  .alphabet-letter__content > * {
+    min-width: 0;
+    max-width: 100%;
   }
 
   .alphabet-progress {

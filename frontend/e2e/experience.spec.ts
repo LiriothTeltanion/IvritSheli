@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import {
   openWorkspace,
   type LearnerMode,
@@ -12,6 +12,44 @@ function desktopOnly(projectName: string): void {
 
 function mobileOnly(projectName: string): void {
   test.skip(projectName !== 'mobile-390', 'This flow is the focused phone regression.');
+}
+
+async function documentOverflow(page: Page): Promise<{
+  clientWidth: number;
+  scrollWidth: number;
+  overflowers: Array<{
+    element: string;
+    left: number;
+    right: number;
+    width: number;
+    text: string;
+  }>;
+}> {
+  return page.evaluate(() => {
+    const clientWidth = document.documentElement.clientWidth;
+    const overflowers = [...document.querySelectorAll<HTMLElement>('body *')]
+      .map((element) => {
+        const bounds = element.getBoundingClientRect();
+        return {
+          element: `${element.tagName.toLowerCase()}.${typeof element.className === 'string' ? element.className : ''}`,
+          left: Math.round(bounds.left),
+          right: Math.round(bounds.right),
+          width: Math.round(bounds.width),
+          text: element.textContent?.trim().replace(/\s+/g, ' ').slice(0, 64) ?? '',
+        };
+      })
+      .filter((item) => item.left < -1 || item.right > clientWidth + 1)
+      .sort((left, right) => (
+        Math.max(-right.left, right.right - clientWidth)
+        - Math.max(-left.left, left.right - clientWidth)
+      ))
+      .slice(0, 12);
+    return {
+      clientWidth,
+      scrollWidth: document.documentElement.scrollWidth,
+      overflowers,
+    };
+  });
 }
 
 test.describe('responsive learning workspace', () => {
@@ -46,8 +84,8 @@ test.describe('language, direction, and learner depth', () => {
 
       await expect(page.locator('.app-shell')).toHaveAttribute('data-learner-mode', mode);
       const primaryNavigation = page.locator('.side-nav');
-      const expectedCount = mode === 'guided' ? 3 : mode === 'explorer' ? 5 : 6;
-      await expect(primaryNavigation.locator(':scope > button')).toHaveCount(expectedCount);
+      const expectedCount = mode === 'guided' ? 3 : 8;
+      await expect(primaryNavigation.getByRole('button')).toHaveCount(expectedCount);
       if (mode === 'guided') {
         await expect(primaryNavigation).toContainText('Today');
         await expect(primaryNavigation).toContainText('Words');
@@ -64,7 +102,7 @@ test.describe('integrated Hebrew Alphabet Studio', () => {
       await openWorkspace(page, { mode });
 
       await page.getByRole('button', {
-        name: mode === 'guided' ? /^Words(?:\s+\d+)?$/ : /^Learn(?:\s+\d+)?$/,
+        name: mode === 'guided' ? /^Words\./ : /^Learn\./,
       }).click();
       await page.getByRole('button', { name: 'Alphabet', exact: true }).click();
 
@@ -114,12 +152,18 @@ test.describe('integrated Hebrew Alphabet Studio', () => {
     await page.evaluate(() => {
       document.documentElement.style.fontSize = '200%';
     });
+    await expect(page.locator('.alphabet-studio')).toHaveCSS('font-size', '32px');
 
-    const dimensions = await page.evaluate(() => ({
-      clientWidth: document.documentElement.clientWidth,
-      scrollWidth: document.documentElement.scrollWidth,
+    const dimensions = await documentOverflow(page);
+    expect(
+      dimensions.scrollWidth,
+      JSON.stringify(dimensions.overflowers, null, 2),
+    ).toBeLessThanOrEqual(dimensions.clientWidth + 1);
+    const letterCard = await page.locator('.alphabet-letter').evaluate((element) => ({
+      clientWidth: element.clientWidth,
+      scrollWidth: element.scrollWidth,
     }));
-    expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth + 1);
+    expect(letterCard.scrollWidth).toBeLessThanOrEqual(letterCard.clientWidth + 1);
     const transitionDuration = await page.locator('.alphabet-grid__letter').first().evaluate(
       (element) => getComputedStyle(element).transitionDuration,
     );
@@ -130,7 +174,7 @@ test.describe('integrated Hebrew Alphabet Studio', () => {
     desktopOnly(testInfo.project.name);
     await openWorkspace(page, { mode: 'experienced', theme: 'dark' });
 
-    await page.getByRole('button', { name: /^Learn(?:\s+\d+)?$/ }).click();
+    await page.getByRole('button', { name: /^Learn\./ }).click();
     await page.getByRole('button', { name: 'Alphabet', exact: true }).click();
     const results = await new AxeBuilder({ page })
       .include('.alphabet-studio')
@@ -172,8 +216,11 @@ test.describe('personal display preferences', () => {
 
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
     await expect(page.getByRole('button', { name: /continue my lesson/i })).toBeVisible();
-    const width = await page.evaluate(() => document.documentElement.scrollWidth);
-    expect(width).toBeLessThanOrEqual(await page.evaluate(() => document.documentElement.clientWidth + 1));
+    const dimensions = await documentOverflow(page);
+    expect(
+      dimensions.scrollWidth,
+      JSON.stringify(dimensions.overflowers, null, 2),
+    ).toBeLessThanOrEqual(dimensions.clientWidth + 1);
   });
 });
 
@@ -256,7 +303,7 @@ test.describe('listening and privacy fallbacks', () => {
     });
     await openWorkspace(page, { mode: 'experienced' });
 
-    await page.getByRole('button', { name: /^Learn(?:\s+\d+)?$/ }).click();
+    await page.getByRole('button', { name: /^Learn\./ }).click();
     await page.getByRole('button', { name: 'Pronunciation', exact: true }).click();
     await expect(page.getByText('Ready for a word or short phrase.')).toBeVisible();
     await page.getByRole('button', { name: 'Record', exact: true }).click();
@@ -298,9 +345,10 @@ test.describe('visual recognition expansion', () => {
      */
     test.setTimeout(FULL_CATALOG_CASE_BUDGET_MS);
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await page.goto('/?visualQa=1&lang=en&group=all&size=compare');
+    await page.goto('/?visualQa=1&lang=en&group=all&size=compare&theme=light');
 
     await expect(page.getByText('240/240 exact scenes loaded')).toBeVisible({ timeout: MOUNT_BUDGET_MS });
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
     await expect(page.locator('.visual-qa__catalog > article')).toHaveCount(240, { timeout: MOUNT_BUDGET_MS });
     await expect(page.locator('.visual-qa__catalog [data-size="thumbnail"]')).toHaveCount(240, { timeout: MOUNT_BUDGET_MS });
     await expect(page.locator('.visual-qa__catalog [data-size="card"]')).toHaveCount(240, { timeout: MOUNT_BUDGET_MS });
@@ -333,7 +381,11 @@ test.describe('visual recognition expansion', () => {
     expect(animationNames.length).toBeGreaterThan(0);
     expect(animationNames.every((name) => name === 'none')).toBe(true);
 
-    await page.getByRole('radio', { name: 'Dark' }).click();
+    const themeControls = page.getByRole('group', { name: 'Preview theme' });
+    await expect(themeControls.getByRole('button', { name: 'Light', exact: true })).toHaveAttribute('aria-pressed', 'true');
+    const darkTheme = themeControls.getByRole('button', { name: 'Dark', exact: true });
+    await darkTheme.click();
+    await expect(darkTheme).toHaveAttribute('aria-pressed', 'true');
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
     await page.getByRole('button', { name: 'HE', exact: true }).click();
     await expect(page.locator('html')).toHaveAttribute('lang', 'he');
@@ -396,10 +448,14 @@ test.describe('visual recognition expansion', () => {
     await expect(page.getByRole('button', { name: 'Close journey paintings' })).toHaveAttribute('aria-expanded', 'true');
     await expect(page.locator('.visual-qa__journey-grid figure')).toHaveCount(7);
     await expect(page.getByRole('img', { name: /Be’er Sheva plaza at blue hour/i })).toBeVisible();
+    const journeyImages = page.locator('.visual-qa__journey-grid img');
+    for (const image of await journeyImages.all()) {
+      await image.scrollIntoViewIfNeeded();
+    }
     await page.waitForFunction(() => [...document.querySelectorAll<HTMLImageElement>('.visual-qa__journey-grid img')]
       .every((image) => image.complete && image.naturalWidth > 1000));
 
-    const imageSources = await page.locator('.visual-qa__journey-grid img').evaluateAll((images) => images.map(
+    const imageSources = await journeyImages.evaluateAll((images) => images.map(
       (image) => (image as HTMLImageElement).currentSrc,
     ));
     expect(imageSources).toHaveLength(7);

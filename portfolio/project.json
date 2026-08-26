@@ -1,20 +1,26 @@
 {
-  "schema": "ivrit-sheli-portfolio-project-v2",
+  "schema": "ivrit-sheli-portfolio-project-v3",
   "slug": "ivrit-sheli",
   "name": "Ivrit Sheli — העברית שלי",
   "source_version": "2.12.2",
-  "live_version": "2.4.0",
-  "status": "private-release-candidate",
+  "source_status": "private-release-candidate",
+  "latest_published_release": "v2.4.0",
   "default_branch": "main",
   "repository_url": "https://github.com/LiriothTeltanion/IvritSheli",
-  "demo_url": "https://ivritsheli-production.up.railway.app",
-  "summary": "An unpublished 2.12.0 dark-first adult editorial Hebrew-learning candidate with 240 exact trilingual semantic scenes, responsive Israel journey art, Hebrew Alphabet Studio, deterministic coaching and private speech; the verified 2.4 Contest Edition remains public.",
+  "durable_demo": {
+    "url": null,
+    "status": "unavailable",
+    "provider": null,
+    "last_checked_on": "2026-08-26",
+    "boundary": "No durable hosted demo is currently verified. The historical Railway service is offline, and ephemeral Cloudflare Quick Tunnels are diagnostic sessions rather than publishable deployment URLs."
+  },
+  "summary": "An unpublished 2.12.2 trilingual Hebrew-learning candidate with 240 exact semantic scenes, responsive Israel journey art, an alphabet studio and deterministic coaching. The latest published release is v2.4.0; no durable hosted demo is currently verified.",
   "languages": [
     "en",
     "es",
     "he"
   ],
-  "stack": [
+  "standard_stack": [
     "React 19",
     "TypeScript",
     "FastAPI",
@@ -22,13 +28,15 @@
     "PostgreSQL 17",
     "SQLite",
     "Alembic",
-    "Faster Whisper",
-    "Web Push",
-    "Docker",
-    "Railway"
+    "Docker"
+  ],
+  "optional_capabilities": [
+    "Faster Whisper private speech worker",
+    "Web Push reminders"
   ],
   "tests": {
     "version": "2.4.0",
+    "scope": "historical-public-release",
     "backend_unique": 151,
     "frontend": 62,
     "frontend_files": 16,
@@ -38,29 +46,33 @@
     "postgresql_gate_passed": 3,
     "evidence": "TEST_REPORT.md"
   },
-  "deployment": {
+  "historical_deployment": {
     "version": "2.4.0",
     "provider": "Railway",
+    "former_demo_url": "https://ivritsheli-production.up.railway.app",
     "runtime": "Docker",
     "database": "PostgreSQL 17",
-    "status": "verified-live",
+    "historical_status": "verified-on-2026-07-21",
     "release_implementation_commit": "03bf84b9268ff8be528c0fab3c670f9652ee23b0",
     "verified_on": "2026-07-21",
     "environment": "production",
-    "health_live": true,
-    "health_ready": true,
-    "postgresql_ready": true,
-    "dictionary_ready": true,
-    "dictionary_entries": 48,
-    "english_entry_verified": true,
-    "read_only_tour_verified": true
+    "health_live_at_verification": true,
+    "health_ready_at_verification": true,
+    "postgresql_ready_at_verification": true,
+    "dictionary_ready_at_verification": true,
+    "dictionary_entries_at_verification": 48,
+    "english_entry_verified_at_verification": true,
+    "read_only_tour_verified_at_verification": true,
+    "current_availability": "offline",
+    "last_checked_on": "2026-08-26",
+    "current_http_status": 404
   },
   "publication": {
     "latest_git_tag": "v2.4.0",
     "latest_github_release": "v2.4.0",
     "source_version_tagged": false,
     "source_version_github_release_published": false,
-    "release_state": "2.12.2-private-candidate-2.4.0-live-and-published"
+    "release_state": "2.12.2-private-candidate-v2.4.0-latest-published-no-durable-demo"
   },
   "candidate": {
     "version": "2.12.2",
@@ -74,7 +86,7 @@
     ],
     "learning_engine": "Deterministic LocalLearningEngine",
     "personal_coach": "Reviewed deterministic LocalPersonalCoach with bounded feedback",
-    "speech": "Self-hosted Faster Whisper small, Hebrew, CPU INT8, 20-second private pilot limit",
+    "speech": "Optional self-hosted Faster Whisper small worker for Hebrew CPU INT8 transcription with a 20-second private pilot limit",
     "reminders": "Optional standards-based Web Push with one reminder per learner/local day",
     "semantic_visual_recipes": 240,
     "category_visual_fallbacks": 0,
@@ -84,15 +96,15 @@
     "alphabet_progress_persistent": true,
     "public_google_scope": "openid profile",
     "local_mode_without_account": true,
-    "verification": "Fresh 2.12.0 local verification is recorded in TEST_REPORT.md. PostgreSQL/RLS and no-cache container evidence remains inherited from 2.10.0 Phase 4A.1; this is private local evidence, not staging or publication.",
-    "release_gate": "Isolated HTTPS staging, two-real-account isolation, backup/restore, the speech/reminder mother pilot, human visual recognition and Kevin's explicit publication approval remain required."
+    "verification": "The source version surfaces identify 2.12.2. Current runtime, browser and test evidence remains separately scoped in TEST_REPORT.md; it is private evidence, not publication or durable-host proof.",
+    "release_gate": "Isolated HTTPS staging, two-real-account isolation, backup and restore, the speech and reminder mother pilot, human visual recognition, and Kevin's explicit publication approval remain required."
   },
   "visual_proof": {
-    "state": "v2.12.0-private-source-adds-dark-first-responsive-editorial-art-and-240-exact-scenes-while-live-2.4-remains-verified",
+    "state": "The private 2.12.2 source defines 240 reviewed concepts and 240 exact semantic scenes.",
     "social_preview_version": "2.2.0",
-    "readme_screenshot_version": "2.8.0-local-candidate",
-    "readme_screenshots_match_source_version": false,
-    "interactive_browser_qa": "The private 2.12 QA gallery derives all 240 exact semantic scenes and prioritizes art in a dark-first editorial layout. Fresh browser results are recorded in TEST_REPORT.md; the 2.11 240 x 3 visual matrix and broader 2.10 viewport matrix remain historical evidence only. Human recognition review remains required before publication."
+    "readme_screenshot_source_version": "2.12.2",
+    "readme_screenshot_status": "verified-current",
+    "interactive_browser_qa": "The privacy-reviewed README selection was captured from the locally served 2.12.2 working tree and is recorded in assets/readme/proof/2.12.2/manifest.json. On 2026-08-27, the formal three-viewport Playwright matrix passed 35 tests with 40 intentional project-scoped skips and zero failures against the FastAPI-served production bundle with CSP; the 240-scene catalog rendered at thumbnail, card and hero sizes in each project. Generated contact-sheet inspection, human recognition, provider verification and publication remain separate gates."
   },
   "oauth": {
     "providers": [
@@ -100,20 +112,21 @@
       "GitHub"
     ],
     "source_contract_tested": true,
-    "google_live_configured": true,
-    "google_live_sign_in_verified": true,
-    "github_live_successful_session_verified": false,
-    "authenticated_session_refresh_verified": true,
-    "onboarding_persistence_across_reload_verified": true,
-    "logout_verified": true,
-    "signed_out_reload_verified": true,
-    "relogin_after_logout_verified": false,
-    "boundary": "Identity-only Google sign-in, onboarding/session persistence across reload, logout and signed-out persistence after reload are verified in production. Re-login after logout, a live GitHub account session, live OpenAI or Google Workspace connector calls, two-real-user isolation and backup restoration remain unverified; Google sign-in grants no Gmail, Drive or Calendar scope."
+    "historical_public_release_version": "2.4.0",
+    "google_sign_in_verified_at_release": true,
+    "github_successful_session_verified_at_release": false,
+    "authenticated_session_refresh_verified_at_release": true,
+    "onboarding_persistence_across_reload_verified_at_release": true,
+    "logout_verified_at_release": true,
+    "signed_out_reload_verified_at_release": true,
+    "relogin_after_logout_verified_at_release": false,
+    "boundary": "Historical 2.4.0 production evidence verified identity-only Google sign-in, reload continuity, logout and signed-out persistence on 2026-07-21. It does not prove current hosted availability, a live GitHub session, re-login after logout, provider connector calls, two-real-user isolation or backup restoration."
   },
   "privacy": {
     "local_first": true,
-    "public_demo_data": "synthetic",
-    "public_demo_mutations": "server-blocked",
+    "demo_data_contract": "synthetic",
+    "demo_mutation_contract": "server-blocked",
+    "durable_demo_currently_available": false,
     "self_service_export_in_source": true,
     "self_service_deletion_in_source": true,
     "contains_secrets": false

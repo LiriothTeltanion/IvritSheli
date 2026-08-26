@@ -1,9 +1,12 @@
 import { defineConfig, devices } from '@playwright/test';
 
 const port = 4177;
-const isCI = Boolean(
-  (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.CI,
-);
+const runtimeProcess = (
+  globalThis as { process?: { env?: Record<string, string | undefined> } }
+).process;
+const externalBaseURL = runtimeProcess?.env?.PLAYWRIGHT_BASE_URL?.trim();
+const baseURL = externalBaseURL || `http://127.0.0.1:${port}`;
+const isCI = Boolean(runtimeProcess?.env?.CI);
 
 export default defineConfig({
   testDir: './e2e',
@@ -20,7 +23,7 @@ export default defineConfig({
     : 'list',
   outputDir: '../tmp/playwright-results',
   use: {
-    baseURL: `http://127.0.0.1:${port}`,
+    baseURL,
     browserName: 'chromium',
     colorScheme: 'light',
     locale: 'en-US',
@@ -51,14 +54,16 @@ export default defineConfig({
       },
     },
   ],
-  webServer: {
-    // Exercise the optimized artifact Kevin will actually inspect and ship.
-    // The HMR server progressively slows while the full visual matrix mounts
-    // thousands of SVGs; preview keeps the same browser coverage deterministic.
-    command: `npm run build && npm run preview -- --host 127.0.0.1 --port ${port} --strictPort`,
-    url: `http://127.0.0.1:${port}`,
-    // Never accept a stale process on the gate port as evidence for this tree.
-    reuseExistingServer: false,
-    timeout: 120_000,
-  },
+  webServer: externalBaseURL
+    ? undefined
+    : {
+        // Exercise the optimized artifact Kevin will actually inspect and ship.
+        // The HMR server progressively slows while the full visual matrix mounts
+        // thousands of SVGs; preview keeps the same browser coverage deterministic.
+        command: `npm run build && npm run preview -- --host 127.0.0.1 --port ${port} --strictPort`,
+        url: `http://127.0.0.1:${port}`,
+        // Never accept a stale process on the gate port as evidence for this tree.
+        reuseExistingServer: false,
+        timeout: 120_000,
+      },
 });

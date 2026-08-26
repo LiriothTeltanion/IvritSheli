@@ -1,0 +1,227 @@
+{
+  "schema_version": 1,
+  "collection": "Ivrit Sheli public visual proof",
+  "release_candidate": "2.12.2",
+  "created_at": "2026-08-27T00:10:49+03:00",
+  "status": "approved_for_readme_use",
+  "asset_count": 5,
+  "runtime_evidence": {
+    "version": "2.12.2",
+    "baseline_commit": "7ac5f941db66435cbdd59a14e7178462eabc4785",
+    "runtime_commit_label": "7ac5f941db66435cbdd59a14e7178462eabc4785+dirty",
+    "working_tree_dirty": true,
+    "environment": "local",
+    "storage": "sqlite",
+    "boundary": "These images prove a locally served 2.12.2 working tree based on the recorded commit with additional uncommitted changes. They do not prove a committed release, public deployment, or live provider availability."
+  },
+  "capture_identity": {
+    "authentication_mode": "local",
+    "session_user_id": "local-device",
+    "session_display_name": "Local learner",
+    "profile_display_name": "Learner",
+    "profile_avatar_preset": "",
+    "activity_state": "fresh generic starter state",
+    "personal_account_data_used": false
+  },
+  "privacy_review": {
+    "status": "passed",
+    "reviewed_at": "2026-08-27T00:10:49+03:00",
+    "method": "Visual inspection of every selected WebP plus verification of the capture runner's generic local identity contract.",
+    "checks": {
+      "personal_names": false,
+      "email_addresses": false,
+      "account_handles": false,
+      "provider_avatars": false,
+      "personal_learning_content": false,
+      "personal_progress": false,
+      "credentials_or_tokens": false,
+      "external_or_tunnel_urls_in_manifest": false
+    },
+    "visible_identity": "Only the generic Learner label and generic L initial are present."
+  },
+  "provenance_runs": [
+    {
+      "run_id": "capture-local-8200-schema2-es-fixed-20260826",
+      "capture_manifest_schema": 2,
+      "status": "candidate",
+      "language": "es",
+      "direction": "ltr",
+      "started_at": "2026-08-26T21:01:35.236Z",
+      "finished_at": "2026-08-26T21:02:37.912Z",
+      "capture_script_sha256": "6C4B1A6BA17F7A654B24E3B81D1BD779E87AA0F92F332A2A75B9D51AD2385F06"
+    },
+    {
+      "run_id": "capture-local-8200-schema2-he-20260826",
+      "capture_manifest_schema": 2,
+      "status": "candidate",
+      "language": "he",
+      "direction": "rtl",
+      "started_at": "2026-08-26T21:02:59.816Z",
+      "finished_at": "2026-08-26T21:03:10.430Z",
+      "capture_script_sha256": "6C4B1A6BA17F7A654B24E3B81D1BD779E87AA0F92F332A2A75B9D51AD2385F06"
+    }
+  ],
+  "derivative_policy": {
+    "format": "image/webp",
+    "source_pngs_preserved": true,
+    "existing_screenshot_assets_preserved": true,
+    "encoder_settings_recorded": false,
+    "note": "These five WebP files existed before this ledger was written. The ledger records their observed bytes and dimensions without reconstructing unrecorded encoder settings."
+  },
+  "grayscale_review": {
+    "status": "passed_with_notes",
+    "reviewed_at": "2026-08-27T00:10:49+03:00",
+    "tool": "ffmpeg 9.0",
+    "filter": "format=gray",
+    "working_copy_directory": "tmp/readme-grayscale-review-20260827",
+    "working_copies_committed": false,
+    "summary": "Primary headings, calls to action, active states, Hebrew letterforms, and core learning content remain readable without color. Some secondary hints and inactive controls are intentionally quieter, and the light mobile hero should not be downscaled aggressively."
+  },
+  "assets": [
+    {
+      "file": "alphabet-desktop-light-es.webp",
+      "media_type": "image/webp",
+      "bytes": 80162,
+      "dimensions": {
+        "width": 1600,
+        "height": 1000
+      },
+      "sha256": "24A6204884B173894C29FA9C846A0C24040DDE8E317A4EE8173D4B6995E7F1BB",
+      "language": "es",
+      "direction": "ltr",
+      "theme": "light",
+      "viewport": "desktop",
+      "source": {
+        "run_id": "capture-local-8200-schema2-es-fixed-20260826",
+        "artifact": "learn-desktop-light-es.png",
+        "dimensions": {
+          "width": 2880,
+          "height": 1800
+        },
+        "sha256": "1A4AE341C218D83DB7FA80751ABE806EBEA56AF7DAAF8E8AF805508A033F20AA"
+      },
+      "privacy_review": "passed",
+      "grayscale_review": {
+        "status": "passed",
+        "note": "The main alphabet heading, active tab, numeric progress, and explanatory copy remain clear; inactive tabs and fine borders are quieter but legible."
+      },
+      "alt": "Spanish light-theme alphabet studio in Ivrit Sheli, with Explorer navigation and a lesson explaining 22 Hebrew base letters plus 5 final forms."
+    },
+    {
+      "file": "dictionary-desktop-dark-es.webp",
+      "media_type": "image/webp",
+      "bytes": 57608,
+      "dimensions": {
+        "width": 1600,
+        "height": 1000
+      },
+      "sha256": "78D38032849474E15CE7B0215838B0A0E8C3BECB7BE3CDB38D478204F344224C",
+      "language": "es",
+      "direction": "ltr",
+      "theme": "dark",
+      "viewport": "desktop",
+      "source": {
+        "run_id": "capture-local-8200-schema2-es-fixed-20260826",
+        "artifact": "dictionary-desktop-dark-es.png",
+        "dimensions": {
+          "width": 2880,
+          "height": 1800
+        },
+        "sha256": "398FCA3E3E59065D90457F5EDD43C2A51506F9F025D8674ADD6FD04B90D0182A"
+      },
+      "privacy_review": "passed",
+      "grayscale_review": {
+        "status": "passed_with_note",
+        "note": "The dictionary title, active tab, search control, and button remain distinct. Inactive tabs, the placeholder, and sidebar hints use lower contrast but remain readable at the asset's intended size."
+      },
+      "alt": "Spanish dark-theme dictionary workspace in Ivrit Sheli, with linked Hebrew search, Explorer navigation, and an empty search field."
+    },
+    {
+      "file": "today-desktop-dark-es.webp",
+      "media_type": "image/webp",
+      "bytes": 71254,
+      "dimensions": {
+        "width": 1600,
+        "height": 1000
+      },
+      "sha256": "3EADD5948EADEDE6C579D4F3486F8A1EA8A2D1ABD1B0803F9E111780E1872516",
+      "language": "es",
+      "direction": "ltr",
+      "theme": "dark",
+      "viewport": "desktop",
+      "source": {
+        "run_id": "capture-local-8200-schema2-es-fixed-20260826",
+        "artifact": "today-desktop-dark-es.png",
+        "dimensions": {
+          "width": 2880,
+          "height": 1800
+        },
+        "sha256": "84DF5D2F1B3A23CB7BA5A66DF4F3A2C4A173CD11368A867D976D214827348E1D"
+      },
+      "privacy_review": "passed",
+      "grayscale_review": {
+        "status": "passed",
+        "note": "The greeting, lesson actions, reading card, and zeroed progress remain strongly separated from the subdued photographic background."
+      },
+      "alt": "Spanish dark-theme Ivrit Sheli Today dashboard for the generic Learner profile, with a reading word card, first-lesson actions, and zeroed starter progress."
+    },
+    {
+      "file": "today-desktop-dark-he.webp",
+      "media_type": "image/webp",
+      "bytes": 81064,
+      "dimensions": {
+        "width": 1600,
+        "height": 1000
+      },
+      "sha256": "E1AB811244ABEC78174ECDC19D855B28C74133957FAD25C392B2670FDAD50865",
+      "language": "he",
+      "direction": "rtl",
+      "theme": "dark",
+      "viewport": "desktop",
+      "source": {
+        "run_id": "capture-local-8200-schema2-he-20260826",
+        "artifact": "today-desktop-dark-he.png",
+        "dimensions": {
+          "width": 2880,
+          "height": 1800
+        },
+        "sha256": "A087B2FEEDFCDB75F069C0D7FE0C042B5DF736EA7AE63720B6F33386B02A83B0"
+      },
+      "privacy_review": "passed",
+      "grayscale_review": {
+        "status": "passed",
+        "note": "The RTL hierarchy, Hebrew greeting, reading card, calls to action, and progress cards remain clear. Secondary navigation hints are quieter but legible."
+      },
+      "alt": "Hebrew RTL dark-theme Ivrit Sheli Today dashboard for the generic Learner profile, with mirrored navigation, a reading word card, and starter progress."
+    },
+    {
+      "file": "today-phone-light-es.webp",
+      "media_type": "image/webp",
+      "bytes": 71304,
+      "dimensions": {
+        "width": 720,
+        "height": 1466
+      },
+      "sha256": "D93B71E006D3CED61BE6D7CABB10F988E685FE6258EE004C3284E7F453EB73FC",
+      "language": "es",
+      "direction": "ltr",
+      "theme": "light",
+      "viewport": "phone",
+      "source": {
+        "run_id": "capture-local-8200-schema2-es-fixed-20260826",
+        "artifact": "today-phone-light-es.png",
+        "dimensions": {
+          "width": 1082,
+          "height": 2202
+        },
+        "sha256": "0EF247859CB0A50147BBBFF272DF9F3BEAC441AA73F0AAE99BDD9EF8151CBDD7"
+      },
+      "privacy_review": "passed",
+      "grayscale_review": {
+        "status": "passed_with_note",
+        "note": "The reading card, greeting, main actions, and bottom navigation remain readable. Body copy over the photograph and secondary navigation are the least robust elements at thumbnail scale, so further aggressive downscaling is not recommended."
+      },
+      "alt": "Spanish light-theme mobile Ivrit Sheli Today dashboard for the generic Learner profile, with a Hebrew reading card, first-lesson actions, and bottom navigation."
+    }
+  ]
+}

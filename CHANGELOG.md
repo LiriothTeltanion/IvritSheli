@@ -4,6 +4,36 @@ All notable changes are documented here. Versions follow Semantic Versioning.
 
 ## Unreleased — private candidate work — 2026-08-26
 
+### README visual proof and formal browser gate — 2026-08-27
+
+- Replaces historical README imagery with five privacy-reviewed 2.12.2 WebP
+  captures. Their dimensions, hashes, source captures, locale, direction,
+  viewport and dirty-tree provenance are recorded in
+  `assets/readme/proof/2.12.2/manifest.json`.
+- Allows the formal Playwright configuration to target an explicitly supplied
+  served origin. The complete run used FastAPI port 8000 with CSP active and
+  finished with **35 passes, 40 intentional project-scoped skips and 0
+  failures** in 330.1 s.
+- Fixes topbar horizontal overflow at the 720 CSS-px boundary produced by 200%
+  desktop zoom and at 390 px in Hebrew RTL. At narrow 200% scale the sticky
+  header can wrap to a second line instead of freezing text in pixels or
+  clipping either the wordmark or the controls.
+- Fixes hidden 200%-text clipping inside Alphabet Studio by allowing its grid,
+  glyph showcase, content and sound cards to shrink and wrap. The E2E guard now
+  checks the card's own scroll width because document-level overflow cannot see
+  content clipped by `overflow: hidden`.
+- Updates E2E contracts to the current navigation hierarchy and accessible
+  names, the gallery's real pressed-button theme controls and native lazy-loaded
+  journey art. No browser coverage was removed or weakened.
+- Generated contact sheets and real human recognition remain separate gates;
+  the automated DOM matrix does not substitute for either.
+- Regenerates `SHA256SUMS.txt` from the explicitly reviewed Git index and passes
+  the package verifier with 217 required files, all packaged assets and 555
+  canonical checksum entries. Historical PNG candidates and local Playwright
+  inspection YAML remain outside the package.
+- This is private local candidate evidence only. It does not merge, tag,
+  publish, deploy or change any provider.
+
 ### Profile menu — it opened on a form before it said whose menu it was
 
 Asked for by Kevin after using it: shorter name section, avatars out of the
@@ -82,25 +112,23 @@ menu with a link instead, and the space given to what he has actually earned.
   five columns, and three on a narrow menu, both of which divide fifteen
   exactly. The count itself stays derived from `AVATAR_PRESETS`.
 
-### Published — 2026-08-26, 19:30 Asia/Jerusalem
+### Temporary external diagnostic session — 2026-08-26, 19:30 Asia/Jerusalem
 
-- **https://colin-changelog-favorite-predicted.trycloudflare.com** — reachable from any phone. A Cloudflare quick tunnel in front of the
-  production image on Kevin's own always-on machine.
-- Verified through the public address: `/health/ready` 200 with
+- A Cloudflare Quick Tunnel briefly exposed a Docker image on Kevin's machine.
+  The random hostname is intentionally omitted because the session was neither
+  a publication nor a durable hosted demo.
+- Verified during that session: `/health/ready` 200 with
   `postgresql: true`; the front page 200 in 0.26 s serving the real document
   title; and `Strict-Transport-Security`, `content-security-policy` and
   `x-frame-options: DENY` all intact over the tunnel.
-- **Why not a host.** Railway needs a paid plan — the trial expired by time, with
-  $4.54 of the grant unspent. **Hugging Face now charges for Docker Spaces**;
-  its own form says "Gradio and Docker Spaces require a paid plan. Static Spaces
-  stay free for everyone." Static cannot run FastAPI, and neither can Vercel:
-  serverless functions leave the eight-connection pool nowhere to live.
 - **The tunnel is honest about what it is.** The URL is random and changes when
-  the tunnel restarts, and the app is up only while the machine is. Good enough
-  for Kevin's mother to test tonight from an Android phone; not a deployment.
+  the tunnel restarts, and the app is up only while the machine is. It was a
+  diagnostic path, not a deployment or current availability claim.
 - Google sign-in does not work over it yet — the address is not in the OAuth
   client's authorised redirect URIs. The signed-out screen says so and offers the
   demonstration, which is what the 2026-08-24 honesty repair was for.
+- Provider pricing and future hosting suitability were not verified for this
+  record and are deliberately left to a separate, current decision brief.
 
 ### Security — the token library had six advisories against it
 

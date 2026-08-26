@@ -10,6 +10,8 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:e2e": "playwright test",
+    "capture:readme": "node scripts/capture-screenshots.mjs",
+    "test:capture": "node --test scripts/capture-screenshots.test.mjs",
     "typecheck": "tsc -b --pretty false"
   },
   "dependencies": {

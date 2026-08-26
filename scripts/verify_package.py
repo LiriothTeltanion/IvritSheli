@@ -352,7 +352,7 @@ def _verify_exact_keys(
 
 
 def verify_portfolio_manifest() -> list[str]:
-    """Enforce the conservative private-candidate/public-release contract."""
+    """Keep source, publication, historical hosting, and current availability distinct."""
     path = ROOT / "portfolio" / "project.json"
     try:
         manifest = json.loads(path.read_text(encoding="utf-8"))
@@ -363,10 +363,11 @@ def verify_portfolio_manifest() -> list[str]:
     top_level, failures = _verify_exact_keys(
         manifest,
         {
-            "schema", "slug", "name", "source_version", "live_version", "status",
-            "default_branch", "repository_url", "demo_url", "summary", "languages",
-            "stack", "tests", "deployment", "publication", "candidate", "visual_proof",
-            "oauth", "privacy",
+            "schema", "slug", "name", "source_version", "source_status",
+            "latest_published_release", "default_branch", "repository_url",
+            "durable_demo", "summary", "languages", "standard_stack",
+            "optional_capabilities", "tests", "historical_deployment", "publication",
+            "candidate", "visual_proof", "oauth", "privacy",
         },
         "root",
     )
@@ -374,15 +375,14 @@ def verify_portfolio_manifest() -> list[str]:
         return failures
 
     expected_scalars = {
-        "schema": "ivrit-sheli-portfolio-project-v2",
+        "schema": "ivrit-sheli-portfolio-project-v3",
         "slug": "ivrit-sheli",
         "name": "Ivrit Sheli — העברית שלי",
         "source_version": current_version,
-        "live_version": "2.4.0",
-        "status": "private-release-candidate",
+        "source_status": "private-release-candidate",
+        "latest_published_release": "v2.4.0",
         "default_branch": "main",
         "repository_url": "https://github.com/LiriothTeltanion/IvritSheli",
-        "demo_url": "https://ivritsheli-production.up.railway.app",
     }
     for key, expected in expected_scalars.items():
         if top_level.get(key) != expected:
@@ -390,53 +390,116 @@ def verify_portfolio_manifest() -> list[str]:
                 f"portfolio/project.json: {key} must be {expected!r}, got {top_level.get(key)!r}"
             )
 
+    durable_demo, nested = _verify_exact_keys(
+        top_level.get("durable_demo"),
+        {"url", "status", "provider", "last_checked_on", "boundary"},
+        "durable_demo",
+    )
+    failures.extend(nested)
+    if durable_demo is not None:
+        expected_demo_state = {
+            "url": None,
+            "status": "unavailable",
+            "provider": None,
+            "last_checked_on": "2026-08-26",
+        }
+        for key, expected in expected_demo_state.items():
+            if durable_demo.get(key) != expected:
+                failures.append(
+                    "portfolio/project.json: durable_demo."
+                    f"{key} must be {expected!r}, got {durable_demo.get(key)!r}"
+                )
+        boundary = durable_demo.get("boundary")
+        if not isinstance(boundary, str) or len(boundary.strip()) < 100:
+            failures.append(
+                "portfolio/project.json: durable_demo.boundary must explain the current hosting limit"
+            )
+
+    serialized_manifest = json.dumps(manifest, ensure_ascii=False).lower()
+    if "trycloudflare.com" in serialized_manifest:
+        failures.append(
+            "portfolio/project.json: ephemeral Cloudflare Quick Tunnel URLs must not be hard-coded"
+        )
+
     summary = top_level.get("summary")
     if not isinstance(summary, str) or not 80 <= len(summary) <= 300:
         failures.append("portfolio/project.json: summary must contain 80-300 public characters")
     if top_level.get("languages") != ["en", "es", "he"]:
         failures.append("portfolio/project.json: languages must be ['en', 'es', 'he']")
-    expected_stack = [
+    expected_standard_stack = [
         "React 19", "TypeScript", "FastAPI", "Python", "PostgreSQL 17", "SQLite",
-        "Alembic", "Faster Whisper", "Web Push", "Docker", "Railway",
+        "Alembic", "Docker",
     ]
-    if top_level.get("stack") != expected_stack:
-        failures.append("portfolio/project.json: stack does not match the candidate stack")
+    if top_level.get("standard_stack") != expected_standard_stack:
+        failures.append(
+            "portfolio/project.json: standard_stack must describe the portable standard container"
+        )
+    expected_optional_capabilities = [
+        "Faster Whisper private speech worker",
+        "Web Push reminders",
+    ]
+    if top_level.get("optional_capabilities") != expected_optional_capabilities:
+        failures.append(
+            "portfolio/project.json: optional_capabilities must remain separate from standard_stack"
+        )
 
     # Public evidence stays pinned to the last genuinely verified public release.
     tests, nested = _verify_exact_keys(
         top_level.get("tests"),
-        {"version", "backend_unique", "frontend", "frontend_files", "total_unique",
-         "ordinary_backend_passed", "ordinary_backend_skipped", "postgresql_gate_passed", "evidence"},
+        {"version", "scope", "backend_unique", "frontend", "frontend_files",
+         "total_unique", "ordinary_backend_passed", "ordinary_backend_skipped",
+         "postgresql_gate_passed", "evidence"},
         "tests",
     )
     failures.extend(nested)
     expected_tests = {
-        "version": "2.4.0", "backend_unique": 151, "frontend": 62,
+        "version": "2.4.0", "scope": "historical-public-release",
+        "backend_unique": 151, "frontend": 62,
         "frontend_files": 16, "total_unique": 213, "ordinary_backend_passed": 150,
         "ordinary_backend_skipped": 1, "postgresql_gate_passed": 3,
         "evidence": "TEST_REPORT.md",
     }
     if tests is not None and tests != expected_tests:
-        failures.append("portfolio/project.json: public test baseline must remain the verified 2.4.0 baseline")
+        failures.append(
+            "portfolio/project.json: tests must preserve the historical 2.4.0 "
+            "public-release record"
+        )
 
-    deployment, nested = _verify_exact_keys(
-        top_level.get("deployment"),
-        {"version", "provider", "runtime", "database", "status", "release_implementation_commit",
-         "verified_on", "environment", "health_live", "health_ready", "postgresql_ready",
-         "dictionary_ready", "dictionary_entries", "english_entry_verified", "read_only_tour_verified"},
-        "deployment",
+    historical_deployment, nested = _verify_exact_keys(
+        top_level.get("historical_deployment"),
+        {"version", "provider", "former_demo_url", "runtime", "database",
+         "historical_status", "release_implementation_commit", "verified_on",
+         "environment", "health_live_at_verification", "health_ready_at_verification",
+         "postgresql_ready_at_verification", "dictionary_ready_at_verification",
+         "dictionary_entries_at_verification", "english_entry_verified_at_verification",
+         "read_only_tour_verified_at_verification", "current_availability",
+         "last_checked_on", "current_http_status"},
+        "historical_deployment",
     )
     failures.extend(nested)
-    expected_deployment = {
+    expected_historical_deployment = {
         "version": "2.4.0", "provider": "Railway", "runtime": "Docker",
-        "database": "PostgreSQL 17", "status": "verified-live",
+        "former_demo_url": "https://ivritsheli-production.up.railway.app",
+        "database": "PostgreSQL 17", "historical_status": "verified-on-2026-07-21",
         "release_implementation_commit": "03bf84b9268ff8be528c0fab3c670f9652ee23b0",
-        "verified_on": "2026-07-21", "environment": "production", "health_live": True,
-        "health_ready": True, "postgresql_ready": True, "dictionary_ready": True,
-        "dictionary_entries": 48, "english_entry_verified": True, "read_only_tour_verified": True,
+        "verified_on": "2026-07-21", "environment": "production",
+        "health_live_at_verification": True, "health_ready_at_verification": True,
+        "postgresql_ready_at_verification": True,
+        "dictionary_ready_at_verification": True,
+        "dictionary_entries_at_verification": 48,
+        "english_entry_verified_at_verification": True,
+        "read_only_tour_verified_at_verification": True,
+        "current_availability": "offline", "last_checked_on": "2026-08-26",
+        "current_http_status": 404,
     }
-    if deployment is not None and deployment != expected_deployment:
-        failures.append("portfolio/project.json: deployment must remain the verified 2.4.0 production record")
+    if (
+        historical_deployment is not None
+        and historical_deployment != expected_historical_deployment
+    ):
+        failures.append(
+            "portfolio/project.json: historical_deployment must preserve the dated 2.4.0 "
+            "record while reporting current Railway availability as offline"
+        )
 
     publication, nested = _verify_exact_keys(
         top_level.get("publication"),
@@ -450,10 +513,15 @@ def verify_portfolio_manifest() -> list[str]:
         "latest_github_release": "v2.4.0",
         "source_version_tagged": False,
         "source_version_github_release_published": False,
-        "release_state": f"{current_version}-private-candidate-2.4.0-live-and-published",
+        "release_state": (
+            f"{current_version}-private-candidate-v2.4.0-latest-published-no-durable-demo"
+        ),
     }
     if publication is not None and publication != expected_publication:
-        failures.append("portfolio/project.json: publication boundary must keep the candidate private and v2.4.0 public")
+        failures.append(
+            "portfolio/project.json: publication boundary must keep the candidate private "
+            "and v2.4.0 as the latest published release"
+        )
 
     candidate, nested = _verify_exact_keys(
         top_level.get("candidate"),
@@ -474,7 +542,10 @@ def verify_portfolio_manifest() -> list[str]:
             "learner_experiences": ["Guided", "Explorer", "Experienced"],
             "learning_engine": "Deterministic LocalLearningEngine",
             "personal_coach": "Reviewed deterministic LocalPersonalCoach with bounded feedback",
-            "speech": "Self-hosted Faster Whisper small, Hebrew, CPU INT8, 20-second private pilot limit",
+            "speech": (
+                "Optional self-hosted Faster Whisper small worker for Hebrew CPU INT8 "
+                "transcription with a 20-second private pilot limit"
+            ),
             "reminders": "Optional standards-based Web Push with one reminder per learner/local day",
             "semantic_visual_recipes": 240,
             "category_visual_fallbacks": 0,
@@ -497,50 +568,135 @@ def verify_portfolio_manifest() -> list[str]:
 
     visual_proof, nested = _verify_exact_keys(
         top_level.get("visual_proof"),
-        {"state", "social_preview_version", "readme_screenshot_version",
-         "readme_screenshots_match_source_version", "interactive_browser_qa"},
+        {"state", "social_preview_version", "readme_screenshot_source_version",
+         "readme_screenshot_status", "interactive_browser_qa"},
         "visual_proof",
     )
     failures.extend(nested)
     if visual_proof is not None:
         if "240" not in str(visual_proof.get("state", "")):
             failures.append("portfolio/project.json: visual_proof.state must record 240 exact semantic scenes")
-        if visual_proof.get("readme_screenshots_match_source_version") is not False:
-            failures.append("portfolio/project.json: inherited README screenshots must not be claimed as current")
+        screenshot_status = visual_proof.get("readme_screenshot_status")
+        if screenshot_status not in {"historical", "candidate", "verified-current"}:
+            failures.append(
+                "portfolio/project.json: visual_proof.readme_screenshot_status must be "
+                "historical, candidate, or verified-current"
+            )
+        screenshot_version = visual_proof.get("readme_screenshot_source_version")
+        if not isinstance(screenshot_version, str) or not re.fullmatch(
+            r"\d+\.\d+\.\d+", screenshot_version
+        ):
+            failures.append(
+                "portfolio/project.json: visual_proof.readme_screenshot_source_version "
+                "must be a semantic version"
+            )
+        elif screenshot_status in {"candidate", "verified-current"} and screenshot_version != current_version:
+            failures.append(
+                "portfolio/project.json: current screenshot evidence must name the current source version"
+            )
         if "240" not in str(visual_proof.get("interactive_browser_qa", "")):
             failures.append("portfolio/project.json: visual QA boundary must mention the 240-scene candidate")
 
     oauth, nested = _verify_exact_keys(
         top_level.get("oauth"),
-        {"providers", "source_contract_tested", "google_live_configured", "google_live_sign_in_verified",
-         "github_live_successful_session_verified", "authenticated_session_refresh_verified",
-         "onboarding_persistence_across_reload_verified", "logout_verified", "signed_out_reload_verified",
-         "relogin_after_logout_verified", "boundary"},
+        {"providers", "source_contract_tested", "historical_public_release_version",
+         "google_sign_in_verified_at_release", "github_successful_session_verified_at_release",
+         "authenticated_session_refresh_verified_at_release",
+         "onboarding_persistence_across_reload_verified_at_release",
+         "logout_verified_at_release", "signed_out_reload_verified_at_release",
+         "relogin_after_logout_verified_at_release", "boundary"},
         "oauth",
     )
     failures.extend(nested)
     if oauth is not None:
         if oauth.get("providers") != ["Google", "GitHub"]:
             failures.append("portfolio/project.json: OAuth providers must remain Google + GitHub")
+        expected_oauth_evidence = {
+            "source_contract_tested": True,
+            "historical_public_release_version": "2.4.0",
+            "google_sign_in_verified_at_release": True,
+            "github_successful_session_verified_at_release": False,
+            "authenticated_session_refresh_verified_at_release": True,
+            "onboarding_persistence_across_reload_verified_at_release": True,
+            "logout_verified_at_release": True,
+            "signed_out_reload_verified_at_release": True,
+            "relogin_after_logout_verified_at_release": False,
+        }
+        for key, expected in expected_oauth_evidence.items():
+            if oauth.get(key) != expected:
+                failures.append(
+                    f"portfolio/project.json: oauth.{key} must be {expected!r}, "
+                    f"got {oauth.get(key)!r}"
+                )
         boundary = oauth.get("boundary")
-        if not isinstance(boundary, str) or "openid profile" not in boundary.lower() and "identity-only" not in boundary.lower():
+        if (
+            not isinstance(boundary, str)
+            or "identity-only" not in boundary.lower()
+            or "historical" not in boundary.lower()
+        ):
             failures.append("portfolio/project.json: OAuth boundary must preserve identity-only Google sign-in")
 
     privacy, nested = _verify_exact_keys(
         top_level.get("privacy"),
-        {"local_first", "public_demo_data", "public_demo_mutations", "self_service_export_in_source",
+        {"local_first", "demo_data_contract", "demo_mutation_contract",
+         "durable_demo_currently_available", "self_service_export_in_source",
          "self_service_deletion_in_source", "contains_secrets"},
         "privacy",
     )
     failures.extend(nested)
     expected_privacy = {
-        "local_first": True, "public_demo_data": "synthetic", "public_demo_mutations": "server-blocked",
+        "local_first": True, "demo_data_contract": "synthetic",
+        "demo_mutation_contract": "server-blocked",
+        "durable_demo_currently_available": False,
         "self_service_export_in_source": True, "self_service_deletion_in_source": True,
         "contains_secrets": False,
     }
     if privacy is not None and privacy != expected_privacy:
         failures.append("portfolio/project.json: privacy contract changed unexpectedly")
     return failures
+
+
+def _verify_readme_release_truth(readme: str, current_version: str) -> list[str]:
+    """Validate README wording without treating historical hosting as current availability."""
+    failures: list[str] = []
+    for fragment in (f"Ivrit Sheli {current_version}", "240"):
+        if fragment not in readme:
+            failures.append(f"README.md: missing release-truth fragment {fragment!r}")
+
+    truth_patterns = {
+        "private unpublished source candidate": re.compile(
+            rf"(?:private|unpublished)[^\n]{{0,160}}(?:candidate|{re.escape(current_version)})"
+            rf"|(?:candidate|{re.escape(current_version)})[^\n]{{0,160}}(?:private|unpublished)",
+            flags=re.IGNORECASE,
+        ),
+        "v2.4.0 as the latest published release": re.compile(
+            r"latest published (?:release|version)[^\n]{0,100}v?2\.4\.0"
+            r"|v2\.4\.0[^\n]{0,100}latest published (?:release|version)",
+            flags=re.IGNORECASE,
+        ),
+        "no verified durable hosted demo": re.compile(
+            r"(?:no|without|unavailable|unverified)[^\n]{0,100}durable hosted demo"
+            r"|durable hosted demo[^\n]{0,100}(?:unavailable|unverified|not verified)",
+            flags=re.IGNORECASE,
+        ),
+    }
+    for boundary, pattern in truth_patterns.items():
+        if pattern.search(readme) is None:
+            failures.append(f"README.md: missing release-truth boundary for {boundary}")
+
+    forbidden = (
+        f"{current_version} is live",
+        f"v{current_version} release is published",
+        "Current public deployed application",
+        "Version 2.4.0 is live at",
+        "Railway production still reports",
+        "trycloudflare.com",
+    )
+    for fragment in forbidden:
+        if fragment in readme:
+            failures.append(f"README.md: forbidden publication claim {fragment!r}")
+    return failures
+
 
 def verify_release_truth_drift() -> list[str]:
     """Keep current candidate claims honest without rewriting historical evidence."""
@@ -550,13 +706,6 @@ def verify_release_truth_drift() -> list[str]:
         return [str(error)]
 
     expected_fragments = {
-        "README.md": (
-            f"Ivrit Sheli {current_version}",
-            "Current public deployed application | `2.4.0`",
-            "03bf84b9268ff8be528c0fab3c670f9652ee23b0",
-            "240",
-            "private",
-        ),
         "CHANGELOG.md": (
             f"{current_version} — Visual Harmony & Resilience",
             "240/240",
@@ -591,9 +740,15 @@ def verify_release_truth_drift() -> list[str]:
             if fragment not in text:
                 failures.append(f"{relative}: missing release-truth fragment {fragment!r}")
 
+    try:
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    except OSError as error:
+        failures.append(f"README.md: {error}")
+    else:
+        failures.extend(_verify_readme_release_truth(readme, current_version))
+
     # Candidate surfaces must never imply this unpublished tree replaced the verified public release.
     forbidden = {
-        "README.md": (f"{current_version} is live", f"v{current_version} release is published"),
         "PACKAGE_MANIFEST.md": (f"v{current_version} is the latest published",),
         "TEST_REPORT.md": (f"Current verified production:** `{current_version}`",),
     }

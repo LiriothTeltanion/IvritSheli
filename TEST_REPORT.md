@@ -1,15 +1,19 @@
 # Ivrit Sheli — Verification Ledger
 
 - **Current private source candidate:** `2.12.2` / local artifact / unpublished
-- **Latest gate date:** 2026-08-23 (2.12.2). The 2.12.0 Nocturne gate of
-  2026-08-14 is preserved below as history and is not relabelled.
-- **Current verified public production:** `2.4.0` / Railway / PostgreSQL / verified 2026-07-21
+- **Latest gate date:** 2026-08-27 (2.12.2 README visual-proof and formal
+  browser batch). The
+  2.12.0 Nocturne gate of 2026-08-14 is preserved below as history and is not
+  relabelled.
+- **Latest published release:** `2.4.0` / historical Railway + PostgreSQL
+  verification dated 2026-07-21; the former hosted service was offline when
+  checked on 2026-08-26
 - **Historical candidate baselines:** `2.11.0` passed 705 frontend and 315
   backend tests plus its 240 × 3 visual matrix on 2026-08-14; `2.10.0` Phase
   4A.1 completed 1,047 automated passes on 2026-08-13. Neither number is
   relabelled as 2.12.0 proof.
 
-## Current 2.12.0 evidence boundary
+## Current 2.12.2 evidence boundary
 
 This visual checkpoint preserves **240/240 exact semantic scenes** while adding
 dark-first theme resolution, responsive regional art, adult shared geometry,
@@ -19,9 +23,95 @@ remain inherited 2.10 evidence because this slice does not change runtime data
 boundaries. Human recognition, speech pilot and isolated staging remain
 required before publication.
 
-The verified public `2.4.0` production record remains unchanged. Nothing in
-this private artifact claims that 2.12.0 is deployed, tagged, released or
+The historical published `2.4.0` record remains unchanged. Nothing in this
+private artifact claims that 2.12.2 is deployed, tagged, released or
 submitted to Devpost.
+
+## README visual-proof and performance gate — reference Windows machine — 2026-08-27
+
+This gate used the worktree then based on
+`7ac5f941db66435cbdd59a14e7178462eabc4785` plus explicitly recorded
+uncommitted changes; the reviewed snapshot was later committed locally without
+publication. A dedicated loopback FastAPI runtime reported `2.12.2`,
+commit label `7ac5f941db66435cbdd59a14e7178462eabc4785+dirty`, local environment,
+SQLite storage and 240 ready dictionary entries. It served the production
+bundle with CSP and no-cache headers; it was not Vite-only proof.
+
+| Gate | Command / method | Result |
+|---|---|---|
+| Frontend suite | `npx vitest run` | **858 passed / 49 files / 0 failed** in 103.87 s |
+| TypeScript | `npx tsc -b --pretty false` | **Passed** |
+| Production bundle | `npm run build` | **Passed**; Vite 8.1.4 transformed 134 modules in 1.28 s; the `advancedChunks` deprecation warning remains |
+| Capture contracts | `npm run test:capture` | **4 passed / 0 failed** with Node's test runner |
+| Backend suite | `.venv\Scripts\python.exe -m pytest backend\tests -q -p no:cacheprovider` | **360 passed / 1 PostgreSQL credential-gated skip / 0 failed** in 81.18 s |
+| Backend style | `.venv\Scripts\python.exe -m ruff check backend\src backend\tests scripts` | **Passed** |
+| Backend types | `.venv\Scripts\python.exe -m mypy backend\src` | **Passed** across 39 source files |
+| Release/portfolio contract | 14 focused pytest cases plus direct validators | **14 passed; 0 direct-validator failures** |
+| README local references | Exact-case filesystem traversal | **21/21 local links and assets present** |
+| Exact browser accessibility | Chromium, served bundle, 390 × 844, HE/RTL, dark, reduced motion, deterministic read-only API fixtures | **Passed**: no horizontal overflow; mobile drawer hit target and navigation passed; axe reported 0 total WCAG 2/2.1 A/AA violations |
+| Formal Playwright matrix | `$env:PLAYWRIGHT_BASE_URL='http://127.0.0.1:8000'; npx playwright test --workers=1 --reporter=line` | **35 passed / 40 intentional project-scoped skips / 0 failed** across 75 listed cases in 330.1 s against the FastAPI-served production bundle with CSP |
+| Package integrity | `.venv\Scripts\python.exe scripts\verify_package.py` | **Passed**: 217 required files and all packaged assets; `SHA256SUMS.txt` contains 555 canonical Git-index entries |
+
+The first full Vitest attempt reported 856 passes, two lazy-scene lookup
+failures and one empty suite because Vitest collected the new `node:test`
+capture contract. The six affected product tests then passed in isolation.
+`vite.config.ts` now excludes `scripts/**` from Vitest while `npm run
+test:capture` continues to execute all four Node contracts; the complete
+unchanged product suite then passed 858/858. No test was deleted, skipped, or
+weakened.
+
+Vitest still prints non-fatal React `act(...)` notices in existing asynchronous
+dashboard/settings cases and jsdom's expected missing-canvas notice. Backend
+pytest still prints the existing FastAPI/Starlette `httpx` compatibility
+deprecation warning. These warnings did not fail the recorded runs.
+
+The formal browser run exercised the 390 px, 768 px and 1440 px projects. It
+covered the 240-scene compare gallery, all three rendered scene sizes, EN/ES/HE,
+LTR/RTL, reduced motion, 200% text reflow, responsive journey art, keyboard and
+semantic paths, and axe checks. The 40 skips are declared viewport/project
+scoping for tests that intentionally run in only one project; they are not
+failures or missing browser binaries. The run uses deterministic API fixtures,
+so it does not prove PostgreSQL, OAuth providers or hosted persistence. It also
+does not replace the separately generated contact-sheet matrix or human visual
+recognition.
+
+### Capture and visual evidence
+
+The fail-closed capture runner produced successful candidate matrices from the
+same served runtime: 14 ES states, 1 EN state and 2 HE/RTL states across desktop
+and phone, light/dark themes and Today/Alphabet/Dictionary surfaces. Five
+privacy-safe WebP derivatives were selected; the original PNGs and the earlier
+17 untracked screenshot candidates were preserved unchanged. The public
+selection ledger is `assets/readme/proof/2.12.2/manifest.json`.
+
+Every selected WebP and its grayscale working copy was visually inspected.
+Primary headings, actions, Hebrew letterforms and learning content remained
+readable without colour. Secondary hints were quieter in the dark dictionary
+and HE dashboard; mobile body copy over photography is the least robust at
+thumbnail scale, so the phone asset should not be downscaled further.
+
+### Performance evidence
+
+Three exact-current local cold runs reached a stable FastAPI/SQLite workspace
+in 2.65 s, 2.07 s and 1.83 s (median 2.07 s). A temporary external
+Docker/PostgreSQL diagnostic path reached the landing page in a median 1.21 s
+but required a median 44.97 s for the fully stable demo. Direct restricted-role
+measurements from this laptop showed a 2.93 s median new connection and 0.37 s
+median `SELECT 1` on an open connection. Database region and SQL query count
+remain unverified. Full method and boundaries are in
+`docs/PERFORMANCE_EVIDENCE_2026-08-26.md`.
+
+### Not run or not completed in this gate
+
+- The generated contact-sheet matrix (`node frontend/scripts/visual-qa-matrix.mjs
+  --matrix`) and human review of those sheets. The formal Playwright project
+  matrix is current above; its DOM assertions are not human-recognition
+  evidence.
+- Offline doctor and current no-cache Docker/container smoke.
+- Live provider sign-in, two-real-account continuity/isolation, isolated HTTPS
+  staging, backup/restore, migration/provisioning, deployment and publication.
+- Human five-second recognition, Hebrew-content acceptance and the pilot with
+  Kevin's mother.
 
 ## Visual Harmony & Resilience gate — reference Windows machine — 2026-08-23
 
@@ -87,7 +177,7 @@ guard deleted, a repository cache not invalidated on write, and a Supabase
 bearer path that raised `TypeError` on every request into a bare `except`. All
 five are repaired in `9d8d463`.
 
-### Not run for 2.12.2
+### Not run at the 2026-08-23 checkpoint
 
 - Playwright browser matrix and the 240 × 3 contact matrices.
 - Offline doctor.
@@ -98,17 +188,18 @@ five are repaired in `9d8d463`.
   recorded above.
 - Human five-second recognition, Hebrew-content acceptance and the mother pilot.
 
-## Published and publicly reachable — 2026-08-26, 19:30 Asia/Jerusalem
+## Temporary external diagnostic session — 2026-08-26, 19:30 Asia/Jerusalem
 
-**https://colin-changelog-favorite-predicted.trycloudflare.com**
-
-The first time this application has been reachable from outside Kevin's machine
-since public 2.4.0 on 2026-07-21, and the first time ever for 2.12.2.
+An ephemeral Cloudflare Quick Tunnel briefly exposed a Docker/PostgreSQL
+runtime for diagnostics. Its random hostname is intentionally omitted: the
+session was not a publication, durable hosted demo, production deployment, or
+exact-current-source proof, and its address must not be reused as product
+metadata.
 
 | Check | Result |
 |---|---|
-| `/health/ready` through the public URL | **200**, `status: ready`, `postgresql: true`, `shared_cloud`, 240 entries |
-| Front page through the public URL | **200**, 3390 bytes, **0.26 s** |
+| `/health/ready` during the temporary session | **200**, `status: ready`, `postgresql: true`, `shared_cloud`, 240 entries |
+| Front page during the temporary session | **200**, 3390 bytes, **0.26 s** |
 | Served document | `Ivrit Sheli 2.12.2 · Visual Harmony & Resilience · העברית שלי` |
 | Security headers over the tunnel | `Strict-Transport-Security`, `content-security-policy: default-src 'self'`, `x-frame-options: DENY` |
 | Container | `Up (healthy)`, `--restart unless-stopped` |
@@ -116,29 +207,28 @@ since public 2.4.0 on 2026-07-21, and the first time ever for 2.12.2.
 
 ### What this is, precisely
 
-A **Cloudflare quick tunnel** in front of the production image running on Kevin's
-own machine, which is on 24/7 and mains-powered. It is not a hosted deployment:
-the URL is randomly assigned and changes when the tunnel restarts, and the app is
-reachable only while both the tunnel and the container are running.
+A **Cloudflare Quick Tunnel** in front of a Docker image running on Kevin's own
+machine. It was reachable only while both the tunnel and container were alive;
+the random address was not a stable hosting contract. The image also predated
+the exact dirty source used for the later README captures, so this section is
+external-path evidence rather than provenance for those captures.
 
-It exists because the free options ran out. Railway needs a plan — the trial
-expired by time, not credit, and $4.54 of the grant is still unspent. **Hugging
-Face now charges for Docker Spaces**: the create-Space form states plainly that
-"Gradio and Docker Spaces require a paid plan. Static Spaces stay free for
-everyone." A static Space cannot host a FastAPI process, and neither can Vercel,
-whose functions give the in-memory connection pool nowhere to live.
+Provider pricing, free-tier suitability, and a future hosting choice were not
+verified in this evidence batch and are not inferred from the temporary
+session. No provider resource was created, restarted, or changed.
 
-### What works and what does not, over this URL
+### What worked and what did not during that session
 
 Working: the read-only demonstration, all 240 scenes, audio, the trilingual
 interface, and every screen.
 
-**Not working: Google sign-in.** `GOOGLE_AUTH_REDIRECT_URI` points at this
-tunnel, but the address is not yet in the Google OAuth client's authorised
-redirect URIs, and it changes on every tunnel restart. The signed-out screen says
-so honestly rather than failing silently — it renders "Este servidor no tiene el
-inicio de sesión configurado" and offers the demonstration instead, which is the
-behaviour added on 2026-08-24 for exactly this case.
+**Not working: Google sign-in.** The ephemeral address was not configured as an
+authorized redirect URI. The signed-out screen reported that sign-in was not
+configured and offered the demonstration instead of failing silently.
+
+The reproducible timing investigation that followed is recorded separately in
+`docs/PERFORMANCE_EVIDENCE_2026-08-26.md`; it supersedes rough timing and region
+estimates without turning this session into a deployment claim.
 
 ## Migration 20260826_0007 applied to the live project — 2026-08-26, evening
 
@@ -256,7 +346,7 @@ algorithms configured together, and `SUPABASE_JWT_ALGORITHMS` is
 `("ES256", "RS256")`. That is the earlier repair which took HS256 out from
 beside the JWKS public keys, still holding.
 
-### Still not run, and required before publication
+### Still not run at the 2026-08-26 audit checkpoint
 
 - Playwright browser matrix and the 240 × 3 contact matrices.
 - The no-cache container smoke; `docker compose` was not exercised.
