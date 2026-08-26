@@ -28,7 +28,7 @@ from zoneinfo import ZoneInfo
 from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from psycopg import Error as PostgresError
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -2787,11 +2787,53 @@ def register_frontend(app: FastAPI, frontend_dist: Path) -> None:
     if assets_dir.exists():
         app.mount("/assets", StaticFiles(directory=assets_dir), name="frontend-assets")
 
-    @app.get("/", include_in_schema=False)
-    async def root() -> Any:
+    @lru_cache(maxsize=2)
+    def _index_document(base_url: str) -> str:
+        """Serve index.html with absolute social-card image URLs.
+
+        Date: 2026-08-26 | TZ: Asia/Jerusalem
+
+        `docs/DEPLOYMENT.md` has carried a manual release step since 2.9 —
+        "rewrite og:image and twitter:image from /social/... to an absolute URL
+        against PUBLIC_BASE_URL" — because crawlers do not reliably resolve a
+        relative image and the card then silently falls back to no image at all.
+
+        A manual step is a step somebody forgets, and on 2026-08-26 somebody had:
+        the first link sent to a real reader would have arrived in WhatsApp as
+        title, description and a bare tunnel URL, with the artwork missing. It is
+        done here instead, from `PUBLIC_BASE_URL`, so it is right on every host
+        without anyone remembering.
+
+        The file is read once per base URL; two entries covers the real base and
+        any redirect variant.
+        """
+        raw = (frontend_dist / "index.html").read_text(encoding="utf-8")
+        if not base_url:
+            return raw
+        return raw.replace('content="/social/', f'content="{base_url.rstrip("/")}/social/')
+
+    def _index_response(request: Request) -> Any:
         index = frontend_dist / "index.html"
-        if index.exists():
-            return FileResponse(index, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
+        if not index.exists():
+            return None
+        # The base URL lives on the request's services rather than in this
+        # closure, and a request that arrives before startup finishes has none;
+        # falling back to the raw document keeps the page serving in that
+        # window, with a relative card image, which is what it did before.
+        try:
+            base_url = services(request).settings.public_base_url
+        except Exception:  # noqa: BLE001 - a missing base URL must not 500 the page
+            base_url = ""
+        return HTMLResponse(
+            _index_document(base_url),
+            headers={"Cache-Control": "no-cache, no-store, must-revalidate"},
+        )
+
+    @app.get("/", include_in_schema=False)
+    async def root(request: Request) -> Any:
+        document = _index_response(request)
+        if document is not None:
+            return document
         return JSONResponse(
             {
                 "name": "Ivrit Sheli",
@@ -2816,16 +2858,16 @@ def register_frontend(app: FastAPI, frontend_dist: Path) -> None:
         return FileResponse(note, media_type="text/markdown; charset=utf-8")
 
     @app.get("/{path:path}", include_in_schema=False)
-    async def spa_fallback(path: str) -> Any:
+    async def spa_fallback(path: str, request: Request) -> Any:
         # API misses must remain JSON 404s instead of returning the SPA shell.
         if path.startswith("api/"):
             raise HTTPException(status_code=404, detail="API route not found")
         candidate = frontend_dist / path
         if candidate.is_file() and frontend_dist.resolve() in candidate.resolve().parents:
             return FileResponse(candidate)
-        index = frontend_dist / "index.html"
-        if index.exists():
-            return FileResponse(index, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
+        document = _index_response(request)
+        if document is not None:
+            return document
         raise HTTPException(status_code=404, detail="Frontend is not built")
 
 

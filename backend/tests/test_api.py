@@ -12,6 +12,7 @@ import sqlite3
 from dataclasses import replace
 from pathlib import Path
 
+import pytest
 from fastapi.testclient import TestClient
 
 from ivrit_sheli.api import create_app
@@ -136,6 +137,67 @@ def test_health_and_security_headers(
     assert production_response.headers["Strict-Transport-Security"] == (
         "max-age=31536000; includeSubDomains"
     )
+
+
+@pytest.mark.parametrize(
+    ("public_base_url", "expected_image_url"),
+    [
+        (
+            "https://ivrit.example/",
+            "https://ivrit.example/social/ivrit-sheli-card.png",
+        ),
+        ("", "/social/ivrit-sheli-card.png"),
+    ],
+    ids=("absolute-public-base", "relative-empty-base"),
+)
+def test_frontend_social_cards_and_spa_fallback_preserve_http_contract(
+    settings: Settings,
+    tmp_path: Path,
+    public_base_url: str,
+    expected_image_url: str,
+) -> None:
+    frontend_dist = tmp_path / "frontend-dist"
+    frontend_dist.mkdir()
+    (frontend_dist / "index.html").write_text(
+        """<!doctype html>
+<html><head>
+<meta property="og:image" content="/social/ivrit-sheli-card.png">
+<meta name="twitter:image" content="/social/ivrit-sheli-card.png">
+</head></html>
+""",
+        encoding="utf-8",
+    )
+    static_settings = replace(
+        settings,
+        data_dir=tmp_path / "static-data",
+        db_path=tmp_path / "static-learning.db",
+        dictionary_db_path=tmp_path / "static-dictionary.db",
+        frontend_dist=frontend_dist,
+        public_base_url=public_base_url,
+    )
+
+    with TestClient(create_app(static_settings)) as static_client:
+        for path in ("/", "/learn/today"):
+            response = static_client.get(path)
+            assert response.status_code == 200, path
+            assert response.headers["Cache-Control"] == (
+                "no-cache, no-store, must-revalidate"
+            )
+            assert response.headers["content-type"].startswith("text/html")
+            assert (
+                f'property="og:image" content="{expected_image_url}"'
+                in response.text
+            )
+            assert (
+                f'name="twitter:image" content="{expected_image_url}"'
+                in response.text
+            )
+
+        api_miss = static_client.get("/api/v1/not-a-route")
+        assert api_miss.status_code == 404
+        assert api_miss.headers["content-type"].startswith("application/json")
+        assert api_miss.headers["Cache-Control"] == "no-store"
+        assert api_miss.json() == {"detail": "API route not found"}
 
 
 def test_dashboard_profile_and_gamification_boot_cleanly(client: TestClient) -> None:
