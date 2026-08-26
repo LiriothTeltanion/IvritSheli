@@ -3,7 +3,7 @@
 **Current Version:** `2.12.2 — Visual Harmony & Resilience`  
 **Baseline Branch:** `consolidation/ivrit-sheli-2.10-baseline`  
 **State:** Private / Local / Verified  
-**Public Contest Boundary:** Public production remains frozen at **2.4.0 Contest Edition (2026-07-21)** until after **2026-08-25**.
+**Public Contest Boundary:** The contest freeze **expired on 2026-08-25**. Public production is still **2.4.0 Contest Edition (2026-07-21)** because `main` has not moved since then, not because anything forbids moving it. Publishing is now a decision, not a prohibition — and it is Kevin's, per `AGENTS.md` hard rule 1.
 
 ---
 

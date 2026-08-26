@@ -2,6 +2,50 @@
 
 All notable changes are documented here. Versions follow Semantic Versioning.
 
+## Unreleased — private candidate work — 2026-08-26
+
+### Security — the token library had six advisories against it
+
+- **`PyJWT` 2.8.0 → 2.13.0.** `pip-audit` is in the release gate in
+  `docs/DEPLOYMENT.md` and had not been run against this candidate; running it
+  returned **10 rows, 6 unique advisories, all against the one library that
+  verifies sign-in tokens.** Two of them are not theoretical here:
+  `PYSEC-2026-175`, where `PyJWKClient` passes its `uri` straight to
+  `urllib.request.urlopen()`, and `PYSEC-2026-177`, which surfaces when a JWKS
+  fetch fails and can be provoked with sustained unknown-`kid` traffic. This
+  application builds a `PyJWKClient` against a Supabase JWKS URL on the bearer
+  path, so both apply. `PYSEC-2026-120` — the `crit` header going unvalidated —
+  applies to any `decode`.
+- **One of the six does not apply, and that is worth writing down.**
+  `PYSEC-2026-179` needs a verifier configured with symmetric *and* asymmetric
+  algorithms together. `SUPABASE_JWT_ALGORITHMS` is `("ES256", "RS256")`,
+  asymmetric only, because a previous session removed HS256 from beside the
+  JWKS public keys. That repair is what makes this advisory inapplicable.
+- After the upgrade `pip-audit` reports **no known vulnerabilities**, the
+  backend suite is unchanged at 336 passed / 1 skipped, ruff and strict MyPy are
+  clean, and the PostgreSQL backend boots and answers `/health/ready` with
+  `postgresql: true`.
+
+### Gates that had never been run against this candidate
+
+- **Offline doctor: 7/7 pass**, reporting 2.12.2 — `learning_database`,
+  `dictionary_database`, `sqlite_fts5`, `offline_ai`, `audio_recognition_match`,
+  `connector_registry`, `dashboard`. It had sat on the "not run" list since the
+  2.12.2 gate.
+- **npm production audit: 0 vulnerabilities.**
+
+### The contest freeze expired
+
+- `AGENTS.md` hard rule 1 said "frozen until after 2026-08-25" and that date has
+  passed. A rule that has quietly expired stops work nobody needed to stop, so
+  it is replaced by one that does not expire: nothing leaves this machine on an
+  agent's initiative, and each of `push`, `merge`, `tag`, release and Devpost
+  needs Kevin asking for that specific action.
+- The rule now also records the shape of the decision: `main` has not moved
+  since 2026-07-21 and holds nothing this branch lacks, so publishing is a clean
+  fast-forward of 87 commits — and a deploy *without* that merge republishes
+  2.4.0 rather than this month's work.
+
 ## Unreleased — private candidate work — 2026-08-25
 
 Still 2.12.2: an unpublished candidate being repaired does not become a new

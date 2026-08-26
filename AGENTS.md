@@ -9,17 +9,33 @@ there is one source and not several that drift.**
 
 ## Hard rules
 
-### 1. Public state is frozen until after 2026-08-25
+### 1. The contest freeze expired on 2026-08-25. Kevin still decides.
 
-No `push`, `merge`, `tag`, release, deployment, or Devpost change. This is a
-contest boundary, not a preference.
+For weeks this rule read "frozen until after 2026-08-25" and forbade every
+`push`, `merge`, `tag`, release, deployment and Devpost change. **That date has
+passed** — updated 2026-08-26. A rule that has quietly expired is worse than one
+that has not: it stops work nobody needed to stop, and the next assistant
+reading it would refuse a publication Kevin is entitled to.
 
-- Public production stays at **2.4.0** (2026-07-21).
-- The private candidate is **2.12.2**.
-- **Local commits are allowed and encouraged.** The freeze governs what leaves
-  this machine, not whether work is protected. Thirteen thousand lines once sat
-  uncommitted because this was read as "commit nothing"; that is the wrong
-  reading.
+What replaces it is narrower and permanent:
+
+- **Nothing leaves this machine on an agent's initiative.** `push`, `merge`,
+  `tag`, release, deployment and Devpost changes happen **only when Kevin asks
+  for that specific action**, and asking for one does not authorise the next.
+  This is not a date. It does not expire.
+- **Public production is still 2.4.0 (2026-07-21) and `main` has not moved
+  since.** The private candidate is **2.12.2**, and the branch
+  `consolidation/ivrit-sheli-2.10-baseline` is 87 commits ahead with `main`
+  holding nothing the branch lacks — so publishing is a clean fast-forward, and
+  a deploy *without* that merge republishes 2.4.0 rather than this month's work.
+  Say which of the two is being asked for before doing either.
+- **Before any publication, read the "not run" list in `TEST_REPORT.md`** and
+  state it. Human recognition, the Hebrew-content acceptance pass and the pilot
+  with Kevin's mother are on it. Publishing over that list is his call to make
+  knowingly, not a detail to leave out.
+- **Local commits are allowed and encouraged.** Thirteen thousand lines once sat
+  uncommitted because the old freeze was read as "commit nothing"; that was the
+  wrong reading then and there is no freeze now.
 - Commit when Kevin asks, and say plainly what the commit contains.
 
 ### 2. Never delete a security control to make something start

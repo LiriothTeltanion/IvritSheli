@@ -98,6 +98,50 @@ five are repaired in `9d8d463`.
   recorded above.
 - Human five-second recognition, Hebrew-content acceptance and the mother pilot.
 
+## Release-gate sweep — reference Windows machine — 2026-08-26
+
+Run at 03:40 local, after the contest freeze expired, against the release gate
+in `docs/DEPLOYMENT.md` section 6 rather than the everyday checks.
+
+| Gate | Command | Result |
+|---|---|---|
+| Dependency audit — before | `python -m pip_audit -r backend/requirements.txt` | **10 rows, 6 unique advisories, all `PyJWT` 2.8.0** |
+| Dependency audit — after | same, with `PyJWT==2.13.0` | **No known vulnerabilities found** |
+| Frontend production audit | `npm audit --omit=dev` | **0 vulnerabilities** |
+| Offline doctor | `.venv\Scripts\python.exe -m ivrit_sheli --doctor` | **7/7 pass**, reports 2.12.2 |
+| Complete backend suite | `pytest backend/tests -q` | **336 passed / 1 PostgreSQL-gated skip**, unchanged by the upgrade |
+| Backend style and types | `ruff check backend/src backend/tests`, `mypy backend/src` | **Passed**, 39 source files |
+| PostgreSQL backend boot | `backend-pg` restarted on the upgraded library | **`postgresql: true`, `shared_cloud`, 244 entries** |
+| Package integrity | `generate_checksums.py`, `verify_package.py` | **537 index checksums, 217 required files** |
+| Restricted-role readiness | `scripts/db.py --check` | **12/12** from the home network |
+
+### What the audit found, and what it did not
+
+Six advisories, one library — the one that verifies sign-in tokens. Two apply
+directly: `PYSEC-2026-175` (`PyJWKClient` passing its `uri` to
+`urllib.request.urlopen`) and `PYSEC-2026-177` (surfacing when a JWKS fetch
+fails, provokable with sustained unknown-`kid` traffic). This application builds
+a `PyJWKClient` against a Supabase JWKS URL, so both are live rather than
+theoretical. `PYSEC-2026-120`, the unvalidated `crit` header, applies to any
+`decode`.
+
+`PYSEC-2026-179` does **not** apply: it needs symmetric and asymmetric
+algorithms configured together, and `SUPABASE_JWT_ALGORITHMS` is
+`("ES256", "RS256")`. That is the earlier repair which took HS256 out from
+beside the JWKS public keys, still holding.
+
+### Still not run, and required before publication
+
+- Playwright browser matrix and the 240 × 3 contact matrices.
+- The no-cache container smoke; `docker compose` was not exercised.
+- The live provisioning proof, which needs `MIGRATION_DATABASE_URL` and Kevin's
+  decision.
+- A real SSL renegotiation, and repeated deploys against a genuinely remote
+  instance.
+- **Human five-second recognition, Hebrew-content acceptance, and the pilot with
+  Kevin's mother.** No machine result substitutes for these three.
+- Isolated HTTPS staging and two-real-account Google isolation.
+
 ## Signed-out screen and connection pool — reference Windows machine — 2026-08-25
 
 Recorded from commands actually executed on this date.
