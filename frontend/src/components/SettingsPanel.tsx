@@ -100,6 +100,8 @@ export function SettingsPanel({
   provider,
   theme = 'dark',
   onThemeChange,
+  avatarPresetId,
+  onAvatarChange,
   savedAccounts = [],
   onAccountDeleted,
   onDeleteSavedAccount,
@@ -109,6 +111,12 @@ export function SettingsPanel({
   provider?: string;
   theme?: AppTheme;
   onThemeChange?: (theme: AppTheme) => void;
+  /* 2026-08-26: the avatar picker moved here from the profile menu. Fifteen
+     44px tiles took most of a popover that also has to carry her name, her
+     progress and the way out of the session; a picture she changes once
+     belongs on the settings screen, not in the menu she opens every day. */
+  avatarPresetId?: string;
+  onAvatarChange?: (nextPresetId: string | undefined) => void;
   savedAccounts?: SettingsSavedAccount[];
   onAccountDeleted: (auth: AuthState, localCleanupWarning?: string) => void;
   onDeleteSavedAccount?: (accountId: string) => void;
@@ -376,6 +384,35 @@ export function SettingsPanel({
           <section className="card settings-card">
             <header className="section-heading"><div><span className="eyebrow"><Icon name="language" size={15} /> {t('languageLabel')}</span><h2>{t('interfaceLanguage')}</h2></div></header>
             <p className="settings-note">{t('interfaceLanguageHelp')}</p>
+            <div className="avatar-setting">
+              <div className="settings-field-group__label">{t('avatar')}</div>
+              <div className="avatar-setting__grid">
+                {AVATAR_PRESETS.map((preset, index) => {
+                  const chosen = avatarPresetId === preset.id;
+                  return (
+                    <button
+                      key={preset.id}
+                      type="button"
+                      className={`avatar-setting__tile ${chosen ? 'is-active' : ''}`}
+                      aria-label={`${t('avatar')} ${index + 1}`}
+                      aria-pressed={chosen}
+                      onClick={() => onAvatarChange?.(chosen ? undefined : preset.id)}
+                    >
+                      <img
+                        src={preset.imageUrl}
+                        alt=""
+                        width={64}
+                        height={64}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="settings-note">{t('avatarSettingDetail')}</p>
+            </div>
+
             <div className="theme-setting">
               <div className="settings-field-group__label">{t('interfaceTheme')}</div>
               <ChoiceGroup

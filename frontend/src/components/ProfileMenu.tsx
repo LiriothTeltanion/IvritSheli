@@ -22,6 +22,16 @@ interface ProfileMenuProps {
   onLogout: () => void;
   onFinishVisit: () => void;
   onIdentityUpdate: (nextDisplayName: string, nextAvatarPresetId?: string) => void;
+  /* 2026-08-26: what the freed space is for. The menu showed her name and her
+     mode and nothing she had earned, while fifteen avatar tiles took the room.
+     Optional because the dashboard has not always loaded when the menu opens;
+     the strip simply does not render until it has. */
+  progress?: {
+    streakDays: number;
+    level: number;
+    xpPercent: number;
+    masteryPercent: number;
+  };
 }
 
 function learnerModeLabelKey(mode: LearnerMode): 'guidedMode' | 'explorerMode' | 'experiencedMode' {
@@ -56,6 +66,7 @@ export function ProfileMenu({
   onLogout,
   onFinishVisit,
   onIdentityUpdate,
+  progress,
 }: ProfileMenuProps): React.JSX.Element {
   const { t } = useI18n();
   const menuId = useId();
@@ -172,59 +183,80 @@ export function ProfileMenu({
           aria-label={t('profileMenu')}
           tabIndex={-1}
         >
+          {/* 2026-08-26, reordered. The menu opened on an editing form -- a
+              heading, a labelled text field, fifteen avatar tiles and a Save
+              button -- before it ever said whose menu it was. Now it opens on
+              her: face, name, workspace, then what she has actually earned.
+              Editing her name is one compact row further down, and the avatar
+              grid moved to Settings, where a picture she changes once belongs. */}
+          <header className="profile-menu__who">
+            <span className="profile-menu__who-face" aria-hidden="true">
+              {activePresetImageUrl
+                ? <img src={activePresetImageUrl} alt="" />
+                : avatarUrl
+                  ? <img src={avatarUrl} alt="" referrerPolicy="no-referrer" />
+                  : <b>{identityName.slice(0, 1).toUpperCase()}</b>}
+            </span>
+            <span className="profile-menu__who-text">
+              <strong>{identityName}</strong>
+              <small>{workspaceLabel}</small>
+              <span>{t(learnerModeLabelKey(learnerMode))} · {t('level')} {level}</span>
+            </span>
+          </header>
+
+          {progress && (
+            <dl className="profile-menu__progress" role="group" aria-label={t('progress')}>
+              <div>
+                <dt>{t('streak')}</dt>
+                <dd>{progress.streakDays}</dd>
+              </div>
+              <div>
+                <dt>{t('level')}</dt>
+                <dd>{progress.level}</dd>
+                <div className="profile-menu__progress-bar" aria-hidden="true">
+                  <i style={{ width: `${Math.max(0, Math.min(100, progress.xpPercent))}%` }} />
+                </div>
+              </div>
+              <div>
+                <dt>{t('mastery')}</dt>
+                <dd>{progress.masteryPercent}%</dd>
+              </div>
+            </dl>
+          )}
+
           <section className="profile-menu__identity">
-            <header>
-              <strong>{t('preferredName')}</strong>
-              <small>{t('preferredNameDetail')}</small>
-            </header>
+            {/* The short label, not the long question. "¿Cómo quieres que te
+                llamemos?" plus its explanatory sentence cost four lines above a
+                single text field; "Tu nombre" says the same thing in two
+                words, which is what leaves room for everything below. */}
             <label className="profile-menu__identity-field">
               <span>{t('preferredNamePlaceholder')}</span>
-              <input
-                value={identityDraftName}
-                onChange={(event) => setIdentityDraftName(event.target.value)}
-                placeholder={t('preferredNamePlaceholder')}
-                inputMode="text"
-              />
+              <span className="profile-menu__identity-row">
+                <input
+                  value={identityDraftName}
+                  onChange={(event) => setIdentityDraftName(event.target.value)}
+                  placeholder={t('preferredNamePlaceholder')}
+                  inputMode="text"
+                />
+                <button
+                  type="button"
+                  className="profile-menu__identity-save"
+                  disabled={!canSaveIdentity}
+                  onClick={() => runAndClose(() => onIdentityUpdate(identityDraftName.trim(), identityDraftPreset))}
+                >
+                  <Icon name="sparkles" size={15} /> <span>{t('save')}</span>
+                </button>
+              </span>
             </label>
-            <div className="profile-menu__identity-presets">
-              <span>{t('avatar')}</span>
-              <div>
-                {AVATAR_PRESETS.map((preset, index) => (
-                  <button
-                    key={preset.id}
-                    className={`profile-menu__avatar-btn ${identityDraftPreset === preset.id ? 'active' : ''}`}
-                    type="button"
-                    onClick={() => setIdentityDraftPreset((current) => (current === preset.id ? undefined : preset.id))}
-                    aria-label={`${t('avatar')} ${index + 1}`}
-                    aria-pressed={identityDraftPreset === preset.id}
-                  >
-                    <img
-                      src={preset.imageUrl}
-                      alt=""
-                      width={64}
-                      height={64}
-                      loading="lazy"
-                      decoding="async"
-                      style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
-                    />
-                  </button>
-                ))}
-              </div>
-            </div>
             <button
               type="button"
-              className="profile-menu__identity-save"
-              disabled={!canSaveIdentity}
-              onClick={() => runAndClose(() => onIdentityUpdate(identityDraftName.trim(), identityDraftPreset))}
+              className="profile-menu__avatar-link"
+              onClick={() => runAndClose(onOpenSettings)}
             >
-              <Icon name="sparkles" size={16} /> <span>{t('save')}</span>
+              <Icon name="settings" size={15} />
+              <span>{t('changeAvatar')}</span>
             </button>
           </section>
-          <header>
-            <strong>{identityName}</strong>
-            <small>{workspaceLabel}</small>
-            <span>{t(learnerModeLabelKey(learnerMode))} · {t('level')} {level}</span>
-          </header>
           <div className={`profile-menu__network ${online ? '' : 'is-offline'}`} role="status">
             <Icon name={online ? 'cloud' : 'offline'} size={17} />
             <span>

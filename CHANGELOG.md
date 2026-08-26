@@ -4,6 +4,31 @@ All notable changes are documented here. Versions follow Semantic Versioning.
 
 ## Unreleased — private candidate work — 2026-08-26
 
+### Profile menu — it opened on a form before it said whose menu it was
+
+Asked for by Kevin after using it: shorter name section, avatars out of the
+menu with a link instead, and the space given to what he has actually earned.
+
+- **The order was inside out.** The popover opened on an editing form — a
+  heading, "¿Cómo quieres que te llamemos?", an explanatory sentence, a labelled
+  field, fifteen avatar tiles and a Save button — before it ever showed his
+  face, his name or his workspace. It opens on him now, then on his progress,
+  and editing comes after.
+- **The long question became the short label.** "¿Cómo quieres que te llamemos?"
+  plus its explanation cost four lines above one text field. The field's own
+  label, "Tu nombre", says the same in two words, and the field and Save now
+  share one row instead of stacking.
+- **The fifteen avatar tiles moved to Settings**, under the interface theme,
+  where a picture chosen once belongs. What remains in the menu is one link that
+  opens Settings. The picker writes through the same `updateIdentityProfile`
+  path the menu used, so the learner's choice still outranks the provider photo
+  and still reaches the server.
+- **The freed space now carries streak, level with its XP bar, and mastery** —
+  read from the dashboard that was already loaded. Passed explicitly from
+  `App.tsx` and omitted until the dashboard arrives, rather than defaulted in
+  the component: hard rule 8 exists because a default is how the last four of
+  these went dead.
+
 ### Mobile drawer — a menu whose every section was dead to touch
 
 - **The backdrop covered the drawer it exists to dim.** `.sidebar-backdrop` sat

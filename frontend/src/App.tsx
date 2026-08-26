@@ -1003,6 +1003,18 @@ export default function App(): React.JSX.Element {
                 localMode={localMode}
                 online={online}
                 loggingOut={loggingOut}
+                /* 2026-08-26: hard rule 8. This prop exists because the menu
+                   had room once the avatar grid moved to Settings, and it is
+                   passed here rather than defaulted in the component, because
+                   a default is how the last four of these went dead. */
+                {...(dashboard ? {
+                  progress: {
+                    streakDays: dashboard.stats.streak_days,
+                    level: dashboard.xp.level,
+                    xpPercent: dashboard.xp.percent,
+                    masteryPercent: dashboard.stats.mastery_percent,
+                  },
+                } : {})}
                 onOpenSettings={() => handleSetView('settings')}
                 onLogout={() => { void logout(); }}
                 onFinishVisit={() => setVisitFinished(true)}
@@ -1174,6 +1186,16 @@ export default function App(): React.JSX.Element {
                  the screen that exists to change it. */
               theme={theme}
               onThemeChange={setExplicitTheme}
+              /* The avatar picker moved here from the profile menu on
+                 2026-08-26. It writes through the same path the menu used, so
+                 her choice still outranks the provider photo and still reaches
+                 the server. */
+              {...(identityAvatarPresetId ? { avatarPresetId: identityAvatarPresetId } : {})}
+              onAvatarChange={(nextPresetId) => {
+                const nextIdentityProfile: LocalIdentityProfile = { displayName: identityName };
+                if (nextPresetId) nextIdentityProfile.avatarPresetId = nextPresetId;
+                updateIdentityProfile(nextIdentityProfile);
+              }}
               onDeleteSavedAccount={(accountId) => {
                 setSavedAccounts(forgetSavedAccount(accountId));
               }}

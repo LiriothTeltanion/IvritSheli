@@ -177,6 +177,10 @@ otro panel, qué sigue siendo cierto y qué ya no. Empieza siempre por ahí.
 - [x] **Settings could crash outright** — `payload?.recent_feedback.length`
       guarded one level and not the next. Found by the test written for the
       theme bug.
+- [x] **Profile menu reordered** — it opened on an editing form before saying
+      whose menu it was. Now: face and name, then streak / level / mastery, then
+      one compact name row. The fifteen avatar tiles moved to Settings with a
+      link left behind.
 - [x] **El menú hamburguesa no reaccionaba** — the backdrop at `z-index: 30`
       covered the drawer at `20`, so every tap closed the menu instead of
       navigating. Now drawer 50 > backdrop 45 > bottom nav 40, guarded by
