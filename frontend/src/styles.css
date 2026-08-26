@@ -3933,10 +3933,24 @@ body { line-height: 1.5; }
   color: var(--text-soft);
 }
 
+/* 2026-08-26: this was `flex-wrap: wrap`, so the fifteen avatars packed six to
+   a row and left the third row three short. Kevin read that ragged tail as
+   missing avatars, and he was right to: an incomplete last row is what a broken
+   image grid looks like. Five columns divides fifteen exactly, and so does
+   three when the menu is narrow, so every row is full at both sizes.
+   If the roster ever stops being a multiple of five, revisit this rather than
+   letting the tail come back -- the count is derived from AVATAR_PRESETS. */
 .profile-menu__identity-presets > div {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(5, 44px);
   gap: 8px;
+  justify-content: start;
+}
+
+@media (max-width: 420px) {
+  .profile-menu__identity-presets > div {
+    grid-template-columns: repeat(3, 44px);
+  }
 }
 
 .profile-menu__identity-presets button {

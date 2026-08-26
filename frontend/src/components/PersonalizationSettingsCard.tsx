@@ -110,9 +110,15 @@ export function PersonalizationSettingsCard({
       </dl>
       <details>
         <summary>{text.recent}</summary>
-        {payload?.recent_feedback.length ? (
+        {/* 2026-08-26: the optional chain stopped at `payload`, so a payload that
+            arrived without `recent_feedback` -- which the type says is required
+            and the server is not obliged to honour -- threw
+            "Cannot read properties of undefined (reading 'length')" during
+            render and took the whole Settings screen down with it. One `?.`
+            where two were needed. Found by a test written for something else. */}
+        {payload?.recent_feedback?.length ? (
           <ul className="listening-coach-setting__feedback-list">
-            {payload.recent_feedback.slice(0, 5).map((feedback, index) => (
+            {(payload.recent_feedback ?? []).slice(0, 5).map((feedback, index) => (
               <li key={String(feedback.feedback_key ?? index)}>
                 <strong>{String(feedback.target_type ?? 'coach')}</strong>
                 <span>{String(feedback.difficulty ?? (feedback.useful === true ? 'useful' : feedback.useful === false ? 'not useful' : 'feedback'))}</span>

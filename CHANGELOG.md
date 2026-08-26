@@ -4,6 +4,38 @@ All notable changes are documented here. Versions follow Semantic Versioning.
 
 ## Unreleased — private candidate work — 2026-08-26
 
+### Settings — the theme card that could not change the theme
+
+- **The Claro card did nothing.** `App.tsx` destructured two of the three values
+  from `usePersistentTheme` and passed neither `theme` nor `onThemeChange` to
+  `SettingsPanel`, which declares `theme` with a default of `'dark'` and calls
+  `onThemeChange?.(next)`. So the control rendered, looked enabled, responded to
+  clicks and did nothing — and it always drew Oscuro as the chosen one, even for
+  a learner already reading in the light theme, who then watched the app
+  disagree with itself. It survived because the moon in the topbar works: the
+  theme was reachable, just not from the screen that exists to change it. Kevin
+  found it by using the app.
+- **The fourth prop in this codebase declared, styled, tested in isolation and
+  never wired.** It is now `AGENTS.md` hard rule 8, with the three earlier ones
+  named and a one-line grep for finding the next. The guard is at the `App.tsx`
+  level rather than the component level, because a component test that supplies
+  the prop itself proves nothing about the caller.
+- **A crash the new test found on its way past.**
+  `payload?.recent_feedback.length` in `PersonalizationSettingsCard` guarded
+  `payload` and not the field after it, so a response missing that key threw
+  `Cannot read properties of undefined` during render and took the entire
+  Settings screen down. One `?.` where two were needed; it was the only
+  occurrence of the pattern in the frontend.
+
+### Profile menu — fifteen avatars that looked like thirteen
+
+- The avatar grid was `flex-wrap: wrap`, so the fifteen presets packed six to a
+  row and left the last row three short. Kevin read that ragged tail as missing
+  avatars — reasonably, since an incomplete last row is exactly what a broken
+  image grid looks like. All fifteen files are present and load; the grid is now
+  five columns, and three on a narrow menu, both of which divide fifteen
+  exactly. The count itself stays derived from `AVATAR_PRESETS`.
+
 ### Security — the token library had six advisories against it
 
 - **`PyJWT` 2.8.0 → 2.13.0.** `pip-audit` is in the release gate in

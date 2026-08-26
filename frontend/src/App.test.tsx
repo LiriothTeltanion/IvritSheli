@@ -344,6 +344,37 @@ describe('App cloud session flow', () => {
     expect(navigation.querySelectorAll('button')).toHaveLength(3);
   });
 
+  it('lets the learner choose the light theme from the screen that exists to change it', async () => {
+    /* 2026-08-26. Found by Kevin using the app, not by any test. `App.tsx`
+       destructured only two of the three values from `usePersistentTheme`, and
+       passed neither `theme` nor `onThemeChange` to `SettingsPanel`. The panel
+       declares `theme` with a default of 'dark' and calls `onThemeChange?.()`,
+       so the Claro card did nothing and the pair always drew Oscuro as chosen
+       -- including for someone already reading in light, who then watched the
+       app disagree with itself.
+
+       It survived because the moon in the topbar works: the theme was
+       reachable, just not from Settings. That is the fourth prop in this
+       codebase declared, styled, tested in isolation and never wired. */
+    vi.stubGlobal('fetch', routeFetch(googleSession));
+    const user = userEvent.setup();
+    renderApp();
+
+    await screen.findByRole('navigation', { name: 'Primary navigation' });
+    await user.click(screen.getByRole('button', { name: /Open profile menu: Kevin/i }));
+    await user.click(screen.getByRole('button', { name: 'Settings' }));
+    await screen.findByRole('heading', { name: 'Settings' }, { timeout: 15_000 });
+
+    expect(document.documentElement.dataset.theme).toBe('dark');
+
+    const light = await screen.findByRole('radio', { name: /Light/i });
+    await user.click(light);
+
+    expect(document.documentElement.dataset.theme).toBe('light');
+    expect(light).toHaveAttribute('aria-checked', 'true');
+    expect(localStorage.getItem('ivrit-sheli-theme')).toBe('light');
+  });
+
   it('gives a fresh local learner three words before the personal setup', async () => {
     window.history.replaceState({}, '', '/?lang=es');
     const freshProfile: Profile = {

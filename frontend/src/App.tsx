@@ -318,7 +318,9 @@ export default function App(): React.JSX.Element {
   const [localWelcomeComplete, setLocalWelcomeComplete] = useState(false);
   const online = useOnlineStatus();
   const [visitFinished, setVisitFinished] = useState(false);
-  const [theme, toggleTheme] = usePersistentTheme();
+  /* 2026-08-26: the third element was never taken, so the theme cards in
+     Settings had no way to set anything. See the SettingsPanel mount below. */
+  const [theme, toggleTheme, setExplicitTheme] = usePersistentTheme();
   const [identityProfile, setIdentityProfile] = useState<LocalIdentityProfile>({});
   const [savedAccounts, setSavedAccounts] = useState<SavedAccount[]>(() => readSavedAccounts());
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -1162,6 +1164,16 @@ export default function App(): React.JSX.Element {
             <SettingsPanel
               profile={profile}
               savedAccounts={savedAccounts}
+              /* 2026-08-26: neither of these was passed. `SettingsPanel`
+                 declares `theme` with a default of 'dark' and calls
+                 `onThemeChange?.(next)`, so the Claro card did nothing at all
+                 and the pair always drew Oscuro as the chosen one -- even for a
+                 learner already reading in the light theme, who then saw the
+                 app disagree with itself. The moon in the topbar worked, which
+                 is why this survived: the theme was reachable, just not from
+                 the screen that exists to change it. */
+              theme={theme}
+              onThemeChange={setExplicitTheme}
               onDeleteSavedAccount={(accountId) => {
                 setSavedAccounts(forgetSavedAccount(accountId));
               }}

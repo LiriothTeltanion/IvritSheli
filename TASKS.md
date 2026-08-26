@@ -165,6 +165,27 @@ otro panel, qué sigue siendo cierto y qué ya no. Empieza siempre por ahí.
       named itself two ways depending on the screen — which is worse than the
       duplication it replaced. Both use the localised badge now, and
       `CANDIDATE_LABEL` no longer carries a date any surface can show.
+### ✅ Completed 2026-08-26 — release gate, and two bugs Kevin found by using the app
+
+- [x] **`PyJWT` 2.8.0 → 2.13.0** — six advisories against the one library that
+      verifies sign-in tokens; two apply directly here. `pip-audit` now clean.
+- [x] **Offline doctor 7/7** and **npm production audit 0** — both had sat on
+      the "not run" list.
+- [x] **The Claro card in Ajustes did nothing** — `theme` and `onThemeChange`
+      were never passed to `SettingsPanel`. Fourth prop of this kind; now
+      `AGENTS.md` hard rule 8.
+- [x] **Settings could crash outright** — `payload?.recent_feedback.length`
+      guarded one level and not the next. Found by the test written for the
+      theme bug.
+- [x] **The avatar grid looked broken** — fifteen presets, six to a row, ragged
+      last row. All fifteen files are present; the grid is now five columns.
+- [x] **The contest freeze expired** — `AGENTS.md` hard rule 1 rewritten without
+      a date in it.
+
+- [ ] **Three more avatars, if the roster should be eighteen** — not a defect,
+      a content decision. Fifteen is the documented roster and every count is
+      derived from it, so adding three means three new illustrations that match
+      the existing editorial style, not a code change. Kevin's call.
 - [ ] **Twelve-release changelog on the front door** — deliberately left. It is
       inside a collapsed `<details>`, and for a contest entry a judge reading
       the version history is plausibly the point. It is developer furniture on

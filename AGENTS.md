@@ -130,6 +130,47 @@ It has not been done because `cloud_store.py` is where tenant isolation lives,
 the win is invisible at production latency, and rule 2 exists. Raise it with
 Kevin before touching it.
 
+### 8. A prop the caller never passes — the defect this codebase actually has
+
+Added 2026-08-26, after the fourth one. This is the single most productive thing
+to grep for here, and none of the four was found by a test or a bug report.
+
+The shape is always the same. A component declares an optional prop, gives it a
+sensible default, styles the control, and is tested in isolation where the test
+passes the prop itself. The one real caller never does. So the control renders,
+looks enabled, responds to clicks, and does nothing — and the component's own
+tests stay green forever.
+
+The four:
+
+- `onContinueSavedAccount` — every saved-learner tap fell through to a generic
+  Google flow with the account silently dropped.
+- `onContinueWithGoogle` — the primary sign-in button took a different code path
+  from the pills beside it, and kept stale `error` parameters in the URL.
+- `googleBusy` — still passed by nobody. Left deliberately: it composes into
+  `googleDisabled` and has a guard test. Documented rather than removed.
+- `theme` / `onThemeChange` — **`App.tsx` destructured two of the three values
+  from `usePersistentTheme` and passed neither to `SettingsPanel`.** The Claro
+  card did nothing, and the pair always drew Oscuro as chosen even for a learner
+  already reading in light. It survived because the moon in the topbar works:
+  the theme was reachable, just not from the screen that exists to change it.
+  Kevin found it by using the app.
+
+**How to find them:** for any optional prop with a default, grep for the
+component's mount sites and check the prop is actually there. `grep -n
+"<ComponentName" -A 20 App.tsx` answers it in one call. A default value is not
+evidence that anyone supplies a real one.
+
+**How to stop them coming back:** a component test that passes the prop proves
+the component. Only a test that renders the **real caller** proves the feature.
+Every one of these four is now guarded at the App level, not the component
+level.
+
+The same class, one layer down: a half-written optional chain.
+`payload?.recent_feedback.length` guards `payload` and not the field after it,
+so a response missing that key threw during render and took the whole Settings
+screen down. Found on 2026-08-26 by a test written for the theme bug.
+
 ## Two lanes to the database, and which is which
 
 Reads and tenant data go through the runtime role. Schema changes go through

@@ -98,6 +98,34 @@ five are repaired in `9d8d463`.
   recorded above.
 - Human five-second recognition, Hebrew-content acceptance and the mother pilot.
 
+## Settings theme and avatar grid — reference Windows machine — 2026-08-26, afternoon
+
+| Gate | Command | Result |
+|---|---|---|
+| Complete frontend suite | `npx vitest run` | **854 passed across 48 files** |
+| TypeScript project build | `npx tsc -b --pretty false` | **Passed** |
+| Production bundle | `npm run build` | **Passed** in 987 ms |
+
+Two defects, both reported by Kevin from the running application rather than by
+any check in this ledger.
+
+The theme cards in Settings could not change the theme: `App.tsx` passed neither
+`theme` nor `onThemeChange` to `SettingsPanel`. The new guard in `App.test.tsx`
+renders the real caller, opens Settings, clicks Claro and asserts three things —
+`document.documentElement.dataset.theme`, the control's `aria-checked`, and the
+persisted `ivrit-sheli-theme`. A component-level test would have passed
+throughout, which is why the defect lasted.
+
+That test then surfaced a second one on its way past: `PersonalizationSettingsCard`
+threw `Cannot read properties of undefined (reading 'length')` during render,
+from `payload?.recent_feedback.length` guarding one level and not the next. The
+entire Settings screen went down with it. It was the only occurrence of the
+pattern in the frontend.
+
+The avatar grid was **not** a defect: all fifteen preset images exist and load.
+The grid packed six to a row and left a ragged last row, which reads as missing
+tiles. Now five columns, three when narrow — both divide fifteen exactly.
+
 ## Release-gate sweep — reference Windows machine — 2026-08-26
 
 Run at 03:40 local, after the contest freeze expired, against the release gate
