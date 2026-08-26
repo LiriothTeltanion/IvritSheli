@@ -98,6 +98,37 @@ five are repaired in `9d8d463`.
   recorded above.
 - Human five-second recognition, Hebrew-content acceptance and the mother pilot.
 
+## Dictionary size — correction — 2026-08-26, evening
+
+**Every "244 entries" recorded above describes the developer's laptop and no
+build that has ever shipped.** The shipped figure is **240**, and it always was.
+
+`data/hebrew_dictionary.db` is not in git — `.gitignore:35` ignores
+`data/**/*.db*` — and `.dockerignore:17` excludes it from the image by the same
+pattern. `/app/data` inside the built image holds six empty directories and not
+one `.db` file. So the application reads
+`frontend/public/content/starter-dictionary-v2.8.json`, which holds exactly 240,
+the figure `OFFLINE_STARTER_ENTRY_COUNT` validates on both sides. Railway builds
+from GitHub, so public 2.4.0 has served 240 from the beginning.
+
+**And 244 was never a count of words.** Measured 2026-08-26: the local database
+holds 244 rows but **243 unique words** — `אפשר` appears twice — and three of
+those words are absent from the starter: `בסדר`, `צריך` and `להצליח`, all three
+carrying `source_name = "Ivrit Sheli demo lexicon"`. So 244 is 240 curated words
+plus three demo seeds plus one duplicate row.
+
+**Those three were deliberately not promoted into the starter.** None of them has
+a semantic scene, and the catalogue's premise is one hand-drawn scene per word —
+240 scenes for 240 words, stated in the Visual QA gallery and in
+`docs/VISUAL_BIBLE.md`. Adding them would put three unillustrated words into an
+illustrated catalogue to make a number true that was never meaningful. Two of
+them already appear inside the app as example sentences: `צריך` in fourteen
+starter entries, `בסדר` in one.
+
+If those three should become real headwords, that is content and art work — three
+new scenes drawn to the existing editorial direction — not a dictionary edit.
+Logged in `TASKS.md`.
+
 ## Settings theme and avatar grid — reference Windows machine — 2026-08-26, afternoon
 
 | Gate | Command | Result |
@@ -139,7 +170,7 @@ in `docs/DEPLOYMENT.md` section 6 rather than the everyday checks.
 | Offline doctor | `.venv\Scripts\python.exe -m ivrit_sheli --doctor` | **7/7 pass**, reports 2.12.2 |
 | Complete backend suite | `pytest backend/tests -q` | **336 passed / 1 PostgreSQL-gated skip**, unchanged by the upgrade |
 | Backend style and types | `ruff check backend/src backend/tests`, `mypy backend/src` | **Passed**, 39 source files |
-| PostgreSQL backend boot | `backend-pg` restarted on the upgraded library | **`postgresql: true`, `shared_cloud`, 244 entries** |
+| PostgreSQL backend boot | `backend-pg` restarted on the upgraded library | **`postgresql: true`, `shared_cloud`**; the 244 entries recorded here were the developer machine's local `.db`, see the 2026-08-26 correction below |
 | Package integrity | `generate_checksums.py`, `verify_package.py` | **537 index checksums, 217 required files** |
 | Restricted-role readiness | `scripts/db.py --check` | **12/12** from the home network |
 
@@ -185,8 +216,8 @@ Recorded from commands actually executed on this date.
 | Backend style | `.venv\Scripts\python.exe -m ruff check backend/src backend/tests` | **Passed** |
 | Backend types | `.venv\Scripts\python.exe -m mypy backend/src` | **Passed** across 39 source files |
 | Restricted-role readiness | `.venv\Scripts\python.exe scripts/db.py --check` | **12/12 conditions hold** against the live Supabase project |
-| PostgreSQL backend boot | `backend-pg` profile on 8100 | **Passed**: `/health/ready` returns `postgresql: true`, dictionary in `shared_cloud` mode, 244 entries |
-| SQLite offline backend boot | `backend-local` profile on 8000 | **Passed**: `/health/ready` ready, `device_local`, 244 entries |
+| PostgreSQL backend boot | `backend-pg` profile on 8100 | **Passed**: `/health/ready` returns `postgresql: true`, dictionary in `shared_cloud` mode; entry count corrected below |
+| SQLite offline backend boot | `backend-local` profile on 8000 | **Passed**: `/health/ready` ready, `device_local`; entry count corrected below |
 | Vite dev server | `frontend-alt` profile on 5179 | **Passed**: learner shell renders, no console errors |
 
 ### KEV-12 — what this run does and does not settle

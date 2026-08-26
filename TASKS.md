@@ -195,10 +195,22 @@ otro panel, qué sigue siendo cierto y qué ya no. Empieza siempre por ahí.
   - `/health/ready` reports `shared_cloud` and 240 while doing this, so it looks
     healthy either way. Nothing is broken; the number in the ledger simply
     describes the developer machine rather than the shipped product.
-  - **Two honest ways out, and only Kevin picks.** Either promote those four
-    entries into the starter so 244 is true everywhere, or stop writing 244 in
-    `TEST_REPORT.md`. Shipping the `.db` is the third option and the worst one:
-    it is generated, unversioned, and would make the image the only copy.
+  - **Resolved 2026-08-26 by making 240 true everywhere**, after measuring what
+    244 actually was: **243 unique words, not 244** — `אפשר` appears twice — and
+    three of them absent from the starter (`בסדר`, `צריך`, `להצליח`), all three
+    carrying `source_name = "Ivrit Sheli demo lexicon"`. So 244 was 240 curated
+    words plus three demo seeds plus one duplicate row. It was never a count.
+  - **The three were deliberately not promoted.** None has a semantic scene, and
+    the catalogue's premise is one hand-drawn scene per word. Adding them would
+    put three unillustrated words into an illustrated catalogue. Two already
+    live inside the app as example sentences: `צריך` in fourteen entries,
+    `בסדר` in one.
+  - [ ] **If those three should become real headwords, that is art work** —
+        three new scenes in the existing editorial direction, then the starter,
+        then `OFFLINE_STARTER_ENTRY_COUNT`, in that order. Kevin's call.
+  - [ ] **The duplicate `אפשר` row in the local `.db`** is cosmetic today
+        because that file ships nowhere, but it will matter the day the
+        dictionary is regenerated from it.
 
 - [ ] ~~The Supabase database is IPv6-only, and containers are not~~ — superseded above: — found
       2026-08-26, and it changes what "deploy anywhere" means here:
