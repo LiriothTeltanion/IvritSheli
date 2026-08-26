@@ -168,9 +168,14 @@ otro panel, qué sigue siendo cierto y qué ya no. Empieza siempre por ahí.
     `token_hash`, and `alembic_version` readable. As a simulated `anon`: SELECT
     denied on all four and TRUNCATE denied. Then `downgrade` to 0006 and
     `upgrade` again — clean both ways.
-  - [ ] **Kevin runs `pwsh -File scripts/db-apply.ps1`** — hard rule 5. After it:
-        confirm sign-in still works, `scripts/db.py --check` still returns 12/12,
-        and the Supabase advisor drops those four CRITICAL rows.
+  - [x] **APPLIED to the live project 2026-08-26**, with Kevin present and asking
+        for it. 56 grants to `anon`/`authenticated` went to **0**, RLS is on
+        across all four, every row survived, `db.py --check` still 12/12, and
+        `backend-pg` restarted cold to `status: ready`, `postgresql: true`.
+        Evidence in `TEST_REPORT.md`.
+  - [ ] Re-open Supabase's security advisor and confirm the four CRITICAL rows
+        are gone. Cosmetic — the grants and RLS were verified directly — but the
+        advisor is what Kevin sees.
 
 - [ ] ~~Four tables have RLS disabled, and Supabase calls it CRITICAL~~ — seen in
       the project's own security advisor on 2026-08-26:

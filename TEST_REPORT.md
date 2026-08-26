@@ -98,6 +98,31 @@ five are repaired in `9d8d463`.
   recorded above.
 - Human five-second recognition, Hebrew-content acceptance and the mother pilot.
 
+## Migration 20260826_0007 applied to the live project — 2026-08-26, evening
+
+Applied with `pwsh -File scripts/db-apply.ps1`, after being rehearsed end to end
+on a throwaway PostgreSQL 17 — never first against the live project.
+
+| Property | Before | After |
+|---|---|---|
+| Grants held by `anon` and `authenticated` on `users`, `sessions`, `oauth_states`, `alembic_version` | **56** | **0** |
+| Row-level security on those four | off | **on**; forced on the three auth tables, enabled-not-forced on `alembic_version` |
+| Rows | 2 users · 31 sessions · 2 learner_states | **identical** |
+| `scripts/db.py --check` | 12/12 | **12/12** |
+| Runtime role reads `users` | yes | **yes** |
+| Session lookup by `token_hash` — the login path | yes | **yes** |
+| Runtime role reads `alembic_version` — what `ready()` needs | yes | **yes, `20260826_0007`** |
+| `learner_states` without a tenant context | 0 rows | **0 rows** |
+| Application boot, `backend-pg` restarted from cold | ready | **`status: ready`, `postgresql: true`** |
+
+`alembic_version` is enabled but deliberately not forced: without FORCE the table
+owner bypasses row security, and the owner is the migration role, which must keep
+writing that row on every upgrade.
+
+The rollback is `alembic downgrade 20260824_0006`, exercised on the throwaway
+before this ran. It drops the policies and RLS and deliberately does **not**
+restore the grants to the REST roles.
+
 ## Dictionary size — correction — 2026-08-26, evening
 
 **Every "244 entries" recorded above describes the developer's laptop and no
