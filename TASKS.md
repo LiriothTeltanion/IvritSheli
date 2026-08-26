@@ -183,11 +183,22 @@ otro panel, qué sigue siendo cierto y qué ya no. Empieza siempre por ahí.
   - `backend/tests/test_pooler_role.py` pins what the widening admits.
     `postgres.<ref>` — a real superuser DSN in the same shape — is still refused.
 
-- [ ] **Dictionary count differs between source and image** — the container
-      reports **240** entries where a source run reports **244**. Both say
-      `shared_cloud`. Not a blocker and not chased on 2026-08-26; likely
-      `DICTIONARY_DB_PATH` or bundled `data/` drift. Check before publishing,
-      because "244 entries" appears in the ledger.
+- [ ] **The 244-entry dictionary has never existed outside Kevin's laptop** —
+      chased and solved on 2026-08-26. Kevin's decision, not a repair:
+  - `data/hebrew_dictionary.db` holds **244** entries and is **not in git**:
+    `.gitignore:35` ignores `data/**/*.db*`. `.dockerignore:17` excludes it from
+    the image by the same pattern, and `/app/data` in the built image contains
+    only empty directories — not one `.db` file.
+  - So the application falls back to `starter-dictionary-v2.8.json`, which holds
+    exactly **240**, the figure `OFFLINE_STARTER_ENTRY_COUNT` already validates.
+    **Railway builds from GitHub, so public 2.4.0 has always served 240.**
+  - `/health/ready` reports `shared_cloud` and 240 while doing this, so it looks
+    healthy either way. Nothing is broken; the number in the ledger simply
+    describes the developer machine rather than the shipped product.
+  - **Two honest ways out, and only Kevin picks.** Either promote those four
+    entries into the starter so 244 is true everywhere, or stop writing 244 in
+    `TEST_REPORT.md`. Shipping the `.db` is the third option and the worst one:
+    it is generated, unversioned, and would make the image the only copy.
 
 - [ ] ~~The Supabase database is IPv6-only, and containers are not~~ — superseded above: — found
       2026-08-26, and it changes what "deploy anywhere" means here:
