@@ -54,3 +54,9 @@ Thumbs.db
 
 # Editable-install build metadata
 *.egg-info/
+
+# 2026-08-26: backups of the credential files, created when the quotes were
+# stripped. They hold the same secrets as .env itself.
+.env.bak-*
+.env.admin.bak-*
+.env.*.bak
