@@ -147,6 +147,23 @@ otro panel, qué sigue siendo cierto y qué ya no. Empieza siempre por ahí.
     `consolidation/…` — 87 commits, a clean fast-forward.
   - Choosing a paid plan is Kevin's; no agent enters payment details.
 
+- [ ] **Four tables have RLS disabled, and Supabase calls it CRITICAL** — seen in
+      the project's own security advisor on 2026-08-26:
+  - `public.users`, `public.sessions`, `public.oauth_states` and
+    `public.alembic_version` are flagged **RLS Disabled in Public**. Lower-severity
+    warnings sit on `learner_states`, `push_subscriptions` and
+    `push_delivery_state` (Auth RLS init plan, multiple permissive policies).
+  - **Not exploitable through this application today**, and that was checked
+    rather than assumed: the built frontend bundle contains no Supabase key of
+    any kind, and the backend holds only `SUPABASE_URL`, used for JWKS. The
+    exposure path needs somebody holding the project's anon or service key.
+  - It still has to be closed before the app is genuinely public, because those
+    tables sit in `public` and Supabase exposes that schema through PostgREST.
+  - **This is not a quick fix and must not be rushed.** The runtime role is not
+    `BYPASSRLS`, so enabling RLS on `users` and `sessions` without policies would
+    lock the application out of its own login path. It needs an Alembic migration
+    with policies written deliberately, and Kevin runs migrations — hard rule 5.
+
 - [ ] **The Supabase database is IPv6-only, and containers are not** — found
       2026-08-26, and it changes what "deploy anywhere" means here:
   - `db.hythwegtkwuzrzwglivz.supabase.co` resolves to **one AAAA record and no
