@@ -119,20 +119,43 @@ otro panel, qué sigue siendo cierto y qué ya no. Empieza siempre por ahí.
 
 ### ⏳ Current & Upcoming Tasks
 
-- [ ] **Railway is down and its credentials are stale — Kevin's, 5 minutes**:
-  - `railway.toml` on `main` runs `db_admin migrate` before every deploy, using
-    `MIGRATION_DATABASE_URL`. The Supabase password was rotated 2026-08-24, so
-    that variable holds a dead credential and the pre-deploy step fails.
-  - Update it, and `DATABASE_URL`, in the Railway dashboard. `db_admin.py:84`
-    requires both to name the same host, port and database.
+- [ ] **Railway is down because the trial expired — Kevin's decision, not a repair**:
+  - **Measured in the dashboard on 2026-08-26.** The banner reads *Trial
+    expired* / *"Your trial has expired. Please select a plan to continue using
+    Railway."* Both services — `Postgres` and `IvritSheli` — read
+    **"Service is offline"**. Nothing deploys until a plan is chosen. That alone
+    explains the outage.
+  - **The stale-credential diagnosis this row used to carry was wrong.** The last
+    deployment, `db5afa19` on **2026-07-16**, failed at **Build › Build image**
+    in two seconds — *before* the pre-deploy `db_admin migrate` step ever ran.
+    The credential theory was never reached, let alone tested. Its build logs
+    are gone: *"No build logs were found for this deployment."*
+  - **There is no Dockerfile bug.** Both trees build clean on Docker 29.6.2
+    (2026-08-26): `main` produces a **360 MB** image and this branch a **989 MB**
+    one. So the July failure was Railway-side — the commit that failed was
+    itself titled *"Fix Railway Metal cache mount compatibility"*, an attempt at
+    their new builder. No evidence survives; if it recurs after a plan is chosen,
+    there will be fresh logs to read.
+  - **Railway has its own PostgreSQL service and volume** (`postgres-volume`),
+    separate from Supabase. So its `DATABASE_URL` very likely points there.
+    Pasting the Supabase values from `.env` would **repoint production at a
+    different database** — an architecture decision, not a fix. Confirm where it
+    points before changing anything. All 21 variables exist, including
+    `MIGRATION_DATABASE_URL`.
   - **What this does not do:** `main` has not moved since 2026-07-21, so a
-    redeploy republishes 2.4.0. None of this month's work is on it. Publishing
-    the current app means merging `consolidation/…`, which the freeze forbids
-    until after 2026-08-25.
-  - Note: saving a variable triggers a deploy, which hard rule 1 forbids.
-    Because `main` is unchanged it would restore the same 2.4.0 that was
-    already public rather than change public state — Kevin's call, not an
-    agent's.
+    redeploy republishes 2.4.0. Publishing this month's work means merging
+    `consolidation/…` — 87 commits, a clean fast-forward.
+  - Choosing a paid plan is Kevin's; no agent enters payment details.
+
+- [ ] **`faster-whisper` is 630 MB of image that production does not use**:
+  - The branch image is 989 MB against `main`'s 360 MB, and the difference is
+    `faster-whisper==1.2.1` and its runtime.
+  - It is gated by `SELF_HOSTED_SPEECH_ENABLED`, which **defaults to `False`**
+    and is **not among Railway's 21 variables**, and the code already probes for
+    it with `importlib.util.find_spec` and falls back cleanly when absent.
+  - So on a metered plan it is weight paid for and never loaded. Moving it to an
+    optional requirements file is the fix. **Not before publishing** — it changes
+    the dependency set, and that is the wrong risk to take on release night.
 
 - [x] **Local mode unburied — DONE 2026-08-24**: the workspace link stands with
       Google and the demo instead of behind the lesson; the lesson records that
