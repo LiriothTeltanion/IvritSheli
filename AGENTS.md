@@ -171,6 +171,31 @@ The same class, one layer down: a half-written optional chain.
 so a response missing that key threw during render and took the whole Settings
 screen down. Found on 2026-08-26 by a test written for the theme bug.
 
+### 9. A green suite does not mean a finger can reach it — added 2026-08-26
+
+Also from Kevin using the app. The mobile drawer opened and its sections did
+nothing. Nothing was wrong with the markup or the handler: `onClick` called
+`handleSetView`, which sets the view and closes the drawer. The defect was
+`.sidebar-backdrop` at `z-index: 30` over a drawer at `20`, so a full-viewport
+backdrop covered the open menu. Every tap landed on the backdrop, whose handler
+closes the drawer — the menu shut, nothing navigated, and the items read as
+dead.
+
+**jsdom performs no layout and no hit testing.** `userEvent.click` dispatches
+straight at the element it is handed, so the entire suite stays green while the
+control is physically unreachable. Nothing in `vitest` can catch this class, and
+the Playwright matrix that could is on the "not run" list in `TEST_REPORT.md`.
+
+So when a control is reported dead and its handler is correct, ask what is *on
+top of it* before doubting the handler. In a real browser:
+`document.elementFromPoint(x, y)` at the control's centre returns the thing that
+would actually receive the tap. That one call answers it.
+
+`src/sidebarStacking.test.ts` guards the ordering by reading the stylesheet,
+which is unusual and deliberate: the invariant is an ordering between three
+numbers, and reading them is the only way to check it without a real browser.
+Prefer that shape over no guard at all when behaviour cannot be observed.
+
 ## Two lanes to the database, and which is which
 
 Reads and tenant data go through the runtime role. Schema changes go through

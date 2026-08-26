@@ -269,10 +269,19 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
   border-color: color-mix(in srgb, var(--teal) 45%, var(--border));
 }
 
+/* 2026-08-26: this was z-index 30 while the drawer it dims stayed at 20, so a
+   full-viewport backdrop sat on top of the open menu. Every tap on a section
+   landed on the backdrop, which closes the drawer -- so the menu shut and
+   nothing navigated, which from the learner's side is a menu whose items do
+   nothing. Kevin found it by using the app.
+   The order that has to hold: drawer above backdrop, backdrop above everything
+   else it is meant to block -- including .bottom-nav at 40, which was sitting
+   above the dim and staying tappable behind an open drawer.
+   `sidebarStacking.test.ts` fails if this ordering is ever broken again. */
 .sidebar-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 30;
+  z-index: 45;
   border: 0;
   margin: 0;
   padding: 0;
@@ -916,6 +925,8 @@ legend {
       visibility 0s linear var(--motion-base);
   }
   .sidebar.is-open {
+    /* Above .sidebar-backdrop (45), which is itself above .bottom-nav (40). */
+    z-index: 50;
     transform: translateX(0);
     opacity: 1;
     pointer-events: auto;

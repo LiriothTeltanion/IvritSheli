@@ -4,6 +4,27 @@ All notable changes are documented here. Versions follow Semantic Versioning.
 
 ## Unreleased — private candidate work — 2026-08-26
 
+### Mobile drawer — a menu whose every section was dead to touch
+
+- **The backdrop covered the drawer it exists to dim.** `.sidebar-backdrop` sat
+  at `z-index: 30`, `position: fixed`, `inset: 0`; the open drawer stayed at
+  `20`. So every tap on a section landed on the backdrop, whose handler closes
+  the drawer — the menu shut, nothing navigated, and from the learner's side the
+  items simply did nothing. The markup and the handler were correct throughout.
+- **`.bottom-nav` at 40 was above the dim too**, so the bottom bar stayed bright
+  and tappable behind an open drawer: two ways out of one menu, one of them
+  contradicting the dimming that says the menu is modal. The order is now
+  drawer 50 > backdrop 45 > bottom nav 40.
+- **No test in the suite could have caught this**, and that is now `AGENTS.md`
+  hard rule 9. jsdom performs no layout and no hit testing, so `userEvent.click`
+  dispatches straight at the element it is handed and the suite stays green
+  while the control is physically unreachable. `src/sidebarStacking.test.ts`
+  guards the ordering by reading the stylesheet instead.
+- Verified in a real browser at 375 × 812: `document.elementFromPoint` at the
+  Diccionario item's centre now returns a child of that button rather than the
+  backdrop, and a real click closes the drawer, marks Diccionario active and
+  changes the view.
+
 ### Settings — the theme card that could not change the theme
 
 - **The Claro card did nothing.** `App.tsx` destructured two of the three values
