@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 150" width="100%">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&amp;display=swap');
+      .bg { fill: #0b1121; rx: 12px; }
+      .text { font-family: 'Inter', sans-serif; fill: #e2e8f0; font-size: 16px; font-weight: 600; }
+      .title { font-size: 20px; font-weight: 800; fill: #a855f7; }
+      .node { fill: #1e293b; stroke: #334155; stroke-width: 2; rx: 8px; }
+      .node-text { fill: #a855f7; font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 800; }
+      
+      .bounce { animation: bounce 3s infinite ease-in-out; }
+      @keyframes bounce {
+        0%, 100% { transform: translateY(0); filter: drop-shadow(0 0 5px #a855f7); }
+        50% { transform: translateY(-10px); filter: drop-shadow(0 0 15px #a855f7); }
+      }
+    </style>
+  </defs>
+
+  <rect class="bg" width="800" height="150" />
+  <text x="400" y="40" class="title" text-anchor="middle">Trilingual Native Core &amp; RTL</text>
+
+  <!-- EN -->
+  <g transform="translate(180, 70)" class="bounce">
+    <rect class="node" width="100" height="50" />
+    <text x="50" y="31" class="node-text" text-anchor="middle">English</text>
+  </g>
+
+  <!-- ES -->
+  <g transform="translate(350, 70)" class="bounce" style="animation-delay: 1s;">
+    <rect class="node" width="100" height="50" />
+    <text x="50" y="31" class="node-text" text-anchor="middle">Español</text>
+  </g>
+
+  <!-- HE -->
+  <g transform="translate(520, 70)" class="bounce" style="animation-delay: 2s;">
+    <rect class="node" width="100" height="50" />
+    <text x="50" y="31" class="node-text" text-anchor="middle">עברית</text>
+  </g>
+
+</svg>

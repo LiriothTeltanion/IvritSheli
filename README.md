@@ -48,6 +48,10 @@ Three persistent depths change how information is presented without hiding rooms
   <img src="assets/readme/screenshots/themes_composed.jpg" width="100%" alt="Ivrit Sheli Language and Themes" />
 </p>
 
+<p align="center">
+  <img src="assets/readme/languages.svg" width="100%" alt="Languages Animation" />
+</p>
+
 - **Trilingual Core:** English, Spanish, and Hebrew interfaces working seamlessly together.
 - **RTL Architecture:** Genuine Right-to-Left document direction and `he-IL` formatting that respects the language.
 - **Expressive Aesthetics:** 14 distinct dark and light themes. 
@@ -114,6 +118,10 @@ as current proof.
 
 
 ## ⚡ Tech Stack & Architecture
+
+<p align="center">
+  <img src="assets/readme/architecture.svg" width="100%" alt="Architecture Animation" />
+</p>
 
 Ivrit Sheli is designed as a local-first offline-capable PWA with a resilient cloud backup backend.
 
