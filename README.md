@@ -33,12 +33,12 @@
 |---|---|
 | Current local source | `2.12.3` — **private candidate / unpublished** |
 | Latest published version | [`v2.12.2`](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.12.2) on `main` |
-| Live app URL for users | **Not available yet**; the historical Railway service returned HTTP 404 when checked on 2026-08-26 |
-| Proposed tester staging | **Render Free ($0)** with managed HTTPS; Blueprint prepared, service not created or verified |
+| Live app URL for users | **[ivrit-sheli-staging.onrender.com](https://ivrit-sheli-staging.onrender.com)** |
+| Proposed tester staging | **Render Free ($0)** with managed HTTPS; Blueprint verified and service live |
 | Current visual proof | Privacy-reviewed captures from the locally served FastAPI/SQLite 2.12.3 candidate; exact provenance and hashes are recorded below |
 | Candidate verification | Fresh-process entry preflight and bounded Playwright smoke passed before capture; the final complete gate is recorded in [`TEST_REPORT.md`](TEST_REPORT.md) |
 | Historical hosted record | `v2.4.0`: 213 unique automated tests and dated Railway/PostgreSQL evidence; preserved as history, not current availability |
-| External actions for 2.12.3 | **None** — no commit, push, merge, tag, Release, deployment, database, OAuth, provider or Devpost change is claimed |
+| External actions for 2.12.3 | **Render Staging Deployment** - Deployed 2.12.3 candidate to Render Free connected to Supabase Sydney via Session Pooler |
 
 Playwright troubleshooting and the 2026-08-27 stale-bundle incident are recorded
 in [`docs/PLAYWRIGHT_RUNBOOK.md`](docs/PLAYWRIGHT_RUNBOOK.md).
@@ -324,7 +324,7 @@ changed. Full timings and methodology are in
   repeat the restricted-role database check, complete backup/restore evidence,
   configure the exact Google identity-only callback, and then verify two real
   accounts for login, isolation, persistence, export, deletion and logout.
-- The former Railway URL is historical and currently offline.
+- The application is currently deployed for testing at `https://ivrit-sheli-staging.onrender.com`.
 - Temporary tunnels are diagnostic sessions, not durable product URLs, and are
   intentionally absent from README and portfolio metadata.
 
