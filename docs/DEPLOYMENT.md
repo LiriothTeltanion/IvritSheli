@@ -47,22 +47,24 @@ nor makes hosting necessary. The Blueprint deliberately keeps
 and Push notifications off, so the staging service must not consume OpenAI API
 credit.
 
-The Blueprint currently proposes Render's Frankfurt region, branch `main`, a
-manual deploy policy (`autoDeployTrigger: off`) and
-`TRUSTED_PROXY_MODE=render`. Frankfurt must be confirmed against the actual
-Supabase project region before a service is created; change the Blueprint first
-if another Render region is the safer latency choice. Automatic deploys stay
-off for the pilot so an unreviewed GitHub change cannot silently replace the
-tested revision. Render Blueprint and health-check behavior are documented in
-the official [Blueprint specification](https://render.com/docs/blueprint-spec)
-and [health-check guide](https://render.com/docs/health-checks).
+The Blueprint uses Render's Singapore region, branch `main`, a manual deploy
+policy (`autoDeployTrigger: off`) and `TRUSTED_PROXY_MODE=render`. Singapore is
+Render's nearest currently supported region to the verified Supabase project in
+Sydney (`ap-southeast-2`), so it reduces the repeated database round trips on
+the sign-in and learning paths. Automatic deploys stay off for the pilot so an
+unreviewed GitHub change cannot silently replace the tested revision. Render
+generates `SESSION_SECRET` during initial Blueprint creation; no person or agent
+needs to copy that value. Render Blueprint and health-check behavior are
+documented in the official
+[Blueprint specification](https://render.com/docs/blueprint-spec) and
+[health-check guide](https://render.com/docs/health-checks).
 
 ### Required external steps before sharing a link
 
 These are gates, not completed work:
 
-1. Confirm the Supabase project region and select the closest suitable Render
-   region before creating the service.
+1. Reconfirm that the Supabase project remains in Sydney (`ap-southeast-2`) and
+   keep Render in Singapore, its nearest currently supported region.
 2. Rotate the Supabase `postgres` administrator password exposed on 2026-08-23.
    Do not reuse it as the application credential.
 3. Make an encrypted PostgreSQL backup and complete a restore drill against a

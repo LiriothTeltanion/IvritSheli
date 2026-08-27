@@ -206,9 +206,9 @@ Do not tag or create a GitHub Release in this phase.
 
 Do these without printing any credential:
 
-1. Confirm the actual Supabase project region. Keep Render `frankfurt` only if
-   it is the closest sensible region; otherwise change the Blueprint before
-   creating the service and explain why.
+1. Reconfirm the Supabase project region. It was verified as Sydney
+   (`ap-southeast-2`) on 2026-08-27, so the Blueprint now uses Render
+   `singapore`, Render's nearest currently supported region.
 2. Rotate the previously exposed Supabase `postgres` administrator password.
    The app must continue to use only `ivrit_sheli_runtime`.
 3. Create an encrypted backup and prove restoration into a separate disposable
@@ -240,7 +240,8 @@ and continue. Do not turn the session into a tutorial unless requested.
 3. Set protected environment values without printing them:
    - restricted-role `DATABASE_URL` whose username is exactly
      `ivrit_sheli_runtime`;
-   - cryptographically random `SESSION_SECRET` of at least 32 characters;
+   - the Blueprint-generated cryptographically random `SESSION_SECRET` (do not
+     replace or reveal it);
    - exact `PUBLIC_BASE_URL` and `ALLOWED_ORIGINS`;
    - Google OAuth client ID/secret and exact callback
      `<PUBLIC_BASE_URL>/api/v1/auth/google/callback`.

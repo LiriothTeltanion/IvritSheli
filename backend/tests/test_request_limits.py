@@ -393,7 +393,7 @@ def test_render_blueprint_is_manual_free_and_least_privilege() -> None:
     blueprint = (ROOT_DIR / "render.yaml").read_text(encoding="utf-8")
     assert "runtime: docker" in blueprint
     assert "plan: free" in blueprint
-    assert "region: frankfurt" in blueprint
+    assert "region: singapore" in blueprint
     assert "branch: main" in blueprint
     assert "autoDeployTrigger: off" in blueprint
     assert "healthCheckPath: /health/ready" in blueprint
@@ -412,12 +412,13 @@ def test_render_blueprint_is_manual_free_and_least_privilege() -> None:
 
     for prompted_key in (
         "DATABASE_URL",
-        "SESSION_SECRET",
         "PUBLIC_BASE_URL",
         "GOOGLE_AUTH_CLIENT_ID",
         "GOOGLE_AUTH_CLIENT_SECRET",
     ):
         assert f"- key: {prompted_key}\n        sync: false" in blueprint
+
+    assert "- key: SESSION_SECRET\n        generateValue: true" in blueprint
 
     dockerignore = (ROOT_DIR / ".dockerignore").read_text(encoding="utf-8")
     assert ".env*" in dockerignore.splitlines()
