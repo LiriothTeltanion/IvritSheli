@@ -18,7 +18,7 @@ dependencies = [
   "python-multipart==0.0.32",
   "psycopg[binary]==3.3.4",
   "SQLAlchemy==2.0.51",
-  "alembic==1.18.5",
+  "alembic==1.19.1",
   "faster-whisper==1.2.1",
   "pywebpush==2.3.0",
   "cryptography==50.0.0",

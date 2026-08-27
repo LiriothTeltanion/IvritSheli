@@ -9,7 +9,7 @@ requests==2.34.2
 python-multipart==0.0.32
 psycopg[binary]==3.3.4
 SQLAlchemy==2.0.51
-alembic==1.18.5
+alembic==1.19.1
 # Audio duration validation uses PyAV even when the optional Faster Whisper
 # worker is disabled, so it remains part of the standard runtime.
 av==17.1.0
