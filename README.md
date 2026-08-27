@@ -68,8 +68,8 @@ Three persistent depths change how information is presented without hiding rooms
 
 This is the **verified 2.12.3 release**. The application is now publicly deployed and verified on Render with Supabase.
 
-**Current private candidate:** `2.12.3`  
-**Latest published release:** `v2.12.2`  
+**Current private candidate:** `2.12.3`
+**Latest published release:** `v2.12.2`
 *Note: Although live on staging, officially no durable hosted demo is currently verified by the strict candidate rules.*
 
 | Component | Status | Details |
