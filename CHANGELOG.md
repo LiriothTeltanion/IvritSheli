@@ -2,7 +2,20 @@
 
 All notable changes are documented here. Versions follow Semantic Versioning.
 
-## Unreleased — private candidate work — 2026-08-26
+## 2.12.2 — Visual Harmony & Resilience — 2026-08-27
+
+### GitHub source release — 2026-08-27
+
+- Publishes the reviewed source with a clean fast-forward of `main`, the
+  annotated `v2.12.2` tag, and a GitHub Release containing a reproducible ZIP
+  plus its separate SHA-256 digest.
+- Replaces stale public repository metadata and the legacy 2.2 social preview
+  with the current versionless Nocturne card. The GitHub homepage no longer
+  points at the offline Railway service.
+- This is a source release only. It does not deploy the application, change a
+  database, OAuth setting, provider, or Devpost entry, or claim a durable hosted
+  demo. Kevin approved publication with the human, staging, backup/restore, and
+  provider gates in `TEST_REPORT.md` still open.
 
 ### README visual proof and formal browser gate — 2026-08-27
 
@@ -10,6 +23,9 @@ All notable changes are documented here. Versions follow Semantic Versioning.
   captures. Their dimensions, hashes, source captures, locale, direction,
   viewport and dirty-tree provenance are recorded in
   `assets/readme/proof/2.12.2/manifest.json`.
+- Adds a deterministic 960 × 600, eight-second GIF tour built from four of the
+  approved captures. It plays once, contains no personal data, and its exact
+  hash and FFmpeg recipe are recorded with the still-image evidence.
 - Allows the formal Playwright configuration to target an explicitly supplied
   served origin. The complete run used FastAPI port 8000 with CSP active and
   finished with **35 passes, 40 intentional project-scoped skips and 0
@@ -27,12 +43,19 @@ All notable changes are documented here. Versions follow Semantic Versioning.
   journey art. No browser coverage was removed or weakened.
 - Generated contact sheets and real human recognition remain separate gates;
   the automated DOM matrix does not substitute for either.
+- Rebuilds all three production images without cache and passes an isolated
+  PostgreSQL 17 Compose smoke: ready/version/CSP, 240-entry dictionary, UID/GID
+  10001 for app PID 1, migration-credential removal, OAuth circuit breaking and
+  structured-log secret sentinels. The CI assertion now measures PID 1 rather
+  than `docker compose exec`, whose process inherits the intentional root
+  bootstrap identity even though Uvicorn has already dropped privileges.
 - Regenerates `SHA256SUMS.txt` from the explicitly reviewed Git index and passes
-  the package verifier with 217 required files, all packaged assets and 555
+  the package verifier with 217 required files, all packaged assets and 559
   canonical checksum entries. Historical PNG candidates and local Playwright
   inspection YAML remain outside the package.
-- This is private local candidate evidence only. It does not merge, tag,
-  publish, deploy or change any provider.
+- This locally executed evidence supports the published source release. It does
+  not prove a deployment, hosted provider, real-user pilot, or human visual
+  acceptance.
 
 ### Profile menu — it opened on a form before it said whose menu it was
 
@@ -172,7 +195,7 @@ menu with a link instead, and the space given to what he has actually earned.
   fast-forward of 87 commits — and a deploy *without* that merge republishes
   2.4.0 rather than this month's work.
 
-## Unreleased — private candidate work — 2026-08-25
+## Historical 2.12.2 pre-release checkpoint — 2026-08-25
 
 Still 2.12.2: an unpublished candidate being repaired does not become a new
 version. Public production remains 2.4.0 and is frozen until after 2026-08-25.
@@ -494,7 +517,7 @@ text is clipped anywhere.
   ambient-motion rule. `docs/VISUAL_BIBLE.md` records that there is one mark
   in three files and which of them is generated.
 
-## 2.12.2 — Visual Harmony & Resilience — Private candidate — 2026-08-23
+## Historical 2.12.2 candidate checkpoint — 2026-08-23
 
 Second checkpoint on the same candidate. The version number does not move: an
 unpublished candidate being repaired does not become a new one.
@@ -624,7 +647,7 @@ The Playwright matrix, contact matrices, offline doctor and package integrity
 gate were **not** run for this checkpoint. Local only: no push, tag, release or
 deployment, and public production remains 2.4.0.
 
-## 2.12.2 — Visual Harmony & Resilience — Private candidate — 2026-08-19
+## Historical 2.12.2 candidate checkpoint — 2026-08-19
 
 - Implemented PostgreSQL connection pooling using thread-safe queue in `PostgresCloudStore`, eliminating connection exhaust and reducing warm queries to sub-50ms latency.
 - Harmonized 15 diverse vector avatar presets under a consistent 2D flat editorial illustration design system with teal circular badges.

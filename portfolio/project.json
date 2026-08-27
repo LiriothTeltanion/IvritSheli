@@ -3,8 +3,8 @@
   "slug": "ivrit-sheli",
   "name": "Ivrit Sheli — העברית שלי",
   "source_version": "2.12.2",
-  "source_status": "private-release-candidate",
-  "latest_published_release": "v2.4.0",
+  "source_status": "published-source-release",
+  "latest_published_release": "v2.12.2",
   "default_branch": "main",
   "repository_url": "https://github.com/LiriothTeltanion/IvritSheli",
   "durable_demo": {
@@ -14,7 +14,7 @@
     "last_checked_on": "2026-08-26",
     "boundary": "No durable hosted demo is currently verified. The historical Railway service is offline, and ephemeral Cloudflare Quick Tunnels are diagnostic sessions rather than publishable deployment URLs."
   },
-  "summary": "An unpublished 2.12.2 trilingual Hebrew-learning candidate with 240 exact semantic scenes, responsive Israel journey art, an alphabet studio and deterministic coaching. The latest published release is v2.4.0; no durable hosted demo is currently verified.",
+  "summary": "The published 2.12.2 source release of a trilingual Hebrew-learning PWA with 240 exact semantic scenes, responsive Israel journey art, Alphabet Studio and deterministic coaching. No durable hosted demo is currently verified.",
   "languages": [
     "en",
     "es",
@@ -35,15 +35,15 @@
     "Web Push reminders"
   ],
   "tests": {
-    "version": "2.4.0",
-    "scope": "historical-public-release",
-    "backend_unique": 151,
-    "frontend": 62,
-    "frontend_files": 16,
-    "total_unique": 213,
-    "ordinary_backend_passed": 150,
+    "version": "2.12.2",
+    "scope": "published-source-release-local-verification",
+    "backend_unique": 363,
+    "frontend": 858,
+    "frontend_files": 49,
+    "total_unique": 1221,
+    "ordinary_backend_passed": 363,
     "ordinary_backend_skipped": 1,
-    "postgresql_gate_passed": 3,
+    "postgresql_gate_passed": 0,
     "evidence": "TEST_REPORT.md"
   },
   "historical_deployment": {
@@ -68,15 +68,15 @@
     "current_http_status": 404
   },
   "publication": {
-    "latest_git_tag": "v2.4.0",
-    "latest_github_release": "v2.4.0",
-    "source_version_tagged": false,
-    "source_version_github_release_published": false,
-    "release_state": "2.12.2-private-candidate-v2.4.0-latest-published-no-durable-demo"
+    "latest_git_tag": "v2.12.2",
+    "latest_github_release": "v2.12.2",
+    "source_version_tagged": true,
+    "source_version_github_release_published": true,
+    "release_state": "2.12.2-published-source-release-no-durable-demo"
   },
   "candidate": {
     "version": "2.12.2",
-    "published": false,
+    "published": true,
     "coverage": "Structured A0-A2 with an explicitly experimental B1/B2 Lab",
     "reviewed_concepts": 240,
     "learner_experiences": [
@@ -96,15 +96,15 @@
     "alphabet_progress_persistent": true,
     "public_google_scope": "openid profile",
     "local_mode_without_account": true,
-    "verification": "The source version surfaces identify 2.12.2. Current runtime, browser and test evidence remains separately scoped in TEST_REPORT.md; it is private evidence, not publication or durable-host proof.",
-    "release_gate": "Isolated HTTPS staging, two-real-account isolation, backup and restore, the speech and reminder mother pilot, human visual recognition, and Kevin's explicit publication approval remain required."
+    "verification": "The source version surfaces identify 2.12.2, and its local runtime, browser and test evidence is scoped in TEST_REPORT.md. The GitHub source release is published; it is not durable-host or deployment proof.",
+    "release_gate": "Kevin explicitly approved the GitHub source release with isolated HTTPS staging, two-real-account isolation, backup and restore, provider checks, human visual recognition, and the mother pilot still open. Any deployment requires separate approval."
   },
   "visual_proof": {
-    "state": "The private 2.12.2 source defines 240 reviewed concepts and 240 exact semantic scenes.",
-    "social_preview_version": "2.2.0",
+    "state": "The published 2.12.2 source defines 240 reviewed concepts and 240 exact semantic scenes.",
+    "social_preview_version": "2.12.2",
     "readme_screenshot_source_version": "2.12.2",
     "readme_screenshot_status": "verified-current",
-    "interactive_browser_qa": "The privacy-reviewed README selection was captured from the locally served 2.12.2 working tree and is recorded in assets/readme/proof/2.12.2/manifest.json. On 2026-08-27, the formal three-viewport Playwright matrix passed 35 tests with 40 intentional project-scoped skips and zero failures against the FastAPI-served production bundle with CSP; the 240-scene catalog rendered at thumbnail, card and hero sizes in each project. Generated contact-sheet inspection, human recognition, provider verification and publication remain separate gates."
+    "interactive_browser_qa": "The privacy-reviewed README selection was captured from the locally served 2.12.2 source and is recorded in assets/readme/proof/2.12.2/manifest.json. On 2026-08-27, the formal three-viewport Playwright matrix passed 35 tests with 40 intentional project-scoped skips and zero failures against the FastAPI-served production bundle with CSP; the 240-scene catalog rendered at thumbnail, card and hero sizes in each project. Generated contact-sheet inspection, human recognition, provider verification and deployment remain separate gates."
   },
   "oauth": {
     "providers": [

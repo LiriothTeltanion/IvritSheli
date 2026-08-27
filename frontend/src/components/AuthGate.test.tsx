@@ -10,7 +10,7 @@ import {
 } from '../api';
 import { I18nProvider } from '../i18n';
 import { AVATAR_PRESETS } from '../profileAvatarPresets';
-import { CANDIDATE_DATE, CANDIDATE_VERSION } from '../release';
+import { RELEASE_DATE, RELEASE_VERSION } from '../release';
 import { AuthGate } from './AuthGate';
 
 describe('AuthGate beginner preview', () => {
@@ -455,19 +455,19 @@ describe('AuthGate beginner preview', () => {
       </I18nProvider>,
     );
 
-    expect(container.querySelectorAll('.auth-candidate-badge')).toHaveLength(1);
+    expect(container.querySelectorAll('.auth-release-label')).toHaveLength(1);
     expect(container.querySelector('.auth-version')).toBeNull();
     /* Scoped to the header on purpose. The same date appears further down in
        the version history, where a changelog entry naturally carries its own
        date and stays true; what must not reappear is a build label in the
        masthead that a human has to remember to move. */
     const header = container.querySelector('.auth-header');
-    expect(header?.textContent ?? '').not.toContain(CANDIDATE_DATE);
-    expect(screen.getByText(/Private candidate/i)).toBeInTheDocument();
+    expect(header?.textContent ?? '').not.toContain(RELEASE_DATE);
+    expect(screen.getByText(/^Version$/i)).toBeInTheDocument();
 
     /* Switch the way she would, with the control on the screen. */
     await user.click(screen.getByRole('button', { name: 'ES' }));
-    expect(screen.getByText(/Candidata privada/i)).toBeInTheDocument();
-    expect(screen.getByText(CANDIDATE_VERSION)).toBeInTheDocument();
+    expect(screen.getByText(/^Versión$/i)).toBeInTheDocument();
+    expect(screen.getByText(RELEASE_VERSION)).toBeInTheDocument();
   });
 });

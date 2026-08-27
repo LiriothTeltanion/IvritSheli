@@ -1,16 +1,16 @@
-# 2.12.2 source-contract note — 2026-08-23
+# 2.12.2 published source contract — 2026-08-27
 
-This unpublished 2.12.2 candidate inherits the 2.11.0 API surface without
-broadening public permissions. Google public sign-in remains **identity-only**
-(`openid profile`). The current change is a client-side visual and responsive-
-asset checkpoint; the verified public deployment remains 2.4.0.
+The published 2.12.2 source release inherits the 2.11.0 API surface without
+broadening provider permissions. Google sign-in remains **identity-only**
+(`openid profile`). No durable hosted deployment is currently verified; the
+2.4.0 Railway record below is historical.
 
-# API catalog — Ivrit Sheli 2.9.2 private candidate — 2026-07-28
+# Historical API snapshot — Ivrit Sheli 2.9.2 private candidate — 2026-07-28
 
-This document describes the unpublished 2.9.2 source contract dated
-2026-07-28. It inherits the 2.9.1 Hebrew Alphabet Studio contract dated
-2026-07-27. The verified public Railway service remains on 2.4.0 dated
-2026-07-21 until every 2.9.2 release gate is approved.
+The section below preserves the unpublished 2.9.2 source contract dated
+2026-07-28. It inherited the 2.9.1 Hebrew Alphabet Studio contract dated
+2026-07-27. At that checkpoint, the verified public Railway service remained
+on 2.4.0 dated 2026-07-21 while the 2.9.2 release gates were still open.
 
 Application base path: `/api/v1`
 

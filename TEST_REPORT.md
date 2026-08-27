@@ -1,13 +1,15 @@
 # Ivrit Sheli — Verification Ledger
 
-- **Current private source candidate:** `2.12.2` / local artifact / unpublished
+- **Current published source release:** `2.12.2` / GitHub tag and Release
 - **Latest gate date:** 2026-08-27 (2.12.2 README visual-proof and formal
   browser batch). The
   2.12.0 Nocturne gate of 2026-08-14 is preserved below as history and is not
   relabelled.
-- **Latest published release:** `2.4.0` / historical Railway + PostgreSQL
-  verification dated 2026-07-21; the former hosted service was offline when
-  checked on 2026-08-26
+- **Latest published source release:** `v2.12.2` / 2026-08-27; no deployment or
+  durable hosted demo is claimed
+- **Latest verified hosted evidence:** `2.4.0` / historical Railway + PostgreSQL
+  verification dated 2026-07-21; that former service was offline when checked
+  on 2026-08-26
 - **Historical candidate baselines:** `2.11.0` passed 705 frontend and 315
   backend tests plus its 240 × 3 visual matrix on 2026-08-14; `2.10.0` Phase
   4A.1 completed 1,047 automated passes on 2026-08-13. Neither number is
@@ -18,14 +20,23 @@
 This visual checkpoint preserves **240/240 exact semantic scenes** while adding
 dark-first theme resolution, responsive regional art, adult shared geometry,
 setting-aware spatial context and short semantic motion. Fresh 2.12 results are
-recorded below after execution. The PostgreSQL/RLS and no-cache Docker results
-remain inherited 2.10 evidence because this slice does not change runtime data
-boundaries. Human recognition, speech pilot and isolated staging remain
-required before publication.
+recorded below after execution, including a no-cache production-image build and
+an isolated PostgreSQL Compose smoke. The earlier live-project tenant-isolation
+proof remains separately dated; this local container run does not relabel it.
+Human recognition, speech pilot and isolated staging remained open when Kevin
+explicitly approved this GitHub source publication.
 
-The historical published `2.4.0` record remains unchanged. Nothing in this
-private artifact claims that 2.12.2 is deployed, tagged, released or
-submitted to Devpost.
+The historical hosted `2.4.0` record remains unchanged. The published 2.12.2
+source release does not claim that the application is deployed, that a durable
+demo exists, or that Devpost or any provider was changed.
+
+## GitHub source publication boundary — 2026-08-27
+
+Kevin approved the fast-forward of `main`, annotated tag `v2.12.2`, and GitHub
+Release after reading this ledger's open-gate list. That decision publishes the
+reviewed code and release assets only. It does not turn historical hosting,
+local PostgreSQL evidence, deterministic browser fixtures, or machine tests
+into current production, provider, real-user, or human-acceptance evidence.
 
 ## README visual-proof and performance gate — reference Windows machine — 2026-08-27
 
@@ -39,18 +50,25 @@ bundle with CSP and no-cache headers; it was not Vite-only proof.
 
 | Gate | Command / method | Result |
 |---|---|---|
-| Frontend suite | `npx vitest run` | **858 passed / 49 files / 0 failed** in 103.87 s |
+| Frontend suite | `npx vitest run` | **858 passed / 49 files / 0 failed** in 101.97 s |
 | TypeScript | `npx tsc -b --pretty false` | **Passed** |
-| Production bundle | `npm run build` | **Passed**; Vite 8.1.4 transformed 134 modules in 1.28 s; the `advancedChunks` deprecation warning remains |
+| Production bundle | `npm run build` | **Passed**; Vite 8.1.4 transformed 134 modules in 1.38 s; the `advancedChunks` deprecation warning remains |
 | Capture contracts | `npm run test:capture` | **4 passed / 0 failed** with Node's test runner |
-| Backend suite | `.venv\Scripts\python.exe -m pytest backend\tests -q -p no:cacheprovider` | **360 passed / 1 PostgreSQL credential-gated skip / 0 failed** in 81.18 s |
+| Backend suite | `.venv\Scripts\python.exe -m pytest backend\tests -q -p no:cacheprovider` | **363 passed / 1 PostgreSQL credential-gated skip / 0 failed** in 46.14 s |
 | Backend style | `.venv\Scripts\python.exe -m ruff check backend\src backend\tests scripts` | **Passed** |
 | Backend types | `.venv\Scripts\python.exe -m mypy backend\src` | **Passed** across 39 source files |
-| Release/portfolio contract | 14 focused pytest cases plus direct validators | **14 passed; 0 direct-validator failures** |
-| README local references | Exact-case filesystem traversal | **21/21 local links and assets present** |
+| Offline doctor | `.venv\Scripts\python.exe -m ivrit_sheli --doctor` | **7/7 passed** as 2.12.2; 244 dictionary rows include the declared 240-entry starter set |
+| Python dependency audit | `.venv\Scripts\python.exe -m pip_audit -r backend\requirements.txt` | **No known vulnerabilities** |
+| Frontend dependency audits | `npm audit` and `npm audit --omit=dev` | **0 vulnerabilities** in the full and production scopes; 188 dependencies audited |
+| Compose model | `docker compose ... config --quiet` with an isolated port override | **Passed**; the release smoke bound only to loopback port 8600 |
+| No-cache production images | `docker compose ... build --no-cache` | **Passed** for app, migration and volume-initializer images in 86.8 s |
+| PostgreSQL container smoke | isolated `docker compose ... up --wait` | **Passed**; PostgreSQL 17 and app healthy, `/version` reported 2.12.2 / PostgreSQL, and the shared dictionary reported 240 ready entries |
+| Container security boundary | entrypoint UID/GID assertion, `/proc/1/status`, environment check, OAuth circuit/log check | **Passed**; app PID 1 had all four UID/GID values at 10001, `MIGRATION_DATABASE_URL` was absent, 20 unconfigured-provider calls returned 503 then 429, callback returned 303, and 47 structured app-log records contained none of the sentinel secrets |
+| Release/portfolio contract | 15 focused pytest cases plus direct validators | **15 passed; 0 direct-validator failures** |
+| README local references | Exact-case filesystem traversal | **22/22 unique local links and assets present** |
 | Exact browser accessibility | Chromium, served bundle, 390 × 844, HE/RTL, dark, reduced motion, deterministic read-only API fixtures | **Passed**: no horizontal overflow; mobile drawer hit target and navigation passed; axe reported 0 total WCAG 2/2.1 A/AA violations |
 | Formal Playwright matrix | `$env:PLAYWRIGHT_BASE_URL='http://127.0.0.1:8000'; npx playwright test --workers=1 --reporter=line` | **35 passed / 40 intentional project-scoped skips / 0 failed** across 75 listed cases in 330.1 s against the FastAPI-served production bundle with CSP |
-| Package integrity | `.venv\Scripts\python.exe scripts\verify_package.py` | **Passed**: 217 required files and all packaged assets; `SHA256SUMS.txt` contains 555 canonical Git-index entries |
+| Package integrity | `.venv\Scripts\python.exe scripts\verify_package.py` | **Passed**: 217 required files and all packaged assets; `SHA256SUMS.txt` contains 559 canonical Git-index entries |
 
 The first full Vitest attempt reported 856 passes, two lazy-scene lookup
 failures and one empty suite because Vitest collected the new `node:test`
@@ -75,6 +93,15 @@ so it does not prove PostgreSQL, OAuth providers or hosted persistence. It also
 does not replace the separately generated contact-sheet matrix or human visual
 recognition.
 
+Two additional final-snapshot rerun attempts on the same FastAPI/CSP path were
+terminated after 604.1 s (full matrix) and 184.1 s (targeted smoke) when the
+Windows Playwright process stopped emitting results. Neither attempt produced a
+test assertion failure or a complete result, so neither is counted as a pass.
+The completed 35-pass formal matrix above remains the browser evidence of
+record; the fresh 858-test frontend suite, TypeScript check, production build
+and four capture contracts cover the subsequent release-copy and documentation
+refresh. No third rerun was made merely to obtain a green label.
+
 ### Capture and visual evidence
 
 The fail-closed capture runner produced successful candidate matrices from the
@@ -83,6 +110,11 @@ and phone, light/dark themes and Today/Alphabet/Dictionary surfaces. Five
 privacy-safe WebP derivatives were selected; the original PNGs and the earlier
 17 untracked screenshot candidates were preserved unchanged. The public
 selection ledger is `assets/readme/proof/2.12.2/manifest.json`.
+
+An eight-second, non-looping GIF was then rendered deterministically from four
+approved desktop WebPs. Two independent FFmpeg passes were byte-identical; the
+final 960 × 600, 40-frame asset is 621,014 bytes with SHA-256
+`9EE5931A934BC5AE0BAD60D704AF4336907A67734595203C88E805CFCFB83E53`.
 
 Every selected WebP and its grayscale working copy was visually inspected.
 Primary headings, actions, Hebrew letterforms and learning content remained
@@ -107,9 +139,9 @@ remain unverified. Full method and boundaries are in
   --matrix`) and human review of those sheets. The formal Playwright project
   matrix is current above; its DOM assertions are not human-recognition
   evidence.
-- Offline doctor and current no-cache Docker/container smoke.
 - Live provider sign-in, two-real-account continuity/isolation, isolated HTTPS
-  staging, backup/restore, migration/provisioning, deployment and publication.
+  staging, backup/restore, migration/provisioning, and deployment. The GitHub
+  source publication is recorded above.
 - Human five-second recognition, Hebrew-content acceptance and the pilot with
   Kevin's mother.
 

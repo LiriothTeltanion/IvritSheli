@@ -13,13 +13,13 @@ export const VERSION_HISTORY_COPY: Record<Locale, { title: string, summary: stri
     versions: [
       {
         name: '2.12.2 — Visual Harmony & Resilience',
-        date: '2026-08-19',
+        date: '2026-08-27',
         highlights: [
-          'Implemented PostgreSQL connection pooling with queue caching, dropping warm query latencies to sub-50ms.',
+          'Added guarded PostgreSQL connection pooling while preserving the restricted runtime role and row-level security.',
           'Unified 15 diverse vector avatar presets under a consistent 2D flat editorial illustration design language.',
           'Drew the "Ivrit" wordmark as Hebraized letterforms with a heavy roof, thin stems and scribal crowns, so the logo is identical offline.',
-          'Introduced interactive 3D Holographic Hero Card with cursor tilt, live speech pronunciation, and Ken Burns region pan.',
-          'Polished app-wide fluid view transitions, tactile button states, and modern Nocturne app icon.',
+          'Added responsive Israel journey art and 240 exact semantic scenes across thumbnail, card and hero contexts.',
+          'Hardened theme selection, mobile navigation, RTL reflow, browser accessibility and the Nocturne app identity.',
         ],
       },
       {
@@ -135,13 +135,13 @@ export const VERSION_HISTORY_COPY: Record<Locale, { title: string, summary: stri
     versions: [
       {
         name: '2.12.2 — Armonía visual y resiliencia',
-        date: '2026-08-19',
+        date: '2026-08-27',
         highlights: [
-          'Pool de conexiones PostgreSQL/Supabase con colas seguras, reduciendo la latencia de consultas a menos de 50ms.',
+          'Pool de conexiones PostgreSQL protegido, manteniendo el rol de ejecución restringido y la seguridad por filas.',
           'Colección completa de 15 avatares vectoriales homogéneos en estilo editorial 2D plano con fondo turquesa.',
           'Dibujó el logotipo "Ivrit" con letras de construcción hebrea —techo pesado, palos finos y coronas de escriba—, idéntico sin conexión.',
-          'Tarjeta holográfica 3D interactiva en el Hero con inclinación física, audio en vivo y efecto cinematográfico Ken Burns.',
-          'Transiciones fluidas en toda la app, pulsaciones táctiles y nuevo icono nocturne.',
+          'Arte adaptable del recorrido por Israel y 240 escenas semánticas exactas en miniatura, tarjeta y hero.',
+          'Refuerzo de temas, navegación móvil, reflujo RTL, accesibilidad en navegador e identidad Nocturne.',
         ],
       },
       {
@@ -257,13 +257,13 @@ export const VERSION_HISTORY_COPY: Record<Locale, { title: string, summary: stri
     versions: [
       {
         name: '2.12.2 — הרמוניה חזותית ועמידות',
-        date: '2026-08-19',
+        date: '2026-08-27',
         highlights: [
-          'ניהול בריכת חיבורים ל-PostgreSQL/Supabase עם תגובה מהירה מתחת ל-50ms.',
+          'נוסף מאגר חיבורי PostgreSQL מוגן תוך שמירה על תפקיד הרצה מוגבל ואבטחה ברמת השורה.',
           'אוסף של 15 אווטארים וקטוריים אחידים בשפת איור עריכתית דו-ממדית.',
           'טיפוגרפיה מונומנטלית בהשראת הכתב העברי עבור סימן המילה Ivrit Sheli.',
-          'כרטיס הולוגרפי תלת-ממדי ב-Hero עם הטיה פיזית, השמעת קול ואפקט קולנועי.',
-          'מעברים זורמים בכל היישום, תגובת כפתורים מישושית וסמל יישום מעודכן.',
+          'נוספו אמנות מסע רספונסיבית בישראל ו-240 סצנות סמנטיות מדויקות בשלושה גדלים.',
+          'חוזקו בחירת ערכת הנושא, הניווט בנייד, זרימת RTL, נגישות בדפדפן וזהות Nocturne.',
         ],
       },
       {

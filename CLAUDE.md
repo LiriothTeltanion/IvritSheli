@@ -6,9 +6,9 @@ contra ella.
 
 ## Las reglas están en AGENTS.md
 
-**Lee `AGENTS.md` primero.** Ahí están las reglas duras —el congelamiento hasta
-el 2026-08-25, los bloqueos abiertos, dónde vive el estado, y los comandos de
-comprobación— y son las mismas para todas las IAs que tocan este repositorio.
+**Lee `AGENTS.md` primero.** Ahí están las reglas duras —la autorización de
+publicación vigente, los bloqueos abiertos, dónde vive el estado, y los comandos
+de comprobación— y son las mismas para todas las IAs que tocan este repositorio.
 Este archivo no las repite: dos copias de una regla se separan, y ya pasó.
 
 Lo de abajo es sólo lo específico de trabajar con Claude aquí.

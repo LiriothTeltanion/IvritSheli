@@ -42,8 +42,8 @@ def test_checked_in_portfolio_manifest_preserves_truth_boundaries() -> None:
 
     assert verify_package.verify_portfolio_manifest() == []
     assert manifest["source_version"] == "2.12.2"
-    assert manifest["source_status"] == "private-release-candidate"
-    assert manifest["latest_published_release"] == "v2.4.0"
+    assert manifest["source_status"] == "published-source-release"
+    assert manifest["latest_published_release"] == "v2.12.2"
     assert manifest["durable_demo"] == {
         "url": None,
         "status": "unavailable",
@@ -86,9 +86,9 @@ def test_current_screenshot_evidence_can_advance_without_a_false_boolean(
             (
                 "publication",
                 "release_state",
-                "2.12.2-private-candidate-2.4.0-live-and-published",
+                "2.12.2-published-source-release-live-demo",
             ),
-            "publication boundary must keep the candidate private",
+            "publication must identify the current GitHub source release",
         ),
     ),
 )
@@ -127,6 +127,21 @@ def test_manifest_rejects_hard_coded_quick_tunnel_url(
     assert any("Quick Tunnel URLs must not be hard-coded" in failure for failure in failures)
 
 
+def test_published_source_release_does_not_imply_a_hosted_demo() -> None:
+    """Tag and Release publication must coexist with an unavailable hosted service."""
+    manifest = _current_manifest()
+
+    assert manifest["publication"] == {
+        "latest_git_tag": "v2.12.2",
+        "latest_github_release": "v2.12.2",
+        "source_version_tagged": True,
+        "source_version_github_release_published": True,
+        "release_state": "2.12.2-published-source-release-no-durable-demo",
+    }
+    assert manifest["durable_demo"]["status"] == "unavailable"
+    assert manifest["historical_deployment"]["current_availability"] == "offline"
+
+
 def test_faster_whisper_is_optional_not_part_of_standard_container_stack() -> None:
     """Speech remains an optional worker instead of a standard-image claim."""
     manifest = _current_manifest()
@@ -135,12 +150,12 @@ def test_faster_whisper_is_optional_not_part_of_standard_container_stack() -> No
     assert "Faster Whisper private speech worker" in manifest["optional_capabilities"]
 
 
-def test_readme_truth_contract_accepts_separate_candidate_release_and_hosting() -> None:
-    """Natural README wording may distinguish all three states without provider claims."""
+def test_readme_truth_contract_accepts_source_release_without_hosting() -> None:
+    """Natural README wording may publish source without claiming a deployment."""
     readme = """
     # Ivrit Sheli 2.12.2
-    The private, unpublished 2.12.2 source candidate contains 240 reviewed concepts.
-    The latest published release is v2.4.0, preserved as historical evidence.
+    The published 2.12.2 source release contains 240 reviewed concepts.
+    The latest published release is v2.12.2.
     No durable hosted demo is currently verified.
     """
 
@@ -151,6 +166,8 @@ def test_readme_truth_contract_accepts_separate_candidate_release_and_hosting() 
     "false_claim",
     (
         "Current public deployed application",
+        "2.12.2 is live",
+        "2.12.2 is deployed",
         "Version 2.4.0 is live at https://example.invalid",
         "Railway production still reports 2.4.0",
         "https://temporary-proof.trycloudflare.com",
@@ -162,8 +179,8 @@ def test_readme_truth_contract_rejects_current_or_ephemeral_host_claims(
     """The README validator must fail closed on the stale hosting language."""
     readme = f"""
     # Ivrit Sheli 2.12.2
-    The private, unpublished 2.12.2 source candidate contains 240 reviewed concepts.
-    The latest published release is v2.4.0.
+    The published 2.12.2 source release contains 240 reviewed concepts.
+    The latest published release is v2.12.2.
     No durable hosted demo is currently verified.
     {false_claim}
     """

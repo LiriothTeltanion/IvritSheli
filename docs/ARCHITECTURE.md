@@ -1,14 +1,21 @@
-# 2.10.0 consolidation note — 2026-08-10
+# Current release boundary — 2.12.2 / 2026-08-27
+
+The current architecture is published in the `v2.12.2` GitHub source release.
+It supports local SQLite and configured PostgreSQL modes, but no durable hosted
+deployment is currently verified. The dated sections below preserve the design
+history that led to this release.
+
+# Historical 2.10.0 consolidation note — 2026-08-10
 
 The private 2.10.0 candidate preserves the 2.9.x runtime architecture while consolidating visual and release boundaries: candidate identity is centralized in `frontend/src/release.ts`, visual polish is isolated in `premium-polish.css`, and the reviewed dictionary now has 240/240 exact semantic scenes split across focused scene modules. The verified public runtime remains 2.4.0.
 
-# Architecture — Ivrit Sheli 2.9.1 Hebrew Alphabet Studio — 2026-07-27
+# Historical architecture snapshot — Ivrit Sheli 2.9.1 — 2026-07-27
 
-Ivrit Sheli 2.9.1 dated 2026-07-27 keeps two deliberate runtime modes. The
-local SQLite application remains the simplest private installation and requires
-no account; cloud mode adds authenticated multi-user continuity without
-duplicating or weakening the learning engine. The verified public deployment
-remains 2.4.0 dated 2026-07-21 while this source is an unpublished candidate.
+At the 2.9.1 checkpoint dated 2026-07-27, Ivrit Sheli kept two deliberate
+runtime modes. The local SQLite application was the simplest private
+installation and required no account; cloud mode added authenticated multi-user
+continuity without duplicating or weakening the learning engine. At that time,
+the verified public deployment remained 2.4.0 while 2.9.1 was unpublished.
 
 ## System shape
 

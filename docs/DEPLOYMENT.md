@@ -1,12 +1,11 @@
-# Deployment — Ivrit Sheli 2.12.2 private source / 2.4.0 production
+# Deployment — Ivrit Sheli 2.12.2 published source / no current deployment
 
 This guide covers the private SQLite installation, the reproducible PostgreSQL
-Docker stack, the separate HTTPS staging design first established for 2.9.1
-and the frozen public Railway deployment. Production values belong in a
-secrets manager or hosting dashboard, never in Git. Version 2.12.2 dated
-2026-08-14 is private and unpublished: the verified live service, tag, GitHub
-Release and Devpost entry remain at 2.4.0 dated 2026-07-21 until the current
-release gates, publication freeze and Kevin's explicit approval are complete.
+Docker stack, and the separate HTTPS staging design first established for
+2.9.1. Production values belong in a secrets manager or hosting dashboard,
+never in Git. Version 2.12.2 is published as a GitHub source release dated
+2026-08-27, but it has not been deployed. The former Railway 2.4.0 service is
+historical evidence and is currently offline; Devpost was not changed.
 
 ## 1. Choose the runtime
 
@@ -320,14 +319,14 @@ PostgreSQL credentials and are never serialized. A 2.4.0 writer dated
 2026-07-21 knows none of these additions and can silently remove newer learner
 fields while preserving older account data.
 
-Therefore the private 2.12.0 build must not point at the production learner-state database while 2.4.0 remains live. A future public rollout requires all of the following:
+Therefore the published 2.12.2 source must not point at a production learner-state database until a future deployment is explicitly approved. That rollout requires all of the following:
 
-1. Create a PostgreSQL backup and prove it can restore before the first 2.12.0 learner write.
-2. Deploy 2.12.0 as one controlled writer transition; do not run mixed 2.4.0 and 2.12.0 application replicas against the same learner-state rows.
+1. Create a PostgreSQL backup and prove it can restore before the first 2.12.2 hosted learner write.
+2. Deploy 2.12.2 as one controlled writer transition; do not run mixed 2.4.0 and 2.12.2 application replicas against the same learner-state rows.
 3. Verify two real Google accounts through sign-in, one complete daily session, refresh, device change, logout/re-login and export; prove that neither account can access the other's state.
 4. Verify a disposable account's deletion without deleting the owner's account.
-5. After any 2.12.0 write, do not roll the application back to the 2.4.0 writer unless the pre-upgrade database backup is restored or a forward-preserving compatibility patch is deployed first.
-6. Keep the private candidate on isolated/local state until that operational procedure and the mother-pilot acceptance retest are explicitly approved.
+5. After any 2.12.2 write, do not roll the application back to the 2.4.0 writer unless the pre-upgrade database backup is restored or a forward-preserving compatibility patch is deployed first.
+6. Keep the source release on isolated/local state until that operational procedure and the mother-pilot acceptance retest are explicitly approved.
 
 ## 6. Release verification
 
@@ -358,13 +357,12 @@ pytest backend/tests -q -m "not postgres"   # ordinary run, no database env
 pytest backend/tests -q -m postgres         # separate shell, database env set
 ```
 
-At publish time, rewrite `og:image` and `twitter:image` in
-`frontend/index.html` from `/social/...` to an absolute URL against
-`PUBLIC_BASE_URL`. Crawlers do not reliably resolve a relative image, and the
-card silently falls back to no image when they cannot.
+FastAPI rewrites `og:image` and `twitter:image` from `/social/...` to absolute
+URLs against `PUBLIC_BASE_URL` at response time. Keep that value on the exact
+HTTPS origin; crawlers do not reliably resolve an unqualified image URL.
 
-Evidence for the current private candidate, **2.12.2**, lives in
-`TEST_REPORT.md`; the rollout preconditions above apply to it. Sections that
+Evidence for the current source release, **2.12.2**, lives in `TEST_REPORT.md`;
+the future deployment preconditions above still apply. Sections that
 remain explicitly dated 2026-07-27 preserve historical 2.9.1 evidence.
 
 The following results belong to the inherited 2.9.0 baseline dated 2026-07-27
@@ -395,16 +393,16 @@ Build the ZIP and its external checksum directly from canonical Git blobs:
 ```bash
 python scripts/build_release_archive.py \
   --ref HEAD \
-  --output IvritSheli-v2.12.0.zip \
-  --prefix IvritSheli-v2.12.0 \
-  --checksum-output IvritSheli-v2.12.0.zip.sha256
+  --output IvritSheli-v2.12.2.zip \
+  --prefix IvritSheli-v2.12.2 \
+  --checksum-output IvritSheli-v2.12.2.zip.sha256
 ```
 
 Before deploying, create the PostgreSQL backup described below and complete a
-restore drill against a separate database. Package the candidate only from the
-final committed tree and verify the extracted archive. During the private
-pilot, do not merge, push, tag `v2.12.0`, create a GitHub Release, alter Devpost
-or replace public Railway. Those actions require a separate final review and
+restore drill against a separate database. Package a release only from the
+final committed tree and verify the extracted archive. The `v2.12.2` GitHub
+source release does not authorize a deployment, Devpost change, provider
+configuration, or replacement host; each requires a separate review and
 Kevin's explicit approval.
 
 Verify against the public URL:
@@ -424,7 +422,7 @@ Verify against the public URL:
 13. Desktop, 390 px mobile, Hebrew RTL, reduced-motion, keyboard-only and 200% zoom modes remain usable.
 14. Prove cached shell/dictionary/region browsing offline while confirming that cloud writes pause and request reconnection; private API responses must not appear in the service-worker cache.
 15. Verify the 22-base-letter/5-final-form catalog, all three Alphabet Studio experiences, stale-token/idempotent attempts, demo read-only state, export/import, old-snapshot hydration and two-account alphabet isolation.
-16. For a 2.12.0 rollout, prove the learner-snapshot writer transition, Push-role boundary and rollback/restore boundary above; a green 2.4.0 readiness check is not sufficient evidence.
+16. For a 2.12.2 rollout, prove the learner-snapshot writer transition, Push-role boundary and rollback/restore boundary above; a historical green 2.4.0 readiness check is not sufficient evidence.
 17. Complete the mother-pilot acceptance retest from a WhatsApp link: find the primary action within 30 seconds, learn three words and finish a session without assistance. Record comprehension problems before approval.
 18. Test microphone granted/denied, insecure HTTP, silence, invalid format, cancellation, timeout, Android, iPhone/PWA and manual fallback.
 19. Run the planned 20-word/10-phrase pilot; record exact normalized coverage and median latency without inventing results.

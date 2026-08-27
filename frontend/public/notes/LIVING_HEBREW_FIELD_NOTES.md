@@ -1,3 +1,9 @@
+ARCHIVED VISUAL-WORK NOTEBOOK — SUPERSEDED 2026-08-27
+
+This file preserves a prior internal checkpoint. Its counts, freeze status and
+publication language are historical, not current release truth. The canonical
+current note is /notes/RELEASE_2.12.2.md. No durable hosted demo is verified.
+
 Ivrit Sheli · 2.12.0 Living Hebrew Nocturne
 
 Repintado de las 240 escenas

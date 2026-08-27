@@ -1,4 +1,4 @@
-# Ivrit Sheli Visual Bible — 2.12.2 private candidate
+# Ivrit Sheli Visual Bible — 2.12.2 source release
 
 ## Living Hebrew Nocturne — 2026-08-14
 
@@ -64,7 +64,7 @@ the source of linguistic truth or documentary geography.
 
 Every reviewed starter concept has a code-native SVG scene selected by its exact semantic key. These illustrations must remain fast, local, theme-aware, accessible and deterministic.
 
-The 2.12.2 candidate target is **240 reviewed concepts / 240 exact semantic scenes**. Category and emoji fallbacks remain only for future imported or unsupported entries outside that reviewed catalog.
+The 2.12.2 source release contains **240 reviewed concepts / 240 exact semantic scenes**. Category and emoji fallbacks remain only for future imported or unsupported entries outside that reviewed catalog.
 
 Each scene follows the hierarchy:
 
@@ -250,7 +250,7 @@ A beautiful asset does not override Ivrit Sheli's release-truth discipline. New 
 
 ## Cuaderno del hebreo vivo
 
-The consolidated operations + visual review notebook for this private candidate is maintained in:
+The consolidated operations + visual review notebook for this source release is maintained in:
 
 - `docs/LIVING_HEBREW_FIELD_NOTES.md`
 

@@ -289,7 +289,7 @@ export const heMessages = {
     heroStatScenes: 'סצנות סמנטיות',
     heroStatLetters: 'אותיות וסופיות',
     heroStatTrackers: 'עוקבים חיצוניים',
-    releaseCandidateBadge: 'מועמדת פרטית',
+    releaseVersionBadge: 'גרסה',
     heroAvatarCount: '{count} דמויות',
     signInUnavailableTitle: 'בשרת הזה ההתחברות אינה מוגדרת',
     signInUnavailableDetail: 'עדיין אפשר לחקור את ההדגמה, או להפעיל את עברית שלי במחשב שלך. שום דבר ממה שתעשי לא הולך לאיבוד.',

@@ -1,3 +1,12 @@
+# Archived visual-work notebook — superseded 2026-08-27
+
+> [!WARNING]
+> This document preserves an internal visual-review checkpoint and its measured
+> state at that time. Its test counts, performance notes, open-finding counts
+> and publication language are **not current release status**. Use `README.md`,
+> `TEST_REPORT.md`, `TASKS.md` and `docs/releases/v2.12.2.md` for the published
+> v2.12.2 source boundary. No durable hosted demo is currently verified.
+
 # Ivrit Sheli · 2.12.2 Living Hebrew Nocturne
 
 ## Cuaderno de Campo de Ingeniería y Arte

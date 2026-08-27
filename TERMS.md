@@ -1,15 +1,21 @@
 # Ivrit Sheli terms of use
 
-Last updated: 27 July 2026
+Last updated: 27 August 2026
 
-These terms apply to the public Ivrit Sheli hosted service. By using the service, you agree to use it responsibly and understand the limits below. If you do not agree, you may use the open-source local edition under its repository license instead of the hosted service.
+These terms apply whenever an Ivrit Sheli hosted service is made available. By
+using such a service, you agree to use it responsibly and understand the limits
+below. The current `v2.12.2` publication is a source release that can be run
+locally; no durable hosted demo is currently verified.
 
-**Live-service boundary:** the hosted service reports version 2.4.0. Identity-only Google sign-in, onboarding/session persistence across reload and logout are verified in production. Re-login after logout and credential-dependent integrations remain separate unverified checks; Google sign-in grants no Gmail, Drive or Calendar scope.
+**Historical hosted-service boundary:** the former Railway service ran 2.4.0
+and is currently offline. Its identity-only Google sign-in, onboarding/session
+persistence and logout evidence is dated 2026-07-21. It does not prove a current
+service, re-login, credential-dependent integrations, or backup restoration;
+Google sign-in grants no Gmail, Drive or Calendar scope.
 
-The unreleased v2.9 candidate may be offered on a separate private staging
-link. Its microphone transcription, coach and reminder behavior is pilot
-software and does not change the terms or verified capabilities of production
-v2.4.
+The v2.12.2 source contains optional microphone transcription, coach and
+reminder behavior. Any future private staging use remains pilot software and
+does not create a claim of current provider availability or deployment.
 
 ## The service
 

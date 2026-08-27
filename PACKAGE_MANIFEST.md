@@ -1,12 +1,13 @@
 # Ivrit Sheli 2.12.2 — Visual Harmony & Resilience Package Manifest
 
 - Source version: `2.12.2`
-- Candidate state: private / unpublished; current working-tree evidence refreshed 2026-08-27
+- Release state: published GitHub source release on 2026-08-27; no deployment or durable hosted demo
 - Source lineage: derived from the clean 2.9.2 Brand & Private Access export supplied for consolidation; `.git`, real secrets, local databases, models, dependency caches and generated audit folders are intentionally absent.
-- Current verified public version: `2.4.0`
+- Latest published source release: `v2.12.2`
+- Latest verified hosted evidence: historical `2.4.0` on 2026-07-21; the former service is currently offline
 - Visual catalog: **240 reviewed concepts / 240 exact semantic scenes / 0 reviewed category fallbacks**
 - Current source integrity gate: **passed on 2026-08-27** — 217 required files
-  and all packaged assets verified by `scripts/verify_package.py`, with **555
+  and all packaged assets verified by `scripts/verify_package.py`, with **559
   canonical Git-index SHA-256 entries**. The prior 2.11.0 checkpoint verified
   202 required files / 372 canonical entries.
 - Current browser evidence: the 2026-08-27 formal Playwright run against the
@@ -15,19 +16,24 @@
   330.1 s. It covered 390, 768 and 1440 px projects and rendered all 240 exact
   scenes at thumbnail, card and hero sizes. Generated contact-sheet inspection
   and human recognition remain open.
-- Historical test evidence: Phase 4A.1 passed **1,047 local automated checks** on 2026-08-13, including the complete browser/accessibility matrix and disposable PostgreSQL coverage. Human recognition, isolated staging/pilot and explicit publication approval remain required; see `TEST_REPORT.md`.
-- Current 2.12.2 verification is recorded in `TEST_REPORT.md`. Prior
-  PostgreSQL/RLS and container results remain attributed to 2.10.0; the 2.11.0
-  705-frontend/315-backend checkpoint remains historical evidence only.
+- Current container evidence: an isolated 2026-08-27 no-cache build and
+  PostgreSQL 17 Compose smoke passed on loopback port 8600. The app reported
+  2.12.2 / PostgreSQL with 240 ready entries, PID 1 ran with UID/GID 10001,
+  migration credentials were absent, and the structured-log sentinel check
+  passed. This is local production-shaped evidence, not a deployment.
+- Historical test evidence: Phase 4A.1 passed **1,047 local automated checks** on 2026-08-13, including the complete browser/accessibility matrix and disposable PostgreSQL coverage. Human recognition, isolated staging/pilot and deployment approval remain open; see `TEST_REPORT.md`.
+- Current 2.12.2 verification is recorded in `TEST_REPORT.md`. Prior live
+  PostgreSQL/RLS tenant-isolation results remain separately attributed; the
+  2.11.0 705-frontend/315-backend checkpoint remains historical evidence only.
 
 ## 2.12.2 package purpose
 
-This package is a nocturnal editorial visual-system checkpoint, not a public
+This is the reproducible source package for the public `v2.12.2` GitHub
 release. It keeps the 240/240 exact semantic catalog and adds adult shared
 anatomy, setting-aware depth, meaning-driven motion, dark-first UI hierarchy,
 six responsive regional paintings and one coherent cross-journey hero. It
 inherits the verified 2.10 architecture, security, persistence and release
-boundaries without broadening them.
+boundaries without presenting this source publication as a deployment.
 
 The seven raster assets and twelve responsive region variants are documented in
 `docs/VISUAL_ASSET_MANIFEST.md`. Exact code-native semantic SVGs remain the

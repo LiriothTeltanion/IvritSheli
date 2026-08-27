@@ -1,5 +1,10 @@
 # Demo Day Guide
 
+> [!IMPORTANT]
+> Updated for the **v2.12.2 GitHub source release on 2026-08-27**. No durable
+> hosted demo is currently verified. Use the local FastAPI/SQLite served path
+> for a live presentation; do not present the former Railway URL as available.
+
 ## Product sentence
 
 **Ivrit Sheli is a private, adaptive Hebrew-learning system that converts the learner's real life into personalized vocabulary, speaking practice, and explainable recommendations.**
@@ -18,7 +23,7 @@ Capture `אני אטפל בזה` with English and Spanish meanings. Point out RT
 
 ### 0:35–0:55 — Clickable dictionary
 
-Open one of the 48 reviewed starter concepts. Show the visual cue, niqqud, romanization, English/Spanish meaning and example first; then expand grammar, source attribution and related forms. Add the entry to learning.
+Open one of the 240 reviewed starter concepts. Show the visual cue, niqqud, romanization, English/Spanish meaning and example first; then expand grammar, source attribution and related forms. Add the entry to learning.
 
 ### 0:55–1:15 — Adaptive review
 
@@ -42,10 +47,10 @@ Show the repository map and state: React + TypeScript, Python + FastAPI, private
 2. **Solution:** capture → understand → practice → use → reflect.
 3. **Technical architecture:** React, FastAPI, private SQLite mode, Google/GitHub-authenticated PostgreSQL tenants, a separate lexicon database, deterministic offline AI, and optional cloud adapters.
 4. **Differentiator:** every Hebrew word is clickable and every recommendation is explainable.
-5. **Reliability:** request IDs, redacted JSON logs, diagnostics and PostgreSQL isolation coverage. The locally verified 2.4 source has 213 passing automated tests: 151 unique backend plus 62 frontend across 16 files. Railway production independently reports PostgreSQL and all 48 reviewed dictionary entries ready.
+5. **Reliability:** request IDs, redacted JSON logs, diagnostics and PostgreSQL isolation coverage. The 2.12.2 source gate records 363 backend and 858 frontend passes, plus 35 served-path Playwright cases and four capture contracts. Historical PostgreSQL/RLS evidence remains separately dated in `TEST_REPORT.md`.
 6. **Privacy:** no account in private local mode; minimal provider identity in cloud mode; no stored provider bearer tokens or email; export and two-step deletion; no analytics or background mailbox harvesting.
-7. **Release status:** 2.4.0 is live on Railway with managed PostgreSQL at [ivritsheli-production.up.railway.app](https://ivritsheli-production.up.railway.app/?lang=en) from release implementation commit `03bf84b9268ff8be528c0fab3c670f9652ee23b0`. The English entry, read-only guided tour, identity-only Google sign-in, onboarding/session persistence across reload and logout are verified. Tag and GitHub Release `v2.4.0` are published.
-8. **Next gate:** verify re-login after logout, the full mobile/RTL/reduced-motion/accessibility matrix and the remaining credential-dependent operator checks without expanding the identity-only Google scope.
+7. **Release status:** tag and GitHub Release `v2.12.2` publish the reviewed source and release assets. They do not deploy the app. The former Railway service is offline, and no replacement host has been selected.
+8. **Next gate:** complete human recognition, Hebrew-content acceptance and the mother pilot; then verify isolated HTTPS staging, two-account isolation, backup/restore and providers before any deployment claim.
 
 ## Suggested live-demo safety plan
 
@@ -55,9 +60,9 @@ Show the repository map and state: React + TypeScript, Python + FastAPI, private
 - Build the frontend before presentation.
 - Run `--doctor` immediately before the demo.
 - Run `docker compose up --build --wait` before demonstrating the authenticated PostgreSQL path.
-- Present the Railway 2.4.0 English entry as the current verified production build and keep release implementation commit `03bf84b9268ff8be528c0fab3c670f9652ee23b0` available as evidence.
-- Present Google strictly as identity-only sign-in. The live authorization, reload persistence and logout passed; re-login after logout, GitHub live authorization and Gmail/Drive/Calendar access remain unclaimed.
-- Use the current 2.1.x screenshots only as clearly labeled fallback evidence; do not present them as refreshed 2.4 visual proof.
+- Do not open or present the former Railway URL; it returned HTTP 404 when last checked.
+- Present Google and GitHub as optional identity integrations whose live authorization was not reverified for this source release.
+- Use the five privacy-reviewed v2.12.2 README captures as fallback evidence; their exact provenance and hashes are recorded under `assets/readme/proof/2.12.2`.
 - Keep a screenshot of the dashboard as a fallback.
 
 ## Portfolio highlights
@@ -72,4 +77,4 @@ This project demonstrates:
 - Adaptive algorithms and recommendation scoring.
 - Bounded audio uploads, extension allow-listing, temporary-file cleanup, and privacy controls.
 - External API integration through testable adapters.
-- A 213-test locally verified 2.4 source, passing production-shaped Docker/Compose smoke and package checks, plus a separately verified Railway 2.4.0 deployment with managed PostgreSQL, 48 reviewed dictionary entries and a live beginner account journey.
+- A v2.12.2 source gate with 1,221 frontend/backend passes, served-path Playwright coverage, reproducible packaging, 240 reviewed concepts and 240 exact semantic scenes. Historical hosting evidence is preserved without claiming current availability.

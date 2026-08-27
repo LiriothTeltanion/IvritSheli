@@ -1,13 +1,12 @@
 # Ivrit Sheli — Tasks & Operational Roadmap
 
-**Current Version:** `2.12.2 — Visual Harmony & Resilience`  
-**Baseline Branch:** `consolidation/ivrit-sheli-2.10-baseline`  
-**State:** Private / local candidate; verification is scoped in `TEST_REPORT.md`
+**Current Version:** `2.12.2 — Visual Harmony & Resilience`
+**Baseline Branch:** `main`
+**State:** Published GitHub source release; no verified deployment or durable hosted demo
 **Public Contest Boundary:** The contest freeze **expired on 2026-08-25**. The
-latest published release remains **2.4.0 Contest Edition (2026-07-21)** because
-`main` has not moved since then. Its former hosted service is currently offline.
-Publishing is now a decision, not a prohibition — and it is Kevin's, per
-`AGENTS.md` hard rule 1.
+latest published source release is **v2.12.2 (2026-08-27)** on `main`. The former
+2.4.0 hosted service is currently offline. Deployment remains a separate
+decision that only Kevin can authorize, per `AGENTS.md` hard rule 1.
 
 ---
 
@@ -171,9 +170,9 @@ otro panel, qué sigue siendo cierto y qué ya no. Empieza siempre por ahí.
     different database** — an architecture decision, not a fix. Confirm where it
     points before changing anything. All 21 variables exist, including
     `MIGRATION_DATABASE_URL`.
-  - **What this does not do:** `main` has not moved since 2026-07-21, so a
-    redeploy republishes 2.4.0. Publishing this month's work means merging
-    `consolidation/…` — 87 commits, a clean fast-forward.
+  - **What this does not do:** `main` now carries the v2.12.2 source release,
+    but no deployment was triggered. Before any future deploy, confirm which
+    database Railway targets and complete the separately approved safeguards.
   - Choosing a paid plan is Kevin's; no agent enters payment details.
 
 - [x] **Four tables closed to the REST API — migration written and rehearsed

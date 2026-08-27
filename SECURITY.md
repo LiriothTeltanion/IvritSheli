@@ -4,13 +4,14 @@
 
 | Version | Supported |
 |---|---:|
-| 2.9.x | Yes — unreleased private candidate |
+| 2.12.x | Yes — current source release |
+| 2.9.x | No — superseded private candidate |
 | 2.8.x | No — superseded private candidate |
 | 2.6.x | No — superseded candidate |
 | 2.5.x | No — superseded candidate |
-| 2.4.x | Yes |
+| 2.4.x | Critical fixes only; upgrade recommended |
 | 2.3.x | No — superseded candidate |
-| 2.2.x | Yes |
+| 2.2.x | No — superseded release |
 | 2.1.x | Critical fixes only; upgrade recommended |
 | 2.0.x | Critical fixes only; upgrade strongly recommended |
 | 1.0.x | Critical fixes only; upgrade recommended |

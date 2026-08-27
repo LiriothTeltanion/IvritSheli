@@ -289,7 +289,7 @@ export const esMessages = {
     heroStatScenes: 'Escenas semánticas',
     heroStatLetters: 'Letras y sofit',
     heroStatTrackers: 'Rastreadores externos',
-    releaseCandidateBadge: 'Candidata privada',
+    releaseVersionBadge: 'Versión',
     heroAvatarCount: '{count} avatares',
     signInUnavailableTitle: 'Este servidor no tiene el inicio de sesión configurado',
     signInUnavailableDetail: 'Puedes explorar la demostración igualmente, o usar Ivrit Sheli en tu propia computadora. No se pierde nada de lo que hagas.',

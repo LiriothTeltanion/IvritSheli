@@ -379,8 +379,8 @@ def verify_portfolio_manifest() -> list[str]:
         "slug": "ivrit-sheli",
         "name": "Ivrit Sheli — העברית שלי",
         "source_version": current_version,
-        "source_status": "private-release-candidate",
-        "latest_published_release": "v2.4.0",
+        "source_status": "published-source-release",
+        "latest_published_release": f"v{current_version}",
         "default_branch": "main",
         "repository_url": "https://github.com/LiriothTeltanion/IvritSheli",
     }
@@ -443,7 +443,7 @@ def verify_portfolio_manifest() -> list[str]:
             "portfolio/project.json: optional_capabilities must remain separate from standard_stack"
         )
 
-    # Public evidence stays pinned to the last genuinely verified public release.
+    # Current source-release evidence stays separate from historical hosting proof.
     tests, nested = _verify_exact_keys(
         top_level.get("tests"),
         {"version", "scope", "backend_unique", "frontend", "frontend_files",
@@ -453,16 +453,21 @@ def verify_portfolio_manifest() -> list[str]:
     )
     failures.extend(nested)
     expected_tests = {
-        "version": "2.4.0", "scope": "historical-public-release",
-        "backend_unique": 151, "frontend": 62,
-        "frontend_files": 16, "total_unique": 213, "ordinary_backend_passed": 150,
-        "ordinary_backend_skipped": 1, "postgresql_gate_passed": 3,
+        "version": current_version,
+        "scope": "published-source-release-local-verification",
+        "backend_unique": 363,
+        "frontend": 858,
+        "frontend_files": 49,
+        "total_unique": 1221,
+        "ordinary_backend_passed": 363,
+        "ordinary_backend_skipped": 1,
+        "postgresql_gate_passed": 0,
         "evidence": "TEST_REPORT.md",
     }
     if tests is not None and tests != expected_tests:
         failures.append(
-            "portfolio/project.json: tests must preserve the historical 2.4.0 "
-            "public-release record"
+            "portfolio/project.json: tests must describe the current published "
+            "source release without relabeling historical hosting evidence"
         )
 
     historical_deployment, nested = _verify_exact_keys(
@@ -509,18 +514,16 @@ def verify_portfolio_manifest() -> list[str]:
     )
     failures.extend(nested)
     expected_publication = {
-        "latest_git_tag": "v2.4.0",
-        "latest_github_release": "v2.4.0",
-        "source_version_tagged": False,
-        "source_version_github_release_published": False,
-        "release_state": (
-            f"{current_version}-private-candidate-v2.4.0-latest-published-no-durable-demo"
-        ),
+        "latest_git_tag": f"v{current_version}",
+        "latest_github_release": f"v{current_version}",
+        "source_version_tagged": True,
+        "source_version_github_release_published": True,
+        "release_state": f"{current_version}-published-source-release-no-durable-demo",
     }
     if publication is not None and publication != expected_publication:
         failures.append(
-            "portfolio/project.json: publication boundary must keep the candidate private "
-            "and v2.4.0 as the latest published release"
+            "portfolio/project.json: publication must identify the current GitHub source "
+            "release without claiming a durable hosted demo"
         )
 
     candidate, nested = _verify_exact_keys(
@@ -536,7 +539,7 @@ def verify_portfolio_manifest() -> list[str]:
     if candidate is not None:
         fixed_expected = {
             "version": current_version,
-            "published": False,
+            "published": True,
             "coverage": "Structured A0-A2 with an explicitly experimental B1/B2 Lab",
             "reviewed_concepts": 240,
             "learner_experiences": ["Guided", "Explorer", "Experienced"],
@@ -664,14 +667,14 @@ def _verify_readme_release_truth(readme: str, current_version: str) -> list[str]
             failures.append(f"README.md: missing release-truth fragment {fragment!r}")
 
     truth_patterns = {
-        "private unpublished source candidate": re.compile(
-            rf"(?:private|unpublished)[^\n]{{0,160}}(?:candidate|{re.escape(current_version)})"
-            rf"|(?:candidate|{re.escape(current_version)})[^\n]{{0,160}}(?:private|unpublished)",
+        "published source release": re.compile(
+            rf"(?:published|public)[^\n]{{0,160}}(?:source release|v?{re.escape(current_version)})"
+            rf"|(?:source release|v?{re.escape(current_version)})[^\n]{{0,160}}(?:published|public)",
             flags=re.IGNORECASE,
         ),
-        "v2.4.0 as the latest published release": re.compile(
-            r"latest published (?:release|version)[^\n]{0,100}v?2\.4\.0"
-            r"|v2\.4\.0[^\n]{0,100}latest published (?:release|version)",
+        f"v{current_version} as the latest published release": re.compile(
+            rf"latest published (?:release|version)[^\n]{{0,100}}v?{re.escape(current_version)}"
+            rf"|v?{re.escape(current_version)}[^\n]{{0,100}}latest published (?:release|version)",
             flags=re.IGNORECASE,
         ),
         "no verified durable hosted demo": re.compile(
@@ -686,7 +689,7 @@ def _verify_readme_release_truth(readme: str, current_version: str) -> list[str]
 
     forbidden = (
         f"{current_version} is live",
-        f"v{current_version} release is published",
+        f"{current_version} is deployed",
         "Current public deployed application",
         "Version 2.4.0 is live at",
         "Railway production still reports",
@@ -699,7 +702,7 @@ def _verify_readme_release_truth(readme: str, current_version: str) -> list[str]
 
 
 def verify_release_truth_drift() -> list[str]:
-    """Keep current candidate claims honest without rewriting historical evidence."""
+    """Keep source-release claims honest without rewriting historical evidence."""
     try:
         current_version = source_version()
     except RuntimeError as error:
@@ -713,11 +716,11 @@ def verify_release_truth_drift() -> list[str]:
         ),
         "PACKAGE_MANIFEST.md": (
             f"Source version: `{current_version}`",
-            "Current verified public version: `2.4.0`",
+            f"Latest published source release: `v{current_version}`",
             "240",
         ),
         "TEST_REPORT.md": (
-            f"Current private source candidate:** `{current_version}`",
+            f"Current published source release:** `{current_version}`",
             "2.10.0",
             "1,047",
             "2.4.0",
@@ -727,7 +730,7 @@ def verify_release_truth_drift() -> list[str]:
         "docs/DESIGN_SYSTEM.md": ("240", "semantic"),
         "docs/USER_GUIDE.md": ("240",),
         "docs/VISUAL_BIBLE.md": ("240 reviewed concepts / 240 exact semantic scenes",),
-        "CITATION.cff": (f"version: {current_version}", "verified public v2.4.0 release"),
+        "CITATION.cff": (f"version: {current_version}", f"source release v{current_version}"),
     }
     failures: list[str] = []
     for relative, fragments in expected_fragments.items():
@@ -747,9 +750,9 @@ def verify_release_truth_drift() -> list[str]:
     else:
         failures.extend(_verify_readme_release_truth(readme, current_version))
 
-    # Candidate surfaces must never imply this unpublished tree replaced the verified public release.
+    # A source release must never be relabelled as a hosted production deployment.
     forbidden = {
-        "PACKAGE_MANIFEST.md": (f"v{current_version} is the latest published",),
+        "PACKAGE_MANIFEST.md": (f"v{current_version} is live",),
         "TEST_REPORT.md": (f"Current verified production:** `{current_version}`",),
     }
     for relative, fragments in forbidden.items():
@@ -858,8 +861,8 @@ def verify_source_version_surfaces() -> list[str]:
         "backend/src/ivrit_sheli/__init__.py": f'__version__ = "{expected_version}"',
         "frontend/index.html": f"Ivrit Sheli {'.'.join(expected_version.split('.')[:2])}",
         "frontend/public/sw.js": f"ivrit-sheli-shell-v{expected_version}",
-        "frontend/src/release.ts": f"CANDIDATE_VERSION = '{expected_version}'",
-        ".github/ISSUE_TEMPLATE/bug_report.yml": f"placeholder: {expected_version}-private",
+        "frontend/src/release.ts": f"RELEASE_VERSION = '{expected_version}'",
+        ".github/ISSUE_TEMPLATE/bug_report.yml": f"placeholder: {expected_version} or a commit SHA",
         "CITATION.cff": f"version: {expected_version}",
     }
     for relative, fragment in expected_fragments.items():

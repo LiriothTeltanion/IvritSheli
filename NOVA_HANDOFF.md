@@ -2,9 +2,11 @@
 
 **Last Updated**: 2026-08-27 (`Asia/Jerusalem`)
 **Prepared by**: Antigravity (Handoff targeted for Claude Code at 02:41 AM)
-**Source state**: private / local / unpublished
-**Latest published release**: **2.4.0 Contest Edition (2026-07-21)**; its former
-Railway service was offline when checked on 2026-08-26
+**Source state**: published GitHub source release / no deployment
+**Latest published release**: **v2.12.2 Visual Harmony & Resilience
+(2026-08-27)**; no durable hosted demo is verified
+**Latest hosted evidence**: historical **2.4.0 Contest Edition (2026-07-21)**;
+its former Railway service was offline when checked on 2026-08-26
 
 ## Codex pass — 2026-08-27, README and formal browser gate
 
@@ -21,8 +23,9 @@ zoom boundary and internal Alphabet Studio clipping; it also corrected stale
 navigation/theme selectors and activated native lazy-loaded journey art before
 asserting its dimensions.
 
-This remains local evidence. It does not prove providers, PostgreSQL, hosted
-persistence, a durable deployment, or publication. Human recognition,
+This remains locally executed evidence supporting the GitHub source release.
+It does not prove providers, current PostgreSQL behavior, hosted persistence,
+or a durable deployment. Human recognition,
 generated contact-sheet inspection, Hebrew-content acceptance, isolated HTTPS
 staging, two-real-account isolation, backup/restore and the pilot with Kevin's
 mother remain open.
@@ -298,7 +301,7 @@ above a list of unmet requirements:
 5. Isolated HTTPS staging, two-real-account persistence and isolation, and a
    proven backup/restore path.
 6. ~~`SHA256SUMS.txt` and the package integrity gate need regenerating.~~
-   **Closed 2026-08-27:** 555 canonical Git-index checksums generated after
+   **Closed 2026-08-27:** 559 canonical Git-index checksums generated after
    explicit staging; `scripts/verify_package.py` passed 217 required files and
    all packaged assets.
 

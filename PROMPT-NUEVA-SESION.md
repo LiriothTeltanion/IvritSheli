@@ -1,6 +1,14 @@
 # Prompt para la sesión nueva
 
-Copia todo lo que hay debajo de la línea y pégalo como primer mensaje.
+> [!WARNING]
+> **Prompt histórico del 2026-08-24: no reutilizar como estado actual.** La
+> congelación expiró y `v2.12.2` se publicó como release de código fuente el
+> 2026-08-27. Lee `AGENTS.md`, `NOVA_HANDOFF.md`, `TASKS.md` y
+> `TEST_REPORT.md` para el estado vigente. No hay deployment ni demo durable
+> verificada.
+
+El contenido restante se conserva únicamente como evidencia del handoff de
+esa fecha.
 
 ---
 

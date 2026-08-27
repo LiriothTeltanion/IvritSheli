@@ -1,6 +1,6 @@
-# 2.12.2 Visual Harmony & Resilience — 2026-08-23
+# 2.12.2 Visual Harmony & Resilience — 2026-08-27
 
-The current private candidate combines six responsive Israel-region journey
+The published 2.12.2 source release combines six responsive Israel-region journey
 paintings and one cross-journey hero with **240 exact semantic SVG scenes** for
 the reviewed vocabulary catalog. Dark navy is the default editorial frame;
 light remains an explicit persistent choice. Setting-aware depth, adult shared

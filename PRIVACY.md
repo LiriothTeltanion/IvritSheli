@@ -1,17 +1,23 @@
 # Ivrit Sheli privacy notice
 
-Last updated: 27 July 2026
+Last updated: 27 August 2026
 
 Ivrit Sheli is a Hebrew-learning application created by Kevin Cusnir. It is designed to keep learner data private, collect only what the product needs, and remain useful without paid AI services.
 
-This notice describes the public hosted service at `ivritsheli-production.up.railway.app`. A private local installation stores its learning database on that device and does not require an online account.
+This notice describes the v2.12.2 source release, local installations, and the
+data contract for any deliberately configured hosted service. A local
+installation stores its learning database on that device and does not require
+an online account.
 
-**Live-service boundary:** the hosted service reports version 2.4.0. Identity-only Google sign-in, onboarding/session persistence across reload and logout are verified in production. Re-login after logout, live OpenAI or Google Workspace connector calls and backup restoration remain unverified; Google sign-in grants no Gmail, Drive or Calendar scope.
+**Current availability boundary:** no durable hosted demo is currently
+verified. The GitHub `v2.12.2` publication is a source release, not a deployment.
+The former Railway 2.4.0 service is offline; its identity-only Google sign-in,
+session and logout evidence is historical and dated 2026-07-21.
 
-**Private-candidate boundary:** v2.9 is not the public service. Its separate
-staging design adds self-hosted transcription, adaptive feedback and optional
-Web Push. The statements below identify those candidate behaviors explicitly;
-they do not claim that production v2.4 already provides them.
+**Optional-capability boundary:** the source includes separately configured
+self-hosted transcription, adaptive feedback and optional Web Push. The
+statements below describe those source capabilities; they do not claim a
+currently hosted provider, pilot result, or production availability.
 
 ## Information the hosted service keeps
 

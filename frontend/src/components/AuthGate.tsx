@@ -7,7 +7,7 @@
 import { useCallback, useState, useEffect } from 'react';
 import { api, HEBREW_LETTER_FORM_COUNT, OFFLINE_STARTER_ENTRY_COUNT } from '../api';
 import { useI18n } from '../i18n';
-import { CANDIDATE_VERSION } from '../release';
+import { RELEASE_VERSION } from '../release';
 import type { AuthProvider, Locale } from '../types';
 import { Icon, type IconName } from './Icon';
 import { IvritSheliWordmark } from './IvritSheliWordmark';
@@ -376,8 +376,8 @@ export function AuthGate({
             reordered when the interface is Hebrew. */}
         <a className="auth-brand" href="/" aria-label={`${t('appName')} — ${t('home')}`}>
           <IvritSheliWordmark label={t('appName')} />
-          <small className="auth-candidate-badge">
-            {t('releaseCandidateBadge')} <bdi dir="ltr">{CANDIDATE_VERSION}</bdi>
+          <small className="auth-release-label">
+            {t('releaseVersionBadge')} <bdi dir="ltr">{RELEASE_VERSION}</bdi>
           </small>
         </a>
         <div className="auth-header__actions">

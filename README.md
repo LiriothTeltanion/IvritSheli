@@ -16,22 +16,23 @@
 </div>
 
 > [!IMPORTANT]
-> This checkout is the **private, unpublished 2.12.2 source candidate**. The
-> **latest published release is [v2.4.0](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.4.0)**,
-> and **no verified durable hosted demo is currently available**. The images and
-> fresh checks below are local working-tree evidence; they are not a deployment,
-> tag, GitHub Release, or provider-availability claim.
+> This checkout is the **published [v2.12.2 source release](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.12.2)**.
+> It advances the repository, tag, and GitHub Release—not a hosted service.
+> **No verified durable hosted demo is currently available.** The images and
+> checks below are local served-runtime evidence; they are not deployment,
+> provider-availability, or real-user acceptance claims.
 
 ## Current status
 
 | Surface | Evidence-backed state |
 |---|---|
-| Private source | `2.12.2` candidate; unpublished and untagged |
-| Latest published version | `v2.4.0` Contest Edition, published 2026-07-21 |
+| Published source | `v2.12.2` — Visual Harmony & Resilience, published 2026-08-27 |
+| Latest published version | [`v2.12.2`](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.12.2) on `main` |
 | Durable hosted demo | Unavailable; the historical Railway service returned HTTP 404 when checked on 2026-08-26 |
-| Current visual proof | Captured from a locally served FastAPI/SQLite worktree based on `7ac5f941db66435cbdd59a14e7178462eabc4785` plus recorded then-uncommitted work; the reviewed snapshot is now committed locally |
-| Public release test record | Historical `v2.4.0`: 151 unique backend tests + 62 frontend tests = 213; see [`TEST_REPORT.md`](TEST_REPORT.md) |
-| Publication actions in this work | None — no merge, push, tag, release, deployment, database, OAuth, or provider change |
+| Current visual proof | Privacy-reviewed captures from the locally served FastAPI/SQLite 2.12.2 release code; exact provenance and hashes are recorded below |
+| Current source-release test record | 363 backend + 858 frontend = 1,221 component/integration passes, plus 35 Playwright cases and 4 capture contracts; see [`TEST_REPORT.md`](TEST_REPORT.md) |
+| Historical hosted record | `v2.4.0`: 213 unique automated tests and dated Railway/PostgreSQL evidence; preserved as history, not current availability |
+| Publication actions in this work | Fast-forward of `main`, annotated `v2.12.2` tag, and GitHub Release only — no deployment, database, OAuth, provider, or Devpost change |
 
 The machine-readable version/publication contract lives in
 [`portfolio/project.json`](portfolio/project.json). It deliberately separates
@@ -42,6 +43,11 @@ source version, historical release evidence, and current hosting availability.
 <p align="center">
   <img src="assets/readme/proof/2.12.2/today-desktop-dark-es.webp" width="100%" alt="Spanish dark-theme Ivrit Sheli Today dashboard for the generic Learner profile, with a reading word card, first-lesson actions, and zeroed starter progress." />
 </p>
+
+<p align="center">
+  <img src="assets/readme/proof/2.12.2/ivrit-sheli-tour.gif" width="960" alt="Eight-second Ivrit Sheli tour showing the Spanish Today dashboard, light Alphabet Studio, dark linked dictionary, and Hebrew RTL Today dashboard." />
+</p>
+<p align="center"><em>An eight-second, non-looping tour built from four privacy-reviewed release captures.</em></p>
 
 <table>
   <tr>
@@ -243,29 +249,30 @@ fails. Public assets are never promoted automatically. Four focused capture
 contract tests cover PNG dimensions/hash evidence, scoped navigation, missing
 origin failure, and HTTP 404 failure.
 
-Fresh results from the private 2.12.2 candidate worktree on 2026-08-27:
+Fresh pre-publication results for the code released as v2.12.2 on 2026-08-27:
 
 | Gate | Result |
 |---|---|
 | Frontend Vitest | **858 passed / 49 files / 0 failed** |
-| Backend pytest | **360 passed / 1 PostgreSQL credential-gated skip / 0 failed** |
+| Backend pytest | **363 passed / 1 PostgreSQL credential-gated skip / 0 failed** |
 | Capture contracts | **4 passed / 0 failed** with Node's test runner |
-| TypeScript + production build | **Passed**; Vite 8.1.4 transformed 134 modules in 1.28 s |
+| TypeScript + production build | **Passed**; Vite 8.1.4 transformed 134 modules in 1.38 s |
 | Ruff + strict MyPy | **Passed**; MyPy checked 39 source files |
+| No-cache container smoke | **Passed**; isolated PostgreSQL 17 stack healthy on loopback port 8600, app PID 1 at UID/GID 10001, migration credential absent, and structured-log sentinel check clean |
 | Exact served mobile HE/RTL browser check | **Passed**; 0 horizontal overflow and 0 axe WCAG 2/2.1 A/AA violations |
 | Formal Playwright matrix on FastAPI port 8000 | **35 passed / 40 intentional project-scoped skips / 0 failed** across 75 listed cases in 330.1 s |
 | README local links and assets | **21/21 exist with exact case** |
-| Release/portfolio truth contract | **14 focused tests passed** and direct validators returned 0 failures |
-| Package integrity | **Passed**; 217 required files and all packaged assets, with 555 canonical Git-index checksums |
+| Release/portfolio truth contract | **15 focused tests passed** and direct validators returned 0 failures |
+| Package integrity | **Passed**; 217 required files and all packaged assets, with 559 canonical Git-index checksums |
 
-The checksum manifest was regenerated only after the intended snapshot was
+The checksum manifest is regenerated only after the intended snapshot is
 explicitly staged. The 17 older PNG candidates and local Playwright inspection
-YAML stayed preserved outside the package. The verifier then passed against the
-same staged Git blobs. A clean extracted release archive was not created in this
-local commit batch. The successful suites retain non-fatal test-environment
-warnings documented in [`TEST_REPORT.md`](TEST_REPORT.md). All results should be
-re-run after a subsequent code edit; historical ledger counts must never be
-relabelled as current evidence.
+YAML stay preserved outside the package. The canonical release ZIP is built
+from the immutable tagged Git tree, with its SHA-256 stored beside the external
+asset rather than inside the self-referential source package. The successful
+suites retain non-fatal test-environment warnings documented in
+[`TEST_REPORT.md`](TEST_REPORT.md). Results must be rerun after a subsequent
+code edit; historical ledger counts must never be relabelled as current.
 
 ## Performance evidence
 
@@ -289,31 +296,32 @@ changed. Full timings and methodology are in
 
 ## Deployment and release boundary
 
-- `v2.4.0` remains the latest published release.
-- `2.12.2` is a private source candidate. It has not been merged to `main`,
-  tagged, released, deployed, or submitted as part of this work.
+- `v2.12.2` is the latest published GitHub source release on `main`.
+- This publication did **not** deploy the application or change any database,
+  OAuth configuration, external provider, hosted service, or Devpost entry.
 - The former Railway URL is historical and currently offline. No replacement
   host has been selected or provisioned.
 - Temporary tunnels are diagnostic sessions, not durable product URLs, and are
   intentionally absent from README and portfolio metadata.
 
-Before Kevin chooses any publication, the current [`TEST_REPORT.md`](TEST_REPORT.md)
-not-run list must be read explicitly. The remaining gates include the full
-generated contact-sheet inspection, current no-cache container smoke, isolated
-HTTPS staging, two-real-account continuity/isolation, backup and restore,
+Kevin approved this source release after reading the current
+[`TEST_REPORT.md`](TEST_REPORT.md) not-run list. The remaining gates include the full
+generated contact-sheet inspection, isolated HTTPS staging,
+two-real-account continuity/isolation, backup and restore,
 five-second human recognition, Hebrew-content acceptance, and the pilot with
-Kevin's mother. Machine checks do not replace those human acceptance gates.
+Kevin's mother. They remain required before any deployment claim; machine
+checks do not replace human acceptance.
 
 ## Roadmap
 
 1. Complete human visual-recognition and Hebrew-content review.
 2. Run the mother-pilot tasks on a real phone and record observations, not
    invented success metrics.
-3. If publication is desired, choose an isolated HTTPS staging host, place the
-   app near its database, and remeasure before optimizing.
+3. Before any deployment, choose an isolated HTTPS staging host, place the app
+   near its database, and remeasure before optimizing.
 4. Prove two-real-account isolation, backup/restore, login, persistence, export,
    and deletion in staging.
-5. Merge, tag, release, and deploy only as separately approved actions.
+5. Deploy, change providers, or update Devpost only as separately approved actions.
 
 ## Documentation map
 

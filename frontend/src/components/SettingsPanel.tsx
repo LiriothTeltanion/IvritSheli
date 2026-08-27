@@ -16,7 +16,7 @@ import {
   type DeviceRecording,
 } from '../deviceAudioStorage';
 import { useI18n } from '../i18n';
-import { CANDIDATE_VERSION } from '../release';
+import { RELEASE_VERSION } from '../release';
 import { learningCoreCopy } from '../learningCoreCopy';
 import { useOnlineStatus } from '../hooks/useOnlineStatus';
 import { resolveLearnerMode } from '../learnerMode';
@@ -296,7 +296,7 @@ export function SettingsPanel({
         diagnostics: {
           user_agent: navigator.userAgent,
           viewport: `${window.innerWidth}x${window.innerHeight}`,
-          app_version: CANDIDATE_VERSION,
+          app_version: RELEASE_VERSION,
           online,
           locale,
           route: window.location.pathname,

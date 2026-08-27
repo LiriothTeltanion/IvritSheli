@@ -1,11 +1,11 @@
 # Hebrew Alphabet Studio — Ivrit Sheli 2.9.1
 
-**Status:** private candidate
+**Status:** included in the published v2.12.2 source release
 
 **Implementation date:** 2026-07-27
 
-**Public-release boundary:** the verified public application remains Ivrit
-Sheli 2.4.0 Contest Edition dated 2026-07-21.
+**Hosting boundary:** no durable hosted application is currently verified; the
+2.4.0 Contest Edition deployment dated 2026-07-21 is historical evidence.
 
 ## Product outcome
 

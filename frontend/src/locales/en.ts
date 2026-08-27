@@ -289,7 +289,7 @@ export const enMessages = {
     heroStatScenes: 'Semantic Scenes',
     heroStatLetters: 'Letters & Finals',
     heroStatTrackers: 'Third-party trackers',
-    releaseCandidateBadge: 'Private candidate',
+    releaseVersionBadge: 'Version',
     heroAvatarCount: '{count} avatars',
     signInUnavailableTitle: 'Sign-in is not set up on this server',
     signInUnavailableDetail: 'You can still explore the demonstration, or run Ivrit Sheli on your own computer. Nothing you do is lost.',

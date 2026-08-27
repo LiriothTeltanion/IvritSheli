@@ -9,7 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
 import { configureApiSession } from './api';
 import { I18nProvider } from './i18n';
-import { CANDIDATE_DATE, CANDIDATE_VERSION } from './release';
+import { RELEASE_DATE, RELEASE_VERSION } from './release';
 import type { LearnerMode, Profile } from './types';
 
 const cloudCapabilities = {
@@ -435,7 +435,7 @@ describe('App cloud session flow', () => {
     expect(screen.queryByText('Your Hebrew plan has been rebuilt from due reviews, confidence, recurring mistakes, and the situations that matter most.')).not.toBeInTheDocument();
   });
 
-  it('names the build the same way inside the app as on the way in', async () => {
+  it('names the published source version neutrally inside the app', async () => {
     /* 2026-08-25. The signed-out screen was repaired a day before this one, and
        for that day the same build named itself two different ways depending on
        which screen you were looking at — "Candidata privada 2.12.2" on the door
@@ -450,9 +450,9 @@ describe('App cloud session flow', () => {
     renderApp();
 
     const sidebar = await screen.findByRole('complementary');
-    expect(within(sidebar).getByText(/Candidata privada/i)).toBeInTheDocument();
-    expect(within(sidebar).getByText(CANDIDATE_VERSION)).toBeInTheDocument();
-    expect(sidebar.textContent ?? '').not.toContain(CANDIDATE_DATE);
+    expect(within(sidebar).getByText(/^Versión$/i)).toBeInTheDocument();
+    expect(within(sidebar).getByText(RELEASE_VERSION)).toBeInTheDocument();
+    expect(sidebar.textContent ?? '').not.toContain(RELEASE_DATE);
     expect(sidebar.textContent ?? '').not.toContain('PRIVATE CANDIDATE');
   });
 

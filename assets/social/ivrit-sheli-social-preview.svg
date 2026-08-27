@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="t d">
   <title id="t">Ivrit Sheli — Hebrew for real life</title>
-  <desc id="d">The Ivrit Sheli wordmark on a nocturnal navy field, with the tagline "Hebrew for real life" in English, Spanish and Hebrew.</desc>
+  <desc id="d">The Ivrit Sheli Nocturne wordmark and the message "Hebrew for the life you actually live" on a navy field, with trilingual, offline and no-tracking highlights.</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1280" y2="640" gradientUnits="userSpaceOnUse">
       <stop offset="0%" stop-color="#05101a"/><stop offset="55%" stop-color="#091e32"/><stop offset="100%" stop-color="#0b2b45"/>
@@ -14,13 +14,20 @@
     <linearGradient id="rule" x1="64" y1="0" x2="560" y2="0" gradientUnits="userSpaceOnUse">
       <stop offset="0%" stop-color="#67e8f9"/><stop offset="65%" stop-color="#22d3ee"/><stop offset="100%" stop-color="#22d3ee" stop-opacity="0.08"/>
     </linearGradient>
+    <linearGradient id="coral" x1="510" y1="88" x2="686" y2="240" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ff0a54"/><stop offset="50%" stop-color="#ff477e"/><stop offset="100%" stop-color="#ff7096"/>
+    </linearGradient>
+    <linearGradient id="coralRule" x1="514" y1="0" x2="685" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ff758c"/><stop offset="50%" stop-color="#ff3b5c"/><stop offset="100%" stop-color="#ff1744"/>
+    </linearGradient>
   </defs>
 
   <rect width="1280" height="640" fill="url(#bg)"/>
   <rect width="1280" height="640" fill="url(#glow)"/>
 
-  <!-- Wordmark. Drawn as paths, never <text>: this file is exported to a raster
-       and consumed as an image, where no font-family can resolve. -->
+  <!-- Wordmark. Both halves use the exact path contours shipped by the app and
+       README lockup. Supporting card copy remains text, then the deterministic
+       Chromium exporter flattens the complete SVG into the public PNG. -->
   <g transform="translate(55.53 113.41) scale(1.4118)">
     <path d="M266.5 16 L265 7 L269.5 16 Z" fill="#f5cb73"/>
     <path d="M276.5 16 L278 7 L279.5 16 Z" fill="#f5cb73"/>
@@ -32,10 +39,20 @@
     <path d="M250 16 H302 L306 21 V33 H282 V74 H292 V84 H267 L264 80 V74 H274 V33 H258 V43 H250 Z" fill="url(#ink)" fill-rule="evenodd"/>
   </g>
   <rect x="64" y="244" width="424" height="7" rx="3.5" fill="url(#rule)"/>
-  <text x="516" y="228" fill="#ff3b5c" font-family="'Times New Roman',serif" font-size="104" font-weight="700" text-anchor="start">שלי</text>
+
+  <!-- "שלי" as the same Gveret Levin filled outlines used by
+       wordmark-nocturne.svg and app-icon.svg — never a fallback font. -->
+  <g transform="rotate(-5 602 165)">
+    <g transform="translate(509 232) scale(0.1593)" fill="url(#coral)">
+      <path d="M62.0 -229Q38.0 -238 37.5 -265.5Q37.0 -293 49.5 -331.5Q62.0 -370 79.0 -412.0Q96.0 -454 106.0 -491Q117.0 -528 140.0 -546.5Q163.0 -565 188.0 -557Q223.0 -545 226.0 -515.0Q229.0 -485 215.0 -447Q209.0 -431 199.0 -401.5Q189.0 -372 175.5 -339.0Q162.0 -306 144.5 -277.5Q127.0 -249 106.5 -234.5Q86.0 -220 62.0 -229Z"/>
+      <path d="M234.0 13Q194.0 9 176.5 -21.5Q159.0 -52 164.0 -98Q170.0 -147 193.0 -175.0Q216.0 -203 245.5 -216.5Q275.0 -230 300.0 -234Q313.0 -307 336.5 -395.5Q360.0 -484 396.0 -595Q447.0 -752 530.5 -825.0Q614.0 -898 716.0 -902Q754.0 -904 797.0 -890.5Q840.0 -877 869.0 -853Q903.0 -825 909.0 -798.0Q915.0 -771 903.0 -760Q886.0 -745 866.5 -749.5Q847.0 -754 825.5 -767.0Q804.0 -780 780.5 -792.0Q757.0 -804 733.0 -805Q680.0 -807 637.5 -774.5Q595.0 -742 561.5 -687.0Q528.0 -632 502.5 -565.5Q477.0 -499 458.5 -431.0Q440.0 -363 427.5 -304.5Q415.0 -246 407.0 -208Q391.0 -129 369.0 -83.5Q347.0 -38 322.5 -17.0Q298.0 4 275.0 9.0Q252.0 14 234.0 13Z"/>
+      <path d="M693.0 22Q625.0 12 578.5 -24.5Q532.0 -61 511.0 -113Q505.0 -112 501.0 -111Q468.0 -106 460.5 -129.0Q453.0 -152 472.0 -178Q478.0 -186 494.0 -197Q493.0 -232 502.0 -268Q525.0 -366 567.5 -438.5Q610.0 -511 663.5 -560.5Q717.0 -610 773.0 -640.0Q829.0 -670 880.0 -683.5Q931.0 -697 968.0 -697Q1028.0 -697 1053.5 -651.0Q1079.0 -605 1068.0 -531Q1061.0 -484 1028.5 -439.0Q996.0 -394 946.5 -352.0Q897.0 -310 840.0 -273.5Q783.0 -237 725.5 -207.0Q668.0 -177 619.0 -155Q626.0 -130 638.0 -112.5Q650.0 -95 666.0 -89Q701.0 -76 733.5 -82.5Q766.0 -89 794.5 -109.5Q823.0 -130 845.5 -158.0Q868.0 -186 881.0 -215Q897.0 -249 919.0 -268.5Q941.0 -288 969.0 -276Q995.0 -266 997.0 -239.0Q999.0 -212 983.0 -174Q955.0 -106 909.0 -58.5Q863.0 -11 807.0 10.0Q751.0 31 693.0 22ZM682.0 -423Q653.0 -387 636.5 -344.5Q620.0 -302 614.0 -261Q649.0 -278 685.0 -298.0Q721.0 -318 755.0 -340Q842.0 -397 892.0 -449.0Q942.0 -501 960.0 -538.0Q978.0 -575 968.0 -588Q959.0 -600 927.5 -592.5Q896.0 -585 852.5 -561.5Q809.0 -538 763.5 -502.5Q718.0 -467 682.0 -423Z"/>
+    </g>
+    <rect x="514" y="241" width="171" height="7" rx="3.5" fill="url(#coralRule)"/>
+  </g>
 
   <text x="64" y="352" fill="#f4f8ff" font-family="Georgia,'Times New Roman',serif" font-size="52" font-weight="600">Hebrew for the life you actually live.</text>
-  <text x="64" y="404" fill="#b4c2d6" font-family="Arial,Helvetica,sans-serif" font-size="24">240 hand-drawn scenes · listening and speech · private by default</text>
+  <text x="64" y="404" fill="#b4c2d6" font-family="Arial,Helvetica,sans-serif" font-size="24">240 semantic scenes · listening and speech · private by default</text>
 
   <g font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="700">
     <rect x="64" y="452" width="176" height="46" rx="23" fill="#ffffff" fill-opacity="0.06" stroke="#22d3ee" stroke-opacity="0.35"/>

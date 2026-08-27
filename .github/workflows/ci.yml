@@ -206,8 +206,13 @@ jobs:
       - name: Build production image
         run: docker build --tag ivrit-sheli:${{ github.sha }} .
 
-      - name: Verify non-root runtime
-        run: test "$(docker image inspect --format '{{.Config.User}}' ivrit-sheli:${{ github.sha }})" = "ivrit"
+      - name: Verify entrypoint drops to the non-root runtime identity
+        run: >-
+          docker run --rm
+          ivrit-sheli:${{ github.sha }}
+          python -c "import os;
+          assert os.getresuid() == (10001, 10001, 10001);
+          assert os.getresgid() == (10001, 10001, 10001)"
 
       - name: Verify entrypoint removes migration credentials from non-migration commands
         run: >-
@@ -224,7 +229,8 @@ jobs:
           curl --fail --silent --show-error http://127.0.0.1:8000/health/live
           curl --fail --silent --show-error http://127.0.0.1:8000/health/ready
           curl --fail --silent --show-error http://127.0.0.1:8000/version
-          test "$(docker compose exec -T app id -u)" = "10001"
+          docker compose exec -T app python -c \
+            "from pathlib import Path; rows = {line.split(':', 1)[0]: line.split()[1:] for line in Path('/proc/1/status').read_text().splitlines() if ':' in line}; assert rows['Uid'] == ['10001'] * 4; assert rows['Gid'] == ['10001'] * 4"
           docker compose exec -T app python -c \
             "import os; assert 'MIGRATION_DATABASE_URL' not in os.environ"
           for attempt in $(seq 1 20); do

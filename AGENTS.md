@@ -23,12 +23,11 @@ What replaces it is narrower and permanent:
   `tag`, release, deployment and Devpost changes happen **only when Kevin asks
   for that specific action**, and asking for one does not authorise the next.
   This is not a date. It does not expire.
-- **Public production is still 2.4.0 (2026-07-21) and `main` has not moved
-  since.** The private candidate is **2.12.2**, and the branch
-  `consolidation/ivrit-sheli-2.10-baseline` is 87 commits ahead with `main`
-  holding nothing the branch lacks — so publishing is a clean fast-forward, and
-  a deploy *without* that merge republishes 2.4.0 rather than this month's work.
-  Say which of the two is being asked for before doing either.
+- **The published GitHub source release is v2.12.2 (2026-08-27), and `main`
+  points at that source.** There is no current verified production deployment
+  or durable hosted demo. The former Railway deployment is historical 2.4.0
+  evidence and is offline. A future deploy would attempt to publish 2.12.2, but
+  it still requires its own explicit request and all deployment safeguards.
 - **Before any publication, read the "not run" list in `TEST_REPORT.md`** and
   state it. Human recognition, the Hebrew-content acceptance pass and the pilot
   with Kevin's mother are on it. Publishing over that list is his call to make

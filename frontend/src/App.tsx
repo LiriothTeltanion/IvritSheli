@@ -13,7 +13,7 @@ import { useOnlineStatus } from './hooks/useOnlineStatus';
 import { usePersistentTheme } from './hooks/usePersistentTheme';
 import { resolveLearnerMode } from './learnerMode';
 import { unsubscribeFromDailyPractice } from './pushNotifications';
-import { CANDIDATE_VERSION } from './release';
+import { RELEASE_VERSION } from './release';
 import { SessionAccessProvider } from './session';
 import type { AuthState, Dashboard, GamificationStatus, LearnerMode, LearnTab, Locale, Profile, ProgressData, ViewKey } from './types';
 import { AuthGate } from './components/AuthGate';
@@ -908,7 +908,7 @@ export default function App(): React.JSX.Element {
         <div className="brand-lockup">
           <IvritSheliWordmark label={t('appName')} />
           <span>
-            {t('releaseCandidateBadge')} <bdi dir="ltr">{CANDIDATE_VERSION}</bdi>
+            {t('releaseVersionBadge')} <bdi dir="ltr">{RELEASE_VERSION}</bdi>
           </span>
         </div>
         <nav className="side-nav" aria-label={t('primaryNavigation')}>

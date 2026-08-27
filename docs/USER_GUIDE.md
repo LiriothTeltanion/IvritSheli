@@ -1,14 +1,14 @@
-# 2.12.2 private-candidate note — 2026-08-23
+# 2.12.2 source-release note — 2026-08-27
 
-The private visual QA gallery derives **all 240 exact semantic scenes** and now
+The local-only visual QA gallery derives **all 240 exact semantic scenes** and
 opens dark by default as a trilingual editorial workbench with art-dominant
 cards. Choose one of 20 domains, search, switch among
 thumbnail/card/hero/compare views, inspect the exact
 `context → meaning → anchor` recipe, or run a five-second recognition check
 with distractors from the same domain. The six-region Atlas uses responsive
 adult blue-hour paintings whose visible action matches the vocabulary domain.
-Human recognition review, isolated staging/pilot evidence and explicit approval
-remain required before publication.
+Human recognition review and isolated staging/pilot evidence remain open after
+the GitHub source publication and are still required before deployment claims.
 
 # Ivrit Sheli — User Guide
 
