@@ -238,6 +238,20 @@ semantically correct?” and “what could a reasonable person think this shape
 is?” Automated accessibility, alt text and deterministic capture are necessary
 evidence, but they do not replace cultural and five-second human recognition.
 
+### 12. README.md, Release Truth Validation, and Whitespace — added 2026-08-27
+
+The continuous integration pipeline includes two exceptionally strict checks that will fail if `README.md` is updated without extreme precision:
+
+1. **The Release Truth Gate (`scripts/verify_package.py`)**: This script uses exact regexes to ensure the README accurately represents the state. If you modify the README, you **must not alter or remove** the following exact phrases:
+   - `240` (in reference to exact semantic scenes)
+   - `**Current private candidate:** \`2.12.3\``
+   - `**Latest published release:** \`v2.12.2\`` (Do NOT add the word "source" or change the phrasing).
+   - `no durable hosted demo is currently verified`
+
+2. **The Trailing Whitespace Gate (`git diff --check HEAD^ HEAD`)**: GitHub Actions will instantly fail (exit code 2) if you commit **any** trailing whitespaces (e.g. spaces at the end of a line). When writing Markdown, do NOT use trailing spaces for line breaks.
+
+**CRITICAL CI WORKFLOW:** Every time you modify documentation (`README.md`, etc.), you MUST run `python scripts/generate_checksums.py` to update `SHA256SUMS.txt` before committing. Note that if you use Windows line endings (`CRLF`), `verify_package.py` might temporarily fail locally due to a hash mismatch (`checksum_manifest_drift`), but the GitHub Action will pass on Ubuntu because Git natively checks out the blobs with `LF`.
+
 ## Two lanes to the database, and which is which
 
 Reads and tenant data go through the runtime role. Schema changes go through
