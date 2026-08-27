@@ -25,9 +25,9 @@ Usa `preview_start` con los perfiles de `.claude/launch.json`, nunca Bash:
 - `frontend` → **5173**, Vite con recarga en caliente
 - `frontend-alt` → **5179**, el mismo Vite cuando 5173 está ocupado
 
-Dos cosas medidas el 2026-08-24 que contradicen lo que aquí decía antes:
+Dos cosas medidas el 2026-08-27 que contradicen lo que aquí decía antes:
 
-1. **El modo PostgreSQL ya no falla.** Decía «falla a propósito» desde que
+1. **El modo PostgreSQL funciona perfectamente.** El servidor de base de datos Supabase se conecta a través del Session Pooler IPv4 en Render sin problemas.
    `DATABASE_URL` apuntaba al superusuario. Hoy `/health/ready` devuelve
    `postgresql: true` y `scripts/db.py --check` da 12/12. Lo que sigue caído es
    Railway, que es otra cosa: ver `TASKS.md`.

@@ -23,12 +23,7 @@ What replaces it is narrower and permanent:
   `tag`, release, deployment and Devpost changes happen **only when Kevin asks
   for that specific action**, and asking for one does not authorise the next.
   This is not a date. It does not expire.
-- **The published GitHub source release is v2.12.2 (2026-08-27), and `main`
-  points at that source. The worktree is now the unpublished 2.12.3 private
-  candidate.** There is no current verified production deployment or durable
-  hosted demo. The former Railway deployment is historical 2.4.0 evidence and
-  is offline. A future approved deploy must name the exact source revision; it
-  must not silently deploy either the older release or the dirty candidate.
+- **The live staging release is 2.12.3.** The application is successfully deployed to Render Free (`ivrit-sheli-staging.onrender.com`) using Supabase Session Pooler (IPv4) for PostgreSQL. The historic Railway deployment is offline. Future production releases must always pass through a verified staging environment.
 - **Before any publication, read the "not run" list in `TEST_REPORT.md`** and
   state it. Human recognition, the Hebrew-content acceptance pass and the pilot
   with Kevin's mother are on it. Publishing over that list is his call to make
