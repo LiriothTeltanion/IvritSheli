@@ -25,7 +25,7 @@
 ## 🏛️ Learning Hubs & Experience Depth
 
 <p align="center">
-  <img src="docs/art-direction/repintado-nocturne-candidates/conceptual_ai_coach.jpg" width="100%" alt="Ivrit Sheli Nocturne Conceptual AI Coach Hub" />
+  <img src="assets/readme/screenshots/ivrit_sheli_learning_hubs.jpg" width="100%" alt="Ivrit Sheli Learning Hubs Interface" />
 </p>
 
 The platform is organized into living, stable learning hubs. Their visible names prioritize clear actions, while internal routes provide semantic stability:
@@ -45,7 +45,7 @@ Three persistent depths change how information is presented without hiding rooms
 ## 🌍 Language, Themes and Accessibility
 
 <p align="center">
-  <img src="docs/art-direction/repintado-nocturne-candidates/conceptual_dictionary_card.jpg" width="100%" alt="Ivrit Sheli Concept Visual Theme" />
+  <img src="assets/readme/screenshots/ivrit_sheli_themes_accessibility.jpg" width="100%" alt="Ivrit Sheli Language and Themes" />
 </p>
 
 - **Trilingual Core:** English, Spanish, and Hebrew interfaces working seamlessly together.
