@@ -2,12 +2,14 @@
 
 **Last Updated**: 2026-08-27 (`Asia/Jerusalem`)
 **Prepared by**: Nova Engineer / Codex
-**Source state**: unpublished `2.12.3` private candidate in the working tree;
-`v2.12.2` remains the latest published GitHub source release
+**Source state**: `2.12.3` is published on `origin/main`; `v2.12.2` remains the
+latest **tagged** GitHub source release, and `2.12.3` is deliberately untagged
 **Latest published release**: **v2.12.2 Visual Harmony & Resilience
-(2026-08-27)**; no durable hosted demo is verified
-**Latest hosted evidence**: historical **2.4.0 Contest Edition (2026-07-21)**;
-its former Railway service was offline when checked on 2026-08-26
+(2026-08-27)**
+**Latest hosted evidence**: **Render Free staging**, `2.12.3`, verified live on
+2026-08-27 — see "Independent verification" below. The historical Railway
+service of **2.4.0 Contest Edition (2026-07-21)** was offline when checked on
+2026-08-26 and is not returning.
 
 ## Current private candidate — 2.12.3, 2026-08-27
 
@@ -53,6 +55,51 @@ the served entry assets, ran the smoke/captures/matrix and left port 8200 clean.
 - **Documentation Revamped:** `README.md` completely overhauled with modern aesthetics matching NovaMusicLab (Hero section, living hubs, conceptual art, and staging badges).
 
 The technical release gates outlined in `PROMPT-NUEVA-SESION.md` are 100% complete. What remains are the human gates: Hebrew content acceptance and the pilot with Kevin's mother.
+
+## Independent verification of the hosted service — Claude Code, 2026-08-27 evening
+
+The section above is a report, not a verification, so the hosted service was
+exercised again from outside by a second agent that had not deployed it. Every
+line below is a measured response from `https://ivrit-sheli-staging.onrender.com`,
+not a reading of configuration.
+
+| Gate | Measured result |
+|---|---|
+| `/health/live` | `alive`, version `2.12.3` |
+| `/health/ready` | `ready`, `postgresql: true`, dictionary 240 entries / 240 senses, schema v3 |
+| `/version` | `2.12.3`, environment `production`, storage `postgresql` |
+| Content-Security-Policy | `default-src 'self'`, `base-uri 'none'`, `object-src 'none'`, `frame-ancestors 'none'`, `script-src 'self'`; no `unsafe-eval` |
+| Strict-Transport-Security | `max-age=31536000; includeSubDomains` |
+| Session cookie | `HttpOnly`, `Secure`, `SameSite=lax` |
+| CSRF cookie | `Secure`, `SameSite=strict` |
+| Google OAuth start | 302 to Google with `redirect_uri=<staging>/api/v1/auth/google/callback`, PKCE `S256`, scope `openid profile` |
+
+**The running revision is not `HEAD`.** The service runs
+`ed59eb848f0417caff00de46dc3122357b363e74`, which is 25 commits behind
+`origin/main`. Those 25 commits touch only `assets/readme/`, four documentation
+files and `SHA256SUMS.txt` — `git diff --name-only ed59eb84..HEAD` matches no
+path under `backend/src`, `frontend/src`, `Dockerfile`, `render.yaml` or
+`backend/requirements`. The deployed application code is therefore identical to
+`HEAD`, and a redeploy is a documentation refresh, not a fix.
+
+**Latency, measured rather than estimated.** Cold start after the free plan's
+15-minute idle suspension: **24 s**. Once warm: `POST /api/v1/auth/demo` **2.9 s**,
+`GET /api/v1/dashboard` **3.9 / 4.1 / 4.2 s** over three consecutive calls, root
+document **0.30 s**. For comparison, the same endpoints measured on 2026-08-26
+through the Cloudflare quick tunnel with the container in Israel and the database
+in Sydney were 10.7 s and 13.4 s; co-locating the container in Render `singapore`
+next to the Sydney database is what removed roughly seventy per cent of it. The
+remaining ~4 s is the dashboard's own round-trip count, not the network.
+
+**A note for whoever sends the link to a person.** Twenty-four seconds of blank
+screen reads as a broken app to someone who is not a developer, and the pilot
+learner is precisely that person. Wake the service before sharing the link.
+
+**Not verified here, and not claimable from outside:** that the runtime login is
+restricted to `ivrit_sheli_runtime`, that RLS holds on the live project, backup
+and restore into a disposable database, client-IP header behaviour across two
+networks, and two-account isolation. Each needs provider credentials or a second
+network, and none of them can be honestly inferred from an HTTP response.
 
 The first local Docker smoke supplied a throwaway `SESSION_SECRET` shorter than
 the enforced 32-character minimum. Startup correctly failed closed. The first

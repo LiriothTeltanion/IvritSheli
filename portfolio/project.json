@@ -8,13 +8,13 @@
   "default_branch": "main",
   "repository_url": "https://github.com/LiriothTeltanion/IvritSheli",
   "durable_demo": {
-    "url": null,
-    "status": "unavailable",
-    "provider": null,
-    "last_checked_on": "2026-08-26",
-    "boundary": "No durable hosted demo is currently verified. The historical Railway service is offline, and ephemeral Cloudflare Quick Tunnels are diagnostic sessions rather than publishable deployment URLs."
+    "url": "https://ivrit-sheli-staging.onrender.com",
+    "status": "staging-verified",
+    "provider": "render-free",
+    "last_checked_on": "2026-08-27",
+    "boundary": "A free Render service runs the 2.12.3 source as staging for a private pilot, not as production. Verified against the live host on 2026-08-27: /health/live, /health/ready with postgresql true and a 240-entry dictionary, /version reporting 2.12.3, a strict production CSP, Secure and HttpOnly session cookies, and a Google OAuth redirect using PKCE with the exact staging callback. The free plan sleeps after 15 minutes, so a first request waits about 24 seconds. The human Hebrew-content and first-learner gates remain open, and no v2.12.3 tag exists. The historical Railway service is offline."
   },
-  "summary": "The private 2.12.3 candidate of a trilingual Hebrew-learning PWA with 240 exact semantic scenes, clearer counting visuals, Alphabet Studio and deterministic coaching. The latest published source release remains v2.12.2, and no durable hosted demo is currently verified.",
+  "summary": "The 2.12.3 source of a trilingual Hebrew-learning PWA with 240 exact semantic scenes, clearer counting visuals, Alphabet Studio and deterministic coaching, published on main and running as a private-pilot staging service on Render Free. The latest tagged source release remains v2.12.2.",
   "languages": [
     "en",
     "es",
@@ -72,7 +72,7 @@
     "latest_github_release": "v2.12.2",
     "source_version_tagged": false,
     "source_version_github_release_published": false,
-    "release_state": "2.12.3-private-candidate-no-durable-demo"
+    "release_state": "2.12.3-private-candidate-staging-verified"
   },
   "candidate": {
     "version": "2.12.3",

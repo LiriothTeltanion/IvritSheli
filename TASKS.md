@@ -13,11 +13,21 @@ decision that only Kevin can authorize, per `AGENTS.md` hard rule 1.
 
 ## 🌐 Hosting status — updated 2026-08-27
 
-No durable hosted demo is currently verified. A Cloudflare Quick Tunnel briefly
-exposed the Docker/PostgreSQL runtime for diagnostics at 19:30 Asia/Jerusalem;
-the random hostname is intentionally omitted and must not be treated as a
-product URL. That session observed `/health/ready` 200 with PostgreSQL plus CSP
-and HSTS, but it did not prove a durable deployment or exact-current source.
+A durable hosted staging service exists: `https://ivrit-sheli-staging.onrender.com`,
+Render Free, running the `2.12.3` source. It was verified from outside on
+2026-08-27 — `/health/live`, `/health/ready` with `postgresql: true` and a
+240-entry dictionary, `/version` reporting `2.12.3`, a strict production CSP,
+`Secure`+`HttpOnly` cookies, and a Google OAuth redirect using PKCE with the exact
+staging callback. Call it **staging for a private pilot**, never production: the
+Hebrew-content and first-learner gates are still open and `2.12.3` carries no tag.
+
+Two properties of the free plan that shape how the link is shared: the service is
+suspended after 15 minutes without traffic and takes about **24 seconds** to wake,
+and the running revision (`ed59eb84`) trails `main` by 25 documentation-only
+commits, so redeploying refreshes docs rather than fixing behaviour.
+
+The earlier Cloudflare Quick Tunnel is superseded and its random hostname stays
+omitted; it was a diagnostic session, never a product URL.
 
 - [x] Prepare a local Render Free Blueprint for the `2.12.3` candidate without
       creating a service or changing any provider setting.

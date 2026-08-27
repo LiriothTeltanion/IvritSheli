@@ -66,18 +66,26 @@ Three persistent depths change how information is presented without hiding rooms
   <img src="assets/readme/deployment.svg" width="100%" alt="Deployment Animation" />
 </p>
 
-This is the **verified 2.12.3 release**. The application is now publicly deployed and verified on Render with Supabase.
+The `2.12.3` source is published on `main` and runs on a free Render service. That
+service is **staging for a private pilot, not production**: the technical gates below
+were exercised against the live host, but the human gates — Hebrew-content acceptance
+and the first real learner — are still open, and no `v2.12.3` tag exists yet.
 
-**Current private candidate:** `2.12.3`
-**Latest published release:** `v2.12.2`
-*Note: Although live on staging, officially no durable hosted demo is currently verified by the strict candidate rules.*
+**Source on `main`:** `2.12.3` · **Latest tagged release:** `v2.12.2`
 
 | Component | Status | Details |
 |---|---|---|
-| **Web Service** | 🟢 Live | [ivrit-sheli-staging.onrender.com](https://ivrit-sheli-staging.onrender.com) (Render Free) |
-| **Database** | 🟢 Live | Supabase PostgreSQL 17 via IPv4 Session Pooler (`port 6543`) |
-| **Authentication** | 🟢 Live | Google OAuth 2.0 with strict origin validation |
-| **Source Release** | `v2.12.3` | Exact immutable source checkpoint |
+| **Web service** | 🟢 Live (staging) | [ivrit-sheli-staging.onrender.com](https://ivrit-sheli-staging.onrender.com) — Render Free |
+| **Database** | 🟢 Live | Supabase PostgreSQL 17 over the IPv4 session pooler |
+| **Authentication** | 🟢 Live | Google OAuth 2.0 with PKCE (`S256`) and strict origin validation |
+| **Tagged release** | `v2.12.2` | `2.12.3` is published on `main` but deliberately untagged |
+
+> **The free plan sleeps.** Render Free suspends the service after 15 minutes without
+> traffic, and the next visitor waits while it wakes. Measured against the live host on
+> 2026-08-27: cold start **24 s**, `/health/ready` reporting `postgresql: true` and a
+> 240-entry dictionary, dashboard **3.9–4.2 s** once warm, demo session **2.9 s**. Open
+> the link yourself a minute before sharing it, or the first person to tap it meets a
+> blank screen and concludes the app is broken.
 
 ## 📸 2.12.3 Visual Proof
 

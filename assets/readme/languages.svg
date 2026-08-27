@@ -1,77 +1,162 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 240" width="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 320" width="100%">
   <defs>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&amp;family=Inter:wght@400;600;800&amp;display=swap');
-      .bg { fill: #09090b; rx: 16px; }
-      .grid { stroke: #1e293b; stroke-width: 1; stroke-dasharray: 4 4; }
-      .title { font-family: 'Inter', sans-serif; font-size: 22px; font-weight: 800; fill: #fbcfe8; }
-      .subtitle { font-family: 'Fira Code', monospace; font-size: 12px; fill: #ec4899; }
+      
+      .bg { fill: #071220; rx: 16px; }
+      .grid { stroke: #1e293b; stroke-width: 1; stroke-dasharray: 2 4; }
+      
+      /* Typography */
+      .title { font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 800; fill: #ffffff; letter-spacing: 0.5px; }
+      .subtitle { font-family: 'Fira Code', monospace; font-size: 13px; fill: #22d3ee; }
+      
+      .core-text { font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 800; fill: #ffffff; }
+      .core-sub { font-family: 'Fira Code', monospace; font-size: 11px; fill: #94a3b8; }
+      
+      .lang-title { font-family: 'Inter', sans-serif; font-size: 20px; font-weight: 800; fill: #ffffff; }
+      .lang-title.he { font-family: 'Inter', sans-serif; }
+      .lang-meta-key { font-family: 'Fira Code', monospace; font-size: 11px; fill: #64748b; font-weight: 500; }
+      .lang-meta-val { font-family: 'Fira Code', monospace; font-size: 12px; fill: #22d3ee; font-weight: 500; }
+      .lang-meta-val.rtl { fill: #c084fc; }
 
-      .node-core { fill: #111827; stroke: #db2777; stroke-width: 2; rx: 50px; }
-      .node-lang { fill: #111827; stroke: #9d174d; stroke-width: 2; rx: 12px; }
+      /* Shapes & Nodes */
+      .node-core-bg { fill: rgba(15, 23, 42, 0.7); stroke: #38bdf8; stroke-width: 2; rx: 12px; }
+      .node-lang-bg { fill: rgba(15, 23, 42, 0.5); stroke: #1e293b; stroke-width: 1.5; rx: 12px; transition: all 0.3s; }
+      
+      /* Gradients & Glows */
+      .glow-cyan { filter: drop-shadow(0 0 10px rgba(34, 211, 238, 0.4)); }
+      .glow-purple { filter: drop-shadow(0 0 12px rgba(192, 132, 252, 0.5)); }
 
-      .core-text { font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 800; fill: #fbcfe8; }
-      .lang-title { font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 800; fill: #f472b6; }
-      .lang-meta { font-family: 'Fira Code', monospace; font-size: 11px; fill: #fbcfe8; }
-
-      .flow-line { stroke: #be185d; stroke-width: 2; fill: none; stroke-dasharray: 8; animation: flow-dash 3s linear infinite; }
-      @keyframes flow-dash { to { stroke-dashoffset: -24; } }
-
-      .bounce { animation: bounce 4s infinite ease-in-out; }
-      @keyframes bounce {
-        0%, 100% { transform: translateY(0); filter: drop-shadow(0 0 2px #db2777); }
-        50% { transform: translateY(-8px); filter: drop-shadow(0 0 12px #db2777); }
+      /* Connections */
+      .flow-line { 
+        stroke: #38bdf8; 
+        stroke-width: 2; 
+        fill: none; 
+        stroke-dasharray: 6 6; 
+        animation: flow-dash 15s linear infinite reverse; 
+        opacity: 0.6;
       }
+      .flow-line-rtl { stroke: #c084fc; }
+      @keyframes flow-dash { to { stroke-dashoffset: 240; } }
+
+      /* Node Animations */
+      .float-1 { animation: float 6s infinite ease-in-out; }
+      .float-2 { animation: float 6s infinite ease-in-out 2s; }
+      .float-3 { animation: float 6s infinite ease-in-out 4s; }
+      
+      @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-8px); }
+      }
+      
+      /* Data Packets */
+      .packet { fill: #22d3ee; }
+      .packet-rtl { fill: #c084fc; }
+      
     </style>
+    
+    <linearGradient id="grad-core" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0ea5e9" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.05"/>
+    </linearGradient>
+
+    <linearGradient id="grad-lang" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#0f172a" stop-opacity="0.8"/>
+    </linearGradient>
+    
+    <linearGradient id="grad-lang-rtl" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b0764" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#0f172a" stop-opacity="0.8"/>
+    </linearGradient>
   </defs>
 
-  <rect class="bg" width="900" height="240" />
-  <pattern id="grid2" width="40" height="40" patternUnits="userSpaceOnUse">
-    <path d="M 40 0 L 0 0 0 40" fill="none" class="grid" />
+  <!-- Background Base -->
+  <rect class="bg" width="900" height="320" />
+  
+  <!-- Grid Pattern -->
+  <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
+    <path d="M 30 0 L 0 0 0 30" fill="none" class="grid" />
   </pattern>
-  <rect width="900" height="240" fill="url(#grid2)" opacity="0.5" />
+  <rect width="900" height="320" fill="url(#grid)" opacity="0.4" />
 
-  <text x="450" y="40" class="title" text-anchor="middle">Trilingual Native Core &amp; RTL Engine</text>
-  <text x="450" y="60" class="subtitle" text-anchor="middle">i18next // bidi // Semantic Keys</text>
+  <!-- Ambient Glows -->
+  <circle cx="450" cy="120" r="120" fill="#0284c7" opacity="0.1" filter="blur(40px)" />
+  <circle cx="720" cy="220" r="100" fill="#9333ea" opacity="0.1" filter="blur(40px)" />
 
-  <!-- Connection Lines -->
-  <path d="M 230 160 C 300 160, 350 120, 400 120" class="flow-line" />
-  <path d="M 670 160 C 600 160, 550 120, 500 120" class="flow-line" />
-  <path d="M 450 150 L 450 120" class="flow-line" />
+  <!-- Header -->
+  <text x="450" y="45" class="title" text-anchor="middle">Trilingual Native Core &amp; RTL Engine</text>
+  <text x="450" y="70" class="subtitle" text-anchor="middle">i18next // bidi // Semantic Keys</text>
 
-  <!-- Core -->
-  <g transform="translate(400, 95)">
-    <rect class="node-core" width="100" height="50" />
-    <text x="50" y="31" class="core-text" text-anchor="middle">i18n.ts</text>
+  <!-- Flow Lines -->
+  <path d="M 450 160 C 450 190, 180 190, 180 210" class="flow-line" id="path-en" />
+  <path d="M 450 160 L 450 210" class="flow-line" id="path-es" />
+  <path d="M 450 160 C 450 190, 720 190, 720 210" class="flow-line flow-line-rtl" id="path-he" />
+
+  <!-- Animated Data Packets along paths -->
+  <circle r="3" class="packet">
+    <animateMotion dur="3s" repeatCount="indefinite"><mpath href="#path-en"/></animateMotion>
+  </circle>
+  <circle r="3" class="packet">
+    <animateMotion dur="3s" repeatCount="indefinite" begin="1.5s"><mpath href="#path-en"/></animateMotion>
+  </circle>
+  <circle r="3" class="packet">
+    <animateMotion dur="2.5s" repeatCount="indefinite" begin="0.5s"><mpath href="#path-es"/></animateMotion>
+  </circle>
+  <circle r="3" class="packet-rtl">
+    <animateMotion dur="3.5s" repeatCount="indefinite" begin="0.2s"><mpath href="#path-he"/></animateMotion>
+  </circle>
+  <circle r="3" class="packet-rtl">
+    <animateMotion dur="3.5s" repeatCount="indefinite" begin="1.8s"><mpath href="#path-he"/></animateMotion>
+  </circle>
+
+  <!-- Core Node -->
+  <g transform="translate(375, 100)" class="glow-cyan float-2">
+    <rect class="node-core-bg" width="150" height="60" style="fill: url(#grad-core);" />
+    <text x="75" y="30" class="core-text" text-anchor="middle">i18n.ts</text>
+    <text x="75" y="48" class="core-sub" text-anchor="middle">Translations API</text>
   </g>
 
-  <!-- EN -->
-  <g transform="translate(100, 130)">
-    <g class="bounce" style="animation-delay: 0s;">
-      <rect class="node-lang" width="150" height="80" />
-      <text x="75" y="30" class="lang-title" text-anchor="middle">English</text>
-      <text x="75" y="50" class="lang-meta" text-anchor="middle">dir: ltr</text>
-      <text x="75" y="65" class="lang-meta" text-anchor="middle">locale: en-US</text>
+  <!-- Language Nodes Container -->
+  <!-- ENGLISH -->
+  <g transform="translate(100, 210)">
+    <g class="float-1">
+      <rect class="node-lang-bg" width="160" height="75" style="fill: url(#grad-lang);" />
+      <text x="80" y="30" class="lang-title" text-anchor="middle">English</text>
+      
+      <text x="40" y="52" class="lang-meta-key" text-anchor="start">dir:</text>
+      <text x="120" y="52" class="lang-meta-val" text-anchor="end">ltr</text>
+      
+      <text x="40" y="67" class="lang-meta-key" text-anchor="start">locale:</text>
+      <text x="120" y="67" class="lang-meta-val" text-anchor="end">en-US</text>
     </g>
   </g>
 
-  <!-- ES -->
-  <g transform="translate(375, 130)">
-    <g class="bounce" style="animation-delay: 1.3s;">
-      <rect class="node-lang" width="150" height="80" />
-      <text x="75" y="30" class="lang-title" text-anchor="middle">Español</text>
-      <text x="75" y="50" class="lang-meta" text-anchor="middle">dir: ltr</text>
-      <text x="75" y="65" class="lang-meta" text-anchor="middle">locale: es-ES</text>
+  <!-- ESPAÑOL -->
+  <g transform="translate(370, 210)">
+    <g class="float-2">
+      <rect class="node-lang-bg" width="160" height="75" style="fill: url(#grad-lang);" />
+      <text x="80" y="30" class="lang-title" text-anchor="middle">Español</text>
+      
+      <text x="40" y="52" class="lang-meta-key" text-anchor="start">dir:</text>
+      <text x="120" y="52" class="lang-meta-val" text-anchor="end">ltr</text>
+      
+      <text x="40" y="67" class="lang-meta-key" text-anchor="start">locale:</text>
+      <text x="120" y="67" class="lang-meta-val" text-anchor="end">es-ES</text>
     </g>
   </g>
 
-  <!-- HE -->
-  <g transform="translate(650, 130)">
-    <g class="bounce" style="animation-delay: 2.6s;">
-      <rect class="node-lang" width="150" height="80" />
-      <text x="75" y="30" class="lang-title" text-anchor="middle">עברית</text>
-      <text x="75" y="50" class="lang-meta" text-anchor="middle">dir: rtl</text>
-      <text x="75" y="65" class="lang-meta" text-anchor="middle">locale: he-IL</text>
+  <!-- HEBREW -->
+  <g transform="translate(640, 210)">
+    <g class="float-3 glow-purple">
+      <rect class="node-lang-bg" width="160" height="75" style="fill: url(#grad-lang-rtl); stroke: #9333ea;" />
+      <text x="80" y="30" class="lang-title he" text-anchor="middle">עברית</text>
+      
+      <text x="40" y="52" class="lang-meta-key" text-anchor="start">dir:</text>
+      <text x="120" y="52" class="lang-meta-val rtl" text-anchor="end">rtl</text>
+      
+      <text x="40" y="67" class="lang-meta-key" text-anchor="start">locale:</text>
+      <text x="120" y="67" class="lang-meta-val rtl" text-anchor="end">he-IL</text>
     </g>
   </g>
 
