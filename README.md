@@ -60,7 +60,11 @@ Three persistent depths change how information is presented without hiding rooms
 
 ---
 
-## 📡 Live Staging & Deployment
+## 🚀 Live Staging & Deployment
+
+<p align="center">
+  <img src="assets/readme/deployment.svg" width="100%" alt="Deployment Animation" />
+</p>
 
 This is the **verified 2.12.3 release**. The application is now publicly deployed and verified on Render with Supabase.
 
