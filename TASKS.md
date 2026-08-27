@@ -539,5 +539,3 @@ otro panel, qué sigue siendo cierto y qué ya no. Empieza siempre por ahí.
 4. **SVG Integrity**:
    - The 240 semantic SVG illustrations are code-generated and deterministic (~383 kB total). Do NOT replace them with heavy raster images.
    - Preserve CSS variable tokens `--semantic-*`, layers (`context` → `meaning` → `anchor`), and RTL direction handling.
-
-
