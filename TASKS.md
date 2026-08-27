@@ -73,6 +73,9 @@ otro panel, qué sigue siendo cierto y qué ya no. Empieza siempre por ahí.
 ---
 
 ## 📋 Master Task Tracker
+### Completed Operational Fixes (2026-08-27)
+- [x] **CI Pipeline Verification & Fixes:** Debugged and permanently resolved GitHub Actions pipeline failures (`checksum_manifest_drift` and `release_truth_drift`). Documented strict rule in `AGENTS.md` prohibiting any trailing whitespaces (which caused `git diff --check HEAD^ HEAD` to fail) and enforcing exact regex matches for Release Truth Gate in `verify_package.py`.
+
 
 ### ✅ Completed Tasks (2.12.3 candidate & recent sessions)
 
@@ -536,3 +539,5 @@ otro panel, qué sigue siendo cierto y qué ya no. Empieza siempre por ahí.
 4. **SVG Integrity**:
    - The 240 semantic SVG illustrations are code-generated and deterministic (~383 kB total). Do NOT replace them with heavy raster images.
    - Preserve CSS variable tokens `--semantic-*`, layers (`context` → `meaning` → `anchor`), and RTL direction handling.
+
+
