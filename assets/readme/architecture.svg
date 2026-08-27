@@ -1,53 +1,85 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 250" width="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 350" width="100%">
   <defs>
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&amp;display=swap');
-      .text { font-family: 'Inter', sans-serif; font-weight: 600; }
-      .title { font-size: 20px; font-weight: 800; }
-      .node-text { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; }
-      .line { stroke: #38bdf8; stroke-width: 2; stroke-dasharray: 6; animation: dash 2s linear infinite; opacity: 0.7; }
-      @keyframes dash {
-        to { stroke-dashoffset: -12; }
-      }
-      .pulse { animation: pulse 2s infinite; }
-      @keyframes pulse {
-        0% { filter: drop-shadow(0 0 2px #38bdf8); }
-        50% { filter: drop-shadow(0 0 10px #38bdf8); }
-        100% { filter: drop-shadow(0 0 2px #38bdf8); }
-      }
+      @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&amp;family=Inter:wght@400;600;800&amp;display=swap');
+      .grid { stroke: #1e293b; stroke-width: 1; stroke-dasharray: 4 4; }
+      .bg { fill: #09090b; rx: 16px; }
+      .title { font-family: 'Inter', sans-serif; font-size: 22px; font-weight: 800; fill: #e0e7ff; }
+      .subtitle { font-family: 'Fira Code', monospace; font-size: 12px; fill: #6366f1; }
+      .node { fill: #111827; stroke: #3730a3; stroke-width: 2; rx: 8px; }
+      .node-title { font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600; fill: #e0e7ff; }
+      .node-detail { font-family: 'Fira Code', monospace; font-size: 11px; fill: #818cf8; }
+      .glow-path { stroke: #6366f1; stroke-width: 2; fill: none; stroke-dasharray: 6; animation: dash 3s linear infinite; }
+      .glow-path-reverse { stroke: #38bdf8; stroke-width: 2; fill: none; stroke-dasharray: 6; animation: dash 3s linear infinite reverse; }
+      .layer-bg { fill: #1e1b4b; opacity: 0.3; rx: 12px; stroke: #312e81; stroke-width: 1; stroke-dasharray: 4; }
+      .layer-title { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; fill: #a5b4fc; }
+      @keyframes dash { to { stroke-dashoffset: -24; } }
+      .pulse-ring { fill: none; stroke: #818cf8; stroke-width: 2; animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite; }
+      @keyframes ping { 75%, 100% { transform: scale(1.5); opacity: 0; } }
     </style>
   </defs>
 
-  <rect fill="#0b1121" rx="12" width="800" height="250" />
-  <text x="400" y="40" class="title" fill="#38bdf8" text-anchor="middle">Tech Stack &amp; Architecture</text>
+  <rect class="bg" width="900" height="350" />
 
-  <!-- Lines -->
-  <line x1="200" y1="120" x2="400" y2="120" class="line" />
-  <line x1="400" y1="120" x2="600" y2="120" class="line" />
-  <line x1="400" y1="120" x2="400" y2="180" class="line" />
+  <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+    <path d="M 40 0 L 0 0 0 40" fill="none" class="grid" />
+  </pattern>
+  <rect width="900" height="350" fill="url(#grid)" opacity="0.5" />
 
-  <!-- Node: Frontend -->
-  <g transform="translate(100, 95)" class="pulse">
-    <rect fill="#1e293b" stroke="#334155" stroke-width="2" rx="8" width="140" height="50" />
-    <text x="70" y="30" class="node-text" fill="#38bdf8" text-anchor="middle">React 19 + Vite</text>
+  <text x="450" y="45" class="title" text-anchor="middle">Systems Architecture &amp; Data Flow</text>
+  <text x="450" y="65" class="subtitle" text-anchor="middle">v2.12.3 // Local-First PWA &amp; Immutable State</text>
+
+  <rect class="layer-bg" x="30" y="90" width="240" height="230" />
+  <text x="150" y="110" class="layer-title" text-anchor="middle">CLIENT TIER (BROWSER)</text>
+
+  <rect class="layer-bg" x="330" y="90" width="240" height="230" />
+  <text x="450" y="110" class="layer-title" text-anchor="middle">COMPUTE TIER (API)</text>
+
+  <rect class="layer-bg" x="630" y="90" width="240" height="230" />
+  <text x="750" y="110" class="layer-title" text-anchor="middle">PERSISTENCE TIER (DB)</text>
+
+  <path d="M 270 160 L 330 160" class="glow-path" />
+  <path d="M 330 200 L 270 200" class="glow-path-reverse" />
+  <path d="M 570 160 L 630 160" class="glow-path" />
+  <path d="M 630 200 L 570 200" class="glow-path-reverse" />
+
+  <!-- Client Node -->
+  <g transform="translate(60, 130)">
+    <rect class="node" width="180" height="170" />
+    <text x="90" y="30" class="node-title" text-anchor="middle">React 19 + Vite</text>
+    <text x="20" y="60" class="node-detail">? Service Worker</text>
+    <text x="20" y="80" class="node-detail">? Dexie (IndexedDB)</text>
+    <text x="20" y="100" class="node-detail">? Local-first State</text>
+    <text x="20" y="120" class="node-detail">? PWA Manifest</text>
+    <text x="20" y="140" class="node-detail">? Zod Validation</text>
   </g>
 
-  <!-- Node: Backend -->
-  <g transform="translate(330, 95)" class="pulse" style="animation-delay: 0.5s;">
-    <rect fill="#1e293b" stroke="#334155" stroke-width="2" rx="8" width="140" height="50" />
-    <text x="70" y="30" class="node-text" fill="#38bdf8" text-anchor="middle">FastAPI (Python)</text>
+  <!-- Compute Node -->
+  <g transform="translate(360, 130)">
+    <rect class="node" width="180" height="170" />
+    <text x="90" y="30" class="node-title" text-anchor="middle">FastAPI Engine</text>
+    <text x="20" y="60" class="node-detail">? Uvicorn ASGI</text>
+    <text x="20" y="80" class="node-detail">? Pydantic Models</text>
+    <text x="20" y="100" class="node-detail">? Dependency Inj.</text>
+    <text x="20" y="120" class="node-detail">? JWT Auth Guards</text>
+    <text x="20" y="140" class="node-detail">? OpenAPI / Redoc</text>
   </g>
 
-  <!-- Node: DB -->
-  <g transform="translate(560, 95)" class="pulse" style="animation-delay: 1s;">
-    <rect fill="#1e293b" stroke="#334155" stroke-width="2" rx="8" width="140" height="50" />
-    <text x="70" y="30" class="node-text" fill="#38bdf8" text-anchor="middle">PostgreSQL 17</text>
+  <!-- DB Node -->
+  <g transform="translate(660, 130)">
+    <rect class="node" width="180" height="170" />
+    <text x="90" y="30" class="node-title" text-anchor="middle">PostgreSQL 17</text>
+    <text x="20" y="60" class="node-detail">? Row Level Sec.</text>
+    <text x="20" y="80" class="node-detail">? pgvector</text>
+    <text x="20" y="100" class="node-detail">? UUIDv7 PKs</text>
+    <text x="20" y="120" class="node-detail">? JSONB Analytics</text>
+    <text x="20" y="140" class="node-detail">? Alembic Migrat.</text>
   </g>
 
-  <!-- Node: Infra -->
-  <g transform="translate(330, 175)" class="pulse" style="animation-delay: 1.5s;">
-    <rect fill="#1e293b" stroke="#334155" stroke-width="2" rx="8" width="140" height="50" />
-    <text x="70" y="30" class="node-text" fill="#38bdf8" text-anchor="middle">Render &amp; Supabase</text>
-  </g>
+  <!-- Sync status -->
+  <circle cx="270" cy="180" r="5" fill="#6366f1" />
+  <circle cx="270" cy="180" r="5" class="pulse-ring" />
+  <circle cx="630" cy="180" r="5" fill="#38bdf8" />
+  <circle cx="630" cy="180" r="5" class="pulse-ring" style="animation-delay: 1s;" />
 
 </svg>
