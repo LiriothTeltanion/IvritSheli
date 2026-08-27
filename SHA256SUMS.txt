@@ -80,7 +80,7 @@ b439081eaa56d78c1101d1e003dfa1f3c1d53766e28b85f1dbcb3e8972935365  assets/readme/
 12e8360749e190f4d7e84b0494c52ad8df4a863009f7fceffc56ff5afb22dad7  assets/readme/ivrit-sheli-2.8-journey.gif
 fe48cfc8859a604becabbef4ad3e80d8ea5ca866317d2d5b7a2942aa1ef4459f  assets/readme/ivrit-sheli-2.8-mobile.png
 1e2d81082d3a0eba6d3181a65131e1c6e78eb65374832294471e30a4b7b18d1f  assets/readme/ivrit-sheli-2.8-welcome.png
-f5b422e8e60bf82a5086da4339711f5d154af41e3031d4244a1f1e83d21d02ed  assets/readme/languages.svg
+11feed905f6b6a6d62e4820e70b2e51f5ad0d0c028ef3b136fd61c93f1fac166  assets/readme/languages.svg
 7e3d70bd40380809f3782e3c1f11b472e945e577acf2aad13ec18b0d46bbc2cb  assets/readme/proof/2.12.2/alphabet-desktop-light-es.webp
 0758c34bf61819568652bbba792a6f27bbfb81aff4ab8679e834e6358458098d  assets/readme/proof/2.12.2/dictionary-desktop-dark-es.webp
 9ee5931a934bc5ae0bad60d704af4336907a67734595203c88e805cfcfb83e53  assets/readme/proof/2.12.2/ivrit-sheli-tour.gif
