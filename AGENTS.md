@@ -252,6 +252,10 @@ The continuous integration pipeline includes two exceptionally strict checks tha
 
 **CRITICAL CI WORKFLOW:** Every time you modify documentation (`README.md`, etc.), you MUST run `python scripts/generate_checksums.py` to update `SHA256SUMS.txt` before committing. Note that if you use Windows line endings (`CRLF`), `verify_package.py` might temporarily fail locally due to a hash mismatch (`checksum_manifest_drift`), but the GitHub Action will pass on Ubuntu because Git natively checks out the blobs with `LF`.
 
+### 13. Never use PowerShell for text manipulation — added 2026-08-27
+
+PowerShell cmdlets like Get-Content and Set-Content silently destroy file encoding, mangle newlines, and can flatten entire markdown files when doing simple string replacements. When fixing trailing whitespace or EOF blank lines to satisfy the git diff --check CI gate, **never use PowerShell**. Always use Python (e.g., open(file, 'rb')) to surgically alter files without corrupting the rest of the document.
+
 ## Two lanes to the database, and which is which
 
 Reads and tenant data go through the runtime role. Schema changes go through
