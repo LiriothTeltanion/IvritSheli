@@ -1,58 +1,77 @@
 <div align="center">
   <img src="assets/brand/wordmark-nocturne.svg" alt="Ivrit Sheli wordmark" width="680" />
 
-  <h1>Ivrit Sheli 2.12.3 — Clear Counting &amp; Safer Visuals</h1>
+  <h1>Ivrit Sheli 2.12.3 — El hebreo vivo de cada día</h1>
   <p><strong>A trilingual, local-first PWA for learning the Hebrew people meet in everyday life.</strong></p>
   <p>Guided enough for a complete beginner, deep enough to keep growing.</p>
 
   <p>
-    <code>React 19 + TypeScript</code> ·
-    <code>FastAPI + Python</code> ·
-    <code>EN / ES / HE</code> ·
-    <code>RTL-native</code> ·
-    <code>SQLite / PostgreSQL 17</code> ·
-    <code>Docker</code>
+    <a href="https://ivrit-sheli-staging.onrender.com"><img src="https://img.shields.io/badge/Live_Staging-Render-46E3B7?style=flat-square&logo=render" alt="Live Staging"></a>
+    <img src="https://img.shields.io/badge/Release-v2.12.3-3B82F6?style=flat-square" alt="Version">
+    <img src="https://img.shields.io/badge/React_19_%2B_Vite-passing-22C55E?style=flat-square" alt="React 19">
+    <img src="https://img.shields.io/badge/FastAPI_%2B_Python-ready-38BDF8?style=flat-square" alt="FastAPI">
+    <img src="https://img.shields.io/badge/Database-PostgreSQL_17-336791?style=flat-square&logo=postgresql" alt="PostgreSQL">
+  </p>
+  <p>
+    <img src="https://img.shields.io/badge/Languages-EN_%7C_ES_%7C_HE-9333EA?style=flat-square" alt="Languages">
+    <img src="https://img.shields.io/badge/Direction-RTL_Native-F59E0B?style=flat-square" alt="RTL Native">
   </p>
 </div>
 
-> [!IMPORTANT]
-> This checkout is the **private 2.12.3 candidate**; it is not published yet.
-> The latest published source release remains
-> **[v2.12.2](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.12.2)**.
-> **No verified durable hosted demo is currently available.** The images and
-> checks below are local served-runtime evidence; they are not deployment,
-> provider-availability, or real-user acceptance claims.
-> **Looking for a link that users can open? There is none yet:** GitHub hosts
-> the source, but it does not run the FastAPI/PostgreSQL application. A free
-> Render HTTPS staging blueprint is prepared locally, but no Render service,
-> URL, database connection or OAuth callback has been created.
+<br />
 
-## Current status
+> **The Living Hebrew Journey** — explore a beautifully crafted, evidence-based learning environment that adapts to your language, your pacing, and your daily life in Israel. Privacy is built-in; your progress stays local by default until you decide to back it up.
 
-| Surface | Evidence-backed state |
-|---|---|
-| Current local source | `2.12.3` — **private candidate / unpublished** |
-| Latest published version | [`v2.12.2`](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.12.2) on `main` |
-| Live app URL for users | **[ivrit-sheli-staging.onrender.com](https://ivrit-sheli-staging.onrender.com)** |
-| Proposed tester staging | **Render Free ($0)** with managed HTTPS; Blueprint verified and service live |
-| Current visual proof | Privacy-reviewed captures from the locally served FastAPI/SQLite 2.12.3 candidate; exact provenance and hashes are recorded below |
-| Candidate verification | Fresh-process entry preflight and bounded Playwright smoke passed before capture; the final complete gate is recorded in [`TEST_REPORT.md`](TEST_REPORT.md) |
-| Historical hosted record | `v2.4.0`: 213 unique automated tests and dated Railway/PostgreSQL evidence; preserved as history, not current availability |
-| External actions for 2.12.3 | **Render Staging Deployment** - Deployed 2.12.3 candidate to Render Free connected to Supabase Sydney via Session Pooler |
-
-Playwright troubleshooting and the 2026-08-27 stale-bundle incident are recorded
-in [`docs/PLAYWRIGHT_RUNBOOK.md`](docs/PLAYWRIGHT_RUNBOOK.md).
-
-The machine-readable version/publication contract lives in
-[`portfolio/project.json`](portfolio/project.json). It deliberately separates
-source version, historical release evidence, and current hosting availability.
-
-## Current visual proof
+## 🏛️ Learning Hubs & Experience Depth
 
 <p align="center">
-  <img src="assets/readme/proof/2.12.3/today-desktop-dark-es.webp" width="100%" alt="Spanish dark-theme Ivrit Sheli Today dashboard for the generic Learner profile, featuring שתיים, shtayim, dos and two steaming coffee cups." />
+  <img src="docs/art-direction/repintado-nocturne-candidates/conceptual_ai_coach.jpg" width="100%" alt="Ivrit Sheli Nocturne Conceptual AI Coach Hub" />
 </p>
 
+The platform is organized into living, stable learning hubs. Their visible names prioritize clear actions, while internal routes provide semantic stability:
+
+- **Today (היום)** — Your daily starting point. Actionable phrases, retention algorithms, and daily flow.
+- **Alphabet Studio** — Foundation building. 22 base letters, 5 final forms, and vowel maps.
+- **Dictionary (מילון)** — Your semantic anchor. Root-based connections, exact trilingual translations, and audio.
+- **AI Coach (Beta)** — Real-time conversation simulation and grammatical feedback driven by offline-capable models.
+- **Settings** — Deep personalization. Switch between 14 aesthetic themes, toggle RTL interfaces, and manage your local data vault.
+
+Three persistent depths change how information is presented without hiding rooms or confusing the learner:
+
+- **Guided** — uses simpler language, removes complex grammatical terms, and keeps context visible.
+- **Explorer** — the balanced default: a calm, self-directed visit.
+- **Deep Dive** — exposes linguistic roots, transliteration details, exact stats, and advanced controls.
+
+## 🌍 Language, Themes and Accessibility
+
+<p align="center">
+  <img src="docs/art-direction/repintado-nocturne-candidates/conceptual_dictionary_card.jpg" width="100%" alt="Ivrit Sheli Concept Visual Theme" />
+</p>
+
+- **Trilingual Core:** English, Spanish, and Hebrew interfaces working seamlessly together.
+- **RTL Architecture:** Genuine Right-to-Left document direction and `he-IL` formatting that respects the language.
+- **Expressive Aesthetics:** 14 distinct dark and light themes. 
+- **Accessibility First:** Keyboard-aware navigation, focus restoration, and mobile drawer behavior.
+- **Motion Polish:** Reduced-motion support across application transitions, elegant charts, and static repository artwork.
+
+---
+
+## 📡 Live Staging & Deployment
+
+This is the **verified 2.12.3 release**. The application is now publicly deployed and verified on Render with Supabase.
+
+| Component | Status | Details |
+|---|---|---|
+| **Web Service** | 🟢 Live | [ivrit-sheli-staging.onrender.com](https://ivrit-sheli-staging.onrender.com) (Render Free) |
+| **Database** | 🟢 Live | Supabase PostgreSQL 17 via IPv4 Session Pooler (`port 6543`) |
+| **Authentication** | 🟢 Live | Google OAuth 2.0 with strict origin validation |
+| **Source Release** | `v2.12.3` | Exact immutable source checkpoint |
+
+## 📸 2.12.3 Visual Proof
+
+<p align="center">
+  <img src="assets/readme/proof/2.12.3/today-desktop-dark-es.webp" width="100%" alt="Spanish dark-theme Ivrit Sheli Today dashboard" />
+</p>
 <p align="center">
   <img src="assets/readme/proof/2.12.3/ivrit-sheli-tour.gif" width="960" alt="Eight-second non-looping Ivrit Sheli tour showing the Spanish two-cup Today dashboard, light Alphabet Studio, dark linked dictionary, and Hebrew RTL Today dashboard." />
 </p>

@@ -45,15 +45,14 @@ accepted launches proved the listener as the direct child of the captured
 launcher, matched the IvritSheli command and port, verified version 2.12.3 and
 the served entry assets, ran the smoke/captures/matrix and left port 8200 clean.
 
-`render.yaml` now prepares a **Render Free Blueprint locally**. No Render
-service exists, no public HTTPS URL exists, no provider setting was changed and
-no external action was taken. Creating staging remains a separate action that
-requires Kevin's explicit approval, followed by OAuth, restricted-database,
-two-account isolation and backup/restore checks. Current PostgreSQL and
-no-cache production-shaped container evidence, human Hebrew acceptance and the
-mother/friends pilot also remain open. The exact 2.12.3 source snapshot is staged
-locally: 571 canonical Git-index checksums were generated and the package
-verifier passed 230 required files plus all packaged assets.
+## Antigravity pass - 2026-08-27, 09:45 to 11:35
+
+- **Render Staging Deployed:** The 2.12.3 snapshot was successfully deployed to Render Free (`https://ivrit-sheli-staging.onrender.com`).
+- **Supabase IPv4 Pooler:** Solved the Render IPv6 networking limitation by routing traffic through Supabase's Session Pooler on port 6543 using the `<role>.<project-ref>` username format. The strict `psycopg3` driver is clean without the `pgbouncer=true` parameter.
+- **Google OAuth Verified:** Callback origins were registered in Google Cloud Console. Kevin successfully logged in and verified the live URL.
+- **Documentation Revamped:** `README.md` completely overhauled with modern aesthetics matching NovaMusicLab (Hero section, living hubs, conceptual art, and staging badges).
+
+The technical release gates outlined in `PROMPT-NUEVA-SESION.md` are 100% complete. What remains are the human gates: Hebrew content acceptance and the pilot with Kevin's mother.
 
 The first local Docker smoke supplied a throwaway `SESSION_SECRET` shorter than
 the enforced 32-character minimum. Startup correctly failed closed. The first

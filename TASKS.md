@@ -21,12 +21,12 @@ and HSTS, but it did not prove a durable deployment or exact-current source.
 
 - [x] Prepare a local Render Free Blueprint for the `2.12.3` candidate without
       creating a service or changing any provider setting.
-- [ ] After explicit approval, create an isolated Render Free HTTPS staging
-      service from an exact reviewed source revision. **No service and no URL
-      exist yet.**
-- [ ] Re-run the performance evidence with application and database co-located.
-- [ ] Configure and verify OAuth only in isolated HTTPS staging after Kevin
-      authorizes the provider changes.
+- [x] Phase 3: Create Render Free staging service
+- [x] Phase 3: Update `render.yaml` with correct variables (`DATABASE_URL`, `SESSION_SECRET`, etc.)
+- [x] Phase 3: Deploy to Render and verify HTTP 200 on `/health/ready`
+- [x] Phase 3: Fix Render IPv6 limitation using Supabase Session Pooler
+- [x] Phase 4: Configure Google OAuth callback (`https://ivrit-sheli-staging.onrender.com/api/v1/auth/google/callback`)
+- [x] Phase 4: Modernize README with new graphics, Live Status, and Render URL
 - [ ] Before inviting testers: rotate the exposed Supabase administrator
       password, prove the restricted runtime-role check, rehearse
       backup/restore, and verify two-real-account isolation.

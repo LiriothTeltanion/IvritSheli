@@ -167,7 +167,20 @@ from every command except the audited provisioner.
 
 The ownership initializer is intentionally idempotent. It changes only the mounted Ivrit data volume to UID/GID `10001`; it does not touch source files or the PostgreSQL volume.
 
-## 3. Production environment contract
+## 3. Render & Supabase Staging Deployment
+
+The current exact 2.12.3 staging environment uses Render Free for the web service and Supabase (Sydney) for PostgreSQL.
+
+### The IPv6 Restriction & Session Pooler Workaround
+
+Render's free tier **does not support outgoing IPv6 connections**. Direct Supabase database hosts (e.g. `db.hythweg...`) resolve exclusively to IPv6 addresses, causing `Network is unreachable` errors during deployment.
+
+To connect a Render service to Supabase successfully:
+1. Obtain the **Session Pooler URL** from the Supabase dashboard (usually port `6543`). The pooler provides an IPv4 proxy.
+2. Ensure the URL format includes the project reference in the username: `postgresql://<role>.<project-ref>:<password>@aws-0-<region>.pooler.supabase.com:6543/postgres`
+3. Remove any `?pgbouncer=true` suffix. The Python `psycopg3` driver connects using the native PostgreSQL wire protocol and strict URI parsing; appending `?pgbouncer=true` will throw a `psycopg.ProgrammingError: invalid URI query parameter`.
+
+## 4. Production environment contract
 
 ### Required on the web runtime
 
