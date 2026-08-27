@@ -66,12 +66,12 @@ Three persistent depths change how information is presented without hiding rooms
   <img src="assets/readme/deployment.svg" width="100%" alt="Deployment Animation" />
 </p>
 
-The `2.12.3` source is published on `main` and runs on a free Render service. That
-service is **staging for a private pilot, not production**: the technical gates below
-were exercised against the live host, but the human gates — Hebrew-content acceptance
-and the first real learner — are still open, and no `v2.12.3` tag exists yet.
+The 2.12.3 private candidate source is published on `main` and runs on a free Render service.
+That service is **verified staging for a private pilot, not production**: the gates in the
+table below were exercised against the live host on 2026-08-27, while the human gates —
+Hebrew-content acceptance and the first real learner — remain open.
 
-**Source on `main`:** `2.12.3` · **Latest tagged release:** `v2.12.2`
+The latest published release is still **v2.12.2**; `2.12.3` is deliberately untagged.
 
 | Component | Status | Details |
 |---|---|---|

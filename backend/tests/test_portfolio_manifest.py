@@ -47,14 +47,12 @@ def test_checked_in_portfolio_manifest_preserves_truth_boundaries() -> None:
     assert manifest["source_status"] == "private-candidate"
     assert manifest["latest_published_release"] == "v2.12.2"
     assert manifest["durable_demo"] == {
-        "url": None,
-        "status": "unavailable",
-        "provider": None,
-        "last_checked_on": "2026-08-26",
+        "url": "https://ivrit-sheli-staging.onrender.com",
+        "status": "staging-verified",
+        "provider": "render-free",
+        "last_checked_on": "2026-08-27",
         "boundary": (
-            "No durable hosted demo is currently verified. The historical Railway service "
-            "is offline, and ephemeral Cloudflare Quick Tunnels are diagnostic sessions "
-            "rather than publishable deployment URLs."
+            "A free Render service runs the 2.12.3 source as staging for a private pilot, not as production. Verified against the live host on 2026-08-27: /health/live, /health/ready with postgresql true and a 240-entry dictionary, /version reporting 2.12.3, a strict production CSP, Secure and HttpOnly session cookies, and a Google OAuth redirect using PKCE with the exact staging callback. The free plan sleeps after 15 minutes, so a first request waits about 24 seconds. The human Hebrew-content and first-learner gates remain open, and no v2.12.3 tag exists. The historical Railway service is offline."
         ),
     }
 
@@ -120,7 +118,7 @@ def test_current_screenshot_evidence_can_advance_without_a_false_boolean(
     ("mutation", "expected_failure"),
     (
         (
-            ("durable_demo", "status", "verified-live"),
+            ("durable_demo", "url", None),
             "verified durable demo requires a public HTTPS URL",
         ),
         (
@@ -172,8 +170,8 @@ def test_manifest_rejects_hard_coded_quick_tunnel_url(
     assert any("Quick Tunnel URLs must not be hard-coded" in failure for failure in failures)
 
 
-def test_private_candidate_preserves_latest_release_without_implying_a_demo() -> None:
-    """A local candidate must not silently advance GitHub or hosting claims."""
+def test_private_candidate_preserves_latest_release_with_staging() -> None:
+    """A staging candidate must not silently advance GitHub published claims."""
     manifest = _current_manifest()
 
     assert manifest["publication"] == {
@@ -181,10 +179,10 @@ def test_private_candidate_preserves_latest_release_without_implying_a_demo() ->
         "latest_github_release": "v2.12.2",
         "source_version_tagged": False,
         "source_version_github_release_published": False,
-        "release_state": "2.12.3-private-candidate-no-durable-demo",
+        "release_state": "2.12.3-private-candidate-staging-verified",
     }
     assert manifest["candidate"]["published"] is False
-    assert manifest["durable_demo"]["status"] == "unavailable"
+    assert manifest["durable_demo"]["status"] == "staging-verified"
     assert manifest["historical_deployment"]["current_availability"] == "offline"
 
 
@@ -200,6 +198,18 @@ def test_manifest_accepts_a_coherent_future_publication_transition(
         "The published 2.12.3 source release is a trilingual Hebrew-learning PWA with "
         "240 exact semantic scenes. No durable hosted demo is currently verified."
     )
+
+    durable_demo = copy.deepcopy(manifest["durable_demo"])
+    assert isinstance(durable_demo, dict)
+    durable_demo["url"] = None
+    durable_demo["status"] = "unavailable"
+    durable_demo["provider"] = None
+    manifest["durable_demo"] = durable_demo
+
+    privacy = copy.deepcopy(manifest["privacy"])
+    assert isinstance(privacy, dict)
+    privacy["durable_demo_currently_available"] = False
+    manifest["privacy"] = privacy
 
     tests = copy.deepcopy(manifest["tests"])
     assert isinstance(tests, dict)

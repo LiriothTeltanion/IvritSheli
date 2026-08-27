@@ -126,7 +126,7 @@
     "local_first": true,
     "demo_data_contract": "synthetic",
     "demo_mutation_contract": "server-blocked",
-    "durable_demo_currently_available": false,
+    "durable_demo_currently_available": true,
     "self_service_export_in_source": true,
     "self_service_deletion_in_source": true,
     "contains_secrets": false

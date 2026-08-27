@@ -19,11 +19,11 @@
       .lang-meta-val { font-family: 'Fira Code', monospace; font-size: 12px; fill: #22d3ee; font-weight: 500; }
       .lang-meta-val.rtl { fill: #c084fc; }
 
-      /* Shapes & Nodes */
+      /* Shapes and Nodes */
       .node-core-bg { fill: rgba(15, 23, 42, 0.7); stroke: #38bdf8; stroke-width: 2; rx: 12px; }
       .node-lang-bg { fill: rgba(15, 23, 42, 0.5); stroke: #1e293b; stroke-width: 1.5; rx: 12px; transition: all 0.3s; }
 
-      /* Gradients & Glows */
+      /* Gradients and Glows */
       .glow-cyan { filter: drop-shadow(0 0 10px rgba(34, 211, 238, 0.4)); }
       .glow-purple { filter: drop-shadow(0 0 12px rgba(192, 132, 252, 0.5)); }
 
