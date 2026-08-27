@@ -35,38 +35,44 @@
   <text x="450" y="60" class="subtitle" text-anchor="middle">i18next // bidi // Semantic Keys</text>
 
   <!-- Connection Lines -->
-  <path d="M 230 160 C 300 160, 350 160, 400 160" class="flow-line" />
-  <path d="M 670 160 C 600 160, 550 160, 500 160" class="flow-line" />
-  <path d="M 450 100 L 450 135" class="flow-line" />
+  <path d="M 230 160 C 300 160, 350 120, 400 120" class="flow-line" />
+  <path d="M 670 160 C 600 160, 550 120, 500 120" class="flow-line" />
+  <path d="M 450 150 L 450 120" class="flow-line" />
 
   <!-- Core -->
-  <g transform="translate(400, 135)">
+  <g transform="translate(400, 95)">
     <rect class="node-core" width="100" height="50" />
     <text x="50" y="31" class="core-text" text-anchor="middle">i18n.ts</text>
   </g>
 
   <!-- EN -->
-  <g transform="translate(80, 120)" class="bounce" style="animation-delay: 0s;">
-    <rect class="node-lang" width="150" height="80" />
-    <text x="75" y="30" class="lang-title" text-anchor="middle">English</text>
-    <text x="75" y="50" class="lang-meta" text-anchor="middle">dir: ltr</text>
-    <text x="75" y="65" class="lang-meta" text-anchor="middle">locale: en-US</text>
+  <g transform="translate(100, 130)">
+    <g class="bounce" style="animation-delay: 0s;">
+      <rect class="node-lang" width="150" height="80" />
+      <text x="75" y="30" class="lang-title" text-anchor="middle">English</text>
+      <text x="75" y="50" class="lang-meta" text-anchor="middle">dir: ltr</text>
+      <text x="75" y="65" class="lang-meta" text-anchor="middle">locale: en-US</text>
+    </g>
   </g>
 
   <!-- ES -->
-  <g transform="translate(375, 10)" class="bounce" style="animation-delay: 1.3s;">
-    <rect class="node-lang" width="150" height="80" />
-    <text x="75" y="30" class="lang-title" text-anchor="middle">Español</text>
-    <text x="75" y="50" class="lang-meta" text-anchor="middle">dir: ltr</text>
-    <text x="75" y="65" class="lang-meta" text-anchor="middle">locale: es-ES</text>
+  <g transform="translate(375, 130)">
+    <g class="bounce" style="animation-delay: 1.3s;">
+      <rect class="node-lang" width="150" height="80" />
+      <text x="75" y="30" class="lang-title" text-anchor="middle">Español</text>
+      <text x="75" y="50" class="lang-meta" text-anchor="middle">dir: ltr</text>
+      <text x="75" y="65" class="lang-meta" text-anchor="middle">locale: es-ES</text>
+    </g>
   </g>
 
   <!-- HE -->
-  <g transform="translate(670, 120)" class="bounce" style="animation-delay: 2.6s;">
-    <rect class="node-lang" width="150" height="80" />
-    <text x="75" y="30" class="lang-title" text-anchor="middle">עברית</text>
-    <text x="75" y="50" class="lang-meta" text-anchor="middle">dir: rtl</text>
-    <text x="75" y="65" class="lang-meta" text-anchor="middle">locale: he-IL</text>
+  <g transform="translate(650, 130)">
+    <g class="bounce" style="animation-delay: 2.6s;">
+      <rect class="node-lang" width="150" height="80" />
+      <text x="75" y="30" class="lang-title" text-anchor="middle">עברית</text>
+      <text x="75" y="50" class="lang-meta" text-anchor="middle">dir: rtl</text>
+      <text x="75" y="65" class="lang-meta" text-anchor="middle">locale: he-IL</text>
+    </g>
   </g>
 
 </svg>
