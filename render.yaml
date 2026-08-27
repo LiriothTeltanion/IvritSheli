@@ -1,0 +1,48 @@
+services:
+  - type: web
+    name: ivrit-sheli-staging
+    runtime: docker
+    plan: free
+    region: frankfurt
+    branch: main
+    dockerfilePath: ./Dockerfile
+    autoDeployTrigger: off
+    healthCheckPath: /health/ready
+    maxShutdownDelaySeconds: 30
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: DEBUG
+        value: "false"
+      - key: AUTH_REQUIRED
+        value: "true"
+      - key: SESSION_COOKIE_SECURE
+        value: "true"
+      - key: TRUSTED_PROXY_MODE
+        value: render
+      - key: AI_PROVIDER
+        value: offline
+      - key: ALLOW_CLOUD_PROCESSING
+        value: "false"
+      - key: SELF_HOSTED_SPEECH_ENABLED
+        value: "false"
+      - key: WHISPER_PRELOAD_ON_START
+        value: "false"
+      - key: PUSH_NOTIFICATIONS_ENABLED
+        value: "false"
+      - key: DICTA_NAKDAN_URL
+        value: ""
+      - key: GOOGLE_ACCESS_TOKEN
+        value: ""
+      - key: GOOGLE_REFRESH_TOKEN
+        value: ""
+      - key: DATABASE_URL
+        sync: false
+      - key: SESSION_SECRET
+        sync: false
+      - key: PUBLIC_BASE_URL
+        sync: false
+      - key: GOOGLE_AUTH_CLIENT_ID
+        sync: false
+      - key: GOOGLE_AUTH_CLIENT_SECRET
+        sync: false

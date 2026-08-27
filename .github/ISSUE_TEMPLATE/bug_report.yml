@@ -14,7 +14,7 @@ body:
       options:
         - Local SQLite
         - Docker Compose + PostgreSQL
-        - Public read-only demo
+        - Hosted HTTPS staging (only if a verified URL exists)
         - Authenticated cloud account
     validations:
       required: true
@@ -22,7 +22,7 @@ body:
     id: version
     attributes:
       label: Version or commit
-      placeholder: 2.12.2 or a commit SHA (no durable hosted demo is currently verified)
+      placeholder: 2.12.3 private candidate, v2.12.2 source release, or a commit SHA (no durable hosted demo is currently verified)
     validations:
       required: true
   - type: textarea

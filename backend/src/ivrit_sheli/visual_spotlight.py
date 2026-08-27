@@ -22,7 +22,10 @@ SPOTLIGHT_ROTATIONS: tuple[tuple[str, ...], ...] = (
     ("שנה", "אתמול", "בוקר", "ערב", "חם", "קר"),
     # Counting words: each now has an exact scene that can be counted, so they
     # belong in the spotlight rotation like every other reviewed scene.
-    ("אחת", "שתיים", "שלוש", "ארבע", "חמש", "שש"),
+    # Lead the ambient card with two coffee cups. The former first scene used a
+    # raised-finger metaphor whose small rendering was culturally ambiguous.
+    # One remains in the same set and now uses one coffee cup instead.
+    ("שתיים", "אחת", "שלוש", "ארבע", "חמש", "שש"),
     ("שבע", "שמונה", "תשע", "עשר", "מאה", "מספר"),
     # Nature: each landscape is built on its own silhouette so the six of them
     # stay distinguishable, which is what earns them a place in the rotation.

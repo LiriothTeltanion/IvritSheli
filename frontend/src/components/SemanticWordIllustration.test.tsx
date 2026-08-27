@@ -162,6 +162,22 @@ describe('SemanticWordIllustration', () => {
     });
   });
 
+  it('teaches feminine one with one cup and no isolated-finger gesture', () => {
+    const { container } = render(
+      <SemanticWordIllustration visual={visual('numbers.one')} locale="es" size="thumbnail" />,
+    );
+
+    expect(container.querySelector('[data-scene-cue="single-coffee-cup"]')).toBeInTheDocument();
+    expect(container.querySelector('[data-scene-cue="numeral-one"]')).toBeInTheDocument();
+    expect(container.querySelector('.semantic-art__skin')).not.toBeInTheDocument();
+    expect(getA0VisualRecipe('numbers.one')).toEqual({
+      template: 'quantity-time',
+      setting: 'cafe-counter',
+      meaning: 'one-coffee-cup',
+      anchor: 'numeral-one-and-one-count-dot',
+    });
+  });
+
   it.each(A0_SEMANTIC_VISUAL_KEYS)('renders the reviewed context, meaning, and anchor layers for %s', (key) => {
     const { container } = render(
       <SemanticWordIllustration visual={visual(key)} locale="en" hintStage={2} />,

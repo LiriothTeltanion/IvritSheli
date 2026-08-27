@@ -2787,8 +2787,8 @@ def register_frontend(app: FastAPI, frontend_dist: Path) -> None:
     if assets_dir.exists():
         app.mount("/assets", StaticFiles(directory=assets_dir), name="frontend-assets")
 
-    @lru_cache(maxsize=2)
-    def _index_document(base_url: str) -> str:
+    @lru_cache(maxsize=4)
+    def _index_document(base_url: str, _revision: tuple[int, int]) -> str:
         """Serve index.html with absolute social-card image URLs.
 
         Date: 2026-08-26 | TZ: Asia/Jerusalem
@@ -2804,8 +2804,10 @@ def register_frontend(app: FastAPI, frontend_dist: Path) -> None:
         done here instead, from `PUBLIC_BASE_URL`, so it is right on every host
         without anyone remembering.
 
-        The file is read once per base URL; two entries covers the real base and
-        any redirect variant.
+        Cache by public base URL and the file's mtime/size revision. Vite replaces
+        hashed entry bundles during a build, so caching only by base URL can leave
+        a running local backend serving stale HTML that points at a deleted asset.
+        Four entries cover the real/redirect base URLs across one build rollover.
         """
         raw = (frontend_dist / "index.html").read_text(encoding="utf-8")
         if not base_url:
@@ -2824,8 +2826,9 @@ def register_frontend(app: FastAPI, frontend_dist: Path) -> None:
             base_url = services(request).settings.public_base_url
         except Exception:  # noqa: BLE001 - a missing base URL must not 500 the page
             base_url = ""
+        index_stat = index.stat()
         return HTMLResponse(
-            _index_document(base_url),
+            _index_document(base_url, (index_stat.st_mtime_ns, index_stat.st_size)),
             headers={"Cache-Control": "no-cache, no-store, must-revalidate"},
         )
 

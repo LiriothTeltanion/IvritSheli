@@ -44,6 +44,28 @@ def test_visual_spotlight_prioritizes_recommended_exact_scene_words() -> None:
     assert spotlight[0]["visual"]["key"] == "family.mother"
 
 
+def test_ambient_number_spotlight_leads_with_two_cups_not_a_hand_gesture() -> None:
+    dictionary = DictionaryStore(Path(":memory:"))
+    dictionary.initialize()
+    dictionary.seed_demo()
+
+    spotlight = build_visual_spotlight(
+        dictionary,
+        seed="2026-08-27|A0|guided|0",
+    )
+
+    assert spotlight[0]["word"] == "שתיים"
+    assert spotlight[0]["visual"]["key"] == "numbers.two"
+    assert {entry["visual"]["key"] for entry in spotlight} == {
+        "numbers.one",
+        "numbers.two",
+        "numbers.three",
+        "numbers.four",
+        "numbers.five",
+        "numbers.six",
+    }
+
+
 @pytest.mark.parametrize("limit", (0, 7))
 def test_visual_spotlight_rejects_invalid_limits(limit: int) -> None:
     dictionary = DictionaryStore(Path(":memory:"))

@@ -1,4 +1,11 @@
-# 2.12.2 published source contract — 2026-08-27
+# 2.12.3 private-candidate API contract — 2026-08-27
+
+**Status: PRIVATE CANDIDATE / unpublished.** The 2.12.3 visual-safety and proof
+work does not add or broaden an API route, payload, database schema, provider
+permission, or authentication boundary. The latest published source contract
+remains **v2.12.2**, and no durable hosted deployment is currently verified.
+
+## 2.12.2 published source contract — 2026-08-27
 
 The published 2.12.2 source release inherits the 2.11.0 API surface without
 broadening provider permissions. Google sign-in remains **identity-only**
@@ -60,7 +67,7 @@ bypass.
 
 The session bearer is an `HttpOnly` cookie. A separate readable CSRF cookie is echoed as `X-CSRF-Token` by the same-origin frontend for authenticated mutations. Demo sessions can read seeded learner data but receive `403 demo_read_only` on private mutations. Demo and logout POSTs require `application/json` and reject cross-site Origin/Fetch Metadata. Logout accepts an exact allow-listed Origin or, when Origin is absent, the active session's double-submit CSRF proof.
 
-OAuth start/callback and demo entry use a process-local per-client window plus a higher per-endpoint circuit breaker. Direct mode uses the raw ASGI peer; explicit Railway mode uses one valid Railway-overwritten `X-Real-IP`. `X-Forwarded-For` is never read. A limited response is `429` with `Retry-After`. Live OAuth states are also capped transactionally in PostgreSQL across all replicas.
+OAuth start/callback and demo entry use a process-local per-client window plus a higher per-endpoint circuit breaker. Direct mode uses the raw ASGI peer; explicit Railway mode uses one valid Railway-overwritten `X-Real-IP`; explicit Render mode uses one valid Cloudflare-overwritten `CF-Connecting-IP` and requires Render's injected service identity. Missing, duplicate or malformed trusted values collapse into a provider-specific unresolved bucket. `X-Forwarded-For` is never read. A limited response is `429` with `Retry-After`. Live OAuth states are also capped transactionally in PostgreSQL across all replicas. The Render header contract still requires a live two-client staging probe before testers are invited.
 
 Account deletion accepts exactly `{"confirm": true}` and follows the normal authenticated mutation CSRF boundary. It is unavailable to the shared demo and local-device mode. A successful deletion clears the browser cookies and returns an unauthenticated session payload; the action cannot be undone.
 

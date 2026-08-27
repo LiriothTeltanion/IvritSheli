@@ -1,12 +1,98 @@
-# Ivrit Sheli 2.12.2 — Visual Harmony & Resilience Handoff
+# Ivrit Sheli 2.12.3 — Clear Counting private-candidate handoff
 
 **Last Updated**: 2026-08-27 (`Asia/Jerusalem`)
-**Prepared by**: Antigravity (Handoff targeted for Claude Code at 02:41 AM)
-**Source state**: published GitHub source release / no deployment
+**Prepared by**: Nova Engineer / Codex
+**Source state**: unpublished `2.12.3` private candidate in the working tree;
+`v2.12.2` remains the latest published GitHub source release
 **Latest published release**: **v2.12.2 Visual Harmony & Resilience
 (2026-08-27)**; no durable hosted demo is verified
 **Latest hosted evidence**: historical **2.4.0 Contest Edition (2026-07-21)**;
 its former Railway service was offline when checked on 2026-08-26
+
+## Current private candidate — 2.12.3, 2026-08-27
+
+The current worktree is an **unpublished private candidate**, not a deployed
+application and not a GitHub release. Its visual correction is deliberately in
+the product itself: `numbers.one` now draws one coffee cup beside the numeral
+`1`, with no hand or isolated finger. The reviewed semantic catalogue remains
+**240/240 exact scenes**. The ambient Today card was recaptured naturally on
+`שתיים` / *shtayim* / *dos*, showing two cups in Spanish desktop, Hebrew/RTL
+desktop and mobile proof.
+
+The new proof set is isolated under `assets/readme/proof/2.12.3`: five WebP
+images, one non-looping GIF and a manifest with hashes and provenance. The
+selected bytes passed full-size and GitHub-scale review, privacy review,
+grayscale review and two independent derivative passes with byte-identical
+output. The immutable `assets/readme/proof/2.12.2` history remains untouched.
+
+A fresh FastAPI-served `2.12.3` runtime passed the bounded Playwright smoke:
+**2 passed / 0 failed in 3.8 s**. The fail-closed capture produced **12 Spanish
+artifacts / 0 errors** and **1 Hebrew artifact / 0 errors**. The complete local
+gate then passed **859 frontend tests**, **387 backend tests** with one
+credential-gated PostgreSQL skip, TypeScript, the production build, Ruff,
+strict MyPy, the 7/7 offline doctor, four capture-contract tests and dependency
+audits with zero known vulnerabilities. The fresh FastAPI/CSP Playwright matrix
+passed **36 tests / 40 intentional project-scoped skips / 0 failures** across
+76 listed cases in 4.5 minutes. A Docker 29.6.2 image build also passed; its
+ephemeral SQLite smoke reported 2.12.3/ready, ran PID 1 as UID/GID 10001,
+contained no `MIGRATION_DATABASE_URL`, and left port 8300 clean after teardown.
+
+Two strict same-PID preflights, one during capture preparation and one before
+the final matrix, found that the PID returned by the Windows virtualenv launcher
+was not the actual listener child PID. Both stopped before Playwright ran, so
+they were process-provenance refusals, **not Playwright test failures**. The
+accepted launches proved the listener as the direct child of the captured
+launcher, matched the IvritSheli command and port, verified version 2.12.3 and
+the served entry assets, ran the smoke/captures/matrix and left port 8200 clean.
+
+`render.yaml` now prepares a **Render Free Blueprint locally**. No Render
+service exists, no public HTTPS URL exists, no provider setting was changed and
+no external action was taken. Creating staging remains a separate action that
+requires Kevin's explicit approval, followed by OAuth, restricted-database,
+two-account isolation and backup/restore checks. Current PostgreSQL and
+no-cache production-shaped container evidence, human Hebrew acceptance and the
+mother/friends pilot also remain open. The exact 2.12.3 source snapshot is staged
+locally: 571 canonical Git-index checksums were generated and the package
+verifier passed 230 required files plus all packaged assets.
+
+The first local Docker smoke supplied a throwaway `SESSION_SECRET` shorter than
+the enforced 32-character minimum. Startup correctly failed closed. The first
+probe then waited until its outer limit because it did not inspect early
+container exit; after reading the exact logs, the stopped container was removed
+and the corrected bounded smoke added that fail-fast check. This was an
+operator-test configuration error, not a weakened guard or product workaround.
+
+## Codex post-publication Playwright hardening — 2026-08-27
+
+Two reruns described as silent Playwright hangs were diagnosed from retained
+traces rather than repeated. The targeted run had executed six sequential
+30-second timeouts: FastAPI returned cached pre-build HTML that referenced
+`/assets/index-QR-zN1Oi.js`, while the latest Vite build had replaced it with
+`index-DIxUZMmw.js`. The missing entry module returned 404, React never mounted,
+and every case waited for `.app-shell`.
+
+Local, not-yet-published hardening now keys the cached HTML by index mtime/size,
+adds a backend regression, and runs an entry-asset Playwright setup dependency
+before the three viewport projects. The first repaired FastAPI/CSP smoke passed
+four tests with one intentional project skip in 11.5 s. A complete matrix then
+passed 36 cases with 40 intentional project skips and zero failures across 76
+listed cases in 4.5 minutes, but port inspection subsequently proved that its
+backend listener was an inherited 2026-08-26 process. It is current-frontend
+evidence, not exact-backend/cache-fix proof. Backend verification also
+passed 363 tests with one credential-gated PostgreSQL skip; Ruff and strict MyPy
+passed.
+
+The inherited listener was then stopped by exact verified PID. With port 8000
+proved free, a fresh process from this worktree reported
+`feb056cbbc9539a40f55a0b53624197051acb66b+playwright-hardening-dirty`.
+Discovery passed, the exact-process smoke passed 4 cases with one intentional
+skip in 9.2 s, and the complete matrix passed **36 / 40 intentional skips / 0
+failures** in 3.9 minutes. Teardown stopped the captured listener and proved
+port 8000 clean. Exact incident evidence, tooling errors and the future protocol live in
+[`docs/PLAYWRIGHT_RUNBOOK.md`](docs/PLAYWRIGHT_RUNBOOK.md).
+
+GitHub has the v2.12.2 source release, but there is still no durable live-user
+URL. Deployment remains a separate explicit decision.
 
 ## Codex pass — 2026-08-27, README and formal browser gate
 
@@ -181,15 +267,15 @@ clean, package gate 217 required files / 531 checksums.
 
 - **Project:** `02 — Ivrit Sheli`
 - **Branch:** `consolidation/ivrit-sheli-2.10-baseline`
-- **Implementation version:** `2.12.2`, now stated identically in
+- **Implementation version:** unpublished `2.12.3` candidate, stated across the
   `frontend/package.json`, `backend/pyproject.toml`,
   `backend/src/ivrit_sheli/__init__.py`, `frontend/src/release.ts`,
   `frontend/index.html`, `frontend/public/manifest.webmanifest` and the service
-  worker cache key. Before this session those disagreed, so `/version` and the
-  offline doctor reported a different number than the badge in the interface.
-- **Working tree:** committed. It previously held 12,333 uncommitted insertions
-  and two untracked files that other documents call the operational source of
-  truth (`TASKS.md`, `docs/LIVING_HEBREW_FIELD_NOTES.md`). See `1e4281e`.
+  worker cache key. `v2.12.2` at `feb056cbbc95` remains the published source
+  revision beneath these local changes.
+- **Working tree:** intentionally dirty and unpublished while the candidate is
+  completed and verified. No commit, push, tag, release or deployment is
+  claimed by this checkpoint.
 
 ## What this session did
 
@@ -301,8 +387,8 @@ above a list of unmet requirements:
 5. Isolated HTTPS staging, two-real-account persistence and isolation, and a
    proven backup/restore path.
 6. ~~`SHA256SUMS.txt` and the package integrity gate need regenerating.~~
-   **Closed 2026-08-27:** 559 canonical Git-index checksums generated after
-   explicit staging; `scripts/verify_package.py` passed 217 required files and
+   **Closed for 2.12.3 on 2026-08-27:** 571 canonical Git-index checksums
+   generated after explicit staging; `scripts/verify_package.py` passed 230 required files and
    all packaged assets.
 
 ## Continuation rules

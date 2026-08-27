@@ -1,4 +1,18 @@
-# 2.12.2 source-release note — 2026-08-27
+# Ivrit Sheli — User Guide
+
+> [!IMPORTANT]
+> The working tree is **2.12.3 — PRIVATE CANDIDATE / unpublished**. The latest
+> published source release remains **v2.12.2 (2026-08-27)**. There is no
+> verified durable hosted demo or live-user URL.
+
+## 2.12.3 private-candidate visual note — 2026-08-27
+
+The number-one illustration now shows one coffee cup beside the numeral `1`
+instead of a raised-finger pose. The daily ambient number spotlight begins with
+`שתיים` and two coffee cups. This is a visual and accessibility clarification;
+the learner workflow and API contract are unchanged.
+
+## Published 2.12.2 visual-workbench note — 2026-08-27
 
 The local-only visual QA gallery derives **all 240 exact semantic scenes** and
 opens dark by default as a trilingual editorial workbench with art-dominant
@@ -9,8 +23,6 @@ with distractors from the same domain. The six-region Atlas uses responsive
 adult blue-hour paintings whose visible action matches the vocabulary domain.
 Human recognition review and isolated staging/pilot evidence remain open after
 the GitHub source publication and are still required before deployment claims.
-
-# Ivrit Sheli — User Guide
 
 ## 1. First launch
 

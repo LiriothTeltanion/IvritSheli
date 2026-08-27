@@ -1,7 +1,7 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-title Ivrit Sheli 2.12.2 - Mama Private Pilot
+title Ivrit Sheli 2.12.3 - Mama Private Pilot
 set "MOTHER_PILOT_DATA=%LOCALAPPDATA%\IvritSheli\pilots\mama"
 
 echo.

@@ -33,7 +33,13 @@ export default defineConfig({
   },
   projects: [
     {
+      name: 'runtime-preflight',
+      testMatch: /runtime\.setup\.ts/,
+    },
+    {
       name: 'mobile-390',
+      dependencies: ['runtime-preflight'],
+      testIgnore: /runtime\.setup\.ts/,
       use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 390, height: 844 },
@@ -41,6 +47,8 @@ export default defineConfig({
     },
     {
       name: 'tablet-768',
+      dependencies: ['runtime-preflight'],
+      testIgnore: /runtime\.setup\.ts/,
       use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 768, height: 1024 },
@@ -48,6 +56,8 @@ export default defineConfig({
     },
     {
       name: 'desktop-1440',
+      dependencies: ['runtime-preflight'],
+      testIgnore: /runtime\.setup\.ts/,
       use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 1440, height: 1000 },

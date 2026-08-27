@@ -12,6 +12,17 @@ export const VERSION_HISTORY_COPY: Record<Locale, { title: string, summary: stri
     summary: 'Chronological timeline of all major engine and visual milestones.',
     versions: [
       {
+        name: '2.12.3 — Clear Counting & Safer Visuals',
+        date: '2026-08-27',
+        highlights: [
+          'Status: PRIVATE CANDIDATE — unpublished. The latest published source release remains v2.12.2.',
+          'Replaced the culturally ambiguous one-finger scene with one coffee cup, matching the feminine counting form אחת.',
+          'Led the ambient number spotlight with שתיים and its two-cup illustration for clearer public visual proof.',
+          'Made the offline dictionary export reproducible by checking all 240 source and public visual descriptions.',
+          'Hardened the served-path Playwright preflight and index cache against stale Vite bundles.',
+        ],
+      },
+      {
         name: '2.12.2 — Visual Harmony & Resilience',
         date: '2026-08-27',
         highlights: [
@@ -134,6 +145,17 @@ export const VERSION_HISTORY_COPY: Record<Locale, { title: string, summary: stri
     summary: 'Cronología completa y ordenada de todos los hitos visuales y de ingeniería.',
     versions: [
       {
+        name: '2.12.3 — Conteo claro y visuales más seguros',
+        date: '2026-08-27',
+        highlights: [
+          'Estado: CANDIDATO PRIVADO — no publicado. El último release de código publicado sigue siendo v2.12.2.',
+          'Sustituyó la escena culturalmente ambigua de un dedo por una taza de café, coherente con la forma femenina אחת.',
+          'El bloque numérico ambiental empieza con שתיים y su ilustración de dos tazas para una prueba visual pública más clara.',
+          'Hizo reproducible la exportación offline al comparar las 240 descripciones visuales de la fuente y del JSON público.',
+          'Reforzó el preflight de Playwright y la caché del índice contra bundles Vite obsoletos.',
+        ],
+      },
+      {
         name: '2.12.2 — Armonía visual y resiliencia',
         date: '2026-08-27',
         highlights: [
@@ -255,6 +277,17 @@ export const VERSION_HISTORY_COPY: Record<Locale, { title: string, summary: stri
     title: 'יומן גרסאות',
     summary: 'ציר זמן כרונולוגי מלא ומסודר של כל אבני הדרך.',
     versions: [
+      {
+        name: '2.12.3 — ספירה ברורה וחזות בטוחה יותר',
+        date: '2026-08-27',
+        highlights: [
+          'סטטוס: מועמד פרטי — טרם פורסם. מהדורת קוד המקור האחרונה שפורסמה היא עדיין v2.12.2.',
+          'מחוות האצבע העמומה הוחלפה בכוס קפה אחת, בהתאם לצורת הספירה הנקבית אחת.',
+          'קבוצת המספרים היומית מתחילה ב־שתיים ובאיור של שתי כוסות כדי ליצור הוכחה חזותית ברורה יותר.',
+          'ייצוא המילון הלא־מקוון נעשה שחזורי באמצעות השוואת כל 240 התיאורים החזותיים בין המקור ל־JSON הציבורי.',
+          'חוזקו בדיקת הקדם של Playwright ומטמון דף הכניסה מול חבילות Vite מיושנות.',
+        ],
+      },
       {
         name: '2.12.2 — הרמוניה חזותית ועמידות',
         date: '2026-08-27',

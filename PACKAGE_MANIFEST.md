@@ -1,30 +1,72 @@
-# Ivrit Sheli 2.12.2 — Visual Harmony & Resilience Package Manifest
+# Ivrit Sheli 2.12.3 — Clear Counting & Safer Visuals Package Manifest
 
-- Source version: `2.12.2`
-- Release state: published GitHub source release on 2026-08-27; no deployment or durable hosted demo
-- Source lineage: derived from the clean 2.9.2 Brand & Private Access export supplied for consolidation; `.git`, real secrets, local databases, models, dependency caches and generated audit folders are intentionally absent.
+- Source version: `2.12.3`
+- Release state: **private candidate / unpublished** on 2026-08-27; no commit,
+  push, merge, tag, GitHub Release or deployment is claimed for this worktree
+- Source lineage: based on published source commit
+  `feb056cbbc9539a40f55a0b53624197051acb66b` plus explicitly uncommitted
+  2.12.3 candidate changes; real secrets, local databases, models, dependency
+  caches and generated audit folders remain outside the source package
 - Latest published source release: `v2.12.2`
-- Latest verified hosted evidence: historical `2.4.0` on 2026-07-21; the former service is currently offline
-- Visual catalog: **240 reviewed concepts / 240 exact semantic scenes / 0 reviewed category fallbacks**
-- Current source integrity gate: **passed on 2026-08-27** — 217 required files
-  and all packaged assets verified by `scripts/verify_package.py`, with **559
-  canonical Git-index SHA-256 entries**. The prior 2.11.0 checkpoint verified
-  202 required files / 372 canonical entries.
-- Current browser evidence: the 2026-08-27 formal Playwright run against the
-  FastAPI-served bundle on port 8000 with CSP passed **35 cases**, intentionally
-  skipped **40 project-scoped cases**, and failed **0** among 75 listed cases in
-  330.1 s. It covered 390, 768 and 1440 px projects and rendered all 240 exact
-  scenes at thumbnail, card and hero sizes. Generated contact-sheet inspection
-  and human recognition remain open.
-- Current container evidence: an isolated 2026-08-27 no-cache build and
-  PostgreSQL 17 Compose smoke passed on loopback port 8600. The app reported
-  2.12.2 / PostgreSQL with 240 ready entries, PID 1 ran with UID/GID 10001,
-  migration credentials were absent, and the structured-log sentinel check
-  passed. This is local production-shaped evidence, not a deployment.
-- Historical test evidence: Phase 4A.1 passed **1,047 local automated checks** on 2026-08-13, including the complete browser/accessibility matrix and disposable PostgreSQL coverage. Human recognition, isolated staging/pilot and deployment approval remain open; see `TEST_REPORT.md`.
-- Current 2.12.2 verification is recorded in `TEST_REPORT.md`. Prior live
-  PostgreSQL/RLS tenant-isolation results remain separately attributed; the
-  2.11.0 705-frontend/315-backend checkpoint remains historical evidence only.
+- Durable hosted state: **unavailable**; the former Railway service is offline
+  and there is no current live URL for testers
+- Visual catalog: **240 reviewed concepts / 240 exact semantic scenes / 0
+  reviewed category fallbacks**
+- Counting correction: the public Today proof now begins with `שתיים` /
+  `shtayim` / `dos` and two coffee cups. The underlying `אחת` scene uses one
+  coffee cup, the numeral `1` and one count dot instead of an isolated finger
+- Current README proof: five privacy-reviewed WebP files plus one deterministic
+  960 × 600, 7.9-second GIF under `assets/readme/proof/2.12.3/`. The GIF has no
+  loop extension. Exact hashes, dimensions, provenance and review boundaries
+  are recorded in that folder's `manifest.json`
+- Proposed tester staging: `render.yaml` prepares a **Render Free** Docker
+  Blueprint with managed-secret placeholders and automatic deploys disabled.
+  It has not been created on Render; no HTTPS URL, database connection, OAuth
+  callback or external provider configuration is verified
+- Current local verification: **859 frontend tests**, **387 backend tests**
+  with one credential-gated PostgreSQL skip, TypeScript, production build,
+  Ruff, strict MyPy, 7/7 offline doctor, four capture-contract tests and
+  dependency audits all passed. The fresh FastAPI/CSP browser matrix passed
+  **36 / 40 intentional project-scoped skips / 0 failures** across 76 listed
+  cases in 4.5 minutes. The Docker image built and its ephemeral SQLite smoke
+  passed as version 2.12.3/ready with non-root PID 1 and no migration credential
+- Current package integrity: **passed** from the explicitly reviewed and staged
+  Git index with 571 canonical SHA-256 entries, 230 required files and all
+  packaged assets verified. The 17 preserved historical PNG candidates remain
+  outside the index
+- Remaining runtime boundary: current PostgreSQL and a no-cache
+  production-shaped container run are **pending**; neither is implied by the
+  successful local SQLite container or source-package gates
+- Historical evidence: the published 2.12.2 source-release, browser, container
+  and package results remain historical evidence only; see `TEST_REPORT.md`
+
+## 2.12.3 package purpose
+
+This candidate corrects an illustration that was literally countable but could
+communicate the wrong gesture at README scale. It changes the product scene and
+then recaptures the real FastAPI-served interface rather than editing a public
+screenshot by hand. The five stills cover Spanish desktop, Spanish phone,
+Hebrew RTL, Alphabet Studio and the linked dictionary; the non-looping GIF
+combines four of those approved views.
+
+The candidate retains the **240/240 exact semantic catalog**, deterministic
+local scene rendering, trilingual alternative text and the existing security
+and persistence boundaries. Its Render configuration is deployment
+preparation, not a deployment. Until the external service and its security
+gates are explicitly approved and verified, GitHub contains source and visual
+proof but no user-testable live application.
+
+## Published 2.12.2 package record — 2026-08-27
+
+- Source version at publication: `2.12.2`
+- Release state: published GitHub source release on 2026-08-27; no deployment
+  or durable hosted demo
+- Source integrity gate: passed with 217 required files, all packaged assets
+  and 559 canonical Git-index SHA-256 entries
+- Browser gate: 35 passed, 40 intentional project-scoped skips and 0 failures
+  among 75 listed cases in 330.1 s against the FastAPI-served bundle with CSP
+- Container gate: isolated no-cache build and PostgreSQL 17 Compose smoke
+  passed locally with the 240-entry dictionary and non-root app PID 1
 
 ## 2.12.2 package purpose
 
@@ -47,7 +89,8 @@ starter entry should need one.
 
 > The inventory below is a preserved 2.9.1-era record. Its 72/168 visual split,
 > six single-crop region files and 72-scene QA count describe that historical
-> package, not the current 2.12.2 package summarized above.
+> package, not the current 2.12.3 candidate or the published 2.12.2 package
+> summarized above.
 
 # Ivrit Sheli 2.9.1 — Hebrew Alphabet Studio Package Manifest
 

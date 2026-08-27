@@ -24,10 +24,11 @@ What replaces it is narrower and permanent:
   for that specific action**, and asking for one does not authorise the next.
   This is not a date. It does not expire.
 - **The published GitHub source release is v2.12.2 (2026-08-27), and `main`
-  points at that source.** There is no current verified production deployment
-  or durable hosted demo. The former Railway deployment is historical 2.4.0
-  evidence and is offline. A future deploy would attempt to publish 2.12.2, but
-  it still requires its own explicit request and all deployment safeguards.
+  points at that source. The worktree is now the unpublished 2.12.3 private
+  candidate.** There is no current verified production deployment or durable
+  hosted demo. The former Railway deployment is historical 2.4.0 evidence and
+  is offline. A future approved deploy must name the exact source revision; it
+  must not silently deploy either the older release or the dirty candidate.
 - **Before any publication, read the "not run" list in `TEST_REPORT.md`** and
   state it. Human recognition, the Hebrew-content acceptance pass and the pilot
   with Kevin's mother are on it. Publishing over that list is his call to make
@@ -194,6 +195,53 @@ would actually receive the tap. That one call answers it.
 which is unusual and deliberate: the invariant is an ordering between three
 numbers, and reading them is the only way to check it without a real browser.
 Prefer that shape over no guard at all when behaviour cannot be observed.
+
+### 10. HTML and hashed bundles are one release unit — added 2026-08-27
+
+The post-release Playwright rerun looked silent twice, but the retained trace
+showed six ordinary 30-second test timeouts. FastAPI returned cached HTML that
+named `index-QR-zN1Oi.js`; Vite had already replaced it with
+`index-DIxUZMmw.js`. The entry script returned 404, React never mounted, and
+every test waited for `.app-shell`.
+
+The index cache now includes the file revision and Playwright has a setup
+dependency that requests the HTML's entry assets before any viewport case.
+Preserve both. Build before starting the backend for a release gate. If a
+running backend survives a rebuild, prove that its next HTML and every named
+entry asset agree before opening a browser.
+
+A quiet terminal is not evidence that Playwright stopped. After one unexpected
+timeout, inspect `error-context.md`, trace network records, artifact timestamps
+and the exact process tree. Distinguish a Playwright test timeout from the outer
+shell timeout and from buffered output. Do not repeat the same full command
+until one smaller diagnostic has identified or discriminated the cause. The
+complete procedure is `docs/PLAYWRIGHT_RUNBOOK.md`.
+
+A healthy URL is not process provenance. Before accepting a browser gate,
+verify that the port was free before launch and that the listener PID, creation
+time, project virtualenv parent and explicit build/commit label belong to this
+run. After teardown, assert that the listener is gone; stopping a PowerShell job
+does not guarantee that its spawned Python child stopped.
+
+### 11. A literal illustration can still communicate the wrong thing — added 2026-08-27
+
+The first public 2.12.2 dashboard proof showed `אחת` with one raised finger.
+The count was technically correct, the component test was green and the image
+was genuinely captured from the app. At README scale, however, the isolated
+finger looked like an offensive middle-finger gesture. Kevin found it by
+looking at the public repository, not through automation.
+
+The durable correction is in the product, not a staged screenshot trick:
+`numbers.one` uses one coffee cup plus the numeral and one count dot, while the
+ambient public-facing number card begins with `שתיים` and two cups. The exact
+scene descriptions are generated into the offline dictionary and compared for
+all 240 visuals so reviewed wording cannot drift silently.
+
+For any important visual proof, inspect the final downscaled byte at the size
+GitHub actually shows, not only the full-resolution SVG or DOM. Ask both “is it
+semantically correct?” and “what could a reasonable person think this shape
+is?” Automated accessibility, alt text and deterministic capture are necessary
+evidence, but they do not replace cultural and five-second human recognition.
 
 ## Two lanes to the database, and which is which
 

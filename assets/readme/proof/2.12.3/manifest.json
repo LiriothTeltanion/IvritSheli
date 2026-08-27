@@ -1,0 +1,241 @@
+{
+  "schema_version": 3,
+  "collection": "Ivrit Sheli 2.12.3 private-candidate visual proof",
+  "source_version": "2.12.3",
+  "publication_status": "private-candidate",
+  "latest_published_release": "v2.12.2",
+  "promoted_at": "2026-08-27T07:34:35+03:00",
+  "status": "approved_for_readme_use",
+  "asset_count": 6,
+  "runtime_evidence": {
+    "repository_commit": "feb056cbbc9539a40f55a0b53624197051acb66b",
+    "repository_working_tree_dirty": true,
+    "runtime_commit_label": "feb056cbbc9539a40f55a0b53624197051acb66b+2.12.3-clear-counting-dirty",
+    "environment": "local",
+    "storage": "sqlite",
+    "boundary": "These images prove the locally served 2.12.3 private candidate at the recorded base commit plus an explicitly dirty working tree. They do not claim byte identity with a clean checkout, publication, provider availability, PostgreSQL behavior, OAuth, or a durable hosted deployment."
+  },
+  "capture_identity": {
+    "authentication_mode": "local",
+    "session_user_id": "local-device",
+    "session_display_name": "Local learner",
+    "profile_display_name": "Learner",
+    "activity_state": "fresh generic starter state",
+    "personal_account_data_used": false,
+    "enforcement": "The capture tool rejects non-local authentication, personal profile data, nonzero recent accuracy or XP, achievements, and unexpected learning-item counts before it writes a candidate."
+  },
+  "privacy_review": {
+    "status": "passed",
+    "reviewed_at": "2026-08-27T07:34:35+03:00",
+    "method": "Visual inspection of all five final WebP files and all four representative GIF frames, plus the capture tool's generic local-identity and fresh-activity gate.",
+    "checks": {
+      "personal_names": false,
+      "email_addresses": false,
+      "account_handles": false,
+      "provider_avatars": false,
+      "personal_learning_content": false,
+      "personal_progress": false,
+      "credentials_or_tokens": false,
+      "absolute_machine_paths": false
+    },
+    "visible_identity": "Only the generic Learner label and generic L initial are present."
+  },
+  "provenance_runs": [
+    {
+      "run_id": "release-2.12.3-clear-counting-es-20260827",
+      "capture_manifest_schema": 2,
+      "capture_manifest_sha256": "C1A8095CAC9704C44C54D6B2D54395F1DE29616C63DC21F01C02697B10C59927",
+      "capture_status": "candidate",
+      "publication_status": "not-published",
+      "public_assets_written_by_capture": false,
+      "language": "es",
+      "direction": "ltr",
+      "authentication_mode": "local",
+      "started_at": "2026-08-27T04:31:50.846Z",
+      "finished_at": "2026-08-27T04:32:29.234Z",
+      "repository_commit": "feb056cbbc9539a40f55a0b53624197051acb66b",
+      "repository_working_tree_dirty": true,
+      "runtime_version": "2.12.3",
+      "runtime_commit_label": "feb056cbbc9539a40f55a0b53624197051acb66b+2.12.3-clear-counting-dirty",
+      "runtime_environment": "local",
+      "runtime_storage": "sqlite",
+      "capture_script_sha256": "6C4B1A6BA17F7A654B24E3B81D1BD779E87AA0F92F332A2A75B9D51AD2385F06",
+      "capture_errors": 0
+    },
+    {
+      "run_id": "release-2.12.3-clear-counting-he-20260827",
+      "capture_manifest_schema": 2,
+      "capture_manifest_sha256": "14B316739925B7B442FC40F45631A6F8C3B4F2B9074D8567863B309EEAFD45EA",
+      "capture_status": "candidate",
+      "publication_status": "not-published",
+      "public_assets_written_by_capture": false,
+      "language": "he",
+      "direction": "rtl",
+      "authentication_mode": "local",
+      "started_at": "2026-08-27T04:32:30.549Z",
+      "finished_at": "2026-08-27T04:32:34.809Z",
+      "repository_commit": "feb056cbbc9539a40f55a0b53624197051acb66b",
+      "repository_working_tree_dirty": true,
+      "runtime_version": "2.12.3",
+      "runtime_commit_label": "feb056cbbc9539a40f55a0b53624197051acb66b+2.12.3-clear-counting-dirty",
+      "runtime_environment": "local",
+      "runtime_storage": "sqlite",
+      "capture_script_sha256": "6C4B1A6BA17F7A654B24E3B81D1BD779E87AA0F92F332A2A75B9D51AD2385F06",
+      "capture_errors": 0
+    }
+  ],
+  "derivative_policy": {
+    "source_pngs_preserved": true,
+    "encoder": "ffmpeg 9.0-full_build-www.gyan.dev with libwebp",
+    "probe": "ffprobe 9.0-full_build-www.gyan.dev",
+    "webp_command": "ffmpeg -nostdin -v error -n -i <source> -map_metadata -1 -map_chapters -1 -an -sn -dn -frames:v 1 -vf scale=<width>:-2:flags=lanczos,format=yuv420p -c:v libwebp -preset picture -quality 82 -compression_level 6 -lossless 0 -threads 1 <output>",
+    "gif_command": "ffmpeg -nostdin -v error -n -f concat -safe 0 -i <controlled-list> -t 8 -filter_complex scale=960:600+setsar+fps=5+palettegen(max_colors=160)+paletteuse(bayer) -loop -1 -final_delay 0 -threads 1 <output>",
+    "determinism": "Two independent encodes were byte-identical for all five WebP files and the GIF.",
+    "gif_loop_extension_present": false
+  },
+  "visual_review": {
+    "status": "passed",
+    "reviewed_at": "2026-08-27T07:34:35+03:00",
+    "scope": "Every final WebP at GitHub display scale plus four representative frames from the final GIF.",
+    "summary": "The Today proof now presents שתיים / shtayim / dos with two clearly countable coffee cups. No isolated-finger gesture remains in the public proof. Spanish desktop, Spanish phone, Hebrew RTL, Alphabet Studio and dictionary layouts are complete and free of visible rendering failures."
+  },
+  "grayscale_review": {
+    "status": "passed_with_notes",
+    "reviewed_at": "2026-08-27T07:34:35+03:00",
+    "tool": "ffmpeg 9.0 format=gray",
+    "working_copies_committed": false,
+    "scope": "Visual readability review only; this is not a measured WCAG contrast audit.",
+    "summary": "Primary headings, actions, Hebrew letterforms, the two-cup count, active states and starter progress remain readable without color. Small sidebar hints and inactive tabs are intentionally quieter but legible at the intended size."
+  },
+  "assets": [
+    {
+      "file": "alphabet-desktop-light-es.webp",
+      "media_type": "image/webp",
+      "bytes": 68914,
+      "dimensions": { "width": 1600, "height": 1000 },
+      "pixel_format": "yuv420p",
+      "sha256": "FF744EAB28D296E64B196CCF8577CD66765B1F82445BCBFE1479FE4004CABA93",
+      "language": "es",
+      "direction": "ltr",
+      "theme": "light",
+      "viewport": "desktop",
+      "source": {
+        "run_id": "release-2.12.3-clear-counting-es-20260827",
+        "artifact": "learn-desktop-light-es.png",
+        "captured_at": "2026-08-27T04:32:05.784Z",
+        "viewport": { "width": 1440, "height": 900 },
+        "dimensions": { "width": 2880, "height": 1800 },
+        "bytes": 1398827,
+        "sha256": "DAF9870C7D71B5E5C4A6F9A12241EEC435108F90E513A679A643704411F05E19"
+      },
+      "alt": "Spanish light-theme Alphabet Studio in Ivrit Sheli, explaining 22 Hebrew base letters plus 5 positional final forms."
+    },
+    {
+      "file": "dictionary-desktop-dark-es.webp",
+      "media_type": "image/webp",
+      "bytes": 49962,
+      "dimensions": { "width": 1600, "height": 1000 },
+      "pixel_format": "yuv420p",
+      "sha256": "ED80ABB1D856F915EE9C072434CCE26194B509257893E6BD9A944D55996BF7F6",
+      "language": "es",
+      "direction": "ltr",
+      "theme": "dark",
+      "viewport": "desktop",
+      "source": {
+        "run_id": "release-2.12.3-clear-counting-es-20260827",
+        "artifact": "dictionary-desktop-dark-es.png",
+        "captured_at": "2026-08-27T04:31:58.967Z",
+        "viewport": { "width": 1440, "height": 900 },
+        "dimensions": { "width": 2880, "height": 1800 },
+        "bytes": 1388303,
+        "sha256": "BE4FF24D67E9B842D7CA1B668A9E98C1B6F735FFCF7177EDC673DAF71FEDF5F5"
+      },
+      "alt": "Spanish dark-theme linked dictionary workspace in Ivrit Sheli with an empty multilingual Hebrew search field."
+    },
+    {
+      "file": "today-desktop-dark-es.webp",
+      "media_type": "image/webp",
+      "bytes": 65072,
+      "dimensions": { "width": 1600, "height": 1000 },
+      "pixel_format": "yuv420p",
+      "sha256": "60126320A6D30219FED7A88FC01FD888C1679FC394E294C61ABB5B0BC45B6C0D",
+      "language": "es",
+      "direction": "ltr",
+      "theme": "dark",
+      "viewport": "desktop",
+      "source": {
+        "run_id": "release-2.12.3-clear-counting-es-20260827",
+        "artifact": "today-desktop-dark-es.png",
+        "captured_at": "2026-08-27T04:31:52.774Z",
+        "viewport": { "width": 1440, "height": 900 },
+        "dimensions": { "width": 2880, "height": 1800 },
+        "bytes": 2067634,
+        "sha256": "2D047D3C0F446788638B0FC5670E4246BE27DB35C13D3E40B1A84A69B43430A7"
+      },
+      "alt": "Spanish dark-theme Today dashboard for the generic Learner profile, featuring שתיים, shtayim, dos and two steaming coffee cups."
+    },
+    {
+      "file": "today-desktop-dark-he.webp",
+      "media_type": "image/webp",
+      "bytes": 73700,
+      "dimensions": { "width": 1600, "height": 1000 },
+      "pixel_format": "yuv420p",
+      "sha256": "061FEEA923F320135DEA2886FEE5BF8513E3213B445F182458FD18745B8C569F",
+      "language": "he",
+      "direction": "rtl",
+      "theme": "dark",
+      "viewport": "desktop",
+      "source": {
+        "run_id": "release-2.12.3-clear-counting-he-20260827",
+        "artifact": "today-desktop-dark-he.png",
+        "captured_at": "2026-08-27T04:32:31.890Z",
+        "viewport": { "width": 1440, "height": 900 },
+        "dimensions": { "width": 2880, "height": 1800 },
+        "bytes": 2255518,
+        "sha256": "5016C6A0868FA3777FB12C9252712881B1DE8B9B911487B9BB99ED066BCBC812"
+      },
+      "alt": "Hebrew RTL dark-theme Today dashboard with mirrored navigation and a two-coffee-cup שתיים learning card."
+    },
+    {
+      "file": "today-phone-light-es.webp",
+      "media_type": "image/webp",
+      "bytes": 59112,
+      "dimensions": { "width": 720, "height": 1466 },
+      "pixel_format": "yuv420p",
+      "sha256": "7CE5714F08B26FB633FDB8304C32FD7A11506C70575C53CD03F71F3A06E36837",
+      "language": "es",
+      "direction": "ltr",
+      "theme": "light",
+      "viewport": "phone",
+      "source": {
+        "run_id": "release-2.12.3-clear-counting-es-20260827",
+        "artifact": "today-phone-light-es.png",
+        "captured_at": "2026-08-27T04:32:21.523Z",
+        "viewport": { "width": 412, "height": 839 },
+        "dimensions": { "width": 1082, "height": 2202 },
+        "bytes": 1261775,
+        "sha256": "EECAC9324CC5318BC298B0650105CC000397C66304D41B2D9591DD1348AE85B6"
+      },
+      "alt": "Spanish light-theme mobile Today dashboard with the two-cup שתיים card, first-lesson action and bottom navigation."
+    },
+    {
+      "file": "ivrit-sheli-tour.gif",
+      "media_type": "image/gif",
+      "bytes": 615984,
+      "dimensions": { "width": 960, "height": 600 },
+      "frame_count": 40,
+      "duration_seconds": 7.9,
+      "frames_per_second": 5,
+      "loop_policy": "no-loop",
+      "sha256": "F39A4CE7C4091DB4197E44E08A326C4BD1F7E69C2DC5D1B7CF0D88618EE90FE8",
+      "source_assets": [
+        "today-desktop-dark-es.webp",
+        "alphabet-desktop-light-es.webp",
+        "dictionary-desktop-dark-es.webp",
+        "today-desktop-dark-he.webp"
+      ],
+      "motion_review": "Plays once, contains no flashing or strobing, and uses four two-second views.",
+      "alt": "Eight-second non-looping Ivrit Sheli tour showing the Spanish two-cup Today dashboard, Alphabet Studio, linked dictionary and Hebrew RTL Today dashboard."
+    }
+  ]
+}

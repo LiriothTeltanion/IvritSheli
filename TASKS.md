@@ -1,8 +1,9 @@
 # Ivrit Sheli — Tasks & Operational Roadmap
 
-**Current Version:** `2.12.2 — Visual Harmony & Resilience`
+**Current Version:** `2.12.3 — Clear Counting` (private candidate)
 **Baseline Branch:** `main`
-**State:** Published GitHub source release; no verified deployment or durable hosted demo
+**State:** Unpublished local candidate; `v2.12.2` remains the latest published
+GitHub source release; no verified deployment or durable hosted demo
 **Public Contest Boundary:** The contest freeze **expired on 2026-08-25**. The
 latest published source release is **v2.12.2 (2026-08-27)** on `main`. The former
 2.4.0 hosted service is currently offline. Deployment remains a separate
@@ -10,7 +11,7 @@ decision that only Kevin can authorize, per `AGENTS.md` hard rule 1.
 
 ---
 
-## 🌐 Hosting status — checked 2026-08-26
+## 🌐 Hosting status — updated 2026-08-27
 
 No durable hosted demo is currently verified. A Cloudflare Quick Tunnel briefly
 exposed the Docker/PostgreSQL runtime for diagnostics at 19:30 Asia/Jerusalem;
@@ -18,10 +19,17 @@ the random hostname is intentionally omitted and must not be treated as a
 product URL. That session observed `/health/ready` 200 with PostgreSQL plus CSP
 and HSTS, but it did not prove a durable deployment or exact-current source.
 
-- [ ] Select a future host only through a current provider/cost decision brief.
+- [x] Prepare a local Render Free Blueprint for the `2.12.3` candidate without
+      creating a service or changing any provider setting.
+- [ ] After explicit approval, create an isolated Render Free HTTPS staging
+      service from an exact reviewed source revision. **No service and no URL
+      exist yet.**
 - [ ] Re-run the performance evidence with application and database co-located.
 - [ ] Configure and verify OAuth only in isolated HTTPS staging after Kevin
       authorizes the provider changes.
+- [ ] Before inviting testers: rotate the exposed Supabase administrator
+      password, prove the restricted runtime-role check, rehearse
+      backup/restore, and verify two-real-account isolation.
 - [ ] Keep the read-only demo honest whenever sign-in is unavailable.
 
 ## 🎯 Active Status & Quick Server Guide
@@ -66,7 +74,56 @@ otro panel, qué sigue siendo cierto y qué ya no. Empieza siempre por ahí.
 
 ## 📋 Master Task Tracker
 
-### ✅ Completed Tasks (v2.12.2 & Recent Sessions)
+### ✅ Completed Tasks (2.12.3 candidate & recent sessions)
+
+- [x] **Clear Counting product correction and README proof — 2026-08-27
+      (private candidate; not published)**:
+  - `numbers.one` now uses one coffee cup, the numeral `1` and one count dot;
+    there is no hand or isolated finger in the semantic scene.
+  - The reviewed visual catalogue remains **240/240 exact scenes**.
+  - Today was recaptured naturally on `שתיים` / *shtayim* / *dos*: Spanish
+    desktop, Hebrew/RTL desktop and mobile all show two cups.
+  - `assets/readme/proof/2.12.3` contains five WebP images, one non-looping GIF
+    and a hash/provenance manifest. Full-size, GitHub-scale, privacy and
+    grayscale reviews passed; two independent derivative passes were
+    byte-identical.
+  - A fresh FastAPI `2.12.3` runtime passed the bounded Playwright smoke:
+    **2 passed / 0 failed in 3.8 s**. Capture produced **12 Spanish artifacts /
+    0 errors** and **1 Hebrew artifact / 0 errors**.
+  - The first launcher attempt stopped before Playwright because the launcher
+    PID did not match the listener child. Direct-child provenance resolved it;
+    this is **not** recorded as a Playwright failure.
+  - Complete local candidate gates passed: **859 frontend**, **387 backend**
+    with one credential-gated PostgreSQL skip, TypeScript, production build,
+    Ruff, strict MyPy, 7/7 offline doctor, four capture-contract tests and
+    dependency audits with zero known vulnerabilities.
+  - Fresh FastAPI/CSP matrix: **36 passed / 40 intentional project-scoped skips
+    / 0 failed** across 76 listed cases in 4.5 minutes; port 8200 was clean after
+    exact process-tree teardown.
+  - Docker image build and an ephemeral SQLite smoke passed: 2.12.3/ready,
+    non-root PID 1 at UID/GID 10001, migration credential absent and port 8300
+    clean after teardown.
+  - [x] Explicitly staged the exact package, regenerated 571 canonical Git-index
+        checksums and passed the verifier across 230 required files plus all
+        packaged assets; 17 historical PNG candidates stayed outside the index.
+  - [ ] Run current PostgreSQL plus no-cache production-shaped container
+        evidence before calling `2.12.3` release-ready.
+
+- [x] **Local Playwright stale-bundle diagnosis and fail-fast hardening —
+      2026-08-27 (not yet published)**:
+  - Retained trace proved the apparent hang was sequential 30 s test timeouts:
+    cached HTML referenced a deleted Vite entry bundle and React never mounted.
+  - Backend index cache now includes file revision; a regression replaces the
+    index under a live app; a Playwright setup dependency verifies entry assets.
+  - Repaired FastAPI/CSP smoke: 4 passed / 1 intentional project skip in 11.5 s.
+  - First green matrix: 36 passed / 40 intentional project skips / 0 failed
+    across 76 listed cases in 4.5 minutes. Later port inspection proved it used
+    an inherited 2026-08-26 backend listener, so it is retained only as
+    current-frontend evidence, not exact-backend/cache-fix proof.
+  - After exact-PID cleanup, the fresh worktree process passed discovery, a
+    4-pass/1-skip smoke in 9.2 s, and the full 36-pass/40-intentional-skip matrix
+    in 3.9 minutes with zero failures. Exact teardown left port 8000 clean.
+  - Runbook: [`docs/PLAYWRIGHT_RUNBOOK.md`](docs/PLAYWRIGHT_RUNBOOK.md).
 
 - [x] **Formal 2.12.2 browser matrix on the real served path — 2026-08-27**:
   - FastAPI port 8000 with the production bundle and CSP, not Vite-only proof.
@@ -146,6 +203,18 @@ otro panel, qué sigue siendo cierto y qué ya no. Empieza siempre por ahí.
       cancel-and-restart only, and speech outlived the screen.
 
 ### ⏳ Current & Upcoming Tasks
+
+- [ ] **Create Render Free staging only after Kevin explicitly authorizes the
+      external deployment action**:
+  - `render.yaml` is prepared locally for a free service; it is configuration,
+    not proof that a service or public URL exists.
+  - Pin deployment to the exact reviewed source revision; do not deploy a dirty
+    worktree or silently redeploy published `v2.12.2`.
+  - Keep `MIGRATION_DATABASE_URL` out of the application and provide only the
+    restricted `ivrit_sheli_runtime` database URL.
+  - Then configure the exact Google OAuth callback/origin, run readiness and
+    two-real-account isolation, and prove backup/restore before inviting Kevin's
+    mother or friends.
 
 - [ ] **Railway is down because the trial expired — Kevin's decision, not a repair**:
   - **Measured in the dashboard on 2026-08-26.** The banner reads *Trial
@@ -397,8 +466,8 @@ otro panel, qué sigue siendo cierto y qué ya no. Empieza siempre por ahí.
     Until then use the `backend-local` launch profile.
   - Rotate the superuser password exposed on 2026-08-23.
 - [x] **Current staged-index checksum gate — DONE 2026-08-27** — regenerated
-      555 canonical Git-index checksums only after explicit staging;
-      `scripts/verify_package.py` passed 217 required files and all packaged
+      571 canonical Git-index checksums only after explicit staging;
+      `scripts/verify_package.py` passed 230 required files and all packaged
       assets.
 - [x] **Avatar weight**: 15 photographic avatars are now ~127 KB total as .webp thumbnails with `loading="lazy"` and `decoding="async"`.
 - [x] **`app-icon.svg` — DONE 2026-08-24**:

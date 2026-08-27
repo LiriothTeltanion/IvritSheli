@@ -95,6 +95,35 @@ def test_local_only_launcher_marker_overrides_cloud_credentials(tmp_path: Path) 
     assert settings.auth_providers == ()
 
 
+def test_build_commit_uses_explicit_then_railway_then_render_fallbacks(
+    tmp_path: Path,
+) -> None:
+    base = {
+        "IVRIT_LOCAL_ONLY": "true",
+        "APP_DATA_DIR": str(tmp_path / "build-identity"),
+        "BUILD_COMMIT": "",
+        "RAILWAY_GIT_COMMIT_SHA": "",
+        "RENDER_GIT_COMMIT": "render-commit-sha",
+    }
+    assert Settings.from_env(base).build_commit == "render-commit-sha"
+    assert (
+        Settings.from_env(
+            {**base, "RAILWAY_GIT_COMMIT_SHA": "railway-commit-sha"}
+        ).build_commit
+        == "railway-commit-sha"
+    )
+    assert (
+        Settings.from_env(
+            {
+                **base,
+                "BUILD_COMMIT": "explicit-build-label",
+                "RAILWAY_GIT_COMMIT_SHA": "railway-commit-sha",
+            }
+        ).build_commit
+        == "explicit-build-label"
+    )
+
+
 def test_development_local_companion_requires_an_exact_loopback_origin(
     tmp_path: Path,
 ) -> None:

@@ -14,7 +14,10 @@ import json
 import re
 import subprocess
 import sys
+from datetime import date
+from ipaddress import ip_address
 from pathlib import Path, PurePosixPath
+from urllib.parse import urlsplit
 from xml.etree import ElementTree
 
 try:
@@ -23,6 +26,9 @@ except ModuleNotFoundError:  # pragma: no cover - Python 3.10 CI uses the pinned
     import tomli as tomllib
 
 ROOT = Path(__file__).resolve().parents[1]
+SEMANTIC_VERSION_PATTERN = re.compile(r"\d+\.\d+\.\d+")
+SOURCE_STATUSES = frozenset({"private-candidate", "published-source-release"})
+DURABLE_DEMO_STATUSES = frozenset({"unavailable", "staging-verified", "verified-live"})
 
 
 def source_version() -> str:
@@ -32,9 +38,58 @@ def source_version() -> str:
         version = package.get("project", {}).get("version")
     except (OSError, tomllib.TOMLDecodeError) as error:
         raise RuntimeError(f"cannot read source version: {error}") from error
-    if not isinstance(version, str) or not re.fullmatch(r"\d+\.\d+\.\d+", version):
+    if not isinstance(version, str) or SEMANTIC_VERSION_PATTERN.fullmatch(version) is None:
         raise RuntimeError(f"invalid backend project version: {version!r}")
     return version
+
+
+def _semantic_version_tuple(value: object, *, prefix: str = "") -> tuple[int, int, int] | None:
+    """Return a comparable semantic-version tuple for strict public metadata."""
+    if not isinstance(value, str):
+        return None
+    candidate = value.removeprefix(prefix) if prefix else value
+    if SEMANTIC_VERSION_PATTERN.fullmatch(candidate) is None:
+        return None
+    return tuple(int(part) for part in candidate.split("."))  # type: ignore[return-value]
+
+
+def _is_iso_date(value: object) -> bool:
+    """Return whether a manifest value is an exact ISO calendar date."""
+    if not isinstance(value, str):
+        return False
+    try:
+        return date.fromisoformat(value).isoformat() == value
+    except ValueError:
+        return False
+
+
+def _is_public_https_url(value: object) -> bool:
+    """Accept a public-looking HTTPS origin; availability still needs a live probe."""
+    if not isinstance(value, str):
+        return False
+    parsed = urlsplit(value)
+    hostname = parsed.hostname
+    if not (
+        parsed.scheme == "https"
+        and hostname
+        and parsed.username is None
+        and parsed.password is None
+        and parsed.path in {"", "/"}
+        and not parsed.query
+        and not parsed.fragment
+    ):
+        return False
+    try:
+        return ip_address(hostname).is_global
+    except ValueError:
+        public_hostname = hostname.rstrip(".")
+        return bool(
+            re.fullmatch(
+                r"(?=.{1,253}$)(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+"
+                r"[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?",
+                public_hostname,
+            )
+        )
 
 REQUIRED_FILES = (
     "README.md",
@@ -60,6 +115,7 @@ REQUIRED_FILES = (
     "railway.toml",
     "railway-staging.toml",
     "railway-reminders.toml",
+    "render.yaml",
     "backend/pyproject.toml",
     "backend/alembic.ini",
     "backend/migrations/versions/20260716_0001_cloud_identity_and_state.py",
@@ -105,6 +161,7 @@ REQUIRED_FILES = (
     "frontend/playwright.config.ts",
     "frontend/e2e/experience.spec.ts",
     "frontend/e2e/fixtures.ts",
+    "frontend/e2e/runtime.setup.ts",
     "frontend/src/App.tsx",
     "frontend/src/components/AuthGate.tsx",
     "frontend/src/components/AuthGate.test.tsx",
@@ -144,6 +201,7 @@ REQUIRED_FILES = (
     "frontend/src/components/semantic-scenes/FamilyRelationshipScenes.tsx",
     "frontend/src/components/semantic-scenes/FoodHomeScenes.tsx",
     "frontend/src/components/semantic-scenes/GreetingTimeScenes.tsx",
+    "frontend/src/components/semantic-scenes/NumberScenes.tsx",
     "frontend/src/components/semantic-scenes/SemanticScenePrimitives.tsx",
     "frontend/src/components/VisualQAGallery.tsx",
     "frontend/src/components/VisualQAGallery.test.tsx",
@@ -234,10 +292,19 @@ REQUIRED_FILES = (
     "docs/DEPLOYMENT.md",
     "docs/USER_GUIDE.md",
     "docs/DEMO_DAY.md",
+    "docs/PLAYWRIGHT_RUNBOOK.md",
+    "docs/candidates/v2.12.3.md",
     "docs/BUILD_WEEK.md",
     "assets/brand/wordmark-nocturne.svg",
     "assets/brand/kc-lt-signature.svg",
     "assets/readme/cloud-architecture.svg",
+    "assets/readme/proof/2.12.3/manifest.json",
+    "assets/readme/proof/2.12.3/alphabet-desktop-light-es.webp",
+    "assets/readme/proof/2.12.3/dictionary-desktop-dark-es.webp",
+    "assets/readme/proof/2.12.3/today-desktop-dark-es.webp",
+    "assets/readme/proof/2.12.3/today-desktop-dark-he.webp",
+    "assets/readme/proof/2.12.3/today-phone-light-es.webp",
+    "assets/readme/proof/2.12.3/ivrit-sheli-tour.gif",
     "assets/readme/ivrit-sheli-2-dashboard.png",
     "assets/readme/ivrit-sheli-2-mobile.png",
     "assets/readme/ivrit-sheli-2-hebrew-rtl.png",
@@ -254,6 +321,7 @@ REQUIRED_FILES = (
     "scripts/build_release_archive.py",
     "scripts/export_pwa_starter_content.py",
     "scripts/verify_container_logs.py",
+    "frontend/public/notes/CANDIDATE_2.12.3.md",
 )
 
 PUBLIC_REGION_ART = (
@@ -324,11 +392,115 @@ def verify_json_files() -> list[str]:
         "frontend/public/manifest.webmanifest",
         "frontend/public/content/starter-dictionary-v2.8.json",
         "portfolio/project.json",
+        "assets/readme/proof/2.12.3/manifest.json",
     ):
         try:
             json.loads((ROOT / relative).read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError) as error:
             failures.append(f"{relative}: {error}")
+    return failures
+
+
+def verify_readme_visual_proof() -> list[str]:
+    """Bind the README's current visual proof to its reviewed bytes and truth state."""
+    try:
+        current_version = source_version()
+        portfolio = json.loads(
+            (ROOT / "portfolio" / "project.json").read_text(encoding="utf-8")
+        )
+        manifest_path = (
+            ROOT / "assets" / "readme" / "proof" / current_version / "manifest.json"
+        )
+        manifest_text = manifest_path.read_text(encoding="utf-8")
+        manifest = json.loads(manifest_text)
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    except (OSError, json.JSONDecodeError, RuntimeError) as error:
+        return [f"current README visual proof could not be read: {error}"]
+
+    failures: list[str] = []
+    source_status = portfolio.get("source_status")
+    expected_publication = (
+        "private-candidate"
+        if source_status == "private-candidate"
+        else "published-source-release"
+    )
+    expected_scalars = {
+        "schema_version": 3,
+        "source_version": current_version,
+        "publication_status": expected_publication,
+        "latest_published_release": portfolio.get("latest_published_release"),
+        "status": "approved_for_readme_use",
+        "asset_count": 6,
+    }
+    for key, expected in expected_scalars.items():
+        if manifest.get(key) != expected:
+            failures.append(
+                f"{manifest_path.relative_to(ROOT).as_posix()}: {key} must be {expected!r}"
+            )
+
+    if re.search(r"[A-Za-z]:[\\/]", manifest_text):
+        failures.append("current README visual proof leaks an absolute Windows path")
+
+    expected_files = {
+        "alphabet-desktop-light-es.webp",
+        "dictionary-desktop-dark-es.webp",
+        "today-desktop-dark-es.webp",
+        "today-desktop-dark-he.webp",
+        "today-phone-light-es.webp",
+        "ivrit-sheli-tour.gif",
+    }
+    assets = manifest.get("assets")
+    if not isinstance(assets, list):
+        return failures + ["current README visual proof assets must be a list"]
+    names = [asset.get("file") for asset in assets if isinstance(asset, dict)]
+    if len(assets) != len(expected_files) or set(names) != expected_files:
+        failures.append("current README visual proof must list the exact six reviewed assets")
+    if len(names) != len(set(names)):
+        failures.append("current README visual proof contains duplicate asset names")
+
+    proof_root = manifest_path.parent
+    for asset in assets:
+        if not isinstance(asset, dict):
+            failures.append("current README visual proof contains a non-object asset")
+            continue
+        name = asset.get("file")
+        digest = asset.get("sha256")
+        byte_count = asset.get("bytes")
+        alt = asset.get("alt")
+        dimensions = asset.get("dimensions")
+        if name not in expected_files:
+            continue
+        if not isinstance(digest, str) or re.fullmatch(r"[0-9A-F]{64}", digest) is None:
+            failures.append(f"current README visual proof has an invalid digest for {name}")
+            continue
+        path = proof_root / name
+        try:
+            payload = path.read_bytes()
+        except OSError as error:
+            failures.append(f"current README visual proof cannot read {name}: {error}")
+            continue
+        if hashlib.sha256(payload).hexdigest().upper() != digest:
+            failures.append(f"current README visual proof digest mismatch for {name}")
+        if not isinstance(byte_count, int) or byte_count != len(payload):
+            failures.append(f"current README visual proof byte count mismatch for {name}")
+        if (
+            not isinstance(dimensions, dict)
+            or not isinstance(dimensions.get("width"), int)
+            or not isinstance(dimensions.get("height"), int)
+            or dimensions["width"] <= 0
+            or dimensions["height"] <= 0
+        ):
+            failures.append(f"current README visual proof dimensions are invalid for {name}")
+        if not isinstance(alt, str) or not alt.strip():
+            failures.append(f"current README visual proof alt text is missing for {name}")
+        readme_path = f"assets/readme/proof/{current_version}/{name}"
+        if readme_path not in readme:
+            failures.append(f"README.md does not reference reviewed proof asset {readme_path}")
+        if name.endswith(".gif"):
+            if asset.get("loop_policy") != "no-loop":
+                failures.append("current README tour GIF must declare no-loop")
+            if b"NETSCAPE2.0" in payload or b"ANIMEXTS1.0" in payload:
+                failures.append("current README tour GIF contains a looping extension")
     return failures
 
 
@@ -379,8 +551,6 @@ def verify_portfolio_manifest() -> list[str]:
         "slug": "ivrit-sheli",
         "name": "Ivrit Sheli — העברית שלי",
         "source_version": current_version,
-        "source_status": "published-source-release",
-        "latest_published_release": f"v{current_version}",
         "default_branch": "main",
         "repository_url": "https://github.com/LiriothTeltanion/IvritSheli",
     }
@@ -390,25 +560,73 @@ def verify_portfolio_manifest() -> list[str]:
                 f"portfolio/project.json: {key} must be {expected!r}, got {top_level.get(key)!r}"
             )
 
+    source_status = top_level.get("source_status")
+    if source_status not in SOURCE_STATUSES:
+        failures.append(
+            "portfolio/project.json: source_status must be private-candidate or "
+            "published-source-release"
+        )
+    latest_published_release = top_level.get("latest_published_release")
+    latest_version_tuple = _semantic_version_tuple(latest_published_release, prefix="v")
+    current_version_tuple = _semantic_version_tuple(current_version)
+    if latest_version_tuple is None:
+        failures.append(
+            "portfolio/project.json: latest_published_release must be a v-prefixed semantic version"
+        )
+    elif source_status == "published-source-release" and latest_published_release != f"v{current_version}":
+        failures.append(
+            "portfolio/project.json: a published source version must equal latest_published_release"
+        )
+    elif (
+        source_status == "private-candidate"
+        and current_version_tuple is not None
+        and latest_version_tuple >= current_version_tuple
+    ):
+        failures.append(
+            "portfolio/project.json: a private candidate must be newer than latest_published_release"
+        )
+
     durable_demo, nested = _verify_exact_keys(
         top_level.get("durable_demo"),
         {"url", "status", "provider", "last_checked_on", "boundary"},
         "durable_demo",
     )
     failures.extend(nested)
+    demo_status: object = None
+    demo_available = False
     if durable_demo is not None:
-        expected_demo_state = {
-            "url": None,
-            "status": "unavailable",
-            "provider": None,
-            "last_checked_on": "2026-08-26",
-        }
-        for key, expected in expected_demo_state.items():
-            if durable_demo.get(key) != expected:
+        demo_status = durable_demo.get("status")
+        if demo_status not in DURABLE_DEMO_STATUSES:
+            failures.append(
+                "portfolio/project.json: durable_demo.status must be unavailable, "
+                "staging-verified, or verified-live"
+            )
+        demo_available = demo_status in {"staging-verified", "verified-live"}
+        demo_url = durable_demo.get("url")
+        demo_provider = durable_demo.get("provider")
+        if demo_status == "unavailable":
+            if demo_url is not None:
                 failures.append(
-                    "portfolio/project.json: durable_demo."
-                    f"{key} must be {expected!r}, got {durable_demo.get(key)!r}"
+                    "portfolio/project.json: durable_demo.url must be null while the demo is unavailable"
                 )
+            if demo_provider is not None:
+                failures.append(
+                    "portfolio/project.json: durable_demo.provider must be null while the demo is unavailable"
+                )
+        elif demo_available:
+            if not _is_public_https_url(demo_url):
+                failures.append(
+                    "portfolio/project.json: a verified durable demo requires a public HTTPS URL "
+                    "without credentials, query parameters, or fragments"
+                )
+            if not isinstance(demo_provider, str) or not demo_provider.strip():
+                failures.append(
+                    "portfolio/project.json: a verified durable demo requires a named provider"
+                )
+        if not _is_iso_date(durable_demo.get("last_checked_on")):
+            failures.append(
+                "portfolio/project.json: durable_demo.last_checked_on must be an ISO calendar date"
+            )
         boundary = durable_demo.get("boundary")
         if not isinstance(boundary, str) or len(boundary.strip()) < 100:
             failures.append(
@@ -424,6 +642,20 @@ def verify_portfolio_manifest() -> list[str]:
     summary = top_level.get("summary")
     if not isinstance(summary, str) or not 80 <= len(summary) <= 300:
         failures.append("portfolio/project.json: summary must contain 80-300 public characters")
+    elif current_version not in summary:
+        failures.append("portfolio/project.json: summary must identify the current source version")
+    elif source_status == "private-candidate" and "private" not in summary.lower():
+        failures.append("portfolio/project.json: summary must identify a private candidate as private")
+    if (
+        isinstance(summary, str)
+        and demo_status == "unavailable"
+        and not re.search(r"(?:no|unavailable|not)[^.]{0,100}durable hosted demo", summary, re.IGNORECASE)
+    ):
+        failures.append("portfolio/project.json: summary must disclose that no durable hosted demo is verified")
+    if isinstance(summary, str) and demo_status == "staging-verified" and "staging" not in summary.lower():
+        failures.append("portfolio/project.json: summary must identify a verified staging demo as staging")
+    if isinstance(summary, str) and demo_status == "verified-live" and "live demo" not in summary.lower():
+        failures.append("portfolio/project.json: summary must identify a verified live demo as live")
     if top_level.get("languages") != ["en", "es", "he"]:
         failures.append("portfolio/project.json: languages must be ['en', 'es', 'he']")
     expected_standard_stack = [
@@ -452,23 +684,49 @@ def verify_portfolio_manifest() -> list[str]:
         "tests",
     )
     failures.extend(nested)
-    expected_tests = {
-        "version": current_version,
-        "scope": "published-source-release-local-verification",
-        "backend_unique": 363,
-        "frontend": 858,
-        "frontend_files": 49,
-        "total_unique": 1221,
-        "ordinary_backend_passed": 363,
-        "ordinary_backend_skipped": 1,
-        "postgresql_gate_passed": 0,
-        "evidence": "TEST_REPORT.md",
-    }
-    if tests is not None and tests != expected_tests:
-        failures.append(
-            "portfolio/project.json: tests must describe the current published "
-            "source release without relabeling historical hosting evidence"
-        )
+    if tests is not None:
+        expected_test_scope = f"{source_status}-local-verification"
+        if tests.get("version") != current_version:
+            failures.append("portfolio/project.json: tests.version must equal source_version")
+        if tests.get("scope") != expected_test_scope:
+            failures.append(
+                f"portfolio/project.json: tests.scope must be {expected_test_scope!r}"
+            )
+        for key in (
+            "backend_unique",
+            "frontend",
+            "frontend_files",
+            "total_unique",
+            "ordinary_backend_passed",
+            "ordinary_backend_skipped",
+            "postgresql_gate_passed",
+        ):
+            value = tests.get(key)
+            if type(value) is not int or value < 0:
+                failures.append(f"portfolio/project.json: tests.{key} must be a non-negative integer")
+        backend_unique = tests.get("backend_unique")
+        frontend = tests.get("frontend")
+        total_unique = tests.get("total_unique")
+        ordinary_backend_passed = tests.get("ordinary_backend_passed")
+        if (
+            type(backend_unique) is int
+            and type(frontend) is int
+            and type(total_unique) is int
+            and total_unique != backend_unique + frontend
+        ):
+            failures.append(
+                "portfolio/project.json: tests.total_unique must equal backend_unique + frontend"
+            )
+        if (
+            type(backend_unique) is int
+            and type(ordinary_backend_passed) is int
+            and ordinary_backend_passed != backend_unique
+        ):
+            failures.append(
+                "portfolio/project.json: tests.ordinary_backend_passed must equal backend_unique"
+            )
+        if tests.get("evidence") != "TEST_REPORT.md":
+            failures.append("portfolio/project.json: tests.evidence must be 'TEST_REPORT.md'")
 
     historical_deployment, nested = _verify_exact_keys(
         top_level.get("historical_deployment"),
@@ -513,18 +771,34 @@ def verify_portfolio_manifest() -> list[str]:
         "publication",
     )
     failures.extend(nested)
-    expected_publication = {
-        "latest_git_tag": f"v{current_version}",
-        "latest_github_release": f"v{current_version}",
-        "source_version_tagged": True,
-        "source_version_github_release_published": True,
-        "release_state": f"{current_version}-published-source-release-no-durable-demo",
-    }
-    if publication is not None and publication != expected_publication:
-        failures.append(
-            "portfolio/project.json: publication must identify the current GitHub source "
-            "release without claiming a durable hosted demo"
+    if publication is not None:
+        source_is_published = source_status == "published-source-release"
+        expected_demo_suffix = {
+            "unavailable": "no-durable-demo",
+            "staging-verified": "staging-verified",
+            "verified-live": "verified-live-demo",
+        }.get(demo_status)
+        for key in ("latest_git_tag", "latest_github_release"):
+            if publication.get(key) != latest_published_release:
+                failures.append(
+                    f"portfolio/project.json: publication.{key} must equal latest_published_release"
+                )
+        for key in ("source_version_tagged", "source_version_github_release_published"):
+            if publication.get(key) is not source_is_published:
+                failures.append(
+                    f"portfolio/project.json: publication.{key} must be {source_is_published!r} "
+                    f"for source_status {source_status!r}"
+                )
+        expected_release_state = (
+            f"{current_version}-{source_status}-{expected_demo_suffix}"
+            if source_status in SOURCE_STATUSES and expected_demo_suffix is not None
+            else None
         )
+        if publication.get("release_state") != expected_release_state:
+            failures.append(
+                "portfolio/project.json: publication.release_state must match the current "
+                "source, publication, and durable-demo states"
+            )
 
     candidate, nested = _verify_exact_keys(
         top_level.get("candidate"),
@@ -539,7 +813,7 @@ def verify_portfolio_manifest() -> list[str]:
     if candidate is not None:
         fixed_expected = {
             "version": current_version,
-            "published": True,
+            "published": source_status == "published-source-release",
             "coverage": "Structured A0-A2 with an explicitly experimental B1/B2 Lab",
             "reviewed_concepts": 240,
             "learner_experiences": ["Guided", "Explorer", "Experienced"],
@@ -568,6 +842,9 @@ def verify_portfolio_manifest() -> list[str]:
             value = candidate.get(key)
             if not isinstance(value, str) or len(value.strip()) < 60:
                 failures.append(f"portfolio/project.json: candidate.{key} must preserve a meaningful evidence boundary")
+        verification = candidate.get("verification")
+        if isinstance(verification, str) and current_version not in verification:
+            failures.append("portfolio/project.json: candidate.verification must identify the current source version")
 
     visual_proof, nested = _verify_exact_keys(
         top_level.get("visual_proof"),
@@ -577,8 +854,21 @@ def verify_portfolio_manifest() -> list[str]:
     )
     failures.extend(nested)
     if visual_proof is not None:
-        if "240" not in str(visual_proof.get("state", "")):
+        visual_state = str(visual_proof.get("state", ""))
+        if "240" not in visual_state:
             failures.append("portfolio/project.json: visual_proof.state must record 240 exact semantic scenes")
+        if current_version not in visual_state:
+            failures.append("portfolio/project.json: visual_proof.state must identify the current source version")
+        expected_social_preview_version = (
+            latest_published_release.removeprefix("v")
+            if isinstance(latest_published_release, str)
+            else None
+        )
+        if visual_proof.get("social_preview_version") != expected_social_preview_version:
+            failures.append(
+                "portfolio/project.json: visual_proof.social_preview_version must identify "
+                "the latest published release"
+            )
         screenshot_status = visual_proof.get("readme_screenshot_status")
         if screenshot_status not in {"historical", "candidate", "verified-current"}:
             failures.append(
@@ -586,9 +876,8 @@ def verify_portfolio_manifest() -> list[str]:
                 "historical, candidate, or verified-current"
             )
         screenshot_version = visual_proof.get("readme_screenshot_source_version")
-        if not isinstance(screenshot_version, str) or not re.fullmatch(
-            r"\d+\.\d+\.\d+", screenshot_version
-        ):
+        screenshot_version_tuple = _semantic_version_tuple(screenshot_version)
+        if screenshot_version_tuple is None:
             failures.append(
                 "portfolio/project.json: visual_proof.readme_screenshot_source_version "
                 "must be a semantic version"
@@ -596,6 +885,14 @@ def verify_portfolio_manifest() -> list[str]:
         elif screenshot_status in {"candidate", "verified-current"} and screenshot_version != current_version:
             failures.append(
                 "portfolio/project.json: current screenshot evidence must name the current source version"
+            )
+        elif (
+            screenshot_status == "historical"
+            and current_version_tuple is not None
+            and screenshot_version_tuple >= current_version_tuple
+        ):
+            failures.append(
+                "portfolio/project.json: historical screenshot evidence must predate the current source version"
             )
         if "240" not in str(visual_proof.get("interactive_browser_qa", "")):
             failures.append("portfolio/project.json: visual QA boundary must mention the 240-scene candidate")
@@ -650,7 +947,7 @@ def verify_portfolio_manifest() -> list[str]:
     expected_privacy = {
         "local_first": True, "demo_data_contract": "synthetic",
         "demo_mutation_contract": "server-blocked",
-        "durable_demo_currently_available": False,
+        "durable_demo_currently_available": demo_available,
         "self_service_export_in_source": True, "self_service_deletion_in_source": True,
         "contains_secrets": False,
     }
@@ -659,68 +956,164 @@ def verify_portfolio_manifest() -> list[str]:
     return failures
 
 
-def _verify_readme_release_truth(readme: str, current_version: str) -> list[str]:
-    """Validate README wording without treating historical hosting as current availability."""
+def _verify_readme_release_truth(
+    readme: str,
+    current_version: str,
+    *,
+    source_status: str,
+    latest_published_release: str,
+    durable_demo_status: str,
+    durable_demo_url: str | None,
+) -> list[str]:
+    """Validate README wording against explicit source-publication and hosting states."""
     failures: list[str] = []
     for fragment in (f"Ivrit Sheli {current_version}", "240"):
         if fragment not in readme:
             failures.append(f"README.md: missing release-truth fragment {fragment!r}")
 
+    current = re.escape(current_version)
+    latest = re.escape(latest_published_release)
+    if source_status == "private-candidate":
+        source_boundary = (
+            "private candidate",
+            re.compile(
+                rf"(?=[^\n]*\bprivate\b)(?=[^\n]*\bcandidate\b)(?=[^\n]*{current})[^\n]+",
+                flags=re.IGNORECASE,
+            ),
+        )
+    else:
+        source_boundary = (
+            "published source release",
+            re.compile(
+                rf"(?:published|public)[^\n]{{0,100}}v?{current}[^\n]{{0,100}}source release"
+                rf"|(?:published|public)[^\n]{{0,100}}source release[^\n]{{0,100}}v?{current}"
+                rf"|v?{current}[^\n]{{0,100}}(?:published|public)[^\n]{{0,100}}source release"
+                rf"|v?{current}[^\n]{{0,100}}source release[^\n]{{0,100}}(?:published|public)",
+                flags=re.IGNORECASE,
+            ),
+        )
+
     truth_patterns = {
-        "published source release": re.compile(
-            rf"(?:published|public)[^\n]{{0,160}}(?:source release|v?{re.escape(current_version)})"
-            rf"|(?:source release|v?{re.escape(current_version)})[^\n]{{0,160}}(?:published|public)",
-            flags=re.IGNORECASE,
-        ),
-        f"v{current_version} as the latest published release": re.compile(
-            rf"latest published (?:release|version)[^\n]{{0,100}}v?{re.escape(current_version)}"
-            rf"|v?{re.escape(current_version)}[^\n]{{0,100}}latest published (?:release|version)",
-            flags=re.IGNORECASE,
-        ),
-        "no verified durable hosted demo": re.compile(
-            r"(?:no|without|unavailable|unverified)[^\n]{0,100}durable hosted demo"
-            r"|durable hosted demo[^\n]{0,100}(?:unavailable|unverified|not verified)",
+        source_boundary[0]: source_boundary[1],
+        f"{latest_published_release} as the latest published release": re.compile(
+            rf"latest published (?:release|version)[^\n]{{0,100}}{latest}"
+            rf"|{latest}[^\n]{{0,100}}latest published (?:release|version)",
             flags=re.IGNORECASE,
         ),
     }
+    if durable_demo_status == "unavailable":
+        truth_patterns["no verified durable hosted demo"] = re.compile(
+            r"(?:no|without|unavailable|unverified|not available)[^\n]{0,120}durable hosted demo"
+            r"|durable hosted demo[^\n]{0,120}(?:unavailable|unverified|not verified|not available)",
+            flags=re.IGNORECASE,
+        )
+    elif durable_demo_status == "staging-verified":
+        truth_patterns["verified HTTPS staging demo"] = re.compile(
+            r"(?:verified[^\n]{0,80}staging|staging[^\n]{0,80}verified)",
+            flags=re.IGNORECASE,
+        )
+    elif durable_demo_status == "verified-live":
+        truth_patterns["verified live demo"] = re.compile(
+            r"(?:verified[^\n]{0,80}live demo|live demo[^\n]{0,80}verified)",
+            flags=re.IGNORECASE,
+        )
     for boundary, pattern in truth_patterns.items():
         if pattern.search(readme) is None:
             failures.append(f"README.md: missing release-truth boundary for {boundary}")
 
-    forbidden = (
-        f"{current_version} is live",
-        f"{current_version} is deployed",
-        "Current public deployed application",
-        "Version 2.4.0 is live at",
-        "Railway production still reports",
-        "trycloudflare.com",
+    if durable_demo_status in {"staging-verified", "verified-live"}:
+        if not _is_public_https_url(durable_demo_url) or durable_demo_url not in readme:
+            failures.append("README.md: verified durable demo must include its exact public HTTPS URL")
+    elif durable_demo_status == "unavailable" and re.search(
+        r"(?:current public deployed application|current[^\n]{0,80}(?:is live|is deployed)|"
+        r"live app url[^\n]{0,80}https://)",
+        readme,
+        flags=re.IGNORECASE,
+    ):
+        failures.append("README.md: forbidden publication claim for an unavailable durable demo")
+
+    forbidden_patterns: tuple[tuple[str, re.Pattern[str]], ...] = (
+        (
+            f"{current_version} is live or deployed",
+            re.compile(rf"{current}[^\n]{{0,40}}\b(?:is live|is deployed)\b", re.IGNORECASE),
+        ),
+        (
+            "historical 2.4.0 presented as live",
+            re.compile(r"Version 2\.4\.0 is live at", re.IGNORECASE),
+        ),
+        (
+            "historical Railway production presented as current",
+            re.compile(r"Railway production still reports", re.IGNORECASE),
+        ),
+        (
+            "ephemeral trycloudflare URL",
+            re.compile(r"trycloudflare\.com", re.IGNORECASE),
+        ),
     )
-    for fragment in forbidden:
-        if fragment in readme:
-            failures.append(f"README.md: forbidden publication claim {fragment!r}")
+    for label, pattern in forbidden_patterns:
+        if pattern.search(readme) is not None:
+            failures.append(f"README.md: forbidden publication claim {label!r}")
+
+    if source_status == "private-candidate" and re.search(
+        rf"(?:published|public)[^\n]{{0,80}}v?{current}[^\n]{{0,80}}source release"
+        rf"|v?{current}\s+(?:is\s+|—\s+)?(?:the\s+)?(?:published|public)\s+source release"
+        rf"|published source release\s+(?:is\s+)?v?{current}"
+        rf"|releases/tag/v?{current}",
+        readme,
+        flags=re.IGNORECASE,
+    ):
+        failures.append(
+            f"README.md: forbidden publication claim for private candidate {current_version!r}"
+        )
     return failures
 
 
 def verify_release_truth_drift() -> list[str]:
-    """Keep source-release claims honest without rewriting historical evidence."""
+    """Keep candidate, source-release, and durable-host claims mutually consistent."""
     try:
         current_version = source_version()
-    except RuntimeError as error:
-        return [str(error)]
+        manifest = json.loads(
+            (ROOT / "portfolio" / "project.json").read_text(encoding="utf-8")
+        )
+    except (OSError, json.JSONDecodeError, RuntimeError) as error:
+        return [f"release truth metadata could not be read: {error}"]
+
+    source_status = manifest.get("source_status")
+    latest_published_release = manifest.get("latest_published_release")
+    durable_demo = manifest.get("durable_demo")
+    if source_status not in SOURCE_STATUSES:
+        return ["portfolio/project.json: source_status is invalid for release-truth verification"]
+    if not isinstance(latest_published_release, str):
+        return ["portfolio/project.json: latest_published_release is invalid for release-truth verification"]
+    if not isinstance(durable_demo, dict):
+        return ["portfolio/project.json: durable_demo is invalid for release-truth verification"]
+    durable_demo_status = durable_demo.get("status")
+    durable_demo_url = durable_demo.get("url")
+    if durable_demo_status not in DURABLE_DEMO_STATUSES:
+        return ["portfolio/project.json: durable_demo.status is invalid for release-truth verification"]
+    if durable_demo_url is not None and not isinstance(durable_demo_url, str):
+        return ["portfolio/project.json: durable_demo.url is invalid for release-truth verification"]
+
+    source_boundary = (
+        f"Current private candidate:** `{current_version}`"
+        if source_status == "private-candidate"
+        else f"Current published source release:** `{current_version}`"
+    )
+    latest_published_version = latest_published_release.removeprefix("v")
 
     expected_fragments = {
         "CHANGELOG.md": (
-            f"{current_version} — Visual Harmony & Resilience",
+            f"## {current_version}",
             "240/240",
             "2.4.0 — Contest Edition — 2026-07-21",
         ),
         "PACKAGE_MANIFEST.md": (
             f"Source version: `{current_version}`",
-            f"Latest published source release: `v{current_version}`",
+            f"Latest published source release: `{latest_published_release}`",
             "240",
         ),
         "TEST_REPORT.md": (
-            f"Current published source release:** `{current_version}`",
+            source_boundary,
             "2.10.0",
             "1,047",
             "2.4.0",
@@ -730,7 +1123,10 @@ def verify_release_truth_drift() -> list[str]:
         "docs/DESIGN_SYSTEM.md": ("240", "semantic"),
         "docs/USER_GUIDE.md": ("240",),
         "docs/VISUAL_BIBLE.md": ("240 reviewed concepts / 240 exact semantic scenes",),
-        "CITATION.cff": (f"version: {current_version}", f"source release v{current_version}"),
+        "CITATION.cff": (
+            f"version: {latest_published_version}",
+            f"source release {latest_published_release}",
+        ),
     }
     failures: list[str] = []
     for relative, fragments in expected_fragments.items():
@@ -748,13 +1144,35 @@ def verify_release_truth_drift() -> list[str]:
     except OSError as error:
         failures.append(f"README.md: {error}")
     else:
-        failures.extend(_verify_readme_release_truth(readme, current_version))
+        failures.extend(
+            _verify_readme_release_truth(
+                readme,
+                current_version,
+                source_status=source_status,
+                latest_published_release=latest_published_release,
+                durable_demo_status=durable_demo_status,
+                durable_demo_url=durable_demo_url,
+            )
+        )
 
-    # A source release must never be relabelled as a hosted production deployment.
+    # A candidate must not be relabelled as a source release, and neither state
+    # implies a hosted production deployment.
     forbidden = {
         "PACKAGE_MANIFEST.md": (f"v{current_version} is live",),
         "TEST_REPORT.md": (f"Current verified production:** `{current_version}`",),
     }
+    if source_status == "private-candidate":
+        forbidden["PACKAGE_MANIFEST.md"] += (
+            f"Latest published source release: `v{current_version}`",
+            f"published GitHub source release for `{current_version}`",
+        )
+        forbidden["TEST_REPORT.md"] += (
+            f"Current published source release:** `{current_version}`",
+        )
+        forbidden["CITATION.cff"] = (
+            f"version: {current_version}",
+            f"source release v{current_version}",
+        )
     for relative, fragments in forbidden.items():
         try:
             text = (ROOT / relative).read_text(encoding="utf-8")
@@ -836,7 +1254,11 @@ def verify_brand_identity() -> list[str]:
 
 
 def verify_source_version_surfaces() -> list[str]:
-    """Keep executable and human-facing candidate versions synchronized."""
+    """Keep executable and human-facing candidate versions synchronized.
+
+    The citation is deliberately excluded: it follows the latest *published*
+    release, which can lag an unpublished source candidate.
+    """
     failures: list[str] = []
     try:
         expected_version = source_version()
@@ -858,21 +1280,46 @@ def verify_source_version_surfaces() -> list[str]:
             failures.append(f"{location}: expected {expected_version!r}, got {actual!r}")
 
     expected_fragments = {
-        "backend/src/ivrit_sheli/__init__.py": f'__version__ = "{expected_version}"',
-        "frontend/index.html": f"Ivrit Sheli {'.'.join(expected_version.split('.')[:2])}",
-        "frontend/public/sw.js": f"ivrit-sheli-shell-v{expected_version}",
-        "frontend/src/release.ts": f"RELEASE_VERSION = '{expected_version}'",
-        ".github/ISSUE_TEMPLATE/bug_report.yml": f"placeholder: {expected_version} or a commit SHA",
-        "CITATION.cff": f"version: {expected_version}",
+        "backend/src/ivrit_sheli/__init__.py": (
+            f'__version__ = "{expected_version}"',
+        ),
+        "backend/requirements.txt": (
+            f"Ivrit Sheli {expected_version} candidate",
+        ),
+        "frontend/index.html": (
+            f"Ivrit Sheli {expected_version}",
+            f"app-icon.svg?v={expected_version}",
+            f"app-icon-192.png?v={expected_version}",
+        ),
+        "frontend/public/manifest.webmanifest": (
+            f"Ivrit Sheli {expected_version}",
+        ),
+        "frontend/public/sw.js": (
+            f"ivrit-sheli-shell-v{expected_version}",
+        ),
+        "frontend/src/components/IvritSheliWordmark.tsx": (
+            f"app-icon.svg?v={expected_version}",
+        ),
+        "frontend/src/release.ts": (
+            f"RELEASE_VERSION = '{expected_version}'",
+        ),
+        "scripts/start.ps1": (f"v{expected_version}",),
+        "START_PRIVATE_PILOT.bat": (f"Ivrit Sheli {expected_version}",),
+        ".github/ISSUE_TEMPLATE/bug_report.yml": (
+            f"placeholder: {expected_version}",
+        ),
     }
-    for relative, fragment in expected_fragments.items():
+    for relative, fragments in expected_fragments.items():
         try:
             text = (ROOT / relative).read_text(encoding="utf-8")
         except OSError as error:
             failures.append(f"{relative}: {error}")
             continue
-        if fragment not in text:
-            failures.append(f"{relative}: missing release version fragment {fragment!r}")
+        for fragment in fragments:
+            if fragment not in text:
+                failures.append(
+                    f"{relative}: missing release version fragment {fragment!r}"
+                )
     return failures
 
 def verify_public_learning_assets() -> list[str]:
@@ -1312,6 +1759,7 @@ def main() -> int:
         "missing_files": verify_required_files(),
         "invalid_json": verify_json_files(),
         "invalid_portfolio_manifest": verify_portfolio_manifest(),
+        "invalid_readme_visual_proof": verify_readme_visual_proof(),
         "release_truth_drift": verify_release_truth_drift(),
         "brand_identity_drift": verify_brand_identity(),
         "source_version_drift": verify_source_version_surfaces(),

@@ -99,9 +99,28 @@ READING_HINTS: dict[str, list[dict[str, str]]] = {
     ],
 }
 
+# Exact reviewed wording that deliberately omits the generic "Illustration of"
+# prefix. Keep this in the source generator so the offline JSON is reproducible
+# instead of requiring a manual post-export correction.
+VISUAL_ALT_OVERRIDES: dict[str, dict[str, str]] = {
+    "housing.floor": {
+        "en": "A four-storey apartment building in section, with the lift stopped at the top floor",
+        "es": "Un edificio de cuatro plantas en sección, con el ascensor detenido en la planta superior",
+        "he": "בניין בן ארבע קומות בחתך, כשהמעלית עצרה בקומה העליונה",
+    },
+}
+
 
 def _concept(row: _Row, category: str) -> dict[str, Any]:
     """Convert one reviewed row to the dictionary seed contract."""
+    visual_alt = VISUAL_ALT_OVERRIDES.get(
+        row.visual_id,
+        {
+            "en": f"Illustration of {row.scene_en}",
+            "es": f"Ilustración de {row.scene_es}",
+            "he": f"איור של {row.scene_he}",
+        },
+    )
     return {
         "word": row.word,
         "pos": row.pos,
@@ -117,9 +136,9 @@ def _concept(row: _Row, category: str) -> dict[str, Any]:
         "visual_key": row.visual_id,
         "visual_id": row.visual_id,
         "visual_emoji": row.emoji,
-        "visual_alt_en": f"Illustration of {row.scene_en}",
-        "visual_alt_es": f"Ilustración de {row.scene_es}",
-        "visual_alt_he": f"איור של {row.scene_he}",
+        "visual_alt_en": visual_alt["en"],
+        "visual_alt_es": visual_alt["es"],
+        "visual_alt_he": visual_alt["he"],
         "reading_hints": READING_HINTS.get(row.visual_id, []),
         "provenance": STARTER_PROVENANCE_V4,
         "forms": [{"form": row.niqqud, "tags": ["with-niqqud"]}],

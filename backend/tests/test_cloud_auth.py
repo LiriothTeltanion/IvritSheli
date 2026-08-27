@@ -911,6 +911,7 @@ def test_production_provider_credentials_require_explicit_identity_allowlists(
             "GOOGLE_CONNECTORS_ALLOWED_GITHUB_IDS": "12345",
             "GOOGLE_CONNECTORS_ALLOWED_GOOGLE_SUBJECTS": "google-beta",
             "RAILWAY_GIT_COMMIT_SHA": "railway-commit-sha",
+            "RENDER_GIT_COMMIT": "render-commit-sha",
         },
     )
     assert settings.cloud_ai_allowed_github_logins == ("owner",)

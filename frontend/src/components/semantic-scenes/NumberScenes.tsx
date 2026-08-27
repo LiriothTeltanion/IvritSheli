@@ -39,13 +39,13 @@ function CountingRow({ count, of = count }: { count: number; of?: number }): Rea
 }
 
 /**
- * A hand with `fingers` raised, used by one and five.
+ * An open hand for five.
  *
- * The thumb is drawn separately because at five it folds out sideways, which
- * is what makes an open hand read as five rather than as a mitten.
+ * One deliberately uses a countable object instead: an isolated raised finger
+ * can become an offensive gesture across cultures and at small card sizes.
+ * The thumb is separate so the open hand reads as five rather than a mitten.
  */
-function CountingHand({ fingers }: { fingers: 1 | 5 }): React.JSX.Element {
-  const raised = fingers === 5;
+function FiveFingerHand(): React.JSX.Element {
   return (
     <g>
       {/*
@@ -60,25 +60,15 @@ function CountingHand({ fingers }: { fingers: 1 | 5 }): React.JSX.Element {
         being rotated boxes parked above it — detached fingers were what made
         this read as a mitten with sticks glued on.
       */}
-      {raised ? (
-        <>
-          <path className="semantic-art__skin semantic-art__outlined" d="M98 100V62a7 7 0 0 1 14 0v38Z" />
-          <path className="semantic-art__skin semantic-art__outlined" d="M114 100V52a7 7 0 0 1 14 0v48Z" />
-          <path className="semantic-art__skin semantic-art__outlined" d="M130 100V56a7 7 0 0 1 14 0v44Z" />
-          <path className="semantic-art__skin semantic-art__outlined" d="M146 102V68a7 7 0 0 1 13 0v34Z" />
-        </>
-      ) : (
-        <path className="semantic-art__skin semantic-art__outlined" d="M114 100V44a8 8 0 0 1 16 0v56Z" />
-      )}
+      <path className="semantic-art__skin semantic-art__outlined" d="M98 100V62a7 7 0 0 1 14 0v38Z" />
+      <path className="semantic-art__skin semantic-art__outlined" d="M114 100V52a7 7 0 0 1 14 0v48Z" />
+      <path className="semantic-art__skin semantic-art__outlined" d="M130 100V56a7 7 0 0 1 14 0v44Z" />
+      <path className="semantic-art__skin semantic-art__outlined" d="M146 102V68a7 7 0 0 1 13 0v34Z" />
       <path className="semantic-art__skin semantic-art__outlined" d="M92 106q0-12 12-12h44q12 0 12 12v20q0 16-16 19h-36q-16-3-16-19Z" />
       {/* Thumb, out to the side and slightly forward of the palm. */}
       <path className="semantic-art__skin semantic-art__outlined" d="M92 116 74 106a7 7 0 0 1 7-12l16 9Z" />
       <path className="semantic-art__skin-highlight" d="M102 112q0-9 12-9" />
       <path className="semantic-art__skin-shade" d="M142 94h6q12 0 12 12v20q0 14-14 18 8-24 4-50Z" />
-      {!raised && (
-        /* Folded knuckles across the palm say the other fingers are down. */
-        <path className="semantic-art__detail semantic-art__detail--thin" d="M104 114h34m-34 11h34" />
-      )}
       </g>
       {/*
         The cuff stops above y=153, where the counting row begins. Run down to
@@ -147,18 +137,21 @@ export function NumberScene({
             <path className="semantic-art__gloss" d="M26 141h188" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
-            <CountingHand fingers={1} />
+            <g data-scene-cue="single-coffee-cup">
+              <ellipse className="semantic-art__prop-shadow" cx="124" cy="126" rx="48" ry="8" />
+              <ellipse className="semantic-art__surface semantic-art__outlined" cx="120" cy="121" rx="42" ry="10" />
+              <path className="semantic-art__coral semantic-art__outlined" d="M82 70h76v31c0 13-16 21-38 21s-38-8-38-21Z" />
+              <path className="semantic-art__coral semantic-art__outlined" d="M157 79c30-7 33 31 3 33" />
+              <ellipse className="semantic-art__ink semantic-art__outlined" cx="120" cy="70" rx="38" ry="9" />
+              <ellipse className="semantic-art__gloss" cx="120" cy="70" rx="27" ry="5" />
+              <path className="semantic-art__shade" d="M140 73h18v28c0 9-8 16-21 19 5-17 6-33 3-47Z" />
+              <path className="semantic-art__steam semantic-art__motion-part" d="M105 59c-8-12 9-15 0-29m28 29c-8-12 9-15 0-29" />
+            </g>
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            <NumberPlate x={22} y={30} width={44} height={44} label="1" />
-            {/* The single object the finger is counting, so "one" is a quantity
-                of something and not just a gesture. */}
-            <ellipse className="semantic-art__prop-shadow" cx="196" cy="130" rx="20" ry="4" />
-            <circle className="semantic-art__coral semantic-art__outlined" cx="196" cy="112" r="18" />
-            <path className="semantic-art__shade" d="M196 94a18 18 0 0 1 0 36 14 18 0 0 0 0-36Z" />
-            <path className="semantic-art__gloss" d="M184 104a18 18 0 0 1 11-7" />
-            <path className="semantic-art__detail" d="M196 94q-1-9 6-14" />
-            <path className="semantic-art__green semantic-art__outlined" d="M200 82q11-12 22-2-10 10-22 2Z" />
+            <g data-scene-cue="numeral-one">
+              <NumberPlate x={22} y={30} width={44} height={44} label="1" />
+            </g>
             <CountingRow count={1} />
           </SceneLayer>
         </>
@@ -279,7 +272,7 @@ export function NumberScene({
             <path className="semantic-art__grain" d="M30 145h180M30 152h118" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
-            <CountingHand fingers={5} />
+            <FiveFingerHand />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
             <NumberPlate x={22} y={30} width={44} height={44} label="5" />

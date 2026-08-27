@@ -2,6 +2,64 @@
 
 All notable changes are documented here. Versions follow Semantic Versioning.
 
+## 2.12.3 — Clear Counting & Safer Visuals — Private candidate — 2026-08-27
+
+This is a local, unpublished candidate. The latest published GitHub source
+release remains `v2.12.2`, and there is no current deployment or durable live
+URL for testers.
+
+### Clear counting and safer visual recognition
+
+- Replaces the isolated raised-finger treatment for `אחת` that could be read as
+  an offensive gesture at GitHub screenshot scale. The underlying one scene is
+  now a single coffee cup beside the numeral `1` and one count dot.
+- Starts the ambient public-facing Today card with `שתיים` / `shtayim` / `dos`
+  and two clearly countable coffee cups, so the README proof communicates the
+  quantity immediately in Spanish and Hebrew RTL.
+- Keeps the reviewed starter catalog at **240/240 exact semantic scenes** and
+  adds generated-description checks so the reviewed visual wording cannot
+  silently drift from the offline dictionary.
+
+### README visual proof
+
+- Adds five privacy-reviewed WebP captures under
+  `assets/readme/proof/2.12.3/`: Spanish desktop Today, Hebrew RTL Today,
+  Spanish mobile Today, Alphabet Studio and the linked dictionary.
+- Adds one deterministic 960 × 600 GIF assembled from four approved views. It
+  plays once, has no loop extension and contains no flashing or personal data.
+- Records dimensions, hashes, source-capture provenance, locale, direction,
+  privacy review, grayscale review and the dirty-worktree boundary in
+  `assets/readme/proof/2.12.3/manifest.json`. This is local served-runtime
+  evidence, not proof of publication, OAuth, PostgreSQL or hosting.
+
+### Free staging preparation
+
+- Adds a Render Free Docker Blueprint for a proposed HTTPS tester staging
+  service, with secrets left for explicit operator entry and automatic deploys
+  disabled.
+- The Blueprint is prepared locally only. No Render service, public URL,
+  database connection, OAuth callback or external provider setting has been
+  created or verified.
+
+### Verification boundary
+
+- Current local gates passed: **859 frontend tests**, **387 backend tests** with
+  one credential-gated PostgreSQL skip, TypeScript, the production build, Ruff,
+  strict MyPy, 7/7 offline doctor, four capture-contract tests and dependency
+  audits with zero known vulnerabilities.
+- A fresh FastAPI/CSP Playwright matrix passed **36 tests / 40 intentional
+  project-scoped skips / 0 failures** across 76 listed cases in 4.5 minutes.
+  Exact process-tree teardown left the test port clean.
+- The Docker image built and its ephemeral SQLite smoke passed as 2.12.3/ready
+  with non-root PID 1, no migration credential and exact container/port cleanup.
+- Current PostgreSQL and no-cache production-shaped container evidence remain
+  pending. The explicitly staged candidate index generated 571 canonical
+  checksums, and the package verifier passed 230 required files plus all
+  packaged assets. No deployment or real-user acceptance is claimed by this
+  candidate entry.
+- The human Hebrew-content acceptance pass and the pilot with Kevin's mother
+  remain separate publication gates in `TEST_REPORT.md`.
+
 ## 2.12.2 — Visual Harmony & Resilience — 2026-08-27
 
 ### GitHub source release — 2026-08-27

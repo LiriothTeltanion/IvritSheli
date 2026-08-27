@@ -212,6 +212,8 @@ class Settings:
     oauth_state_limit: int = 1_024
     trusted_proxy_mode: str = "direct"
     railway_environment_id: str = ""
+    render: bool = False
+    render_service_id: str = ""
     auth_client_rate_limit_requests: int = 20
     auth_global_rate_limit_requests: int = 1_000
     auth_rate_limit_window_seconds: int = 60
@@ -279,6 +281,8 @@ class Settings:
                     "SESSION_COOKIE_SECURE": "false",
                     "TRUSTED_PROXY_MODE": "direct",
                     "RAILWAY_ENVIRONMENT_ID": "",
+                    "RENDER": "false",
+                    "RENDER_SERVICE_ID": "",
                     "GITHUB_CLIENT_ID": "",
                     "GITHUB_CLIENT_SECRET": "",
                     "GOOGLE_AUTH_CLIENT_ID": "",
@@ -425,6 +429,8 @@ class Settings:
             oauth_state_limit=int(value("OAUTH_STATE_LIMIT", "1024")),
             trusted_proxy_mode=value("TRUSTED_PROXY_MODE", "direct").strip().lower(),
             railway_environment_id=value("RAILWAY_ENVIRONMENT_ID", "").strip(),
+            render=parse_bool(values.get("RENDER"), False),
+            render_service_id=value("RENDER_SERVICE_ID", "").strip(),
             auth_client_rate_limit_requests=int(
                 value("AUTH_CLIENT_RATE_LIMIT_REQUESTS", "20")
             ),
@@ -473,6 +479,7 @@ class Settings:
             build_commit=(
                 value("BUILD_COMMIT", "").strip()
                 or value("RAILWAY_GIT_COMMIT_SHA", "").strip()
+                or value("RENDER_GIT_COMMIT", "").strip()
                 or "development"
             )[:80],
             cloud_ai_allowed_github_logins=parse_csv(
@@ -666,15 +673,24 @@ class Settings:
             raise ValueError("USER_SESSION_LIMIT must be between 1 and 100")
         if not 1 <= self.oauth_state_limit <= 100_000:
             raise ValueError("OAUTH_STATE_LIMIT must be between 1 and 100000")
-        if self.trusted_proxy_mode not in {"direct", "railway"}:
-            raise ValueError("TRUSTED_PROXY_MODE must be direct or railway")
-        if self.trusted_proxy_mode == "railway" and self.app_env != "production":
+        if self.trusted_proxy_mode not in {"direct", "railway", "render"}:
+            raise ValueError("TRUSTED_PROXY_MODE must be direct, railway, or render")
+        if (
+            self.trusted_proxy_mode in {"railway", "render"}
+            and self.app_env != "production"
+        ):
             raise ValueError(
-                "TRUSTED_PROXY_MODE=railway is valid only in production"
+                f"TRUSTED_PROXY_MODE={self.trusted_proxy_mode} is valid only in production"
             )
         if self.trusted_proxy_mode == "railway" and not self.railway_environment_id:
             raise ValueError(
                 "TRUSTED_PROXY_MODE=railway requires RAILWAY_ENVIRONMENT_ID"
+            )
+        if self.trusted_proxy_mode == "render" and not self.render:
+            raise ValueError("TRUSTED_PROXY_MODE=render requires RENDER=true")
+        if self.trusted_proxy_mode == "render" and not self.render_service_id:
+            raise ValueError(
+                "TRUSTED_PROXY_MODE=render requires RENDER_SERVICE_ID"
             )
         if not 1 <= self.auth_client_rate_limit_requests <= 1_000:
             raise ValueError(

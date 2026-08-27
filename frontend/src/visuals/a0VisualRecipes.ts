@@ -456,9 +456,9 @@ export const A0_VISUAL_RECIPES = {
      the situation would really show — a route sign, a dial, a ticket. */
   'numbers.one': {
     template: 'quantity-time',
-    setting: 'hand',
-    meaning: 'single-raised-finger',
-    anchor: 'one-counted',
+    setting: 'cafe-counter',
+    meaning: 'one-coffee-cup',
+    anchor: 'numeral-one-and-one-count-dot',
   },
   'numbers.two': {
     template: 'quantity-time',

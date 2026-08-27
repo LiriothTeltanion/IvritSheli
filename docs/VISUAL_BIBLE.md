@@ -1,4 +1,9 @@
-# Ivrit Sheli Visual Bible — 2.12.2 source release
+# Ivrit Sheli Visual Bible — 2.12.3 PRIVATE CANDIDATE
+
+> [!IMPORTANT]
+> The working tree is an unpublished **2.12.3 private candidate**. The latest
+> published source release remains **v2.12.2 (2026-08-27)**. No durable hosted
+> demo or live-user URL is currently verified.
 
 ## Living Hebrew Nocturne — 2026-08-14
 
@@ -64,7 +69,10 @@ the source of linguistic truth or documentary geography.
 
 Every reviewed starter concept has a code-native SVG scene selected by its exact semantic key. These illustrations must remain fast, local, theme-aware, accessible and deterministic.
 
-The 2.12.2 source release contains **240 reviewed concepts / 240 exact semantic scenes**. Category and emoji fallbacks remain only for future imported or unsupported entries outside that reviewed catalog.
+The 2.12.3 private candidate retains **240 reviewed concepts / 240 exact semantic scenes**.
+The latest published v2.12.2 source release established that
+same complete coverage. Category and emoji fallbacks remain only for future
+imported or unsupported entries outside that reviewed catalog.
 
 Each scene follows the hierarchy:
 
@@ -73,6 +81,16 @@ Each scene follows the hierarchy:
 3. **Anchor** — the one object/gesture that still communicates at thumbnail size.
 
 Do not add decorative detail that competes with the anchor.
+
+### Counting scenes: objects before ambiguous gestures
+
+`numbers.one` uses one coffee cup, the numeral `1`, and one count dot. This
+keeps the quantity recognizable without a raised-finger pose that can look
+offensive or mean something else across cultures. The noun `כוס` is feminine,
+so the object also agrees with the reviewed form `אחת`. The ambient number
+spotlight leads with `שתיים`, rendered as two coffee cups, so public proof does
+not depend on the single-item scene. Use hands only when the gesture itself is
+the word being taught and a real-browser thumbnail review finds it unambiguous.
 
 ## Generative-art rules
 
@@ -254,4 +272,6 @@ The consolidated operations + visual review notebook for this source release is 
 
 - `docs/LIVING_HEBREW_FIELD_NOTES.md`
 
-Use it as the source of truth for the 2.12.2 repintado progress before resuming code work or handoff.
+Use it as the source of truth for the published 2.12.2 repintado history. For
+the current unpublished delta, use `docs/candidates/v2.12.3.md` and do not
+overwrite evidence under `assets/readme/proof/2.12.2`.

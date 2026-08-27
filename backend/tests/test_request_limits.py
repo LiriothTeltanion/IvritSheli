@@ -23,6 +23,7 @@ from ivrit_sheli.cloud_store import (
     bearer_hash,
 )
 from ivrit_sheli.config import Settings
+from ivrit_sheli.request_limits import _client_identity
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 
@@ -125,6 +126,29 @@ def railway_settings(tmp_path: Path, **overrides: str) -> Settings:
         "GITHUB_REDIRECT_URI": "https://ivrit.example/api/v1/auth/github/callback",
         "TRUSTED_PROXY_MODE": "railway",
         "RAILWAY_ENVIRONMENT_ID": "test-environment-id",
+        "DEBUG": "false",
+    }
+    values.update(overrides)
+    return Settings.from_env(values)
+
+
+def render_settings(tmp_path: Path, **overrides: str) -> Settings:
+    values = {
+        "APP_ENV": "production",
+        "APP_DATA_DIR": str(tmp_path / "render-data"),
+        "APP_DB_PATH": ":memory:",
+        "DICTIONARY_DB_PATH": ":memory:",
+        "DATABASE_URL": "postgresql://ivrit_sheli_runtime:password@db/ivrit",
+        "AUTH_REQUIRED": "true",
+        "SESSION_SECRET": "production-test-secret-with-more-than-32-chars",
+        "SESSION_COOKIE_SECURE": "true",
+        "PUBLIC_BASE_URL": "https://ivrit.example",
+        "GITHUB_CLIENT_ID": "client-id",
+        "GITHUB_CLIENT_SECRET": "client-secret",
+        "GITHUB_REDIRECT_URI": "https://ivrit.example/api/v1/auth/github/callback",
+        "TRUSTED_PROXY_MODE": "render",
+        "RENDER": "true",
+        "RENDER_SERVICE_ID": "srv-test-render-service",
         "DEBUG": "false",
     }
     values.update(overrides)
@@ -246,6 +270,76 @@ def test_railway_mode_uses_trusted_x_real_ip_for_distinct_client_buckets(
         assert client.get("/api/v1/auth/github/start", headers=second).status_code == 200
 
 
+def test_render_mode_uses_only_cf_connecting_ip_for_distinct_client_buckets(
+    tmp_path: Path,
+) -> None:
+    settings = render_settings(
+        tmp_path,
+        AUTH_CLIENT_RATE_LIMIT_REQUESTS="2",
+        AUTH_GLOBAL_RATE_LIMIT_REQUESTS="20",
+    )
+    with TestClient(
+        create_app(settings, cloud_store=MemoryCloudStore(), oauth_client=FakeOAuth()),
+        base_url="https://ivrit.example",
+    ) as client:
+        first = {
+            "Accept": "application/json",
+            "CF-Connecting-IP": "198.51.100.10",
+            "X-Forwarded-For": "203.0.113.250",
+        }
+        assert client.get("/api/v1/auth/github/start", headers=first).status_code == 200
+        first["X-Forwarded-For"] = "192.0.2.99"
+        assert client.get("/api/v1/auth/github/start", headers=first).status_code == 200
+        assert client.get("/api/v1/auth/github/start", headers=first).status_code == 429
+
+        second = {
+            "Accept": "application/json",
+            "CF-Connecting-IP": "203.0.113.20",
+            "X-Forwarded-For": "198.51.100.10",
+        }
+        assert client.get("/api/v1/auth/github/start", headers=second).status_code == 200
+
+
+def test_render_identity_collapses_missing_duplicate_and_invalid_headers() -> None:
+    assert _client_identity({"headers": []}, "render") == "render:unresolved"
+    assert (
+        _client_identity(
+            {
+                "headers": [
+                    (b"cf-connecting-ip", b"198.51.100.10"),
+                    (b"CF-Connecting-IP", b"203.0.113.20"),
+                ]
+            },
+            "render",
+        )
+        == "render:unresolved"
+    )
+    assert (
+        _client_identity(
+            {
+                "headers": [
+                    (b"cf-connecting-ip", b"not-an-ip"),
+                    (b"x-forwarded-for", b"198.51.100.10"),
+                ]
+            },
+            "render",
+        )
+        == "render:unresolved"
+    )
+    assert (
+        _client_identity(
+            {
+                "headers": [
+                    (b"cf-connecting-ip", b"2001:db8::1"),
+                    (b"x-forwarded-for", b"192.0.2.99"),
+                ]
+            },
+            "render",
+        )
+        == "render:2001:db8::1"
+    )
+
+
 def test_auth_endpoint_global_circuit_breaker_spans_distinct_railway_clients(
     tmp_path: Path,
 ) -> None:
@@ -275,13 +369,59 @@ def test_auth_endpoint_global_circuit_breaker_spans_distinct_railway_clients(
         assert blocked.json()["error"]["code"] == "auth_global_rate_limit_exceeded"
 
 
-def test_railway_proxy_configuration_fails_closed(tmp_path: Path) -> None:
+def test_trusted_proxy_configuration_fails_closed(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="valid only in production"):
         cloud_settings(tmp_path, TRUSTED_PROXY_MODE="railway")
     with pytest.raises(ValueError, match="requires RAILWAY_ENVIRONMENT_ID"):
         railway_settings(tmp_path, RAILWAY_ENVIRONMENT_ID="")
-    with pytest.raises(ValueError, match="must be direct or railway"):
+    with pytest.raises(ValueError, match="valid only in production"):
+        cloud_settings(
+            tmp_path,
+            TRUSTED_PROXY_MODE="render",
+            RENDER="true",
+            RENDER_SERVICE_ID="srv-test",
+        )
+    with pytest.raises(ValueError, match="requires RENDER=true"):
+        render_settings(tmp_path, RENDER="false")
+    with pytest.raises(ValueError, match="requires RENDER_SERVICE_ID"):
+        render_settings(tmp_path, RENDER_SERVICE_ID="")
+    with pytest.raises(ValueError, match="must be direct, railway, or render"):
         cloud_settings(tmp_path, TRUSTED_PROXY_MODE="untrusted")
+
+
+def test_render_blueprint_is_manual_free_and_least_privilege() -> None:
+    blueprint = (ROOT_DIR / "render.yaml").read_text(encoding="utf-8")
+    assert "runtime: docker" in blueprint
+    assert "plan: free" in blueprint
+    assert "region: frankfurt" in blueprint
+    assert "branch: main" in blueprint
+    assert "autoDeployTrigger: off" in blueprint
+    assert "healthCheckPath: /health/ready" in blueprint
+    assert "preDeployCommand" not in blueprint
+    assert "dockerCommand" not in blueprint
+    assert "MIGRATION_DATABASE_URL" not in blueprint
+    assert "OPENAI_API_KEY" not in blueprint
+
+    for disabled_key in (
+        "ALLOW_CLOUD_PROCESSING",
+        "SELF_HOSTED_SPEECH_ENABLED",
+        "WHISPER_PRELOAD_ON_START",
+        "PUSH_NOTIFICATIONS_ENABLED",
+    ):
+        assert f"- key: {disabled_key}\n        value: \"false\"" in blueprint
+
+    for prompted_key in (
+        "DATABASE_URL",
+        "SESSION_SECRET",
+        "PUBLIC_BASE_URL",
+        "GOOGLE_AUTH_CLIENT_ID",
+        "GOOGLE_AUTH_CLIENT_SECRET",
+    ):
+        assert f"- key: {prompted_key}\n        sync: false" in blueprint
+
+    dockerignore = (ROOT_DIR / ".dockerignore").read_text(encoding="utf-8")
+    assert ".env*" in dockerignore.splitlines()
+    assert "**/.env*" in dockerignore.splitlines()
 
 
 def test_container_entrypoint_preserves_raw_peer_and_never_trusts_xff() -> None:

@@ -1,7 +1,7 @@
 <div align="center">
   <img src="assets/brand/wordmark-nocturne.svg" alt="Ivrit Sheli wordmark" width="680" />
 
-  <h1>Ivrit Sheli 2.12.2 — Visual Harmony &amp; Resilience</h1>
+  <h1>Ivrit Sheli 2.12.3 — Clear Counting &amp; Safer Visuals</h1>
   <p><strong>A trilingual, local-first PWA for learning the Hebrew people meet in everyday life.</strong></p>
   <p>Guided enough for a complete beginner, deep enough to keep growing.</p>
 
@@ -16,23 +16,32 @@
 </div>
 
 > [!IMPORTANT]
-> This checkout is the **published [v2.12.2 source release](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.12.2)**.
-> It advances the repository, tag, and GitHub Release—not a hosted service.
+> This checkout is the **private 2.12.3 candidate**; it is not published yet.
+> The latest published source release remains
+> **[v2.12.2](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.12.2)**.
 > **No verified durable hosted demo is currently available.** The images and
 > checks below are local served-runtime evidence; they are not deployment,
 > provider-availability, or real-user acceptance claims.
+> **Looking for a link that users can open? There is none yet:** GitHub hosts
+> the source, but it does not run the FastAPI/PostgreSQL application. A free
+> Render HTTPS staging blueprint is prepared locally, but no Render service,
+> URL, database connection or OAuth callback has been created.
 
 ## Current status
 
 | Surface | Evidence-backed state |
 |---|---|
-| Published source | `v2.12.2` — Visual Harmony & Resilience, published 2026-08-27 |
+| Current local source | `2.12.3` — **private candidate / unpublished** |
 | Latest published version | [`v2.12.2`](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.12.2) on `main` |
-| Durable hosted demo | Unavailable; the historical Railway service returned HTTP 404 when checked on 2026-08-26 |
-| Current visual proof | Privacy-reviewed captures from the locally served FastAPI/SQLite 2.12.2 release code; exact provenance and hashes are recorded below |
-| Current source-release test record | 363 backend + 858 frontend = 1,221 component/integration passes, plus 35 Playwright cases and 4 capture contracts; see [`TEST_REPORT.md`](TEST_REPORT.md) |
+| Live app URL for users | **Not available yet**; the historical Railway service returned HTTP 404 when checked on 2026-08-26 |
+| Proposed tester staging | **Render Free ($0)** with managed HTTPS; Blueprint prepared, service not created or verified |
+| Current visual proof | Privacy-reviewed captures from the locally served FastAPI/SQLite 2.12.3 candidate; exact provenance and hashes are recorded below |
+| Candidate verification | Fresh-process entry preflight and bounded Playwright smoke passed before capture; the final complete gate is recorded in [`TEST_REPORT.md`](TEST_REPORT.md) |
 | Historical hosted record | `v2.4.0`: 213 unique automated tests and dated Railway/PostgreSQL evidence; preserved as history, not current availability |
-| Publication actions in this work | Fast-forward of `main`, annotated `v2.12.2` tag, and GitHub Release only — no deployment, database, OAuth, provider, or Devpost change |
+| External actions for 2.12.3 | **None** — no commit, push, merge, tag, Release, deployment, database, OAuth, provider or Devpost change is claimed |
+
+Playwright troubleshooting and the 2026-08-27 stale-bundle incident are recorded
+in [`docs/PLAYWRIGHT_RUNBOOK.md`](docs/PLAYWRIGHT_RUNBOOK.md).
 
 The machine-readable version/publication contract lives in
 [`portfolio/project.json`](portfolio/project.json). It deliberately separates
@@ -41,13 +50,13 @@ source version, historical release evidence, and current hosting availability.
 ## Current visual proof
 
 <p align="center">
-  <img src="assets/readme/proof/2.12.2/today-desktop-dark-es.webp" width="100%" alt="Spanish dark-theme Ivrit Sheli Today dashboard for the generic Learner profile, with a reading word card, first-lesson actions, and zeroed starter progress." />
+  <img src="assets/readme/proof/2.12.3/today-desktop-dark-es.webp" width="100%" alt="Spanish dark-theme Ivrit Sheli Today dashboard for the generic Learner profile, featuring שתיים, shtayim, dos and two steaming coffee cups." />
 </p>
 
 <p align="center">
-  <img src="assets/readme/proof/2.12.2/ivrit-sheli-tour.gif" width="960" alt="Eight-second Ivrit Sheli tour showing the Spanish Today dashboard, light Alphabet Studio, dark linked dictionary, and Hebrew RTL Today dashboard." />
+  <img src="assets/readme/proof/2.12.3/ivrit-sheli-tour.gif" width="960" alt="Eight-second non-looping Ivrit Sheli tour showing the Spanish two-cup Today dashboard, light Alphabet Studio, dark linked dictionary, and Hebrew RTL Today dashboard." />
 </p>
-<p align="center"><em>An eight-second, non-looping tour built from four privacy-reviewed release captures.</em></p>
+<p align="center"><em>An eight-second, non-looping tour built from four privacy-reviewed 2.12.3 candidate captures.</em></p>
 
 <table>
   <tr>
@@ -55,8 +64,8 @@ source version, historical release evidence, and current hosting availability.
     <td width="60%" align="center"><strong>Real Hebrew RTL layout</strong></td>
   </tr>
   <tr>
-    <td><img src="assets/readme/proof/2.12.2/today-phone-light-es.webp" width="100%" alt="Spanish light-theme mobile Ivrit Sheli Today dashboard for the generic Learner profile, with a Hebrew reading card, first-lesson actions, and bottom navigation." /></td>
-    <td><img src="assets/readme/proof/2.12.2/today-desktop-dark-he.webp" width="100%" alt="Hebrew RTL dark-theme Ivrit Sheli Today dashboard for the generic Learner profile, with mirrored navigation, a reading word card, and starter progress." /></td>
+    <td><img src="assets/readme/proof/2.12.3/today-phone-light-es.webp" width="100%" alt="Spanish light-theme mobile Today dashboard with the two-cup שתיים card, first-lesson action and bottom navigation." /></td>
+    <td><img src="assets/readme/proof/2.12.3/today-desktop-dark-he.webp" width="100%" alt="Hebrew RTL dark-theme Today dashboard with mirrored navigation and a two-coffee-cup שתיים learning card." /></td>
   </tr>
 </table>
 
@@ -66,19 +75,23 @@ source version, historical release evidence, and current hosting availability.
     <td width="50%" align="center"><strong>Linked dictionary</strong></td>
   </tr>
   <tr>
-    <td><img src="assets/readme/proof/2.12.2/alphabet-desktop-light-es.webp" width="100%" alt="Spanish light-theme alphabet studio in Ivrit Sheli, with Explorer navigation and a lesson explaining 22 Hebrew base letters plus 5 final forms." /></td>
-    <td><img src="assets/readme/proof/2.12.2/dictionary-desktop-dark-es.webp" width="100%" alt="Spanish dark-theme dictionary workspace in Ivrit Sheli, with linked Hebrew search, Explorer navigation, and an empty search field." /></td>
+    <td><img src="assets/readme/proof/2.12.3/alphabet-desktop-light-es.webp" width="100%" alt="Spanish light-theme Alphabet Studio in Ivrit Sheli, explaining 22 Hebrew base letters plus 5 positional final forms." /></td>
+    <td><img src="assets/readme/proof/2.12.3/dictionary-desktop-dark-es.webp" width="100%" alt="Spanish dark-theme linked dictionary workspace in Ivrit Sheli with an empty multilingual Hebrew search field." /></td>
   </tr>
 </table>
 
 These five WebP assets were captured on 2026-08-27 Asia/Jerusalem from a fresh,
 generic local learner with no personal progress. Every image was reviewed at
-full size and in grayscale. Hashes, physical dimensions, source PNG hashes,
-locale, direction, viewport, timestamps, privacy findings, and the dirty-tree
-boundary are recorded in the
-[`2.12.2 visual-proof manifest`](assets/readme/proof/2.12.2/manifest.json).
-The older screenshot set remains preserved for provenance but is not presented
-here as current proof.
+full size, at GitHub display scale and in grayscale. The GIF was rendered twice
+to byte-identical output, checked at four representative frames, and contains
+no loop extension. Hashes, physical dimensions, source PNG hashes, locale,
+direction, viewport, timestamps, privacy findings, process provenance and the
+dirty-tree boundary are recorded in the
+[`2.12.3 candidate visual-proof manifest`](assets/readme/proof/2.12.3/manifest.json).
+The immutable
+[`2.12.2 published visual record`](assets/readme/proof/2.12.2/manifest.json)
+remains preserved separately; the older 17-PNG candidate set is not presented
+as current proof.
 
 ## What the product teaches
 
@@ -116,17 +129,17 @@ and must not be read as complete advanced-level coverage.
 
 | Concern | Implemented boundary | Fresh evidence |
 |---|---|---|
-| English and Spanish | LTR interface and reviewed locale catalogs | Current capture runner completed EN and ES states |
-| Hebrew | `lang="he"`, mirrored navigation, RTL content and controls | Current desktop capture plus a 390 × 844 Chromium check |
+| English and Spanish | LTR interface and reviewed locale catalogs | The 2.12.3 proof includes Spanish desktop/mobile; the current browser matrix exercised both EN and ES |
+| Hebrew | `lang="he"`, mirrored navigation, RTL content and controls | The 2.12.3 proof includes a Hebrew/RTL desktop capture; the current browser matrix also exercised HE at all three viewports |
 | Responsive layout | Desktop and mobile navigation, reflow, touch targets | Mobile capture; Chromium measured `clientWidth = scrollWidth = 390` |
 | Keyboard and semantics | Semantic controls, visible focus, labels, live regions | Covered in component tests and the formal three-viewport Playwright matrix |
 | Reduced motion | Motion tokens and stationary alternatives | Exact served runtime computed the ambient animation as `none` under `prefers-reduced-motion` |
 | Automated accessibility | Axe integration in Playwright | Exact served HE/RTL mobile check reported 0 total WCAG 2 A/AA and 2.1 A/AA violations |
 
-The 2026-08-27 browser gate used the exact FastAPI-served bundle with CSP and
-deterministic API fixtures. Its formal three-viewport Playwright matrix passed
-35 tests with 40 intentional project-scoped skips and zero failures among 75
-listed cases, including
+The current 2.12.3 browser gate used a fresh exact FastAPI-served bundle with
+CSP and deterministic API fixtures. Its formal three-viewport Playwright matrix
+passed 36 tests with 40 intentional project-scoped skips and zero failures
+among 76 listed cases in 4.5 minutes, including
 the 240-scene compare gallery, EN/ES/HE, RTL, reduced motion, 200% text reflow,
 responsive journey art and axe coverage. It proves those browser behaviors; it
 does **not** prove PostgreSQL, OAuth providers, or hosted persistence. Generated
@@ -249,25 +262,26 @@ fails. Public assets are never promoted automatically. Four focused capture
 contract tests cover PNG dimensions/hash evidence, scoped navigation, missing
 origin failure, and HTTP 404 failure.
 
-Fresh pre-publication results for the code released as v2.12.2 on 2026-08-27:
+Fresh local results for the private `2.12.3` candidate on 2026-08-27:
 
 | Gate | Result |
 |---|---|
-| Frontend Vitest | **858 passed / 49 files / 0 failed** |
-| Backend pytest | **363 passed / 1 PostgreSQL credential-gated skip / 0 failed** |
+| Frontend Vitest | **859 passed / 49 files / 0 failed** |
+| Backend pytest | **387 passed / 1 PostgreSQL credential-gated skip / 0 failed** |
 | Capture contracts | **4 passed / 0 failed** with Node's test runner |
-| TypeScript + production build | **Passed**; Vite 8.1.4 transformed 134 modules in 1.38 s |
+| TypeScript + production build | **Passed**; Vite 8.1.4 transformed 134 modules in 1.75 s; the existing `advancedChunks` deprecation warning remains |
 | Ruff + strict MyPy | **Passed**; MyPy checked 39 source files |
-| No-cache container smoke | **Passed**; isolated PostgreSQL 17 stack healthy on loopback port 8600, app PID 1 at UID/GID 10001, migration credential absent, and structured-log sentinel check clean |
-| Exact served mobile HE/RTL browser check | **Passed**; 0 horizontal overflow and 0 axe WCAG 2/2.1 A/AA violations |
-| Formal Playwright matrix on FastAPI port 8000 | **35 passed / 40 intentional project-scoped skips / 0 failed** across 75 listed cases in 330.1 s |
-| README local links and assets | **21/21 exist with exact case** |
-| Release/portfolio truth contract | **15 focused tests passed** and direct validators returned 0 failures |
-| Package integrity | **Passed**; 217 required files and all packaged assets, with 559 canonical Git-index checksums |
+| Offline doctor | **7/7 passed** as 2.12.3; 244 dictionary rows include the declared 240-entry starter set |
+| Dependency audits | **0 known vulnerabilities** in the production npm dependency scope and Python requirements |
+| Formal Playwright matrix on fresh FastAPI port 8200 | **36 passed / 40 intentional project-scoped skips / 0 failed** across 76 listed cases in 4.5 minutes; phone, tablet, desktop, EN/ES/HE, RTL, zoom, reduced motion, all 240 scenes and axe were exercised |
+| README visual-proof contract | **Passed** for five WebP files plus the non-looping GIF, including exact hashes, dimensions, links and privacy-reviewed provenance |
+| Current Docker gate | **Passed**: the 2.12.3 image built, became ready with SQLite, reported the expected version, ran PID 1 as UID/GID 10001 and contained no `MIGRATION_DATABASE_URL`; the exact smoke container was removed and port 8300 left clean |
+| Current PostgreSQL gate | **Not rerun for 2.12.3**; the one integration test remained credential-gated and the 2.12.2 PostgreSQL evidence stays historical |
+| Package integrity | **Passed** for the explicitly staged candidate snapshot: 571 canonical Git-index checksums, 230 required files and all packaged assets verified |
 
-The checksum manifest is regenerated only after the intended snapshot is
+The checksum manifest was regenerated only after the intended snapshot was
 explicitly staged. The 17 older PNG candidates and local Playwright inspection
-YAML stay preserved outside the package. The canonical release ZIP is built
+YAML remain preserved outside the package. The canonical release ZIP is built
 from the immutable tagged Git tree, with its SHA-256 stored beside the external
 asset rather than inside the self-referential source package. The successful
 suites retain non-fatal test-environment warnings documented in
@@ -296,32 +310,47 @@ changed. Full timings and methodology are in
 
 ## Deployment and release boundary
 
-- `v2.12.2` is the latest published GitHub source release on `main`.
-- This publication did **not** deploy the application or change any database,
-  OAuth configuration, external provider, hosted service, or Devpost entry.
-- The former Railway URL is historical and currently offline. No replacement
-  host has been selected or provisioned.
+- `2.12.3` is a private, unpublished candidate. `v2.12.2` remains the latest
+  published GitHub source release on `main`.
+- The proposed first tester host is **Render Free**: one Docker Web Service,
+  managed HTTPS and an `onrender.com` address. The checked-in `render.yaml`
+  disables auto-deploy and excludes migration credentials. It has not been
+  submitted to Render.
+- Render Free is suitable for a small staging test, not guaranteed production:
+  it sleeps after 15 idle minutes, can take about a minute to wake, provides an
+  ephemeral filesystem and has monthly usage limits. Progress would remain in
+  the existing restricted-role Supabase database, not on that filesystem.
+- Before creating the service: rotate the exposed administrator password,
+  repeat the restricted-role database check, complete backup/restore evidence,
+  configure the exact Google identity-only callback, and then verify two real
+  accounts for login, isolation, persistence, export, deletion and logout.
+- The former Railway URL is historical and currently offline.
 - Temporary tunnels are diagnostic sessions, not durable product URLs, and are
   intentionally absent from README and portfolio metadata.
 
-Kevin approved this source release after reading the current
-[`TEST_REPORT.md`](TEST_REPORT.md) not-run list. The remaining gates include the full
-generated contact-sheet inspection, isolated HTTPS staging,
-two-real-account continuity/isolation, backup and restore,
-five-second human recognition, Hebrew-content acceptance, and the pilot with
-Kevin's mother. They remain required before any deployment claim; machine
-checks do not replace human acceptance.
+Kevin previously approved the published `v2.12.2` source release after reading
+its [`TEST_REPORT.md`](TEST_REPORT.md) not-run list. The current `2.12.3`
+candidate has **not** been committed, published or deployed; its reviewed
+source snapshot is only staged locally. Its remaining gates include the full
+generated contact-sheet inspection, current PostgreSQL evidence, a no-cache
+release image if publication is approved, isolated HTTPS staging,
+two-real-account continuity/isolation, backup and restore, five-second
+human recognition, Hebrew-content acceptance, and the pilot with Kevin's
+mother. Machine checks do not replace human acceptance.
 
 ## Roadmap
 
 1. Complete human visual-recognition and Hebrew-content review.
 2. Run the mother-pilot tasks on a real phone and record observations, not
    invented success metrics.
-3. Before any deployment, choose an isolated HTTPS staging host, place the app
-   near its database, and remeasure before optimizing.
-4. Prove two-real-account isolation, backup/restore, login, persistence, export,
-   and deletion in staging.
-5. Deploy, change providers, or update Devpost only as separately approved actions.
+3. Confirm the Supabase region, rotate the exposed administrator password and
+   complete backup/restore evidence.
+4. After Kevin separately approves the external actions, create the Render Free
+   HTTPS staging service and the exact Google identity-only callback.
+5. Prove two-real-account isolation, login, persistence, export, deletion and
+   logout in staging before changing the README to show a live link.
+6. Merge, tag, release, deploy, change providers or update Devpost only as
+   separately approved actions.
 
 ## Documentation map
 

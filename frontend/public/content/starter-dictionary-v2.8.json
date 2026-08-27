@@ -7055,16 +7055,16 @@
           "topics": [],
           "visual": {
             "alt": {
-              "en": "A single raised finger",
-              "es": "Un solo dedo levantado",
-              "he": "אצבע אחת מורמת"
+              "en": "One coffee cup beside the numeral 1",
+              "es": "Una taza de café junto al número 1",
+              "he": "כוס קפה אחת לצד הספרה 1"
             },
             "emoji": "1️⃣",
             "key": "numbers.one"
           },
-          "visual_alt_en": "A single raised finger",
-          "visual_alt_es": "Un solo dedo levantado",
-          "visual_alt_he": "אצבע אחת מורמת",
+          "visual_alt_en": "One coffee cup beside the numeral 1",
+          "visual_alt_es": "Una taza de café junto al número 1",
+          "visual_alt_he": "כוס קפה אחת לצד הספרה 1",
           "visual_emoji": "1️⃣",
           "visual_key": "numbers.one"
         }
@@ -7074,9 +7074,9 @@
       "source_url": "https://github.com/LiriothTeltanion/IvritSheli",
       "visual": {
         "alt": {
-          "en": "A single raised finger",
-          "es": "Un solo dedo levantado",
-          "he": "אצבע אחת מורמת"
+          "en": "One coffee cup beside the numeral 1",
+          "es": "Una taza de café junto al número 1",
+          "he": "כוס קפה אחת לצד הספרה 1"
         },
         "emoji": "1️⃣",
         "key": "numbers.one"

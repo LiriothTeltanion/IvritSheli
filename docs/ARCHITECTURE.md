@@ -1,4 +1,16 @@
-# Current release boundary — 2.12.2 / 2026-08-27
+# Current candidate boundary — 2.12.3 / 2026-08-27
+
+The working tree is **2.12.3 — PRIVATE CANDIDATE / unpublished**. Its bounded
+delta replaces an ambiguous one-finger counting cue with an object-based cup
+scene, leads the ambient number spotlight with the two-cup `שתיים` scene, makes
+the 240 public visual descriptions reproducible from their reviewed source, and
+retains the served-path Playwright stale-bundle protections. It does not add an
+API route, database migration, provider permission, deployment, or live URL.
+
+The latest published source release remains **v2.12.2 (2026-08-27)**. No durable
+hosted deployment is currently verified.
+
+## Published source boundary — 2.12.2 / 2026-08-27
 
 The current architecture is published in the `v2.12.2` GitHub source release.
 It supports local SQLite and configured PostgreSQL modes, but no durable hosted
@@ -119,7 +131,7 @@ Google sign-in requests `openid profile` only. The separate Google Workspace con
 - Logout: revokes the server-side session before clearing the cookie.
 - Account deletion: authenticated CSRF-verified `DELETE /api/v1/account` removes the identity, sessions and learner state in one database boundary; the shared demo cannot be deleted.
 - Demo/logout POSTs: non-simple same-origin JSON requests; logout verifies an exact allow-listed Origin or the active session's double-submit CSRF fallback.
-- Public OAuth start/callback and demo entry: per-client sliding windows plus a higher endpoint circuit breaker are enforced per process; direct mode uses the raw peer, Railway mode trusts exactly one ingress-overwritten `X-Real-IP`, and `X-Forwarded-For` is never used.
+- Public OAuth start/callback and demo entry: per-client sliding windows plus a higher endpoint circuit breaker are enforced per process; direct mode uses the raw peer, Railway mode trusts exactly one ingress-overwritten `X-Real-IP`, Render mode trusts exactly one Cloudflare-overwritten `CF-Connecting-IP` only with Render's injected service identity, and `X-Forwarded-For` is never used. Missing, duplicate or malformed trusted values share a provider-specific unresolved bucket; live Render header behavior remains a staging gate.
 - Authenticated writes: a per-user sliding window is enforced per process; live sessions are capped per user and the oldest excess session is removed on sign-in.
 - Cloud persistence: the complete serialized learner snapshot is size-checked before the transaction can save it.
 

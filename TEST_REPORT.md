@@ -1,10 +1,13 @@
 # Ivrit Sheli — Verification Ledger
 
+- **Current private candidate:** `2.12.3` / local working tree / unpublished
 - **Current published source release:** `2.12.2` / GitHub tag and Release
-- **Latest gate date:** 2026-08-27 (2.12.2 README visual-proof and formal
-  browser batch). The
-  2.12.0 Nocturne gate of 2026-08-14 is preserved below as history and is not
-  relabelled.
+- **Latest gate date:** 2026-08-27 (`2.12.3` visual proof, complete local
+  frontend/backend gates, fresh-runtime FastAPI/CSP Playwright matrix and staged
+  package integrity). Current PostgreSQL/no-cache production-container and
+  external tester gates remain open.
+  The 2.12.0 Nocturne gate of 2026-08-14 is preserved below as history and is
+  not relabelled.
 - **Latest published source release:** `v2.12.2` / 2026-08-27; no deployment or
   durable hosted demo is claimed
 - **Latest verified hosted evidence:** `2.4.0` / historical Railway + PostgreSQL
@@ -15,7 +18,87 @@
   4A.1 completed 1,047 automated passes on 2026-08-13. Neither number is
   relabelled as 2.12.0 proof.
 
-## Current 2.12.2 evidence boundary
+## Current 2.12.3 private-candidate evidence boundary — 2026-08-27
+
+This is current local evidence for the `2.12.3` correction. It does not replace
+the complete published-source `2.12.2` ledger below, and it is not a release,
+deployment or hosted-demo claim.
+
+| Gate | Method | Current candidate result |
+|---|---|---|
+| Exact semantic catalogue | Source/public recipe and description contract | **240/240 exact scenes intact** |
+| `numbers.one` correction | Product scene plus regression coverage | **Passed**: one coffee cup beside numeral `1` with one count dot; no hand or isolated finger |
+| Today proof | Fresh FastAPI-served Spanish, Hebrew/RTL and mobile capture | **Passed**: natural `שתיים` / *shtayim* / *dos* card with two cups |
+| README proof package | `assets/readme/proof/2.12.3/manifest.json` | **Passed**: five WebP images plus one non-looping GIF, with byte counts and SHA-256 hashes |
+| Human derivative review | Full-size, GitHub-scale, privacy and grayscale inspection | **Passed** for all selected stills; the GIF was reviewed at representative frames |
+| Deterministic derivatives | Two independent render passes | **Passed**: selected WebPs and GIF were byte-identical between passes |
+| Fresh-runtime Playwright smoke | FastAPI `2.12.3`, production bundle/CSP, bounded smoke | **2 passed / 0 failed in 3.8 s** |
+| Fail-closed Spanish capture | Fresh served runtime | **12 candidate artifacts / 0 errors** |
+| Fail-closed Hebrew capture | Fresh served runtime | **1 candidate artifact / 0 errors** |
+| Frontend suite | `npx vitest run` | **859 passed / 49 files / 0 failed** in 122.10 s after the final trilingual evidence-copy update |
+| TypeScript | `npx tsc -b --pretty false` | **Passed** |
+| Production bundle | `npm run build` | **Passed**; Vite 8.1.4 transformed 134 modules in 1.75 s; existing `advancedChunks` deprecation warning remains |
+| Capture contract | `npm run test:capture` | **4 passed / 0 failed** in 7.93 s |
+| Backend suite | `.venv\Scripts\python.exe -m pytest backend\tests -q -p no:cacheprovider` | **387 passed / 1 PostgreSQL credential-gated skip / 0 failed** in 116.11 s |
+| Backend style and types | Ruff plus strict MyPy | **Passed**; MyPy checked 39 source files |
+| Offline doctor | `.venv\Scripts\python.exe -m ivrit_sheli --doctor` | **7/7 passed** as 2.12.3; 244 rows include the 240-entry starter set |
+| Dependency audits | `npm audit --omit=dev --audit-level=high` plus `pip-audit` | **0 known vulnerabilities** in the production npm dependency scope and Python requirements |
+| Complete candidate Playwright matrix | All configured browser projects on a fresh FastAPI `2.12.3/development/sqlite` listener at port 8200, production bundle/CSP, one worker | **36 passed / 40 intentional project-scoped skips / 0 failed** across 76 listed cases in 4.5 minutes after the final trilingual evidence-copy update |
+| Runtime teardown | Exact verified listener/launcher process tree | **Passed**: port 8200 confirmed clean after the matrix |
+| Docker image build | `docker build --tag ivrit-sheli:2.12.3-candidate .` | **Passed** with Docker 29.6.2; the image rebuilt the 134-module frontend and pinned Python runtime |
+| Docker SQLite smoke | Exact ephemeral container on loopback port 8300 | **Passed**: `/health/ready` ready, `/version` 2.12.3/local/SQLite, PID 1 UID/GID 10001, `MIGRATION_DATABASE_URL` absent; container removed and port clean |
+| Git-index package integrity | `generate_checksums.py` plus `verify_package.py` after explicit selective staging | **Passed**: 571 canonical checksums, 230 required files and all packaged assets; 17 preserved historical PNG candidates remained outside the index |
+| Durable HTTPS staging | Render or another approved host | **Not created; no service and no public URL exist** |
+
+Two strict same-PID preflights, one around capture and one before the final
+matrix, found that the Windows virtualenv launcher PID did not equal the Python
+listener child PID. Both runs stopped **before Playwright executed** and are
+therefore process-provenance refusals, not browser-test failures. The accepted
+launches required the listener to be either the captured launcher itself or its
+direct child, matched the exact IvritSheli command and port, validated version
+2.12.3 and the served entry assets, and left the test port clean after teardown.
+
+The first preflight for the final post-copy matrix also stopped before
+Playwright because its orchestration assertion expected the literal environment
+name `local`; the real `backend-local` profile correctly reports
+`environment: development` and `storage: sqlite`. After inspecting that exact
+`/version` response, the assertion was corrected to those two independent
+fields. The one corrected launch passed the smoke and complete matrix above and
+left port 8200 clean. This is a pre-test operator expectation refusal, not an
+application or Playwright failure.
+
+`render.yaml` is only a locally prepared **Render Free Blueprint**. No Render
+service was created, no HTTPS hostname was assigned, no provider configuration
+was changed and no external action was taken. Before staging can become tester
+evidence, it still needs Kevin's explicit deployment approval, an exact source
+revision, the restricted runtime database credential, administrator-password
+rotation, OAuth origin/callback configuration, two-real-account isolation and
+a proven backup/restore path.
+
+The first Docker smoke used a deliberately local session secret that was too
+short. The existing security guard rejected startup with exit code 3, as it
+should. The outer probe then reached its own limit because it did not stop when
+the container exited. After inspecting the exact container logs, the stopped
+container was removed and one corrected run used a 32-plus-character throwaway
+secret plus an early-exit check; that run produced the green Docker evidence
+above. The rejection is configuration evidence, not an application failure.
+
+### Not run or not completed for the 2.12.3 candidate
+
+- Current PostgreSQL integration and no-cache release-image/production-shaped
+  PostgreSQL container smoke. The cached local image and SQLite container smoke
+  passed, but they do not prove the hosted database path. The
+  ordinary backend suite intentionally skipped one test because the restricted
+  `DATABASE_URL` and administrator-only `MIGRATION_DATABASE_URL` were not
+  supplied to this local run.
+- Live provider sign-in, isolated HTTPS staging, hosted persistence and
+  two-real-account continuity/isolation.
+- Live Render proxy-header proof with two controlled client networks. Local
+  tests prove fail-closed parsing, but not which headers the provider delivers.
+- Supabase administrator-password rotation and current backup/restore proof.
+- Human Hebrew-content acceptance and the pilot with Kevin's mother/friends.
+
+## Published 2.12.2 evidence boundary
 
 This visual checkpoint preserves **240/240 exact semantic scenes** while adding
 dark-first theme resolution, responsive regional art, adult shared geometry,
@@ -94,13 +177,48 @@ does not replace the separately generated contact-sheet matrix or human visual
 recognition.
 
 Two additional final-snapshot rerun attempts on the same FastAPI/CSP path were
-terminated after 604.1 s (full matrix) and 184.1 s (targeted smoke) when the
-Windows Playwright process stopped emitting results. Neither attempt produced a
-test assertion failure or a complete result, so neither is counted as a pass.
-The completed 35-pass formal matrix above remains the browser evidence of
-record; the fresh 858-test frontend suite, TypeScript check, production build
-and four capture contracts cover the subsequent release-copy and documentation
-refresh. No third rerun was made merely to obtain a green label.
+terminated after 604.1 s (full matrix) and 184.1 s (targeted smoke). Their
+terminal output was buffered, but retained artifacts later proved that the
+targeted run did execute: six cases each exhausted the 30 s test timeout while
+waiting for `.app-shell`. The first trace showed `GET /` at 200 followed by a
+404 for the HTML-referenced `/assets/index-QR-zN1Oi.js`; the current build held
+`index-DIxUZMmw.js`. FastAPI had cached the pre-build HTML by base URL while the
+Vite build replaced its hashed assets. React therefore never mounted.
+
+Neither interrupted attempt is counted as a pass, and the incomplete full run
+is not promoted into a complete failure result. The completed 35-pass formal
+matrix above remains the published-source browser evidence of record. The local
+post-publication hardening keys the HTML cache by file revision, adds a backend
+regression, and makes the viewport projects depend on an entry-asset preflight.
+The full evidence and no-blind-rerun protocol are in
+[`docs/PLAYWRIGHT_RUNBOOK.md`](docs/PLAYWRIGHT_RUNBOOK.md).
+
+### Local post-publication Playwright hardening gate — 2026-08-27
+
+This gate began on the current local worktree after the already published
+`v2.12.2` tag. It is not silently relabelled as content of that immutable tag.
+
+| Gate | Result |
+|---|---|
+| Focused frontend-serving API file | **19 passed / 0 failed**; existing Starlette `httpx` deprecation warning |
+| Complete backend suite | **363 passed / 1 credential-gated PostgreSQL skip / 0 failed** in 60.22 s |
+| Ruff + strict MyPy | **Passed**; MyPy checked 39 source files |
+| TypeScript + production build | **Passed**; 134 Vite modules transformed; existing `advancedChunks` deprecation warning |
+| Repaired mobile/desktop smoke | **4 passed / 1 intentional project skip / 0 failed** in 11.5 s, including the preflight |
+| First green FastAPI/CSP Playwright matrix | **36 passed / 40 intentional project-scoped skips / 0 failed** across 76 listed cases in 4.5 minutes, but later listener inspection proved port 8000 belonged to an inherited backend process started 2026-08-26; retain this as current-frontend evidence only, not exact-backend proof |
+| Fresh-process provenance | Port 8000 free before launch; listener created in this run under the project virtualenv parent; `/version` commit label `feb056cbbc9539a40f55a0b53624197051acb66b+playwright-hardening-dirty`; discovery passed |
+| Exact fresh-process smoke | **4 passed / 1 intentional project skip / 0 failed** in 9.2 s, including the preflight |
+| Exact fresh-process full matrix | **36 passed / 40 intentional project-scoped skips / 0 failed** across 76 listed cases in 3.9 minutes |
+| Exact teardown | Verified listener stopped and port 8000 clean |
+
+The first green browser total is one runtime-preflight pass plus the same 35
+product passes recorded for the release matrix. The preflight validates the
+served document's local entry scripts/styles before any viewport project runs;
+it does not inflate product behavior coverage. A readiness response alone was
+not accepted as provenance once the inherited listener was identified.
+The corrected run then proved a new listener from this worktree, repeated the
+smoke and complete matrix successfully, and verified teardown. This exact run
+is the local post-publication browser evidence for the hardening change.
 
 ### Capture and visual evidence
 

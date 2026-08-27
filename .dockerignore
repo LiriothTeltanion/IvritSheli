@@ -15,6 +15,7 @@ data/imports/*.jsonl*
 data/models/*
 data/private/*
 data/**/*.db*
-.env
+.env*
+**/.env*
 .local-backups
 *.log

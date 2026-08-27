@@ -1,11 +1,110 @@
-# Deployment — Ivrit Sheli 2.12.2 published source / no current deployment
+# Deployment — Ivrit Sheli 2.12.3 private candidate / not deployed
 
 This guide covers the private SQLite installation, the reproducible PostgreSQL
 Docker stack, and the separate HTTPS staging design first established for
 2.9.1. Production values belong in a secrets manager or hosting dashboard,
-never in Git. Version 2.12.2 is published as a GitHub source release dated
-2026-08-27, but it has not been deployed. The former Railway 2.4.0 service is
-historical evidence and is currently offline; Devpost was not changed.
+never in Git.
+
+## Current boundary — 2.12.3 candidate, 2026-08-27
+
+- **Prepared locally:** the repository contains a Render Blueprint in
+  [`render.yaml`](../render.yaml) for a single Free web service. It selects the
+  root Dockerfile, keeps automatic deploys off and uses `/health/ready` as its
+  health check.
+- **Not created or deployed:** no Render service, generated `onrender.com`
+  domain or verified live URL exists yet. The Blueprint is configuration, not
+  evidence of a deployment.
+- **Published source:** `v2.12.2` remains the latest GitHub source release.
+  `2.12.3` is a private, unpublished candidate and must not be presented as a
+  release or live application.
+- **Historical only:** the former Railway 2.4.0 service is offline. Its records
+  below remain useful evidence, but they are not the current hosting path and
+  Devpost has not been changed.
+
+## Proposed $0 path — Render Free HTTPS staging
+
+**Staging HTTPS** means a secure rehearsal copy on the Internet: testers open a
+normal `https://` address with the browser padlock, while we verify the real
+production security settings before calling the app public. It is not a second
+edition of the code, a store publication or proof that production is ready.
+
+The proposed host is a Render Free web service. Render provides managed TLS and
+an `onrender.com` URL for web services. The Free plan currently provides 750
+instance hours per workspace and month, 0.1 CPU and 512 MiB RAM. A Free service
+spins down after 15 minutes without inbound traffic and can take about one
+minute to wake, so the first tester after a quiet period may see a delay. Its
+filesystem is ephemeral; learner state must remain in Supabase PostgreSQL, not
+in files inside the container. See Render's official
+[Free service limits](https://render.com/docs/free),
+[compute plans](https://render.com/docs/compute-plans) and
+[web-service guide](https://render.com/docs/web-services).
+
+This path is **proposed at $0 (also ₪0)** and no paid upgrade is required for
+the small family-and-friends pilot. Hosting billing is separate from OpenAI
+Platform or ChatGPT/Codex credits: adding OpenAI credit neither pays for Render
+nor makes hosting necessary. The Blueprint deliberately keeps
+`AI_PROVIDER=offline`, `ALLOW_CLOUD_PROCESSING=false`, self-hosted speech off
+and Push notifications off, so the staging service must not consume OpenAI API
+credit.
+
+The Blueprint currently proposes Render's Frankfurt region, branch `main`, a
+manual deploy policy (`autoDeployTrigger: off`) and
+`TRUSTED_PROXY_MODE=render`. Frankfurt must be confirmed against the actual
+Supabase project region before a service is created; change the Blueprint first
+if another Render region is the safer latency choice. Automatic deploys stay
+off for the pilot so an unreviewed GitHub change cannot silently replace the
+tested revision. Render Blueprint and health-check behavior are documented in
+the official [Blueprint specification](https://render.com/docs/blueprint-spec)
+and [health-check guide](https://render.com/docs/health-checks).
+
+### Required external steps before sharing a link
+
+These are gates, not completed work:
+
+1. Confirm the Supabase project region and select the closest suitable Render
+   region before creating the service.
+2. Rotate the Supabase `postgres` administrator password exposed on 2026-08-23.
+   Do not reuse it as the application credential.
+3. Make an encrypted PostgreSQL backup and complete a restore drill against a
+   separate database.
+4. Run `python scripts/db.py --check` through the existing
+   `ivrit_sheli_runtime` login and require all restricted-role/RLS checks to
+   pass.
+5. Name and publish the exact reviewed source revision that Render may fetch.
+   The dirty private worktree is not a deployable identity.
+6. With Kevin's explicit deployment approval, create the Free service from
+   [`render.yaml`](../render.yaml), keep automatic deploys off and enter secrets
+   only in Render's protected environment fields.
+7. Give the web application **only** the `DATABASE_URL` for username
+   `ivrit_sheli_runtime`. Never set `MIGRATION_DATABASE_URL` on the Render web
+   service. Any schema administration remains a separate, one-shot local
+   provisioning action.
+8. Use the final generated HTTPS origin as `PUBLIC_BASE_URL` and
+   `ALLOWED_ORIGINS`. In Google Auth Platform configure that exact origin and
+   the exact callback
+   `<PUBLIC_BASE_URL>/api/v1/auth/google/callback`; store the Google client
+   secret only in Render.
+9. Trigger one manual deploy of the named revision. Require
+   `/health/live`, `/health/ready` and `/version` to report the expected healthy
+   candidate and immutable commit before inviting anyone.
+10. From two controlled client networks, verify that Render supplies distinct,
+    valid `CF-Connecting-IP` values, ignores a caller's spoofed copy, and leaves
+    missing/duplicated values in the shared `render:unresolved` fail-closed
+    bucket. Render's official
+    [PocketBase guide](https://render.com/articles/host-pocketbase-on-render)
+    recommends that Cloudflare header, while its
+    [DDoS guide](https://render.com/articles/how-render-handles-ddos-attacks)
+    describes `X-Forwarded-For`; because the guidance differs, the live header
+    contract must be observed rather than inferred from local tests.
+11. Sign in with two real test accounts and prove each account can persist its
+    own progress but cannot read or modify the other's data. Also verify logout,
+    reload and a disposable-account deletion.
+12. Run the mobile, Hebrew RTL and mother-pilot acceptance checks. Only after
+    those gates pass, replace the README's “no live URL” notice with the
+    verified HTTPS link.
+
+If any security, database or OAuth gate fails, leave the local app available,
+do not weaken the control, and do not share the staging URL as ready.
 
 ## 1. Choose the runtime
 
@@ -14,7 +113,8 @@ historical evidence and is currently offline; Devpost was not changed.
 | Private Windows app | `./scripts/start.ps1` | Local SQLite | Not required |
 | Development | `./scripts/run-dev.ps1` or `./scripts/run-dev.sh` | Local SQLite | Optional |
 | Production-shaped local stack | `docker compose up --build` | PostgreSQL 17 + dictionary volume | Required; demo works without OAuth keys |
-| Private candidate staging web (design introduced in 2.9.1) | `railway-staging.toml` | Isolated PostgreSQL + model volume | Google/GitHub test clients |
+| Proposed 2.12.3 HTTPS staging (not created) | `render.yaml` | Supabase through restricted runtime role; no container persistence | Google test client required |
+| Historical private staging design introduced in 2.9.1 | `railway-staging.toml` | Isolated PostgreSQL + model volume | Google/GitHub test clients |
 | Private reminder cron | `railway-reminders.toml` | Push tables only through dedicated role | No browser identity; no public domain |
 | Public release | Railway Dockerfile deployment | Managed PostgreSQL | Google and/or GitHub OAuth + read-only demo |
 
@@ -67,21 +167,29 @@ The ownership initializer is intentionally idempotent. It changes only the mount
 
 ## 3. Production environment contract
 
-### Required
+### Required on the web runtime
 
 | Variable | Production value |
 |---|---|
 | `APP_ENV` | `production` |
 | `DATABASE_URL` | Restricted URL whose username is exactly `ivrit_sheli_runtime` |
-| `MIGRATION_DATABASE_URL` | Administrator URL used only by the pre-deploy provisioner |
-| `PUSH_DATABASE_URL` | Dedicated `ivrit_sheli_push_worker` URL; configure only on the reminder service and migration provisioner, never on the web runtime |
 | `AUTH_REQUIRED` | `true` |
 | `DEBUG` | `false`; production startup rejects debug responses |
 | `SESSION_SECRET` | At least 32 cryptographically random characters |
 | `SESSION_COOKIE_SECURE` | `true` |
 | `PUBLIC_BASE_URL` | Exact public `https://` origin, without a trailing slash |
 | `ALLOWED_ORIGINS` | Exact public origin; comma-separated only when additional trusted origins are deliberate |
-| `TRUSTED_PROXY_MODE` | `railway` on Railway; this mode is production-only and requires Railway's injected `RAILWAY_ENVIRONMENT_ID` |
+| `TRUSTED_PROXY_MODE` | `render` on Render or `railway` on Railway; each mode is production-only and requires that provider's injected identity variables |
+
+The web runtime must **never** receive `MIGRATION_DATABASE_URL`,
+`PUSH_DATABASE_URL` or a VAPID private key. Those credentials belong to
+separate processes:
+
+| Separate process | Credential | Boundary |
+|---|---|---|
+| One-shot migration/provisioning command | `MIGRATION_DATABASE_URL` | Administrator URL entered only for the audited provisioning action; never stored on the Render web service |
+| One-shot migration/provisioning command | `PUSH_DATABASE_URL` | Only when provisioning the dedicated push-worker role/tables |
+| Reminder worker | `PUSH_DATABASE_URL` | Dedicated `ivrit_sheli_push_worker` URL; never the learner web runtime URL |
 
 ### Sign-in provider requirement
 
@@ -170,7 +278,7 @@ Values are comma-separated. GitHub logins are matched case-insensitively; numeri
 
 Production also fails startup when authentication is disabled, debug mode is enabled, an allowed origin is a wildcard/non-HTTPS URL/path rather than an exact origin, no OAuth provider is complete, or a configured provider callback differs from its one exact callback under `PUBLIC_BASE_URL`.
 
-The built-in authentication limiter combines a per-client bucket with a much higher per-endpoint circuit breaker. Both are process-local, so multiple replicas multiply those allowances. `direct` mode keys the raw ASGI peer and is suitable only when that peer is the real client; `railway` mode reads exactly one syntactically valid `X-Real-IP` under the deployment assumption that Railway ingress overwrites it and the service has no direct public bypass. Missing, duplicate or malformed values share one unresolved bucket. `X-Forwarded-For` is never consulted, and Uvicorn starts with `--no-proxy-headers` so it cannot rewrite the raw peer first. The independent `OAUTH_STATE_LIMIT` decision is serialized in PostgreSQL with a transaction advisory lock and remains global across replicas.
+The built-in authentication limiter combines a per-client bucket with a much higher per-endpoint circuit breaker. Both are process-local, so multiple replicas multiply those allowances. `direct` mode keys the raw ASGI peer and is suitable only when that peer is the real client; `railway` mode reads exactly one syntactically valid Railway-overwritten `X-Real-IP`; `render` mode reads exactly one syntactically valid Cloudflare-overwritten `CF-Connecting-IP` and requires both `RENDER=true` and `RENDER_SERVICE_ID`. Missing, duplicate or malformed trusted values share a provider-specific unresolved bucket. `X-Forwarded-For` is never consulted, and Uvicorn starts with `--no-proxy-headers` so it cannot rewrite the raw peer first. The independent `OAUTH_STATE_LIMIT` decision is serialized in PostgreSQL with a transaction advisory lock and remains global across replicas. Because Render's own articles differ on which client-IP header they recommend, the live staging header probe in the required external steps remains mandatory.
 
 Authenticated mutations also have a process-local per-user limiter. PostgreSQL persistence independently enforces the live OAuth-state cap, the per-user session ceiling, and the serialized UTF-8 learner-snapshot ceiling. These controls make one request and one account bounded; they do not replace hosting-edge abuse controls, monitoring or cost limits.
 

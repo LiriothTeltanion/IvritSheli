@@ -197,7 +197,7 @@ function Wait-ForIvritServer {
 try {
     Write-Host "" 
     Write-Host "  ╔══════════════════════════════════════╗" -ForegroundColor DarkCyan
-    Write-Host "  ║       Ivrit · שלי · v2.12.2          ║" -ForegroundColor Cyan
+    Write-Host "  ║       Ivrit · שלי · v2.12.3          ║" -ForegroundColor Cyan
     Write-Host "  ╚══════════════════════════════════════╝" -ForegroundColor DarkCyan
 
     if (

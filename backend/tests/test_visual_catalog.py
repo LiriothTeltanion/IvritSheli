@@ -7,6 +7,7 @@ import re
 from pathlib import Path
 from typing import Any
 
+from ivrit_sheli.dictionary import DEMO_ENTRIES
 from ivrit_sheli.visual_spotlight import EXACT_VISUAL_WORDS
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -15,6 +16,11 @@ OFFLINE_DICTIONARY_PATH = (
     PROJECT_ROOT / "frontend" / "public" / "content" / "starter-dictionary-v2.8.json"
 )
 KNOWN_SCENE_ALTS = {
+    "numbers.one": {
+        "en": "One coffee cup beside the numeral 1",
+        "es": "Una taza de café junto al número 1",
+        "he": "כוס קפה אחת לצד הספרה 1",
+    },
     "family.boy": {
         "en": "A young boy beside a clear masculine square marker",
         "es": "Un niño junto a un marcador masculino cuadrado y claro",
@@ -101,5 +107,17 @@ def test_visual_catalog_has_240_exact_scenes_and_no_reviewed_fallbacks() -> None
         visual = catalog_by_visual[visual_key]["visual"]
         assert visual["key"] == visual_key
         assert all(visual["alt"][locale].strip() for locale in ("en", "es", "he"))
+    source_alts = {
+        str(entry["visual_key"]): {
+            "en": str(entry["visual_alt_en"]),
+            "es": str(entry["visual_alt_es"]),
+            "he": str(entry["visual_alt_he"]),
+        }
+        for entry in DEMO_ENTRIES
+    }
+    assert {
+        visual_key: catalog_by_visual[visual_key]["visual"]["alt"]
+        for visual_key in exact_keys
+    } == source_alts
     for visual_key, expected_alt in KNOWN_SCENE_ALTS.items():
         assert catalog_by_visual[visual_key]["visual"]["alt"] == expected_alt

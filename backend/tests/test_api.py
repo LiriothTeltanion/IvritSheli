@@ -193,6 +193,23 @@ def test_frontend_social_cards_and_spa_fallback_preserve_http_contract(
                 in response.text
             )
 
+        # A local production build can replace Vite's hashed bundles while the
+        # backend remains alive. The next request must read the new document,
+        # otherwise the cached HTML can point at an entry module that no longer
+        # exists and every browser test renders a blank root.
+        (frontend_dist / "index.html").write_text(
+            "<!doctype html><html><head>"
+            '<meta name="build-id" content="second-build">'
+            "</head></html>",
+            encoding="utf-8",
+        )
+        refreshed_document = static_client.get("/")
+        assert refreshed_document.status_code == 200
+        assert (
+            '<meta name="build-id" content="second-build">'
+            in refreshed_document.text
+        )
+
         api_miss = static_client.get("/api/v1/not-a-route")
         assert api_miss.status_code == 404
         assert api_miss.headers["content-type"].startswith("application/json")

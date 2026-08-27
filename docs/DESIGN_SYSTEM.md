@@ -1,4 +1,13 @@
-# 2.12.2 Visual Harmony & Resilience — 2026-08-27
+# 2.12.3 Clear Counting & Safer Visuals — PRIVATE CANDIDATE / 2026-08-27
+
+The unpublished 2.12.3 candidate removes the culturally ambiguous raised-finger
+quantity cue. `numbers.one` now uses one coffee cup beside the numeral `1` and
+one count dot; the ambient number spotlight leads with `שתיים` and two cups.
+The cup is semantically appropriate because `כוס` is feminine and therefore
+agrees with `אחת`. The latest published source release remains **v2.12.2**, and
+there is no verified durable live URL.
+
+## Published 2.12.2 foundation
 
 The published 2.12.2 source release combines six responsive Israel-region journey
 paintings and one cross-journey hero with **240 exact semantic SVG scenes** for
@@ -67,6 +76,16 @@ Two were found on 2026-08-24 by walking the app at 1280 px and 390 px:
 
 The rule that separates the two: **an explanation wraps, a decoration hides.**
 Never slice either.
+
+## Quantity without gesture ambiguity
+
+Hand gestures are not neutral: the same finger pose can be read differently
+across cultures or look offensive when isolated in a small card. For beginner
+quantity scenes, prefer a countable everyday object plus a numeral and count
+dot. Use a hand only when the hand itself is the reviewed meaning and its pose
+survives thumbnail inspection without ambiguity. Verify the final scene in the
+real served app, in all three locales and at mobile size; an isolated component
+test cannot prove how the composition will be perceived.
 
 ## Targets a finger can find
 
