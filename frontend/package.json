@@ -18,7 +18,7 @@
     "@supabase/supabase-js": "^2.112.3",
     "jwt-decode": "^4.0.0",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.8"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.2",
