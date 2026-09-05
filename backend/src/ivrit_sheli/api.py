@@ -18,7 +18,7 @@ import time
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from dataclasses import asdict, dataclass
-from datetime import datetime, timezone
+from datetime import datetime
 from functools import lru_cache
 from pathlib import Path
 from typing import Annotated, Any, Literal, cast
@@ -51,13 +51,11 @@ from ivrit_sheli.auth import (
 )
 from ivrit_sheli.cloud_repository import CloudLearningRepository
 from ivrit_sheli.cloud_store import (
-    AuthUser,
     CloudCapacityError,
     CloudSnapshotLimitError,
     CloudStore,
     MemoryCloudStore,
     PostgresCloudStore,
-    SessionIdentity,
     bearer_hash,
 )
 from ivrit_sheli.config import Settings
@@ -91,6 +89,7 @@ from ivrit_sheli.request_limits import (
 )
 from ivrit_sheli.speech_evidence import SpeechEvidenceSigner
 from ivrit_sheli.structured_logging import configure_json_logging, privacy_user_hash
+from ivrit_sheli.supabase_bearer import SupabaseBearerVerifier
 from ivrit_sheli.visual_spotlight import build_visual_spotlight
 
 LOGGER = logging.getLogger(__name__)
@@ -655,6 +654,17 @@ def create_app(
         max_keys=runtime_settings.authenticated_write_rate_limit_max_users,
     )
 
+    # SEC-02. One verifier per application, built only when a project URL is
+    # actually configured. `None` is the off switch: with no Supabase project
+    # the bearer branch is not merely unused, it is unreachable, and nothing
+    # reaches out to a default host. The verifier owns the negative key-id cache
+    # and the single-flight permit, so those must not be shared between apps.
+    bearer_verifier = (
+        SupabaseBearerVerifier(runtime_settings.supabase_url)
+        if runtime_settings.supabase_url
+        else None
+    )
+
     async def authorization_middleware(request: Request, call_next: Any) -> Any:
         """Enforce auth/demo rules using Supabase JWT Bearer tokens."""
         container = getattr(request.app.state, "services", None)
@@ -665,14 +675,10 @@ def create_app(
         #    actually configured — otherwise the feature stays off rather than
         #    reaching out to some default host.
         auth_header = request.headers.get("Authorization")
-        if runtime_settings.supabase_url and auth_header and auth_header.startswith("Bearer "):
+        if bearer_verifier is not None and auth_header and auth_header.startswith("Bearer "):
             token = auth_header[7:]
             try:
-                identity = await run_in_threadpool(
-                    _resolve_supabase_bearer,
-                    token,
-                    runtime_settings.supabase_url,
-                )
+                identity = await run_in_threadpool(bearer_verifier.resolve, token)
                 bearer_authenticated = identity is not None
             except Exception:
                 # A malformed or expired token is an ordinary event, not a fault:
@@ -1048,59 +1054,12 @@ def _dictionary_readiness(container: Services) -> dict[str, Any]:
     return details
 
 
-# Supabase access tokens are signed with an asymmetric key published as a JWKS.
-# HS256 must never appear beside those keys: a public key is public, so it also
-# works as a guessable HMAC secret, which is the classic algorithm-confusion
-# attack.
-SUPABASE_JWT_ALGORITHMS = ("ES256", "RS256")
-
-
-@lru_cache(maxsize=4)
-def _supabase_jwk_client(jwks_url: str) -> Any:
-    """Return one cached JWKS client per project.
-
-    Building the client per request meant refetching the key set on every
-    authenticated call, since its cache lives on the instance.
-    """
-    from jwt import PyJWKClient
-
-    return PyJWKClient(jwks_url, cache_keys=True, lifespan=3600, timeout=8)
-
-
-def _resolve_supabase_bearer(token: str, supabase_url: str) -> SessionIdentity | None:
-    """Verify one Supabase access token and map it onto a session identity.
-
-    Called through run_in_threadpool: fetching the key set is blocking network
-    I/O and must not run on the event loop.
-    """
-    import jwt
-
-    base = supabase_url.rstrip("/")
-    signing_key = _supabase_jwk_client(
-        f"{base}/auth/v1/.well-known/jwks.json"
-    ).get_signing_key_from_jwt(token)
-    payload = jwt.decode(
-        token,
-        signing_key.key,
-        algorithms=list(SUPABASE_JWT_ALGORITHMS),
-        audience="authenticated",
-        issuer=f"{base}/auth/v1",
-        options={"require": ["exp", "sub"]},
-    )
-    user_id = payload.get("sub")
-    if not user_id:
-        return None
-    metadata = payload.get("user_metadata") or {}
-    return SessionIdentity(
-        user=AuthUser(
-            id=str(user_id),
-            display_name=metadata.get("full_name") or metadata.get("name") or "Learner",
-            provider="google",
-            login=payload.get("email", ""),
-        ),
-        csrf_hash="",
-        expires_at=datetime.fromtimestamp(int(payload["exp"]), tz=timezone.utc),
-    )
+# SEC-02. The Supabase bearer verification boundary moved to
+# `ivrit_sheli.supabase_bearer`. It is authentication, so all of its work happens
+# before the caller has proved anything, and it now bounds token size, rejects a
+# wrong algorithm or malformed key id before reaching the network, remembers
+# absent key ids for a bounded time, and allows at most one key-set refresh in
+# flight. See that module for the attack this closes.
 
 
 # The only documents /notes/ may publish. Everything else under docs/ is
