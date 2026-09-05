@@ -36,6 +36,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from starlette.background import BackgroundTask
 from starlette.concurrency import run_in_threadpool
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from ivrit_sheli import __version__
 from ivrit_sheli.ai_engine import AIEngine
@@ -813,6 +814,13 @@ def create_app(
         window_seconds=runtime_settings.auth_rate_limit_window_seconds,
         client_key_mode=runtime_settings.trusted_proxy_mode,
         max_client_keys=runtime_settings.auth_rate_limit_max_client_keys,
+    )
+    # SEC-06. Outermost of the added middleware, so a forged Host is refused
+    # before CORS, before the body-limit middleware buffers anything, and before
+    # any route or session work. Assembled list, never a wildcard: see
+    # Settings.trusted_hosts for why each entry is there.
+    app.add_middleware(
+        TrustedHostMiddleware, allowed_hosts=list(runtime_settings.trusted_hosts)
     )
     app.add_middleware(
         CORSMiddleware,

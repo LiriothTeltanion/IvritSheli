@@ -241,6 +241,11 @@ class Settings:
     github_client_secret: str = ""
     github_redirect_uri: str = "http://127.0.0.1:8000/api/v1/auth/github/callback"
     public_base_url: str = "http://127.0.0.1:8000"
+    # SEC-06. Extra Host header values this deployment answers to, beyond the
+    # loopback names and the host in PUBLIC_BASE_URL. Set it when running a LAN
+    # pilot on a named machine. Never a wildcard: an unchecked Host is what lets
+    # a browser be walked onto a local service through an attacker's domain.
+    allowed_hosts: tuple[str, ...] = ()
     local_companion_url: str = ""
     allowed_origins: tuple[str, ...] = (
         "http://localhost:5173",
@@ -490,6 +495,7 @@ class Settings:
                 f"{public_base_url}/api/v1/auth/github/callback",
             ).strip().rstrip("/"),
             public_base_url=public_base_url,
+            allowed_hosts=parse_csv(value("ALLOWED_HOSTS", "")),
             local_companion_url=value("LOCAL_COMPANION_URL", "").strip().rstrip("/"),
             allowed_origins=allowed_origins,
             build_commit=(
@@ -526,6 +532,41 @@ class Settings:
     def cloud_mode(self) -> bool:
         """Return whether PostgreSQL-backed multi-user mode is configured."""
         return bool(self.database_url)
+
+    @property
+    def trusted_hosts(self) -> tuple[str, ...]:
+        """Return every Host header value this deployment answers to.
+
+        SEC-06. Nothing checked the Host header at all, which is what makes DNS
+        rebinding work: a browser is pointed at a name the attacker controls,
+        that name is re-resolved to 127.0.0.1, and the browser then speaks to
+        the local service as a same-origin page. An unchecked Host also lets a
+        forged value reach anything that builds an absolute URL from it.
+
+        The list is assembled, never wildcarded. Loopback is always present
+        because the platform's own health checks and the local launcher use it.
+        A LAN pilot has to name its machine through ALLOWED_HOSTS rather than
+        being silently accepted, which is the point: binding to 0.0.0.0 is now a
+        deliberate act with a deliberate host list, not a default.
+        """
+        hosts: list[str] = ["localhost", "127.0.0.1", "::1", "[::1]"]
+        public_host = urlparse(self.public_base_url).hostname
+        if public_host:
+            hosts.append(public_host)
+        # The bind address is a host only when it is a concrete one. "0.0.0.0"
+        # means "every interface", which is not a name anybody can send.
+        if self.host and self.host not in {"0.0.0.0", "::", ""}:
+            hosts.append(self.host)
+        hosts.extend(host.strip() for host in self.allowed_hosts if host.strip())
+        if self.app_env != "production":
+            # Starlette's TestClient speaks to "testserver". It is not a
+            # resolvable public name, so it cannot be reached by a browser; it is
+            # still kept out of production, where nothing should need it.
+            hosts.append("testserver")
+        seen: dict[str, None] = {}
+        for host in hosts:
+            seen.setdefault(host, None)
+        return tuple(seen)
 
     @property
     def github_auth_configured(self) -> bool:
