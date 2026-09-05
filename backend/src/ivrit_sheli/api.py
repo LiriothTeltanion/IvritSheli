@@ -51,6 +51,7 @@ from ivrit_sheli.auth import (
 from ivrit_sheli.cloud_repository import CloudLearningRepository
 from ivrit_sheli.cloud_store import (
     AuthUser,
+    CloudCapacityError,
     CloudSnapshotLimitError,
     CloudStore,
     MemoryCloudStore,
@@ -528,6 +529,10 @@ def build_services(
                 settings.database_url,
                 session_secret=settings.session_secret,
                 max_snapshot_bytes=settings.max_cloud_snapshot_bytes,
+                max_connections=settings.max_cloud_connections,
+                connection_acquire_timeout=(
+                    settings.cloud_connection_acquire_timeout_seconds
+                ),
             )
             if settings.cloud_mode and settings.database_url != "memory://"
             else MemoryCloudStore(
@@ -2551,6 +2556,34 @@ def register_error_handlers(app: FastAPI, settings: Settings) -> None:
             "cloud_snapshot_limit_exceeded",
             str(error),
         )
+
+    @app.exception_handler(CloudCapacityError)
+    async def cloud_capacity_error(
+        request: Request, _error: CloudCapacityError
+    ) -> JSONResponse:
+        """Turn an exhausted connection ceiling into an honest, quiet refusal.
+
+        SEC-03. The alternative this replaces was opening another PostgreSQL
+        connection without limit, which degrades the database for every learner
+        rather than only for the request that arrived last. The log line is
+        deliberately structured and free of the exception text so a burst does
+        not write a caller-controlled string into the operational log.
+        """
+        LOGGER.warning(
+            "PostgreSQL connection ceiling reached",
+            extra={
+                "event": "database.postgres.capacity",
+                "request_id": request.state.request_id,
+            },
+        )
+        response = error_response(
+            request,
+            503,
+            "database_unavailable",
+            "Cloud data storage is busy. Please try again in a moment.",
+        )
+        response.headers["Retry-After"] = "5"
+        return response
 
     @app.exception_handler(RequestBodyTooLarge)
     async def request_body_too_large(request: Request, _error: RequestBodyTooLarge) -> JSONResponse:

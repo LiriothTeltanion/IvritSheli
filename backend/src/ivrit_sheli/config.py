@@ -222,6 +222,11 @@ class Settings:
     authenticated_write_rate_limit_window_seconds: int = 60
     authenticated_write_rate_limit_max_users: int = 10_000
     max_cloud_snapshot_bytes: int = 4_194_304
+    # SEC-03. A ceiling on PostgreSQL connections this process may hold open at
+    # once, and how long a request waits for one before it is refused. Tunable
+    # because the right number belongs to the database plan, not to the code.
+    max_cloud_connections: int = 8
+    cloud_connection_acquire_timeout_seconds: float = 5.0
     max_request_body_bytes: int = 1_048_576
     max_ics_upload_body_bytes: int = 6_291_456
     max_audio_upload_body_bytes: int = 9_437_184
@@ -454,6 +459,10 @@ class Settings:
             ),
             max_cloud_snapshot_bytes=int(
                 value("MAX_CLOUD_SNAPSHOT_BYTES", "4194304")
+            ),
+            max_cloud_connections=int(value("MAX_CLOUD_CONNECTIONS", "8")),
+            cloud_connection_acquire_timeout_seconds=float(
+                value("CLOUD_CONNECTION_ACQUIRE_TIMEOUT_SECONDS", "5")
             ),
             max_request_body_bytes=int(
                 value("MAX_REQUEST_BODY_BYTES", "1048576")
@@ -732,6 +741,12 @@ class Settings:
         if not 1_024 <= self.max_cloud_snapshot_bytes <= 67_108_864:
             raise ValueError(
                 "MAX_CLOUD_SNAPSHOT_BYTES must be between 1024 and 67108864"
+            )
+        if not 1 <= self.max_cloud_connections <= 100:
+            raise ValueError("MAX_CLOUD_CONNECTIONS must be between 1 and 100")
+        if not 0.1 <= self.cloud_connection_acquire_timeout_seconds <= 30.0:
+            raise ValueError(
+                "CLOUD_CONNECTION_ACQUIRE_TIMEOUT_SECONDS must be between 0.1 and 30"
             )
         request_limits = {
             "MAX_REQUEST_BODY_BYTES": self.max_request_body_bytes,
