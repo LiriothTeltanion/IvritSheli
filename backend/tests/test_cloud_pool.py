@@ -24,16 +24,20 @@ from __future__ import annotations
 import queue
 import threading
 from contextlib import ExitStack
+from pathlib import Path
 from typing import Any
 
 import pytest
+from fastapi.testclient import TestClient
 
+from ivrit_sheli.api import create_app
 from ivrit_sheli.cloud_store import (
     DEFAULT_CONNECTION_ACQUIRE_TIMEOUT,
     DEFAULT_MAX_CONNECTIONS,
     CloudCapacityError,
     PostgresCloudStore,
 )
+from ivrit_sheli.config import Settings
 
 pytestmark = pytest.mark.postgres
 
@@ -459,3 +463,92 @@ def test_the_ceiling_refuses_a_configuration_that_would_disable_it(
             PostgresCloudStore(
                 RUNTIME_URL, SESSION_SECRET, connection_acquire_timeout=bad_timeout
             )
+
+
+# ---------------------------------------------------------------------------
+# SEC-03 follow-up, found by an independent review of the fix above.
+#
+# Resolving the cookie session borrows a connection, and it happens inside a
+# user middleware. Starlette builds the stack as
+#
+#     ServerErrorMiddleware -> user middleware -> ExceptionMiddleware -> router
+#
+# and every non-500 handler registered with @app.exception_handler lives in that
+# innermost layer. So the CloudCapacityError handler could never see an
+# exception raised from the middleware, and the ceiling that was supposed to
+# produce a clean 503 produced a 500 instead - with none of the security headers,
+# because those are set after `call_next` in a middleware that never resumes, and
+# with a full traceback whenever DEBUG is on.
+#
+# This is the dominant path in cloud mode: every cookie-authenticated request.
+# ---------------------------------------------------------------------------
+
+
+def _app_settings(tmp_path: Path) -> Settings:
+    """Offline local settings; the store is faked, so no database is needed."""
+    data_dir = tmp_path / "data"
+    return Settings.from_env(
+        {
+            "IVRIT_LOCAL_ONLY": "true",
+            "APP_DATA_DIR": str(data_dir),
+            "APP_DB_PATH": str(data_dir / "learning.db"),
+            "DICTIONARY_DB_PATH": str(data_dir / "dictionary.db"),
+            "AI_PROVIDER": "offline",
+            "ALLOW_CLOUD_PROCESSING": "false",
+            "OPENAI_API_KEY": "",
+            "GOOGLE_ACCESS_TOKEN": "",
+            "GOOGLE_REFRESH_TOKEN": "",
+            "DEBUG": "true",
+        }
+    )
+
+
+def test_a_capacity_error_while_resolving_a_session_is_a_clean_503(
+    tmp_path: Path,
+) -> None:
+    """Not a 500, and not a traceback: the learner gets the honest answer."""
+    settings = _app_settings(tmp_path)
+    app = create_app(settings)
+
+    with TestClient(app) as client:
+
+        def _at_capacity(_token: str) -> Any:
+            raise CloudCapacityError("The service is busy right now.")
+
+        app.state.services.auth.resolve = _at_capacity
+        client.cookies.set(settings.session_cookie_name, "any-session-token")
+        response = client.get("/api/v1/dashboard")
+
+    assert response.status_code == 503, (
+        "a saturated pool must not surface as an internal error; 500 here means "
+        "the exception escaped past ExceptionMiddleware again"
+    )
+    assert response.json()["error"]["code"] == "database_unavailable"
+    assert response.headers["Retry-After"] == "5"
+    assert "connection" not in response.text.lower()
+
+
+def test_that_503_still_carries_every_security_header(tmp_path: Path) -> None:
+    """The headers are set after call_next, so an escaping exception loses them all."""
+    settings = _app_settings(tmp_path)
+    app = create_app(settings)
+
+    with TestClient(app) as client:
+
+        def _at_capacity(_token: str) -> Any:
+            raise CloudCapacityError("The service is busy right now.")
+
+        app.state.services.auth.resolve = _at_capacity
+        client.cookies.set(settings.session_cookie_name, "any-session-token")
+        response = client.get("/api/v1/dashboard")
+
+    for header in (
+        "Content-Security-Policy",
+        "X-Content-Type-Options",
+        "X-Frame-Options",
+        "Referrer-Policy",
+        "Permissions-Policy",
+        "X-Request-ID",
+    ):
+        assert header in response.headers, f"{header} was lost on the error path"
+    assert "Traceback" not in response.text

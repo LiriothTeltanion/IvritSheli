@@ -1225,6 +1225,17 @@ export default function App(): React.JSX.Element {
                   window.localStorage.removeItem(identityStorageKey(auth));
                   window.localStorage.removeItem(localWelcomeStorageKey(auth));
                   setSavedAccounts(forgetSavedAccount(deletedId));
+                  // The other five steps are bare removeItem calls, so a storage
+                  // failure throws and the catch below tells her. This one
+                  // cannot: `savedAccounts.write` swallows its own setItem
+                  // failure and returns the in-memory list either way, which is
+                  // the forgiving contract its other callers need. So read it
+                  // back. Without this, the single residue that puts her name
+                  // and face back on the sign-in screen is the one residue that
+                  // could survive silently while the screen said it was gone.
+                  if (readSavedAccounts().some((entry) => entry.id === deletedId)) {
+                    throw new Error('saved account entry survived deletion');
+                  }
                 } catch {
                   // The server row is gone either way, so this is not a failure
                   // of the deletion. Saying nothing would be the defect: she

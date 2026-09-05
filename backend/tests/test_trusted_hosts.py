@@ -22,6 +22,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
 from fastapi.testclient import TestClient
 
 from ivrit_sheli.api import create_app
@@ -126,7 +127,13 @@ def test_production_does_not_trust_the_test_client_host(tmp_path: Path) -> None:
 
 
 def test_the_allowlist_is_never_a_wildcard(tmp_path: Path) -> None:
-    """A single "*" would turn every other test here into theatre."""
+    """A single "*" would turn every other test here into theatre.
+
+    Starlette's TrustedHostMiddleware sets `allow_any = "*" in allowed_hosts`
+    and returns before it reads the Host header at all, and it treats a leading
+    `*.` as a live suffix match. So a wildcard does not widen this control, it
+    switches it off.
+    """
     for settings in (
         _settings(tmp_path),
         _settings(tmp_path, ALLOWED_HOSTS="a.example, b.example"),
@@ -135,3 +142,30 @@ def test_the_allowlist_is_never_a_wildcard(tmp_path: Path) -> None:
         assert "*" not in settings.trusted_hosts
         assert not any(host.startswith("*") for host in settings.trusted_hosts)
         assert all(host.strip() for host in settings.trusted_hosts)
+
+
+@pytest.mark.parametrize("wildcard", ["*", "*.attacker.example", "a.example,*"])
+def test_a_wildcard_in_allowed_hosts_is_refused_at_startup(
+    tmp_path: Path, wildcard: str
+) -> None:
+    """Fail closed on the obvious reaction to an unexpected 400.
+
+    The previous version of the test above only ever fed inputs that contained
+    no `*`, so it asserted an invariant it could not break. This one feeds the
+    wildcard.
+    """
+    with pytest.raises(ValueError, match="wildcards are not allowed"):
+        _settings(tmp_path, ALLOWED_HOSTS=wildcard)
+
+
+def test_a_wildcard_smuggled_through_the_public_url_never_reaches_the_middleware(
+    tmp_path: Path,
+) -> None:
+    """`urlparse("https://*").hostname` really does return "*"."""
+    settings = _settings(tmp_path, PUBLIC_BASE_URL="https://*")
+
+    assert "*" not in settings.trusted_hosts
+
+    with TestClient(create_app(settings)) as client:
+        assert client.get("/health/live", headers={"Host": "anything.example"}).status_code == 400
+        assert client.get("/health/live", headers={"Host": "localhost"}).status_code == 200

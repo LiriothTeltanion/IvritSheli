@@ -712,10 +712,42 @@ def create_app(
         if identity is None:
             session_token = request.cookies.get(runtime_settings.session_cookie_name)
             if container is not None and session_token:
-                identity = await run_in_threadpool(
-                    container.auth.resolve,
-                    session_token,
-                )
+                try:
+                    identity = await run_in_threadpool(
+                        container.auth.resolve,
+                        session_token,
+                    )
+                except CloudCapacityError:
+                    # SEC-03 follow-up. Resolving the cookie session borrows a
+                    # PostgreSQL connection, and this is a user middleware.
+                    # Starlette builds the stack as ServerErrorMiddleware ->
+                    # user middleware -> ExceptionMiddleware -> router, and every
+                    # non-500 handler registered with @app.exception_handler
+                    # lives in that innermost layer. So an exception raised HERE
+                    # can never reach the CloudCapacityError handler.
+                    #
+                    # Left to propagate it becomes a 500 rather than a 503, it
+                    # skips every security header — those are set after
+                    # `call_next` in request_id_middleware, which never resumes —
+                    # and while DEBUG is on ServerErrorMiddleware renders a full
+                    # traceback in preference to any handler. That is the
+                    # dominant path in cloud mode: every cookie-authenticated
+                    # request goes through it.
+                    LOGGER.warning(
+                        "PostgreSQL connection ceiling reached while resolving a session",
+                        extra={
+                            "event": "database.postgres.capacity",
+                            "request_id": request.state.request_id,
+                        },
+                    )
+                    busy = error_response(
+                        request,
+                        503,
+                        "database_unavailable",
+                        "Cloud data storage is busy. Please try again in a moment.",
+                    )
+                    busy.headers["Retry-After"] = "5"
+                    return busy
                 
         request.state.session_identity = identity
         
@@ -833,10 +865,18 @@ def create_app(
         client_key_mode=runtime_settings.trusted_proxy_mode,
         max_client_keys=runtime_settings.auth_rate_limit_max_client_keys,
     )
-    # SEC-06. Outermost of the added middleware, so a forged Host is refused
-    # before CORS, before the body-limit middleware buffers anything, and before
-    # any route or session work. Assembled list, never a wildcard: see
-    # Settings.trusted_hosts for why each entry is there.
+    # SEC-06. `add_middleware` prepends, so the LAST registration is outermost.
+    # CORS is registered after this one and therefore wraps it; the effective
+    # order is request_id -> CORS -> TrustedHost -> AuthRateLimit -> body limit
+    # -> authorization -> route. What the security property needs is that a
+    # forged Host is refused before the body-limit middleware buffers a chunked
+    # request and before any session or route work, and that holds. CORS is left
+    # outermost on purpose: it answers preflights on `Origin`, never on `Host`.
+    #
+    # The list is assembled and can never contain a wildcard. That is enforced
+    # twice, because Starlette reads a bare "*" as allow_any and stops checking
+    # the Host header at all: `Settings.validate_cloud_configuration` refuses one
+    # in ALLOWED_HOSTS, and `Settings.trusted_hosts` filters any that survive.
     app.add_middleware(
         TrustedHostMiddleware, allowed_hosts=list(runtime_settings.trusted_hosts)
     )
@@ -2494,13 +2534,20 @@ def register_routes(app: FastAPI) -> None:
             raise ImportAdmissionError(
                 "Too many restores are already running. Please try again in a moment."
             )
-        temporary = (
-            services(request).settings.data_dir
-            / "private"
-            / f"import-{uuid4().hex}.json"
-        )
+        # Bound before the try so the finally can always test it: the path is
+        # built inside the try, and until it is there is no file to remove.
+        temporary: Path | None = None
         written = 0
         try:
+            # Inside the try, not before it. `services(request)` raises when the
+            # container is unset, and a raise between `acquire()` and the `try`
+            # would leak the permit permanently, lowering the ceiling by one
+            # every time until no restore is admitted at all.
+            temporary = (
+                services(request).settings.data_dir
+                / "private"
+                / f"import-{uuid4().hex}.json"
+            )
             with temporary.open("wb") as handle:
                 while chunk := file.file.read(1024 * 1024):
                     written += len(chunk)
@@ -2538,7 +2585,8 @@ def register_routes(app: FastAPI) -> None:
                 "reauthorization_required": True,
             }
         finally:
-            temporary.unlink(missing_ok=True)
+            if temporary is not None:
+                temporary.unlink(missing_ok=True)
             file.file.close()
             # Outermost effect of the slice: a restore that fails anywhere above
             # still gives its slot back, or the ceiling would fall to zero and

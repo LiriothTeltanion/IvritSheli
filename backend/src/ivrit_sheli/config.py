@@ -558,6 +558,14 @@ class Settings:
         if self.host and self.host not in {"0.0.0.0", "::", ""}:
             hosts.append(self.host)
         hosts.extend(host.strip() for host in self.allowed_hosts if host.strip())
+        # Starlette reads a bare "*" as allow_any and returns before it ever
+        # looks at the Host header, and it treats a leading "*." as a live
+        # suffix match. Either one turns this control off, so neither may reach
+        # the middleware. `validate_cloud_configuration` refuses a wildcard in
+        # ALLOWED_HOSTS with a readable message; this filter is the second lock,
+        # and it also catches one smuggled through PUBLIC_BASE_URL, where
+        # `urlparse("https://*").hostname` really does return "*".
+        hosts = [host for host in hosts if "*" not in host]
         if self.app_env != "production":
             # Starlette's TestClient speaks to "testserver". It is not a
             # resolvable public name, so it cannot be reached by a browser; it is
@@ -798,6 +806,15 @@ class Settings:
             )
         if not 1 <= self.max_concurrent_imports <= 32:
             raise ValueError("MAX_CONCURRENT_IMPORTS must be between 1 and 32")
+        # Fail closed on the one input that could switch off the Host allowlist.
+        # A single "*" makes Starlette's TrustedHostMiddleware answer every Host,
+        # and "*.example" becomes a suffix match, so the obvious reaction to an
+        # unexpected 400 would silently undo SEC-06 with no log line to say so.
+        for allowed_host in self.allowed_hosts:
+            if "*" in allowed_host:
+                raise ValueError(
+                    "ALLOWED_HOSTS must name exact hosts; wildcards are not allowed"
+                )
         request_limits = {
             "MAX_REQUEST_BODY_BYTES": self.max_request_body_bytes,
             "MAX_ICS_UPLOAD_BODY_BYTES": self.max_ics_upload_body_bytes,
