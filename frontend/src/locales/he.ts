@@ -171,6 +171,7 @@ export const heMessages = {
     deviceRecordingDeleted: 'ההקלטה השמורה נמחקה מהמכשיר הזה.',
     deviceRecordingDeleteFailed: 'המכשיר הזה לא הצליח למחוק את ההקלטה השמורה.',
     deviceAudioCleanupAfterAccountDeletion: 'החשבון נמחק, אבל הדפדפן לא הצליח למחוק את ההקלטות המקומיות שלו. כדי להסיר אותן, מחקו את נתוני האתר בדפדפן במכשיר הזה.',
+    accountLocalCleanupFailed: 'החשבון נמחק, אבל הדפדפן לא הצליח לשכוח את השם ואת ההתחברות השמורה. כדי להסיר אותם, מחקו את נתוני האתר בדפדפן במכשיר הזה.',
     audioLimitNotice: 'הקליטו מילה או ביטוי קצר: עד 20 שניות ו-8 MB.',
     temporaryAudioDeleted: 'קובץ השרת הזמני נמחק לאחר התמלול.',
     temporaryAudioDeletionUnconfirmed: 'השרת לא אישר שקובץ ההעלאה הזמני נמחק.',

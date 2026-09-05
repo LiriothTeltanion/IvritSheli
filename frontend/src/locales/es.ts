@@ -171,6 +171,7 @@ export const esMessages = {
     deviceRecordingDeleted: 'La grabación guardada se borró de este dispositivo.',
     deviceRecordingDeleteFailed: 'Este dispositivo no pudo borrar la grabación guardada.',
     deviceAudioCleanupAfterAccountDeletion: 'Tu cuenta fue eliminada, pero este navegador no pudo borrar sus grabaciones locales. Borra los datos de este sitio en el navegador del dispositivo para eliminarlas.',
+    accountLocalCleanupFailed: 'Tu cuenta fue eliminada, pero este navegador no pudo olvidar tu nombre ni tu inicio de sesión guardado. Borra los datos de este sitio en el navegador del dispositivo para eliminarlos.',
     audioLimitNotice: 'Graba una palabra o frase corta: máximo 20 segundos y 8 MB.',
     temporaryAudioDeleted: 'El archivo temporal del servidor se eliminó después de transcribir.',
     temporaryAudioDeletionUnconfirmed: 'El servidor no confirmó la eliminación del archivo temporal.',
