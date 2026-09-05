@@ -11,6 +11,44 @@ latest **tagged** GitHub source release, and `2.12.3` is deliberately untagged
 service of **2.4.0 Contest Edition (2026-07-21)** was offline when checked on
 2026-08-26 and is not returning.
 
+## Security remediation session - 2026-09-05, Claude Code
+Six of the seven confirmed findings from `docs/SECURITY_REMEDIATION_BACKLOG.md`
+are fixed in source, one reviewed local commit each, none pushed:
+
+| Commit | Finding | What changed |
+|---|---|---|
+| `ecc12ad` | SEC-03 | A ceiling on open PostgreSQL connections, not only idle ones. `/health/ready` is public and borrowed a connection; an empty pool opened another unconditionally. Exhaustion now returns 503 with no connection detail. |
+| `c091ec8` | SEC-04 | Import size aligned with what a restore can actually keep (twice the snapshot ceiling in cloud mode, unchanged locally), plus `MAX_CONCURRENT_IMPORTS` admission so concurrency cannot multiply the per-request cost. |
+| `fe1a423` | SEC-02 | Supabase bearer verification moved to its own module and bounded: size, algorithm and key-id gates before the network, a bounded negative cache, and single-flight refresh. Twenty-five probes now cost one key lookup. |
+| `301ef44` | SEC-06 | A Host allowlist where there was none. Verified against port 8000: `attacker.example` returns 400. |
+| `8ae4c75` | SEC-07 | No Swagger, ReDoc or `openapi.json` in production. `redoc_url` had silently defaulted to `/redoc`, publishing a second documentation UI nothing had mentioned. |
+| `91f6fa7` | SEC-08 | Deletion now forgets the learner's identity key, local-welcome key and saved-accounts entry, and says so honestly when it cannot. |
+
+Gates after the last of them: **430 backend tests / 1 credential-gated skip**,
+**862 frontend tests across 50 files**, `tsc` clean, production build clean,
+Ruff clean, strict MyPy clean across 40 source files, `verify_package.py` green
+on 603 canonical checksums, and no whitespace errors. The served application was
+restarted and re-checked on port 8000 after each backend slice.
+
+Three claims were mutation-checked rather than argued: removing the connection
+ceiling lets a burst open a third socket where the fix refuses it; removing the
+JWKS negative cache turns one key lookup into twenty-five; removing the deletion
+cleanup fails all three new App-level tests. A test that cannot fail against the
+defect it names is not evidence, and two of these were written before the fix.
+
+Still open, and neither is a code change:
+
+- **SEC-05** needs Kevin's product decision. Binding to `0.0.0.0` still exposes a
+  writable local workspace to any device on the network. The Host allowlist
+  closed the browser-mediated path, not a phone on the same wifi. Recommended:
+  retire LAN pilots in favour of the hosted staging link, which already has
+  HTTPS, authentication and the real database.
+- **SEC-02** is hardened but arguably should not exist. Nothing calls it.
+  Removing a public authentication capability is Kevin's call.
+
+**None of this is deployed.** Render still runs `ed59eb84`, so every fix above
+takes effect on the next deployment, which remains a separate decision.
+
 ## Current verified boundary — 2026-09-05
 
 At the start of this refresh, the worktree was clean on `main` at

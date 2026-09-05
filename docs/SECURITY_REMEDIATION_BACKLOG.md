@@ -1,6 +1,6 @@
 # Security remediation backlog
 
-**Current review date:** 2026-09-05 (`Asia/Jerusalem`)
+**Current review date:** 2026-09-05 (`Asia/Jerusalem`), remediation same day
 **Reviewed source:** `main` at
 `6bbcb3183d02426571b46d61918121de0ac5a514`
 **Original static scan:** `cce8b3a1-9a87-4e7f-b43d-985e0eb24c95`, sealed
@@ -16,44 +16,58 @@ into issues, commits, logs or future handoffs.
 
 ## Executive result
 
-The old scan covered an earlier snapshot, not today's checkout. Its secret-file
-repository finding is no longer actionable: `.env.bak` never entered the
-committed or remote history, current Git tracks only `.env.example`, and backup
-patterns are ignored. The separate Supabase administrator-password rotation is
-still an operator action and remains unverified.
+Six of the seven confirmed findings are fixed in source as of 2026-09-05, each
+as its own reviewed local commit with its own tests. The suite went from 387 to
+437 backend tests and from 859 to 862 frontend tests across this work; the
+three claims that could be measured rather than argued (the connection ceiling,
+the JWKS negative cache and the deletion cleanup) were each mutation-checked by
+removing the fix and confirming the new tests fail.
 
-Six findings remain confirmed in current source. One additional JWKS finding is
-confirmed for deployments that set `SUPABASE_URL`, but that optional bearer path
-is not enabled by the checked-in Render Blueprint. Account deletion received a
-real partial repair for device audio, yet still leaves identity and saved-account
-metadata in browser storage.
+Two things remain open and neither is a code change.
+
+**SEC-05 needs a product decision from Kevin.** Binding to `0.0.0.0` still
+exposes a writable local workspace to any device already on the network. The
+Host allowlist removed the browser-mediated path to it, but not a phone on the
+same wifi. The recommendation is to stop using LAN mode for pilots and use the
+hosted staging link, which already has HTTPS, authentication and the real
+database — and which is what the first pilot link actually used.
+
+**SEC-02 is hardened but arguably should not exist.** No supported client uses
+the Supabase bearer path: the frontend never sends an `Authorization` header,
+and `SUPABASE_URL` appears in neither `render.yaml` nor `.env.example`. It is
+now bounded, but deliberate removal may be the better answer than maintaining a
+public authentication surface nothing calls. Removing it is Kevin's call.
+
+The old scan's secret-file finding stays closed: `.env.bak` never entered
+committed or remote history and backup patterns are ignored. The separate
+Supabase administrator-password rotation is still an operator action and
+remains unverified.
+
+None of this is deployed. Render still runs `ed59eb84`, so every fix here takes
+effect on the next deployment, which is a separate decision.
 
 ## Triage and implementation queue
 
-| Rank | ID | Severity | Current verdict | Evidence and bounded next fix |
+| Rank | ID | Severity | Current verdict | Evidence and disposition |
 |---:|---|---|---|---|
-| 1 | SEC-03 | Medium | **Confirmed** | `/health/ready` is public and borrows PostgreSQL connections. The idle queue is capped at eight, but an empty queue opens another connection without a total-active cap. Add a store-wide bounded permit, acquisition timeout and fail-closed `503`; preserve tenant reset, RLS and dead-connection handling. Add concurrency tests against fakes before any live or load check. |
-| 2 | SEC-04 | Medium | **Confirmed** | The import boundary accepts roughly 32 MB, the request-body middleware can buffer a chunked body before authentication, `read_text` plus `json.loads` materializes it, row preparation duplicates up to 250,000 rows, and the cloud 4 MB ceiling is enforced only after hydrate/import/snapshot. Put authentication and an import-specific admission slot before expensive buffering, align the hosted limit with the durable snapshot ceiling, and parse or validate with bounded memory. |
-| 3 | SEC-02 | Medium | **Confirmed when `SUPABASE_URL` is enabled; inactive in declared Render config** | Any Bearer token reaches `PyJWKClient.get_signing_key_from_jwt`; an unknown `kid` can trigger an eight-second blocking JWKS refresh in the thread pool. Add a strict token/header-size gate, bounded negative-`kid` cache, single-flight refresh and pre-fetch rate/concurrency admission. Keep issuer, audience, algorithm and signature verification unchanged. |
-| 4 | SEC-06 | Low | **Confirmed** | No `TrustedHostMiddleware` or equivalent Host allowlist protects the local/LAN service. Add exact loopback and explicitly selected LAN hosts, reject unknown Host values, and cover IPv4, IPv6 and development-host cases. Apply same-origin protection to state-changing local/LAN requests as appropriate. |
-| 5 | SEC-05 | Low | **Confirmed, opt-in only** | `scripts/start.ps1 -BindAddress 0.0.0.0` exposes the writable local SQLite workspace on the LAN while local authentication defaults off. The loopback default is safe. Add an explicit pilot mode with a generated short-lived pairing secret or a deliberately read-only LAN session, plus a prominent expiry/firewall warning. Do not silently reuse cloud credentials. |
-| 6 | SEC-07 | Low | **Confirmed** | Production Swagger remains public and executes jsDelivr JavaScript under the application origin with `script-src ... 'unsafe-inline'`. Prefer disabling interactive docs in production or self-hosting pinned Swagger assets and a nonce/hash bootstrap so application-origin scripts remain `self` only. |
-| 7 | SEC-08 | Low | **Confirmed after partial repair** | Permanent deletion now removes the server account and owner-scoped IndexedDB recordings, and reports recording-cleanup failure. It still does not remove the learner identity key, local-welcome key or that learner's entry in `ivrit-sheli-saved-accounts`. Capture the old learner ID before auth state changes, remove every owner-scoped browser key, call `forgetSavedAccount(oldId)`, and add an App-level regression that proves other learners remain untouched. |
-| closed | SEC-01 | Medium | **Not actionable in current repository** | The old scan saw a staged `.env.bak`; the path is absent from current index, local/remote commit history and Git object paths. Ignore rules now cover common backup forms. Keep ignored local backups private and rotate the exposed Supabase administrator password through the provider dashboard; never print or commit the values. |
+| 1 | SEC-03 | Medium | **Fixed 2026-09-05** (`ecc12ad`) | `queue.Queue(maxsize=8)` bounded only idle connections; an empty queue opened another unconditionally, and `/health/ready` is public. A `BoundedSemaphore` now caps connections checked out, and creation happens only while holding a permit and only when the idle queue was empty, so `open == checked_out + idle` cannot exceed `MAX_CLOUD_CONNECTIONS`. Exhaustion returns 503 with `Retry-After` and no connection detail. Eight new deterministic tests; mutation-checked. Live load against Supabase remains unverified. |
+| 2 | SEC-04 | Medium | **Fixed 2026-09-05** (`c091ec8`) | Body limits run outside the authorization middleware, so a chunked upload was buffered before anyone authenticated, at 32 MB. In cloud mode the accepted size is now capped at twice `MAX_CLOUD_SNAPSHOT_BYTES`, since a larger restore could never be stored; local SQLite keeps its configured limit. `MAX_CONCURRENT_IMPORTS` admits two restores at a time, taken after the cheap rejections and released in the same `finally` that removes the temporary upload. Seven new tests. A streaming JSON parser was deliberately not added: with the ceiling at 8 MB the whole-document parse is bounded. |
+| 3 | SEC-02 | Medium | **Hardened 2026-09-05** (`fe1a423`); removal still an open product decision | Verification moved to `ivrit_sheli/supabase_bearer.py` and now runs cheapest first: size gate, header parse, algorithm gate, key-id gate, bounded negative cache, single-flight admission, then the network. An unknown `kid` cost one outbound JWKS fetch per request in the bounded thread pool; twenty-five probes now cost one lookup, mutation-checked. Signature, issuer, audience, expiry and required claims are unchanged; HS256 stays refused. **No supported client uses this path** — the frontend never sends `Authorization`, and `SUPABASE_URL` is in neither `render.yaml` nor `.env.example`. Deliberate removal may be better than maintenance; that needs Kevin. |
+| 4 | SEC-06 | Low | **Fixed 2026-09-05** (`301ef44`) | There was no Host allowlist at all, which is the precondition for DNS rebinding. `Settings.trusted_hosts` assembles loopback, the `PUBLIC_BASE_URL` host, a concrete bind address and anything in the new `ALLOWED_HOSTS`; never a wildcard, asserted by test. `TrustedHostMiddleware` is registered outermost, so a forged Host is refused before CORS and before the body-limit middleware buffers. Verified against the served app on port 8000: `attacker.example` returns 400. |
+| 5 | SEC-05 | Low | **Partially mitigated; needs Kevin's decision** | The Host allowlist removes the browser-mediated path and forces a LAN pilot to name its machine in `ALLOWED_HOSTS` rather than being trusted by default. It does **not** close the finding: `scripts/start.ps1 -BindAddress 0.0.0.0` still exposes a writable local workspace to any device already on the network while local authentication defaults off. Closing it is a product choice between (A) an ephemeral per-launch pairing secret, (B) a deliberately read-only LAN mode, and (C) using the hosted staging link instead. **C is the recommendation**, since staging already carries HTTPS, authentication and the real database, and it is what the first pilot link actually used. |
+| 6 | SEC-07 | Low | **Fixed 2026-09-05** (`8ae4c75`) | Production publishes no Swagger, no ReDoc and no `openapi.json`, so the relaxed CDN policy is unreachable there rather than merely unused. Found while fixing it: `redoc_url` was never stated, so FastAPI kept its default `/redoc` — a second documentation UI outside the API prefix that no line of the application had mentioned, and that the docs-policy branch did not cover. Development keeps its documentation. |
+| 7 | SEC-08 | Low | **Fixed 2026-09-05** (`91f6fa7`) | Deletion left the learner identity key, the local-welcome key and her `ivrit-sheli-saved-accounts` entry behind, so a deleted account still put her name and face back on the sign-in screen. The id is now captured before the auth state is replaced, cleanup failure surfaces a translated warning instead of being swallowed, and the tests render **App** rather than `SettingsPanel` — every prior deletion test passed a spy prop, which is why this survived. Mutation-checked. |
+| closed | SEC-01 | Medium | **Not actionable in repository; provider action open** | `.env.bak` never entered committed or remote history and backup patterns are ignored. The Supabase administrator password exposed on 2026-08-23 still needs rotating through the provider dashboard; nothing depends on it, so rotating breaks nothing. |
 
-## Recommended slices
+## What is left
 
-Do not combine all findings into one large patch. The safest order is:
-
-1. Fix SEC-03 as a focused PostgreSQL-pool availability change, with fake
-   concurrency tests and no weakening of connection cleanup or tenant scope.
-2. Fix SEC-04 as a separate HTTP/import resource-boundary change.
-3. Harden SEC-02 only if the Supabase bearer integration will remain supported;
-   otherwise remove the unused configuration and code path deliberately.
-4. Group SEC-05 and SEC-06 into one local/LAN trust-boundary slice.
-5. Close SEC-07 and SEC-08 as independent, low-risk slices.
-6. Rerun a fresh static security scan on the final commit, then run the normal
-   unit/type/build gates and only the smallest authorized dynamic checks.
+1. **SEC-05** — Kevin chooses between an ephemeral pairing secret, a read-only
+   LAN mode, and retiring LAN pilots in favour of hosted staging. Recommended: the
+   third.
+2. **SEC-02** — Kevin decides whether the bearer path is removed or kept.
+3. Rerun a fresh static security scan against the final commit, then the full
+   gates, then the browser matrix.
+4. The operator and human gates below, which no code change can close.
 
 ## Human and operator gates still open
 

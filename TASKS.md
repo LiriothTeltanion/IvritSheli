@@ -82,6 +82,40 @@ otro panel, qué sigue siendo cierto y qué ya no. Empieza siempre por ahí.
 
 ---
 
+## 🔒 Security remediation - 2026-09-05
+
+Six of seven confirmed findings fixed in source, one local commit each, none
+pushed. Full detail in [`docs/SECURITY_REMEDIATION_BACKLOG.md`](docs/SECURITY_REMEDIATION_BACKLOG.md)
+and `NOVA_HANDOFF.md`.
+
+- [x] **SEC-03** cap open PostgreSQL connections and fail closed (`ecc12ad`)
+- [x] **SEC-04** bound portable restore size and concurrency (`c091ec8`)
+- [x] **SEC-02** bound JWKS work for unverified bearer tokens (`fe1a423`)
+- [x] **SEC-06** enforce a Host allowlist on every request (`301ef44`)
+- [x] **SEC-07** serve no CDN-backed documentation UI in production (`8ae4c75`)
+- [x] **SEC-08** forget the deleted learner in this browser (`91f6fa7`)
+- [ ] **SEC-05 - Kevin's decision.** Binding to `0.0.0.0` still exposes a
+      writable local workspace to any device on the network. Choose between an
+      ephemeral per-launch pairing secret, a deliberately read-only LAN mode, or
+      retiring LAN pilots in favour of hosted staging. **Recommended: the third**,
+      since staging already has HTTPS, authentication and the real database.
+- [ ] **SEC-02 follow-up - Kevin's decision.** Nothing calls the Supabase bearer
+      path: the frontend never sends `Authorization`, and `SUPABASE_URL` is in
+      neither `render.yaml` nor `.env.example`. It is bounded now, but deliberate
+      removal may beat maintaining a public authentication surface nothing uses.
+- [ ] **SEC-01 follow-up - provider action.** Rotate the Supabase administrator
+      password exposed on 2026-08-23. Nothing depends on it, so rotating breaks
+      nothing.
+- [ ] Fresh static security scan against the final commit, then the full gates
+      and the browser matrix.
+
+Gates after the last slice: **430 backend / 1 credential-gated skip**, **862
+frontend across 50 files**, TypeScript, production build, Ruff, strict MyPy,
+and `verify_package.py` on 603 checksums. **Nothing is deployed:** Render still
+runs `ed59eb84`.
+
+---
+
 ## 📋 Master Task Tracker
 ### Completed Operational Fixes (2026-08-27)
 - [x] **CI Pipeline Verification & Fixes:** Debugged and permanently resolved GitHub Actions pipeline failures (`checksum_manifest_drift` and `release_truth_drift`). Documented strict rule in `AGENTS.md` prohibiting any trailing whitespaces (which caused `git diff --check HEAD^ HEAD` to fail) and enforcing exact regex matches for Release Truth Gate in `verify_package.py`.
