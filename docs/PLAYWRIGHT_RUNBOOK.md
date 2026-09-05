@@ -159,10 +159,14 @@ machine-readable results when the calling shell may buffer stdout.
 
 ## Evidence boundary and live URL
 
-The working tree is an unpublished 2.12.3 private candidate. The GitHub
-repository and latest published `v2.12.2` Release distribute source and release
-artifacts; GitHub is not currently running the FastAPI/PostgreSQL application.
-There is therefore **no durable live-user URL to share yet**. A live link
-requires a separate, explicitly authorized deployment, isolated HTTPS staging,
-secret configuration and verification. See `docs/DEPLOYMENT.md` and the open
-hosting work in `TASKS.md`.
+The `2.12.3` source is on GitHub `main` without a tag or GitHub Release;
+`v2.12.2` remains the latest tagged Release. GitHub distributes source but does
+not run FastAPI/PostgreSQL. The separately authorized Render Free staging URL is
+`https://ivrit-sheli-staging.onrender.com`, verified again on 2026-09-05 as
+`2.12.3` with PostgreSQL ready. It is a private-pilot staging service, not
+production, and Render may need tens of seconds to wake after idle time.
+
+Local Playwright evidence in this runbook does not automatically become hosted
+evidence. Keep listener/build provenance on local runs, and use the separate
+live, ready, version, OAuth, tenant-isolation and human gates in
+`docs/DEPLOYMENT.md`, `TEST_REPORT.md` and `TASKS.md` for the hosted service.

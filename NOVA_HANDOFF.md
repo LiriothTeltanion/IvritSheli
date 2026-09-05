@@ -1,6 +1,6 @@
-# Ivrit Sheli 2.12.3 — Clear Counting private-candidate handoff
+# Ivrit Sheli 2.12.3 — current-source and staging handoff
 
-**Last Updated**: 2026-08-27 (`Asia/Jerusalem`)
+**Last Updated**: 2026-09-05 (`Asia/Jerusalem`)
 **Prepared by**: Nova Engineer / Codex
 **Source state**: `2.12.3` is published on `origin/main`; `v2.12.2` remains the
 latest **tagged** GitHub source release, and `2.12.3` is deliberately untagged
@@ -11,15 +11,45 @@ latest **tagged** GitHub source release, and `2.12.3` is deliberately untagged
 service of **2.4.0 Contest Edition (2026-07-21)** was offline when checked on
 2026-08-26 and is not returning.
 
-## Current private candidate — 2.12.3, 2026-08-27
+## Current verified boundary — 2026-09-05
 
-The current worktree is an **unpublished private candidate**, not a deployed
-application and not a GitHub release. Its visual correction is deliberately in
-the product itself: `numbers.one` now draws one coffee cup beside the numeral
-`1`, with no hand or isolated finger. The reviewed semantic catalogue remains
-**240/240 exact scenes**. The ambient Today card was recaptured naturally on
-`שתיים` / *shtayim* / *dos*, showing two cups in Spanish desktop, Hebrew/RTL
-desktop and mobile proof.
+At the start of this refresh, the worktree was clean on `main` at
+`6bbcb3183d02426571b46d61918121de0ac5a514` and exactly matched
+`origin/main`. The index now contains only this documentation/checksum handoff;
+it is staged but not committed or pushed. The `2.12.3` application source is
+published on GitHub, but it is still deliberately untagged: `v2.12.2` remains
+the latest GitHub Release. The staging application is deployed and reachable at
+`https://ivrit-sheli-staging.onrender.com`; a fresh external check on 2026-09-05
+returned HTTP 200 from `/health/live`, `/health/ready` and `/version`, reporting
+`2.12.3`, PostgreSQL ready, 240 dictionary entries and production storage.
+
+Render still runs application revision `ed59eb848f0417caff00de46dc3122357b363e74`.
+It is behind current `main`, but the recorded diff contains only documentation
+and README assets; no application source, Dockerfile, dependency or Render
+configuration differs. The first health request took 36.2 seconds while the
+free service woke, followed by 9.7 seconds for readiness and 0.67 seconds for
+version. Wake the service before handing the link to a non-technical tester.
+
+The visual correction is in the product itself: `numbers.one` draws one coffee
+cup beside numeral `1`, with no hand or isolated finger. The reviewed semantic
+catalogue remains **240/240 exact scenes**, and the README proof naturally shows
+`שתיים` / *shtayim* / *dos* with two cups.
+
+### Current security re-triage
+
+The 2026-08-24 Codex Security scan audited the older revision `e6402597`, not
+current `main`. It has now been statically compared with the 2026-09-05 source.
+The old `.env.bak` repository finding is closed for the committed/public history,
+while Supabase administrator-password rotation remains an unverified operator
+gate. Six source findings remain confirmed, and the JWKS availability finding
+remains conditional on enabling the optional `SUPABASE_URL` bearer path (it is
+absent from `render.yaml`). Device-audio deletion was repaired, but browser
+identity and saved-account metadata still need cleanup.
+
+Exact evidence, ranking and bounded fix instructions are in
+[`docs/SECURITY_REMEDIATION_BACKLOG.md`](docs/SECURITY_REMEDIATION_BACKLOG.md).
+No security code, provider setting, secret, deployment or remote Git state was
+changed during this re-triage.
 
 The new proof set is isolated under `assets/readme/proof/2.12.3`: five WebP
 images, one non-looping GIF and a manifest with hashes and provenance. The
@@ -137,8 +167,10 @@ failures** in 3.9 minutes. Teardown stopped the captured listener and proved
 port 8000 clean. Exact incident evidence, tooling errors and the future protocol live in
 [`docs/PLAYWRIGHT_RUNBOOK.md`](docs/PLAYWRIGHT_RUNBOOK.md).
 
-GitHub has the v2.12.2 source release, but there is still no durable live-user
-URL. Deployment remains a separate explicit decision.
+At this earlier local checkpoint, GitHub had the v2.12.2 source Release and no
+durable live-user URL. That dated state is superseded by the Render staging
+verification at the top of this handoff; it remains useful only as the boundary
+for the Playwright work described here.
 
 ## Codex pass — 2026-08-27, README and formal browser gate
 

@@ -1,24 +1,53 @@
 # Ivrit Sheli — Verification Ledger
 
-- **Current private candidate:** `2.12.3` / local working tree / unpublished
+- **Current private candidate:** `2.12.3` / clean `main` at `6bbcb318` /
+  source published on GitHub but deliberately untagged and without a Release
 - **Current published source release:** `2.12.2` / GitHub tag and Release
 - **Latest gate date:** 2026-08-27 (`2.12.3` visual proof, complete local
   frontend/backend gates, fresh-runtime FastAPI/CSP Playwright matrix and staged
-  package integrity). Current PostgreSQL/no-cache production-container and
-  external tester gates remain open.
+  package integrity). The 2026-09-05 refresh below supersedes its old
+  pre-deployment hosting statements.
   The 2.12.0 Nocturne gate of 2026-08-14 is preserved below as history and is
   not relabelled.
-- **Latest published source release:** `v2.12.2` / 2026-08-27; no deployment or
-  durable hosted demo is claimed
-- **Latest verified hosted evidence:** `2.4.0` / historical Railway + PostgreSQL
-  verification dated 2026-07-21; that former service was offline when checked
-  on 2026-08-26
+- **Latest published source release:** `v2.12.2` / 2026-08-27; `2.12.3` source
+  is present on `main` without a tag or GitHub Release
+- **Latest verified hosted evidence:** `2.12.3` / Render Free staging checked
+  again 2026-09-05; historical Railway remains offline
 - **Historical candidate baselines:** `2.11.0` passed 705 frontend and 315
   backend tests plus its 240 × 3 visual matrix on 2026-08-14; `2.10.0` Phase
   4A.1 completed 1,047 automated passes on 2026-08-13. Neither number is
   relabelled as 2.12.0 proof.
 
-## Current 2.12.3 private-candidate evidence boundary — 2026-08-27
+## Live refresh and static security re-triage — 2026-09-05
+
+Read-only external requests to `https://ivrit-sheli-staging.onrender.com`
+returned:
+
+| Endpoint | Fresh result |
+|---|---|
+| `/health/live` | HTTP 200; alive; version `2.12.3`; deployed commit `ed59eb84`; 36.2 s cold wake |
+| `/health/ready` | HTTP 200; ready; PostgreSQL true; dictionary 240 entries / 240 senses / schema 3; 9.7 s |
+| `/version` | HTTP 200; `2.12.3`; production; PostgreSQL; 0.67 s |
+
+At the start of this refresh, local `main` was clean at `6bbcb318` and exactly
+matched `origin/main`. The only subsequent diff is this staged, uncommitted
+documentation/checksum handoff. The deployed revision trails HEAD only in
+documentation and README assets, so no current application-code difference was
+found. This proves availability and the reported runtime identity; it does not
+prove two-account tenant isolation, backup/restore or the provider's client-IP
+header contract.
+
+The sealed 2026-08-24 static scan was re-triaged without dynamic exploitation
+against current source. The staged `.env.bak` path never entered committed or
+remote history and is not actionable as a current repository finding. Six
+source findings remain confirmed; a seventh is conditional on the optional
+`SUPABASE_URL` bearer configuration. Device-recording deletion is repaired, but
+identity/saved-account browser cleanup remains incomplete. Exact evidence and
+the implementation queue are in
+[`docs/SECURITY_REMEDIATION_BACKLOG.md`](docs/SECURITY_REMEDIATION_BACKLOG.md).
+No security fix was implemented or dynamically validated in this review.
+
+## Current 2.12.3 local-candidate evidence boundary — 2026-08-27
 
 This is current local evidence for the `2.12.3` correction. It does not replace
 the complete published-source `2.12.2` ledger below, and it is not a release,
@@ -48,7 +77,7 @@ deployment or hosted-demo claim.
 | Docker image build | `docker build --tag ivrit-sheli:2.12.3-candidate .` | **Passed** with Docker 29.6.2; the image rebuilt the 134-module frontend and pinned Python runtime |
 | Docker SQLite smoke | Exact ephemeral container on loopback port 8300 | **Passed**: `/health/ready` ready, `/version` 2.12.3/local/SQLite, PID 1 UID/GID 10001, `MIGRATION_DATABASE_URL` absent; container removed and port clean |
 | Git-index package integrity | `generate_checksums.py` plus `verify_package.py` after explicit selective staging | **Passed**: 571 canonical checksums, 230 required files and all packaged assets; 17 preserved historical PNG candidates remained outside the index |
-| Durable HTTPS staging | Render or another approved host | **Not created; no service and no public URL exist** |
+| Durable HTTPS staging | Render Free | **Superseded by the 2026-09-05 live refresh above**; staging exists and is not production |
 
 Two strict same-PID preflights, one around capture and one before the final
 matrix, found that the Windows virtualenv launcher PID did not equal the Python
@@ -67,13 +96,11 @@ fields. The one corrected launch passed the smoke and complete matrix above and
 left port 8200 clean. This is a pre-test operator expectation refusal, not an
 application or Playwright failure.
 
-`render.yaml` is only a locally prepared **Render Free Blueprint**. No Render
-service was created, no HTTPS hostname was assigned, no provider configuration
-was changed and no external action was taken. Before staging can become tester
-evidence, it still needs Kevin's explicit deployment approval, an exact source
-revision, the restricted runtime database credential, administrator-password
-rotation, OAuth origin/callback configuration, two-real-account isolation and
-a proven backup/restore path.
+At the time of this local gate, `render.yaml` was only a prepared Blueprint.
+Render staging and the exact Google callback were subsequently created and are
+recorded in the 2026-09-05 refresh above. Administrator-password rotation,
+two-real-account isolation, the client-IP header observation and a proven
+backup/restore path remain open.
 
 The first Docker smoke used a deliberately local session secret that was too
 short. The existing security guard rejected startup with exit code 3, as it
@@ -91,12 +118,17 @@ above. The rejection is configuration evidence, not an application failure.
   ordinary backend suite intentionally skipped one test because the restricted
   `DATABASE_URL` and administrator-only `MIGRATION_DATABASE_URL` were not
   supplied to this local run.
-- Live provider sign-in, isolated HTTPS staging, hosted persistence and
-  two-real-account continuity/isolation.
+- A fresh full Google sign-in/re-login cycle and two-real-account
+  continuity/isolation. Staging exists, and an earlier live Google login was
+  recorded, but this refresh did not repeat an identity-provider login.
 - Live Render proxy-header proof with two controlled client networks. Local
   tests prove fail-closed parsing, but not which headers the provider delivers.
 - Supabase administrator-password rotation and current backup/restore proof.
 - Human Hebrew-content acceptance and the pilot with Kevin's mother/friends.
+
+- Security remediations SEC-02 through SEC-08 in
+  `docs/SECURITY_REMEDIATION_BACKLOG.md`, followed by a fresh scan on the final
+  commit. The 2026-09-05 work was static triage only.
 
 ## Published 2.12.2 evidence boundary
 

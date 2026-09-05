@@ -1,9 +1,9 @@
 # Ivrit Sheli — Tasks & Operational Roadmap
 
-**Current Version:** `2.12.3 — Clear Counting` (private candidate)
+**Current Version:** `2.12.3 — Clear Counting` (source on `main`; untagged)
 **Baseline Branch:** `main`
-**State:** Unpublished local candidate; `v2.12.2` remains the latest published
-GitHub source release; no verified deployment or durable hosted demo
+**State:** Source published on `main`; `v2.12.2` remains the latest tagged
+GitHub Release; Render Free staging is live and verified for a private pilot
 **Public Contest Boundary:** The contest freeze **expired on 2026-08-25**. The
 latest published source release is **v2.12.2 (2026-08-27)** on `main`. The former
 2.4.0 hosted service is currently offline. Deployment remains a separate
@@ -217,17 +217,26 @@ otro panel, qué sigue siendo cierto y qué ya no. Empieza siempre por ahí.
 
 ### ⏳ Current & Upcoming Tasks
 
-- [ ] **Create Render Free staging only after Kevin explicitly authorizes the
-      external deployment action**:
-  - `render.yaml` is prepared locally for a free service; it is configuration,
-    not proof that a service or public URL exists.
-  - Pin deployment to the exact reviewed source revision; do not deploy a dirty
-    worktree or silently redeploy published `v2.12.2`.
-  - Keep `MIGRATION_DATABASE_URL` out of the application and provide only the
-    restricted `ivrit_sheli_runtime` database URL.
-  - Then configure the exact Google OAuth callback/origin, run readiness and
-    two-real-account isolation, and prove backup/restore before inviting Kevin's
-    mother or friends.
+- [ ] **Remediate the 2026-09-05 security queue in small verified slices**:
+  - Current triage and exact handoff:
+    [`docs/SECURITY_REMEDIATION_BACKLOG.md`](docs/SECURITY_REMEDIATION_BACKLOG.md).
+  - First: cap total active PostgreSQL connections used by public readiness.
+  - Second: bound portable-import memory and concurrency before expensive
+    buffering, parsing and cloud snapshot work.
+  - Then: harden the optional JWKS path; add Host/LAN trust boundaries;
+    self-host or disable production Swagger; finish browser cleanup after
+    account deletion.
+  - Do not weaken RLS, tenant reset, authentication, CSRF or secret guards to
+    make any fix pass.
+
+- [ ] **Complete the private-pilot operator and human gates**:
+  - Rotate the exposed Supabase administrator password; never give it to the
+    application.
+  - Re-prove the restricted runtime role, two-account isolation and a disposable
+    backup/restore rehearsal.
+  - Observe Render client-IP headers from two controlled networks.
+  - Run Hebrew-content acceptance, five-second visual recognition and the first
+    learner pilot with Kevin's mother or friends.
 
 - [ ] **Railway is down because the trial expired — Kevin's decision, not a repair**:
   - **Measured in the dashboard on 2026-08-26.** The banner reads *Trial
