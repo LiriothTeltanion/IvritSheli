@@ -7,7 +7,12 @@ param(
     [ValidateRange(1024, 65535)]
     [int]$Port = 8000,
 
-    [ValidateSet("127.0.0.1", "0.0.0.0")]
+    # SEC-05. Loopback only. Binding every interface put a WRITABLE local
+    # workspace on the home network with local authentication off by
+    # default, so any device already on the wifi could change a learner's
+    # data. Share the hosted staging link for a pilot instead: it has
+    # HTTPS, real authentication and the real database.
+    [ValidateSet("127.0.0.1")]
     [string]$BindAddress = "127.0.0.1",
 
     [string]$DataDirectory = "",
@@ -148,33 +153,6 @@ function Open-IvritBrowser {
     }
 }
 
-function Get-LanIPv4Address {
-    foreach ($NetworkInterface in [System.Net.NetworkInformation.NetworkInterface]::GetAllNetworkInterfaces()) {
-        if (
-            $NetworkInterface.OperationalStatus -ne
-                [System.Net.NetworkInformation.OperationalStatus]::Up -or
-            $NetworkInterface.NetworkInterfaceType -eq
-                [System.Net.NetworkInformation.NetworkInterfaceType]::Loopback
-        ) {
-            continue
-        }
-        $Properties = $NetworkInterface.GetIPProperties()
-        if ($Properties.GatewayAddresses.Count -eq 0) {
-            continue
-        }
-        foreach ($Address in $Properties.UnicastAddresses) {
-            if (
-                $Address.Address.AddressFamily -eq
-                    [System.Net.Sockets.AddressFamily]::InterNetwork -and
-                -not [System.Net.IPAddress]::IsLoopback($Address.Address)
-            ) {
-                return $Address.Address.ToString()
-            }
-        }
-    }
-    return $null
-}
-
 function Wait-ForIvritServer {
     param(
         [Parameter(Mandatory)][System.Diagnostics.Process]$Process,
@@ -209,22 +187,6 @@ try {
         $ExistingUrl = "http://127.0.0.1:$Port/$ExistingLanguageQuery"
         Write-Host "`n  Ivrit Sheli is already running ✅" -ForegroundColor Green
         Write-Host "  $ExistingUrl" -ForegroundColor White
-        if ($BindAddress -eq "0.0.0.0") {
-            $ExistingLanAddress = Get-LanIPv4Address
-            if ($null -ne $ExistingLanAddress) {
-                $ExistingShareLanguage = if ([string]::IsNullOrWhiteSpace($Language)) { "es" } else { $Language }
-                $ExistingShareUrl = "http://$ExistingLanAddress`:$Port/?lang=$ExistingShareLanguage"
-                Write-Host "`n  Mother pilot link (same Wi-Fi only):" -ForegroundColor Yellow
-                Write-Host "  $ExistingShareUrl" -ForegroundColor White
-                try {
-                    Set-Clipboard -Value $ExistingShareUrl
-                    Write-Host "  Link copied to the clipboard for WhatsApp." -ForegroundColor Green
-                }
-                catch {
-                    Write-Host "  Copy the link above into WhatsApp." -ForegroundColor DarkGray
-                }
-            }
-        }
         Open-IvritBrowser -Url $ExistingUrl
         exit 0
     }
@@ -299,27 +261,8 @@ try {
     $AppUrl = "http://127.0.0.1:$SelectedPort/$LanguageQuery"
     Write-Host "`n  Ivrit Sheli is ready ✅" -ForegroundColor Green
     Write-Host "  $AppUrl" -ForegroundColor White
-    if ($BindAddress -eq "0.0.0.0") {
-        $LanAddress = Get-LanIPv4Address
-        if ($null -ne $LanAddress) {
-            $ShareLanguage = if ([string]::IsNullOrWhiteSpace($Language)) { "es" } else { $Language }
-            $ShareUrl = "http://$LanAddress`:$SelectedPort/?lang=$ShareLanguage"
-            Write-Host "`n  Mother pilot link (same Wi-Fi only):" -ForegroundColor Yellow
-            Write-Host "  $ShareUrl" -ForegroundColor White
-            Write-Host "  If Windows Firewall asks, allow Python on Private networks only." -ForegroundColor DarkGray
-            Write-Host "  The link works while this PC and this window stay open." -ForegroundColor DarkGray
-            try {
-                Set-Clipboard -Value $ShareUrl
-                Write-Host "  Link copied to the clipboard for WhatsApp." -ForegroundColor Green
-            }
-            catch {
-                Write-Host "  Copy the link above into WhatsApp." -ForegroundColor DarkGray
-            }
-        }
-        else {
-            Write-Host "`n  A Wi-Fi address could not be detected. Use the local link above." -ForegroundColor Yellow
-        }
-    }
+    Write-Host "`n  To let someone else try it, share the hosted staging link," -ForegroundColor DarkGray
+    Write-Host "  not this address. This one only works on this computer." -ForegroundColor DarkGray
     if (-not [string]::IsNullOrWhiteSpace($env:APP_DATA_DIR)) {
         Write-Host "  Private data: $env:APP_DATA_DIR" -ForegroundColor DarkGray
     }
