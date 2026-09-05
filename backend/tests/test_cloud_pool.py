@@ -379,7 +379,7 @@ def test_an_exception_inside_the_block_gives_the_permit_back(
 
     for _ in range(3):
         with pytest.raises(RuntimeError):
-            with store._connection() as connection:
+            with store._connection():
                 raise RuntimeError("the request failed midway")
 
     assert created[0].rollbacks == 3, "an aborted transaction must still be unwound"

@@ -34,6 +34,17 @@ class RequestBodyTooLarge(RuntimeError):
     """Raised internally when a streamed request exceeds its route limit."""
 
 
+class ImportAdmissionError(RuntimeError):
+    """Raised when too many portable restores are already in flight.
+
+    SEC-04. A restore is the most expensive request this application serves: it
+    buffers an upload, parses the whole document, and duplicates its rows before
+    anything is written. Every one of those costs is per-request, so without an
+    admission limit the worst case is not the size of one import but that size
+    multiplied by however many arrive at once.
+    """
+
+
 class SlidingWindowLimiter:
     """Thread-safe sliding window with bounded caller-derived key cardinality."""
 

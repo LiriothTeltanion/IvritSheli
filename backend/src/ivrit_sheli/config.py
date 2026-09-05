@@ -227,6 +227,12 @@ class Settings:
     # because the right number belongs to the database plan, not to the code.
     max_cloud_connections: int = 8
     cloud_connection_acquire_timeout_seconds: float = 5.0
+    # SEC-04. How many portable restores may be in flight at once. A restore
+    # buffers its upload, parses it whole, and duplicates its rows, so the cost
+    # is per-request and concurrency multiplies it. Two is enough for one
+    # household and small enough that a burst cannot decide how much memory the
+    # process uses.
+    max_concurrent_imports: int = 2
     max_request_body_bytes: int = 1_048_576
     max_ics_upload_body_bytes: int = 6_291_456
     max_audio_upload_body_bytes: int = 9_437_184
@@ -464,6 +470,7 @@ class Settings:
             cloud_connection_acquire_timeout_seconds=float(
                 value("CLOUD_CONNECTION_ACQUIRE_TIMEOUT_SECONDS", "5")
             ),
+            max_concurrent_imports=int(value("MAX_CONCURRENT_IMPORTS", "2")),
             max_request_body_bytes=int(
                 value("MAX_REQUEST_BODY_BYTES", "1048576")
             ),
@@ -748,6 +755,8 @@ class Settings:
             raise ValueError(
                 "CLOUD_CONNECTION_ACQUIRE_TIMEOUT_SECONDS must be between 0.1 and 30"
             )
+        if not 1 <= self.max_concurrent_imports <= 32:
+            raise ValueError("MAX_CONCURRENT_IMPORTS must be between 1 and 32")
         request_limits = {
             "MAX_REQUEST_BODY_BYTES": self.max_request_body_bytes,
             "MAX_ICS_UPLOAD_BODY_BYTES": self.max_ics_upload_body_bytes,

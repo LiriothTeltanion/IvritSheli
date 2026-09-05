@@ -13,6 +13,7 @@ import hmac
 import logging
 import re
 import sqlite3
+import threading
 import time
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
@@ -79,11 +80,11 @@ from ivrit_sheli.push_notifications import (
     validate_subscription,
 )
 from ivrit_sheli.repository import (
-    MAX_PORTABLE_IMPORT_BYTES,
     LearningRepository,
 )
 from ivrit_sheli.request_limits import (
     AuthRateLimitMiddleware,
+    ImportAdmissionError,
     RequestBodyLimitMiddleware,
     RequestBodyTooLarge,
     SlidingWindowLimiter,
@@ -143,6 +144,11 @@ DOCS_CONTENT_SECURITY_POLICY = (
     )
 )
 NO_STORE_OPERATIONAL_PATHS = frozenset({"/health/live", "/health/ready", "/version"})
+# SEC-04. How long a restore waits for an admission slot before it is told to
+# come back. Short on purpose: a learner restoring a backup would rather read
+# "try again in a moment" than watch a spinner, and a caller sending restores in
+# bulk should be refused quickly rather than parked holding a connection.
+IMPORT_ADMISSION_TIMEOUT_SECONDS = 2.0
 DEMO_SAFE_POST_PATHS = frozenset(
     {
         f"{API_PREFIX}/audio/transcript-analysis",
@@ -752,6 +758,36 @@ def create_app(
                 return response
         return await call_next(request)
 
+    # SEC-04. The import route's byte ceiling, aligned with what a restore can
+    # actually keep.
+    #
+    # Body limits are enforced OUTSIDE the authorization middleware — a chunked
+    # request has no trustworthy Content-Length, so the limit middleware buffers
+    # up to the route's ceiling before any handler, and therefore before anyone
+    # has authenticated. With a 32 MB ceiling that handed an unauthenticated
+    # caller 32 MB of process memory per request for the asking.
+    #
+    # In cloud mode the ceiling was also fiction: a learner document is refused
+    # above `max_cloud_snapshot_bytes` when it is encoded, so an import larger
+    # than that can never succeed. It could only be buffered, written, parsed and
+    # expanded into rows, and then rejected at the last step. Accepting twice the
+    # durable ceiling leaves room for JSON and multipart overhead around the same
+    # state and refuses the rest at the door. Local SQLite mode has no such
+    # ceiling, so its configured limit is left alone.
+    import_body_limit = runtime_settings.max_import_upload_body_bytes
+    if runtime_settings.cloud_mode:
+        import_body_limit = min(
+            import_body_limit, runtime_settings.max_cloud_snapshot_bytes * 2
+        )
+    app.state.import_body_limit = import_body_limit
+    # Admission, not rate limiting: this bounds how many restores may be paying
+    # the per-request memory cost simultaneously, so the worst case is one
+    # import's cost times a number this process chose rather than times however
+    # many requests happened to arrive.
+    app.state.import_admission = threading.BoundedSemaphore(
+        runtime_settings.max_concurrent_imports
+    )
+
     # Registration order is deliberate: request ID/logging is outermost, then CORS,
     # endpoint auth limits, request-body limits, and finally session/database work.
     app.add_middleware(BaseHTTPMiddleware, dispatch=authorization_middleware)
@@ -761,7 +797,7 @@ def create_app(
         route_limits={
             f"{API_PREFIX}/audio/stt": runtime_settings.max_audio_upload_body_bytes,
             (f"{API_PREFIX}/connectors/ics/preview"): runtime_settings.max_ics_upload_body_bytes,
-            f"{API_PREFIX}/import": runtime_settings.max_import_upload_body_bytes,
+            f"{API_PREFIX}/import": import_body_limit,
         },
     )
     app.add_middleware(
@@ -2461,6 +2497,15 @@ def register_routes(app: FastAPI) -> None:
         suffix = Path(file.filename or "ivrit-sheli-export.json").suffix.lower()
         if suffix != ".json":
             raise ValueError("Learner import must be a .json export")
+        # SEC-04. Admission is taken here, after the two cheap rejections above
+        # and before anything expensive: a missing confirmation or a wrong file
+        # extension should never have to queue behind a real restore.
+        limit = int(request.app.state.import_body_limit)
+        admission = request.app.state.import_admission
+        if not admission.acquire(timeout=IMPORT_ADMISSION_TIMEOUT_SECONDS):
+            raise ImportAdmissionError(
+                "Too many restores are already running. Please try again in a moment."
+            )
         temporary = (
             services(request).settings.data_dir
             / "private"
@@ -2471,8 +2516,14 @@ def register_routes(app: FastAPI) -> None:
             with temporary.open("wb") as handle:
                 while chunk := file.file.read(1024 * 1024):
                     written += len(chunk)
-                    if written > MAX_PORTABLE_IMPORT_BYTES:
-                        raise ValueError("Learner import exceeds 32 MB")
+                    if written > limit:
+                        # Stop at the byte, not at the end of the upload: this is
+                        # the ceiling the middleware already enforced, repeated
+                        # here because a multipart envelope can carry more than
+                        # one part and only this loop sees the file itself.
+                        raise ValueError(
+                            f"Learner import exceeds the {limit}-byte restore limit"
+                        )
                     handle.write(chunk)
             repository = repository_for(request)
             result = repository.import_json(temporary)
@@ -2501,6 +2552,10 @@ def register_routes(app: FastAPI) -> None:
         finally:
             temporary.unlink(missing_ok=True)
             file.file.close()
+            # Outermost effect of the slice: a restore that fails anywhere above
+            # still gives its slot back, or the ceiling would fall to zero and
+            # every later restore would be refused.
+            admission.release()
 
 
 def register_error_handlers(app: FastAPI, settings: Settings) -> None:
@@ -2581,6 +2636,27 @@ def register_error_handlers(app: FastAPI, settings: Settings) -> None:
             503,
             "database_unavailable",
             "Cloud data storage is busy. Please try again in a moment.",
+        )
+        response.headers["Retry-After"] = "5"
+        return response
+
+    @app.exception_handler(ImportAdmissionError)
+    async def import_admission_error(
+        request: Request, _error: ImportAdmissionError
+    ) -> JSONResponse:
+        """Refuse a restore quickly instead of paying its cost concurrently."""
+        LOGGER.warning(
+            "Portable import admission limit reached",
+            extra={
+                "event": "import.admission.rejected",
+                "request_id": request.state.request_id,
+            },
+        )
+        response = error_response(
+            request,
+            503,
+            "import_busy",
+            "Another restore is already running. Please try again in a moment.",
         )
         response.headers["Retry-After"] = "5"
         return response
