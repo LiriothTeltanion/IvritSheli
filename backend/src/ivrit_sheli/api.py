@@ -641,12 +641,30 @@ def create_app(
         app.state.services.dictionary.close()
         app.state.services.cloud_store.close()
 
+    # SEC-07. Interactive API documentation is developer furniture, and both
+    # Swagger UI and ReDoc bootstrap by loading JavaScript from a public CDN and
+    # running an inline script. Serving either from the authenticated
+    # application origin means third-party code executing beside the learner's
+    # session, and it is the only reason the relaxed docs policy exists at all.
+    # Production serves neither, and without a schema to render there is nothing
+    # for them to point at, so `openapi.json` goes too.
+    #
+    # `redoc_url` is now stated rather than left to its default. It defaulted to
+    # `/redoc`, outside the API prefix, so a second documentation UI was being
+    # published that nothing in this file had ever mentioned.
+    docs_enabled = runtime_settings.app_env != "production"
+    docs_paths = (
+        frozenset({f"{API_PREFIX}/docs", f"{API_PREFIX}/redoc"})
+        if docs_enabled
+        else frozenset()
+    )
     app = FastAPI(
         title="Ivrit Sheli API",
         version=__version__,
         description="Local-first and securely authenticated cloud Hebrew-learning API",
-        docs_url=f"{API_PREFIX}/docs",
-        openapi_url=f"{API_PREFIX}/openapi.json",
+        docs_url=f"{API_PREFIX}/docs" if docs_enabled else None,
+        redoc_url=f"{API_PREFIX}/redoc" if docs_enabled else None,
+        openapi_url=f"{API_PREFIX}/openapi.json" if docs_enabled else None,
         lifespan=lifespan,
     )
     authenticated_write_limiter = SlidingWindowLimiter(
@@ -850,9 +868,12 @@ def create_app(
         response.headers["Referrer-Policy"] = "no-referrer"
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["Permissions-Policy"] = "camera=(), geolocation=(), microphone=(self)"
+        # SEC-07. `docs_paths` is empty in production, so the relaxed policy is
+        # not merely unused there — it is unreachable, and every response
+        # carries the strict application policy.
         response.headers["Content-Security-Policy"] = (
             DOCS_CONTENT_SECURITY_POLICY
-            if request.url.path == f"{API_PREFIX}/docs"
+            if request.url.path in docs_paths
             else APP_CONTENT_SECURITY_POLICY
         )
         response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
