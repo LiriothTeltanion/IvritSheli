@@ -1,0 +1,487 @@
+# Ivrit Sheli 2.12.3 — Clear Counting private-candidate handoff
+
+**Last Updated**: 2026-08-27 (`Asia/Jerusalem`)
+**Prepared by**: Nova Engineer / Codex
+**Source state**: `2.12.3` is published on `origin/main`; `v2.12.2` remains the
+latest **tagged** GitHub source release, and `2.12.3` is deliberately untagged
+**Latest published release**: **v2.12.2 Visual Harmony & Resilience
+(2026-08-27)**
+**Latest hosted evidence**: **Render Free staging**, `2.12.3`, verified live on
+2026-08-27 — see "Independent verification" below. The historical Railway
+service of **2.4.0 Contest Edition (2026-07-21)** was offline when checked on
+2026-08-26 and is not returning.
+
+## Current private candidate — 2.12.3, 2026-08-27
+
+The current worktree is an **unpublished private candidate**, not a deployed
+application and not a GitHub release. Its visual correction is deliberately in
+the product itself: `numbers.one` now draws one coffee cup beside the numeral
+`1`, with no hand or isolated finger. The reviewed semantic catalogue remains
+**240/240 exact scenes**. The ambient Today card was recaptured naturally on
+`שתיים` / *shtayim* / *dos*, showing two cups in Spanish desktop, Hebrew/RTL
+desktop and mobile proof.
+
+The new proof set is isolated under `assets/readme/proof/2.12.3`: five WebP
+images, one non-looping GIF and a manifest with hashes and provenance. The
+selected bytes passed full-size and GitHub-scale review, privacy review,
+grayscale review and two independent derivative passes with byte-identical
+output. The immutable `assets/readme/proof/2.12.2` history remains untouched.
+
+A fresh FastAPI-served `2.12.3` runtime passed the bounded Playwright smoke:
+**2 passed / 0 failed in 3.8 s**. The fail-closed capture produced **12 Spanish
+artifacts / 0 errors** and **1 Hebrew artifact / 0 errors**. The complete local
+gate then passed **859 frontend tests**, **387 backend tests** with one
+credential-gated PostgreSQL skip, TypeScript, the production build, Ruff,
+strict MyPy, the 7/7 offline doctor, four capture-contract tests and dependency
+audits with zero known vulnerabilities. The fresh FastAPI/CSP Playwright matrix
+passed **36 tests / 40 intentional project-scoped skips / 0 failures** across
+76 listed cases in 4.5 minutes. A Docker 29.6.2 image build also passed; its
+ephemeral SQLite smoke reported 2.12.3/ready, ran PID 1 as UID/GID 10001,
+contained no `MIGRATION_DATABASE_URL`, and left port 8300 clean after teardown.
+
+Two strict same-PID preflights, one during capture preparation and one before
+the final matrix, found that the PID returned by the Windows virtualenv launcher
+was not the actual listener child PID. Both stopped before Playwright ran, so
+they were process-provenance refusals, **not Playwright test failures**. The
+accepted launches proved the listener as the direct child of the captured
+launcher, matched the IvritSheli command and port, verified version 2.12.3 and
+the served entry assets, ran the smoke/captures/matrix and left port 8200 clean.
+
+## Antigravity pass - 2026-08-27, 09:45 to 11:35
+
+- **Render Staging Deployed:** The 2.12.3 snapshot was successfully deployed to Render Free (`https://ivrit-sheli-staging.onrender.com`).
+- **Supabase IPv4 Pooler:** Solved the Render IPv6 networking limitation by routing traffic through Supabase's Session Pooler on port 6543 using the `<role>.<project-ref>` username format. The strict `psycopg3` driver is clean without the `pgbouncer=true` parameter.
+- **Google OAuth Verified:** Callback origins were registered in Google Cloud Console. Kevin successfully logged in and verified the live URL.
+- **Documentation Revamped:** `README.md` completely overhauled with modern aesthetics matching NovaMusicLab (Hero section, living hubs, conceptual art, and staging badges).
+
+The technical release gates outlined in `PROMPT-NUEVA-SESION.md` are 100% complete. What remains are the human gates: Hebrew content acceptance and the pilot with Kevin's mother.
+
+## Independent verification of the hosted service — Claude Code, 2026-08-27 evening
+
+The section above is a report, not a verification, so the hosted service was
+exercised again from outside by a second agent that had not deployed it. Every
+line below is a measured response from `https://ivrit-sheli-staging.onrender.com`,
+not a reading of configuration.
+
+| Gate | Measured result |
+|---|---|
+| `/health/live` | `alive`, version `2.12.3` |
+| `/health/ready` | `ready`, `postgresql: true`, dictionary 240 entries / 240 senses, schema v3 |
+| `/version` | `2.12.3`, environment `production`, storage `postgresql` |
+| Content-Security-Policy | `default-src 'self'`, `base-uri 'none'`, `object-src 'none'`, `frame-ancestors 'none'`, `script-src 'self'`; no `unsafe-eval` |
+| Strict-Transport-Security | `max-age=31536000; includeSubDomains` |
+| Session cookie | `HttpOnly`, `Secure`, `SameSite=lax` |
+| CSRF cookie | `Secure`, `SameSite=strict` |
+| Google OAuth start | 302 to Google with `redirect_uri=<staging>/api/v1/auth/google/callback`, PKCE `S256`, scope `openid profile` |
+
+**The running revision is not `HEAD`.** The service runs
+`ed59eb848f0417caff00de46dc3122357b363e74`, which is 25 commits behind
+`origin/main`. Those 25 commits touch only `assets/readme/`, four documentation
+files and `SHA256SUMS.txt` — `git diff --name-only ed59eb84..HEAD` matches no
+path under `backend/src`, `frontend/src`, `Dockerfile`, `render.yaml` or
+`backend/requirements`. The deployed application code is therefore identical to
+`HEAD`, and a redeploy is a documentation refresh, not a fix.
+
+**Latency, measured rather than estimated.** Cold start after the free plan's
+15-minute idle suspension: **24 s**. Once warm: `POST /api/v1/auth/demo` **2.9 s**,
+`GET /api/v1/dashboard` **3.9 / 4.1 / 4.2 s** over three consecutive calls, root
+document **0.30 s**. For comparison, the same endpoints measured on 2026-08-26
+through the Cloudflare quick tunnel with the container in Israel and the database
+in Sydney were 10.7 s and 13.4 s; co-locating the container in Render `singapore`
+next to the Sydney database is what removed roughly seventy per cent of it. The
+remaining ~4 s is the dashboard's own round-trip count, not the network.
+
+**A note for whoever sends the link to a person.** Twenty-four seconds of blank
+screen reads as a broken app to someone who is not a developer, and the pilot
+learner is precisely that person. Wake the service before sharing the link.
+
+**Not verified here, and not claimable from outside:** that the runtime login is
+restricted to `ivrit_sheli_runtime`, that RLS holds on the live project, backup
+and restore into a disposable database, client-IP header behaviour across two
+networks, and two-account isolation. Each needs provider credentials or a second
+network, and none of them can be honestly inferred from an HTTP response.
+
+The first local Docker smoke supplied a throwaway `SESSION_SECRET` shorter than
+the enforced 32-character minimum. Startup correctly failed closed. The first
+probe then waited until its outer limit because it did not inspect early
+container exit; after reading the exact logs, the stopped container was removed
+and the corrected bounded smoke added that fail-fast check. This was an
+operator-test configuration error, not a weakened guard or product workaround.
+
+## Codex post-publication Playwright hardening — 2026-08-27
+
+Two reruns described as silent Playwright hangs were diagnosed from retained
+traces rather than repeated. The targeted run had executed six sequential
+30-second timeouts: FastAPI returned cached pre-build HTML that referenced
+`/assets/index-QR-zN1Oi.js`, while the latest Vite build had replaced it with
+`index-DIxUZMmw.js`. The missing entry module returned 404, React never mounted,
+and every case waited for `.app-shell`.
+
+Local, not-yet-published hardening now keys the cached HTML by index mtime/size,
+adds a backend regression, and runs an entry-asset Playwright setup dependency
+before the three viewport projects. The first repaired FastAPI/CSP smoke passed
+four tests with one intentional project skip in 11.5 s. A complete matrix then
+passed 36 cases with 40 intentional project skips and zero failures across 76
+listed cases in 4.5 minutes, but port inspection subsequently proved that its
+backend listener was an inherited 2026-08-26 process. It is current-frontend
+evidence, not exact-backend/cache-fix proof. Backend verification also
+passed 363 tests with one credential-gated PostgreSQL skip; Ruff and strict MyPy
+passed.
+
+The inherited listener was then stopped by exact verified PID. With port 8000
+proved free, a fresh process from this worktree reported
+`feb056cbbc9539a40f55a0b53624197051acb66b+playwright-hardening-dirty`.
+Discovery passed, the exact-process smoke passed 4 cases with one intentional
+skip in 9.2 s, and the complete matrix passed **36 / 40 intentional skips / 0
+failures** in 3.9 minutes. Teardown stopped the captured listener and proved
+port 8000 clean. Exact incident evidence, tooling errors and the future protocol live in
+[`docs/PLAYWRIGHT_RUNBOOK.md`](docs/PLAYWRIGHT_RUNBOOK.md).
+
+GitHub has the v2.12.2 source release, but there is still no durable live-user
+URL. Deployment remains a separate explicit decision.
+
+## Codex pass — 2026-08-27, README and formal browser gate
+
+The privacy-reviewed 2.12.2 README visual selection now has five WebP assets and
+an exact provenance/hash ledger under `assets/readme/proof/2.12.2`. The former
+17-PNG candidate set remains preserved and excluded from the selected proof.
+
+The formal Playwright suite ran against the FastAPI-served production bundle on
+port 8000, with CSP active: **35 passed, 40 intentional project-scoped skips and
+0 failed in 330.1 s**. It covers the three configured viewports, the 240-scene
+compare gallery, EN/ES/HE, RTL, reduced motion, 200% text reflow, responsive
+journey art and axe. The run exposed and closed topbar overflow at the 720 CSS-px
+zoom boundary and internal Alphabet Studio clipping; it also corrected stale
+navigation/theme selectors and activated native lazy-loaded journey art before
+asserting its dimensions.
+
+This remains locally executed evidence supporting the GitHub source release.
+It does not prove providers, current PostgreSQL behavior, hosted persistence,
+or a durable deployment. Human recognition,
+generated contact-sheet inspection, Hebrew-content acceptance, isolated HTTPS
+staging, two-real-account isolation, backup/restore and the pilot with Kevin's
+mother remain open.
+
+## Antigravity pass — 2026-08-24, 00:03 to 00:19
+
+- **Concept art**: four Imagen pieces in
+  `docs/art-direction/repintado-nocturne-candidates/`, with prompt guidelines in
+  `docs/IMAGE_PROMPTS_SKILL.md`.
+- **Infrastructure**: `frontend/vercel.json` for SPA rewrites and asset caching.
+  `railway.toml` gained explanatory comments; its `preDeployCommand` was already
+  present.
+- **Visuals**: reworked `.score-strip` in `frontend/src/styles.css`.
+- **Documentation**: author and timestamp headers on `main.tsx`,
+  `vite.config.ts` and `cloud_store.py`.
+
+The version this file carried was corrected back from `2.12.3-PRE` to `2.12.2`:
+no other version surface names a 2.12.3, and eleven of them were aligned on
+2026-08-23 specifically to end that kind of drift.
+
+## Claude Code pass — 2026-08-26, all day, ending 19:30 Asia/Jerusalem
+
+**Historical external diagnostic:** a Cloudflare Quick Tunnel briefly exposed
+the Docker/PostgreSQL runtime. Its random hostname is intentionally omitted;
+the session was not a publication or durable hosted demo and no current
+availability is claimed.
+
+Eleven commits. What each of them cost to learn is in its own message; this is
+the shape.
+
+**Two bugs Kevin found by using the app**, neither catchable by the suite as it
+stands: the Claro theme card could not change the theme — the fourth prop in this
+codebase declared, styled, tested in isolation and never wired, now `AGENTS.md`
+hard rule 8 — and the mobile drawer's sections were dead to touch, because a
+backdrop at `z-index: 30` covered a drawer at `20`. jsdom performs no hit
+testing, so the suite stayed green while the menu was unreachable; that is hard
+rule 9, with `sidebarStacking.test.ts` reading the stylesheet as its guard.
+
+**The profile menu was reordered** on his instruction: it opened on an editing
+form before it said whose menu it was. Fifteen avatar tiles moved to Settings;
+streak, level and mastery took the space.
+
+**Three findings that changed what "deploy" means here.** The Supabase host
+publishes only an AAAA record, so no container could ever reach it — the session
+pooler, IPv4 and free, is the answer, and the three URL-string guards learned the
+`<role>.<project-ref>` form without the live identity check moving an inch.
+`PyJWT` had six advisories open, two of them live on the JWKS path. And `anon`
+held TRUNCATE on `sessions`; migration `20260826_0007` closed all four auth
+tables and was rehearsed on a throwaway before touching the real project.
+
+**Two numbers stopped lying.** 244 dictionary entries described a laptop, never a
+build — it was 240 curated words, three demo seeds and a duplicate row. And the
+image dropped from 989 MB to 412 MB by not installing a feature no deployment
+turns on.
+
+**Measured at the end:** frontend 858 across 49 files, backend 346 with one
+credential-gated skip, `tsc`, `ruff`, strict `mypy` clean, package gate 217
+files, `scripts/db.py --check` 12/12, and the temporary external path answering
+`postgresql: true` in 0.26 s.
+
+**Not verified, and it matters:** Google sign-in over the tunnel, because the
+address is not in the OAuth client and changes on restart. Human recognition,
+Hebrew-content acceptance and the pilot with Kevin's mother remain open — the
+last of which starts tonight, which is the point of all of this.
+
+## Claude Code pass — 2026-08-25, signed-out screen
+
+Two things about the environment, both of which contradicted what the documents
+said, and both measured rather than assumed:
+
+- **The PostgreSQL launch profile no longer fails.** `CLAUDE.md` said "falla a
+  propósito". `scripts/db.py --check` returns 12/12 and a backend booted
+  against Supabase answers `/health/ready` with `postgresql: true` and the
+  dictionary in `shared_cloud` mode. What is still down is Railway, which is a
+  separate thing with a separate row in `TASKS.md`.
+- **`backend` and `backend-local` are the same port**, so they can never run
+  together. A `backend-pg` profile on **8100** was added so both storage modes
+  can be up at once. Port 5173 on Kevin's machine belongs to Bitpip Lab, a
+  different project; `frontend-alt` on 5179 exists for exactly that.
+
+The work itself was the signed-out screen. The item in `TASKS.md` was partly
+stale — three of the numbers it listed had been derived on 2026-08-24 — and the
+largest defect on that screen was not in the list at all: **the primary Google
+button and the saved-learner pills started the same sign-in by two different
+routes**, and only one of them cleaned a stale `error` out of the query first.
+See `CHANGELOG.md` under Unreleased for the four items.
+
+The second batch was KEV-12. The finding there is that **the connection pool had
+no test coverage at all** — the only tests naming `PostgresCloudStore` are the
+credential-gated live ones, so an ordinary run exercised none of the code that
+decides what happens when the transport, rather than the query, fails. Ten
+fault-injection tests now do, and the liveness probe was mutation-checked.
+
+The live idempotency test remains unrun, deliberately: it needs Kevin's
+administrator credential and it mutates the real database. It is now *safe* to
+run, which it was not — it creates a `CREATEDB` role granted to
+`ivrit_sheli_runtime` and writes `'stale-test-head'` into `alembic_version` on
+purpose, and undid both only on the success path.
+
+A third item came from Kevin looking at the running app: the signed-in shell
+still carried the English badge and the stale date that the signed-out screen
+had just lost. **Repairing half a duplication left a worse duplication than the
+one it started with** — one build naming itself two ways depending on the
+screen. Both surfaces now use the same localised badge, `CANDIDATE_LABEL` no
+longer embeds a date any surface could show, and `App.test.tsx` guards it.
+
+Measured after: frontend **853/853** across 48 files, backend **336 passed, 1
+skipped** for want of credentials, `tsc -b`, `ruff` and `mypy --strict` clean,
+production build 2.47 s with the main chunk at 379 kB, package gate 217 required
+files, and `scripts/db.py --check` at 12/12 against the live project.
+
+Why the app feels faster, measured rather than assumed: on a warm return the
+first contentful paint is **724 ms** and only **52 kB** crosses the network,
+because 14 of 21 resources come from the service worker. That precache was
+repaired on 2026-08-23; the main chunk is 31 % smaller than at that gate; and
+the signed-out screen went from 1.21 MB of photographs to 163 kB.
+
+Not verified: the signed-out screen was confirmed through rendered-DOM tests
+and by grepping the built bundle, **not by looking at it in a browser**. Every
+local origin carries an authenticated session — the offline SQLite mode signs
+itself in, and cookies ignore the port — so seeing it would have meant ending
+Kevin's session, which he had not asked for.
+
+## Claude Code pass — 2026-08-24, afternoon
+
+Four commits, each with its documentation in the same commit. Read `CHANGELOG.md`
+under Unreleased for the itemised list; this is what changed in kind.
+
+**Everything here came from reading, not from a report.** Nobody had noticed
+any of it, which is the argument for the mapping pass that found them.
+
+1. `90c6b7c` — a second brand identity, unused by the app, was still the face
+   of the README. Retired; the replacement is generated from the app's own
+   contours so the two cannot drift.
+2. `6b411e3` — six single-choice controls, all broken in two opposite ways, now
+   share one `ChoiceGroup`. And the learner's own name and avatar now outrank
+   the ones her identity provider holds, with a server column so the avatar
+   survives a new device.
+3. `faac90e` — the sign-in screen was overwriting her chosen region every eight
+   seconds, and the saved-learner strip promised a one-tap return it cannot
+   deliver.
+4. `3deb2a2` — that screen fetched 1.21 MB of photographs to show one, and
+   could start speech it offered no way to stop.
+
+The common thread is now `AGENTS.md` hard rule 6: **an explicit choice outranks
+ambient behaviour, and if a choice cannot be honoured, say so.**
+
+Measured after the last of them: frontend **779/779** across 47 files, backend
+**325** with one skipped for want of credentials, `tsc`/`ruff`/`mypy` strict
+clean, package gate 217 required files / 531 checksums.
+
+## Operational checkpoint
+
+- **Project:** `02 — Ivrit Sheli`
+- **Branch:** `consolidation/ivrit-sheli-2.10-baseline`
+- **Implementation version:** unpublished `2.12.3` candidate, stated across the
+  `frontend/package.json`, `backend/pyproject.toml`,
+  `backend/src/ivrit_sheli/__init__.py`, `frontend/src/release.ts`,
+  `frontend/index.html`, `frontend/public/manifest.webmanifest` and the service
+  worker cache key. `v2.12.2` at `feb056cbbc95` remains the published source
+  revision beneath these local changes.
+- **Working tree:** intentionally dirty and unpublished while the candidate is
+  completed and verified. No commit, push, tag, release or deployment is
+  claimed by this checkpoint.
+
+## What this session did
+
+Four commits, each revertible on its own:
+
+1. `1e4281e` — checkpoint commit. Captures the accumulated tree, deliberately
+   preserving the regressions listed below rather than hiding them, and adds
+   `.env.local` to `.gitignore` so the Supabase URL and key stay out of history.
+2. `9d8d463` — security repair. Backend goes from 4 failed / 311 passed to
+   **315 passed / 1 skipped**.
+3. `73bf596` — PWA, font and icon repair.
+4. `83c0c7d` — finishes the half-wired sign-in surfaces and the hero.
+
+### Brand
+
+"Ivrit" is now drawn as hand-authored SVG paths in
+`frontend/src/components/IvritHebraicLetters.tsx`, built on Hebrew square-script
+construction: a heavy roof over every letter with thin stems (Hebrew stresses
+the horizontal, Latin the vertical), a descending corner heel mirrored from ד
+and ר, broad-nib diagonal terminals, and three tagin over the closing T. The
+Hebrew half `שלי` is unchanged.
+
+Two consequences beyond appearance. The logo is now identical offline, which
+matters for an install-once PWA. And `app-icon.svg` stopped setting its
+letterforms in `<text font-family="Cinzel">` — an SVG rendered as an app icon or
+through `<img>` can never load a webfont, so the icon had been falling back to a
+different generic serif on every machine.
+
+### Regressions repaired
+
+All five were confirmed by reading the code, and all five had a failing guard
+test pointing at them:
+
+- Four already-applied migrations had lost every `CREATE ROLE`, `GRANT` and
+  `REVOKE`, and their RLS policies had lost the `TO <role>` clause. A permissive
+  policy with no role applies to `PUBLIC`, and PostgreSQL ORs permissive
+  policies together, so `USING (TRUE) WITH CHECK (TRUE)` made the sibling owner
+  policy irrelevant.
+- The guard refusing an administrator `DATABASE_URL` had been deleted, so a
+  superuser or `BYPASSRLS` connection would silently disable RLS.
+- `autocommit=True` arrived with connection pooling and released the
+  `SELECT ... FOR UPDATE` row lock before the write landed.
+- `CloudLearningRepository._cached_state` was never invalidated on write, so the
+  first read after a write served pre-write state.
+- Supabase bearer authentication had never authenticated a request:
+  `SessionIdentity` was constructed with a field that does not exist and without
+  a required one, raising `TypeError` into a bare `except`.
+
+Also repaired: CSRF could be skipped by presenting an empty `csrf_hash`; JWT
+verification listed HS256 beside JWKS public keys; OAuth callback state was no
+longer bound to the browser outside production; a live Supabase project URL was
+a source-level default.
+
+### Learner-facing
+
+- The mobile drawer was keyboard-focusable while closed, took no focus when
+  opened, had no focus trap, did not lock body scroll, and double-flipped in
+  Hebrew so the toggle sat opposite the drawer. All fixed.
+- Hero tap targets went from 24–30 px to a 44 px minimum and body text from
+  9–11.5 px to 12–14 px, which is what the rest of the app already honours and
+  what the target learner needs.
+- Hero surfaces moved from hard-coded `rgba(255,255,255,…)` onto
+  `--surface-soft` / `--border`, so `prefers-contrast: more` reaches them.
+- Light theme: stat numerals no longer half-vanish, and a selected pill no
+  longer looks unselected.
+- Saved learners now exist. `savedAccounts.ts` is a bounded device-local store
+  behind UI that had been built with no data layer at all.
+- The Google Fonts CDN is gone from `index.html` and the wordmark CSS. The
+  app's own CSP is `style-src 'self'` and `font-src 'self' data:`, so those
+  requests could never resolve on the real path — they only loaded on the Vite
+  dev server, which meant port 5173 was showing different typefaces than the
+  app actually ships.
+
+## Verification boundary
+
+**Executed on 2026-08-23** — full detail in `TEST_REPORT.md`:
+
+- Frontend: **747 passed across 45 files**. `tsc -b` clean. Production build
+  clean, with the known main-chunk size warning.
+- Backend: **315 passed / 1 PostgreSQL-gated skip**. Ruff clean. Strict MyPy
+  clean across 39 source files.
+- Both servers brought up and the learner shell rendered; the Visual QA
+  catalogue reported 240 scene SVGs in the DOM.
+
+**At this 2026-08-23 checkpoint, and not inherited as proof of it:** the
+Playwright browser matrix, the 240 × 3 contact matrices, the offline doctor,
+`scripts/verify_package.py`, and PostgreSQL 17 / RLS and container evidence had
+not been executed. Later 2.12.2 evidence is recorded at the top of this handoff
+and in `TEST_REPORT.md`.
+
+## Blockers
+
+Stated plainly, because the previous revision of this file said "None" directly
+above a list of unmet requirements:
+
+1. ~~`DATABASE_URL` authenticates as the `postgres` superuser.~~ **Closed
+   2026-08-23.** `ivrit_sheli_runtime` exists on the project, the application
+   authenticates as it, `/health/ready` returns 200 with `postgresql: true`, and
+   tenant isolation was demonstrated against the live database — each learner
+   sees only her own state, cross-tenant writes affect nothing, and the role
+   cannot disable RLS, create tables, or switch roles. Evidence in
+   `TEST_REPORT.md`.
+2. **Rotate the `postgres` password.** It was exposed in session transcripts on
+   2026-08-23. Nothing depends on it any more — the application authenticates as
+   the restricted role — so rotating it breaks nothing.
+3. Human five-second recognition of confusable clusters, starting with family
+   and relationship diagrams.
+4. Hebrew-content and mother-pilot acceptance.
+5. Isolated HTTPS staging, two-real-account persistence and isolation, and a
+   proven backup/restore path.
+6. ~~`SHA256SUMS.txt` and the package integrity gate need regenerating.~~
+   **Closed for 2.12.3 on 2026-08-27:** 571 canonical Git-index checksums
+   generated after explicit staging; `scripts/verify_package.py` passed 230 required files and
+   all packaged assets.
+
+## Continuation rules
+
+- `docs/VISUAL_BIBLE.md` remains the visual authority;
+  `docs/LIVING_HEBREW_FIELD_NOTES.md` remains the operational notebook.
+- Keep the exact semantic SVGs deterministic and local. Cinematic raster art is
+  a complementary large-surface layer, not linguistic evidence.
+- Do not start a broad `api.py` or `repository.py` rewrite.
+- Do not push, merge, tag, release, deploy or alter Devpost unless Kevin
+  explicitly authorizes that specific action. Local reviewed commits are
+  allowed; one publication action never authorizes the next.
+- Verify against port 8000, not only 5173. The dev server has no CSP and has
+  already hidden one whole class of defect.
+
+## The app icon — done 2026-08-24
+
+Both items Antigravity handed over are complete.
+
+**`שלי` is real Gveret Levin now.** The contours were extracted from
+`frontend/public/fonts/GveretLevin-Regular.ttf` with `fontTools`, flipped from
+font space into SVG space, and laid out right to left. They are filled outlines,
+not strokes. Rejecting the skeletons in `hebrewLetterStrokes.ts` was correct:
+those are handwriting stroke-order teaching lines, which is a different thing
+from a letter's shape.
+
+The icon now contains **no `<text>` and no `font-family` at all**. That was the
+real defect — an SVG rendered as an app icon or through `<img>` cannot load a
+font, so every `font-family` in it fell back differently on every machine.
+
+**Background**: replaced with a 512 px crop of `conceptual_bg_city.jpg`, taken
+from the clean skyline on the right of that image, away from the device frame
+and the nav bar the concept mockup has baked into it. The scrim was deepened and
+a band added behind the lettering, because the sharper crop is far brighter than
+the blurred image it replaced and the wordmark was disappearing into the lit
+towers.
+
+One correction on the brief: the resolution of an already-embedded image cannot
+be increased. Upscaling invents pixels and looks worse. Using a
+higher-resolution source is what actually helps, and that is what this did.
+
+Verified legible at 128, 64, 48 and 32 px. Both PNG renditions regenerated.
+
+### Concept art
+
+Four pieces live in `docs/art-direction/repintado-nocturne-candidates/`:
+`conceptual_bg_city.jpg`, `conceptual_header_alef.jpg`,
+`conceptual_ai_coach.jpg` and `conceptual_dictionary_card.jpg`. They are UI
+mockups rather than clean plates — each has device chrome baked in, so any use
+needs a crop, as the icon background did.

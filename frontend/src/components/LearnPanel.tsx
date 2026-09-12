@@ -7,42 +7,50 @@
 import { useEffect, useRef, useState } from 'react';
 import { api } from '../api';
 import { useI18n } from '../i18n';
+import { resolveLearnerMode } from '../learnerMode';
 import { useSessionAccess } from '../session';
-import type { DictionaryEntry } from '../types';
+import type { Dashboard, DictionaryEntry, LearnTab } from '../types';
+import { AlphabetStudio } from './AlphabetStudio';
 import { AudioPractice } from './AudioPractice';
+import { CurriculumPath } from './CurriculumPath';
+import { DailyPracticeSession } from './DailyPracticeSession';
 import { DictionaryVisualCue } from './DictionaryVisualCue';
 import { HebrewText } from './HebrewText';
 import { Icon } from './Icon';
-import { MicWordAnalyzer } from './MicWordAnalyzer';
 import { RegistryPanel } from './RegistryPanel';
 import { ReviewCard } from './ReviewCard';
 
-type LearnTab = 'review' | 'dictionary' | 'audio' | 'collection';
-
 export function LearnPanel({
   initialTab = 'review',
-  practiceWord,
+  practiceTarget,
   cloudAvailable,
+  dashboard,
   onWordClick,
   onRefresh,
 }: {
   initialTab?: LearnTab;
-  practiceWord?: string;
+  practiceTarget?: {
+    text: string;
+    itemId?: number;
+  };
   cloudAvailable: boolean;
+  dashboard: Dashboard;
   onWordClick: (word: string, entryId?: number) => void;
   onRefresh: () => void;
 }): React.JSX.Element {
-  const { locale, label, t } = useI18n();
+  const { errorText, label, locale, t } = useI18n();
   const { readOnly, readOnlyReason } = useSessionAccess();
   const [tab, setTab] = useState<LearnTab>(initialTab);
   const [query, setQuery] = useState('');
   const [dictionaryResults, setDictionaryResults] = useState<DictionaryEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [activePracticeTarget, setActivePracticeTarget] = useState(practiceTarget);
   const mountedRef = useRef(true);
   const searchGenerationRef = useRef(0);
 
   useEffect(() => setTab(initialTab), [initialTab]);
+  useEffect(() => setActivePracticeTarget(practiceTarget), [practiceTarget]);
   useEffect(() => {
     mountedRef.current = true;
     return () => {
@@ -64,7 +72,7 @@ export function LearnPanel({
       setDictionaryResults(results);
     } catch (reason) {
       if (!mountedRef.current || generation !== searchGenerationRef.current) return;
-      setMessage(reason instanceof Error ? reason.message : String(reason));
+      setMessage(errorText(reason));
     } finally {
       if (mountedRef.current && generation === searchGenerationRef.current) setLoading(false);
     }
@@ -81,11 +89,25 @@ export function LearnPanel({
       setMessage(t('captured'));
       onRefresh();
     } catch (reason) {
-      setMessage(reason instanceof Error ? reason.message : String(reason));
+      setMessage(errorText(reason));
     }
   };
 
-  const tabs: Array<{ key: LearnTab; label: string; icon: 'brain' | 'book' | 'mic' | 'language' }> = [
+  const practiceEntry = (entry: DictionaryEntry): void => {
+    if (entry.learning_item_id === null || entry.learning_item_id === undefined) return;
+    setActivePracticeTarget({
+      text: entry.display_niqqud || entry.word,
+      itemId: entry.learning_item_id,
+    });
+    setMessage('');
+    setTab('audio');
+  };
+
+  const alphabetLabel = locale === 'he' ? 'אלפבית' : locale === 'es' ? 'Alfabeto' : 'Alphabet';
+  const tabs: Array<{ key: LearnTab; label: string; icon: 'brain' | 'book' | 'mic' | 'language' | 'play' | 'target' }> = [
+    { key: 'path', label: t('learningPath'), icon: 'target' },
+    { key: 'alphabet', label: alphabetLabel, icon: 'language' },
+    { key: 'practice', label: t('dailyPractice'), icon: 'play' },
     { key: 'review', label: t('review'), icon: 'brain' },
     { key: 'dictionary', label: t('dictionary'), icon: 'book' },
     { key: 'audio', label: t('pronunciation'), icon: 'mic' },
@@ -107,11 +129,33 @@ export function LearnPanel({
 
       {readOnly && tab === 'dictionary' && <div className="demo-inline-notice" role="note"><Icon name="shield" size={16} /> {t('demoDictionaryNotice')} {readOnlyReason}</div>}
       {message && <div className="info-banner"><Icon name="sparkles" size={16} /> {message}</div>}
-      {tab === 'review' && <ReviewCard active={tab === 'review'} onWordClick={onWordClick} onReviewed={onRefresh} />}
+      {tab === 'path' && <CurriculumPath onStartPractice={() => setTab('practice')} onOpenAlphabet={() => setTab('alphabet')} />}
+      {tab === 'alphabet' && (
+        <AlphabetStudio
+          learnerMode={resolveLearnerMode(dashboard.profile)}
+          onWordClick={onWordClick}
+          onProgress={onRefresh}
+        />
+      )}
+      {tab === 'practice' && (
+        <DailyPracticeSession
+          dashboard={dashboard}
+          cloudAvailable={cloudAvailable}
+          onWordClick={onWordClick}
+          onRefresh={onRefresh}
+        />
+      )}
+      {tab === 'review' && <ReviewCard active={tab === 'review'} onWordClick={onWordClick} onReviewed={onRefresh} onStartPractice={() => setTab('practice')} />}
       {tab === 'audio' && (
         <div className="audio-workspace">
-          <AudioPractice initialText={practiceWord ?? 'אני עדיין לומד עברית'} cloudAvailable={cloudAvailable} onWordClick={onWordClick} />
-          <MicWordAnalyzer initialWord={practiceWord ?? ''} cloudAvailable={cloudAvailable} onWordClick={onWordClick} />
+          <AudioPractice
+            initialText={activePracticeTarget?.text ?? 'אני עדיין לומד עברית'}
+            {...(activePracticeTarget?.itemId === undefined
+              ? {}
+              : { itemId: activePracticeTarget.itemId })}
+            cloudAvailable={cloudAvailable}
+            onWordClick={onWordClick}
+          />
         </div>
       )}
       {tab === 'dictionary' && (
@@ -137,7 +181,12 @@ export function LearnPanel({
               return (
                 <article className="dictionary-result" key={entry.id}>
                   <button type="button" className="dictionary-result__main" onClick={() => onWordClick(entry.word, entry.id)}>
-                    <DictionaryVisualCue visual={entry.visual} locale={locale} className="dictionary-result__visual" />
+                    <DictionaryVisualCue
+                      visual={entry.visual}
+                      locale={locale}
+                      className="dictionary-result__visual"
+                      size="thumbnail"
+                    />
                     <HebrewText text={entry.display_niqqud || entry.word} className="dictionary-result__word" as="h3" />
                     <span dir="ltr">{entry.romanization || '—'}</span>
                     <p>{meaning || t('noDefinition')}</p>
@@ -148,16 +197,28 @@ export function LearnPanel({
                       {entry.root && <span>{t('rootLabel')} · {entry.root}</span>}
                     </div>
                   </button>
-                  <button
-                    type="button"
-                    className={`icon-button learned-button ${entry.learning_item_id ? 'is-learned' : ''}`}
-                    onClick={() => { void addEntry(entry); }}
-                    aria-label={entry.learning_item_id ? t('alreadyInLearning') : t('addToLearning')}
-                    disabled={readOnly || Boolean(entry.learning_item_id)}
-                    title={readOnly ? readOnlyReason : entry.learning_item_id ? t('alreadyInLearning') : undefined}
-                  >
-                    <Icon name={entry.learning_item_id ? 'check' : 'plus'} />
-                  </button>
+                  {entry.learning_item_id ? (
+                    <button
+                      type="button"
+                      className="secondary-button dictionary-result__practice"
+                      onClick={() => practiceEntry(entry)}
+                      aria-label={t('practicePhrase', { phrase: entry.display_niqqud || entry.word })}
+                    >
+                      <Icon name="mic" size={17} />
+                      {t('practiceSayingWord')}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="icon-button learned-button"
+                      onClick={() => { void addEntry(entry); }}
+                      aria-label={t('addToLearning')}
+                      disabled={readOnly}
+                      title={readOnly ? readOnlyReason : undefined}
+                    >
+                      <Icon name="plus" />
+                    </button>
+                  )}
                 </article>
               );
             })}
@@ -165,7 +226,7 @@ export function LearnPanel({
           {!loading && query && dictionaryResults.length === 0 && <p className="muted-copy">{t('noDefinition')}</p>}
         </section>
       )}
-      {tab === 'collection' && <RegistryPanel onWordClick={onWordClick} />}
+      {tab === 'collection' && <RegistryPanel onWordClick={onWordClick} onExploreDictionary={() => setTab('dictionary')} />}
     </div>
   );
 }

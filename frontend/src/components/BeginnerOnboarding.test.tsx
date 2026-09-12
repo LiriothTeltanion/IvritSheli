@@ -11,7 +11,7 @@ import { BeginnerOnboarding } from './BeginnerOnboarding';
 
 const PROFILE: Profile = {
   id: 1,
-  display_name: 'New learner',
+  display_name: 'Learner',
   interface_language: 'en',
   hebrew_level: 'A0',
   daily_minutes: 10,
@@ -22,6 +22,7 @@ const PROFILE: Profile = {
   onboarding_step: 0,
   onboarding_completed: 0,
   guided_mode: 1,
+  learner_mode: 'guided',
   goals: [],
 };
 
@@ -42,6 +43,7 @@ describe('BeginnerOnboarding', () => {
     );
 
     expect(await screen.findByRole('heading', { name: '¿Qué idioma te resulta más fácil?' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /¿Cómo quieres que te llamemos\?/ })).toHaveValue('');
     expect(screen.getByRole('button', { name: /EspañolBienvenida/i })).toHaveAttribute('aria-pressed', 'true');
     expect(document.documentElement).toHaveAttribute('lang', 'es');
   });
@@ -63,22 +65,67 @@ describe('BeginnerOnboarding', () => {
       </I18nProvider>,
     );
 
+    await user.type(await screen.findByRole('textbox', { name: /What should we call you\?/ }), 'Marta');
     await user.click(await screen.findByRole('button', { name: /Continue/i }));
     expect(await screen.findByRole('heading', { name: 'How much Hebrew do you know?' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Guided mode/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Explorer mode/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Experienced mode/i })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: /I know a few words/i }));
     await user.click(screen.getByRole('button', { name: /Continue/i }));
     await user.click(await screen.findByRole('button', { name: /Everyday life/i }));
     await user.click(screen.getByRole('button', { name: /Continue/i }));
-    expect(await screen.findByRole('img', { name: 'Two people greeting each other warmly' })).toBeInTheDocument();
+    expect(await screen.findByRole('img', {
+      name: 'Two neighbors facing each other and waving hello',
+    })).toHaveAttribute('data-visual-id', 'greetings.hello');
     await user.click(screen.getByRole('button', { name: /Start my first lesson/i }));
 
     await waitFor(() => expect(onFinished).toHaveBeenCalledWith(finishedProfile));
     expect(updateProfile).toHaveBeenCalledTimes(4);
     expect(updateProfile).toHaveBeenLastCalledWith(expect.objectContaining({
+      display_name: 'Marta',
       hebrew_level: 'A1',
       onboarding_step: 4,
       onboarding_completed: true,
       guided_mode: true,
+      learner_mode: 'guided',
     }));
+  });
+
+  it('saves chosen avatar and name when onboarding finishes', async () => {
+    vi.spyOn(window.navigator, 'language', 'get').mockReturnValue('en-US');
+    const onIdentitySetup = vi.fn();
+    vi.spyOn(api, 'updateProfile')
+      .mockResolvedValueOnce(PROFILE)
+      .mockResolvedValueOnce(PROFILE)
+      .mockResolvedValueOnce(PROFILE)
+      .mockResolvedValue({ ...PROFILE, onboarding_step: 4, onboarding_completed: 1 });
+    const onFinished = vi.fn();
+    const user = userEvent.setup();
+
+    render(
+      <I18nProvider>
+        <BeginnerOnboarding
+          profile={PROFILE}
+          storageKey="setup-test"
+          onFinished={onFinished}
+          onIdentitySetup={onIdentitySetup}
+          onSkip={vi.fn()}
+        />
+      </I18nProvider>,
+    );
+
+    await user.type(screen.getByRole('textbox', { name: /What should we call you\?/ }), 'Marta');
+    await user.click(screen.getByRole('button', { name: /Avatar 4$/i }));
+    await user.click(await screen.findByRole('button', { name: /Continue/i }));
+    await user.click(await screen.findByRole('button', { name: /I know a few words/i }));
+    await user.click(await screen.findByRole('button', { name: /Continue/i }));
+    await user.click(await screen.findByRole('button', { name: /Everyday life/i }));
+    await user.click(await screen.findByRole('button', { name: /Continue/i }));
+    await user.click(await screen.findByRole('button', { name: /Start my first lesson/i }));
+
+    expect(onIdentitySetup).toHaveBeenCalledOnce();
+    expect(onIdentitySetup).toHaveBeenCalledWith('Marta', 'preset-dark');
+    expect(onFinished).toHaveBeenCalled();
   });
 });

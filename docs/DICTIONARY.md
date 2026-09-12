@@ -1,8 +1,12 @@
+# 2.10.0 visual dictionary note — 2026-08-10
+
+All **240 reviewed starter concepts** now map to exact semantic SVG scenes. The renderer keeps fallback support for future imported/unsupported vocabulary, but reviewed starter entries no longer rely on a category/emoji fallback.
+
 # Hebrew dictionary
 
 ## Immediate mode
 
-The seed database contains exactly 48 reviewed A0/A1 visual concepts so useful beginner searches and the first lesson work on first launch. The distribution is deliberate: 8 greetings, 7 family, 7 home, 8 food, 6 transport, 6 shopping and 6 health concepts.
+The seed database contains exactly 240 reviewed A0–A2 visual concepts so useful beginner searches and early journeys work on first launch. The distribution is deliberately balanced across twenty Israel-life categories with twelve concepts each: greetings, family, home, food, transport, shopping, health, places, numbers, time, weather, nature, actions, communication, work, bureaucracy, autonomy, housing, register and services. The places layer includes Jerusalem, Tel Aviv, Haifa, Be'er Sheva and other everyday location vocabulary; the Negev is represented without becoming the only visual setting.
 
 Every curated concept includes:
 
@@ -10,9 +14,11 @@ Every curated concept includes:
 - Hebrew with niqqud, niqqud-free normalization and romanization.
 - English and Spanish meanings.
 - One practical Hebrew example with romanization and EN/ES translations.
-- A0/A1 level, category and explicit curated provenance.
+- A0–A2 level, category and explicit curated provenance.
 
-The visuals are semantic learning cues, not dictionary facts. Unsupported or imported entries can return `visual: null`; the application does not fabricate illustrations, roots or grammar to fill a missing source field.
+Fields such as `root` and `binyan` remain unknown when a reviewed linguistic source does not establish them; an attractive card is never treated as evidence for grammar.
+
+The visuals are semantic learning cues, not dictionary facts. All 240 reviewed concepts have exact semantic SVG scenes with progressive context, meaning and anchor layers. Category-composition and emoji fallbacks remain only for future unsupported or imported entries, which can also return `visual: null`; the application does not fabricate illustrations, roots or grammar to fill a missing source field.
 
 ## Full mode
 
@@ -58,6 +64,19 @@ The 2.2 atomic link path prevents new duplicate active rows for the same exact d
 ## 2.2 to 2.3 upgrade note
 
 Opening a 2.2 demo dictionary expands it to the 48-concept starter layer while preserving existing entry IDs. A full imported database receives the same curated starter layer additively rather than being replaced. Dictionary readiness requires the packaged schema version, but existing learner links remain stable because the upgrade does not renumber prior records.
+
+## 2.4 to 2.5 upgrade note
+
+Historically, opening a 2.4 database in the 2.5 checkpoint expanded the reviewed layer to the then-current 144 concepts. The original source keys and entry IDs remain stable, new entries are inserted only once, and reseeding refreshes reviewed metadata without duplicating senses, forms or examples. A strict validation contract enforces the checkpoint count, balanced categories, required HE/EN/ES content, one niqqud form, one practical example, unique exact-sense and visual identities, and explicit editorial provenance.
+
+## 2.6 to 2.8 upgrade note
+
+Opening a previous database expands the reviewed layer additively from 144 to
+240 concepts: the A0/A1 foundation plus 96 reviewed A2 concepts. Stable source
+keys preserve existing learner links. Visual metadata is complete and
+trilingual, while the 2.8.3 art system honestly distinguishes 72 exact semantic
+scenes from 168 explicit category-composition and emoji fallbacks. Progressive
+context, meaning and anchor layers apply to every exact scene.
 
 ## Data quality
 

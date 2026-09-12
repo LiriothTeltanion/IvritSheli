@@ -3,10 +3,10 @@ requires = ["setuptools>=75", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "ivrit-sheli-ultimate"
-version = "2.4.0"
+name = "ivrit-sheli"
+version = "2.12.3"
 description = "Private, adaptive, trilingual Hebrew-learning operating system"
-readme = {text = "Ivrit Sheli 2.4 Contest Edition backend: local-first SQLite plus Google/GitHub authenticated PostgreSQL cloud mode.", content-type = "text/markdown"}
+readme = {text = "Ivrit Sheli backend: local-first SQLite plus Google/GitHub authenticated PostgreSQL cloud mode.", content-type = "text/markdown"}
 requires-python = ">=3.10"
 license = {text = "MIT"}
 authors = [{name = "Kevin Lirioth Cusnir"}]
@@ -19,6 +19,9 @@ dependencies = [
   "psycopg[binary]==3.3.4",
   "SQLAlchemy==2.0.51",
   "alembic==1.18.5",
+  "faster-whisper==1.2.1",
+  "pywebpush==2.3.0",
+  "cryptography==50.0.0",
 ]
 
 [project.scripts]

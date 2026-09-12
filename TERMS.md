@@ -1,10 +1,21 @@
 # Ivrit Sheli terms of use
 
-Last updated: 21 July 2026
+Last updated: 27 August 2026
 
-These terms apply to the public Ivrit Sheli hosted service. By using the service, you agree to use it responsibly and understand the limits below. If you do not agree, you may use the open-source local edition under its repository license instead of the hosted service.
+These terms apply whenever an Ivrit Sheli hosted service is made available. By
+using such a service, you agree to use it responsibly and understand the limits
+below. The current `v2.12.2` publication is a source release that can be run
+locally; no durable hosted demo is currently verified.
 
-**Live-service boundary:** the hosted service reports version 2.4.0. Identity-only Google sign-in, onboarding/session persistence across reload and logout are verified in production. Re-login after logout and credential-dependent integrations remain separate unverified checks; Google sign-in grants no Gmail, Drive or Calendar scope.
+**Historical hosted-service boundary:** the former Railway service ran 2.4.0
+and is currently offline. Its identity-only Google sign-in, onboarding/session
+persistence and logout evidence is dated 2026-07-21. It does not prove a current
+service, re-login, credential-dependent integrations, or backup restoration;
+Google sign-in grants no Gmail, Drive or Calendar scope.
+
+The v2.12.2 source contains optional microphone transcription, coach and
+reminder behavior. Any future private staging use remains pilot software and
+does not create a claim of current provider availability or deployment.
 
 ## The service
 
@@ -26,11 +37,21 @@ Access may be limited or removed to protect learners, the service, or other syst
 
 ## Your learning content
 
-You keep responsibility for words, examples, notes, and recordings you submit. You give the service permission to process that content only as needed to provide the features you request, secure the service, and maintain your learner state. You can export or delete the hosted learner account from the application.
+You keep responsibility for words, examples, notes, feedback and recordings
+you submit. You give the service permission to process that content only as
+needed to provide the features you request, secure the service, and maintain
+your learner state. In v2.9, server transcription audio is temporary; a
+recording is retained only when you choose device-only storage in that browser.
+You control and must separately delete recordings stored on each device. You
+can export or delete the hosted learner account from the application.
 
 ## Third-party services and content
 
-Sign-in providers, hosting, browsers, operating systems, dictionary sources, and optional AI or speech providers operate under their own terms and privacy notices. Ivrit Sheli cannot control their availability or independent processing. Source attribution and license information is shown where dictionary content requires it.
+Sign-in providers, hosting, browsers, operating systems, dictionary sources,
+Push delivery services and optional AI or speech providers operate under their
+own terms and privacy notices. Ivrit Sheli cannot control their availability
+or independent processing. Source attribution and license information is shown
+where dictionary content requires it.
 
 ## Availability and changes
 

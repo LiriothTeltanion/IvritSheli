@@ -16,10 +16,19 @@ interface ReviewCardProps {
   active: boolean;
   onWordClick: (word: string) => void;
   onReviewed: () => void;
+  /** Fires once the queue is exhausted, so a chained session can advance. */
+  onComplete?: (() => void) | undefined;
+  onStartPractice?: (() => void) | undefined;
 }
 
-export function ReviewCard({ active, onWordClick, onReviewed }: ReviewCardProps): React.JSX.Element {
-  const { locale, label, t } = useI18n();
+export function ReviewCard({
+  active,
+  onWordClick,
+  onReviewed,
+  onComplete,
+  onStartPractice,
+}: ReviewCardProps): React.JSX.Element {
+  const { errorText, label, locale, t } = useI18n();
   const { readOnly, readOnlyReason } = useSessionAccess();
   const [items, setItems] = useState<LearningItem[]>([]);
   const [index, setIndex] = useState(0);
@@ -33,7 +42,7 @@ export function ReviewCard({ active, onWordClick, onReviewed }: ReviewCardProps)
     let mounted = true;
     api.nextReviews(12)
       .then((result) => { if (mounted) setItems(result); })
-      .catch((reason: unknown) => { if (mounted) setMessage(reason instanceof Error ? reason.message : String(reason)); })
+      .catch((reason: unknown) => { if (mounted) setMessage(errorText(reason)); })
       .finally(() => { if (mounted) setLoading(false); });
     return () => { mounted = false; };
   }, [active]);
@@ -44,6 +53,11 @@ export function ReviewCard({ active, onWordClick, onReviewed }: ReviewCardProps)
   }, [index]);
 
   const item = items[index] ?? null;
+
+  useEffect(() => {
+    if (!loading && !item) onComplete?.();
+  }, [loading, item, onComplete]);
+
   const translation = item
     ? locale === 'es'
       ? item.translation_es ?? item.translation_en
@@ -74,7 +88,7 @@ export function ReviewCard({ active, onWordClick, onReviewed }: ReviewCardProps)
         setIndex((current) => current + 1);
       }, 450);
     } catch (reason) {
-      setMessage(reason instanceof Error ? reason.message : String(reason));
+      setMessage(errorText(reason));
     } finally {
       setSubmitting(false);
     }
@@ -89,6 +103,11 @@ export function ReviewCard({ active, onWordClick, onReviewed }: ReviewCardProps)
         <span className="success-orb"><Icon name="check" size={28} /></span>
         <h2>{t('sessionComplete')}</h2>
         <p>{t('empty')}</p>
+        {onStartPractice && (
+          <button type="button" className="primary-button" onClick={onStartPractice}>
+            <Icon name="play" size={18} /> {t('dailyPractice')}
+          </button>
+        )}
       </section>
     );
   }

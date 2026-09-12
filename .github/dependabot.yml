@@ -1,4 +1,9 @@
 version: 2
+
+# Agrupado a proposito: las subidas menores y de parche llegan en un solo PR
+# por ecosistema y semana. Las de version mayor siguen llegando sueltas,
+# porque son las unicas que pueden romper algo y merecen revisarse una a una.
+
 updates:
   - package-ecosystem: pip
     directory: /backend
@@ -9,6 +14,10 @@ updates:
       timezone: Asia/Jerusalem
     labels: [dependencies, backend]
     open-pull-requests-limit: 5
+    groups:
+      backend-minor-patch:
+        patterns: ["*"]
+        update-types: [minor, patch]
 
   - package-ecosystem: npm
     directory: /frontend
@@ -19,6 +28,10 @@ updates:
       timezone: Asia/Jerusalem
     labels: [dependencies, frontend]
     open-pull-requests-limit: 5
+    groups:
+      frontend-minor-patch:
+        patterns: ["*"]
+        update-types: [minor, patch]
 
   - package-ecosystem: docker
     directory: /
@@ -29,6 +42,10 @@ updates:
       timezone: Asia/Jerusalem
     labels: [dependencies, docker]
     open-pull-requests-limit: 3
+    groups:
+      docker-minor-patch:
+        patterns: ["*"]
+        update-types: [minor, patch]
 
   - package-ecosystem: github-actions
     directory: /
@@ -39,3 +56,6 @@ updates:
       timezone: Asia/Jerusalem
     labels: [dependencies, ci]
     open-pull-requests-limit: 3
+    groups:
+      actions-all:
+        patterns: ["*"]

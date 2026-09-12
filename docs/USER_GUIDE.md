@@ -1,4 +1,28 @@
-# Ivrit Sheli Ultimate — User Guide
+# Ivrit Sheli — User Guide
+
+> [!IMPORTANT]
+> The working tree is **2.12.3 — PRIVATE CANDIDATE / unpublished**. The latest
+> published source release remains **v2.12.2 (2026-08-27)**. There is no
+> verified durable hosted demo or live-user URL.
+
+## 2.12.3 private-candidate visual note — 2026-08-27
+
+The number-one illustration now shows one coffee cup beside the numeral `1`
+instead of a raised-finger pose. The daily ambient number spotlight begins with
+`שתיים` and two coffee cups. This is a visual and accessibility clarification;
+the learner workflow and API contract are unchanged.
+
+## Published 2.12.2 visual-workbench note — 2026-08-27
+
+The local-only visual QA gallery derives **all 240 exact semantic scenes** and
+opens dark by default as a trilingual editorial workbench with art-dominant
+cards. Choose one of 20 domains, search, switch among
+thumbnail/card/hero/compare views, inspect the exact
+`context → meaning → anchor` recipe, or run a five-second recognition check
+with distractors from the same domain. The six-region Atlas uses responsive
+adult blue-hour paintings whose visible action matches the vocabulary domain.
+Human recognition review and isolated staging/pilot evidence remain open after
+the GitHub source publication and are still required before deployment claims.
 
 ## 1. First launch
 
@@ -18,9 +42,46 @@ The same launcher can be started from PowerShell:
 
 ### First Steps onboarding
 
-On a new profile, the app asks four short questions in plain language: interface language, current Hebrew level, main learning goal and daily practice time. You can preview the available voice style and record a guided-mode preference. Onboarding choices, **Do later**, the exact lesson checkpoint and completion save in the learner profile. The guided-mode switch is stored but does not yet change the application shell.
+On a new browser profile, the app first teaches three useful words before asking for an account or configuration. After that low-friction lesson, the learner can enter a separate local profile or use a configured identity provider, choose a display name and complete the short personal setup for level, goal, daily rhythm, voice and learning mode. The Guided experience is the default for a new learner and intentionally reduces the main navigation to Today, Words and Help; Explorer and Experienced progressively reveal more controls without discarding progress.
 
-The first lesson introduces five useful words: `שלום`, `תודה`, `בבקשה`, `כן` and `לא`. Each card combines a code-native visual cue, niqqud, romanization, English/Spanish meaning, a practical example and pronunciation. Saved words, submitted practice and navigation checkpoint use the active learner profile, so an authenticated learner can recover progress after signing in again.
+The pre-account preview teaches `שלום`, `תודה` and `בבקשה`. The optional First Steps collection then expands that foundation with `כן` and `לא`. Each card combines an exact code-native scene, niqqud, romanization, a localized meaning, a practical example and pronunciation. Saved words, submitted practice and navigation checkpoints use the active learner profile, so an authenticated learner can recover progress after signing in again.
+
+### Hebrew Alphabet Studio — private 2.9.1 candidate — 2026-07-27
+
+Open **Learn**, then **Alphabet**. You can also continue the recommended next
+letter from Today or open the alphabet summary inside the A0 curriculum path.
+Guided keeps its simple Today, Words and Help top-level navigation; Alphabet is
+integrated inside Learn instead of adding another main destination.
+
+Hebrew has **22 base letters**. Five—כ, מ, נ, פ and צ—change shape at the end
+of a word: ך, ם, ן, ף and ץ. The studio displays 27 written-form units, but it
+does not call them 27 letters.
+
+For each unit:
+
+1. inspect the large written form and its pointed Hebrew name;
+2. choose **Hear name** to play the name with your saved voice style and speed;
+3. read the EN/ES/HE sound explanation;
+4. choose **Hear example** for a complete reviewed Hebrew word;
+5. open that example in the dictionary when you want meaning, grammar and
+   related forms; and
+6. answer the recognition prompt before the app records retrieval evidence.
+
+Guided recommends one next letter and keeps the full grid secondary. Explorer
+opens the grid, final forms and common confusions. Experienced provides a more
+compact reference. Switching mode does not erase or duplicate progress.
+
+Browser speech depends on the Hebrew voices installed on the device. If
+playback is unavailable, the written name, transliteration, sound explanation
+and recognition activity remain usable. The studio does not score one isolated
+consonant with the microphone and does not claim accent or phoneme assessment.
+
+Local learners keep alphabet progress in their SQLite profile. Authenticated
+learners keep it inside their isolated PostgreSQL learner snapshot, so it can
+continue across devices. The shared demo can explore the studio but cannot
+claim that progress was saved. See
+[HEBREW_ALPHABET_STUDIO.md](HEBREW_ALPHABET_STUDIO.md) for the complete
+learning, pronunciation and provenance contract.
 
 ### Development mode
 
@@ -96,7 +157,21 @@ Every Hebrew token rendered through the shared `HebrewText` component opens the 
 - IPA, audio URLs, and pronunciation fallback.
 - Source and license attribution.
 
-The bundled 48-concept A0/A1 layer also shows a stable visual cue and localized accessible description. Beginner facts appear first; advanced grammar, forms and provenance remain available without crowding the initial view. Visual cues aid memory but are not presented as grammatical evidence. An imported or unsupported word can correctly have no illustration.
+The bundled 240-concept A0–A2 layer also shows a stable visual cue and localized accessible description. All 240 reviewed concepts use exact semantic SVG scenes with progressive `context`, `meaning` and `anchor` layers. Category and emoji fallbacks are reserved for future imported or unsupported words outside that catalog. Today features up to six exact scenes selected from the learner's recommendations before deterministic exact-scene backfill. Dictionary results use a simplified thumbnail, while the drawer uses a larger hero scene. Beginner facts appear first; advanced grammar, forms and provenance remain available without crowding the initial view. Visual cues aid memory but are not presented as grammatical evidence. An imported or unsupported word can correctly have no illustration.
+
+For visual review on the same PC or private Wi-Fi, append `?visualQa=1` to the local pilot URL. The private QA gallery compares all 240 exact scenes at three sizes, offers a seeded five-second recognition check and can reveal the seven journey paintings with `&journeyArt=1`. It is unavailable on a public hostname and does not persist a learner score.
+
+## Finishing a visit
+
+Open the circular profile menu and choose **Finish for today**. Ivrit Sheli asks
+for confirmation, keeps the account signed in, and shows a calm completion
+screen. **Keep learning** returns to the same workspace.
+
+Browsers and installed PWAs do not allow a website to close a tab or Android
+activity reliably. After finishing, close the browser tab, use Android Back or
+Home, or close an installed Ivrit Sheli PWA from recent apps. **Sign out** is a
+separate cloud-account action; local learners do not see a meaningless sign-out
+button.
 
 Click a form to open it. Click the root chip to explore its word family. Click **Add to learning** to turn a dictionary entry into a personal review item.
 
@@ -110,9 +185,21 @@ PYTHONPATH=backend/src .venv/bin/python -m ivrit_sheli --download-dictionary
 
 The importer streams the file, tolerates malformed records, stores provenance, and rebuilds the local search database.
 
-## 5. AI coach
+## 5. Personal coach and optional AI
 
-The coach provides ten separate, schema-bound tools:
+The v2.9 Personal Coach works locally and deterministically. Today shows one
+primary practice sentence, up to two optional alternatives and **I recommend
+this because…**. Its Hebrew comes from a reviewed dictionary example or a
+reviewed pattern—not a live language model.
+
+You can tell it whether a suggestion was useful, too easy/appropriate/too hard
+and relevant/not relevant. Changes are deliberately gradual. Open
+**Settings → Personalization** to inspect the adaptive profile or reset only
+those inferred preferences; saved words, sessions and progress remain.
+
+### Experimental online AI tools
+
+The separate experimental AI adapter provides ten schema-bound tools:
 
 1. Sentence analysis.
 2. Correction.
@@ -125,7 +212,8 @@ The coach provides ten separate, schema-bound tools:
 9. Niqqud assistance.
 10. Transliteration assistance.
 
-Offline mode is always available and deterministic. To use OpenAI enrichment:
+The public learning path does not require these tools. To use OpenAI
+enrichment in a private installation:
 
 1. Copy `.env.example` to `.env`.
 2. Add `OPENAI_API_KEY` locally.
@@ -142,17 +230,37 @@ The audio studio supports:
 - Browser Hebrew speech synthesis.
 - Browser speech recognition when available.
 - Microphone recording through `MediaRecorder`.
+- Self-hosted Faster Whisper Hebrew transcription when the HTTPS server enables it.
 - Optional OpenAI text-to-speech.
-- Optional OpenAI speech-to-text.
-- Transparent pronunciation scoring.
+- Compatibility-only OpenAI speech-to-text.
+- Transparent transcript-based Recognition match.
 - Persistent masculine-style or feminine-style synthetic voice selection.
-- One-word microphone analysis with dictionary facts, translations, grammar, forms, uses and examples.
+- Word and phrase transcript understanding through exact dictionary matches.
 
-The score combines normalized transcript similarity, target-word coverage, missing words, and extra words. It is a learning signal, not a clinical phoneme assessment. When live browser recognition is unavailable, type the transcript manually and score it normally.
+Recognition match combines normalized transcript similarity, target-word coverage, missing words, and extra words. It is a practice signal, not a phoneme, accent, intelligibility, native-likeness or clinical assessment. When live browser recognition is unavailable, type the transcript manually and compare it normally.
 
 The voice labels are style choices, not claims about a real speaker's identity. Browser voices depend on the device; configured cloud profiles use server-controlled provider IDs.
 
-For word analysis, press **Record word**, say exactly one Hebrew word, and review the local dictionary result. You can type the word manually if browser recognition is unavailable. Optional cloud transcription/enrichment requires server configuration, your stored consent, and an explicit cloud selection. Ivrit Sheli does not receive or store browser-recognition audio, though the browser or operating-system speech service's policy may apply. App-managed cloud uploads are deleted after processing, while the configured provider's policy remains separate. Sources are labeled, and the result cannot change XP or mastery. The public demo permits browser/manual local analysis but keeps cloud processing disabled.
+For analysis, press **Record**, say a Hebrew word or short phrase, then choose
+**Understand transcript**. One word opens complete local dictionary facts;
+phrases show known token cards and explicit unknown words. No missing meaning
+is invented. You can type Hebrew manually when microphone permission,
+self-hosted speech or browser recognition is unavailable.
+
+Remote phones require an HTTPS staging/production link for microphone capture.
+An `http://<PC-IP>` same-Wi-Fi link remains useful for the rest of the app but
+is not a secure browser context. Recordings are limited to 20 seconds / 8 MB;
+server copies are deleted after processing. Selecting **Save on this device**
+keeps the audio only under this learner in the current browser. It never enters
+cloud progress or exports and cannot award XP or mastery.
+
+### Optional reminders
+
+Reminders begin disabled. In **Settings → Reminders**, enable them explicitly,
+choose a local time, timezone, rest day and quiet hours, then accept the
+browser/PWA notification prompt. Ivrit Sheli sends at most one generic private
+reminder per local day. Disable the preference or browser subscription at any
+time. iPhone support requires the installed PWA and platform Push support.
 
 ## 7. XP, levels, streaks, and achievements
 
@@ -184,13 +292,28 @@ PYTHONPATH=backend/src .venv/bin/python -m ivrit_sheli \
   --export-json data/backups/my-hebrew-backup.json
 ```
 
-Secrets, OAuth tokens, raw private uploads, and temporary audio are excluded from exports. Full-disk encryption is recommended for strong protection because an app-level PIN alone is not database encryption.
+Feedback and the inspectable adaptive profile are included in portable
+learning exports. Secrets, OAuth tokens, Push delivery subscriptions, raw
+private uploads, device-only recordings and temporary server audio are
+excluded. Full-disk encryption is recommended for strong protection because an
+app-level PIN alone is not database encryption.
 
 ### Hosted accounts
 
 When the public service has a provider configured, choose Google for the beginner-facing identity-only flow or GitHub as the secondary option. The sign-in screen shows only providers available on the server. Google requests `openid profile`; GitHub requests `read:user`. The app stores the provider ID, display name, picture and GitHub login when applicable, but not provider passwords, bearer tokens or email addresses.
 
-Use **Settings → Export my data** to download your current learner state. To permanently remove a hosted account, open the danger section, choose **Delete account**, read the warning and confirm the second step. This deletes the Ivrit Sheli identity, sessions and learner state; it does not delete the separate Google or GitHub account. The shared read-only demo cannot be deleted. See `PRIVACY.md` and `TERMS.md` before using the hosted pilot.
+Use **Settings → Export my data** to download your current learner state.
+Settings also lists only recordings saved for the active learner in this
+browser and can play, delete individually or clear them. To permanently remove a hosted account, open the
+danger section, choose **Delete account**, read the warning and confirm the
+second step. This deletes the Ivrit Sheli identity, sessions, learner state and
+Push subscriptions and clears this learner's recordings from the current
+browser. If browser storage cleanup fails, server-side account deletion still
+finishes and the signed-out screen explains how to clear that device's site
+data manually. It cannot reach recordings saved in another browser/device and
+does not delete the separate Google or GitHub account. The shared read-only demo
+cannot be deleted. See `PRIVACY.md` and `TERMS.md` before using the hosted
+pilot.
 
 ## 10. Diagnostics and recovery
 

@@ -77,7 +77,21 @@ def test_fresh_database_bootstraps_to_latest_schema(tmp_path: Path) -> None:
             ).fetchall()
         }
     assert version == str(SCHEMA_VERSION)
-    assert {"profiles", "learning_items", "attempts", "audio_attempts"} <= tables
+    assert {
+        "profiles",
+        "learning_items",
+        "attempts",
+        "audio_attempts",
+        "learning_core_state",
+        "reading_support_state",
+        "learning_core_attempts",
+        "learning_core_idempotency",
+        "practice_sessions",
+        "practice_step_events",
+        "curriculum_progress",
+        "alphabet_progress",
+        "alphabet_attempts",
+    } <= tables
 
 
 def test_initialize_is_idempotent_and_preserves_existing_data(tmp_path: Path) -> None:
@@ -157,6 +171,233 @@ def test_22_profile_upgrade_preserves_level_and_skips_new_beginner_gates(
     assert profile["onboarding_completed"] == 1
     assert profile["first_steps_step"] == 5
     assert profile["first_steps_completed"] == 1
+    assert profile["learner_mode"] == "guided"
+    assert profile["curriculum_track"] == "modern_conversation"
+    assert profile["cefr_band"] == "B2"
+
+
+def test_legacy_guided_boolean_migrates_to_explicit_learner_mode(tmp_path: Path) -> None:
+    path = tmp_path / "learner-mode.db"
+    with _open(path) as connection:
+        connection.executescript(SCHEMA_SQL)
+        connection.executescript(MIGRATIONS[1].sql)
+        connection.execute(
+            "INSERT INTO app_meta(key, value) VALUES('schema_version', '2')"
+        )
+        connection.execute(
+            """
+            INSERT INTO profiles(
+                id, display_name, interface_language, hebrew_level, daily_minutes,
+                transliteration_mode, niqqud_mode, weekly_rest_day, cloud_consent,
+                onboarding_step, onboarding_completed, guided_mode,
+                first_steps_step, first_steps_completed, created_at, updated_at
+            ) VALUES(1, 'Explorer', 'en', 'B1', 15, 'hidden', 'hidden', 5, 0,
+                     4, 1, 0, 5, 1, '2026-07-22T00:00:00Z', '2026-07-22T00:00:00Z')
+            """
+        )
+
+    Database(path).initialize()
+
+    with _open(path) as connection:
+        profile = connection.execute("SELECT * FROM profiles WHERE id = 1").fetchone()
+    assert profile["guided_mode"] == 0
+    assert profile["learner_mode"] == "explorer"
+    assert profile["curriculum_track"] == "modern_conversation"
+    assert profile["cefr_band"] == "B1"
+
+
+def test_learning_core_migration_preserves_existing_mastery_and_adds_skill_defaults(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "learning-core.db"
+    with _open(path) as connection:
+        connection.executescript(SCHEMA_SQL)
+        connection.executescript(MIGRATIONS[1].sql)
+        connection.executescript(MIGRATIONS[2].sql)
+        connection.execute(
+            "INSERT INTO app_meta(key, value) VALUES('schema_version', '3')"
+        )
+        connection.execute(
+            """
+            INSERT INTO profiles(
+                id, display_name, interface_language, hebrew_level, daily_minutes,
+                transliteration_mode, niqqud_mode, weekly_rest_day, cloud_consent,
+                onboarding_step, onboarding_completed, guided_mode, learner_mode,
+                first_steps_step, first_steps_completed, created_at, updated_at
+            ) VALUES(1, 'Kevin', 'en', 'C1', 18, 'hints', 'difficult', 5, 0,
+                     4, 1, 0, 'experienced', 5, 1,
+                     '2026-07-22T00:00:00Z', '2026-07-22T00:00:00Z')
+            """
+        )
+        connection.execute(
+            """
+            INSERT INTO skill_mastery(
+                concept_key, concept_type, recognition, production,
+                listening, speaking, observations, updated_at
+            ) VALUES('item:1', 'learning_item', 0.7, 0.4, 0.2, 0.1, 6,
+                     '2026-07-22T00:00:00Z')
+            """
+        )
+
+    Database(path).initialize()
+
+    with _open(path) as connection:
+        profile = connection.execute("SELECT * FROM profiles WHERE id = 1").fetchone()
+        mastery = connection.execute(
+            "SELECT * FROM skill_mastery WHERE concept_key = 'item:1'"
+        ).fetchone()
+    assert profile["cefr_band"] == "C1"
+    assert profile["learner_mode"] == "experienced"
+    assert mastery["recognition"] == 0.7
+    assert mastery["production"] == 0.4
+    assert mastery["pointed_reading"] == 0
+    assert mastery["unpointed_reading"] == 0
+    assert mastery["contextual_transfer"] == 0
+
+    with _open(path) as connection:
+        state_columns = {
+            row["name"] for row in connection.execute("PRAGMA table_info(learning_core_state)")
+        }
+    assert "state_version" in state_columns
+
+
+def test_daily_practice_migration_preserves_profile_and_adds_accessibility_fields(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "daily-practice-v5.db"
+    with _open(path) as connection:
+        for migration in MIGRATIONS[:5]:
+            connection.executescript(migration.sql)
+        connection.execute(
+            "INSERT INTO app_meta(key, value) VALUES('schema_version', '5')"
+        )
+        connection.execute(
+            """
+            INSERT INTO profiles(
+                id, display_name, learner_mode, curriculum_track, cefr_band,
+                created_at, updated_at
+            ) VALUES(1, 'Returning learner', 'experienced', 'formal_professional', 'B2',
+                     '2026-07-22T00:00:00Z', '2026-07-22T00:00:00Z')
+            """
+        )
+
+    Database(path).initialize()
+
+    with _open(path) as connection:
+        profile = connection.execute(
+            "SELECT display_name, text_scale, focus_status FROM profiles WHERE id = 1"
+        ).fetchone()
+        tables = {
+            row["name"]
+            for row in connection.execute(
+                "SELECT name FROM sqlite_master WHERE type = 'table'"
+            ).fetchall()
+        }
+    assert dict(profile) == {
+        "display_name": "Returning learner",
+        "text_scale": 1.0,
+        "focus_status": "available",
+    }
+    assert {
+        "practice_sessions",
+        "practice_step_events",
+        "curriculum_progress",
+    } <= tables
+
+
+def test_replay_protection_migration_preserves_v4_learning_state(tmp_path: Path) -> None:
+    path = tmp_path / "learning-core-v4.db"
+    with _open(path) as connection:
+        for migration in MIGRATIONS[:4]:
+            connection.executescript(migration.sql)
+        connection.execute(
+            "INSERT INTO app_meta(key, value) VALUES('schema_version', '4')"
+        )
+        connection.execute(
+            """
+            INSERT INTO profiles(
+                id, display_name, learner_mode, curriculum_track, cefr_band,
+                created_at, updated_at
+            ) VALUES(1, 'Returning learner', 'experienced', 'formal_professional', 'B2',
+                     '2026-07-22T00:00:00Z', '2026-07-22T00:00:00Z')
+            """
+        )
+        connection.execute(
+            """
+            INSERT INTO learning_core_state(profile_id, current_item_id, phase, updated_at)
+            VALUES(1, NULL, 'reflection', '2026-07-22T00:00:00Z')
+            """
+        )
+
+    Database(path).initialize()
+
+    with _open(path) as connection:
+        state = connection.execute(
+            "SELECT phase, updated_at, state_version FROM learning_core_state WHERE profile_id = 1"
+        ).fetchone()
+        replay_table = connection.execute(
+            """
+            SELECT 1 FROM sqlite_master
+            WHERE type = 'table' AND name = 'learning_core_idempotency'
+            """
+        ).fetchone()
+        version = connection.execute(
+            "SELECT value FROM app_meta WHERE key = 'schema_version'"
+        ).fetchone()[0]
+
+    assert dict(state) == {
+        "phase": "reflection",
+        "updated_at": "2026-07-22T00:00:00Z",
+        "state_version": 0,
+    }
+    assert replay_table is not None
+    assert version == str(SCHEMA_VERSION)
+
+
+def test_alphabet_migration_preserves_v8_profile_and_adds_empty_evidence_tables(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "listening-coach-v8.db"
+    with _open(path) as connection:
+        for migration in MIGRATIONS[:8]:
+            connection.executescript(migration.sql)
+        connection.execute(
+            "INSERT INTO app_meta(key, value) VALUES('schema_version', '8')"
+        )
+        connection.execute(
+            """
+            INSERT INTO profiles(
+                id, display_name, interface_language, hebrew_level,
+                created_at, updated_at
+            ) VALUES(1, 'Preserved learner', 'es', 'A1',
+                     '2026-07-27T00:00:00+00:00',
+                     '2026-07-27T00:00:00+00:00')
+            """
+        )
+
+    Database(path).initialize()
+
+    with _open(path) as connection:
+        profile = connection.execute(
+            "SELECT display_name, interface_language, hebrew_level FROM profiles"
+        ).fetchone()
+        progress_count = connection.execute(
+            "SELECT COUNT(*) FROM alphabet_progress"
+        ).fetchone()[0]
+        attempts_count = connection.execute(
+            "SELECT COUNT(*) FROM alphabet_attempts"
+        ).fetchone()[0]
+        version = connection.execute(
+            "SELECT value FROM app_meta WHERE key = 'schema_version'"
+        ).fetchone()[0]
+
+    assert dict(profile) == {
+        "display_name": "Preserved learner",
+        "interface_language": "es",
+        "hebrew_level": "A1",
+    }
+    assert progress_count == attempts_count == 0
+    assert version == str(SCHEMA_VERSION)
 
 
 def test_newer_database_is_rejected_without_modification(tmp_path: Path) -> None:

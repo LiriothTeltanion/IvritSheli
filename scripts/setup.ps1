@@ -36,10 +36,18 @@ if (-not (Test-Path ".venv")) {
 $Requirements = if ($RuntimeOnly) { "backend/requirements.txt" } else { "backend/requirements-dev.txt" }
 & .\.venv\Scripts\python.exe -m pip install -r $Requirements
 if ($LASTEXITCODE -ne 0) { throw "Could not install Python dependencies." }
+& .\.venv\Scripts\python.exe -m pip uninstall --yes ivrit-sheli-ultimate
+if ($LASTEXITCODE -ne 0) { throw "Could not remove the retired Python package identity." }
+& .\.venv\Scripts\python.exe -m pip install --no-deps --editable backend
+if ($LASTEXITCODE -ne 0) { throw "Could not install the current Ivrit Sheli package identity." }
 Push-Location frontend
 try {
     npm ci
     if ($LASTEXITCODE -ne 0) { throw "Could not install frontend dependencies." }
+    if (-not $RuntimeOnly) {
+        npx playwright install chromium
+        if ($LASTEXITCODE -ne 0) { throw "Could not install Chromium for browser tests." }
+    }
 }
 finally {
     Pop-Location
@@ -63,6 +71,7 @@ if (-not $SkipBuild) {
     }
 }
 
-Write-Host "Ivrit Sheli Ultimate is ready ✅"
+Write-Host "Ivrit Sheli is ready ✅"
 Write-Host "Start with .\START_IVRIT_SHELI.bat or .\scripts\start.ps1"
 Write-Host "Developers can still use .\scripts\run-dev.ps1 for hot reload."
+

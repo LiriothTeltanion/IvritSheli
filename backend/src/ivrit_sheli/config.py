@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import urlparse
 
-from ivrit_sheli.cloud_store import RUNTIME_DATABASE_ROLE
+from ivrit_sheli.cloud_store import RUNTIME_DATABASE_ROLE, database_url_role
 
 SUPPORTED_APP_ENVS = frozenset({"development", "local", "test", "production"})
 
@@ -124,6 +124,20 @@ class Settings:
         openai_tts_voice: Voice identifier.
         openai_tts_voice_masculine: Provider voice mapped to the masculine style profile.
         openai_tts_voice_feminine: Provider voice mapped to the feminine style profile.
+        self_hosted_speech_enabled: Whether the private Faster Whisper worker is enabled.
+        whisper_preload_on_start: Whether startup must load the model before readiness.
+        whisper_model: Multilingual Faster Whisper model identifier.
+        whisper_model_cache_dir: Private model cache outside learner exports.
+        whisper_device: Inference device for the v2.9 worker.
+        whisper_compute_type: CTranslate2 compute type for the worker.
+        whisper_language: Forced learning language.
+        whisper_timeout_seconds: Per-request transcription deadline.
+        whisper_max_duration_seconds: Maximum accepted recording duration.
+        push_notifications_enabled: Whether opt-in Web Push is exposed.
+        vapid_public_key: Public application-server key sent to subscribed browsers.
+        vapid_private_key: Private signing key used only by the reminder worker.
+        vapid_subject: VAPID contact URI.
+        push_encryption_key: Separate key for encrypted subscription documents.
         dicta_nakdan_url: Optional Dicta-compatible endpoint.
         google_client_id: Optional OAuth client ID.
         google_client_secret: Optional OAuth client secret.
@@ -132,6 +146,7 @@ class Settings:
         google_auth_client_id: Optional Google sign-in OAuth client ID.
         google_auth_client_secret: Optional Google sign-in OAuth client secret.
         google_auth_redirect_uri: Exact Google sign-in callback URI.
+        local_companion_url: Optional loopback URL for the writable desktop workspace.
 
     Example:
         >>> settings = Settings.from_env({"APP_PORT": "9000"})
@@ -159,6 +174,20 @@ class Settings:
     openai_tts_voice: str = "coral"
     openai_tts_voice_masculine: str = "onyx"
     openai_tts_voice_feminine: str = "coral"
+    self_hosted_speech_enabled: bool = False
+    whisper_preload_on_start: bool = False
+    whisper_model: str = "small"
+    whisper_model_cache_dir: Path | None = None
+    whisper_device: str = "cpu"
+    whisper_compute_type: str = "int8"
+    whisper_language: str = "he"
+    whisper_timeout_seconds: int = 45
+    whisper_max_duration_seconds: float = 20.0
+    push_notifications_enabled: bool = False
+    vapid_public_key: str = ""
+    vapid_private_key: str = ""
+    vapid_subject: str = ""
+    push_encryption_key: str = ""
     dicta_nakdan_url: str = ""
     google_client_id: str = ""
     google_client_secret: str = ""
@@ -171,6 +200,7 @@ class Settings:
         "http://127.0.0.1:8000/api/v1/auth/google/callback"
     )
     database_url: str = ""
+    supabase_url: str = ""
     auth_required: bool = False
     session_secret: str = ""
     session_cookie_name: str = "ivrit_session"
@@ -182,6 +212,8 @@ class Settings:
     oauth_state_limit: int = 1_024
     trusted_proxy_mode: str = "direct"
     railway_environment_id: str = ""
+    render: bool = False
+    render_service_id: str = ""
     auth_client_rate_limit_requests: int = 20
     auth_global_rate_limit_requests: int = 1_000
     auth_rate_limit_window_seconds: int = 60
@@ -192,11 +224,13 @@ class Settings:
     max_cloud_snapshot_bytes: int = 4_194_304
     max_request_body_bytes: int = 1_048_576
     max_ics_upload_body_bytes: int = 6_291_456
-    max_audio_upload_body_bytes: int = 27_262_976
+    max_audio_upload_body_bytes: int = 9_437_184
+    max_import_upload_body_bytes: int = 33_554_432
     github_client_id: str = ""
     github_client_secret: str = ""
     github_redirect_uri: str = "http://127.0.0.1:8000/api/v1/auth/github/callback"
     public_base_url: str = "http://127.0.0.1:8000"
+    local_companion_url: str = ""
     allowed_origins: tuple[str, ...] = (
         "http://localhost:5173",
         "http://127.0.0.1:5173",
@@ -206,8 +240,10 @@ class Settings:
     build_commit: str = "development"
     cloud_ai_allowed_github_logins: tuple[str, ...] = ()
     cloud_ai_allowed_github_ids: tuple[str, ...] = ()
+    cloud_ai_allowed_google_subjects: tuple[str, ...] = ()
     google_connectors_allowed_github_logins: tuple[str, ...] = ()
     google_connectors_allowed_github_ids: tuple[str, ...] = ()
+    google_connectors_allowed_google_subjects: tuple[str, ...] = ()
 
     @classmethod
     def from_env(cls, overrides: Mapping[str, str] | None = None) -> Settings:
@@ -245,6 +281,8 @@ class Settings:
                     "SESSION_COOKIE_SECURE": "false",
                     "TRUSTED_PROXY_MODE": "direct",
                     "RAILWAY_ENVIRONMENT_ID": "",
+                    "RENDER": "false",
+                    "RENDER_SERVICE_ID": "",
                     "GITHUB_CLIENT_ID": "",
                     "GITHUB_CLIENT_SECRET": "",
                     "GOOGLE_AUTH_CLIENT_ID": "",
@@ -267,6 +305,14 @@ class Settings:
             db_path = (root_dir / db_path).resolve()
         if str(dictionary_path) != ":memory:" and not dictionary_path.is_absolute():
             dictionary_path = (root_dir / dictionary_path).resolve()
+        whisper_cache_value = value("WHISPER_MODEL_CACHE_DIR", "").strip()
+        whisper_model_cache_dir = (
+            Path(whisper_cache_value).expanduser()
+            if whisper_cache_value
+            else data_dir / "models" / "faster-whisper"
+        )
+        if not whisper_model_cache_dir.is_absolute():
+            whisper_model_cache_dir = (root_dir / whisper_model_cache_dir).resolve()
 
         app_env = value("APP_ENV", "development").strip().lower()
         if app_env not in SUPPORTED_APP_ENVS:
@@ -326,6 +372,30 @@ class Settings:
             openai_tts_voice_feminine=value(
                 "OPENAI_TTS_VOICE_FEMININE", "coral"
             ),
+            self_hosted_speech_enabled=parse_bool(
+                values.get("SELF_HOSTED_SPEECH_ENABLED"), False
+            ),
+            whisper_preload_on_start=parse_bool(
+                values.get("WHISPER_PRELOAD_ON_START"), False
+            ),
+            whisper_model=value("WHISPER_MODEL", "small").strip(),
+            whisper_model_cache_dir=whisper_model_cache_dir,
+            whisper_device=value("WHISPER_DEVICE", "cpu").strip().lower(),
+            whisper_compute_type=value(
+                "WHISPER_COMPUTE_TYPE", "int8"
+            ).strip().lower(),
+            whisper_language=value("WHISPER_LANGUAGE", "he").strip().lower(),
+            whisper_timeout_seconds=int(value("WHISPER_TIMEOUT_SECONDS", "45")),
+            whisper_max_duration_seconds=float(
+                value("WHISPER_MAX_DURATION_SECONDS", "20")
+            ),
+            push_notifications_enabled=parse_bool(
+                values.get("PUSH_NOTIFICATIONS_ENABLED"), False
+            ),
+            vapid_public_key=value("VAPID_PUBLIC_KEY", "").strip(),
+            vapid_private_key=value("VAPID_PRIVATE_KEY", "").strip(),
+            vapid_subject=value("VAPID_SUBJECT", "").strip(),
+            push_encryption_key=value("PUSH_ENCRYPTION_KEY", "").strip(),
             dicta_nakdan_url=value("DICTA_NAKDAN_URL", ""),
             google_client_id=value("GOOGLE_CLIENT_ID", ""),
             google_client_secret=value("GOOGLE_CLIENT_SECRET", ""),
@@ -341,6 +411,9 @@ class Settings:
                 f"{public_base_url}/api/v1/auth/google/callback",
             ).strip().rstrip("/"),
             database_url=value("DATABASE_URL", ""),
+            # No default: a live project URL in source would silently point every
+            # deployment at one project. Unset means the Bearer path stays off.
+            supabase_url=value("SUPABASE_URL", ""),
             auth_required=parse_bool(values.get("AUTH_REQUIRED"), app_env == "production"),
             session_secret=value("SESSION_SECRET", ""),
             session_cookie_name=value("SESSION_COOKIE_NAME", "ivrit_session"),
@@ -356,6 +429,8 @@ class Settings:
             oauth_state_limit=int(value("OAUTH_STATE_LIMIT", "1024")),
             trusted_proxy_mode=value("TRUSTED_PROXY_MODE", "direct").strip().lower(),
             railway_environment_id=value("RAILWAY_ENVIRONMENT_ID", "").strip(),
+            render=parse_bool(values.get("RENDER"), False),
+            render_service_id=value("RENDER_SERVICE_ID", "").strip(),
             auth_client_rate_limit_requests=int(
                 value("AUTH_CLIENT_RATE_LIMIT_REQUESTS", "20")
             ),
@@ -387,7 +462,10 @@ class Settings:
                 value("MAX_ICS_UPLOAD_BODY_BYTES", "6291456")
             ),
             max_audio_upload_body_bytes=int(
-                value("MAX_AUDIO_UPLOAD_BODY_BYTES", "27262976")
+                value("MAX_AUDIO_UPLOAD_BODY_BYTES", "9437184")
+            ),
+            max_import_upload_body_bytes=int(
+                value("MAX_IMPORT_UPLOAD_BODY_BYTES", "33554432")
             ),
             github_client_id=value("GITHUB_CLIENT_ID", ""),
             github_client_secret=value("GITHUB_CLIENT_SECRET", ""),
@@ -396,10 +474,12 @@ class Settings:
                 f"{public_base_url}/api/v1/auth/github/callback",
             ).strip().rstrip("/"),
             public_base_url=public_base_url,
+            local_companion_url=value("LOCAL_COMPANION_URL", "").strip().rstrip("/"),
             allowed_origins=allowed_origins,
             build_commit=(
                 value("BUILD_COMMIT", "").strip()
                 or value("RAILWAY_GIT_COMMIT_SHA", "").strip()
+                or value("RENDER_GIT_COMMIT", "").strip()
                 or "development"
             )[:80],
             cloud_ai_allowed_github_logins=parse_csv(
@@ -408,12 +488,18 @@ class Settings:
             cloud_ai_allowed_github_ids=parse_csv(
                 value("CLOUD_AI_ALLOWED_GITHUB_IDS", "")
             ),
+            cloud_ai_allowed_google_subjects=parse_csv(
+                value("CLOUD_AI_ALLOWED_GOOGLE_SUBJECTS", "")
+            ),
             google_connectors_allowed_github_logins=parse_csv(
                 value("GOOGLE_CONNECTORS_ALLOWED_GITHUB_LOGINS", ""),
                 casefold=True,
             ),
             google_connectors_allowed_github_ids=parse_csv(
                 value("GOOGLE_CONNECTORS_ALLOWED_GITHUB_IDS", "")
+            ),
+            google_connectors_allowed_google_subjects=parse_csv(
+                value("GOOGLE_CONNECTORS_ALLOWED_GOOGLE_SUBJECTS", "")
             ),
         )
         settings.validate_cloud_configuration()
@@ -447,39 +533,72 @@ class Settings:
 
     @property
     def cloud_ai_allowlist_configured(self) -> bool:
-        """Return whether at least one GitHub identity may use paid cloud AI."""
+        """Return whether at least one explicit identity may use paid cloud AI."""
         return bool(
             self.cloud_ai_allowed_github_logins
             or self.cloud_ai_allowed_github_ids
+            or self.cloud_ai_allowed_google_subjects
         )
 
     @property
     def google_connector_allowlist_configured(self) -> bool:
-        """Return whether at least one GitHub identity may use Google previews."""
+        """Return whether at least one explicit identity may use Google previews."""
         return bool(
             self.google_connectors_allowed_github_logins
             or self.google_connectors_allowed_github_ids
+            or self.google_connectors_allowed_google_subjects
         )
 
-    def allows_cloud_ai(self, login: str | None, github_id: str | None) -> bool:
-        """Match one authenticated GitHub identity against the cloud-AI allowlist."""
+    def allows_cloud_ai(
+        self,
+        login: str | None,
+        provider_user_id: str | None,
+        provider: str = "github",
+    ) -> bool:
+        """Match one authenticated provider identity against the cloud-AI allowlist."""
+        if provider == "google":
+            return self._subject_allowed(
+                provider_user_id,
+                self.cloud_ai_allowed_google_subjects,
+            )
+        if provider != "github":
+            return False
         return self._github_identity_allowed(
             login,
-            github_id,
+            provider_user_id,
             self.cloud_ai_allowed_github_logins,
             self.cloud_ai_allowed_github_ids,
         )
 
     def allows_google_connectors(
-        self, login: str | None, github_id: str | None
+        self,
+        login: str | None,
+        provider_user_id: str | None,
+        provider: str = "github",
     ) -> bool:
-        """Match one authenticated GitHub identity against the Google allowlist."""
+        """Match one authenticated provider identity against the connector allowlist."""
+        if provider == "google":
+            return self._subject_allowed(
+                provider_user_id,
+                self.google_connectors_allowed_google_subjects,
+            )
+        if provider != "github":
+            return False
         return self._github_identity_allowed(
             login,
-            github_id,
+            provider_user_id,
             self.google_connectors_allowed_github_logins,
             self.google_connectors_allowed_github_ids,
         )
+
+    @staticmethod
+    def _subject_allowed(
+        provider_user_id: str | None,
+        allowed_subjects: tuple[str, ...],
+    ) -> bool:
+        """Match an opaque provider subject without relying on email or display name."""
+        normalized_id = provider_user_id.strip() if provider_user_id else ""
+        return bool(normalized_id and normalized_id in allowed_subjects)
 
     @staticmethod
     def _github_identity_allowed(
@@ -501,6 +620,47 @@ class Settings:
             raise ValueError("GitHub sign-in requires both client ID and client secret")
         if bool(self.google_auth_client_id) != bool(self.google_auth_client_secret):
             raise ValueError("Google sign-in requires both client ID and client secret")
+        if self.whisper_model != "small":
+            raise ValueError("WHISPER_MODEL must be small for the v2.9 speech worker")
+        if self.whisper_device != "cpu":
+            raise ValueError("WHISPER_DEVICE must be cpu for the v2.9 speech worker")
+        if self.whisper_compute_type != "int8":
+            raise ValueError(
+                "WHISPER_COMPUTE_TYPE must be int8 for the v2.9 speech worker"
+            )
+        if self.whisper_language != "he":
+            raise ValueError("WHISPER_LANGUAGE must be he")
+        if self.whisper_preload_on_start and not self.self_hosted_speech_enabled:
+            raise ValueError(
+                "WHISPER_PRELOAD_ON_START requires SELF_HOSTED_SPEECH_ENABLED=true"
+            )
+        if not 1 <= self.whisper_timeout_seconds <= 45:
+            raise ValueError("WHISPER_TIMEOUT_SECONDS must be between 1 and 45")
+        if not 1 <= self.whisper_max_duration_seconds <= 20:
+            raise ValueError(
+                "WHISPER_MAX_DURATION_SECONDS must be between 1 and 20"
+            )
+        if self.push_notifications_enabled:
+            if not self.cloud_mode or not self.auth_required:
+                raise ValueError(
+                    "Web Push requires authenticated PostgreSQL cloud mode"
+                )
+            if not self.public_base_url.startswith("https://"):
+                raise ValueError("Web Push requires an HTTPS PUBLIC_BASE_URL")
+            if not self.vapid_public_key:
+                raise ValueError("Web Push requires VAPID_PUBLIC_KEY")
+            if bool(self.vapid_private_key) != bool(self.vapid_subject):
+                raise ValueError(
+                    "VAPID_PRIVATE_KEY and VAPID_SUBJECT must be configured together"
+                )
+            if self.vapid_subject and not self.vapid_subject.startswith(
+                ("mailto:", "https://")
+            ):
+                raise ValueError("VAPID_SUBJECT must be a mailto: or HTTPS URI")
+            if len(self.push_encryption_key) < 32:
+                raise ValueError(
+                    "PUSH_ENCRYPTION_KEY must contain at least 32 characters"
+                )
         if not 60 <= self.session_ttl_seconds <= 31_536_000:
             raise ValueError("SESSION_TTL_SECONDS must be between 60 and 31536000")
         if not 0 <= self.session_retention_seconds <= 31_536_000:
@@ -513,15 +673,24 @@ class Settings:
             raise ValueError("USER_SESSION_LIMIT must be between 1 and 100")
         if not 1 <= self.oauth_state_limit <= 100_000:
             raise ValueError("OAUTH_STATE_LIMIT must be between 1 and 100000")
-        if self.trusted_proxy_mode not in {"direct", "railway"}:
-            raise ValueError("TRUSTED_PROXY_MODE must be direct or railway")
-        if self.trusted_proxy_mode == "railway" and self.app_env != "production":
+        if self.trusted_proxy_mode not in {"direct", "railway", "render"}:
+            raise ValueError("TRUSTED_PROXY_MODE must be direct, railway, or render")
+        if (
+            self.trusted_proxy_mode in {"railway", "render"}
+            and self.app_env != "production"
+        ):
             raise ValueError(
-                "TRUSTED_PROXY_MODE=railway is valid only in production"
+                f"TRUSTED_PROXY_MODE={self.trusted_proxy_mode} is valid only in production"
             )
         if self.trusted_proxy_mode == "railway" and not self.railway_environment_id:
             raise ValueError(
                 "TRUSTED_PROXY_MODE=railway requires RAILWAY_ENVIRONMENT_ID"
+            )
+        if self.trusted_proxy_mode == "render" and not self.render:
+            raise ValueError("TRUSTED_PROXY_MODE=render requires RENDER=true")
+        if self.trusted_proxy_mode == "render" and not self.render_service_id:
+            raise ValueError(
+                "TRUSTED_PROXY_MODE=render requires RENDER_SERVICE_ID"
             )
         if not 1 <= self.auth_client_rate_limit_requests <= 1_000:
             raise ValueError(
@@ -568,6 +737,7 @@ class Settings:
             "MAX_REQUEST_BODY_BYTES": self.max_request_body_bytes,
             "MAX_ICS_UPLOAD_BODY_BYTES": self.max_ics_upload_body_bytes,
             "MAX_AUDIO_UPLOAD_BODY_BYTES": self.max_audio_upload_body_bytes,
+            "MAX_IMPORT_UPLOAD_BODY_BYTES": self.max_import_upload_body_bytes,
         }
         for name, limit in request_limits.items():
             if not 1 <= limit <= 104_857_600:
@@ -578,13 +748,35 @@ class Settings:
             )
         if self.app_env == "production" and self.debug:
             raise ValueError("Production DEBUG must be false")
+        if self.local_companion_url:
+            companion = urlparse(self.local_companion_url)
+            try:
+                companion_port = companion.port
+            except ValueError as error:
+                raise ValueError(
+                    "LOCAL_COMPANION_URL is development-only and must be an exact loopback HTTP origin"
+                ) from error
+            invalid_companion = (
+                self.app_env == "production"
+                or companion.scheme != "http"
+                or companion.hostname not in {"127.0.0.1", "localhost", "::1"}
+                or companion.username is not None
+                or companion.password is not None
+                or companion_port is None
+                or _origin(self.local_companion_url) != self.local_companion_url
+            )
+            if invalid_companion:
+                raise ValueError(
+                    "LOCAL_COMPANION_URL is development-only and must be an exact loopback HTTP origin"
+                )
         if self.app_env == "production" and not self.auth_required:
             raise ValueError("Production requires authentication")
         if self.app_env == "production" and self.auth_required:
             if not self.database_url.startswith(("postgresql://", "postgres://")):
                 raise ValueError("Production authentication requires a PostgreSQL DATABASE_URL")
-            database_username = urlparse(self.database_url).username or ""
-            if database_username != RUNTIME_DATABASE_ROLE:
+            # Accepts the session pooler's `<role>.<project-ref>` form; see
+            # `database_url_role`. Widens the string, not the identity.
+            if database_url_role(self.database_url) != RUNTIME_DATABASE_ROLE:
                 raise ValueError(
                     f"Production DATABASE_URL must authenticate as {RUNTIME_DATABASE_ROLE}"
                 )
@@ -631,7 +823,7 @@ class Settings:
         if self.app_env == "production" and self.cloud_mode:
             if self.allow_cloud_processing and not self.cloud_ai_allowlist_configured:
                 raise ValueError(
-                    "Production cloud AI requires an explicit GitHub identity allowlist"
+                    "Production cloud AI requires an explicit provider identity allowlist"
                 )
             google_credentials_present = any(
                 (
@@ -643,7 +835,7 @@ class Settings:
             )
             if google_credentials_present and not self.google_connector_allowlist_configured:
                 raise ValueError(
-                    "Production Google connectors require an explicit GitHub identity allowlist"
+                    "Production Google connectors require an explicit provider identity allowlist"
                 )
 
     def ensure_directories(self) -> None:
@@ -662,6 +854,8 @@ class Settings:
         self.data_dir.mkdir(parents=True, exist_ok=True)
         for child in ("backups", "imports", "audio", "private"):
             (self.data_dir / child).mkdir(parents=True, exist_ok=True)
+        if self.self_hosted_speech_enabled and self.whisper_model_cache_dir is not None:
+            self.whisper_model_cache_dir.mkdir(parents=True, exist_ok=True)
 
 
 def _origin(url: str) -> str:

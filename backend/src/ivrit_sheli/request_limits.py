@@ -1,9 +1,10 @@
 """Bounded HTTP request and layered authentication abuse controls.
 
-``X-Forwarded-For`` is never a rate-limit identity. Direct mode uses the raw ASGI peer;
-explicit Railway mode uses exactly one syntactically valid ``X-Real-IP`` value under the
-deployment assumption that Railway ingress overwrites that header and the service has no
-direct public bypass. Missing or malformed trusted headers collapse into one shared bucket.
+``X-Forwarded-For`` is never a rate-limit identity. Direct mode uses the raw ASGI peer.
+Explicit Railway mode uses exactly one syntactically valid ``X-Real-IP`` value; explicit
+Render mode uses exactly one syntactically valid ``CF-Connecting-IP`` value. Both modes
+require platform-provenance settings, assume ingress overwrites their trusted header, and
+collapse missing, duplicated, or malformed values into one shared bucket.
 """
 
 from __future__ import annotations
@@ -202,8 +203,8 @@ class AuthRateLimitMiddleware:
         client_key_mode: str,
         max_client_keys: int,
     ) -> None:
-        if client_key_mode not in {"direct", "railway"}:
-            raise ValueError("client_key_mode must be direct or railway")
+        if client_key_mode not in {"direct", "railway", "render"}:
+            raise ValueError("client_key_mode must be direct, railway, or render")
         self.app = app
         self.client_key_mode = client_key_mode
         self.client_limiter = SlidingWindowLimiter(
@@ -243,18 +244,23 @@ class AuthRateLimitMiddleware:
 
 def _client_identity(scope: Scope, mode: str) -> str:
     """Return a bounded identity without ever consulting X-Forwarded-For."""
-    if mode == "railway":
+    trusted_header = {
+        "railway": b"x-real-ip",
+        "render": b"cf-connecting-ip",
+    }.get(mode)
+    if trusted_header is not None:
         values = [
             value
             for name, value in scope.get("headers", [])
-            if name.lower() == b"x-real-ip"
+            if name.lower() == trusted_header
         ]
         if len(values) != 1:
-            return "railway:unresolved"
+            return f"{mode}:unresolved"
         try:
-            return f"railway:{ip_address(values[0].decode('ascii').strip()).compressed}"
+            client_ip = ip_address(values[0].decode("ascii").strip()).compressed
         except (UnicodeDecodeError, ValueError):
-            return "railway:unresolved"
+            return f"{mode}:unresolved"
+        return f"{mode}:{client_ip}"
     client = scope.get("client")
     if not client:
         return "direct:unresolved"

@@ -3,10 +3,10 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useI18n } from '../i18n';
-import { localizedText, starterWords, type StarterWord } from '../starterWords';
-import { configureHebrewUtterance } from '../voicePreference';
+import { localizedText, starterWords, starterWordVisual, type StarterWord } from '../starterWords';
+import { createHebrewUtterance } from '../voicePreference';
+import { DictionaryVisualCue } from './DictionaryVisualCue';
 import { Icon } from './Icon';
-import { WordIllustration } from './WordIllustration';
 
 interface FirstStepsLessonProps {
   initialIndex?: number;
@@ -37,7 +37,7 @@ export function FirstStepsLesson({
   onClose,
   onOpenWord,
 }: FirstStepsLessonProps): React.JSX.Element {
-  const { locale, t } = useI18n();
+  const { errorText, locale, t } = useI18n();
   const safeInitialIndex = Math.max(0, Math.min(starterWords.length, initialIndex));
   const [index, setIndex] = useState(safeInitialIndex);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -58,8 +58,14 @@ export function FirstStepsLesson({
   const speak = (): void => {
     if (!current || !('speechSynthesis' in window)) return;
     window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(current.word);
-    configureHebrewUtterance(utterance, window.speechSynthesis.getVoices());
+    const utterance = createHebrewUtterance(
+      {
+        displayText: current.word,
+        speechText: current.speechText,
+        transliteration: current.transliteration,
+      },
+      window.speechSynthesis.getVoices(),
+    );
     window.speechSynthesis.speak(utterance);
   };
 
@@ -78,7 +84,7 @@ export function FirstStepsLesson({
       }
       setResultSaved(true);
     } catch (reason) {
-      setResultError(reason instanceof Error ? reason.message : String(reason));
+      setResultError(errorText(reason));
     } finally {
       setSavingResult(false);
     }
@@ -100,7 +106,7 @@ export function FirstStepsLesson({
     try {
       await onComplete();
     } catch (reason) {
-      setResultError(reason instanceof Error ? reason.message : String(reason));
+      setResultError(errorText(reason));
     } finally {
       setFinishing(false);
     }
@@ -143,7 +149,7 @@ export function FirstStepsLesson({
 
       <article className="visual-word-card card">
         <div className="visual-word-card__scene">
-          <WordIllustration kind={current.illustration} title={localizedText(current.illustrationAlt, locale)} />
+          <DictionaryVisualCue visual={starterWordVisual(current)} locale={locale} size="hero" />
         </div>
         <div className="visual-word-card__content">
           <span className="visual-word-card__eyebrow">{t('lookListenRemember')}</span>
