@@ -47,7 +47,20 @@ const ENTRY: DictionaryEntry = {
   source_url: 'https://example.test/hebrew/shalom',
   license_name: 'CC BY-SA',
   senses: [
-    { ...EMPTY_SENSE_METADATA, id: 1, gloss_en: 'peace; hello', gloss_es: 'paz; hola', tags: ['common'], topics: [] },
+    {
+      ...EMPTY_SENSE_METADATA,
+      id: 1,
+      gloss_en: 'peace; hello',
+      gloss_es: 'paz; hola',
+      tags: ['common'],
+      topics: [],
+      reading_hints: [{
+        display: 'שָׁ',
+        note_en: 'The dot above the right side gives a sh sound.',
+        note_es: 'El punto arriba a la derecha produce el sonido sh.',
+        note_he: 'הנקודה למעלה מימין מסמנת את הצליל שׁ.',
+      }],
+    },
     { ...EMPTY_SENSE_METADATA, id: 4, gloss_en: 'goodbye', gloss_es: 'adiós', tags: [], topics: ['greetings'] },
   ],
   forms: [{ id: 2, form: 'שלומות', romanization: 'shalomot', tags: ['plural'] }],
@@ -100,21 +113,24 @@ describe('DictionaryDrawer', () => {
     const learn = vi.spyOn(api, 'learnDictionaryEntry').mockResolvedValue(LEARNED_ITEM);
     const search = vi.spyOn(api, 'dictionarySearch').mockResolvedValue([ENTRY]);
     const onLearned = vi.fn();
+    const onPracticeWord = vi.fn();
     const user = userEvent.setup();
 
     render(
       <I18nProvider>
-        <DictionaryDrawer word="שלום" onClose={vi.fn()} onOpenWord={vi.fn()} onLearned={onLearned} />
+        <DictionaryDrawer word="שלום" onClose={vi.fn()} onOpenWord={vi.fn()} onLearned={onLearned} onPracticeWord={onPracticeWord} />
       </I18nProvider>,
     );
 
     await waitFor(() => expect(lookup).toHaveBeenCalledWith('שלום'));
     expect((await screen.findAllByText('shalom')).length).toBeGreaterThan(0);
-    expect(screen.getByRole('img', { name: 'Two people greeting' })).toBeInTheDocument();
+    expect(await screen.findByRole('img', { name: 'Two people greeting' }, { timeout: 5_000 })).toBeInTheDocument();
     expect(screen.getByText('peace; hello')).toBeInTheDocument();
     expect(screen.getByText('paz; hola')).toBeInTheDocument();
     expect(screen.getByText('goodbye')).toBeInTheDocument();
     expect(screen.getByText('adiós')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Reading support' })).toBeInTheDocument();
+    expect(screen.getByText('The dot above the right side gives a sh sound.')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Grammar details' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Pronunciation sources' })).toBeInTheDocument();
     expect(screen.getByText('ʃaˈlom')).toBeInTheDocument();
@@ -128,7 +144,10 @@ describe('DictionaryDrawer', () => {
     await user.click(screen.getByRole('button', { name: /Add to learning/i }));
     await waitFor(() => expect(learn).toHaveBeenCalledWith(7));
     expect(onLearned).toHaveBeenCalledOnce();
-    expect(screen.getByRole('button', { name: /Already in learning/i })).toBeDisabled();
+    const practice = screen.getByRole('button', { name: /Practice saying this word/i });
+    expect(practice).toHaveFocus();
+    await user.click(practice);
+    expect(onPracticeWord).toHaveBeenCalledWith({ text: 'שָׁלוֹם', itemId: 99 });
   });
 
   it('renders persisted learned state without offering a duplicate add', async () => {
@@ -139,6 +158,28 @@ describe('DictionaryDrawer', () => {
       learning_due_state: 'upcoming',
     }]);
     const learn = vi.spyOn(api, 'learnDictionaryEntry');
+    const onPracticeWord = vi.fn();
+    const user = userEvent.setup();
+
+    render(
+      <I18nProvider>
+        <DictionaryDrawer word="שלום" onClose={vi.fn()} onOpenWord={vi.fn()} onPracticeWord={onPracticeWord} />
+      </I18nProvider>,
+    );
+
+    await waitFor(() => expect(lookup).toHaveBeenCalledWith('שלום'));
+    expect(await screen.findByText('Learning status: Mastered')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /Practice saying this word/i }));
+    expect(onPracticeWord).toHaveBeenCalledWith({ text: 'שָׁלוֹם', itemId: 99 });
+    expect(learn).not.toHaveBeenCalled();
+  });
+
+  it('browses a whole topic and toggles the same chip back off', async () => {
+    vi.spyOn(api, 'dictionaryLookup').mockResolvedValue([ENTRY]);
+    const browse = vi.spyOn(api, 'dictionaryBrowse').mockResolvedValue([
+      { ...ENTRY, id: 180, word: 'גשם', display_niqqud: 'גֶּשֶׁם' },
+    ]);
+    const user = userEvent.setup();
 
     render(
       <I18nProvider>
@@ -146,10 +187,16 @@ describe('DictionaryDrawer', () => {
       </I18nProvider>,
     );
 
-    await waitFor(() => expect(lookup).toHaveBeenCalledWith('שלום'));
-    expect(await screen.findByText('Learning status: Mastered')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Already in learning/i })).toBeDisabled();
-    expect(learn).not.toHaveBeenCalled();
+    const weather = await screen.findByRole('button', { name: 'Weather' });
+    await user.click(weather);
+
+    await waitFor(() => expect(browse).toHaveBeenCalledWith('weather'));
+    expect(weather).toHaveAttribute('aria-pressed', 'true');
+
+    // A second click clears the topic instead of re-requesting it.
+    await user.click(weather);
+    expect(weather).toHaveAttribute('aria-pressed', 'false');
+    expect(browse).toHaveBeenCalledTimes(1);
   });
 
   it('uses the device-wide synthetic voice preference for dictionary playback', async () => {
@@ -180,9 +227,9 @@ describe('DictionaryDrawer', () => {
 
     await user.click(await screen.findByRole('button', { name: 'Pronunciation' }));
     const utterance = speak.mock.calls[0]?.[0] as UtteranceStub;
-    expect(utterance.text).toBe('שָׁלוֹם');
+    expect(utterance.text).toBe('שלום');
     expect(utterance.lang).toBe('he-IL');
-    expect(utterance.pitch).toBe(0.82);
+    expect(utterance.pitch).toBe(0.9);
   });
 
   it('stops app-managed audio when the drawer closes', async () => {
@@ -242,7 +289,7 @@ describe('DictionaryDrawer', () => {
     );
 
     await user.click(await screen.findByRole('button', { name: 'Pronunciation' }));
-    expect(await screen.findByText('Audio playback failed: playback blocked')).toBeInTheDocument();
+    expect(await screen.findByText('The audio would not play. Tap the button again.')).toBeInTheDocument();
   });
 
   it('keeps newly learned state scoped to the selected dictionary entry', async () => {
@@ -261,16 +308,17 @@ describe('DictionaryDrawer', () => {
     };
     vi.spyOn(api, 'dictionaryLookup').mockResolvedValue([ENTRY, secondEntry]);
     const learn = vi.spyOn(api, 'learnDictionaryEntry').mockResolvedValue(LEARNED_ITEM);
+    const onPracticeWord = vi.fn();
     const user = userEvent.setup();
 
     render(
       <I18nProvider>
-        <DictionaryDrawer word="שלום" onClose={vi.fn()} onOpenWord={vi.fn()} />
+        <DictionaryDrawer word="שלום" onClose={vi.fn()} onOpenWord={vi.fn()} onPracticeWord={onPracticeWord} />
       </I18nProvider>,
     );
 
     await user.click(await screen.findByRole('button', { name: /Add to learning/i }));
-    expect(screen.getByRole('button', { name: /Already in learning/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /Practice saying this word/i })).toBeEnabled();
 
     await user.click(screen.getByRole('tab', { name: 'Verb' }));
     expect(screen.getByRole('button', { name: /Add to learning/i })).toBeEnabled();
@@ -291,11 +339,12 @@ describe('DictionaryDrawer', () => {
     };
     vi.spyOn(api, 'dictionaryLookup').mockResolvedValue([ENTRY, homograph]);
     const learn = vi.spyOn(api, 'learnDictionaryEntry').mockResolvedValue({ ...LEARNED_ITEM, id: 108 });
+    const onPracticeWord = vi.fn();
     const user = userEvent.setup();
 
     render(
       <I18nProvider>
-        <DictionaryDrawer word="שלום" initialEntryId={8} onClose={vi.fn()} onOpenWord={vi.fn()} />
+        <DictionaryDrawer word="שלום" initialEntryId={8} onClose={vi.fn()} onOpenWord={vi.fn()} onPracticeWord={onPracticeWord} />
       </I18nProvider>,
     );
 
@@ -303,6 +352,8 @@ describe('DictionaryDrawer', () => {
     expect(screen.getByRole('tab', { name: 'Interjection' })).toHaveAttribute('aria-selected', 'true');
     await user.click(screen.getByRole('button', { name: /Add to learning/i }));
     await waitFor(() => expect(learn).toHaveBeenCalledWith(8));
+    await user.click(screen.getByRole('button', { name: /Practice saying this word/i }));
+    expect(onPracticeWord).toHaveBeenCalledWith({ text: 'שָׁלוֹם ב׳', itemId: 108 });
   });
 
   it('clears stale entries and ignores an older search response after the word changes', async () => {

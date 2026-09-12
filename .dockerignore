@@ -12,8 +12,10 @@ frontend/coverage
 data/audio/*
 data/backups/*
 data/imports/*.jsonl*
+data/models/*
 data/private/*
 data/**/*.db*
-.env
+.env*
+**/.env*
 .local-backups
 *.log

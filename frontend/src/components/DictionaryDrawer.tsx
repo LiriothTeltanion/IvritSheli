@@ -10,10 +10,11 @@ import { useModalDialog } from '../hooks/useModalDialog';
 import { useI18n } from '../i18n';
 import { useSessionAccess } from '../session';
 import type { DictionaryEntry } from '../types';
-import { configureHebrewUtterance } from '../voicePreference';
+import { createHebrewUtterance } from '../voicePreference';
 import { DictionaryVisualCue } from './DictionaryVisualCue';
 import { HebrewText } from './HebrewText';
 import { Icon } from './Icon';
+import { ShoreshTreeViewer } from './ShoreshTreeViewer';
 
 function safeExternalUrl(value: string | null): string | null {
   if (!value) return null;
@@ -25,16 +26,24 @@ function safeExternalUrl(value: string | null): string | null {
   }
 }
 
+// The twelve reviewed starter categories, matching
+// EXPECTED_STARTER_CATEGORY_COUNTS in backend starter_lexicon_validation.py.
+const STARTER_CATEGORIES = [
+  'greetings', 'family', 'home', 'food', 'transport', 'shopping',
+  'health', 'places', 'numbers', 'time', 'weather', 'nature',
+] as const;
+
 interface DictionaryDrawerProps {
   word: string | null;
   initialEntryId?: number | undefined;
   onClose: () => void;
   onOpenWord: (word: string) => void;
   onLearned?: () => void;
+  onPracticeWord?: (target: { text: string; itemId: number }) => void;
 }
 
-export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, onLearned }: DictionaryDrawerProps): React.JSX.Element | null {
-  const { locale, label, t } = useI18n();
+export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, onLearned, onPracticeWord }: DictionaryDrawerProps): React.JSX.Element | null {
+  const { errorText, label, locale, t } = useI18n();
   const { readOnly, readOnlyReason } = useSessionAccess();
   const [entries, setEntries] = useState<DictionaryEntry[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -42,7 +51,8 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
   const [adding, setAdding] = useState(false);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
-  const [learnedEntryIds, setLearnedEntryIds] = useState<Set<number>>(() => new Set());
+  const [learnedItemIds, setLearnedItemIds] = useState<Map<number, number>>(() => new Map());
+  const [activeCategory, setActiveCategory] = useState('');
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const mountedRef = useRef(true);
   const requestGenerationRef = useRef(0);
@@ -81,6 +91,7 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
     setEntries([]);
     setSelectedIndex(0);
     setSearch(word);
+    setActiveCategory('');
     api.dictionaryLookup(word)
       .then((result) => {
         if (mountedRef.current && generation === requestGenerationRef.current) {
@@ -93,7 +104,7 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
       })
       .catch((reason: unknown) => {
         if (mountedRef.current && generation === requestGenerationRef.current) {
-          setError(reason instanceof Error ? reason.message : String(reason));
+          setError(errorText(reason));
         }
       })
       .finally(() => {
@@ -102,14 +113,24 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
   }, [initialEntryId, word]);
 
   const entry = entries[selectedIndex] ?? null;
-  const learnedInThisSession = Boolean(entry && learnedEntryIds.has(entry.id));
-  const isLearned = learnedInThisSession || Boolean(entry?.learning_item_id);
+  const learnedInThisSession = Boolean(entry && learnedItemIds.has(entry.id));
+  const learningItemId = entry ? learnedItemIds.get(entry.id) ?? entry.learning_item_id ?? undefined : undefined;
+  const isLearned = learningItemId !== undefined;
   const learningStatus = entry?.learning_status ?? (learnedInThisSession ? 'needs_review' : 'active');
   const learningStatusLabel = learningStatus === 'mastered'
     ? t('statusMastered')
     : learningStatus === 'needs_review'
       ? t('statusNeedsReview')
       : t('statusActive');
+  const readingHints = entry
+    ? Array.from(
+      new Map(
+        entry.senses
+          .flatMap((sense) => sense.reading_hints ?? [])
+          .map((hint) => [hint.display, hint]),
+      ).values(),
+    )
+    : [];
 
   if (!word) return null;
 
@@ -117,6 +138,7 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
     event.preventDefault();
     if (!search.trim()) return;
     const generation = ++requestGenerationRef.current;
+    setActiveCategory('');
     setLoading(true);
     setError('');
     setEntries([]);
@@ -128,7 +150,28 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
       setSelectedIndex(0);
     } catch (reason) {
       if (!mountedRef.current || generation !== requestGenerationRef.current) return;
-      setError(reason instanceof Error ? reason.message : String(reason));
+      setError(errorText(reason));
+    } finally {
+      if (mountedRef.current && generation === requestGenerationRef.current) setLoading(false);
+    }
+  };
+
+  const browseCategory = async (category: string): Promise<void> => {
+    const generation = ++requestGenerationRef.current;
+    setActiveCategory((current) => (current === category ? '' : category));
+    if (activeCategory === category) return;
+    setLoading(true);
+    setError('');
+    setEntries([]);
+    setSelectedIndex(0);
+    try {
+      const result = await api.dictionaryBrowse(category);
+      if (!mountedRef.current || generation !== requestGenerationRef.current) return;
+      setEntries(result);
+      setSelectedIndex(0);
+    } catch (reason) {
+      if (!mountedRef.current || generation !== requestGenerationRef.current) return;
+      setError(errorText(reason));
     } finally {
       if (mountedRef.current && generation === requestGenerationRef.current) setLoading(false);
     }
@@ -148,7 +191,7 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
       setSearch(root);
     } catch (reason) {
       if (!mountedRef.current || generation !== requestGenerationRef.current) return;
-      setError(reason instanceof Error ? reason.message : String(reason));
+      setError(errorText(reason));
     } finally {
       if (mountedRef.current && generation === requestGenerationRef.current) setLoading(false);
     }
@@ -167,8 +210,14 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
     }
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(entry.display_niqqud || entry.word);
-      configureHebrewUtterance(utterance, window.speechSynthesis.getVoices());
+      const utterance = createHebrewUtterance(
+        {
+          displayText: entry.display_niqqud || entry.word,
+          speechText: entry.word,
+          transliteration: entry.romanization ?? undefined,
+        },
+        window.speechSynthesis.getVoices(),
+      );
       window.speechSynthesis.speak(utterance);
     }
   };
@@ -184,9 +233,9 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
     void audio.play().catch((reason: unknown) => {
       if (audioRef.current !== audio) return;
       audioRef.current = null;
-      setError(t('audioPlaybackFailed', {
-        error: reason instanceof Error ? reason.message : String(reason),
-      }));
+      // No interpolated detail: the browser's media errors are English strings
+      // the learner can do nothing with, and the sentence already says what to do.
+      setError(t('audioPlaybackFailed'));
     });
   };
 
@@ -196,13 +245,13 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
     setAdding(true);
     setError('');
     try {
-      await api.learnDictionaryEntry(entryId);
+      const learned = await api.learnDictionaryEntry(entryId);
       if (!mountedRef.current) return;
-      setLearnedEntryIds((current) => new Set(current).add(entryId));
+      setLearnedItemIds((current) => new Map(current).set(entryId, learned.id));
       onLearned?.();
     } catch (reason) {
       if (!mountedRef.current) return;
-      setError(reason instanceof Error ? reason.message : String(reason));
+      setError(errorText(reason));
     } finally {
       if (mountedRef.current) setAdding(false);
     }
@@ -235,6 +284,20 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
           <input value={search} onChange={(event) => setSearch(event.target.value)} aria-label={t('searchDictionary')} />
         </form>
 
+        <div className="dictionary-categories" role="group" aria-label={t('browseByCategory')}>
+          {STARTER_CATEGORIES.map((category) => (
+            <button
+              type="button"
+              key={category}
+              className={activeCategory === category ? 'active' : ''}
+              aria-pressed={activeCategory === category}
+              onClick={() => { void browseCategory(category); }}
+            >
+              {label(category)}
+            </button>
+          ))}
+        </div>
+
         {loading && <div className="drawer-state"><span className="spinner" /> {t('loading')}</div>}
         {error && <div className="inline-error">{error}</div>}
         {!loading && !error && entries.length === 0 && <div className="drawer-state">{t('noDefinition')}</div>}
@@ -261,10 +324,15 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
             <section className="dictionary-hero">
               {entry.visual && (
                 <div className="dictionary-visual-stage">
-                  <DictionaryVisualCue visual={entry.visual} locale={locale} className="dictionary-visual" />
+                  <DictionaryVisualCue
+                    visual={entry.visual}
+                    locale={locale}
+                    className="dictionary-visual"
+                    size="hero"
+                  />
                 </div>
               )}
-              <HebrewText text={entry.display_niqqud || entry.word} onWordClick={onOpenWord} className="dictionary-word" as="h2" />
+              <HebrewText text={entry.display_niqqud || entry.word} onWordClick={onOpenWord} className="dictionary-word" as="h2" niqqudHighlight={true} />
               <button type="button" className="voice-orb" onClick={play} aria-label={t('pronunciation')}>
                 <Icon name="volume" size={24} />
               </button>
@@ -323,13 +391,30 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
               ))}
             </section>
 
+            {readingHints.length > 0 && (
+              <section className="drawer-section dictionary-reading-hints">
+                <h3>{t('readingSupport')}</h3>
+                <p className="muted-copy">{t('readingSupportDetail')}</p>
+                <ul>
+                  {readingHints.map((hint) => (
+                    <li key={hint.display}>
+                      <strong lang="he" dir="rtl">{hint.display}</strong>
+                      <span lang={locale}>
+                        {locale === 'he' ? hint.note_he : locale === 'es' ? hint.note_es : hint.note_en}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
             {entry.examples.length > 0 && (
               <section className="drawer-section dictionary-examples-primary">
                 <h3>{t('seeItInRealLife')}</h3>
                 <div className="example-stack">
                   {entry.examples.map((example) => (
                     <article key={example.id}>
-                      <HebrewText text={example.hebrew_text} onWordClick={onOpenWord} className="example-hebrew" as="p" />
+                      <HebrewText text={example.hebrew_text} onWordClick={onOpenWord} className="example-hebrew" as="p" niqqudHighlight={true} />
                       {(locale === 'es' ? example.translation_es ?? example.translation_en : example.translation_en ?? example.translation_es) && (
                         <p>{locale === 'es' ? example.translation_es ?? example.translation_en : example.translation_en ?? example.translation_es}</p>
                       )}
@@ -339,6 +424,14 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
                 </div>
               </section>
             )}
+
+            <section className="drawer-section dictionary-shoresh-section">
+              <ShoreshTreeViewer
+                initialRoot={entry.root || 'כ-ת-ב'}
+                locale={locale}
+                onWordClick={onOpenWord}
+              />
+            </section>
 
             <details className="dictionary-more">
               <summary><Icon name="book" size={18} /> <span>{t('moreWordDetails')}</span><Icon name="chevron" size={17} /></summary>
@@ -366,7 +459,7 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
                     <div className="form-grid">
                       {entry.forms.slice(0, 16).map((form) => (
                         <button key={form.id} type="button" onClick={() => onOpenWord(form.form)}>
-                          <HebrewText text={form.form} />
+                          <HebrewText text={form.form} niqqudHighlight={true} />
                           <small>{form.tags.map(label).join(' · ')}</small>
                         </button>
                       ))}
@@ -412,10 +505,28 @@ export function DictionaryDrawer({ word, initialEntryId, onClose, onOpenWord, on
             </details>
 
             <footer className="dictionary-save-footer">
-              <button type="button" className={`primary-button learned-button ${isLearned ? 'is-learned' : ''}`} onClick={() => { void learn(); }} disabled={readOnly || isLearned || adding} title={readOnly ? readOnlyReason : undefined}>
-                {adding ? <span className="spinner" /> : <Icon name={isLearned ? 'check' : 'plus'} size={18} />}
-                {adding ? t('addingToLearning') : isLearned ? t('alreadyInLearning') : t('addToLearning')}
-              </button>
+              {isLearned ? (
+                <button
+                  type="button"
+                  className="primary-button learned-button"
+                  onClick={() => {
+                    if (!entry || learningItemId === undefined) return;
+                    onPracticeWord?.({
+                      text: entry.display_niqqud || entry.word,
+                      itemId: learningItemId,
+                    });
+                  }}
+                  disabled={!onPracticeWord}
+                >
+                  <Icon name="mic" size={18} />
+                  {t('practiceSayingWord')}
+                </button>
+              ) : (
+                <button type="button" className="primary-button learned-button" onClick={() => { void learn(); }} disabled={readOnly || adding} title={readOnly ? readOnlyReason : undefined}>
+                  {adding ? <span className="spinner" /> : <Icon name="plus" size={18} />}
+                  {adding ? t('addingToLearning') : t('addToLearning')}
+                </button>
+              )}
             </footer>
           </div>
         )}

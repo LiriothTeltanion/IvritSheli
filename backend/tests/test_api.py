@@ -12,6 +12,7 @@ import sqlite3
 from dataclasses import replace
 from pathlib import Path
 
+import pytest
 from fastapi.testclient import TestClient
 
 from ivrit_sheli.api import create_app
@@ -138,14 +139,104 @@ def test_health_and_security_headers(
     )
 
 
+@pytest.mark.parametrize(
+    ("public_base_url", "expected_image_url"),
+    [
+        (
+            "https://ivrit.example/",
+            "https://ivrit.example/social/ivrit-sheli-card.png",
+        ),
+        ("", "/social/ivrit-sheli-card.png"),
+    ],
+    ids=("absolute-public-base", "relative-empty-base"),
+)
+def test_frontend_social_cards_and_spa_fallback_preserve_http_contract(
+    settings: Settings,
+    tmp_path: Path,
+    public_base_url: str,
+    expected_image_url: str,
+) -> None:
+    frontend_dist = tmp_path / "frontend-dist"
+    frontend_dist.mkdir()
+    (frontend_dist / "index.html").write_text(
+        """<!doctype html>
+<html><head>
+<meta property="og:image" content="/social/ivrit-sheli-card.png">
+<meta name="twitter:image" content="/social/ivrit-sheli-card.png">
+</head></html>
+""",
+        encoding="utf-8",
+    )
+    static_settings = replace(
+        settings,
+        data_dir=tmp_path / "static-data",
+        db_path=tmp_path / "static-learning.db",
+        dictionary_db_path=tmp_path / "static-dictionary.db",
+        frontend_dist=frontend_dist,
+        public_base_url=public_base_url,
+    )
+
+    with TestClient(create_app(static_settings)) as static_client:
+        for path in ("/", "/learn/today"):
+            response = static_client.get(path)
+            assert response.status_code == 200, path
+            assert response.headers["Cache-Control"] == (
+                "no-cache, no-store, must-revalidate"
+            )
+            assert response.headers["content-type"].startswith("text/html")
+            assert (
+                f'property="og:image" content="{expected_image_url}"'
+                in response.text
+            )
+            assert (
+                f'name="twitter:image" content="{expected_image_url}"'
+                in response.text
+            )
+
+        # A local production build can replace Vite's hashed bundles while the
+        # backend remains alive. The next request must read the new document,
+        # otherwise the cached HTML can point at an entry module that no longer
+        # exists and every browser test renders a blank root.
+        (frontend_dist / "index.html").write_text(
+            "<!doctype html><html><head>"
+            '<meta name="build-id" content="second-build">'
+            "</head></html>",
+            encoding="utf-8",
+        )
+        refreshed_document = static_client.get("/")
+        assert refreshed_document.status_code == 200
+        assert (
+            '<meta name="build-id" content="second-build">'
+            in refreshed_document.text
+        )
+
+        api_miss = static_client.get("/api/v1/not-a-route")
+        assert api_miss.status_code == 404
+        assert api_miss.headers["content-type"].startswith("application/json")
+        assert api_miss.headers["Cache-Control"] == "no-store"
+        assert api_miss.json() == {"detail": "API route not found"}
+
+
 def test_dashboard_profile_and_gamification_boot_cleanly(client: TestClient) -> None:
     dashboard = client.get("/api/v1/dashboard")
     profile = client.get("/api/v1/profile")
     gamification = client.get("/api/v1/gamification/status")
     assert dashboard.status_code == profile.status_code == gamification.status_code == 200
     assert dashboard.json()["system"]["offline_ready"] is True
-    assert dashboard.json()["dictionary"]["entries"] == 48
+    assert dashboard.json()["dictionary"]["entries"] == 240
+    spotlight = dashboard.json()["visual_spotlight"]
+    assert len(spotlight) == 6
+    assert len({entry["visual"]["key"] for entry in spotlight}) == 6
     assert profile.json()["weekly_rest_day"] == 5
+    assert profile.json()["learner_mode"] == "guided"
+
+    experienced = client.put("/api/v1/profile", json={"learner_mode": "experienced"})
+    assert experienced.status_code == 200
+    assert experienced.json()["learner_mode"] == "experienced"
+    assert experienced.json()["guided_mode"] == 0
+
+    invalid = client.put("/api/v1/profile", json={"learner_mode": "expert"})
+    assert invalid.status_code == 422
 
 
 def test_capture_review_and_progress_flow(client: TestClient) -> None:
@@ -175,7 +266,29 @@ def test_capture_review_and_progress_flow(client: TestClient) -> None:
     )
     assert reviewed.status_code == 200
     assert reviewed.json()["xp_awarded"] >= 30
-    assert client.get("/api/v1/progress").json()["modalities"][0]["attempts"] == 1
+    progress = client.get("/api/v1/progress").json()
+    assert progress["modalities"][0]["attempts"] == 1
+    assert progress["activity_log"][0]["type"] == "review_submitted"
+    assert progress["activity_log"][0]["source"] == "learning_item"
+
+
+def test_dictionary_route_contract_is_registered_once(client: TestClient) -> None:
+    expected = {
+        ("/api/v1/dictionary/search", "GET"),
+        ("/api/v1/dictionary/browse", "GET"),
+        ("/api/v1/dictionary/lookup", "GET"),
+        ("/api/v1/dictionary/entries/{entry_id}", "GET"),
+        ("/api/v1/dictionary/stats", "GET"),
+        ("/api/v1/dictionary/{entry_id}/learn", "POST"),
+    }
+    registered = [
+        (route.path, method)
+        for route in client.app.routes
+        for method in (getattr(route, "methods", None) or set())
+        if route.path.startswith("/api/v1/dictionary/")
+    ]
+    assert set(registered) == expected
+    assert len(registered) == len(expected)
 
 
 def test_dictionary_is_linked_to_learning_collection(
@@ -292,6 +405,107 @@ def test_word_analysis_returns_provenance_without_awarding_progress(
     assert client.get("/api/v1/progress").json()["modalities"] == []
 
 
+def test_transcript_analysis_resolves_phrase_tokens_without_inventing_meanings(
+    client: TestClient,
+) -> None:
+    xp_before = client.get("/api/v1/gamification/status").json()["xp"]["total"]
+
+    response = client.post(
+        "/api/v1/audio/transcript-analysis",
+        json={
+            "transcript": "שלום, תודה חדקרן שלום",
+            "transcript_provider": "self_hosted",
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["mode"] == "phrase"
+    assert [row["normalized_token"] for row in payload["tokens"]] == [
+        "שלום",
+        "תודה",
+        "חדקרן",
+    ]
+    assert payload["tokens"][0]["occurrence_count"] == 2
+    assert payload["tokens"][0]["dictionary_matches"][0]["word"] == "שלום"
+    assert payload["tokens"][1]["dictionary_matches"][0]["word"] == "תודה"
+    assert payload["tokens"][2]["dictionary_matches"] == []
+    assert payload["unknown_tokens"] == ["חדקרן"]
+    assert payload["truncated"] is False
+    assert payload["provenance"] == {
+        "transcript": "client_reported_self_hosted_transcription",
+        "dictionary": "local_dictionary",
+        "lookup": "exact_registered_headword_or_form",
+        "enrichment": None,
+        "audio_retained": False,
+        "learning_progress_updated": False,
+    }
+    assert client.get("/api/v1/gamification/status").json()["xp"]["total"] == xp_before
+
+
+def test_transcript_analysis_one_word_is_word_analysis_compatible(
+    client: TestClient,
+) -> None:
+    response = client.post(
+        "/api/v1/audio/transcript-analysis",
+        json={
+            "transcript": "שָׁלוֹם!",
+            "transcript_provider": "browser",
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["mode"] == "word"
+    assert payload["word"] == "שלום"
+    assert payload["display_word"] == "שָׁלוֹם"
+    assert payload["dictionary_matches"][0]["word"] == "שלום"
+    assert payload["enrichment"] is None
+    assert payload["transcript_provider"] == "browser"
+
+
+def test_transcript_analysis_is_bounded_and_uses_exact_matches_only(
+    client: TestClient,
+) -> None:
+    unique_tokens = [
+        "אב",
+        "גד",
+        "הו",
+        "זח",
+        "טי",
+        "כל",
+        "מנ",
+        "סע",
+        "פצ",
+        "קר",
+        "שת",
+        "אג",
+        "בד",
+    ]
+    response = client.post(
+        "/api/v1/audio/transcript-analysis",
+        json={"transcript": " ".join(unique_tokens), "transcript_provider": "manual"},
+    )
+    prefixed = client.post(
+        "/api/v1/audio/transcript-analysis",
+        json={"transcript": "ושלום", "transcript_provider": "manual"},
+    )
+    latin_only = client.post(
+        "/api/v1/audio/transcript-analysis",
+        json={"transcript": "shalom", "transcript_provider": "manual"},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["analyzed_token_count"] == 12
+    assert response.json()["total_unique_tokens"] == 13
+    assert response.json()["token_limit"] == 12
+    assert response.json()["truncated"] is True
+    assert prefixed.status_code == 200
+    assert prefixed.json()["tokens"][0]["known"] is False
+    assert prefixed.json()["dictionary_matches"] == []
+    assert latin_only.status_code == 400
+
+
 def test_word_analysis_requires_exactly_one_hebrew_word(client: TestClient) -> None:
     phrase = client.post(
         "/api/v1/audio/word-analysis",
@@ -387,3 +601,32 @@ def test_validation_and_missing_resources_use_standard_error_envelope(client: Te
     missing = client.get("/api/v1/items/99999")
     assert missing.status_code == 404
     assert missing.json()["error"]["code"] == "not_found"
+
+
+def test_notes_route_publishes_only_the_learner_notebook(client: TestClient) -> None:
+    """The /notes/ route must not hand out the internal documentation set.
+
+    It previously served every file under docs/, unauthenticated, so anyone
+    could read DEPLOYMENT.md, ARCHITECTURE.md and CONNECTORS.md.
+    """
+    published = client.get("/notes/LIVING_HEBREW_FIELD_NOTES.md")
+    assert published.status_code == 200
+    assert published.headers["content-type"].startswith("text/markdown")
+
+    for internal in (
+        "DEPLOYMENT.md",
+        "ARCHITECTURE.md",
+        "CONNECTORS.md",
+        "API.md",
+    ):
+        refused = client.get(f"/notes/{internal}")
+        assert refused.status_code == 404, internal
+
+    # A traversal attempt must never come back as a document. An encoded slash
+    # stops matching this route at all and lands on the SPA fallback, which
+    # answers 200 with the HTML shell — so assert on what was served, not on the
+    # status code.
+    for escape in ("..%2FSECURITY.md", "..", ".env", "..%5C.env"):
+        response = client.get(f"/notes/{escape}")
+        assert not response.headers["content-type"].startswith("text/markdown"), escape
+        assert "MIGRATION_DATABASE_URL" not in response.text, escape

@@ -1,446 +1,166 @@
 <div align="center">
-  <img src="assets/brand/logo.svg" alt="Ivrit Sheli" width="680" />
+  <img src="assets/brand/wordmark-nocturne.svg" alt="Ivrit Sheli wordmark" width="680" />
 
-  <h1>Ivrit Sheli 2.4.0 — Contest Edition · העברית שלי</h1>
-  <p><strong>A private-first, authenticated, trilingual Hebrew-learning operating system built from real life.</strong></p>
+  <h1>Ivrit Sheli 2.12.3 — El hebreo vivo de cada día</h1>
+  <p><strong>A trilingual, local-first PWA for learning the Hebrew people meet in everyday life.</strong></p>
+  <p>Guided enough for a complete beginner, deep enough to keep growing.</p>
 
   <p>
-    <code>Hebrew • English • Spanish</code> ·
-    <code>SQLite + PostgreSQL</code> ·
-    <code>Google + GitHub OAuth</code> ·
-    <code>Docker</code> ·
-    <code>AI-optional</code> ·
-    <code>RTL-native</code> ·
-    <code>Accessible motion</code>
+    <a href="https://ivrit-sheli-staging.onrender.com"><img src="https://img.shields.io/badge/Live_Staging-Render-46E3B7?style=flat-square&logo=render" alt="Live Staging"></a>
+    <img src="https://img.shields.io/badge/Release-v2.12.3-3B82F6?style=flat-square" alt="Version">
+    <img src="https://img.shields.io/badge/React_19_%2B_Vite-passing-22C55E?style=flat-square" alt="React 19">
+    <img src="https://img.shields.io/badge/FastAPI_%2B_Python-ready-38BDF8?style=flat-square" alt="FastAPI">
+    <img src="https://img.shields.io/badge/Database-PostgreSQL_17-336791?style=flat-square&logo=postgresql" alt="PostgreSQL">
   </p>
-
   <p>
-    <img src="assets/readme/badge-tests.svg" alt="213 automated tests passing for the locally verified 2.4 source" />
-    <img src="assets/readme/badge-private.svg" alt="Local-first private" />
-    <img src="assets/readme/badge-trilingual.svg" alt="Hebrew English Spanish" />
-    <img src="assets/readme/badge-pwa.svg" alt="Installable PWA" />
+    <img src="https://img.shields.io/badge/Languages-EN_%7C_ES_%7C_HE-9333EA?style=flat-square" alt="Languages">
+    <img src="https://img.shields.io/badge/Direction-RTL_Native-F59E0B?style=flat-square" alt="RTL Native">
   </p>
 </div>
 
+<br />
+
+> **The Living Hebrew Journey** — explore a beautifully crafted, evidence-based learning environment with 240 exact semantic scenes that adapts to your language, your pacing, and your daily life in Israel. Privacy is built-in; your progress stays local by default until you decide to back it up.
+
+## 🏛️ Learning Hubs & Experience Depth
+
 <p align="center">
-  <a href="https://ivritsheli-production.up.railway.app/?lang=en"><strong>🌐 Open the verified Ivrit Sheli 2.4.0 Contest Edition</strong></a>
+  <img src="assets/readme/screenshots/hero_composed.jpg" width="100%" alt="Ivrit Sheli Learning Hubs Interface" />
 </p>
 
-### Source and live release truth
+The platform is organized into living, stable learning hubs. Their visible names prioritize clear actions, while internal routes provide semantic stability:
 
-| Surface | Verified state |
-|---|---|
-| Source and deployed application | `2.4.0` |
-| Release implementation commit | `03bf84b9268ff8be528c0fab3c670f9652ee23b0` |
-| Production storage/readiness | PostgreSQL · ready · 48 reviewed dictionary entries |
-| Deployment verification | Successful on 2026-07-21 |
-| Release verification | 151 unique backend tests + 62 frontend tests = 213 passed; main CI and CodeQL passed |
-| GitHub publication | [`v2.4.0`](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.4.0) is the published tag and GitHub Release |
-| Live account evidence | Identity-only Google sign-in, onboarding state and the authenticated session persisted across reload; logout returned to the English landing page and remained signed out after reload |
-| Live judge-path evidence | The English entry link and four-stop read-only guided tour passed production browser checks |
-| Remaining boundary | Re-login after logout, live GitHub authorization, live OpenAI/Workspace calls, two-real-user production isolation and backup restoration remain unclaimed |
-| Visual proof | The live English entry and tour are verified; README screenshots remain 2.1.x evidence and the full desktop/mobile/RTL/reduced-motion matrix is pending |
+- **Today (היום)** — Your daily starting point. Actionable phrases, retention algorithms, and daily flow.
+- **Alphabet Studio** — Foundation building. 22 base letters, 5 final forms, and vowel maps.
+- **Dictionary (מילון)** — Your semantic anchor. Root-based connections, exact trilingual translations, and audio.
+- **AI Coach (Beta)** — Real-time conversation simulation and grammatical feedback driven by offline-capable models.
+- **Settings** — Deep personalization. Switch between 14 aesthetic themes, toggle RTL interfaces, and manage your local data vault.
 
-The same conservative fields are available for portfolio/profile tooling in [`portfolio/project.json`](portfolio/project.json).
+Three persistent depths change how information is presented without hiding rooms or confusing the learner:
 
-<picture>
-  <source media="(max-width: 640px)" srcset="assets/readme/ivrit-sheli-2-mobile.png" />
-  <img src="assets/readme/ivrit-sheli-2-dashboard.png" width="100%" alt="Ivrit Sheli 2.1 read-only demo dashboard with adaptive Hebrew learning, focused practice and authenticated cloud controls" />
-</picture>
+- **Guided** — uses simpler language, removes complex grammatical terms, and keeps context visible.
+- **Explorer** — the balanced default: a calm, self-directed visit.
+- **Deep Dive** — exposes linguistic roots, transliteration details, exact stats, and advanced controls.
 
-<details>
-<summary><strong>📱 Open the verified mobile and Hebrew RTL views</strong></summary>
+## 🌍 Language, Themes and Accessibility
+
+<p align="center">
+  <img src="assets/readme/screenshots/themes_composed.jpg" width="100%" alt="Ivrit Sheli Language and Themes" />
+</p>
+
+<p align="center">
+  <img src="assets/readme/languages.svg" width="100%" alt="Languages Animation" />
+</p>
+
+- **Trilingual Core:** English, Spanish, and Hebrew interfaces working seamlessly together.
+- **RTL Architecture:** Genuine Right-to-Left document direction and `he-IL` formatting that respects the language.
+- **Expressive Aesthetics:** 14 distinct dark and light themes. 
+- **Accessibility First:** Keyboard-aware navigation, focus restoration, and mobile drawer behavior.
+- **Motion Polish:** Reduced-motion support across application transitions, elegant charts, and static repository artwork.
+
+---
+
+## 🚀 Live Staging & Deployment
+
+<p align="center">
+  <img src="assets/readme/deployment.svg" width="100%" alt="Deployment Animation" />
+</p>
+
+The 2.12.3 private candidate source is published on `main` and runs on a free Render service.
+That service is **verified staging for a private pilot, not production**: the gates in the
+table below were exercised against the live host on 2026-08-27, while the human gates —
+Hebrew-content acceptance and the first real learner — remain open.
+
+The latest published release is still **v2.12.2**; `2.12.3` is deliberately untagged.
+
+| Component | Status | Details |
+|---|---|---|
+| **Web service** | 🟢 Live (staging) | [ivrit-sheli-staging.onrender.com](https://ivrit-sheli-staging.onrender.com) — Render Free |
+| **Database** | 🟢 Live | Supabase PostgreSQL 17 over the IPv4 session pooler |
+| **Authentication** | 🟢 Live | Google OAuth 2.0 with PKCE (`S256`) and strict origin validation |
+| **Tagged release** | `v2.12.2` | `2.12.3` is published on `main` but deliberately untagged |
+
+> **The free plan sleeps.** Render Free suspends the service after 15 minutes without
+> traffic, and the next visitor waits while it wakes. Measured against the live host on
+> 2026-08-27: cold start **24 s**, `/health/ready` reporting `postgresql: true` and a
+> 240-entry dictionary, dashboard **3.9–4.2 s** once warm, demo session **2.9 s**. Open
+> the link yourself a minute before sharing it, or the first person to tap it meets a
+> blank screen and concludes the app is broken.
+
+## 📸 2.12.3 Visual Proof
+
+<p align="center">
+  <img src="assets/readme/proof/2.12.3/today-desktop-dark-es.webp" width="100%" alt="Spanish dark-theme Ivrit Sheli Today dashboard" />
+</p>
+<p align="center">
+  <img src="assets/readme/proof/2.12.3/ivrit-sheli-tour.gif" width="960" alt="Eight-second non-looping Ivrit Sheli tour showing the Spanish two-cup Today dashboard, light Alphabet Studio, dark linked dictionary, and Hebrew RTL Today dashboard." />
+</p>
+<p align="center"><em>An eight-second, non-looping tour built from four privacy-reviewed 2.12.3 candidate captures.</em></p>
 
 <table>
   <tr>
-    <td width="34%" align="center"><strong>Responsive mobile workspace</strong></td>
-    <td width="66%" align="center"><strong>Hebrew right-to-left workspace</strong></td>
+    <td width="40%" align="center"><strong>Responsive mobile flow</strong></td>
+    <td width="60%" align="center"><strong>Real Hebrew RTL layout</strong></td>
   </tr>
   <tr>
-    <td><img src="assets/readme/ivrit-sheli-2-mobile.png" width="100%" alt="Ivrit Sheli 2.1 mobile demo with the compact navigation and focused-session hero" /></td>
-    <td><img src="assets/readme/ivrit-sheli-2-hebrew-rtl.png" width="100%" alt="Ivrit Sheli 2.1 Hebrew interface rendered right to left with the demo learner workspace" /></td>
+    <td><img src="assets/readme/proof/2.12.3/today-phone-light-es.webp" width="100%" alt="Spanish light-theme mobile Today dashboard with the two-cup שתיים card, first-lesson action and bottom navigation." /></td>
+    <td><img src="assets/readme/proof/2.12.3/today-desktop-dark-he.webp" width="100%" alt="Hebrew RTL dark-theme Today dashboard with mirrored navigation and a two-coffee-cup שתיים learning card." /></td>
   </tr>
 </table>
-</details>
 
-> **Screenshot boundary:** these images show the deployed 2.1.x interface. The 2.4 English entry and read-only guided tour were verified directly in production, but refreshed desktop/mobile/RTL/reduced-motion README captures remain pending.
-
-## Why this project exists 💙
-
-Most language products make every learner follow the same path. Ivrit Sheli does the opposite: it converts the Hebrew you encounter at work, in Be'er Sheva, in messages, appointments, media, and daily conversations into an evolving personal curriculum.
-
-The system tracks what you recognize, what you can produce, where you hesitate, which grammar errors repeat, which situations matter, and which learning mode works best. Recommendations are explainable: the app tells you *why* it selected a word, exercise, mission, or speaking drill.
-
-## What changes in the 2.4.0 Contest Edition 🧭
-
-Version 2.4 adds a four-stop guided tour to the synthetic read-only demo. It navigates through an ephemeral illustrated First Steps lesson, visual dictionary, microphone word intelligence and adaptive progress without mutating shared demo data. A per-visit `?lang=en`, `?lang=es` or `?lang=he` override makes judge links and support captures deterministic without replacing a learner's saved language.
-
-The tour is built from the existing icon, motion, responsive, RTL and reduced-motion systems rather than a new visual dependency. On the security boundary, bearer/session/OAuth-state digests move to keyed BLAKE2b-256 while retaining their 64-character hexadecimal storage contract. Deployment intentionally rotates active session hashes. Google remains identity-only; 2.4 adds no Gmail, Drive or Calendar scope, provider, schema or dependency.
-
-These Contest Edition changes were implemented at commit `03bf84b9268ff8be528c0fab3c670f9652ee23b0`, are deployed on Railway as version `2.4.0`, and are published in tag and GitHub Release [`v2.4.0`](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.4.0).
-
-## Foundation inherited from the unreleased 2.3.0 candidate 🌤️
-
-Version 2.3 introduces a warm, light-first beginner journey built for learners who may be new to both Hebrew and technology. A short onboarding flow records level, interface language, learning goal and daily pace, then leads into a five-word first lesson using `שלום`, `תודה`, `בבקשה`, `כן` and `לא`. Onboarding, the current First Steps checkpoint and lesson completion are learner-profile state, so they persist in private SQLite or the authenticated PostgreSQL account instead of relying on browser-only storage. Existing learners bypass beginner onboarding without losing their exact saved level. The guided-mode preference is stored, but a distinct simplified/full-shell behavior remains a candidate follow-up.
-
-The bundled dictionary now contains exactly 48 reviewed A0/A1 visual concepts across greetings, family, home, food, transport, shopping and health. Each concept carries stable code-native visual metadata, accessible Hebrew/English/Spanish alternative text, niqqud, romanization, meanings and a practical trilingual example. Google identity-only sign-in is the beginner-facing option when configured, while GitHub remains available; both use provider-bound single-use state and S256 PKCE, and neither stores provider bearer tokens or email addresses. Settings adds learner-data export and a two-step authenticated account deletion action.
-
-The 2.3 candidate was never tagged or published; its completed beginner journey is incorporated into the live 2.4.0 Contest Edition.
-
-## What changed in 2.2.0 🎙️
-
-Version 2.2.0 turns pronunciation and vocabulary history into richer daily learning tools. Learners can keep a device-persisted masculine-style or feminine-style synthetic voice profile, record exactly one Hebrew word, and receive clearly sourced dictionary facts with English/Spanish meanings, grammar, forms, examples and optional consent-gated AI enrichment. Microphone permission is user-triggered, app-managed word-analysis uploads are temporary, and transcripts cannot award XP or change mastery.
-
-The new saved-vocabulary registry makes every saved item searchable and filterable by status or review timing, with sorting, review counts, saved/activity dates and separate recognition, production, listening and speaking mastery. The dictionary now shows learning state, preserves homograph identity and atomically prevents new duplicate additions. Existing duplicate dictionary rows created before 2.2 are intentionally not auto-merged because their review histories need conservative reconciliation. A vector-only visual upgrade adds deeper surfaces, Hebrew letter constellations, refined navigation and restrained responsive motion while preserving RTL, high contrast and a fully stationary reduced-motion experience.
-
-## What changed in 2.1.1 🔐
-
-The 2.1.1 release was a focused safety, correctness, and accessibility update. Cloud AI and audio require stored learner consent before provider work begins; future reviews stay out of the due queue; dictionary readiness fails closed; SQLite upgrades run as atomic ordered migrations; and pronunciation history is recorded without letting an unverified client transcript change speaking mastery or XP.
-
-The review experience also behaves correctly with keyboards, screen readers, and reduced-motion preferences. Quick capture and dictionary dialogs trap and restore focus, hidden answer controls cannot be reached early, and recorded audio preserves its real MIME type and transcription-provider context. This release was merged and deployed before 2.2.0 and remains historical production evidence.
-
-## What changed in 2.1 🚆
-
-Version 2.1 established the Railway production path at [ivritsheli-production.up.railway.app](https://ivritsheli-production.up.railway.app). The HTTPS application, liveness, PostgreSQL-backed readiness, immutable release identity, structured startup/health logs, and seeded read-only demo were verified in production. GitHub OAuth reaches GitHub's consent screen and cancellation returns safely to the app; the final authorization-code exchange and authenticated-session flow remain explicitly unclaimed until completed in a normal browser.
-
-## What changed in 2.0 🚀
-
-Version 2.0 turns the complete local-first learning system into a deployment-ready, production-shaped full-stack product without sacrificing its private offline path.
-
-![Ivrit Sheli cloud architecture](assets/readme/cloud-architecture.svg)
-
-| Production capability | Verifiable implementation |
-|---|---|
-| Authentication | Google OpenID Connect or GitHub OAuth with provider-bound state, S256 PKCE, short-lived single-use attempts and keyed BLAKE2b-hashed server-side sessions |
-| Session security | Random bearers stored only as hashes; `HttpOnly`, `Secure`, `SameSite` cookies; logout revocation |
-| Demo boundary | Deterministic non-admin tenant with seeded data and server-enforced read-only mutations |
-| PostgreSQL | Users, sessions, OAuth state and one revisioned JSONB learner snapshot per authenticated user |
-| Authorization | Request-derived identity, explicit tenant predicates and forced PostgreSQL row-level security under a restricted runtime role |
-| Migrations | Alembic plus an idempotent provisioner; privileged migration and restricted runtime DSNs are separate |
-| Containers | Multi-stage React/Python image, unprivileged runtime user, health check and persistent Compose volumes |
-| Integration tests | Real PostgreSQL migration, persistence, session, cross-user isolation and RLS denial—not SQLite mocks |
-| Observability | One redacted JSON log per completed request with correlation ID, status, duration, version and build commit |
-| Operations | Independent liveness, readiness and immutable version endpoints plus explicit rollback/restore guidance |
-
-The public-demo design does not contain Kevin's private learning history: it uses synthetic seeded phrases and cannot permanently mutate shared state. Paid AI and Kevin's Google Workspace connector credentials remain separate from identity-only Google sign-in and must stay disabled until their identity allowlists and cost controls are explicitly verified.
-
-## What is included
-
-| Area | Included implementation |
-|---|---|
-| Learning | Capture, adaptive reviews, speaking drills, sentence creation, missions, reflections |
-| Personalization | Mastery model, mistake taxonomy, context frequency, confidence, latency, modality preference |
-| AI | Offline deterministic coach plus OpenAI Responses adapter with structured outputs and fallback |
-| Dictionary | 48 reviewed visual A0/A1 concepts, clickable Hebrew everywhere, trilingual meanings/examples, grammar/forms/provenance, learned state and duplicate prevention |
-| Word registry | Tenant-scoped search, status/due filters, sorting, review history, dates and four-skill mastery |
-| Full lexicon | One-command importer for the current Kaikki/Wiktionary Hebrew JSONL dataset |
-| Audio | Persistent synthetic voice styles, browser/OpenAI TTS, microphone one-word intelligence, consent-gated STT/AI, transparent scoring and ephemeral raw analysis audio |
-| Gamification | XP ledger, levels, streaks, achievements, badges, mission bonuses, anti-grind limits |
-| Integrations | Read-only Google Calendar, Gmail, and Drive adapters; ICS import; explicit consent gates |
-| Languages | Trilingual interface and content layers: Hebrew, English, Spanish |
-| UI | Warm light-first beginner shell, guided onboarding, first lesson, responsive RTL/LTR layouts, code-native illustrations and reduced-motion support |
-| Reliability | FastAPI error handling, request IDs, liveness/readiness/version probes, real PostgreSQL integration tests, CI |
-| Privacy | Local SQLite mode, isolated PostgreSQL tenants, read-only public demo, no analytics, explicit cloud consent |
-
-## Product loop
-
-![Adaptive learning loop](assets/readme/ai-learning-loop.svg)
-
-1. **Capture** a phrase, screenshot transcription, audio clip, or context.
-2. **Understand** niqqud, transliteration, grammar, root, register, and examples.
-3. **Practice** recognition, recall, listening, speaking, cloze, and free production.
-4. **Use** the phrase in a practical mission.
-5. **Reflect** on confidence and outcome.
-6. The private learner model updates recommendations without hiding the logic.
-
-## Run locally
-
-### Easiest Windows start 🟢
-
-Double-click [`START_IVRIT_SHELI.bat`](START_IVRIT_SHELI.bat) in the project folder.
-
-The launcher automatically:
-
-- Installs dependencies when needed.
-- Builds the latest interface.
-- Creates and seeds the private local database on first launch.
-- Keeps personal learning data in `%LOCALAPPDATA%\IvritSheli\data`, outside the OneDrive-synced source folder.
-- Starts one private server bound to `127.0.0.1`.
-- Opens Ivrit Sheli in your default browser.
-
-Keep the launcher window open while using the app. Press `Ctrl+C` in that window to stop it safely; your progress remains stored locally. You can also launch it from PowerShell:
-
-```powershell
-.\scripts\start.ps1
-```
-
-The default address is `http://127.0.0.1:8000`. If that port is busy, the launcher selects the next available local port and opens the correct address automatically.
-
-### Requirements
-
-- Python 3.10+
-- Node.js 20.19+; Node.js 22 LTS is recommended
-- npm 10+
-- SQLite with FTS5 support
-
-PostgreSQL is required only for authenticated cloud mode. Docker Compose provides PostgreSQL 17 automatically.
-
-### One-command setup on macOS/Linux
-
-```bash
-./scripts/setup.sh
-./scripts/run-dev.sh
-```
-
-Then open `http://127.0.0.1:5173`.
-
-### Windows development mode
-
-```powershell
-.\scripts\setup.ps1
-.\scripts\run-dev.ps1
-```
-
-Development mode uses hot reload and opens at `http://127.0.0.1:5173`.
-
-### Manual setup
-
-```bash
-# Backend
-python -m venv .venv
-source .venv/bin/activate
-pip install -r backend/requirements.txt
-PYTHONPATH=backend/src python -m ivrit_sheli --init --seed
-uvicorn ivrit_sheli.api:app --app-dir backend/src --reload --port 8000
-
-# Frontend, in a second terminal
-cd frontend
-npm ci
-npm run dev
-```
-
-### Docker
-
-```bash
-docker compose config --quiet
-docker compose up --build --wait
-```
-
-Then open `http://127.0.0.1:8000` and enter the seeded read-only demo. Compose builds the React frontend, runs Alembic and provisions the direct least-privilege `ivrit_sheli_runtime` login against PostgreSQL 17, starts the non-root FastAPI container and waits for `/health/ready`.
-
-```bash
-curl http://127.0.0.1:8000/health/live
-curl http://127.0.0.1:8000/health/ready
-curl http://127.0.0.1:8000/version
-```
-
-The checked-in Compose secrets and separate administrator/runtime database passwords are local-development values only. Production variables and Railway deployment are documented in [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
-
-## Authentication and ownership 🔐
-
-Local-first mode remains writable without an online account. Cloud mode requires an authenticated session and never accepts a client-supplied owner ID.
-
-- **Google sign-in:** identity-only `openid profile`, provider-bound state + S256 PKCE, no Gmail/Drive/Calendar permission, and no stored email or bearer token.
-- **GitHub sign-in:** secondary identity-only `read:user` OAuth, provider-bound state + S256 PKCE, and no repository permission.
-- **Private sessions:** session and CSRF tokens are random; only their hashes are durable.
-- **Bounded public surface:** layered client/global auth limits, per-user write and session caps, and a 4 MiB cloud-snapshot ceiling limit abuse and storage growth.
-- **Tenant storage:** one PostgreSQL learner state per user with explicit ownership and forced RLS.
-- **Read-only demo:** synthetic seeded data, no admin rights and `403` on private mutations.
-- **Logout:** server-side revocation, not merely browser cookie removal.
-- **Account control:** authenticated learners can export their state and permanently delete the account with an explicit two-step confirmation.
-- **Cloud continuity:** the private SQLite launcher remains available when a hosting service is offline.
-
-## Full Hebrew dictionary
-
-The package contains a reviewed 48-concept A0/A1 starter layer so useful visual Hebrew works immediately. To install the broader machine-readable Hebrew dictionary:
-
-```bash
-source .venv/bin/activate
-PYTHONPATH=backend/src python -m ivrit_sheli \
-  --download-dictionary \
-  --dictionary-url "https://kaikki.org/dictionary/Hebrew/kaikki.org-dictionary-Hebrew.jsonl"
-```
-
-Or import an existing file:
-
-```bash
-PYTHONPATH=backend/src python -m ivrit_sheli \
-  --dictionary-jsonl data/imports/kaikki.org-dictionary-Hebrew.jsonl
-```
-
-The importer streams JSONL instead of loading it into memory. Entries retain provenance and license metadata. Every Hebrew token can open the dictionary; inflected forms and roots are cross-linked and clickable. Dictionary-derived content must keep its Wiktionary/Kaikki attribution and share-alike notices; see [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
-
-## AI configuration
-
-The app is fully usable with `AI_PROVIDER=offline`. Online AI is optional and never receives content without an explicit user action.
-
-```bash
-cp .env.example .env
-# Add OPENAI_API_KEY locally; never commit it.
-```
-
-Implemented AI functions:
-
-- Sentence correction with mistake categories.
-- Naturalness and register analysis.
-- Niqqud and transliteration assistance.
-- Grammar, root, and word-family explanation.
-- Personalized exercise generation.
-- Contextual dialogue and role-play.
-- Weekly learning-plan generation.
-- Real-life mission generation.
-- Conversation summarization into learning items.
-- Semantic recommendation support through embeddings.
-- Feedback-aware prompt context from the private learner model.
-
-The OpenAI adapter uses the Responses API with strict structured JSON output. The configured default is `gpt-5.6-luna`, and it remains editable in `.env`. When a provider is unavailable, every endpoint returns a working offline result with `degraded_mode: true` instead of crashing.
-
-## Audio system
-
-The application supports three layers:
-
-1. **Browser speech synthesis** for zero-key pronunciation playback.
-2. **OpenAI text-to-speech** for generated voice files when configured.
-3. **OpenAI speech-to-text** or browser speech recognition for speaking attempts.
-
-Choose a persistent masculine-style or feminine-style synthetic profile. Browser playback selects a deterministic installed Hebrew voice plus a pitch fallback; cloud playback maps the style to server-controlled provider voice IDs. These labels describe a synthetic presentation preference, not the identity or gender of a real speaker.
-
-The microphone word-intelligence card accepts one Hebrew word from browser recognition, optional cloud transcription, or manual entry. It returns source-labeled dictionary meanings, translations, grammar, forms and examples, with optional consent-gated AI enrichment. Ivrit Sheli does not receive or retain browser-recognition audio, although the browser or operating-system speech provider's policy may apply. App-managed cloud uploads are deleted after processing; the configured provider's policy remains separate. This analysis cannot award XP or update mastery.
-
-Pronunciation scoring is deliberately transparent. It compares normalized transcription, word coverage, sequence similarity, and omitted/extra words. It does **not** claim phoneme-level clinical accuracy.
-
-## Personalization connectors
-
-All connectors are disabled by default and read-only:
-
-- **Calendar:** upcoming contexts can produce relevant phrase packs, such as medical, work, travel, or bureaucracy vocabulary.
-- **Gmail:** only explicitly selected message snippets are converted into learning material.
-- **Drive:** only explicitly selected documents are processed.
-- **ICS:** local calendar files can be imported without a cloud connection.
-
-The app stores connector state and consent inside the active learner boundary: local SQLite in private mode or that authenticated user's PostgreSQL tenant snapshot in cloud mode. See [`docs/CONNECTORS.md`](docs/CONNECTORS.md).
-
-## XP and achievements
-
-XP rewards language outcomes, not screen tapping.
-
-| Action | Base XP |
-|---|---:|
-| Correct review | 10 |
-| Difficult item mastered | 18 |
-| Speaking attempt completed | 20 |
-| Real-life mission completed | 50 |
-| Reflection recorded | 12 |
-| New phrase used successfully | 65 |
-| Weekly plan completed | 100 |
-
-Daily anti-grind limits reduce exploitative repetition. Streaks use grace rules and never punish Shabbat or a configured weekly rest period.
-
-Implemented achievements:
-
-- First Word — save the first learning item.
-- Seven-Day Flow — sustain a seven-day meaningful-practice streak.
-- Voice Builder — complete 25 speaking attempts.
-- Word Explorer — save 100 distinct active dictionary words.
-- Israel in Action — complete 10 real-life missions successfully.
-- Three-Language Mind — use all three interface languages.
-
-## Test everything
-
-The locally verified 2.4.0 source passes **151 unique backend tests + 62 frontend tests = 213 passing automated tests**. The ordinary backend run reports 150 passed and one credential-gated PostgreSQL skip; the dedicated PostgreSQL 17 gate passes all three database-boundary tests, two already represented in the ordinary suite and one replacing that skip. Ruff, strict MyPy across 24 source files, compileall, offline doctor, pip-audit, TypeScript, Vite, npm production audit, package verification and the production-shaped Docker/Compose smoke all pass locally. Separately, Railway production reports 2.4.0 with PostgreSQL and all 48 reviewed dictionary entries ready; the English judge path, identity-only Google sign-in, onboarding/session persistence across reload and logout were verified in a normal browser.
-
-```bash
-./scripts/test-all.sh
-```
-
-Or separately:
-
-```bash
-PYTHONPATH=backend/src pytest backend/tests -q
-cd frontend && npm test -- --run
-cd frontend && npm run build
-docker compose up --build --wait
-```
-
-External APIs are tested through deterministic HTTP fakes. Live credentials are never required for CI. Use the explicit opt-in smoke test after adding credentials:
-
-```bash
-PYTHONPATH=backend/src python -m ivrit_sheli --doctor --live
-```
-
-See [`TEST_REPORT.md`](TEST_REPORT.md) for the commands and results produced for this package.
-
-## Repository map
-
-```text
-IvritSheli/
-├── .github/                    # CI and dependency-update automation
-├── assets/                     # Brand, README art, achievement badges
-├── backend/
-│   ├── src/ivrit_sheli/        # API, engines, repositories, connectors, CLI
-│   ├── migrations/             # Versioned PostgreSQL Alembic schema
-│   └── tests/                  # Unit and integration tests
-├── frontend/
-│   ├── public/                 # PWA manifest and app icon
-│   └── src/                    # React + TypeScript UI
-├── data/                       # Local databases, imports, audio, backups
-├── docs/                       # Detailed product and engineering guides
-├── scripts/                    # Setup, run, test, and verification scripts
-├── Dockerfile
-├── docker-compose.yml
-├── railway.toml                # Deployment, migration and health policy
-├── Makefile
-├── PRIVACY.md                  # Hosted-service privacy notice
-├── TERMS.md                    # Hosted-service terms of use
-└── README.md
-```
-
-## Documentation
-
-- [`docs/ULTIMATE_BUILD_SPEC.md`](docs/ULTIMATE_BUILD_SPEC.md) — complete product instructions and acceptance criteria.
-- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — boundaries, data flow, schema, and failure modes.
-- [`docs/AI_ENGINE.md`](docs/AI_ENGINE.md) — provider design, schemas, fallback, and learner feedback loop.
-- [`docs/DICTIONARY.md`](docs/DICTIONARY.md) — import pipeline, clickable Hebrew, provenance, and licensing.
-- [`docs/AUDIO.md`](docs/AUDIO.md) — recording, TTS, STT, scoring, and privacy.
-- [`docs/GAMIFICATION.md`](docs/GAMIFICATION.md) — XP economy, achievements, streaks, and anti-abuse rules.
-- [`docs/PERSONALIZATION.md`](docs/PERSONALIZATION.md) — learner model and explainable recommendations.
-- [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md) — colors, icons, animation, RTL, and accessibility.
-- [`docs/CONNECTORS.md`](docs/CONNECTORS.md) — Google/ICS setup and consent rules.
-- [`docs/API.md`](docs/API.md) — endpoint catalog.
-- [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) — local, Docker, and production hardening.
-- [`docs/USER_GUIDE.md`](docs/USER_GUIDE.md) — complete learner and administrator workflow.
-- [`docs/DEMO_DAY.md`](docs/DEMO_DAY.md) — fallback demo flow and live presentation plan.
-- [`docs/VIDEO_SCRIPT.md`](docs/VIDEO_SCRIPT.md) — reviewed under-three-minute Build Week narration, storyboard, and claim boundaries.
-- [`docs/BUILD_WEEK.md`](docs/BUILD_WEEK.md) — pre-existing product foundation, v2.3 sprint, v2.4 contest finish, AI collaboration and evidence boundaries.
-- [`PACKAGE_MANIFEST.md`](PACKAGE_MANIFEST.md) — exact release contents and credential boundaries.
-- [`TEST_REPORT.md`](TEST_REPORT.md) — commands, results, and honest limitations.
-- [`SECURITY.md`](SECURITY.md) — session, tenant, logging, secret-management, reporting, and incident controls.
-- [`PRIVACY.md`](PRIVACY.md) — learner data, sign-in, microphone and account-control policy.
-- [`TERMS.md`](TERMS.md) — public pilot terms and educational limitations.
-
-## Privacy promise 🔒
-
-- No account required for private local-first mode.
-- Cloud identities are limited to the selected provider's user ID plus display name, avatar and GitHub login when applicable; Google email and all provider bearer tokens are excluded from durable identity records.
-- Public demo content is synthetic, tenant-isolated and read-only.
-- No advertising or behavioral analytics.
-- No secret keys in frontend code.
-- No cloud synchronization by default.
-- No automatic email/document ingestion.
-- Learner data can be exported as JSON; the 2.4 deployment includes authenticated two-step self-service cloud-account deletion.
-- External requests are labeled before content leaves the device.
-
-## Project status
-
-Version 2.4.0 is live at [ivritsheli-production.up.railway.app](https://ivritsheli-production.up.railway.app/?lang=en) and published as Git tag and GitHub Release [`v2.4.0`](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.4.0). The release implementation at `03bf84b9268ff8be528c0fab3c670f9652ee23b0` deployed successfully on 2026-07-21; later release-evidence and documentation commits do not change the application version. PostgreSQL readiness and all 48 reviewed dictionary entries passed. The English entry, read-only guided tour, identity-only Google sign-in, onboarding/session persistence across reload, logout and signed-out persistence after reload were verified in a normal browser. Re-login after logout, live GitHub authorization, live OpenAI or Google Workspace connector calls, two-real-user production isolation, refreshed 2.4 mobile/RTL/reduced-motion screenshots and backup restoration remain separate unclaimed operator checks.
-
-Passing tests and healthy local production-image checks materially reduce risk but do not prove that software is defect-free. Operational limits, credential-dependent checks and restore requirements are documented explicitly rather than hidden behind a perfect-score claim.
-
-## License
-
-Application source code and Ivrit Sheli UI graphics: MIT. Dictionary-derived data uses separate Wiktionary/Kaikki terms. The personal `KC ✦ LT` identity mark is reserved and excluded from the MIT asset grant. See [`LICENSE`](LICENSE) and [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
-
-<div align="center">
-  <img src="assets/brand/kc-lt-signature.svg" alt="KC star LT — Kevin Cusnir and Lirioth Teltanion signature" width="230" />
-  <p><sub>Designed, engineered and signed by Kevin Cusnir · Lirioth Teltanion 💙</sub></p>
-</div>
+<table>
+  <tr>
+    <td width="50%" align="center"><strong>Alphabet Studio</strong></td>
+    <td width="50%" align="center"><strong>Linked dictionary</strong></td>
+  </tr>
+  <tr>
+    <td><img src="assets/readme/proof/2.12.3/alphabet-desktop-light-es.webp" width="100%" alt="Spanish light-theme Alphabet Studio in Ivrit Sheli, explaining 22 Hebrew base letters plus 5 positional final forms." /></td>
+    <td><img src="assets/readme/proof/2.12.3/dictionary-desktop-dark-es.webp" width="100%" alt="Spanish dark-theme linked dictionary workspace in Ivrit Sheli with an empty multilingual Hebrew search field." /></td>
+  </tr>
+</table>
+
+These five WebP assets were captured on 2026-08-27 Asia/Jerusalem from a fresh,
+generic local learner with no personal progress. Every image was reviewed at
+full size, at GitHub display scale and in grayscale. The GIF was rendered twice
+to byte-identical output, checked at four representative frames, and contains
+no loop extension. Hashes, physical dimensions, source PNG hashes, locale,
+direction, viewport, timestamps, privacy findings, process provenance and the
+dirty-tree boundary are recorded in the
+[`2.12.3 candidate visual-proof manifest`](assets/readme/proof/2.12.3/manifest.json).
+The immutable
+[`2.12.2 published visual record`](assets/readme/proof/2.12.2/manifest.json)
+remains preserved separately; the older 17-PNG candidate set is not presented
+as current proof.
+
+
+## ⚡ Tech Stack & Architecture
+
+<p align="center">
+  <img src="assets/readme/architecture.svg" width="100%" alt="Architecture Animation" />
+</p>
+
+Ivrit Sheli is designed as a local-first offline-capable PWA with a resilient cloud backup backend.
+
+- **Frontend:** React 19, TypeScript, Vite, IndexedDB (Dexie) for local-first storage.
+- **Styling:** Vanilla CSS variables, responsive fluid typography, and native RTL logic (`dir="rtl"`).
+- **Backend:** FastAPI, Python 3.12, SQLModel (Pydantic), strict OAuth2 stateless sessions.
+- **Database:** SQLite (local offline mode) & PostgreSQL 17 (Cloud sync).
+- **Infra:** Docker, Render (Live Web Service), Supabase (PostgreSQL with IPv4 Session Pooler).
+- **Testing:** 1000+ automated tests across Playwright, Vitest, and Pytest.
+
+
+## 📚 Documentation
+
+For deep technical dives, deployment runbooks, or local installation, please refer to the dedicated documentation:
+
+- [🚀 Installation Guide (INSTALL.md)](docs/INSTALL.md)
+- [🎨 Visual Bible & Brand](docs/VISUAL_BIBLE.md)
+- [🏗️ Architecture Deep Dive](docs/ARCHITECTURE.md)
+- [🌐 Live Deployment Rules](docs/DEPLOYMENT.md)
+- [🔒 Privacy & Data Ownership](PRIVACY.md)
+- [🧪 Test Reports](TEST_REPORT.md)
+
+## 👤 Author and License
+
+Built with ❤️ by **Kevin Cusnir / [Lirioth Teltanion](https://github.com/LiriothTeltanion)**.
+Released under the [MIT License](LICENSE).

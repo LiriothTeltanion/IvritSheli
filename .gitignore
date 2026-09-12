@@ -1,5 +1,8 @@
 # Secrets
 .env
+.env.local
+.env.*.local
+.env.admin
 *.pem
 credentials.json
 token.json
@@ -18,6 +21,19 @@ htmlcov/
 frontend/node_modules/
 frontend/dist/
 frontend/coverage/
+frontend/test-results/
+frontend/playwright-report/
+frontend/.playwright-cli/
+
+# Isolated, review-only browser captures. Promotion to public assets is manual.
+/output/playwright/readme-capture/
+
+# Local research and verification artifacts
+tmp/
+# Local package archives produced while testing the release bundle.
+IvritSheli-*.zip
+# Local agent/editor tooling configuration; machine-specific, not part of the product.
+.claude/
 
 # Local user data
 data/**/*.db*
@@ -28,6 +44,7 @@ data/**/*.sqlite*
 *.sqlite-shm
 data/audio/*
 data/private/*
+data/models/*
 data/imports/*.jsonl
 data/imports/*.jsonl.gz
 data/backups/*
@@ -38,3 +55,14 @@ data/backups/*
 .idea/
 .DS_Store
 Thumbs.db
+
+# Editable-install build metadata
+*.egg-info/
+
+# 2026-08-26: backups of the credential files, created when the quotes were
+# stripped. They hold the same secrets as .env itself.
+.env.bak
+.env.bak-*
+.env*.bak
+.env.admin.bak-*
+.env.*.bak

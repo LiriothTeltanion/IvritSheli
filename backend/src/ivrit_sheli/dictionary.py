@@ -21,9 +21,13 @@ import requests
 
 from ivrit_sheli import __version__
 from ivrit_sheli.normalization import normalize_hebrew
+from ivrit_sheli.starter_lexicon_v2 import EXPANDED_STARTER_ENTRIES
+from ivrit_sheli.starter_lexicon_v3 import LEARNING_EXPANSION_ENTRIES
+from ivrit_sheli.starter_lexicon_v4 import A2_EXPANSION_ENTRIES
+from ivrit_sheli.starter_lexicon_validation import validate_starter_vocabulary
 
 LOGGER = logging.getLogger(__name__)
-DICTIONARY_SCHEMA_VERSION = 2
+DICTIONARY_SCHEMA_VERSION = 3
 DEFAULT_DICTIONARY_URL = "https://kaikki.org/dictionary/Hebrew/kaikki.org-dictionary-Hebrew.jsonl"
 ALLOWED_DOWNLOAD_HOSTS = {"kaikki.org", "www.kaikki.org"}
 STARTER_SOURCE_NAME = "Ivrit Sheli reviewed starter vocabulary"
@@ -71,11 +75,13 @@ CREATE TABLE IF NOT EXISTS dictionary_senses (
     level TEXT,
     category TEXT,
     visual_key TEXT,
+    visual_id TEXT,
     visual_emoji TEXT,
     visual_alt_en TEXT,
     visual_alt_es TEXT,
     visual_alt_he TEXT,
     provenance TEXT,
+    reading_hints_json TEXT NOT NULL DEFAULT '[]',
     tags_json TEXT NOT NULL DEFAULT '[]',
     topics_json TEXT NOT NULL DEFAULT '[]'
 );
@@ -185,9 +191,9 @@ DEMO_ENTRIES: tuple[dict[str, Any], ...] = (
         level="A0",
         visual_key="greetings.hello",
         visual_emoji="👋",
-        visual_alt_en="A hand waving hello",
-        visual_alt_es="Una mano saludando",
-        visual_alt_he="יד מנופפת לשלום",
+        visual_alt_en="Two neighbors facing each other and waving hello",
+        visual_alt_es="Dos vecinos frente a frente saludándose con la mano",
+        visual_alt_he="שני שכנים עומדים זה מול זה ומנופפים לשלום",
         example_he="שָׁלוֹם, אֲנִי מִרְיָם.",
         example_en="Hello, I am Miriam.",
         example_es="Hola, soy Miriam.",
@@ -206,9 +212,9 @@ DEMO_ENTRIES: tuple[dict[str, Any], ...] = (
         level="A0",
         visual_key="greetings.thanks",
         visual_emoji="🙏",
-        visual_alt_en="Two hands together expressing thanks",
-        visual_alt_es="Dos manos juntas expresando agradecimiento",
-        visual_alt_he="שתי ידיים יחד בהבעת תודה",
+        visual_alt_en="Two neighbors sharing a small gift with gratitude",
+        visual_alt_es="Dos vecinos compartiendo un pequeño regalo con gratitud",
+        visual_alt_he="שני שכנים חולקים מתנה קטנה בהכרת תודה",
         example_he="תּוֹדָה עַל הָעֶזְרָה.",
         example_en="Thank you for the help.",
         example_es="Gracias por la ayuda.",
@@ -225,9 +231,9 @@ DEMO_ENTRIES: tuple[dict[str, Any], ...] = (
         level="A0",
         visual_key="greetings.please",
         visual_emoji="🤲",
-        visual_alt_en="Open hands making a polite request",
-        visual_alt_es="Manos abiertas haciendo una petición amable",
-        visual_alt_he="ידיים פתוחות בבקשה מנומסת",
+        visual_alt_en="Two neighbors politely passing a glass of water",
+        visual_alt_es="Dos vecinos pasando un vaso de agua con amabilidad",
+        visual_alt_he="שני שכנים מעבירים כוס מים בנימוס",
         example_he="מַיִם, בְּבַקָּשָׁה.",
         example_en="Water, please.",
         example_es="Agua, por favor.",
@@ -244,9 +250,9 @@ DEMO_ENTRIES: tuple[dict[str, Any], ...] = (
         level="A0",
         visual_key="greetings.yes",
         visual_emoji="✅",
-        visual_alt_en="A green check mark for yes",
-        visual_alt_es="Una marca verde para sí",
-        visual_alt_he="סימן אישור ירוק למילה כן",
+        visual_alt_en="A clear green check meaning yes",
+        visual_alt_es="Una marca verde clara que significa sí",
+        visual_alt_he="סימן וי ירוק שמשמעו כן",
         example_he="כֵּן, אֲנִי מוּכָנָה.",
         example_en="Yes, I am ready.",
         example_es="Sí, estoy lista.",
@@ -263,9 +269,9 @@ DEMO_ENTRIES: tuple[dict[str, Any], ...] = (
         level="A0",
         visual_key="greetings.no",
         visual_emoji="❌",
-        visual_alt_en="A red cross for no",
-        visual_alt_es="Una cruz roja para no",
-        visual_alt_he="סימן איקס אדום למילה לא",
+        visual_alt_en="A gentle coral cross meaning no",
+        visual_alt_es="Una cruz coral amable que significa no",
+        visual_alt_he="סימן איקס בצבע אלמוג שמשמעו לא",
         example_he="לֹא, תּוֹדָה.",
         example_en="No, thank you.",
         example_es="No, gracias.",
@@ -282,9 +288,9 @@ DEMO_ENTRIES: tuple[dict[str, Any], ...] = (
         level="A0",
         visual_key="greetings.excuse_me",
         visual_emoji="🙇",
-        visual_alt_en="A person bowing politely",
-        visual_alt_es="Una persona inclinándose con respeto",
-        visual_alt_he="אדם קד בנימוס",
+        visual_alt_en="A passenger politely asking another person to make space on a city bus",
+        visual_alt_es="Un pasajero pide con amabilidad que otra persona le deje pasar en un autobús",
+        visual_alt_he="נוסע מבקש בנימוס מאדם אחר לפנות מעבר באוטובוס עירוני",
         example_he="סְלִיחָה, אֵיפֹה הַתַּחֲנָה?",
         example_en="Excuse me, where is the station?",
         example_es="Disculpe, ¿dónde está la estación?",
@@ -301,9 +307,9 @@ DEMO_ENTRIES: tuple[dict[str, Any], ...] = (
         level="A0",
         visual_key="greetings.good_morning",
         visual_emoji="🌅",
-        visual_alt_en="The sun rising in the morning",
-        visual_alt_es="El sol saliendo por la mañana",
-        visual_alt_he="השמש זורחת בבוקר",
+        visual_alt_en="Two people greet each other over breakfast as the sun rises through a window",
+        visual_alt_es="Dos personas se saludan durante el desayuno mientras sale el sol por la ventana",
+        visual_alt_he="שני אנשים מברכים זה את זה בארוחת הבוקר כשהשמש זורחת בחלון",
         example_he="בּוֹקֶר טוֹב, אִמָּא.",
         example_en="Good morning, Mom.",
         example_es="Buenos días, mamá.",
@@ -320,9 +326,9 @@ DEMO_ENTRIES: tuple[dict[str, Any], ...] = (
         level="A0",
         visual_key="greetings.goodbye",
         visual_emoji="🚪",
-        visual_alt_en="An open door for saying goodbye",
-        visual_alt_es="Una puerta abierta para despedirse",
-        visual_alt_he="דלת פתוחה לפרידה",
+        visual_alt_en="Two friends wave goodbye as one walks toward a departing bus",
+        visual_alt_es="Dos amigos se despiden con la mano mientras uno camina hacia un autobús que parte",
+        visual_alt_he="שני חברים מנופפים לשלום כשאחד הולך אל אוטובוס שיוצא",
         example_he="לְהִתְרָאוֹת מָחָר.",
         example_en="See you tomorrow.",
         example_es="Hasta mañana.",
@@ -339,9 +345,9 @@ DEMO_ENTRIES: tuple[dict[str, Any], ...] = (
         level="A0",
         visual_key="family.mother",
         visual_emoji="👩",
-        visual_alt_en="A mother",
-        visual_alt_es="Una madre",
-        visual_alt_he="אמא",
+        visual_alt_en="A family relationship diagram highlights the mother above her child",
+        visual_alt_es="Un diagrama familiar destaca a la madre sobre su hijo",
+        visual_alt_he="תרשים משפחתי מדגיש את האם מעל הילד",
         example_he="אִמָּא שֶׁלִּי בַּבַּיִת.",
         example_en="My mother is at home.",
         example_es="Mi madre está en casa.",
@@ -359,9 +365,9 @@ DEMO_ENTRIES: tuple[dict[str, Any], ...] = (
         level="A0",
         visual_key="family.father",
         visual_emoji="👨",
-        visual_alt_en="A father",
-        visual_alt_es="Un padre",
-        visual_alt_he="אבא",
+        visual_alt_en="A family relationship diagram highlights the father above his child",
+        visual_alt_es="Un diagrama familiar destaca al padre sobre su hijo",
+        visual_alt_he="תרשים משפחתי מדגיש את האב מעל הילד",
         example_he="אַבָּא שֶׁלִּי שׁוֹתֶה קָפֶה.",
         example_en="My father drinks coffee.",
         example_es="Mi padre toma café.",
@@ -379,9 +385,9 @@ DEMO_ENTRIES: tuple[dict[str, Any], ...] = (
         level="A0",
         visual_key="family.brother",
         visual_emoji="👦",
-        visual_alt_en="A brother",
-        visual_alt_es="Un hermano",
-        visual_alt_he="אח",
+        visual_alt_en="A family relationship diagram highlights a brother beside his sibling",
+        visual_alt_es="Un diagrama familiar destaca a un hermano junto a su hermano o hermana",
+        visual_alt_he="תרשים משפחתי מדגיש אח לצד אחיו או אחותו",
         example_he="יֵשׁ לִי אָח אֶחָד.",
         example_en="I have one brother.",
         example_es="Tengo un hermano.",
@@ -399,9 +405,9 @@ DEMO_ENTRIES: tuple[dict[str, Any], ...] = (
         level="A0",
         visual_key="family.sister",
         visual_emoji="👧",
-        visual_alt_en="A sister",
-        visual_alt_es="Una hermana",
-        visual_alt_he="אחות",
+        visual_alt_en="A family relationship diagram highlights a sister beside her sibling",
+        visual_alt_es="Un diagrama familiar destaca a una hermana junto a su hermano o hermana",
+        visual_alt_he="תרשים משפחתי מדגיש אחות לצד אחיה או אחותה",
         example_he="יֵשׁ לִי אָחוֹת אַחַת.",
         example_en="I have one sister.",
         example_es="Tengo una hermana.",
@@ -419,9 +425,9 @@ DEMO_ENTRIES: tuple[dict[str, Any], ...] = (
         level="A0",
         visual_key="family.grandmother",
         visual_emoji="👵",
-        visual_alt_en="A grandmother",
-        visual_alt_es="Una abuela",
-        visual_alt_he="סבתא",
+        visual_alt_en="A three-generation family diagram highlights the grandmother",
+        visual_alt_es="Un diagrama familiar de tres generaciones destaca a la abuela",
+        visual_alt_he="תרשים משפחתי בן שלושה דורות מדגיש את הסבתא",
         example_he="סַבְתָּא שֶׁלִּי מְדַבֶּרֶת עִבְרִית.",
         example_en="My grandmother speaks Hebrew.",
         example_es="Mi abuela habla hebreo.",
@@ -439,9 +445,9 @@ DEMO_ENTRIES: tuple[dict[str, Any], ...] = (
         level="A0",
         visual_key="family.grandfather",
         visual_emoji="👴",
-        visual_alt_en="A grandfather",
-        visual_alt_es="Un abuelo",
-        visual_alt_he="סבא",
+        visual_alt_en="A three-generation family diagram highlights the grandfather",
+        visual_alt_es="Un diagrama familiar de tres generaciones destaca al abuelo",
+        visual_alt_he="תרשים משפחתי בן שלושה דורות מדגיש את הסבא",
         example_he="סַבָּא שֶׁלִּי גָּר בְּחֵיפָה.",
         example_en="My grandfather lives in Haifa.",
         example_es="Mi abuelo vive en Haifa.",
@@ -459,9 +465,9 @@ DEMO_ENTRIES: tuple[dict[str, Any], ...] = (
         level="A0",
         visual_key="family.family",
         visual_emoji="👪",
-        visual_alt_en="A family together",
-        visual_alt_es="Una familia reunida",
-        visual_alt_he="משפחה ביחד",
+        visual_alt_en="A warm multi-generation family diagram with every relative connected",
+        visual_alt_es="Un cálido diagrama familiar multigeneracional con todos conectados",
+        visual_alt_he="תרשים משפחתי חם ורב דורי שבו כולם מחוברים",
         example_he="הַמִּשְׁפָּחָה שֶׁלִּי גְּדוֹלָה.",
         example_en="My family is big.",
         example_es="Mi familia es grande.",
@@ -479,9 +485,9 @@ DEMO_ENTRIES: tuple[dict[str, Any], ...] = (
         level="A0",
         visual_key="home.house",
         visual_emoji="🏠",
-        visual_alt_en="A small house",
-        visual_alt_es="Una casa pequeña",
-        visual_alt_he="בית קטן",
+        visual_alt_en="A person approaches a whole house in an Israeli neighborhood",
+        visual_alt_es="Una persona se acerca a una casa completa en un barrio israelí",
+        visual_alt_he="אדם מתקרב לבית שלם בשכונה ישראלית",
         example_he="זֶה הַבַּיִת שֶׁלִּי.",
         example_en="This is my house.",
         example_es="Esta es mi casa.",
@@ -499,9 +505,9 @@ DEMO_ENTRIES: tuple[dict[str, Any], ...] = (
         level="A0",
         visual_key="home.room",
         visual_emoji="🚪",
-        visual_alt_en="A door leading into a room",
-        visual_alt_es="Una puerta que lleva a una habitación",
-        visual_alt_he="דלת שמובילה לחדר",
+        visual_alt_en="A cutaway bedroom with four walls, a bed, a desk and a lamp",
+        visual_alt_es="Una habitación vista por dentro con cuatro paredes, cama, escritorio y lámpara",
+        visual_alt_he="חדר שינה פתוח למבט עם ארבעה קירות, מיטה, שולחן ומנורה",
         example_he="הַחֶדֶר שֶׁלִּי קָטָן.",
         example_en="My room is small.",
         example_es="Mi habitación es pequeña.",
@@ -599,9 +605,9 @@ DEMO_ENTRIES: tuple[dict[str, Any], ...] = (
         level="A0",
         visual_key="home.key",
         visual_emoji="🔑",
-        visual_alt_en="A key for opening a door",
-        visual_alt_es="Una llave para abrir una puerta",
-        visual_alt_he="מפתח לפתיחת דלת",
+        visual_alt_en="A hand turns a key inside the lock of a front door",
+        visual_alt_es="Una mano gira una llave dentro de la cerradura de una puerta principal",
+        visual_alt_he="יד מסובבת מפתח בתוך המנעול של דלת הכניסה",
         example_he="אֵיפֹה הַמַּפְתֵּחַ?",
         example_en="Where is the key?",
         example_es="¿Dónde está la llave?",
@@ -619,9 +625,9 @@ DEMO_ENTRIES: tuple[dict[str, Any], ...] = (
         level="A0",
         visual_key="food.water",
         visual_emoji="💧",
-        visual_alt_en="A drop of water",
-        visual_alt_es="Una gota de agua",
-        visual_alt_he="טיפת מים",
+        visual_alt_en="A kitchen tap fills a transparent glass with clear water",
+        visual_alt_es="Un grifo de cocina llena un vaso transparente con agua clara",
+        visual_alt_he="ברז מטבח ממלא כוס שקופה במים צלולים",
         example_he="אֲנִי רוֹצָה מַיִם.",
         example_en="I want water.",
         example_es="Quiero agua.",
@@ -738,9 +744,9 @@ DEMO_ENTRIES: tuple[dict[str, Any], ...] = (
         level="A0",
         visual_key="food.food",
         visual_emoji="🍲",
-        visual_alt_en="A bowl of prepared food",
-        visual_alt_es="Un plato de comida preparada",
-        visual_alt_he="קערת אוכל מוכן",
+        visual_alt_en="A prepared meal with a plate, pita, salad and vegetables on the table",
+        visual_alt_es="Una comida preparada con plato, pita, ensalada y verduras sobre la mesa",
+        visual_alt_he="ארוחה מוכנה עם צלחת, פיתה, סלט וירקות על השולחן",
         example_he="הָאֹכֶל טָעִים.",
         example_en="The food is tasty.",
         example_es="La comida está rica.",
@@ -758,9 +764,9 @@ DEMO_ENTRIES: tuple[dict[str, Any], ...] = (
         level="A0",
         visual_key="food.hungry",
         visual_emoji="😋",
-        visual_alt_en="A hungry face ready to eat",
-        visual_alt_es="Una cara con hambre lista para comer",
-        visual_alt_he="פנים רעבות שמוכנות לאכול",
+        visual_alt_en="A person holds an empty stomach beside an empty plate and imagines food",
+        visual_alt_es="Una persona se sostiene el estómago junto a un plato vacío e imagina comida",
+        visual_alt_he="אדם מחזיק בבטן ליד צלחת ריקה ומדמיין אוכל",
         example_he="הוּא רָעֵב.",
         example_en="He is hungry.",
         example_es="Él tiene hambre.",
@@ -1118,10 +1124,10 @@ DEMO_ENTRIES: tuple[dict[str, Any], ...] = (
         category="health",
         level="A1",
         visual_key="health.help",
-        visual_emoji="🆘",
-        visual_alt_en="An emergency help sign",
-        visual_alt_es="Una señal de ayuda de emergencia",
-        visual_alt_he="סימן לעזרה דחופה",
+        visual_emoji="🤝",
+        visual_alt_en="One person reaches out to help another stand up",
+        visual_alt_es="Una persona tiende la mano para ayudar a otra a levantarse",
+        visual_alt_he="אדם מושיט יד ועוזר לאדם אחר לקום",
         example_he="אֲנִי צְרִיכָה עֶזְרָה.",
         example_en="I need help.",
         example_es="Necesito ayuda.",
@@ -1129,6 +1135,14 @@ DEMO_ENTRIES: tuple[dict[str, Any], ...] = (
         gender="feminine",
     ),
 )
+
+# Keep the original 48 source identities stable, then add the reviewed v2.5
+# and v2.8 layers. Existing databases are updated in place and receive only
+# missing rows.
+DEMO_ENTRIES += EXPANDED_STARTER_ENTRIES
+DEMO_ENTRIES += LEARNING_EXPANSION_ENTRIES
+DEMO_ENTRIES += A2_EXPANSION_ENTRIES
+validate_starter_vocabulary(DEMO_ENTRIES)
 
 
 @dataclass(frozen=True, slots=True)
@@ -1166,7 +1180,7 @@ class DictionaryStore:
 
     Example:
         >>> store = DictionaryStore(Path(":memory:")); store.initialize(); store.seed_demo()
-        48
+        96
     """
 
     def __init__(self, path: Path) -> None:
@@ -1240,11 +1254,13 @@ class DictionaryStore:
                 "level TEXT",
                 "category TEXT",
                 "visual_key TEXT",
+                "visual_id TEXT",
                 "visual_emoji TEXT",
                 "visual_alt_en TEXT",
                 "visual_alt_es TEXT",
                 "visual_alt_he TEXT",
                 "provenance TEXT",
+                "reading_hints_json TEXT NOT NULL DEFAULT '[]'",
             ):
                 self._ensure_column(connection, "dictionary_senses", column_definition)
             self._ensure_column(connection, "dictionary_examples", "translation_es TEXT")
@@ -1271,17 +1287,19 @@ class DictionaryStore:
 
     @staticmethod
     def _ensure_column(connection: sqlite3.Connection, table: str, column_definition: str) -> None:
-        """Add one allow-listed schema-v2 column to an older dictionary database."""
+        """Add one allow-listed dictionary column to an older database."""
         allowed_definitions = {
             "dictionary_senses": {
                 "level TEXT",
                 "category TEXT",
                 "visual_key TEXT",
+                "visual_id TEXT",
                 "visual_emoji TEXT",
                 "visual_alt_en TEXT",
                 "visual_alt_es TEXT",
                 "visual_alt_he TEXT",
                 "provenance TEXT",
+                "reading_hints_json TEXT NOT NULL DEFAULT '[]'",
             },
             "dictionary_examples": {"translation_es TEXT"},
         }
@@ -1295,7 +1313,7 @@ class DictionaryStore:
             connection.execute(f"ALTER TABLE {table} ADD COLUMN {column_definition}")
 
     def seed_demo(self) -> int:
-        """Install the reviewed 48-concept visual starter vocabulary.
+        """Install the reviewed 240-concept visual starter vocabulary.
 
         Returns:
             Number of new entries inserted.
@@ -1373,9 +1391,9 @@ class DictionaryStore:
                     """
                     INSERT INTO dictionary_senses(
                         entry_id, sense_order, gloss_en, gloss_es, level, category,
-                        visual_key, visual_emoji, visual_alt_en, visual_alt_es,
-                        visual_alt_he, provenance, tags_json, topics_json
-                    ) VALUES(?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        visual_key, visual_id, visual_emoji, visual_alt_en, visual_alt_es,
+                        visual_alt_he, provenance, reading_hints_json, tags_json, topics_json
+                    ) VALUES(?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
                         entry_id,
@@ -1384,11 +1402,13 @@ class DictionaryStore:
                         entry.get("level"),
                         entry.get("category"),
                         entry.get("visual_key"),
+                        entry.get("visual_id", entry.get("visual_key")),
                         entry.get("visual_emoji"),
                         entry.get("visual_alt_en"),
                         entry.get("visual_alt_es"),
                         entry.get("visual_alt_he"),
                         entry.get("provenance"),
+                        json.dumps(entry.get("reading_hints", []), ensure_ascii=False),
                         json.dumps(["beginner", str(entry.get("level", "")).lower()]),
                         json.dumps([entry.get("category")]),
                     ),
@@ -1431,7 +1451,7 @@ class DictionaryStore:
                 ).fetchall()
             }
             if not non_starter_sources:
-                dataset_name = "starter_visual_vocabulary_v1"
+                dataset_name = "starter_visual_vocabulary_v4"
                 dataset_license = STARTER_LICENSE
                 connection.execute(
                     "INSERT INTO dictionary_meta(key, value) VALUES('source_url', ?) "
@@ -1439,12 +1459,12 @@ class DictionaryStore:
                     (STARTER_SOURCE_URL,),
                 )
             elif non_starter_sources == {"Kaikki / English Wiktionary"}:
-                dataset_name = "Kaikki/Wiktionary Hebrew + starter_visual_vocabulary_v1"
+                dataset_name = "Kaikki/Wiktionary Hebrew + starter_visual_vocabulary_v4"
                 dataset_license = (
                     "Mixed per-entry licenses: MIT starter data; CC BY-SA 4.0 / GFDL Kaikki"
                 )
             else:
-                dataset_name = "mixed_with_starter_visual_vocabulary_v1"
+                dataset_name = "mixed_with_starter_visual_vocabulary_v4"
                 dataset_license = "Mixed dataset; see each entry's license_name"
             connection.execute(
                 "INSERT INTO dictionary_meta(key, value) VALUES('dataset', ?) "
@@ -1452,8 +1472,9 @@ class DictionaryStore:
                 (dataset_name,),
             )
             connection.execute(
-                "INSERT INTO dictionary_meta(key, value) VALUES('starter_entries', '48') "
-                "ON CONFLICT(key) DO UPDATE SET value = excluded.value"
+                "INSERT INTO dictionary_meta(key, value) VALUES('starter_entries', ?) "
+                "ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+                (str(len(DEMO_ENTRIES)),),
             )
             connection.execute(
                 "INSERT INTO dictionary_meta(key, value) VALUES('license', ?) "
@@ -1554,6 +1575,51 @@ class DictionaryStore:
             if should_close:
                 connection.close()
 
+    def browse(self, category: str, limit: int = 24) -> list[dict[str, Any]]:
+        """Return reviewed entry cards for one vocabulary category.
+
+        Args:
+            category: Reviewed starter category key, e.g. ``"weather"``.
+            limit: Maximum number of entry cards.
+
+        Returns:
+            Curated-first cards ordered by level then Hebrew word.
+
+        Raises:
+            ValueError: If category is empty or limit is invalid.
+
+        Example:
+            >>> store = DictionaryStore(Path(":memory:")); store.initialize(); store.seed_demo()
+            >>> store.browse("greetings")[0]["senses"][0]["category"]
+            'greetings'
+        """
+        normalized_category = category.strip().lower()
+        if not normalized_category:
+            raise ValueError("category is required")
+        if not 1 <= limit <= 100:
+            raise ValueError("limit must be between 1 and 100")
+        connection = self.connect()
+        should_close = str(self.path) != ":memory:"
+        try:
+            rows = connection.execute(
+                """
+                SELECT e.id,
+                    MAX(CASE WHEN s.visual_key IS NOT NULL THEN 1 ELSE 0 END) AS curated,
+                    MIN(COALESCE(s.level, 'Z9')) AS level
+                FROM dictionary_entries e
+                JOIN dictionary_senses s ON s.entry_id = e.id
+                WHERE lower(COALESCE(s.category, '')) = ?
+                GROUP BY e.id
+                ORDER BY curated DESC, level, e.word
+                LIMIT ?
+                """,
+                (normalized_category, limit),
+            ).fetchall()
+            return [self._entry_card(connection, int(row["id"])) for row in rows]
+        finally:
+            if should_close:
+                connection.close()
+
     def lookup(self, word: str, limit: int = 12) -> list[dict[str, Any]]:
         """Resolve an exact Hebrew word or inflected form.
 
@@ -1578,22 +1644,7 @@ class DictionaryStore:
         connection = self.connect()
         should_close = str(self.path) != ":memory:"
         try:
-            rows = connection.execute(
-                """
-                SELECT DISTINCT e.id,
-                    CASE WHEN e.normalized_word = ? THEN 0 ELSE 1 END AS rank,
-                    CASE WHEN EXISTS(
-                        SELECT 1 FROM dictionary_senses curated
-                        WHERE curated.entry_id = e.id AND curated.visual_key IS NOT NULL
-                    ) THEN 1 ELSE 0 END AS curated
-                FROM dictionary_entries e
-                LEFT JOIN dictionary_forms f ON f.entry_id = e.id
-                WHERE e.normalized_word = ? OR f.normalized_form = ?
-                ORDER BY rank, curated DESC, e.pos
-                LIMIT ?
-                """,
-                (normalized, normalized, normalized, limit),
-            ).fetchall()
+            rows = self._exact_lookup_rows(connection, normalized, limit)
             if not rows:
                 # A clicked token may contain a Hebrew prefix such as ו/ב/ל/כ/מ/ש.
                 stripped = (
@@ -1620,6 +1671,59 @@ class DictionaryStore:
         finally:
             if should_close:
                 connection.close()
+
+    def lookup_exact(self, word: str, limit: int = 12) -> list[dict[str, Any]]:
+        """Resolve only a registered Hebrew headword or inflected form.
+
+        Unlike :meth:`lookup`, this method never strips a possible Hebrew prefix.
+        It is intended for transcript analysis where an inferred match would make
+        an unknown spoken token appear to be a reviewed dictionary fact.
+
+        Args:
+            word: Hebrew token to resolve.
+            limit: Maximum homographs or parts of speech.
+
+        Returns:
+            Exact dictionary cards in deterministic order.
+
+        Raises:
+            ValueError: If the normalized token is empty.
+        """
+        normalized = normalize_hebrew(word)
+        if not normalized:
+            raise ValueError("word is required")
+        connection = self.connect()
+        should_close = str(self.path) != ":memory:"
+        try:
+            rows = self._exact_lookup_rows(connection, normalized, limit)
+            return [self._entry_card(connection, int(row["id"])) for row in rows]
+        finally:
+            if should_close:
+                connection.close()
+
+    @staticmethod
+    def _exact_lookup_rows(
+        connection: sqlite3.Connection,
+        normalized: str,
+        limit: int,
+    ) -> list[sqlite3.Row]:
+        """Return exact headword/form rows without prefix inference."""
+        return connection.execute(
+            """
+            SELECT DISTINCT e.id,
+                CASE WHEN e.normalized_word = ? THEN 0 ELSE 1 END AS rank,
+                CASE WHEN EXISTS(
+                    SELECT 1 FROM dictionary_senses curated
+                    WHERE curated.entry_id = e.id AND curated.visual_key IS NOT NULL
+                ) THEN 1 ELSE 0 END AS curated
+            FROM dictionary_entries e
+            LEFT JOIN dictionary_forms f ON f.entry_id = e.id
+            WHERE e.normalized_word = ? OR f.normalized_form = ?
+            ORDER BY rank, curated DESC, e.pos
+            LIMIT ?
+            """,
+            (normalized, normalized, normalized, limit),
+        ).fetchall()
 
     def get(self, entry_id: int) -> dict[str, Any]:
         """Return one complete entry card.
@@ -1677,7 +1781,9 @@ class DictionaryStore:
                 **dict(sense),
                 "tags": json.loads(sense["tags_json"]),
                 "topics": json.loads(sense["topics_json"]),
+                "reading_hints": json.loads(sense["reading_hints_json"]),
             }
+            sense_card.pop("reading_hints_json", None)
             visual_fields = (
                 sense["visual_key"],
                 sense["visual_emoji"],
@@ -1768,7 +1874,7 @@ class DictionaryStore:
         Example:
             >>> store = DictionaryStore(Path(":memory:")); store.initialize(); store.seed_demo()
             >>> store.stats()["entries"]
-            48
+            96
         """
         connection = self.connect()
         should_close = str(self.path) != ":memory:"

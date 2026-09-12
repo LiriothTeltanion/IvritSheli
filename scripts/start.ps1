@@ -7,6 +7,16 @@ param(
     [ValidateRange(1024, 65535)]
     [int]$Port = 8000,
 
+    [ValidateSet("127.0.0.1", "0.0.0.0")]
+    [string]$BindAddress = "127.0.0.1",
+
+    [string]$DataDirectory = "",
+
+    [ValidateSet("", "en", "es", "he")]
+    [string]$Language = "",
+
+    [switch]$RequirePreferredPort,
+
     [switch]$NoBrowser,
 
     [ValidateRange(0, 86400)]
@@ -27,8 +37,17 @@ $DependencyStamp = Join-Path $RootDir ".venv\ivrit-sheli-runtime.sha256"
 $EnvFile = Join-Path $RootDir ".env"
 $Server = $null
 $ResultCode = 0
+$UsingExistingServer = $false
 
 Set-Location $RootDir
+
+$ExplicitDataDirectory = -not [string]::IsNullOrWhiteSpace($DataDirectory)
+if ($ExplicitDataDirectory) {
+    $ResolvedDataDirectory = [System.IO.Path]::GetFullPath($DataDirectory)
+    $env:APP_DATA_DIR = $ResolvedDataDirectory
+    $env:APP_DB_PATH = Join-Path $ResolvedDataDirectory "ivrit_sheli.db"
+    $env:DICTIONARY_DB_PATH = Join-Path $ResolvedDataDirectory "hebrew_dictionary.db"
+}
 
 $EnvFileConfiguresData = (
     (Test-Path $EnvFile) -and
@@ -129,6 +148,33 @@ function Open-IvritBrowser {
     }
 }
 
+function Get-LanIPv4Address {
+    foreach ($NetworkInterface in [System.Net.NetworkInformation.NetworkInterface]::GetAllNetworkInterfaces()) {
+        if (
+            $NetworkInterface.OperationalStatus -ne
+                [System.Net.NetworkInformation.OperationalStatus]::Up -or
+            $NetworkInterface.NetworkInterfaceType -eq
+                [System.Net.NetworkInformation.NetworkInterfaceType]::Loopback
+        ) {
+            continue
+        }
+        $Properties = $NetworkInterface.GetIPProperties()
+        if ($Properties.GatewayAddresses.Count -eq 0) {
+            continue
+        }
+        foreach ($Address in $Properties.UnicastAddresses) {
+            if (
+                $Address.Address.AddressFamily -eq
+                    [System.Net.Sockets.AddressFamily]::InterNetwork -and
+                -not [System.Net.IPAddress]::IsLoopback($Address.Address)
+            ) {
+                return $Address.Address.ToString()
+            }
+        }
+    }
+    return $null
+}
+
 function Wait-ForIvritServer {
     param(
         [Parameter(Mandatory)][System.Diagnostics.Process]$Process,
@@ -151,13 +197,34 @@ function Wait-ForIvritServer {
 try {
     Write-Host "" 
     Write-Host "  ╔══════════════════════════════════════╗" -ForegroundColor DarkCyan
-    Write-Host "  ║   Ivrit Sheli Ultimate · עברית שלי   ║" -ForegroundColor Cyan
+    Write-Host "  ║       Ivrit · שלי · v2.12.3          ║" -ForegroundColor Cyan
     Write-Host "  ╚══════════════════════════════════════╝" -ForegroundColor DarkCyan
 
-    if (Test-IvritHealth -CandidatePort $Port) {
-        $ExistingUrl = "http://127.0.0.1:$Port"
+    if (
+        ($BindAddress -eq "127.0.0.1" -or $RequirePreferredPort) -and
+        (Test-IvritHealth -CandidatePort $Port)
+    ) {
+        $UsingExistingServer = $true
+        $ExistingLanguageQuery = if ([string]::IsNullOrWhiteSpace($Language)) { "" } else { "?lang=$Language" }
+        $ExistingUrl = "http://127.0.0.1:$Port/$ExistingLanguageQuery"
         Write-Host "`n  Ivrit Sheli is already running ✅" -ForegroundColor Green
         Write-Host "  $ExistingUrl" -ForegroundColor White
+        if ($BindAddress -eq "0.0.0.0") {
+            $ExistingLanAddress = Get-LanIPv4Address
+            if ($null -ne $ExistingLanAddress) {
+                $ExistingShareLanguage = if ([string]::IsNullOrWhiteSpace($Language)) { "es" } else { $Language }
+                $ExistingShareUrl = "http://$ExistingLanAddress`:$Port/?lang=$ExistingShareLanguage"
+                Write-Host "`n  Mother pilot link (same Wi-Fi only):" -ForegroundColor Yellow
+                Write-Host "  $ExistingShareUrl" -ForegroundColor White
+                try {
+                    Set-Clipboard -Value $ExistingShareUrl
+                    Write-Host "  Link copied to the clipboard for WhatsApp." -ForegroundColor Green
+                }
+                catch {
+                    Write-Host "  Copy the link above into WhatsApp." -ForegroundColor DarkGray
+                }
+            }
+        }
         Open-IvritBrowser -Url $ExistingUrl
         exit 0
     }
@@ -190,15 +257,23 @@ try {
 
     Write-Step "Preparing your private learning data…"
     $env:PYTHONPATH = Join-Path $RootDir "backend\src"
-    # Keep the one-click experience private and local even if .env contains
-    # cloud deployment credentials. Railway and Docker never set this marker.
-    $env:IVRIT_LOCAL_ONLY = "true"
-    $env:APP_HOST = "127.0.0.1"
+    # Keep the one-click experience private and local by default. If you configure
+    # cloud deployment credentials in .env, they will now be respected!
+    # $env:IVRIT_LOCAL_ONLY = "true"
+    $env:APP_HOST = $BindAddress
 
     & $VenvPython -m ivrit_sheli --init --seed
     Assert-NativeSuccess -Action "Local data initialization"
 
-    $SelectedPort = Find-AvailablePort -PreferredPort $Port
+    if ($RequirePreferredPort -and -not (Test-PortAvailable -CandidatePort $Port)) {
+        throw "Required port $Port is already in use by another process."
+    }
+    $SelectedPort = if ($RequirePreferredPort) {
+        $Port
+    }
+    else {
+        Find-AvailablePort -PreferredPort $Port
+    }
     if ($SelectedPort -ne $Port) {
         Write-Host "  Port $Port is busy; using $SelectedPort instead." -ForegroundColor Yellow
     }
@@ -208,7 +283,7 @@ try {
     $ServerArgs = @(
         "-m", "ivrit_sheli",
         "--serve",
-        "--host", "127.0.0.1",
+        "--host", $BindAddress,
         "--port", "$SelectedPort"
     )
     $Server = Start-Process `
@@ -220,9 +295,31 @@ try {
 
     Wait-ForIvritServer -Process $Server -ServerPort $SelectedPort
 
-    $AppUrl = "http://127.0.0.1:$SelectedPort"
+    $LanguageQuery = if ([string]::IsNullOrWhiteSpace($Language)) { "" } else { "?lang=$Language" }
+    $AppUrl = "http://127.0.0.1:$SelectedPort/$LanguageQuery"
     Write-Host "`n  Ivrit Sheli is ready ✅" -ForegroundColor Green
     Write-Host "  $AppUrl" -ForegroundColor White
+    if ($BindAddress -eq "0.0.0.0") {
+        $LanAddress = Get-LanIPv4Address
+        if ($null -ne $LanAddress) {
+            $ShareLanguage = if ([string]::IsNullOrWhiteSpace($Language)) { "es" } else { $Language }
+            $ShareUrl = "http://$LanAddress`:$SelectedPort/?lang=$ShareLanguage"
+            Write-Host "`n  Mother pilot link (same Wi-Fi only):" -ForegroundColor Yellow
+            Write-Host "  $ShareUrl" -ForegroundColor White
+            Write-Host "  If Windows Firewall asks, allow Python on Private networks only." -ForegroundColor DarkGray
+            Write-Host "  The link works while this PC and this window stay open." -ForegroundColor DarkGray
+            try {
+                Set-Clipboard -Value $ShareUrl
+                Write-Host "  Link copied to the clipboard for WhatsApp." -ForegroundColor Green
+            }
+            catch {
+                Write-Host "  Copy the link above into WhatsApp." -ForegroundColor DarkGray
+            }
+        }
+        else {
+            Write-Host "`n  A Wi-Fi address could not be detected. Use the local link above." -ForegroundColor Yellow
+        }
+    }
     if (-not [string]::IsNullOrWhiteSpace($env:APP_DATA_DIR)) {
         Write-Host "  Private data: $env:APP_DATA_DIR" -ForegroundColor DarkGray
     }
@@ -262,7 +359,13 @@ finally {
             Stop-Process -Id $Server.Id -ErrorAction SilentlyContinue
         }
     }
-    Write-Host "  Ivrit Sheli is stopped. Your progress remains saved locally. 💙" -ForegroundColor DarkCyan
+    if ($UsingExistingServer) {
+        Write-Host "  The existing Ivrit Sheli server remains running. 💙" -ForegroundColor DarkCyan
+    }
+    else {
+        Write-Host "  Ivrit Sheli is stopped. Your progress remains saved locally. 💙" -ForegroundColor DarkCyan
+    }
 }
 
 exit $ResultCode
+

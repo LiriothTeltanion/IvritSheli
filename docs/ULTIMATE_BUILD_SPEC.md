@@ -1,4 +1,4 @@
-# Ivrit Sheli Ultimate — Complete Build Specification
+# Ivrit Sheli — Complete Build Specification
 
 ## 1. Product mission
 

@@ -139,6 +139,7 @@ class GoogleOAuthClient:
                 "state": state,
                 "code_challenge": self._challenge(verifier),
                 "code_challenge_method": "S256",
+                "prompt": "select_account",
             }
         )
         return f"{self.AUTHORIZE_URL}?{query}"
@@ -315,6 +316,10 @@ class AuthService:
         self, provider: str, state: str, browser_state: str | None
     ) -> tuple[str, str]:
         """Validate and consume one browser- and provider-bound OAuth attempt once."""
+        # The browser cookie is what binds the callback to the browser that
+        # started it. Accepting a callback without it outside production would
+        # leave staging and every local run open to login CSRF, and staging is
+        # exactly where a real account gets tested.
         if not state or not browser_state or not hmac.compare_digest(state, browser_state):
             raise AuthenticationError("OAuth state validation failed")
         consumed = self.store.consume_oauth_state(state, provider=provider)
@@ -353,6 +358,7 @@ def safe_redirect_path(value: str) -> str:
 def auth_payload(
     identity: SessionIdentity | None,
     auth_providers: tuple[str, ...] = (),
+    local_companion_url: str = "",
 ) -> dict[str, Any]:
     """Return the stable browser session contract."""
     user = identity.user if identity else None
@@ -363,6 +369,7 @@ def auth_payload(
         "user": user.public_dict() if user else None,
         "mode": "cloud",
         "auth_providers": list(auth_providers),
+        "local_companion_url": local_companion_url or None,
         "capabilities": {
             "cloud_learning": True,
             "ai": True,
