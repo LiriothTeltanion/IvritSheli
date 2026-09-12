@@ -23,7 +23,8 @@ What replaces it is narrower and permanent:
   `tag`, release, deployment and Devpost changes happen **only when Kevin asks
   for that specific action**, and asking for one does not authorise the next.
   This is not a date. It does not expire.
-- **The live staging release is 2.12.3.** The application is successfully deployed to Render Free (`ivrit-sheli-staging.onrender.com`) using Supabase Session Pooler (IPv4) for PostgreSQL. The historic Railway deployment is offline. Future production releases must always pass through a verified staging environment.
+- **The live release is 2.12.3, and since 2026-09-12 it runs in two places.** The new service is `ivrit-sheli` on Render Free in **Frankfurt**, at `ivrit-sheli.onrender.com`, declared by `render.frankfurt.yaml`. The old `ivrit-sheli-staging` in Singapore is still up **on purpose**, until Google sign-in is confirmed on the new one. Both use the Supabase Session Pooler (IPv4) for PostgreSQL. The historic Railway deployment is offline. Future production releases must always pass through a verified staging environment.
+  - **Do not delete `ivrit-sheli-staging` before reading this.** The new service reads `DATABASE_URL`, `GOOGLE_AUTH_CLIENT_ID` and `GOOGLE_AUTH_CLIENT_SECRET` from it through `fromService` + `envVarKey`, so nobody ever has to type a secret. Deleting the source first makes the next Blueprint sync fail. Switch those three to `sync: false` first; the file says so too.
 - **Before any publication, read the "not run" list in `TEST_REPORT.md`** and
   state it. Human recognition, the Hebrew-content acceptance pass and the pilot
   with Kevin's mother are on it. Publishing over that list is his call to make
@@ -104,14 +105,31 @@ Starting the read-only demo against the Supabase database takes 10.6–13.1 s
 from this machine. Before treating that as a defect, know what it is made of.
 
 A single `SELECT 1`, on an already-open pooled connection, costs **2.5 s**.
-That is pure distance between this laptop and the Supabase region; it is not
-the application. `ensure_demo_user` is 5.9 s, `create_session` 4.3 s, and
-seeding the demo repository 5.8 s — which is four to six round trips, not four
-to six seconds of work. On a backend sitting near its database the same path is
-tens of milliseconds.
+`ensure_demo_user` is 5.9 s, `create_session` 4.3 s, and seeding the demo
+repository 5.8 s — which is four to six round trips, not four to six seconds of
+work. On a backend sitting near its database the same path is tens of
+milliseconds.
 
 **Do not optimise against this number.** Tuning for a latency production will
 not have is how correct code gets broken.
+
+> **Correction — measured 2026-09-12.** This section used to attribute the 2.5 s
+> to "pure distance between this laptop and the Supabase region". That is wrong,
+> and it matters because it made the deployment region look irrelevant. The same
+> cost appears *from inside a datacentre*: against the Singapore service, warm,
+> `/health/live` answered in **0.28 s** and `/health/ready`, which queries the
+> database, in **1.45–2.89 s**. Roughly two seconds of that is the application →
+> database leg, nothing to do with anyone's laptop.
+>
+> What follows from it: **the database is not near the Singapore region either**,
+> or the two endpoints would cost the same. So moving the service to Frankfurt
+> could not make that leg worse, and it halves the user → service leg from
+> Israel. Measured after the move: `/health/live` **0.149 s** from Frankfurt
+> against **0.287 s** from Singapore, and `/health/ready` unchanged at ~2 s, just
+> as predicted.
+>
+> The original advice still holds. Do not optimise against the ~2 s; it is round
+> trips to a distant database, and the fix is moving the database, not the code.
 
 One real observation did come out of it, and it is left deliberately unfixed:
 every `with store._connection()` costs three extra round trips beyond the query
