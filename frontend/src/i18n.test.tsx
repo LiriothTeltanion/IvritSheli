@@ -21,7 +21,21 @@ function LocaleHarness(): React.JSX.Element {
 }
 
 describe('I18nProvider', () => {
-  beforeEach(() => localStorage.clear());
+  beforeEach(() => {
+    localStorage.clear();
+    window.history.replaceState({}, '', '/');
+  });
+
+  it('honors a per-visit language override without replacing the saved preference', () => {
+    localStorage.setItem('ivrit-sheli-locale', 'es');
+    window.history.replaceState({}, '', '/?lang=he');
+
+    render(<I18nProvider><LocaleHarness /></I18nProvider>);
+
+    expect(screen.getByText(/he:rtl:עברית.*42 מילים:דיבור/)).toBeInTheDocument();
+    expect(document.documentElement).toHaveAttribute('lang', 'he');
+    expect(localStorage.getItem('ivrit-sheli-locale')).toBe('es');
+  });
 
   it('switches translations and document direction', async () => {
     const user = userEvent.setup();

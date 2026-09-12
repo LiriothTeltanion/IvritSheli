@@ -25,6 +25,18 @@ STATE_TABLES = (
     "review_state",
     "attempts",
     "skill_mastery",
+    "learning_core_state",
+    "reading_support_state",
+    "learning_core_attempts",
+    "learning_core_idempotency",
+    "practice_sessions",
+    "practice_step_events",
+    "curriculum_progress",
+    "alphabet_progress",
+    "alphabet_attempts",
+    "learning_feedback",
+    "learner_model_state",
+    "notification_preferences",
     "user_events",
     "xp_ledger",
     "unlocked_achievements",
@@ -52,10 +64,13 @@ class CloudLearningRepository:
         self.user_id = user_id
         self.display_name = display_name
         self.seed_demo = seed_demo
+        self._cached_state: dict[str, Any] | None = None
         self._ensure_initialized()
 
     def _ensure_initialized(self) -> None:
-        if self.store.read_state(self.user_id):
+        state = self.store.read_state(self.user_id)
+        if state:
+            self._cached_state = state
             return
 
         def initialize(current: dict[str, Any]) -> tuple[dict[str, Any], None]:
@@ -72,6 +87,7 @@ class CloudLearningRepository:
                 database.close()
 
         self.store.mutate_state(self.user_id, initialize)
+        self._cached_state = self.store.read_state(self.user_id)
 
     def _hydrate(self, state: dict[str, Any]) -> tuple[Database, LearningRepository]:
         database = Database(Path(":memory:"))
@@ -91,14 +107,47 @@ class CloudLearningRepository:
                 for row in rows:
                     if not isinstance(row, dict) or not row:
                         continue
-                    columns = tuple(column for column in row if column in allowed_columns)
+                    hydrated_row = dict(row)
+                    if table == "profiles" and "onboarding_completed" not in hydrated_row:
+                        # A 2.2 cloud snapshot belongs to a returning learner. Keep every
+                        # stored preference (especially level) and skip only the new-tour gates.
+                        hydrated_row.update(
+                            {
+                                "onboarding_step": 4,
+                                "onboarding_completed": 1,
+                                "first_steps_step": 5,
+                                "first_steps_completed": 1,
+                            }
+                        )
+                    if table == "profiles" and "learner_mode" not in hydrated_row:
+                        hydrated_row["learner_mode"] = (
+                            "guided" if bool(hydrated_row.get("guided_mode", 1)) else "explorer"
+                        )
+                    if table == "profiles" and "curriculum_track" not in hydrated_row:
+                        hydrated_row["curriculum_track"] = "modern_conversation"
+                    if table == "profiles" and "cefr_band" not in hydrated_row:
+                        legacy_band = str(hydrated_row.get("hebrew_level", "A0")).upper()
+                        hydrated_row["cefr_band"] = (
+                            legacy_band
+                            if legacy_band in {"A0", "A1", "A2", "B1", "B2", "C1", "C2"}
+                            else "A0"
+                        )
+                    if table == "profiles" and "text_scale" not in hydrated_row:
+                        hydrated_row["text_scale"] = 1.0
+                    if table == "profiles" and "focus_status" not in hydrated_row:
+                        hydrated_row["focus_status"] = "available"
+                    if table == "profiles" and "avatar_preset_id" not in hydrated_row:
+                        hydrated_row["avatar_preset_id"] = ""
+                    columns = tuple(
+                        column for column in hydrated_row if column in allowed_columns
+                    )
                     if not columns:
                         continue
                     placeholders = ", ".join("?" for _ in columns)
                     column_sql = ", ".join(columns)
                     connection.execute(
                         f"INSERT INTO {table}({column_sql}) VALUES({placeholders})",
-                        tuple(row[column] for column in columns),
+                        tuple(hydrated_row[column] for column in columns),
                     )
             connection.commit()
         return database, LearningRepository(database)
@@ -110,15 +159,16 @@ class CloudLearningRepository:
             "format": STATE_FORMAT,
             "tables": {
                 table: [
-                    dict(row)
-                    for row in connection.execute(f"SELECT * FROM {table}").fetchall()
+                    dict(row) for row in connection.execute(f"SELECT * FROM {table}").fetchall()
                 ]
                 for table in STATE_TABLES
             },
         }
 
     def _read(self, method: str, *args: Any, **kwargs: Any) -> Any:
-        database, repository = self._hydrate(self.store.read_state(self.user_id))
+        state = self._cached_state or self.store.read_state(self.user_id)
+        self._cached_state = None  # Only reuse once; subsequent reads fetch fresh
+        database, repository = self._hydrate(state)
         try:
             target = getattr(repository, method)
             return target(*args, **kwargs)
@@ -135,6 +185,10 @@ class CloudLearningRepository:
             finally:
                 database.close()
 
+        # The construction-time snapshot is stale the instant anything is
+        # written. Without this, the first read after a write inside the same
+        # request serves the learner their pre-write state.
+        self._cached_state = None
         return self.store.mutate_state(self.user_id, operation)
 
     def run_with_database(
@@ -159,6 +213,7 @@ class CloudLearningRepository:
             finally:
                 database.close()
 
+        self._cached_state = None
         return self.store.mutate_state(self.user_id, mutate)
 
     def ensure_default_profile(self, display_name: str = "Learner") -> None:
@@ -166,6 +221,17 @@ class CloudLearningRepository:
 
     def create_item(self, payload: dict[str, Any]) -> dict[str, Any]:
         return cast(dict[str, Any], self._write("create_item", payload))
+
+    def get_or_create_dictionary_item(
+        self,
+        entry_id: int,
+        payload: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Atomically link one exact dictionary entry inside one tenant mutation."""
+        return cast(
+            dict[str, Any],
+            self._write("get_or_create_dictionary_item", entry_id, payload),
+        )
 
     def create_items(self, payloads: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """Create one bounded batch beneath a single hydrate/lock/snapshot cycle."""
@@ -178,6 +244,7 @@ class CloudLearningRepository:
             finally:
                 database.close()
 
+        self._cached_state = None
         return self.store.mutate_state(self.user_id, operation)
 
     def get_item(self, item_id: int) -> dict[str, Any]:
@@ -186,11 +253,98 @@ class CloudLearningRepository:
     def list_items(self, limit: int = 100, query: str = "") -> list[dict[str, Any]]:
         return cast(list[dict[str, Any]], self._read("list_items", limit, query))
 
+    def registry_items(
+        self,
+        *,
+        limit: int = 200,
+        offset: int = 0,
+        query: str = "",
+        status: str = "all",
+        due: str = "all",
+        sort: str = "last_activity_desc",
+    ) -> dict[str, Any]:
+        """Read the authenticated tenant's searchable learning registry."""
+        return cast(
+            dict[str, Any],
+            self._read(
+                "registry_items",
+                limit=limit,
+                offset=offset,
+                query=query,
+                status=status,
+                due=due,
+                sort=sort,
+            ),
+        )
+
+    def learning_states_for_sources(
+        self,
+        source_labels: list[str],
+    ) -> dict[str, dict[str, Any]]:
+        """Read exact dictionary-entry links from only this tenant's hydrated state."""
+        return cast(
+            dict[str, dict[str, Any]],
+            self._read("learning_states_for_sources", source_labels),
+        )
+
     def next_reviews(self, limit: int = 10) -> list[dict[str, Any]]:
         return cast(list[dict[str, Any]], self._read("next_reviews", limit))
 
     def submit_review(self, item_id: int, payload: dict[str, Any]) -> dict[str, Any]:
         return cast(dict[str, Any], self._write("submit_review", item_id, payload))
+
+    def learning_core_state(self) -> dict[str, Any]:
+        return cast(dict[str, Any], self._read("learning_core_state"))
+
+    def next_learning_core_activity(self) -> dict[str, Any]:
+        return cast(dict[str, Any], self._read("next_learning_core_activity"))
+
+    def submit_learning_core_attempt(self, payload: dict[str, Any]) -> dict[str, Any]:
+        return cast(dict[str, Any], self._write("submit_learning_core_attempt", payload))
+
+    def curriculum_path(self) -> dict[str, Any]:
+        return cast(dict[str, Any], self._read("curriculum_path"))
+
+    def alphabet_catalog(self, letter_key: str | None = None) -> dict[str, Any]:
+        """Return tenant alphabet progress or a truthful read-only demo preview."""
+        return cast(
+            dict[str, Any],
+            self._read(
+                "alphabet_catalog",
+                letter_key,
+                can_save=not self.seed_demo,
+            ),
+        )
+
+    def submit_alphabet_attempt(
+        self,
+        letter_key: str,
+        payload: dict[str, Any],
+    ) -> dict[str, Any]:
+        if self.seed_demo:
+            raise ValueError(
+                "The shared demonstration is read-only; sign in to save alphabet progress"
+            )
+        return cast(
+            dict[str, Any],
+            self._write("submit_alphabet_attempt", letter_key, payload),
+        )
+
+    def practice_today(self, persist: bool = True) -> dict[str, Any]:
+        if self.seed_demo:
+            return cast(dict[str, Any], self._read("practice_today", False))
+        return cast(dict[str, Any], self._write("practice_today", persist))
+
+    def submit_practice_step(
+        self,
+        session_id: str,
+        step_key: str,
+        payload: dict[str, Any],
+    ) -> dict[str, Any]:
+        return cast(
+            dict[str, Any],
+            self._write("submit_practice_step", session_id, step_key, payload),
+        )
 
     def recommendations(self, limit: int = 8) -> list[dict[str, Any]]:
         return cast(list[dict[str, Any]], self._read("recommendations", limit))
@@ -201,6 +355,10 @@ class CloudLearningRepository:
     def export_json(self, destination: Path) -> Path:
         return cast(Path, self._read("export_json", destination))
 
+    def import_json(self, source: Path) -> dict[str, Any]:
+        """Atomically restore a portable learner export inside this tenant."""
+        return cast(dict[str, Any], self._write("import_json", source))
+
     def create_bug_report(self, payload: dict[str, Any]) -> dict[str, Any]:
         return cast(dict[str, Any], self._write("create_bug_report", payload))
 
@@ -209,6 +367,52 @@ class CloudLearningRepository:
 
     def update_profile(self, payload: dict[str, Any]) -> dict[str, Any]:
         return cast(dict[str, Any], self._write("update_profile", payload))
+
+    def notification_preferences(self) -> dict[str, Any]:
+        if self.seed_demo:
+            return cast(dict[str, Any], self._read("notification_preferences"))
+        return cast(dict[str, Any], self._write("notification_preferences"))
+
+    def update_notification_preferences(self, payload: dict[str, Any]) -> dict[str, Any]:
+        return cast(
+            dict[str, Any],
+            self._write("update_notification_preferences", payload),
+        )
+
+    def personalization_profile(self) -> dict[str, Any]:
+        if self.seed_demo:
+            return cast(dict[str, Any], self._read("personalization_profile"))
+        return cast(dict[str, Any], self._write("personalization_profile"))
+
+    def coach_learner_context(self) -> dict[str, Any]:
+        if self.seed_demo:
+            return cast(dict[str, Any], self._read("coach_learner_context"))
+        return cast(dict[str, Any], self._write("coach_learner_context"))
+
+    def coach_speaking_target(
+        self,
+        target_text: str,
+        *,
+        source_label: str | None = None,
+    ) -> dict[str, Any]:
+        """Resolve an exact speaking target inside the authenticated tenant."""
+        return cast(
+            dict[str, Any],
+            self._read(
+                "coach_speaking_target",
+                target_text,
+                source_label=source_label,
+            ),
+        )
+
+    def record_learning_feedback(self, payload: dict[str, Any]) -> dict[str, Any]:
+        return cast(
+            dict[str, Any],
+            self._write("record_learning_feedback", payload),
+        )
+
+    def reset_personalization(self) -> dict[str, Any]:
+        return cast(dict[str, Any], self._write("reset_personalization"))
 
     def progress(self) -> dict[str, Any]:
         return cast(dict[str, Any], self._read("progress"))
@@ -240,6 +444,4 @@ class CloudLearningRepository:
         return cast(dict[str, Any], self._read("get_mission", mission_id))
 
     def complete_mission(self, mission_id: int, payload: dict[str, Any]) -> dict[str, Any]:
-        return cast(
-            dict[str, Any], self._write("complete_mission", mission_id, payload)
-        )
+        return cast(dict[str, Any], self._write("complete_mission", mission_id, payload))

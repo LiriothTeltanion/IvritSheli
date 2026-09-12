@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 280" width="100%">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&amp;family=Inter:wght@400;600;800&amp;display=swap');
+      .bg { fill: #09090b; rx: 16px; }
+      .grid { stroke: #1e293b; stroke-width: 1; stroke-dasharray: 4 4; }
+
+      .title { font-family: 'Inter', sans-serif; font-size: 22px; font-weight: 800; fill: #5eead4; }
+      .subtitle { font-family: 'Fira Code', monospace; font-size: 12px; fill: #14b8a6; }
+
+      .node { fill: #0f172a; stroke: #115e59; stroke-width: 2; rx: 12px; }
+      .node-header { font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 800; fill: #ccfbf1; }
+      .node-sub { font-family: 'Fira Code', monospace; font-size: 11px; fill: #5eead4; }
+
+      .data-path { fill: none; stroke: #0f766e; stroke-width: 3; }
+      .data-glow { fill: none; stroke: #2dd4bf; stroke-width: 3; stroke-dasharray: 8 16; animation: dataFlow 1.5s linear infinite; }
+      @keyframes dataFlow { from { stroke-dashoffset: 24; } to { stroke-dashoffset: 0; } }
+
+      .pulse-green { animation: pGreen 3s infinite; }
+      @keyframes pGreen {
+        0%, 100% { filter: drop-shadow(0 0 3px #14b8a6); stroke: #0f766e; }
+        50% { filter: drop-shadow(0 0 12px #2dd4bf); stroke: #2dd4bf; }
+      }
+
+      .badge { fill: #134e4a; rx: 6px; }
+      .badge-text { font-family: 'Fira Code', monospace; font-size: 10px; fill: #99f6e4; font-weight: 600; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="900" height="280" />
+  <pattern id="grid3" width="40" height="40" patternUnits="userSpaceOnUse">
+    <path d="M 40 0 L 0 0 0 40" fill="none" class="grid" />
+  </pattern>
+  <rect width="900" height="280" fill="url(#grid3)" opacity="0.5" />
+
+  <text x="450" y="40" class="title" text-anchor="middle">Live Cloud Infrastructure &amp; Edge</text>
+  <text x="450" y="60" class="subtitle" text-anchor="middle">Automated CI/CD // Zero-Downtime // DDoS Protected</text>
+
+  <!-- Paths -->
+  <!-- Users -> CDN -->
+  <path d="M 180 145 C 210 145, 230 145, 260 145" class="data-path" />
+  <path d="M 180 145 C 210 145, 230 145, 260 145" class="data-glow" />
+
+  <!-- CDN -> App -->
+  <path d="M 420 145 C 450 145, 470 145, 500 145" class="data-path" />
+  <path d="M 420 145 C 450 145, 470 145, 500 145" class="data-glow" />
+
+  <!-- App -> DB -->
+  <path d="M 660 145 C 690 145, 710 145, 740 145" class="data-path" />
+  <path d="M 660 145 C 690 145, 710 145, 740 145" class="data-glow" />
+
+  <!-- Node 1: Global Edge (Users) -->
+  <g transform="translate(40, 100)">
+    <rect class="node" width="140" height="90" />
+    <text x="70" y="30" class="node-header" text-anchor="middle">Global Users</text>
+    <text x="70" y="55" class="node-sub" text-anchor="middle">TLS 1.3 Encryption</text>
+    <rect x="25" y="65" width="90" height="15" class="badge" />
+    <text x="70" y="76" class="badge-text" text-anchor="middle">HTTPS</text>
+  </g>
+
+  <!-- Node 2: Web Service -->
+  <g transform="translate(260, 90)" class="pulse-green">
+    <rect class="node" width="160" height="110" />
+    <text x="80" y="30" class="node-header" text-anchor="middle">Render Staging</text>
+    <text x="80" y="50" class="node-sub" text-anchor="middle">Web Service</text>
+    <text x="80" y="65" class="node-sub" text-anchor="middle">ivrit-sheli-staging</text>
+    <rect x="20" y="80" width="120" height="18" class="badge" />
+    <text x="80" y="92" class="badge-text" text-anchor="middle">IPv6 Bound</text>
+  </g>
+
+  <!-- Node 3: Supabase Pooler -->
+  <g transform="translate(500, 90)" class="pulse-green" style="animation-delay: 1.5s;">
+    <rect class="node" width="160" height="110" />
+    <text x="80" y="30" class="node-header" text-anchor="middle">Supabase Auth</text>
+    <text x="80" y="50" class="node-sub" text-anchor="middle">Session Pooler</text>
+    <text x="80" y="65" class="node-sub" text-anchor="middle">port 6543</text>
+    <rect x="20" y="80" width="120" height="18" class="badge" />
+    <text x="80" y="92" class="badge-text" text-anchor="middle">IPv4 Proxy</text>
+  </g>
+
+  <!-- Node 4: Database -->
+  <g transform="translate(740, 100)">
+    <rect class="node" width="120" height="90" />
+    <text x="60" y="30" class="node-header" text-anchor="middle">Database</text>
+    <text x="60" y="55" class="node-sub" text-anchor="middle">PostgreSQL 17</text>
+    <rect x="20" y="65" width="80" height="15" class="badge" />
+    <text x="60" y="76" class="badge-text" text-anchor="middle">Immutable</text>
+  </g>
+
+</svg>

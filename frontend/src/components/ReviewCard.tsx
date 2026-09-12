@@ -16,10 +16,19 @@ interface ReviewCardProps {
   active: boolean;
   onWordClick: (word: string) => void;
   onReviewed: () => void;
+  /** Fires once the queue is exhausted, so a chained session can advance. */
+  onComplete?: (() => void) | undefined;
+  onStartPractice?: (() => void) | undefined;
 }
 
-export function ReviewCard({ active, onWordClick, onReviewed }: ReviewCardProps): React.JSX.Element {
-  const { locale, label, t } = useI18n();
+export function ReviewCard({
+  active,
+  onWordClick,
+  onReviewed,
+  onComplete,
+  onStartPractice,
+}: ReviewCardProps): React.JSX.Element {
+  const { errorText, label, locale, t } = useI18n();
   const { readOnly, readOnlyReason } = useSessionAccess();
   const [items, setItems] = useState<LearningItem[]>([]);
   const [index, setIndex] = useState(0);
@@ -33,7 +42,7 @@ export function ReviewCard({ active, onWordClick, onReviewed }: ReviewCardProps)
     let mounted = true;
     api.nextReviews(12)
       .then((result) => { if (mounted) setItems(result); })
-      .catch((reason: unknown) => { if (mounted) setMessage(reason instanceof Error ? reason.message : String(reason)); })
+      .catch((reason: unknown) => { if (mounted) setMessage(errorText(reason)); })
       .finally(() => { if (mounted) setLoading(false); });
     return () => { mounted = false; };
   }, [active]);
@@ -44,6 +53,11 @@ export function ReviewCard({ active, onWordClick, onReviewed }: ReviewCardProps)
   }, [index]);
 
   const item = items[index] ?? null;
+
+  useEffect(() => {
+    if (!loading && !item) onComplete?.();
+  }, [loading, item, onComplete]);
+
   const translation = item
     ? locale === 'es'
       ? item.translation_es ?? item.translation_en
@@ -74,7 +88,7 @@ export function ReviewCard({ active, onWordClick, onReviewed }: ReviewCardProps)
         setIndex((current) => current + 1);
       }, 450);
     } catch (reason) {
-      setMessage(reason instanceof Error ? reason.message : String(reason));
+      setMessage(errorText(reason));
     } finally {
       setSubmitting(false);
     }
@@ -89,6 +103,11 @@ export function ReviewCard({ active, onWordClick, onReviewed }: ReviewCardProps)
         <span className="success-orb"><Icon name="check" size={28} /></span>
         <h2>{t('sessionComplete')}</h2>
         <p>{t('empty')}</p>
+        {onStartPractice && (
+          <button type="button" className="primary-button" onClick={onStartPractice}>
+            <Icon name="play" size={18} /> {t('dailyPractice')}
+          </button>
+        )}
       </section>
     );
   }
@@ -103,29 +122,33 @@ export function ReviewCard({ active, onWordClick, onReviewed }: ReviewCardProps)
       </header>
       {readOnly && <div className="demo-inline-notice" role="note"><Icon name="shield" size={16} /> {t('demoReviewNotice')}</div>}
       <div className={`review-card-inner ${revealed ? 'is-revealed' : ''}`}>
-        <div className="review-face review-front">
+        <div className="review-face review-front" aria-hidden={revealed}>
           <span className="context-pill">{label(item.context_label)}</span>
           <HebrewText
             text={item.hebrew_with_niqqud || item.hebrew_text}
-            onWordClick={onWordClick}
+            {...(!revealed ? { onWordClick } : {})}
             className="review-hebrew"
             as="h2"
           />
           {item.transliteration && <p className="review-transliteration" dir="ltr">{item.transliteration}</p>}
-          <button type="button" className="primary-button review-reveal" onClick={() => setRevealed(true)}>
-            <Icon name="play" size={18} /> {t('showAnswer')}
-          </button>
+          {!revealed && (
+            <button type="button" className="primary-button review-reveal" onClick={() => setRevealed(true)}>
+              <Icon name="play" size={18} /> {t('showAnswer')}
+            </button>
+          )}
         </div>
         <div className="review-face review-back" aria-hidden={!revealed}>
           <span className="context-pill">{t('meaning')}</span>
           <p className="review-meaning">{translation || t('missingMeaning')}</p>
-          <HebrewText text={item.hebrew_text} onWordClick={onWordClick} className="review-answer" as="p" />
-          <div className="grade-buttons">
-            <button type="button" className="grade grade--again" disabled={readOnly || submitting} title={readOnly ? readOnlyReason : undefined} onClick={() => { void grade('again'); }}>{t('again')}</button>
-            <button type="button" className="grade grade--hard" disabled={readOnly || submitting} title={readOnly ? readOnlyReason : undefined} onClick={() => { void grade('difficult'); }}>{t('difficult')}</button>
-            <button type="button" className="grade grade--good" disabled={readOnly || submitting} title={readOnly ? readOnlyReason : undefined} onClick={() => { void grade('good'); }}>{t('good')}</button>
-            <button type="button" className="grade grade--easy" disabled={readOnly || submitting} title={readOnly ? readOnlyReason : undefined} onClick={() => { void grade('easy'); }}>{t('easy')}</button>
-          </div>
+          <HebrewText text={item.hebrew_text} {...(revealed ? { onWordClick } : {})} className="review-answer" as="p" />
+          {revealed && (
+            <div className="grade-buttons">
+              <button type="button" className="grade grade--again" disabled={readOnly || submitting} title={readOnly ? readOnlyReason : undefined} onClick={() => { void grade('again'); }}>{t('again')}</button>
+              <button type="button" className="grade grade--hard" disabled={readOnly || submitting} title={readOnly ? readOnlyReason : undefined} onClick={() => { void grade('difficult'); }}>{t('difficult')}</button>
+              <button type="button" className="grade grade--good" disabled={readOnly || submitting} title={readOnly ? readOnlyReason : undefined} onClick={() => { void grade('good'); }}>{t('good')}</button>
+              <button type="button" className="grade grade--easy" disabled={readOnly || submitting} title={readOnly ? readOnlyReason : undefined} onClick={() => { void grade('easy'); }}>{t('easy')}</button>
+            </div>
+          )}
         </div>
       </div>
       {message && <div className="floating-feedback">{message}</div>}

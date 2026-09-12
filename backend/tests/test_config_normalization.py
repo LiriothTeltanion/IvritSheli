@@ -54,6 +54,107 @@ def test_settings_create_private_data_directories(tmp_path: Path) -> None:
     assert (settings.data_dir / "backups").is_dir()
 
 
+def test_voice_style_provider_ids_are_server_configurable(tmp_path: Path) -> None:
+    settings = Settings.from_env(
+        {
+            "APP_DATA_DIR": str(tmp_path / "state"),
+            "APP_DB_PATH": str(tmp_path / "state" / "app.db"),
+            "DICTIONARY_DB_PATH": str(tmp_path / "state" / "dict.db"),
+            "OPENAI_TTS_VOICE_MASCULINE": "voice-low-test",
+            "OPENAI_TTS_VOICE_FEMININE": "voice-bright-test",
+        }
+    )
+
+    assert settings.openai_tts_voice_masculine == "voice-low-test"
+    assert settings.openai_tts_voice_feminine == "voice-bright-test"
+
+
+def test_local_only_launcher_marker_overrides_cloud_credentials(tmp_path: Path) -> None:
+    settings = Settings.from_env(
+        {
+            "IVRIT_LOCAL_ONLY": "true",
+            "APP_ENV": "production",
+            "APP_DATA_DIR": str(tmp_path / "state"),
+            "DATABASE_URL": "postgresql://ivrit_sheli_runtime:secret@db/ivrit",
+            "AUTH_REQUIRED": "true",
+            "SESSION_COOKIE_SECURE": "true",
+            "TRUSTED_PROXY_MODE": "railway",
+            "RAILWAY_ENVIRONMENT_ID": "railway-production",
+            "GITHUB_CLIENT_ID": "github-client",
+            "GITHUB_CLIENT_SECRET": "github-secret",
+            "GOOGLE_AUTH_CLIENT_ID": "google-client",
+            "GOOGLE_AUTH_CLIENT_SECRET": "google-secret",
+        }
+    )
+
+    assert settings.app_env == "local"
+    assert settings.cloud_mode is False
+    assert settings.auth_required is False
+    assert settings.session_cookie_secure is False
+    assert settings.trusted_proxy_mode == "direct"
+    assert settings.auth_providers == ()
+
+
+def test_build_commit_uses_explicit_then_railway_then_render_fallbacks(
+    tmp_path: Path,
+) -> None:
+    base = {
+        "IVRIT_LOCAL_ONLY": "true",
+        "APP_DATA_DIR": str(tmp_path / "build-identity"),
+        "BUILD_COMMIT": "",
+        "RAILWAY_GIT_COMMIT_SHA": "",
+        "RENDER_GIT_COMMIT": "render-commit-sha",
+    }
+    assert Settings.from_env(base).build_commit == "render-commit-sha"
+    assert (
+        Settings.from_env(
+            {**base, "RAILWAY_GIT_COMMIT_SHA": "railway-commit-sha"}
+        ).build_commit
+        == "railway-commit-sha"
+    )
+    assert (
+        Settings.from_env(
+            {
+                **base,
+                "BUILD_COMMIT": "explicit-build-label",
+                "RAILWAY_GIT_COMMIT_SHA": "railway-commit-sha",
+            }
+        ).build_commit
+        == "explicit-build-label"
+    )
+
+
+def test_development_local_companion_requires_an_exact_loopback_origin(
+    tmp_path: Path,
+) -> None:
+    base = {
+        "APP_ENV": "development",
+        "APP_DATA_DIR": str(tmp_path / "state"),
+        "APP_DB_PATH": str(tmp_path / "state" / "app.db"),
+        "DICTIONARY_DB_PATH": str(tmp_path / "state" / "dict.db"),
+    }
+
+    settings = Settings.from_env(
+        {**base, "LOCAL_COMPANION_URL": "http://127.0.0.1:8001/"}
+    )
+    assert settings.local_companion_url == "http://127.0.0.1:8001"
+
+    with pytest.raises(ValueError, match="exact loopback HTTP origin"):
+        Settings.from_env(
+            {**base, "LOCAL_COMPANION_URL": "https://example.test/local"}
+        )
+
+    invalid_values = (
+        "http://127.0.0.1",
+        "http://user@127.0.0.1:8001",
+        "http://127.0.0.1:8001/workspace",
+        "http://127.0.0.1:99999",
+    )
+    for invalid_value in invalid_values:
+        with pytest.raises(ValueError, match="exact loopback HTTP origin"):
+            Settings.from_env({**base, "LOCAL_COMPANION_URL": invalid_value})
+
+
 def test_hebrew_normalization_is_niqqud_and_punctuation_insensitive() -> None:
     assert strip_niqqud("שָׁלוֹם") == "שלום"
     assert normalize_hebrew("  שָׁלוֹם!  ") == "שלום"

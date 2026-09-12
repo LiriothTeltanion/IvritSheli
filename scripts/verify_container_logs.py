@@ -8,7 +8,6 @@ import sys
 from pathlib import Path
 from typing import Any, TextIO
 
-
 REQUIRED_FIELDS = {"timestamp", "level", "logger", "message"}
 
 
@@ -24,7 +23,7 @@ def validate_stream(stream: TextIO, forbidden: tuple[str, ...]) -> int:
         except json.JSONDecodeError as error:
             raise ValueError(f"line {line_number} is not valid JSON: {error.msg}") from error
         if not isinstance(payload, dict):
-            raise ValueError(f"line {line_number} must contain a JSON object")
+            raise TypeError(f"line {line_number} must contain a JSON object")
         missing = REQUIRED_FIELDS.difference(payload)
         if missing:
             raise ValueError(
@@ -62,7 +61,7 @@ def main() -> int:
                 records = validate_stream(stream, tuple(args.forbid))
         else:
             records = validate_stream(sys.stdin, tuple(args.forbid))
-    except (OSError, ValueError) as error:
+    except (OSError, TypeError, ValueError) as error:
         print(f"container_log_validation=FAIL error={error}", file=sys.stderr)
         return 1
     print(f"container_log_validation=PASS records={records}")

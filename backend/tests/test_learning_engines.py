@@ -60,6 +60,14 @@ def test_mastery_updates_only_selected_modality() -> None:
     assert updated.observations == 1
 
 
+def test_mastery_state_preserves_legacy_positional_observation_argument() -> None:
+    legacy = MasteryState(0.1, 0.2, 0.3, 0.4, 7)
+    assert legacy.observations == 7
+    assert legacy.pointed_reading == 0
+    assert legacy.unpointed_reading == 0
+    assert legacy.contextual_transfer == 0
+
+
 def test_mastery_rejects_unsupported_modality() -> None:
     with pytest.raises(ValueError, match="Unsupported modality"):
         update_mastery(MasteryState(), "reading", True, 4, 1000)
@@ -101,6 +109,8 @@ def test_recommendations_rank_deterministically() -> None:
 def test_xp_levels_and_soft_caps_are_predictable() -> None:
     assert xp_for_action(XPAction.CORRECT_REVIEW) == 10
     assert xp_for_action(XPAction.CORRECT_REVIEW, earned_today_for_action=300) == 2
+    assert xp_for_action(XPAction.ALPHABET_PRACTICE, earned_today_for_action=55) == 5
+    assert xp_for_action(XPAction.ALPHABET_PRACTICE, earned_today_for_action=60) == 0
     assert level_from_xp(400) == 3
     assert level_progress(50)["percent"] == 50.0
 
@@ -109,4 +119,7 @@ def test_achievement_evaluation_excludes_existing_unlocks() -> None:
     unlocked = evaluate_achievement_keys(
         {"captured_items": 1, "streak_days": 7}, already_unlocked={"first_word"}
     )
-    assert [achievement.key for achievement in unlocked] == ["week_streak"]
+    assert [achievement.key for achievement in unlocked] == [
+        "week_streak",
+        "three_day_flow",
+    ]

@@ -29,6 +29,7 @@ OPENAI_EMBEDDINGS_URL = "https://api.openai.com/v1/embeddings"
 
 SUPPORTED_TASKS = {
     "analyze",
+    "word_insight",
     "correct",
     "exercises",
     "dialogue",
@@ -83,6 +84,64 @@ TASK_SCHEMAS: dict[str, dict[str, Any]] = {
             "naturalness_score",
             "grammar_notes",
             "word_breakdown",
+        ],
+    },
+    "word_insight": {
+        "type": "object",
+        "additionalProperties": False,
+        "properties": {
+            "word": {"type": "string"},
+            "niqqud": {"type": "string"},
+            "transliteration": {"type": "string"},
+            "meanings_en": {"type": "array", "items": {"type": "string"}},
+            "meanings_es": {"type": "array", "items": {"type": "string"}},
+            "grammar": {
+                "type": "object",
+                "additionalProperties": False,
+                "properties": {
+                    "part_of_speech": {"type": "string"},
+                    "gender": {"type": "string"},
+                    "number": {"type": "string"},
+                    "root": {"type": "string"},
+                    "binyan": {"type": "string"},
+                },
+                "required": ["part_of_speech", "gender", "number", "root", "binyan"],
+            },
+            "forms": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "additionalProperties": False,
+                    "properties": {
+                        "hebrew": {"type": "string"},
+                        "label_en": {"type": "string"},
+                        "label_es": {"type": "string"},
+                    },
+                    "required": ["hebrew", "label_en", "label_es"],
+                },
+            },
+            "usage_notes_en": {"type": "array", "items": {"type": "string"}},
+            "usage_notes_es": {"type": "array", "items": {"type": "string"}},
+            "examples": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "additionalProperties": False,
+                    "properties": {
+                        "hebrew": {"type": "string"},
+                        "translation_en": {"type": "string"},
+                        "translation_es": {"type": "string"},
+                    },
+                    "required": ["hebrew", "translation_en", "translation_es"],
+                },
+            },
+            "confidence_note_en": {"type": "string"},
+            "confidence_note_es": {"type": "string"},
+        },
+        "required": [
+            "word", "niqqud", "transliteration", "meanings_en", "meanings_es",
+            "grammar", "forms", "usage_notes_en", "usage_notes_es", "examples",
+            "confidence_note_en", "confidence_note_es",
         ],
     },
     "correct": {
@@ -366,6 +425,7 @@ class OfflineCoach:
         """
         handlers = {
             "analyze": self._analyze,
+            "word_insight": self._word_insight,
             "correct": self._correct,
             "exercises": self._exercises,
             "dialogue": self._dialogue,
@@ -432,6 +492,76 @@ class OfflineCoach:
                 }
                 for word in words
             ],
+        }
+
+    def _word_insight(
+        self, payload: dict[str, Any], learner_context: dict[str, Any]
+    ) -> dict[str, Any]:
+        """Build a deterministic dictionary-backed word explanation offline."""
+        word = self._text(payload)
+        entry_value = payload.get("dictionary_entry")
+        entry = entry_value if isinstance(entry_value, dict) else {}
+        senses_value = entry.get("senses")
+        senses = senses_value if isinstance(senses_value, list) else []
+        forms_value = entry.get("forms")
+        forms = forms_value if isinstance(forms_value, list) else []
+        examples_value = entry.get("examples")
+        examples = examples_value if isinstance(examples_value, list) else []
+
+        def strings(key: str) -> list[str]:
+            return [
+                str(sense[key])
+                for sense in senses
+                if isinstance(sense, dict) and sense.get(key)
+            ][:8]
+
+        return {
+            "word": word,
+            "niqqud": str(entry.get("display_niqqud") or word),
+            "transliteration": str(
+                entry.get("romanization") or simple_transliterate(word)
+            ),
+            "meanings_en": strings("gloss_en"),
+            "meanings_es": strings("gloss_es"),
+            "grammar": {
+                "part_of_speech": str(entry.get("pos") or "unknown"),
+                "gender": str(entry.get("gender") or ""),
+                "number": "",
+                "root": str(entry.get("root") or ""),
+                "binyan": str(entry.get("binyan") or ""),
+            },
+            "forms": [
+                {
+                    "hebrew": str(form.get("form") or ""),
+                    "label_en": ", ".join(str(tag) for tag in form.get("tags", [])),
+                    "label_es": ", ".join(str(tag) for tag in form.get("tags", [])),
+                }
+                for form in forms[:12]
+                if isinstance(form, dict) and form.get("form")
+            ],
+            "usage_notes_en": [
+                "Local dictionary facts are shown below; optional cloud enrichment may add context."
+            ],
+            "usage_notes_es": [
+                "Abajo se muestran datos del diccionario local; el enriquecimiento opcional en la nube puede añadir contexto."
+            ],
+            "examples": [
+                {
+                    "hebrew": str(example.get("hebrew_text") or ""),
+                    "translation_en": str(example.get("translation_en") or ""),
+                    "translation_es": "",
+                }
+                for example in examples[:8]
+                if isinstance(example, dict) and example.get("hebrew_text")
+            ],
+            "confidence_note_en": (
+                "Dictionary-backed local result." if entry else "No local dictionary match."
+            ),
+            "confidence_note_es": (
+                "Resultado local respaldado por el diccionario."
+                if entry
+                else "No hay coincidencia en el diccionario local."
+            ),
         }
 
     def _correct(

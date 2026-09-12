@@ -67,9 +67,14 @@ if [[ "${INSTALL_DEV}" == true ]]; then
 fi
 
 "${PIP_BIN}" install -r "${REQUIREMENTS}"
+"${PYTHON_BIN}" -m pip uninstall --yes ivrit-sheli-ultimate
+"${PYTHON_BIN}" -m pip install --no-deps --editable backend
 (
   cd frontend
   npm ci
+  if [[ "${INSTALL_DEV}" == true ]]; then
+    npx playwright install chromium
+  fi
 )
 
 PYTHONPATH=backend/src "${PYTHON_BIN}" -m ivrit_sheli --init --seed
@@ -90,7 +95,7 @@ if [[ "${SKIP_BUILD}" == false ]]; then
 fi
 
 cat <<'DONE'
-Ivrit Sheli Ultimate is ready ✅
+Ivrit Sheli is ready ✅
 
 Development:
   ./scripts/run-dev.sh

@@ -16,7 +16,7 @@ import pytest
 from ivrit_sheli.repository import LearningRepository
 
 
-def test_capture_creates_review_state_and_first_word_achievement(
+def test_capture_creates_review_state_and_meaningful_achievements(
     repository: LearningRepository,
 ) -> None:
     item = repository.create_item(
@@ -33,7 +33,33 @@ def test_capture_creates_review_state_and_first_word_achievement(
 
     status = repository.gamification_status()
     assert status["xp"]["total"] >= 33  # capture XP plus first achievement reward
-    assert next(row for row in status["achievements"] if row["key"] == "first_word")["unlocked"] is True
+    first_word = next(row for row in status["achievements"] if row["key"] == "first_word")
+    assert first_word["unlocked"] is True
+    assert first_word["current_value"] == 1
+    assert first_word["progress_percent"] == 100.0
+    assert first_word["remaining"] == 0
+    word_garden = next(row for row in status["achievements"] if row["key"] == "word_garden_50")
+    assert word_garden["current_value"] == 1
+    assert word_garden["progress_percent"] == 2.0
+    assert word_garden["remaining"] == 49
+
+    for entry_id in range(1, 100):
+        repository.get_or_create_dictionary_item(
+            entry_id,
+            {"hebrew_text": f"מילה {entry_id}"},
+        )
+    # Simulate a duplicate created before the 2.2 atomic dictionary-link path.
+    repository.create_item(
+        {"hebrew_text": "מילה ישנה", "source_label": "dictionary:1"}
+    )
+    status = repository.gamification_status()
+    explorer = next(row for row in status["achievements"] if row["key"] == "dictionary_100")
+    assert explorer["unlocked"] is False
+
+    repository.get_or_create_dictionary_item(100, {"hebrew_text": "מילה 100"})
+    status = repository.gamification_status()
+    explorer = next(row for row in status["achievements"] if row["key"] == "dictionary_100")
+    assert explorer["unlocked"] is True
 
 
 def test_review_updates_schedule_mastery_and_xp(repository: LearningRepository) -> None:
@@ -81,6 +107,12 @@ def test_profile_update_replaces_goal_weights(repository: LearningRepository) ->
             "interface_language": "es",
             "daily_minutes": 24,
             "cloud_consent": True,
+            "onboarding_step": 3,
+            "onboarding_completed": True,
+            "guided_mode": True,
+            "learner_mode": "guided",
+            "first_steps_step": 3,
+            "first_steps_completed": False,
             "goals": [
                 {"goal_type": "workplace", "weight": 0.7, "is_active": 1},
                 {"goal_type": "speaking", "weight": 0.3, "is_active": 1},
@@ -89,7 +121,76 @@ def test_profile_update_replaces_goal_weights(repository: LearningRepository) ->
     )
     assert profile["display_name"] == "Lirioth"
     assert profile["cloud_consent"] == 1
+    assert profile["onboarding_step"] == 3
+    assert profile["onboarding_completed"] == 1
+    assert profile["guided_mode"] == 1
+    assert profile["learner_mode"] == "guided"
+    assert profile["first_steps_step"] == 3
+    assert profile["first_steps_completed"] == 0
     assert {goal["goal_type"] for goal in profile["goals"]} == {"workplace", "speaking"}
+
+
+def test_beginner_profile_defaults_and_onboarding_validation(
+    repository: LearningRepository,
+) -> None:
+    profile = repository.get_profile()
+    assert profile["hebrew_level"] == "A0"
+    assert profile["daily_minutes"] == 10
+    assert profile["niqqud_mode"] == "always"
+    assert profile["onboarding_step"] == 0
+    assert profile["onboarding_completed"] == 0
+    assert profile["guided_mode"] == 1
+    assert profile["learner_mode"] == "guided"
+    assert profile["first_steps_step"] == 0
+    assert profile["first_steps_completed"] == 0
+
+    with pytest.raises(ValueError, match="onboarding_step"):
+        repository.update_profile({"onboarding_step": 5})
+    with pytest.raises(ValueError, match="first_steps_step"):
+        repository.update_profile({"first_steps_step": 6})
+    with pytest.raises(ValueError, match="learner_mode"):
+        repository.update_profile({"learner_mode": "expert"})
+
+
+def test_three_learner_modes_keep_legacy_guided_flag_synchronized(
+    repository: LearningRepository,
+) -> None:
+    experienced = repository.update_profile({"learner_mode": "experienced"})
+    assert experienced["learner_mode"] == "experienced"
+    assert experienced["guided_mode"] == 0
+
+    explorer = repository.update_profile({"guided_mode": False})
+    assert explorer["learner_mode"] == "explorer"
+    assert explorer["guided_mode"] == 0
+
+    guided = repository.update_profile({"guided_mode": True})
+    assert guided["learner_mode"] == "guided"
+    assert guided["guided_mode"] == 1
+
+
+def test_progress_exposes_only_safe_learner_activity_fields(
+    repository: LearningRepository,
+) -> None:
+    item = repository.create_item({"hebrew_text": "שלום", "personal_note": "private note"})
+    repository.submit_review(
+        item["id"],
+        {
+            "is_correct": True,
+            "confidence": 4,
+            "response_ms": 900,
+            "hints_used": 0,
+            "modality": "recognition",
+            "answer_text": "sensitive raw answer",
+        },
+    )
+
+    entries = repository.progress()["activity_log"]
+    assert [entry["type"] for entry in entries[:2]] == ["review_submitted", "item_created"]
+    assert entries[0]["hebrew_text"] == "שלום"
+    assert entries[0]["source"] == "learning_item"
+    encoded = json.dumps(entries, ensure_ascii=False)
+    assert "sensitive raw answer" not in encoded
+    assert "private note" not in encoded
 
 
 def test_real_life_mission_rewards_success_and_reflection(repository: LearningRepository) -> None:

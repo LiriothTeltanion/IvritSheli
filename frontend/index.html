@@ -1,15 +1,48 @@
 <!doctype html>
-<html lang="en" dir="ltr">
+<html lang="en" dir="ltr" data-theme="dark">
   <head>
+    <!-- No webfont CDN: this app's CSP is style-src 'self' and
+         font-src 'self' data:, so a Google Fonts link can never resolve here.
+         Brand letterforms are drawn as SVG paths; Hebrew uses the local
+         /fonts/ face with system fallbacks. -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#07111f" />
+    <meta name="theme-color" content="#030912" />
     <meta name="color-scheme" content="dark light" />
-    <meta name="description" content="Secure, account-isolated, trilingual Hebrew learning shaped by real-life practice." />
-    <link rel="icon" type="image/svg+xml" href="/icons/app-icon.svg" />
-    <link rel="apple-touch-icon" href="/icons/app-icon-192.png" />
+    <meta name="description" content="A dark-first adult editorial Hebrew-learning journey in English, Spanish, and Hebrew." />
+    <meta name="application-name" content="Ivrit Sheli" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Ivrit Sheli" />
+    <!-- 2026-08-24: this was written inline here and the application's own CSP
+         (`script-src 'self'`, no `'unsafe-inline'`, no hash) refused to run it
+         on the served path. It ran only on the Vite dev server, which sends no
+         such header — so the theme looked correct on 5173 and a learner who
+         had chosen the light theme met a dark flash on every real load.
+         Render-blocking on purpose: it must finish before anything is drawn. -->
+    <script src="/theme-boot.js"></script>
+    <link rel="icon" type="image/svg+xml" href="/icons/app-icon.svg?v=2.12.3" />
+    <link rel="apple-touch-icon" href="/icons/app-icon-192.png?v=2.12.3" />
     <link rel="manifest" href="/manifest.webmanifest" />
-    <title>Ivrit Sheli Cloud 2.1 — העברית שלי</title>
+    <!-- Social card. The image is drawn from the same letterforms as the app,
+         and carries no version badge on purpose: a version in an image is the
+         thing that goes stale. og:image should be rewritten to an absolute URL
+         against PUBLIC_BASE_URL at publish time — see docs/DEPLOYMENT.md. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Ivrit Sheli" />
+    <meta property="og:title" content="Ivrit Sheli — Hebrew for the life you actually live" />
+    <meta property="og:description" content="240 semantic scenes, listening and speech practice, and a trilingual interface. Works offline. No tracking." />
+    <meta property="og:image" content="/social/ivrit-sheli-social-preview.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1280" />
+    <meta property="og:image:height" content="640" />
+    <meta property="og:image:alt" content="Ivrit Sheli Nocturne wordmark with the message Hebrew for the life you actually live, plus trilingual, offline, and no-tracking highlights" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Ivrit Sheli — Hebrew for the life you actually live" />
+    <meta name="twitter:description" content="240 semantic scenes, listening and speech practice, and a trilingual interface. Works offline. No tracking." />
+    <meta name="twitter:image" content="/social/ivrit-sheli-social-preview.png" />
+    <meta name="twitter:image:alt" content="Ivrit Sheli Nocturne wordmark with the message Hebrew for the life you actually live, plus trilingual, offline, and no-tracking highlights" />
+    <title>Ivrit Sheli 2.12.3 · Clear Counting & Safer Visuals · העברית שלי</title>
   </head>
   <body>
     <div id="root"></div>
