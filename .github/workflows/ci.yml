@@ -96,8 +96,17 @@ jobs:
         working-directory: frontend
         run: npm run build
 
+      # En una rama, un digest desfasado en SHA256SUMS.txt solo significa que no
+      # se regenero el manifiesto: Git conserva los bytes canonicos y el fichero
+      # se reconstruye desde ellos. Ahi sale como aviso, para que una subida de
+      # dependencia no quede bloqueada por algo que Dependabot no sabe hacer. En
+      # push a main vuelve a ser fallo, que es donde importa, y en un paquete
+      # extraido sin .git lo es siempre. Las otras catorce comprobaciones no
+      # cambian.
       - name: Verify distributable package
-        run: python scripts/verify_package.py
+        run: >-
+          python scripts/verify_package.py
+          ${{ github.event_name == 'pull_request' && '--allow-stale-manifest' || '' }}
 
   python-310-compat:
     name: Python 3.10 compatibility
