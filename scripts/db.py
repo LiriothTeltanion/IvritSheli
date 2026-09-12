@@ -20,7 +20,6 @@ Author: Kevin "Lirioth" Cusnir
 from __future__ import annotations
 
 import argparse
-import io
 import json
 import sys
 from pathlib import Path
@@ -34,9 +33,10 @@ def runtime_url() -> str:
     env = ROOT / ".env"
     if not env.exists():
         raise SystemExit("No .env. Nothing to connect to.")
-    for line in io.open(env, encoding="utf-8"):
-        if line.strip().startswith("DATABASE_URL"):
-            return line.split("=", 1)[1].strip().strip('"').strip("'")
+    with env.open(encoding="utf-8") as handle:
+        for line in handle:
+            if line.strip().startswith("DATABASE_URL"):
+                return line.split("=", 1)[1].strip().strip('"').strip("'")
     raise SystemExit("DATABASE_URL is not set in .env; the app is in local SQLite mode.")
 
 
@@ -44,14 +44,16 @@ def run(query: str, tenant: str | None) -> list[dict[str, Any]]:
     import psycopg
     from psycopg.rows import dict_row
 
-    with psycopg.connect(runtime_url(), connect_timeout=15, row_factory=dict_row) as conn:
-        with conn.transaction():
-            if tenant:
-                # Transaction-scoped, exactly as the application sets it, so the
-                # setting cannot leak into a later query on a pooled connection.
-                conn.execute("SELECT set_config('app.user_id', %s, true)", (tenant,))
-            cursor = conn.execute(query)
-            return cursor.fetchall() if cursor.description else []
+    with (
+        psycopg.connect(runtime_url(), connect_timeout=15, row_factory=dict_row) as conn,
+        conn.transaction(),
+    ):
+        if tenant:
+            # Transaction-scoped, exactly as the application sets it, so the
+            # setting cannot leak into a later query on a pooled connection.
+            conn.execute("SELECT set_config('app.user_id', %s, true)", (tenant,))
+        cursor = conn.execute(query)
+        return cursor.fetchall() if cursor.description else []
 
 
 READINESS = """

@@ -8,7 +8,6 @@ services:
     dockerfilePath: ./Dockerfile
     autoDeployTrigger: off
     healthCheckPath: /health/ready
-    maxShutdownDelaySeconds: 30
     envVars:
       - key: APP_ENV
         value: production
@@ -36,13 +35,29 @@ services:
         value: ""
       - key: GOOGLE_REFRESH_TOKEN
         value: ""
+      # Los tres secretos se copian del servicio que ya funciona. Nadie los
+      # teclea ni los lee: Render resuelve el valor al sincronizar el plano.
+      # Antes de borrar ivrit-sheli-staging hay que pasarlos a `sync: false`,
+      # o la siguiente sincronizacion fallara al no encontrar el origen.
       - key: DATABASE_URL
-        sync: false
-      - key: SESSION_SECRET
-        generateValue: true
+        fromService:
+          type: web
+          name: ivrit-sheli-staging
+          envVarKey: DATABASE_URL
+      - key: GOOGLE_AUTH_CLIENT_ID
+        fromService:
+          type: web
+          name: ivrit-sheli-staging
+          envVarKey: GOOGLE_AUTH_CLIENT_ID
+      - key: GOOGLE_AUTH_CLIENT_SECRET
+        fromService:
+          type: web
+          name: ivrit-sheli-staging
+          envVarKey: GOOGLE_AUTH_CLIENT_SECRET
+      # Este NO se copia: tiene que ser distinto, es la URL del servicio nuevo.
       - key: PUBLIC_BASE_URL
         sync: false
-      - key: GOOGLE_AUTH_CLIENT_ID
-        sync: false
-      - key: GOOGLE_AUTH_CLIENT_SECRET
-        sync: false
+      # Secreto propio y nuevo. Las sesiones no se heredan de todos modos,
+      # porque el dominio de la cookie cambia con la URL.
+      - key: SESSION_SECRET
+        generateValue: true
