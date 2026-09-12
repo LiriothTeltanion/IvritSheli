@@ -138,8 +138,8 @@ def export_starter_content(output: Path) -> int:
     """Write deterministic UTF-8 JSON and return the exported entry count."""
 
     sys.path.insert(0, str(BACKEND_SOURCE))
-    from ivrit_sheli.dictionary import DEMO_ENTRIES  # noqa: PLC0415
-    from ivrit_sheli.starter_lexicon_validation import (  # noqa: PLC0415
+    from ivrit_sheli.dictionary import DEMO_ENTRIES
+    from ivrit_sheli.starter_lexicon_validation import (
         EXPECTED_STARTER_ENTRY_COUNT,
         validate_starter_vocabulary,
     )
