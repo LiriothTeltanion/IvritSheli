@@ -20,7 +20,10 @@ from psycopg import sql
 from psycopg.conninfo import conninfo_to_dict
 from psycopg.rows import dict_row
 
-from ivrit_sheli.cloud_store import RUNTIME_DATABASE_ROLE
+from ivrit_sheli.cloud_store import (
+    PUSH_WORKER_DATABASE_ROLE,
+    RUNTIME_DATABASE_ROLE,
+)
 from ivrit_sheli.migrations import MIGRATION_HEAD, upgrade_postgres
 from ivrit_sheli.structured_logging import scrub_string
 
@@ -80,13 +83,40 @@ def validate_database_boundary(
         raise ValueError(
             "MIGRATION_DATABASE_URL and DATABASE_URL must target the same host, port, and database"
         )
-    if runtime.user != RUNTIME_DATABASE_ROLE:
+    if (runtime.user or "").split(".", 1)[0] != RUNTIME_DATABASE_ROLE:
         raise ValueError(
             f"DATABASE_URL must authenticate directly as {RUNTIME_DATABASE_ROLE}"
         )
     if migration.user == runtime.user:
         raise ValueError("Migration and runtime database users must be different")
     return migration, runtime
+
+
+def validate_push_database_boundary(
+    migration: DatabaseTarget,
+    runtime: DatabaseTarget,
+    push_database_url: str,
+) -> DatabaseTarget:
+    """Require a distinct least-privilege worker on the same database."""
+    push = parse_database_target(
+        push_database_url,
+        variable_name="PUSH_DATABASE_URL",
+    )
+    if (push.host, push.port, push.database) != (
+        migration.host,
+        migration.port,
+        migration.database,
+    ):
+        raise ValueError(
+            "PUSH_DATABASE_URL must target the same host, port, and database"
+        )
+    if push.user != PUSH_WORKER_DATABASE_ROLE:
+        raise ValueError(
+            f"PUSH_DATABASE_URL must authenticate directly as {PUSH_WORKER_DATABASE_ROLE}"
+        )
+    if push.user in {migration.user, runtime.user}:
+        raise ValueError("Migration, runtime, and Push worker users must be different")
+    return push
 
 
 def _migration_identity(connection: Any) -> dict[str, Any]:
@@ -108,7 +138,12 @@ def _migration_identity(connection: Any) -> dict[str, Any]:
     return dict(row)
 
 
-def _membership_exists(connection: Any, *, member: str) -> bool:
+def _membership_exists(
+    connection: Any,
+    *,
+    member: str,
+    granted_role: str = RUNTIME_DATABASE_ROLE,
+) -> bool:
     row = connection.execute(
         """
         SELECT EXISTS (
@@ -119,7 +154,7 @@ def _membership_exists(connection: Any, *, member: str) -> bool:
             WHERE granted_role.rolname = %s AND member_role.rolname = %s
         ) AS present
         """,
-        (RUNTIME_DATABASE_ROLE, member),
+        (granted_role, member),
     ).fetchone()
     return bool(row and row["present"])
 
@@ -137,6 +172,72 @@ def _roles_granted_to_member(connection: Any, *, member: str) -> list[str]:
         (member,),
     ).fetchall()
     return [str(row["rolname"]) for row in rows]
+
+
+# PostgreSQL requires the SUPERUSER attribute to set SUPERUSER, REPLICATION or
+# BYPASSRLS on a role — including to their negative forms. On a managed provider
+# such as Supabase the administrator role is deliberately not a superuser, so the
+# hardening statement is refused there even though every attribute it asks for is
+# already the default.
+#
+# Setting them is defence in depth on a database we fully own; asserting them is
+# what actually matters. So: attempt the strict form, fall back to what the
+# server permits, and verify the outcome either way.
+PRIVILEGED_ROLE_ATTRIBUTES = "NOSUPERUSER NOREPLICATION NOBYPASSRLS"
+BASE_ROLE_ATTRIBUTES = "LOGIN NOCREATEDB NOCREATEROLE NOINHERIT"
+
+
+def _alter_role_hardened(connection: Any, role: str, verifier: str) -> None:
+    """Apply the login attributes, degrading to what this administrator may set."""
+    strict = sql.SQL("ALTER ROLE {} WITH " + BASE_ROLE_ATTRIBUTES + " " +
+                     PRIVILEGED_ROLE_ATTRIBUTES + " PASSWORD {}")
+    relaxed = sql.SQL("ALTER ROLE {} WITH " + BASE_ROLE_ATTRIBUTES + " PASSWORD {}")
+    args = (sql.Identifier(role), sql.Literal(verifier))
+
+    connection.execute("SAVEPOINT harden_role")
+    try:
+        connection.execute(strict.format(*args))
+        connection.execute("RELEASE SAVEPOINT harden_role")
+    except psycopg.errors.InsufficientPrivilege:
+        connection.execute("ROLLBACK TO SAVEPOINT harden_role")
+        connection.execute(relaxed.format(*args))
+        connection.execute("RELEASE SAVEPOINT harden_role")
+
+    _assert_role_is_unprivileged(connection, role)
+
+
+def _assert_role_is_unprivileged(connection: Any, role: str) -> None:
+    """Refuse to continue unless the role really lacks every dangerous attribute.
+
+    BYPASSRLS is the one that matters most: a role holding it silently disables
+    every row-level-security policy the schema depends on, which is the whole
+    reason this role exists.
+    """
+    row = connection.execute(
+        "SELECT rolsuper, rolreplication, rolbypassrls, rolcreatedb, rolcreaterole, rolcanlogin"
+        " FROM pg_roles WHERE rolname = %s",
+        (role,),
+    ).fetchone()
+    if row is None:
+        raise RuntimeError(f"{role} does not exist after provisioning")
+    dangerous = [
+        name
+        for name, column in (
+            ("SUPERUSER", "rolsuper"),
+            ("REPLICATION", "rolreplication"),
+            ("BYPASSRLS", "rolbypassrls"),
+            ("CREATEDB", "rolcreatedb"),
+            ("CREATEROLE", "rolcreaterole"),
+        )
+        if row[column]
+    ]
+    if dangerous:
+        raise RuntimeError(
+            f"{role} still holds {', '.join(dangerous)}; refusing to hand the "
+            "application a role that can bypass tenant isolation"
+        )
+    if not row["rolcanlogin"]:
+        raise RuntimeError(f"{role} cannot log in after provisioning")
 
 
 def _harden_runtime_role(connection: Any, *, migration_user: str, password: str) -> None:
@@ -159,15 +260,7 @@ def _harden_runtime_role(connection: Any, *, migration_user: str, password: str)
         RUNTIME_DATABASE_ROLE.encode("utf-8"),
         b"scram-sha-256",
     ).decode("utf-8")
-    connection.execute(
-        sql.SQL(
-            "ALTER ROLE {} WITH LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE "
-            "NOINHERIT NOREPLICATION NOBYPASSRLS PASSWORD {}"
-        ).format(
-            sql.Identifier(RUNTIME_DATABASE_ROLE),
-            sql.Literal(verifier),
-        )
-    )
+    _alter_role_hardened(connection, RUNTIME_DATABASE_ROLE, verifier)
 
     if _membership_exists(connection, member=migration_user):
         connection.execute(
@@ -193,8 +286,8 @@ def _harden_runtime_role(connection: Any, *, migration_user: str, password: str)
     # used while 2.0 was being developed, where revision 0001 may already be recorded.
     connection.execute("REVOKE CREATE ON SCHEMA public FROM PUBLIC")
     connection.execute(
-        "REVOKE ALL ON TABLE alembic_version, users, sessions, oauth_states, learner_states "
-        "FROM PUBLIC"
+        "REVOKE ALL ON TABLE alembic_version, users, sessions, oauth_states, "
+        "learner_states, push_subscriptions, push_delivery_state FROM PUBLIC"
     )
     connection.execute(
         sql.SQL("GRANT USAGE ON SCHEMA public TO {}").format(
@@ -208,9 +301,94 @@ def _harden_runtime_role(connection: Any, *, migration_user: str, password: str)
     )
     connection.execute(
         sql.SQL(
-            "GRANT SELECT, INSERT, UPDATE, DELETE "
-            "ON TABLE users, sessions, oauth_states, learner_states TO {}"
+            "REVOKE ALL ON TABLE users, sessions, oauth_states, learner_states, "
+            "push_subscriptions, push_delivery_state FROM {}"
         ).format(sql.Identifier(RUNTIME_DATABASE_ROLE))
+    )
+    connection.execute(
+        sql.SQL(
+            "GRANT SELECT, INSERT, UPDATE, DELETE "
+            "ON TABLE users, sessions, oauth_states, learner_states, "
+            "push_subscriptions TO {}"
+        ).format(sql.Identifier(RUNTIME_DATABASE_ROLE))
+    )
+    connection.execute(
+        sql.SQL(
+            "GRANT SELECT, INSERT ON TABLE push_delivery_state TO {}"
+        ).format(sql.Identifier(RUNTIME_DATABASE_ROLE))
+    )
+
+
+def _harden_push_worker_role(
+    connection: Any,
+    *,
+    migration_user: str,
+    password: str,
+) -> None:
+    """Provision a direct login that can read/update only encrypted Push state."""
+    role_exists = connection.execute(
+        "SELECT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = %s) AS present",
+        (PUSH_WORKER_DATABASE_ROLE,),
+    ).fetchone()
+    if not role_exists or not role_exists["present"]:
+        connection.execute(
+            sql.SQL(
+                "CREATE ROLE {} NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE "
+                "NOINHERIT NOREPLICATION NOBYPASSRLS"
+            ).format(sql.Identifier(PUSH_WORKER_DATABASE_ROLE))
+        )
+    verifier = connection.pgconn.encrypt_password(
+        password.encode("utf-8"),
+        PUSH_WORKER_DATABASE_ROLE.encode("utf-8"),
+        b"scram-sha-256",
+    ).decode("utf-8")
+    _alter_role_hardened(connection, PUSH_WORKER_DATABASE_ROLE, verifier)
+    if _membership_exists(
+        connection,
+        member=migration_user,
+        granted_role=PUSH_WORKER_DATABASE_ROLE,
+    ):
+        connection.execute(
+            sql.SQL("REVOKE {} FROM {}").format(
+                sql.Identifier(PUSH_WORKER_DATABASE_ROLE),
+                sql.Identifier(migration_user),
+            )
+        )
+    for granted_role in _roles_granted_to_member(
+        connection,
+        member=PUSH_WORKER_DATABASE_ROLE,
+    ):
+        connection.execute(
+            sql.SQL("REVOKE {} FROM {}").format(
+                sql.Identifier(granted_role),
+                sql.Identifier(PUSH_WORKER_DATABASE_ROLE),
+            )
+        )
+    connection.execute(
+        sql.SQL("GRANT USAGE ON SCHEMA public TO {}").format(
+            sql.Identifier(PUSH_WORKER_DATABASE_ROLE)
+        )
+    )
+    connection.execute(
+        sql.SQL(
+            "REVOKE ALL ON TABLE push_subscriptions, push_delivery_state FROM {}"
+        ).format(sql.Identifier(PUSH_WORKER_DATABASE_ROLE))
+    )
+    connection.execute(
+        sql.SQL(
+            "GRANT SELECT, UPDATE ON TABLE push_subscriptions TO {}"
+        ).format(sql.Identifier(PUSH_WORKER_DATABASE_ROLE))
+    )
+    connection.execute(
+        sql.SQL(
+            "GRANT SELECT, INSERT, UPDATE ON TABLE push_delivery_state TO {}"
+        ).format(sql.Identifier(PUSH_WORKER_DATABASE_ROLE))
+    )
+    connection.execute(
+        sql.SQL(
+            "REVOKE ALL ON TABLE alembic_version, users, sessions, oauth_states, "
+            "learner_states FROM {}"
+        ).format(sql.Identifier(PUSH_WORKER_DATABASE_ROLE))
     )
 
 
@@ -237,7 +415,19 @@ def _verify_runtime_connection(runtime_database_url: str) -> None:
                 (SELECT version_num FROM alembic_version LIMIT 1)
                     AS migration_revision,
                 has_schema_privilege(CURRENT_USER, 'public', 'CREATE')
-                    AS can_create_in_public
+                    AS can_create_in_public,
+                has_table_privilege(
+                    CURRENT_USER, 'push_delivery_state', 'SELECT'
+                ) AS can_select_push_delivery,
+                has_table_privilege(
+                    CURRENT_USER, 'push_delivery_state', 'INSERT'
+                ) AS can_insert_push_delivery,
+                has_table_privilege(
+                    CURRENT_USER, 'push_delivery_state', 'UPDATE'
+                ) AS can_update_push_delivery,
+                has_table_privilege(
+                    CURRENT_USER, 'push_delivery_state', 'DELETE'
+                ) AS can_delete_push_delivery
             FROM pg_roles r
             WHERE r.rolname = SESSION_USER
             """
@@ -256,15 +446,106 @@ def _verify_runtime_connection(runtime_database_url: str) -> None:
         and row["role_membership_count"] == 0
         and row["migration_revision"] == MIGRATION_HEAD
         and not row["can_create_in_public"]
+        and row["can_select_push_delivery"]
+        and row["can_insert_push_delivery"]
+        and not row["can_update_push_delivery"]
+        and not row["can_delete_push_delivery"]
     )
     if not expected:
         raise RuntimeError("Restricted PostgreSQL runtime identity verification failed")
+
+
+def _verify_push_worker_connection(push_database_url: str) -> None:
+    """Verify that the cross-tenant reminder worker has no learner-data access."""
+    with psycopg.connect(
+        push_database_url,
+        row_factory=dict_row,
+        connect_timeout=8,
+    ) as connection:
+        row = connection.execute(
+            """
+            SELECT
+                SESSION_USER AS session_user,
+                CURRENT_USER AS current_user,
+                r.rolcanlogin,
+                r.rolsuper,
+                r.rolcreatedb,
+                r.rolcreaterole,
+                r.rolinherit,
+                r.rolreplication,
+                r.rolbypassrls,
+                (SELECT COUNT(*) FROM pg_auth_members WHERE member = r.oid)
+                    AS role_membership_count,
+                has_schema_privilege(CURRENT_USER, 'public', 'CREATE')
+                    AS can_create_in_public,
+                has_table_privilege(
+                    CURRENT_USER, 'push_subscriptions', 'SELECT'
+                ) AS can_select_push,
+                has_table_privilege(
+                    CURRENT_USER, 'push_subscriptions', 'UPDATE'
+                ) AS can_update_push,
+                has_table_privilege(
+                    CURRENT_USER, 'push_subscriptions', 'INSERT'
+                ) AS can_insert_push,
+                has_table_privilege(
+                    CURRENT_USER, 'push_subscriptions', 'DELETE'
+                ) AS can_delete_push,
+                has_table_privilege(
+                    CURRENT_USER, 'push_delivery_state', 'SELECT'
+                ) AS can_select_claims,
+                has_table_privilege(
+                    CURRENT_USER, 'push_delivery_state', 'INSERT'
+                ) AS can_insert_claims,
+                has_table_privilege(
+                    CURRENT_USER, 'push_delivery_state', 'UPDATE'
+                ) AS can_update_claims,
+                has_table_privilege(
+                    CURRENT_USER, 'push_delivery_state', 'DELETE'
+                ) AS can_delete_claims,
+                has_table_privilege(CURRENT_USER, 'users', 'SELECT')
+                    AS can_read_users,
+                has_table_privilege(CURRENT_USER, 'learner_states', 'SELECT')
+                    AS can_read_learner_states,
+                has_table_privilege(CURRENT_USER, 'alembic_version', 'SELECT')
+                    AS can_read_migration_state
+            FROM pg_roles r
+            WHERE r.rolname = SESSION_USER
+            """
+        ).fetchone()
+    expected = bool(
+        row
+        and row["session_user"] == PUSH_WORKER_DATABASE_ROLE
+        and row["current_user"] == PUSH_WORKER_DATABASE_ROLE
+        and row["rolcanlogin"]
+        and not row["rolsuper"]
+        and not row["rolcreatedb"]
+        and not row["rolcreaterole"]
+        and not row["rolinherit"]
+        and not row["rolreplication"]
+        and not row["rolbypassrls"]
+        and row["role_membership_count"] == 0
+        and not row["can_create_in_public"]
+        and row["can_select_push"]
+        and row["can_update_push"]
+        and not row["can_insert_push"]
+        and not row["can_delete_push"]
+        and row["can_select_claims"]
+        and row["can_insert_claims"]
+        and row["can_update_claims"]
+        and not row["can_delete_claims"]
+        and not row["can_read_users"]
+        and not row["can_read_learner_states"]
+        and not row["can_read_migration_state"]
+    )
+    if not expected:
+        raise RuntimeError("Restricted PostgreSQL Push worker verification failed")
 
 
 def provision_postgres(
     migration_database_url: str,
     runtime_database_url: str,
     backend_dir: Path,
+    push_database_url: str | None = None,
 ) -> None:
     """Migrate one database and provision its direct restricted login idempotently."""
     migration, runtime = validate_database_boundary(
@@ -276,6 +557,17 @@ def provision_postgres(
     normalized_runtime_url = runtime_database_url.replace(
         "postgres://", "postgresql://", 1
     )
+    normalized_push_url: str | None = None
+    push: DatabaseTarget | None = None
+    if push_database_url:
+        push = validate_push_database_boundary(
+            migration,
+            runtime,
+            push_database_url,
+        )
+        normalized_push_url = push_database_url.replace(
+            "postgres://", "postgresql://", 1
+        )
     with psycopg.connect(
         normalized_migration_url,
         row_factory=dict_row,
@@ -294,6 +586,12 @@ def provision_postgres(
                 migration_user=str(identity["rolname"]),
                 password=runtime.password,
             )
+            if push is not None:
+                _harden_push_worker_role(
+                    connection,
+                    migration_user=str(identity["rolname"]),
+                    password=push.password,
+                )
             connection.commit()
         except Exception:
             connection.rollback()
@@ -304,6 +602,8 @@ def provision_postgres(
         )
         connection.commit()
     _verify_runtime_connection(normalized_runtime_url)
+    if normalized_push_url is not None:
+        _verify_push_worker_connection(normalized_push_url)
 
 
 def main(arguments: list[str] | None = None) -> int:
@@ -319,6 +619,7 @@ def main(arguments: list[str] | None = None) -> int:
             migration_database_url,
             runtime_database_url,
             Path(__file__).resolve().parents[2],
+            os.environ.get("PUSH_DATABASE_URL") or None,
         )
     except KeyError as error:
         missing = str(error).strip("'")
@@ -336,7 +637,19 @@ def main(arguments: list[str] | None = None) -> int:
             file=sys.stderr,
         )
         return 1
-    print(json.dumps({"event": "database.provision.ready", "role": RUNTIME_DATABASE_ROLE}))
+    print(
+        json.dumps(
+            {
+                "event": "database.provision.ready",
+                "role": RUNTIME_DATABASE_ROLE,
+                "push_worker": (
+                    PUSH_WORKER_DATABASE_ROLE
+                    if os.environ.get("PUSH_DATABASE_URL")
+                    else "disabled"
+                ),
+            }
+        )
+    )
     return 0
 
 

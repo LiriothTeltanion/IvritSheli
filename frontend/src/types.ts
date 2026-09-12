@@ -5,13 +5,152 @@
 // Notes: Comments in ENGLISH; emojis sparingly.
 
 export type Locale = 'en' | 'es' | 'he';
-export type ViewKey = 'today' | 'learn' | 'coach' | 'progress' | 'connectors' | 'settings';
+export type ViewKey = 'today' | 'learn' | 'dictionary' | 'audio' | 'coach' | 'progress' | 'connectors' | 'settings' | 'help';
+export type LearnTab = 'path' | 'alphabet' | 'practice' | 'review' | 'dictionary' | 'audio' | 'collection';
+export type VoiceStyle = 'masculine' | 'feminine';
+export type LearnerMode = 'guided' | 'explorer' | 'experienced';
+export type CurriculumTrack = 'modern_conversation' | 'pointed_reading' | 'formal_professional';
+export type CefrBand = 'A0' | 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
+export type LearningPhase =
+  | 'encounter'
+  | 'retrieval'
+  | 'focused_feedback'
+  | 'corrected_retry'
+  | 'delayed_review'
+  | 'transfer'
+  | 'reflection';
+export type LearningSkillDimension =
+  | 'recognition'
+  | 'production'
+  | 'listening'
+  | 'speaking'
+  | 'pointed_reading'
+  | 'unpointed_reading'
+  | 'contextual_transfer';
+export type ReadingSupport = 'full_niqqud' | 'partial_niqqud' | 'hint_only' | 'unpointed';
+export type LearningEvidenceKind = 'exposure' | 'assisted' | 'unassisted' | 'correction_uptake';
+export type TranscriptProvider = 'browser' | 'self_hosted' | 'openai' | 'manual';
+export type SpeechTranscriptionMode = 'self_hosted' | 'openai';
+
+export interface AudioCapabilities {
+  secure_context_required: boolean;
+  secure_context?: boolean;
+  public_base_url?: string | null;
+  self_hosted_available: boolean;
+  openai_available: boolean;
+  max_duration_seconds: number;
+  max_upload_bytes: number;
+  timeout_seconds: number;
+  model: string | null;
+  fallbacks: Array<'browser' | 'manual'>;
+}
+
+export interface AudioTranscriptionResponse {
+  transcript: string;
+  normalized_text: string;
+  provider: 'self_hosted' | 'openai';
+  model: string;
+  duration_seconds: number | null;
+  latency_ms: number;
+  warnings: string[];
+  audio_deleted: boolean;
+  evidence_token?: string;
+  evidence_expires_at?: number;
+}
+
+export interface PushCapabilities {
+  available: boolean;
+  vapid_public_key: string | null;
+}
+
+export interface PushSubscriptionPayload {
+  endpoint: string;
+  expiration_time: number | null;
+  keys: {
+    p256dh: string;
+    auth: string;
+  };
+}
+
+export type CoachExampleBand = 'easy' | 'current' | 'stretch';
+
+export interface CoachExample {
+  band: CoachExampleBand;
+  hebrew: string;
+  translation_en: string;
+  translation_es: string;
+  romanization: string;
+  source_kind: 'dictionary' | 'reviewed_pattern';
+  source_id: string;
+  provenance: string;
+  contexts: string[];
+  registers: string[];
+  grammar: string[];
+  kind: 'usage' | 'practice_frame';
+  difficulty: number;
+}
+
+export interface CoachCard {
+  concept: {
+    hebrew: string;
+    niqqud: string;
+    translation_en: string;
+    translation_es: string;
+    source_key: string;
+  };
+  speaking_target: {
+    text: string;
+    normalized_text: string;
+    learning_item_id: number | null;
+    concept_key: string | null;
+    link_resolution: 'exact_source' | 'unique_exact_text' | null;
+  };
+  primary_action: CoachExample;
+  suggestions: CoachExample[];
+  reason: Record<Locale, string>;
+  evidence: {
+    level: string;
+    mode: string;
+    signals_used: string[];
+    free_form_generation: false;
+  };
+  feedback_target: {
+    target_type: 'coach_card';
+    target_key: string;
+    context: string | null;
+    pattern_id: string | null;
+  };
+}
+
+export interface LearningFeedbackRequest {
+  feedback_key: string;
+  target_type: 'example' | 'recommendation' | 'exercise' | 'coach_card';
+  target_key: string;
+  useful?: boolean;
+  difficulty?: 'too_easy' | 'appropriate' | 'too_difficult';
+  relevant?: boolean;
+  context?: string | null;
+  pattern_id?: string | null;
+  note?: string;
+}
+
+export interface NotificationPreferences {
+  enabled: 0 | 1 | boolean;
+  preferred_time: string;
+  timezone: string;
+  quiet_hours_start: string;
+  quiet_hours_end: string;
+  max_daily: 1;
+  last_sent_local_date: string | null;
+}
+export type AuthProvider = 'google' | 'github';
 
 export interface AuthUser {
   id: string;
   login: string | null;
   display_name: string;
   avatar_url: string | null;
+  provider?: AuthProvider | 'demo';
 }
 
 export interface AuthCapabilities {
@@ -28,12 +167,16 @@ export interface AuthState {
   read_only: boolean;
   user: AuthUser | null;
   mode: 'local' | 'cloud';
+  auth_providers?: AuthProvider[];
+  local_companion_url?: string | null;
   capabilities: AuthCapabilities;
 }
 
 export interface Profile {
   id: number;
   display_name: string;
+  /** The avatar the learner picked. Optional: a server that predates it omits it. */
+  avatar_preset_id?: string;
   interface_language: Locale;
   hebrew_level: string;
   daily_minutes: number;
@@ -41,7 +184,361 @@ export interface Profile {
   niqqud_mode: 'always' | 'difficult' | 'hidden';
   weekly_rest_day: number;
   cloud_consent: number;
+  /* Both have existed on the server since migration 6 and neither was ever
+     modelled here, so nothing could read them. text_scale is now what drives
+     the root font size; focus_status is still device-local in ProfileMenu and
+     is listed so the next reader knows the column is there. */
+  text_scale?: number;
+  focus_status?: 'available' | 'busy';
+  onboarding_step?: number;
+  onboarding_completed?: number | boolean;
+  guided_mode?: number | boolean;
+  learner_mode?: LearnerMode;
+  curriculum_track?: CurriculumTrack;
+  cefr_band?: CefrBand;
+  first_steps_step?: number;
+  first_steps_completed?: number | boolean;
   goals?: Goal[];
+}
+
+export type CurriculumCoverage = 'structured' | 'laboratory';
+export type CurriculumProgressStatus = 'not_started' | 'in_progress' | 'completed';
+
+export interface CurriculumLesson {
+  key: string;
+  band: Extract<CefrBand, 'A0' | 'A1' | 'A2' | 'B1' | 'B2'>;
+  coverage: CurriculumCoverage;
+  concept_target: number;
+  title: Record<Locale, string>;
+  unlocked: boolean;
+  progress: {
+    status: CurriculumProgressStatus;
+    meaningful_attempts: number;
+    successful_attempts: number;
+    last_practiced_at: string | null;
+  };
+}
+
+export interface CurriculumPath {
+  contract_version: '2.8';
+  profile: {
+    cefr_band: Extract<CefrBand, 'A0' | 'A1' | 'A2' | 'B1' | 'B2'>;
+    learner_mode: LearnerMode;
+  };
+  coverage: {
+    structured: ['A0', 'A1', 'A2'];
+    laboratory: ['B1', 'B2'];
+    complete_course_claim: false;
+    concept_target: number;
+    available_personal_concepts: number;
+  };
+  lessons: CurriculumLesson[];
+  reading_track: {
+    approach: 'sound_first';
+    base_letters: 22;
+    entries: Array<{ letter: string; name: string; sound: string }>;
+  };
+}
+
+export type AlphabetProgressStage = 'new' | 'learning' | 'practiced' | 'mastered';
+export type AlphabetExerciseType =
+  | 'letter_recognition'
+  | 'sound_choice'
+  | 'final_form_pair'
+  | 'word_spotting'
+  | 'review';
+
+export interface LocalizedText {
+  en: string;
+  es: string;
+  he: string;
+}
+
+export interface AlphabetSound {
+  key: string;
+  form: string;
+  ipa: string;
+  approximation: LocalizedText;
+  context: LocalizedText;
+  usage: 'common' | 'contextual' | 'heritage';
+}
+
+export interface AlphabetExample {
+  word: string;
+  niqqud: string;
+  transliteration: string;
+  meaning: LocalizedText;
+  dictionary_query?: string;
+}
+
+export interface AlphabetUnit {
+  key: string;
+  content_revision: string;
+  editorial_status: 'reviewed';
+  order: number;
+  letter: string;
+  base_key: string;
+  is_final: boolean;
+  name: LocalizedText;
+  name_niqqud: string;
+  transliteration: string;
+  tts_text: string;
+  explanation: LocalizedText;
+  sounds: AlphabetSound[];
+  example: AlphabetExample;
+  source_refs: string[];
+  visual_confusions: string[];
+  sound_confusions: string[];
+  confusions: string[];
+  sources: string[];
+}
+
+export interface AlphabetSourceReference {
+  id: string;
+  title: string;
+  url: string;
+}
+
+export interface AlphabetUnitProgress {
+  letter_key: string;
+  stage: AlphabetProgressStage;
+  recognition_successes: number;
+  sound_successes: number;
+  word_successes: number;
+  total_failures: number;
+  review_count: number;
+  next_review_at: string | null;
+  revision: number;
+}
+
+export interface AlphabetProgress {
+  can_save: boolean;
+  persistence: 'persisted' | 'read_only_preview';
+  practiced_units: number;
+  mastered_units: number;
+  completion_percent: number;
+  practiced_base_letters: number;
+  practiced_final_forms: number;
+  total_attempts: number;
+  correct_attempts: number;
+  accuracy: number;
+  last_practiced_at: string | null;
+  by_key: Record<string, AlphabetUnitProgress>;
+}
+
+export interface AlphabetActivityOption {
+  key: string;
+  letter: string;
+  name: LocalizedText;
+}
+
+export interface AlphabetNextActivity {
+  letter_key: string;
+  exercise_type: AlphabetExerciseType;
+  prompt_key: string;
+  prompt: LocalizedText;
+  options: AlphabetActivityOption[];
+  activity_token: string;
+  token_kind: 'sha256_concurrency_token';
+  can_submit: boolean;
+}
+
+export interface AlphabetCatalog {
+  contract_version: '2.9.1';
+  content_revision: string;
+  editorial_status: 'reviewed';
+  source_refs: AlphabetSourceReference[];
+  facts: {
+    base_letters: 22;
+    final_forms: 5;
+    total_forms: 27;
+    direction: 'rtl';
+    has_case: false;
+    letter_count_note: LocalizedText;
+    niqqud_role: LocalizedText;
+    pronunciation_scope: LocalizedText;
+  };
+  profile: {
+    cefr_band: string;
+    learner_mode: LearnerMode;
+  };
+  units: AlphabetUnit[];
+  progress: AlphabetProgress;
+  recommended_key: string;
+  next_activity: AlphabetNextActivity;
+}
+
+export interface AlphabetAttemptRequest {
+  activity_token: string;
+  idempotency_key: string;
+  answer_key: string;
+  confidence?: number;
+  response_ms?: number;
+  hints_used?: number;
+}
+
+export interface AlphabetAttemptResponse {
+  contract_version: '2.9.1';
+  idempotent_replay: boolean;
+  attempt_id: number;
+  letter_key: string;
+  exercise_type: AlphabetExerciseType;
+  expected_key: string;
+  is_correct: boolean;
+  saved: true;
+  xp_awarded: number;
+  achievements_unlocked: Array<{
+    key: string;
+    title: LocalizedText;
+  }>;
+  letter_progress: AlphabetUnitProgress;
+  progress: AlphabetProgress;
+  next_activity: AlphabetNextActivity;
+}
+
+export interface AlphabetDashboardSummary {
+  base_letters: 22;
+  final_forms: 5;
+  total_forms: 27;
+  practiced_units: number;
+  mastered_units: number;
+  completion_percent: number;
+  practiced_base_letters: number;
+  practiced_final_forms: number;
+  total_attempts: number;
+  correct_attempts: number;
+  accuracy: number;
+  last_practiced_at: string | null;
+  recommended_key: string;
+  recommended: {
+    key: string;
+    letter: string;
+    name: LocalizedText;
+    name_niqqud: string;
+    example: AlphabetExample;
+  };
+}
+
+export type PracticeStepKind =
+  | 'encounter'
+  | 'retrieval'
+  | 'listening'
+  | 'speaking'
+  | 'reflection'
+  | 'summary';
+export type PracticeOutcome = 'completed' | 'failed' | 'unsupported';
+
+export interface PracticeConcept {
+  concept_key: string;
+  lesson_key: string;
+  item_id?: number;
+  hebrew_text: string;
+  hebrew_with_niqqud?: string;
+  transliteration?: string;
+  translation_en?: string;
+  translation_es?: string;
+  visual_id?: string;
+  visual?: DictionaryVisual;
+  source: 'personal' | 'reviewed_starter';
+}
+
+export interface PracticeStep {
+  key: string;
+  kind: PracticeStepKind;
+  exercise_type:
+    | 'visual_meaning'
+    | 'hebrew_to_meaning'
+    | 'meaning_to_hebrew_word_bank'
+    | 'cloze_order'
+    | 'audio_choice'
+    | 'spoken_production'
+    | 'confidence_reflection'
+    | 'session_summary';
+  required: boolean;
+  meaningful: boolean;
+  reason: string;
+  concept?: PracticeConcept;
+}
+
+export interface PracticePlan {
+  contract_version: '2.8';
+  profile: {
+    cefr_band: Extract<CefrBand, 'A0' | 'A1' | 'A2' | 'B1' | 'B2'>;
+    learner_mode: LearnerMode;
+  };
+  source: 'personal_learning_items' | 'reviewed_starter';
+  reason: string;
+  steps: PracticeStep[];
+}
+
+export interface PracticeEvent {
+  id: number;
+  step_key: string;
+  outcome: PracticeOutcome;
+  meaningful: boolean;
+  is_correct: boolean | null;
+  created_at: string;
+}
+
+export interface PracticeSummary {
+  saved: true;
+  outcomes: Record<PracticeOutcome, number>;
+  meaningful_actions: number;
+  next_action: string;
+}
+
+export interface PracticeSession {
+  id: string;
+  local_date: string;
+  status: 'active' | 'completed' | 'preview';
+  current_step: number;
+  current_step_key: string | null;
+  plan: PracticePlan;
+  events: PracticeEvent[];
+  daily_goal: {
+    target: number;
+    completed: number;
+    achieved: boolean;
+  };
+  summary: PracticeSummary | null;
+  persisted: boolean;
+  created_at?: string;
+  updated_at?: string;
+  completed_at?: string | null;
+}
+
+export interface PracticeToday {
+  session: PracticeSession;
+}
+
+export interface PracticeStepSubmit {
+  idempotency_key: string;
+  outcome: PracticeOutcome;
+  is_correct?: boolean;
+  confidence?: number;
+  response_ms?: number;
+  hints_used?: number;
+  answer_text?: string;
+  transcript?: string;
+  unsupported_reason?: string;
+}
+
+export interface PracticeStepSubmitResponse {
+  accepted: true;
+  saved: true;
+  duplicate: boolean;
+  xp_awarded: number;
+  next_action: 'continue' | 'retry' | 'manual_fallback';
+  event: Pick<PracticeEvent, 'id' | 'step_key' | 'outcome' | 'meaningful' | 'created_at'>;
+  curriculum_progress: {
+    lesson_key: string;
+    status: CurriculumProgressStatus;
+    meaningful_attempts: number;
+    successful_attempts: number;
+    last_practiced_at: string;
+    completed_at: string | null;
+  } | null;
+  session: PracticeSession;
 }
 
 export interface Goal {
@@ -59,6 +556,17 @@ export interface XPStatus {
   xp_in_level: number;
   percent: number;
   total?: number;
+}
+
+export interface VisualSpotlightEntry {
+  entry_id: number;
+  word: string;
+  display_niqqud: string;
+  romanization: string;
+  translation_en: string;
+  translation_es: string;
+  translation_he: string;
+  visual: DictionaryVisual;
 }
 
 export interface Dashboard {
@@ -82,6 +590,17 @@ export interface Dashboard {
     suggested_exercise: string;
   };
   recommendations: Recommendation[];
+  /**
+   * Reviewed exact-scene concepts for Today. Optional for compatibility with
+   * older local servers and previously cached dashboard responses.
+   */
+  visual_spotlight?: VisualSpotlightEntry[];
+  /**
+   * Persisted alphabet-learning summary. Optional for compatibility with
+   * v2.9.0 servers and cached dashboard payloads.
+   */
+  alphabet_summary?: AlphabetDashboardSummary;
+  coach_card?: CoachCard | null;
   achievements: Array<Record<string, unknown>>;
   mission: {
     title: string;
@@ -126,12 +645,80 @@ export interface LearningItem {
   lapses?: number;
 }
 
+export type RegistryStatus = 'active' | 'mastered' | 'needs_review';
+export type RegistryStatusFilter = 'all' | RegistryStatus;
+export type RegistryDueFilter = 'all' | 'due' | 'upcoming';
+export type RegistrySort =
+  | 'alphabetical'
+  | 'due_asc'
+  | 'last_activity_desc'
+  | 'saved_asc'
+  | 'saved_desc'
+  | 'mastery_desc';
+
+export interface RegistryMastery {
+  recognition: number;
+  production: number;
+  listening: number;
+  speaking: number;
+  observations: number;
+}
+
+export interface RegistryItem extends LearningItem {
+  normalized_text: string;
+  interval_days: number;
+  ease_factor: number;
+  repetitions: number;
+  lapses: number;
+  due_at: string;
+  last_reviewed_at: string | null;
+  status: RegistryStatus;
+  due_state: Exclude<RegistryDueFilter, 'all'>;
+  review_count: number;
+  saved_at: string;
+  last_activity_at: string;
+  mastery: RegistryMastery;
+}
+
+export interface RegistryResponse {
+  items: RegistryItem[];
+  total: number;
+  summary: Record<RegistryStatus, number>;
+  offset: number;
+  limit: number;
+  has_more: boolean;
+  next_offset: number | null;
+}
+
+export interface ReadingHint {
+  display: string;
+  note_en: string;
+  note_es: string;
+  note_he: string;
+}
+
 export interface DictionarySense {
   id: number;
   gloss_en: string | null;
   gloss_es: string | null;
   tags: string[];
   topics: string[];
+  level: string | null;
+  category: string | null;
+  visual_key: string | null;
+  visual_emoji: string | null;
+  visual_alt_en: string | null;
+  visual_alt_es: string | null;
+  visual_alt_he: string | null;
+  provenance: string | null;
+  reading_hints?: ReadingHint[];
+  visual: DictionaryVisual | null;
+}
+
+export interface DictionaryVisual {
+  key: string;
+  emoji: string;
+  alt: Record<Locale, string>;
 }
 
 export interface DictionaryForm {
@@ -151,16 +738,23 @@ export interface DictionaryEntry {
   root: string | null;
   binyan: string | null;
   gender: string | null;
+  level: string | null;
+  category: string | null;
+  visual: DictionaryVisual | null;
   etymology: string | null;
   source_name: string;
   source_url: string | null;
   license_name: string | null;
+  learning_item_id?: number | null;
+  learning_status?: RegistryStatus | null;
+  learning_due_state?: Exclude<RegistryDueFilter, 'all'> | null;
   senses: DictionarySense[];
   forms: DictionaryForm[];
   examples: Array<{
     id: number;
     hebrew_text: string;
     translation_en: string | null;
+    translation_es: string | null;
     romanization: string | null;
   }>;
   sounds: Array<{
@@ -181,6 +775,90 @@ export interface DictionaryStats {
   metadata: Record<string, string>;
 }
 
+export interface WordInsight {
+  word: string;
+  niqqud: string;
+  transliteration: string;
+  meanings_en: string[];
+  meanings_es: string[];
+  grammar: {
+    part_of_speech: string;
+    gender: string;
+    number: string;
+    root: string;
+    binyan: string;
+  };
+  forms: Array<{ hebrew: string; label_en: string; label_es: string }>;
+  usage_notes_en: string[];
+  usage_notes_es: string[];
+  examples: Array<{
+    hebrew: string;
+    translation_en: string;
+    translation_es: string;
+  }>;
+  confidence_note_en: string;
+  confidence_note_es: string;
+}
+
+export interface WordAnalysisResult {
+  word: string;
+  display_word: string;
+  transcript: string;
+  transcript_provider: TranscriptProvider;
+  dictionary_matches: DictionaryEntry[];
+  enrichment: (AIResponse<WordInsight> & {
+    source: 'cloud_ai' | 'offline_fallback';
+  }) | null;
+  provenance: {
+    transcript:
+      | 'client_reported_browser_recognition'
+      | 'client_reported_self_hosted_transcription'
+      | 'client_reported_cloud_transcription'
+      | 'client_reported_manual_entry';
+    dictionary: 'local_dictionary';
+    lookup?: 'exact_registered_headword_or_form';
+    enrichment: 'cloud_ai' | 'offline_fallback' | null;
+    audio_retained: false;
+    learning_progress_updated: false;
+  };
+}
+
+export interface TranscriptTokenAnalysis {
+  token: string;
+  normalized_token: string;
+  display_word: string;
+  occurrence_count: number;
+  known: boolean;
+  dictionary_matches: DictionaryEntry[];
+}
+
+interface TranscriptAnalysisShared {
+  transcript: string;
+  normalized_text: string;
+  transcript_provider: TranscriptProvider;
+  tokens: TranscriptTokenAnalysis[];
+  unknown_tokens: string[];
+  total_unique_tokens: number;
+  analyzed_token_count: number;
+  token_limit: number;
+  truncated: boolean;
+  provenance: WordAnalysisResult['provenance'] & {
+    lookup: 'exact_registered_headword_or_form';
+  };
+}
+
+export type TranscriptWordAnalysisResult = WordAnalysisResult
+  & TranscriptAnalysisShared
+  & { mode: 'word' };
+
+export interface TranscriptPhraseAnalysisResult extends TranscriptAnalysisShared {
+  mode: 'phrase';
+}
+
+export type TranscriptAnalysisResult =
+  | TranscriptWordAnalysisResult
+  | TranscriptPhraseAnalysisResult;
+
 export interface Achievement {
   key: string;
   metric: string;
@@ -192,6 +870,145 @@ export interface Achievement {
   icon: string;
   unlocked: boolean;
   unlocked_at: string | null;
+  current_value: number;
+  progress_percent: number;
+  remaining: number;
+}
+
+export interface LearningCoreReadingEvidence {
+  success_streak: number;
+  total_successes: number;
+  total_failures: number;
+  evidence_to_advance: number;
+}
+
+export interface LearningCoreState {
+  current_item_id: number | null;
+  phase: LearningPhase;
+  reading_support: ReadingSupport;
+  reading_evidence: LearningCoreReadingEvidence;
+  wait_until: string | null;
+  state_version: number;
+  updated_at: string;
+  niqqud_available: boolean;
+}
+
+export interface LearningCoreOverview {
+  contract_version: '2.6';
+  profile: {
+    curriculum_track: CurriculumTrack;
+    cefr_band: CefrBand;
+    learner_mode: LearnerMode;
+  };
+  curriculum: {
+    tracks: CurriculumTrack[];
+    cefr_bands: CefrBand[];
+    lesson_phases: LearningPhase[];
+    skill_dimensions: LearningSkillDimension[];
+    reading_support_ladder: ReadingSupport[];
+    evidence_kinds: LearningEvidenceKind[];
+    selection_policy: 'shared_due_queue_pilot';
+    track_status: 'preference_only';
+    cefr_status: 'self_selected_planning_band';
+    evidence_source: 'learner_self_report';
+    skill_map_metric: 'meaningful_attempt_accuracy';
+  };
+  state: LearningCoreState;
+  skill_map: Record<LearningSkillDimension, number>;
+  skill_evidence_counts: Record<LearningSkillDimension, number>;
+  retention_checkpoints?: RetentionCheckpoint[];
+}
+
+export type LearningCoreItem = Pick<LearningItem,
+  | 'id'
+  | 'hebrew_text'
+  | 'hebrew_with_niqqud'
+  | 'transliteration'
+  | 'translation_en'
+  | 'translation_es'
+  | 'item_type'
+  | 'root'
+  | 'binyan'
+  | 'grammatical_gender'
+  | 'register_label'
+  | 'context_label'
+> & {
+  reading_hints?: ReadingHint[];
+};
+
+export interface LearningCoreActivity {
+  item: LearningCoreItem;
+  phase: LearningPhase;
+  skill_dimension: LearningSkillDimension;
+  reading_support: ReadingSupport;
+  prompt_key: string;
+  rationale: string;
+  next_review_reason: string;
+  can_submit: boolean;
+  wait_until: string | null;
+  activity_token: string;
+  niqqud_available: boolean;
+}
+
+export interface LearningCoreNext {
+  contract_version: '2.6';
+  available: boolean;
+  activity: LearningCoreActivity | null;
+  state: LearningCoreState;
+}
+
+export interface LearningCoreAttemptRequest {
+  item_id: number;
+  activity_token: string;
+  idempotency_key: string;
+  is_correct: boolean;
+  confidence: number;
+  response_ms: number;
+  hints_used: number;
+  answer_text?: string | null;
+}
+
+export interface LearningCoreAttemptResponse {
+  contract_version: '2.6';
+  accepted: true;
+  duplicate: boolean;
+  attempt: {
+    id: number;
+    item_id: number;
+    phase: LearningPhase;
+    skill_dimension: LearningSkillDimension;
+    is_correct: boolean;
+    reading_support: ReadingSupport;
+    evidence_kind: LearningEvidenceKind;
+    evidence_source: 'learner_self_report';
+  };
+  transition: {
+    from_phase: LearningPhase;
+    to_phase: LearningPhase;
+    reason: string;
+  };
+  mastery: Record<string, unknown> | null;
+  reading_support_state: {
+    level: ReadingSupport;
+    success_streak: number;
+    total_successes: number;
+    total_failures: number;
+    evidence_to_advance: number;
+    advanced: boolean;
+    restored: boolean;
+    reason: string;
+  };
+  schedule: {
+    interval_days: number;
+    ease_factor: number;
+    repetitions: number;
+    lapses: number;
+    due_at: string;
+    quality: number;
+    reason: string;
+  } | null;
+  next_activity: LearningCoreActivity | null;
+  state: LearningCoreState;
 }
 
 export interface GamificationStatus {
@@ -223,8 +1040,41 @@ export interface ProgressData {
     attempts: number;
     correct: number;
   }>;
+  activity_log?: ActivityLogEntry[];
   mastery: Array<Record<string, unknown>>;
   streak_days: number;
+  alphabet?: AlphabetDashboardSummary;
+  retention_checkpoints?: RetentionCheckpoint[];
+}
+
+export interface RetentionCheckpoint {
+  checkpoint: '24h' | '7d' | '30d';
+  window_hours: { minimum: number; maximum: number };
+  evidence_source: 'learner_self_report';
+  attempts: number;
+  correct: number;
+  accuracy: number | null;
+  status: 'observed' | 'insufficient_evidence';
+}
+
+export interface ActivityLogEntry {
+  id: number;
+  type: 'item_created' | 'review_submitted' | 'pronunciation_scored' | 'mission_completed' | 'learning_core_attempted';
+  source: string;
+  source_id: string | null;
+  hebrew_text: string | null;
+  details: {
+    correct?: boolean;
+    modality?: string;
+    score?: number;
+    success?: boolean;
+    xp_awarded?: number;
+    phase?: LearningPhase;
+    skill_dimension?: LearningSkillDimension;
+    evidence_kind?: LearningEvidenceKind;
+    reading_support?: ReadingSupport;
+  };
+  created_at: string;
 }
 
 export interface AIResponse<T = Record<string, unknown>> {

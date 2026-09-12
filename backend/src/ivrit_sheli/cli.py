@@ -27,6 +27,7 @@ from ivrit_sheli.dictionary import (
     DictionaryStore,
     download_dictionary,
 )
+from ivrit_sheli.learning_core import CEFR_BANDS, CURRICULUM_TRACKS, LEARNER_MODES
 from ivrit_sheli.repository import LearningRepository
 from ivrit_sheli.seed import seed_all
 
@@ -53,7 +54,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--version",
         action="version",
-        version=f"Ivrit Sheli Ultimate {__version__}",
+        version=f"Ivrit Sheli {__version__}",
     )
     parser.add_argument(
         "--init",
@@ -67,7 +68,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--display-name",
-        default="Kevin",
+        default="Learner",
         help="Local display name used when creating the profile.",
     )
     parser.add_argument(
@@ -104,6 +105,35 @@ def build_parser() -> argparse.ArgumentParser:
         help="Export portable learner data without provider secrets.",
     )
     parser.add_argument(
+        "--import-json",
+        type=Path,
+        help=(
+            "Atomically replace learner data from an Ivrit Sheli portable export; "
+            "OAuth, sessions, provider secrets, and push endpoints are never imported."
+        ),
+    )
+    parser.add_argument(
+        "--learning-core-status",
+        action="store_true",
+        help="Print the local learning profile, state, skills, and retention evidence.",
+    )
+    parser.add_argument(
+        "--set-curriculum-track",
+        choices=CURRICULUM_TRACKS,
+        help="Select the local curriculum track without changing Hebrew level or interface mode.",
+    )
+    parser.add_argument(
+        "--set-cefr-band",
+        type=str.upper,
+        choices=CEFR_BANDS,
+        help="Set the pragmatic A0-C2 learning band; this is not CEFR certification.",
+    )
+    parser.add_argument(
+        "--set-learner-mode",
+        choices=LEARNER_MODES,
+        help="Set Guided, Explorer, or Experienced interface behavior independently of level.",
+    )
+    parser.add_argument(
         "--doctor",
         action="store_true",
         help="Check databases, dictionary, AI fallback, audio scoring, and config.",
@@ -122,7 +152,10 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def initialize_services(settings: Settings) -> tuple[
+def initialize_services(
+    settings: Settings,
+    display_name: str = "Learner",
+) -> tuple[
     Database,
     DictionaryStore,
     LearningRepository,
@@ -131,6 +164,7 @@ def initialize_services(settings: Settings) -> tuple[
 
     Args:
         settings: Runtime settings.
+        display_name: Name used only when the local profile is first created.
 
     Returns:
         Database, dictionary, and repository.
@@ -146,7 +180,7 @@ def initialize_services(settings: Settings) -> tuple[
     dictionary = DictionaryStore(settings.dictionary_db_path)
     dictionary.initialize()
     repository = LearningRepository(database)
-    repository.ensure_default_profile()
+    repository.ensure_default_profile(display_name)
     return database, dictionary, repository
 
 
@@ -201,9 +235,13 @@ def doctor_report(settings: Settings, live: bool = False) -> dict[str, Any]:
         score = audio.score("שלום", "שלום")
         checks.append(
             {
-                "name": "audio_scoring",
+                "name": "audio_recognition_match",
                 "status": "pass" if score["score"] == 100 else "fail",
-                "details": {"score": score["score"], "method": score["method"]},
+                "details": {
+                    "score": score["score"],
+                    "method": score["method"],
+                    "assessment_type": score["assessment_type"],
+                },
             }
         )
         connectors = ConnectorService(settings, database)
@@ -356,6 +394,11 @@ def main(argv: list[str] | None = None) -> int:
             args.download_dictionary,
             args.dictionary_jsonl,
             args.export_json,
+            args.import_json,
+            args.learning_core_status,
+            args.set_curriculum_track,
+            args.set_cefr_band,
+            args.set_learner_mode,
             args.doctor,
         )
     ):
@@ -379,9 +422,12 @@ def main(argv: list[str] | None = None) -> int:
     database: Database | None = None
     dictionary: DictionaryStore | None = None
     try:
-        database, dictionary, repository = initialize_services(settings)
+        database, dictionary, repository = initialize_services(
+            settings,
+            display_name=args.display_name,
+        )
         if args.init:
-            print(f"Initialized local data in {settings.data_dir} ✅")
+            print(f"Initialized local data in {settings.data_dir} [OK]")
         if args.seed:
             result = seed_all(
                 repository,
@@ -391,7 +437,7 @@ def main(argv: list[str] | None = None) -> int:
             print(
                 "Seeded "
                 f"{result['learning_items']} learning items and "
-                f"{result['dictionary_entries']} dictionary entries ✅"
+                f"{result['dictionary_entries']} dictionary entries [OK]"
             )
 
         import_path = args.dictionary_jsonl
@@ -403,7 +449,7 @@ def main(argv: list[str] | None = None) -> int:
                 args.dictionary_url,
                 import_path,
             )
-            print(f"Downloaded dictionary to {downloaded} ✅")
+            print(f"Downloaded dictionary to {downloaded} [OK]")
         if import_path:
             stats = dictionary.import_jsonl(
                 import_path,
@@ -412,15 +458,40 @@ def main(argv: list[str] | None = None) -> int:
             )
             print(
                 f"Imported {stats.entries_imported} entries, "
-                f"{stats.forms_imported} forms, and {stats.senses_imported} senses ✅"
+                f"{stats.forms_imported} forms, and {stats.senses_imported} senses [OK]"
             )
 
         if args.export_json:
             destination = repository.export_json(args.export_json)
-            print(f"Exported learner data to {destination} ✅")
+            print(f"Exported learner data to {destination} [OK]")
+        if args.import_json:
+            result = repository.import_json(args.import_json)
+            print(
+                "Restored "
+                f"{result['rows_restored']} learner rows from {result['source']} [OK]"
+            )
+
+        profile_updates = {
+            key: value
+            for key, value in {
+                "curriculum_track": args.set_curriculum_track,
+                "cefr_band": args.set_cefr_band,
+                "learner_mode": args.set_learner_mode,
+            }.items()
+            if value is not None
+        }
+        if profile_updates:
+            profile = repository.update_profile(profile_updates)
+            print(
+                "Updated Learning Core profile: "
+                f"track={profile['curriculum_track']}, "
+                f"band={profile['cefr_band']}, mode={profile['learner_mode']} [OK]"
+            )
+        if args.learning_core_status:
+            print(json.dumps(repository.learning_core_state(), ensure_ascii=False, indent=2))
     except (OSError, ValueError, sqlite3.Error, RuntimeError) as error:
         LOGGER.error("%s", error)
-        print(f"Operation failed: {error} ❌", file=sys.stderr)
+        print(f"Operation failed: {error}", file=sys.stderr)
         return 1
     finally:
         if database:

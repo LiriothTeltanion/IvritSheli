@@ -4,8 +4,16 @@
 
 | Version | Supported |
 |---|---:|
-| 2.1.x | Yes |
-| 2.0.x | Critical fixes only; upgrade recommended |
+| 2.12.x | Yes — current source release |
+| 2.9.x | No — superseded private candidate |
+| 2.8.x | No — superseded private candidate |
+| 2.6.x | No — superseded candidate |
+| 2.5.x | No — superseded candidate |
+| 2.4.x | Critical fixes only; upgrade recommended |
+| 2.3.x | No — superseded candidate |
+| 2.2.x | No — superseded release |
+| 2.1.x | Critical fixes only; upgrade recommended |
+| 2.0.x | Critical fixes only; upgrade strongly recommended |
 | 1.0.x | Critical fixes only; upgrade recommended |
 | Older | No |
 
@@ -25,16 +33,17 @@ Include:
 
 Do not access another person's data, persist access, degrade the public demo or run destructive tests.
 
-## 2.0 security model
+## 2.x security model
 
 ### Identity and sessions
 
-- GitHub OAuth uses random state, PKCE and single-use state consumption.
-- Only allow-listed GitHub identity fields are stored; GitHub OAuth access tokens and email addresses are not persisted. Optional Google credentials remain server-side configuration and never enter learner records.
-- Session and CSRF bearer values are generated randomly; only `SESSION_SECRET`-keyed HMAC-SHA-256 hashes reach PostgreSQL.
+- Google and GitHub OAuth use random state, S256 PKCE, provider binding and single-use state consumption.
+- Google sign-in requests only `openid profile` and stores the provider subject, display name and optional picture. GitHub stores the provider ID, login, display name and optional avatar. OAuth access tokens, ID tokens, provider passwords and provider email addresses are not persisted.
+- Session and CSRF bearer values are generated randomly; only domain-separated, `SESSION_SECRET`-keyed BLAKE2b-256 digests reach PostgreSQL.
 - The production session cookie is `HttpOnly`, `Secure`, and `SameSite=Lax`; the double-submit CSRF cookie is intentionally browser-readable, `Secure`, and `SameSite=Strict`.
 - OAuth-state bearers use the same keyed storage boundary, so secret rotation invalidates all previously stored bearer hashes.
 - Logout revokes the server-side session.
+- Authenticated learners can permanently delete their cloud identity and learner state; foreign-key cascades remove sessions and the tenant snapshot in the same database transaction.
 - Sessions have a bounded configurable lifetime and retention window; expired OAuth state and session rows are cleaned opportunistically.
 - Auth POSTs require same-origin JSON semantics; logout accepts an exact allow-listed Origin or, when Origin is absent, the active session's double-submit CSRF proof.
 - Active OAuth states have a transaction-serialized global PostgreSQL cap. OAuth/demo endpoints combine a process-local client bucket with a higher circuit breaker; Railway mode deliberately trusts exactly one ingress-overwritten `X-Real-IP`, while `X-Forwarded-For` is never used.
@@ -61,7 +70,9 @@ Do not access another person's data, persist access, degrade the public demo or 
 - Authenticated mutations require CSRF verification.
 - Browser responses set a restrictive Content Security Policy, same-origin opener/resource isolation, anti-framing, no-sniff, referrer and permissions policies. The API-docs route narrowly permits its documentation CDN and inline Swagger bootstrap while the application shell remains same-origin for executable code.
 - Production responses advertise HTTPS-only transport with HSTS. API, authentication and operational JSON responses use `Cache-Control: no-store`; fingerprinted frontend assets and the PWA service worker keep their independent cache behavior.
-- Uploaded audio is limited to 25 MB and an allow-list of filename extensions. The current release does not claim MIME or magic-byte content inspection.
+- v2.9 speech uploads are limited to an 8-MB file inside a 9-MB request envelope and 20 measured seconds. The server allow-lists formats, opens the actual media container through PyAV, requires an audio stream and deletes both request and worker copies; filename extension alone is not treated as proof of content.
+- Self-hosted Faster Whisper is bounded to one CPU INT8 transcription, Hebrew language, VAD and a 45-second request deadline. A timed-out worker retains its private copy only until decoding stops, then deletes it before releasing the slot.
+- Web Push endpoints are restricted to supported provider hosts and checked after DNS resolution to reject loopback, private, link-local, reserved and metadata destinations. Subscription documents are encrypted with an independent key.
 - The frontend receives no database, OAuth client, AI provider or connector secrets.
 
 ### Observability and privacy
@@ -69,13 +80,14 @@ Do not access another person's data, persist access, degrade the public demo or 
 - Production logs are structured JSON; completed HTTP-request events include request IDs, while startup and other process-level records may not.
 - Authorization headers, cookies, OAuth codes, session material, tokens, secrets and password-like fields are redacted.
 - Request and response bodies are not logged.
+- Transcript text, raw audio, Push endpoints and decrypted Push subscription documents are never logged.
 - Error responses expose a correlation ID, not stack traces.
 - Liveness does not disclose database details; readiness is intentionally dependency-aware.
 
 ### Optional external processing
 
 - External AI is disabled by default.
-- Production cloud AI requires server configuration, explicit user action and a matching GitHub login or provider-ID allowlist entry.
+- Production cloud AI requires server configuration, explicit user action and a matching GitHub login or provider-ID allowlist entry. Google-authenticated learners retain the complete offline/core product but do not implicitly inherit Kevin's paid-provider allowlist.
 - Google connector scopes are read-only.
 - Production Google previews require a separate matching GitHub identity allowlist; credentials without that allowlist fail startup.
 - The application never automatically ingests a mailbox, calendar or drive.
@@ -87,8 +99,11 @@ Never commit live or non-placeholder values for:
 - `.env` files with values.
 - `SESSION_SECRET`.
 - GitHub OAuth client secrets.
+- Google sign-in OAuth client secrets.
 - `DATABASE_URL` restricted runtime credentials.
 - `MIGRATION_DATABASE_URL` administrator credentials.
+- `PUSH_DATABASE_URL` credentials for the dedicated no-login-member Push worker role.
+- `PUSH_ENCRYPTION_KEY` and the VAPID private key.
 - AI or Google API credentials.
 - Database dumps or learner exports.
 
@@ -101,8 +116,8 @@ Production values belong in the host's sealed secret store. Rotate a secret imme
 1. Set `APP_ENV=production`, `AUTH_REQUIRED=true` and `DEBUG=false`.
 2. Use HTTPS and `SESSION_COOKIE_SECURE=true`.
 3. Generate a unique `SESSION_SECRET` of at least 32 characters.
-4. Restrict `PUBLIC_BASE_URL`, `ALLOWED_ORIGINS` and the GitHub callback to the exact public domain.
-5. Store both database URLs and provider credentials as sealed variables; never give the web process the migration URL.
+4. Restrict `PUBLIC_BASE_URL`, `ALLOWED_ORIGINS`, and every configured Google/GitHub callback to the exact public domain.
+5. Store database URLs and provider credentials as sealed variables; never give the web process the migration URL or the cron service the administrator/runtime URLs.
 6. Run `python -m ivrit_sheli.db_admin migrate` as the separate pre-deploy step.
 7. Require `/health/ready` before routing traffic.
 8. Run the real PostgreSQL integration suite and production image build in CI.
@@ -111,6 +126,8 @@ Production values belong in the host's sealed secret store. Rotate a secret imme
 11. Keep provider allowlists empty unless each GitHub login or provider ID was verified.
 12. Configure cost limits, backups and a tested restore procedure.
 13. Record the deployed commit in `BUILD_COMMIT` (or Railway's automatic commit SHA fallback).
+14. Preload the pinned Whisper model on the persistent staging model volume and verify `/api/v1/audio/capabilities` reports `ready` before the speech pilot.
+15. Run the reminder process as a terminating cron with only `PUSH_DATABASE_URL`; verify one-per-learner daily delivery and expired-subscription cleanup.
 
 ## Dependency and incident response
 
