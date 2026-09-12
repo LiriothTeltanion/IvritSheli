@@ -8,7 +8,6 @@ services:
     dockerfilePath: ./Dockerfile
     autoDeployTrigger: off
     healthCheckPath: /health/ready
-    maxShutdownDelaySeconds: 30
     envVars:
       - key: APP_ENV
         value: production
