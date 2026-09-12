@@ -6,7 +6,7 @@
   <p>Guided enough for a complete beginner, deep enough to keep growing.</p>
 
   <p>
-    <a href="https://ivrit-sheli-staging.onrender.com"><img src="https://img.shields.io/badge/Live_Staging-Render-46E3B7?style=flat-square&logo=render" alt="Live Staging"></a>
+    <a href="https://ivrit-sheli.onrender.com"><img src="https://img.shields.io/badge/Live_Staging-Render-46E3B7?style=flat-square&logo=render" alt="Live Staging"></a>
     <img src="https://img.shields.io/badge/Release-v2.12.3-3B82F6?style=flat-square" alt="Version">
     <img src="https://img.shields.io/badge/React_19_%2B_Vite-passing-22C55E?style=flat-square" alt="React 19">
     <img src="https://img.shields.io/badge/FastAPI_%2B_Python-ready-38BDF8?style=flat-square" alt="FastAPI">
@@ -75,7 +75,7 @@ The latest published release is still **v2.12.2**; `2.12.3` is deliberately unta
 
 | Component | Status | Details |
 |---|---|---|
-| **Web service** | 🟢 Live (staging) | [ivrit-sheli-staging.onrender.com](https://ivrit-sheli-staging.onrender.com) — Render Free |
+| **Web service** | 🟢 Live (staging) | [ivrit-sheli.onrender.com](https://ivrit-sheli.onrender.com) — Render Free, Frankfurt |
 | **Database** | 🟢 Live | Supabase PostgreSQL 17 over the IPv4 session pooler |
 | **Authentication** | 🟢 Live | Google OAuth 2.0 with PKCE (`S256`) and strict origin validation |
 | **Tagged release** | `v2.12.2` | `2.12.3` is published on `main` but deliberately untagged |

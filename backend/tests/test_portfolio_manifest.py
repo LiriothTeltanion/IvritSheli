@@ -47,12 +47,12 @@ def test_checked_in_portfolio_manifest_preserves_truth_boundaries() -> None:
     assert manifest["source_status"] == "private-candidate"
     assert manifest["latest_published_release"] == "v2.12.2"
     assert manifest["durable_demo"] == {
-        "url": "https://ivrit-sheli-staging.onrender.com",
+        "url": "https://ivrit-sheli.onrender.com",
         "status": "staging-verified",
         "provider": "render-free",
-        "last_checked_on": "2026-08-27",
+        "last_checked_on": "2026-09-12",
         "boundary": (
-            "A free Render service runs the 2.12.3 source as staging for a private pilot, not as production. Verified against the live host on 2026-08-27: /health/live, /health/ready with postgresql true and a 240-entry dictionary, /version reporting 2.12.3, a strict production CSP, Secure and HttpOnly session cookies, and a Google OAuth redirect using PKCE with the exact staging callback. The free plan sleeps after 15 minutes, so a first request waits about 24 seconds. The human Hebrew-content and first-learner gates remain open, and no v2.12.3 tag exists. The historical Railway service is offline."
+            "A free Render service runs the 2.12.3 source as staging for a private pilot, not as production. Moved from Singapore to Frankfurt on 2026-09-12 and renamed, so the URL no longer says staging. Verified against the live host that day: /health/live at 0.149 s against 0.287 s from the old Singapore service, /health/ready with postgresql true and a 240-entry dictionary, /version reporting 2.12.3, a strict production CSP with default-src 'self', HSTS for a year with includeSubDomains, a Secure HttpOnly SameSite=lax session cookie, and a Google OAuth redirect using PKCE with the exact new callback. /health/ready still costs about 2 s in both regions because the database is far from either. The free plan sleeps after 15 minutes, so a first request waited 38.6 s. The human Hebrew-content and first-learner gates remain open, and no v2.12.3 tag exists. The historical Railway service is offline."
         ),
     }
 
