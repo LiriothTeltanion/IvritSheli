@@ -65,3 +65,68 @@ def test_extracted_package_bytes_are_never_reinterpreted(
     for relative, data in samples.items():
         assert generate_checksums.packaged_blob(relative) == data
         assert verify_package.canonical_file_bytes(relative, use_index=False) == data
+
+
+def write_manifest(root: Path, entries: dict[str, str]) -> None:
+    """Write a SHA256SUMS.txt with the exact digests given."""
+    lines = [f"{digest}  {relative}" for relative, digest in entries.items()]
+    (root / "SHA256SUMS.txt").write_text(
+        "\n".join(lines) + "\n", encoding="utf-8", newline="\n"
+    )
+
+
+def test_stale_digest_in_a_worktree_can_be_downgraded_to_a_warning(
+    tmp_path: Path,
+    monkeypatch: object,
+) -> None:
+    """Inside Git the index holds the canonical bytes, so staleness is not corruption."""
+    git(tmp_path, "init", "--quiet")
+    (tmp_path / "note.txt").write_text("real content\n", encoding="utf-8", newline="\n")
+    git(tmp_path, "add", "note.txt")
+    write_manifest(tmp_path, {"note.txt": "0" * 64})
+
+    monkeypatch.setattr(verify_package, "ROOT", tmp_path)  # type: ignore[attr-defined]
+    monkeypatch.setattr(verify_package, "REQUIRED_FILES", ())  # type: ignore[attr-defined]
+
+    failures, warnings = verify_package.verify_checksum_manifest()
+    assert len(failures) == 1 and "stale" in failures[0]
+    assert warnings == []
+
+    failures, warnings = verify_package.verify_checksum_manifest(stale_is_fatal=False)
+    assert failures == []
+    assert len(warnings) == 1 and "stale" in warnings[0]
+
+
+def test_stale_digest_in_an_extracted_package_always_fails(
+    tmp_path: Path,
+    monkeypatch: object,
+) -> None:
+    """Without Git metadata the manifest is the only integrity source; never soften it."""
+    (tmp_path / "note.txt").write_text("real content\n", encoding="utf-8", newline="\n")
+    write_manifest(tmp_path, {"note.txt": "0" * 64})
+
+    monkeypatch.setattr(verify_package, "ROOT", tmp_path)  # type: ignore[attr-defined]
+    monkeypatch.setattr(verify_package, "REQUIRED_FILES", ())  # type: ignore[attr-defined]
+    monkeypatch.setattr(verify_package, "git_index_available", lambda: False)  # type: ignore[attr-defined]
+
+    failures, warnings = verify_package.verify_checksum_manifest(stale_is_fatal=False)
+    assert len(failures) == 1 and "packaged" in failures[0]
+    assert warnings == []
+
+
+def test_a_listed_file_that_does_not_exist_is_never_downgraded(
+    tmp_path: Path,
+    monkeypatch: object,
+) -> None:
+    """Only staleness softens: a missing file stays a failure in every mode."""
+    git(tmp_path, "init", "--quiet")
+    (tmp_path / "note.txt").write_text("real content\n", encoding="utf-8", newline="\n")
+    git(tmp_path, "add", "note.txt")
+    write_manifest(tmp_path, {"ghost.txt": "0" * 64})
+
+    monkeypatch.setattr(verify_package, "ROOT", tmp_path)  # type: ignore[attr-defined]
+    monkeypatch.setattr(verify_package, "REQUIRED_FILES", ())  # type: ignore[attr-defined]
+
+    failures, warnings = verify_package.verify_checksum_manifest(stale_is_fatal=False)
+    assert len(failures) == 1 and "not present in the Git index" in failures[0]
+    assert warnings == []

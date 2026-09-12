@@ -8,6 +8,7 @@ Notes: Minimal deps; comments in ENGLISH; emojis sparingly.
 
 from __future__ import annotations
 
+import argparse
 import ast
 import hashlib
 import json
@@ -1629,24 +1630,37 @@ def indexed_files() -> set[str]:
     return {path for path in output.split("\0") if path}
 
 
-def verify_checksum_manifest() -> list[str]:
+def verify_checksum_manifest(*, stale_is_fatal: bool = True) -> tuple[list[str], list[str]]:
     """Validate SHA256SUMS.txt against canonical Git-index blobs.
 
     In a source checkout, every listed path must be present in the index and
     hash to its recorded digest. In an extracted release archive, listed files
     are checked directly. Every required package file must also be listed.
 
+    A stale digest inside a Git worktree means the manifest was not regenerated
+    after an intended edit, not that anything is corrupt: the index still holds
+    the canonical bytes and `scripts/generate_checksums.py` rebuilds the file
+    from them. With `stale_is_fatal=False` that one case is reported as a
+    warning so a branch is not blocked by it. Every other failure, and every
+    failure at all in an extracted archive where the manifest is the only
+    source of integrity, stays fatal.
+
+    Args:
+        stale_is_fatal: Treat an out-of-date indexed digest as a failure.
+
     Returns:
-        Human-readable drift failures.
+        Failures first, then non-fatal warnings.
 
     Example:
-        >>> isinstance(verify_checksum_manifest(), list)
+        >>> failures, warnings = verify_checksum_manifest()
+        >>> isinstance(failures, list) and isinstance(warnings, list)
         True
     """
     manifest = ROOT / "SHA256SUMS.txt"
     if not manifest.is_file():
-        return ["SHA256SUMS.txt: missing; run scripts/generate_checksums.py"]
+        return (["SHA256SUMS.txt: missing; run scripts/generate_checksums.py"], [])
     failures: list[str] = []
+    warnings: list[str] = []
     listed: set[str] = set()
     use_index = git_index_available()
     tracked: set[str] = set()
@@ -1654,7 +1668,7 @@ def verify_checksum_manifest() -> list[str]:
         try:
             tracked = indexed_files()
         except (OSError, subprocess.CalledProcessError) as error:
-            return [f"SHA256SUMS.txt: cannot read Git index: {error}"]
+            return ([f"SHA256SUMS.txt: cannot read Git index: {error}"], [])
     for line_number, line in enumerate(
         manifest.read_text(encoding="utf-8").splitlines(), start=1
     ):
@@ -1709,13 +1723,15 @@ def verify_checksum_manifest() -> list[str]:
                 if use_index
                 else "regenerate the clean package checksum manifest"
             )
-            failures.append(
-                f"SHA256SUMS.txt: stale {source} digest for {relative}; {action}"
-            )
+            message = f"SHA256SUMS.txt: stale {source} digest for {relative}; {action}"
+            if use_index and not stale_is_fatal:
+                warnings.append(message)
+            else:
+                failures.append(message)
     for relative in REQUIRED_FILES:
         if relative not in listed:
             failures.append(f"SHA256SUMS.txt: required file not listed: {relative}")
-    return failures
+    return failures, warnings
 
 
 def verify_documentation_links() -> list[str]:
@@ -1746,8 +1762,11 @@ def verify_documentation_links() -> list[str]:
     return failures
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     """Run all package checks and return a shell status.
+
+    Args:
+        argv: Command-line arguments; defaults to the real ones.
 
     Returns:
         Zero when every check passes; one otherwise.
@@ -1755,6 +1774,22 @@ def main() -> int:
     Example:
         Invoked by `./scripts/test-all.sh` and CI.
     """
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--allow-stale-manifest",
+        action="store_true",
+        help=(
+            "Report an out-of-date SHA256SUMS.txt digest as a warning instead of a "
+            "failure. Only takes effect inside a Git worktree, where the index holds "
+            "the canonical bytes and the manifest can be rebuilt from them. In an "
+            "extracted package, where the manifest is the only source of integrity, "
+            "a stale digest always fails."
+        ),
+    )
+    args = parser.parse_args(argv)
+    manifest_failures, manifest_warnings = verify_checksum_manifest(
+        stale_is_fatal=not args.allow_stale_manifest
+    )
     checks = {
         "missing_files": verify_required_files(),
         "invalid_json": verify_json_files(),
@@ -1769,9 +1804,11 @@ def main() -> int:
         "invalid_railway_config": verify_railway_config(),
         "invalid_docker_cache_mounts": verify_docker_cache_mounts(),
         "possible_secrets": verify_secret_hygiene(),
-        "checksum_manifest_drift": verify_checksum_manifest(),
+        "checksum_manifest_drift": manifest_failures,
         "broken_readme_links": verify_documentation_links(),
     }
+    for warning in manifest_warnings:
+        print(f"[WARN] {warning}", file=sys.stderr)
     failures = {name: items for name, items in checks.items() if items}
     if failures:
         print(json.dumps(failures, indent=2, ensure_ascii=False), file=sys.stderr)

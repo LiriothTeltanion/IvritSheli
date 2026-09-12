@@ -48,3 +48,10 @@ def test_rejects_unstructured_incomplete_or_secret_bearing_output(
     verifier = load_verifier()
     with pytest.raises(ValueError, match=message):
         verifier.validate_stream(StringIO(content), ("ci-oauth-code-secret",))
+
+
+def test_rejects_json_that_is_not_an_object() -> None:
+    """A valid JSON line that is not an object is a type error, not a value error."""
+    verifier = load_verifier()
+    with pytest.raises(TypeError, match="must contain a JSON object"):
+        verifier.validate_stream(StringIO('["a", "b"]'), ())
