@@ -35,25 +35,21 @@ services:
         value: ""
       - key: GOOGLE_REFRESH_TOKEN
         value: ""
-      # Los tres secretos se copian del servicio que ya funciona. Nadie los
-      # teclea ni los lee: Render resuelve el valor al sincronizar el plano.
-      # Antes de borrar ivrit-sheli-staging hay que pasarlos a `sync: false`,
-      # o la siguiente sincronizacion fallara al no encontrar el origen.
+      # Estos tres se copiaron con `fromService` desde ivrit-sheli-staging al
+      # crear el servicio, para que nadie tuviera que teclear un secreto. Ya
+      # estan puestos y verificados en produccion: la base guarda progreso y el
+      # acceso con Google funciona, comprobado el 13 sep 2026.
+      #
+      # Pasan a `sync: false` justo por eso. Mientras apuntaran al servicio
+      # viejo, borrarlo habria roto la siguiente sincronizacion del plano. Con
+      # `sync: false` Render deja de gestionarlos y conserva el valor que ya
+      # tienen, asi que el origen puede desaparecer sin consecuencias.
       - key: DATABASE_URL
-        fromService:
-          type: web
-          name: ivrit-sheli-staging
-          envVarKey: DATABASE_URL
+        sync: false
       - key: GOOGLE_AUTH_CLIENT_ID
-        fromService:
-          type: web
-          name: ivrit-sheli-staging
-          envVarKey: GOOGLE_AUTH_CLIENT_ID
+        sync: false
       - key: GOOGLE_AUTH_CLIENT_SECRET
-        fromService:
-          type: web
-          name: ivrit-sheli-staging
-          envVarKey: GOOGLE_AUTH_CLIENT_SECRET
+        sync: false
       # Este NO se copia: tiene que ser distinto, es la URL del servicio nuevo.
       - key: PUBLIC_BASE_URL
         sync: false
