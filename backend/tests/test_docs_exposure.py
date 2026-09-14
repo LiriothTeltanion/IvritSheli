@@ -85,6 +85,11 @@ def _production(tmp_path: Path) -> Settings:
             "SESSION_SECRET": "test-only-session-secret-at-least-32-characters",
             "PUBLIC_BASE_URL": "https://ivrit.example",
             "ALLOWED_ORIGINS": "https://ivrit.example",
+            # Production refuses to start without a sign-in provider. These are
+            # the same inert test values test_cloud_auth.py uses; without them the
+            # suite only passed on a machine that had real Google credentials set.
+            "GOOGLE_AUTH_CLIENT_ID": "google-client",
+            "GOOGLE_AUTH_CLIENT_SECRET": "google-secret",
         }
     )
 

@@ -120,6 +120,10 @@ def test_production_does_not_trust_the_test_client_host(tmp_path: Path) -> None:
         SESSION_SECRET="test-only-session-secret-at-least-32-characters",
         PUBLIC_BASE_URL="https://ivrit.example",
         ALLOWED_ORIGINS="https://ivrit.example",
+        # Production refuses to start without a sign-in provider; inert values
+        # matching test_cloud_auth.py keep this independent of the machine.
+        GOOGLE_AUTH_CLIENT_ID="google-client",
+        GOOGLE_AUTH_CLIENT_SECRET="google-secret",
     )
 
     assert "testserver" not in production.trusted_hosts
