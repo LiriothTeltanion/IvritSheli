@@ -8,6 +8,7 @@ name: CI
 on:
   push:
     branches: [main]
+    tags: ['v*']
   pull_request:
   workflow_dispatch:
 
@@ -106,7 +107,7 @@ jobs:
       - name: Verify distributable package
         run: >-
           python scripts/verify_package.py
-          ${{ github.event_name == 'pull_request' && '--allow-stale-manifest' || '' }}
+          ${{ (github.ref_type == 'tag' || github.event_name == 'workflow_dispatch') && '' || '--allow-stale-manifest' }}
 
   python-310-compat:
     name: Python 3.10 compatibility

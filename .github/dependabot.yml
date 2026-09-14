@@ -1,17 +1,32 @@
 version: 2
 
 # Agrupado a proposito: las subidas menores y de parche llegan en un solo PR
-# por ecosistema y semana. Las de version mayor siguen llegando sueltas,
-# porque son las unicas que pueden romper algo y merecen revisarse una a una.
+# por ecosistema. Las de version mayor siguen llegando sueltas, porque son las
+# unicas que pueden romper algo y merecen revisarse una a una.
+#
+# Mensual y no semanal desde el 14 sep 2026: cada tanda semanal traia hasta ocho
+# PR con su CI y su aviso aunque el codigo no hubiera cambiado. Las alertas de
+# seguridad no siguen este calendario y llegan en cuanto aparecen.
+#
+# cooldown: una version recien publicada espera antes de proponerse. Las rotas
+# suelen retirarse o corregirse en ese plazo; las mayores esperan un mes.
+#
+# Menores, parches y digests de imagen se fusionan solos al pasar las
+# comprobaciones (.github/workflows/dependabot-auto-merge.yml). Las mayores y
+# cualquier cambio de mantenedor esperan a Kevin. Fusionar el Dockerfile no toca
+# produccion: el despliegue en Render es manual (autoDeployTrigger: off).
 
 updates:
   - package-ecosystem: pip
     directory: /backend
     schedule:
-      interval: weekly
-      day: monday
+      interval: monthly
       time: "06:00"
       timezone: Asia/Jerusalem
+    cooldown:
+      semver-major-days: 30
+      semver-minor-days: 7
+      semver-patch-days: 3
     labels: [dependencies, backend]
     open-pull-requests-limit: 5
     groups:
@@ -22,10 +37,13 @@ updates:
   - package-ecosystem: npm
     directory: /frontend
     schedule:
-      interval: weekly
-      day: monday
+      interval: monthly
       time: "06:10"
       timezone: Asia/Jerusalem
+    cooldown:
+      semver-major-days: 30
+      semver-minor-days: 7
+      semver-patch-days: 3
     labels: [dependencies, frontend]
     open-pull-requests-limit: 5
     groups:
@@ -36,10 +54,12 @@ updates:
   - package-ecosystem: docker
     directory: /
     schedule:
-      interval: weekly
-      day: monday
+      interval: monthly
       time: "06:20"
       timezone: Asia/Jerusalem
+    cooldown:
+      default-days: 3
+      semver-major-days: 30
     labels: [dependencies, docker]
     open-pull-requests-limit: 3
     groups:
@@ -50,10 +70,11 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
-      day: monday
+      interval: monthly
       time: "06:30"
       timezone: Asia/Jerusalem
+    cooldown:
+      default-days: 7
     labels: [dependencies, ci]
     open-pull-requests-limit: 3
     groups:
