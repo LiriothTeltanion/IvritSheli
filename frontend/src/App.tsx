@@ -1207,15 +1207,45 @@ export default function App(): React.JSX.Element {
                 void refreshCore();
               }}
               onAccountDeleted={(nextAuth, localCleanupWarning) => {
+                // SEC-08. Read the learner being forgotten from `auth`, the state
+                // BEFORE deletion, and do it before `setAuth(nextAuth)` below.
+                // Every key here is scoped by that id, so building them from the
+                // signed-out state would clear nothing and leave her name on the
+                // device after she was told the account was gone.
+                const deletedId = learnerStorageId(auth);
+                let storageWarning = '';
                 try {
                   window.localStorage.removeItem(onboardingStorageKey(auth, 'complete'));
                   window.localStorage.removeItem(onboardingStorageKey(auth, 'draft'));
-                  window.localStorage.removeItem(`ivrit-sheli:first-steps-v1:${learnerStorageId(auth)}`);
+                  window.localStorage.removeItem(`ivrit-sheli:first-steps-v1:${deletedId}`);
+                  // The three that were missing. The identity key holds her name
+                  // and chosen avatar, the welcome key holds where she got to,
+                  // and the saved-accounts entry is what puts her face back on
+                  // the sign-in screen of a browser she just deleted from.
+                  window.localStorage.removeItem(identityStorageKey(auth));
+                  window.localStorage.removeItem(localWelcomeStorageKey(auth));
+                  setSavedAccounts(forgetSavedAccount(deletedId));
+                  // The other five steps are bare removeItem calls, so a storage
+                  // failure throws and the catch below tells her. This one
+                  // cannot: `savedAccounts.write` swallows its own setItem
+                  // failure and returns the in-memory list either way, which is
+                  // the forgiving contract its other callers need. So read it
+                  // back. Without this, the single residue that puts her name
+                  // and face back on the sign-in screen is the one residue that
+                  // could survive silently while the screen said it was gone.
+                  if (readSavedAccounts().some((entry) => entry.id === deletedId)) {
+                    throw new Error('saved account entry survived deletion');
+                  }
                 } catch {
-                  // Account data is already deleted server-side.
+                  // The server row is gone either way, so this is not a failure
+                  // of the deletion. Saying nothing would be the defect: she
+                  // would believe the device was clean when it is not.
+                  storageWarning = t('accountLocalCleanupFailed');
                 }
                 configureApiSession(nextAuth);
-                setAuthNotice(localCleanupWarning ?? '');
+                setAuthNotice(
+                  [localCleanupWarning, storageWarning].filter(Boolean).join(' '),
+                );
                 setAuth(nextAuth);
                 setDashboard(null);
                 setProfile(null);

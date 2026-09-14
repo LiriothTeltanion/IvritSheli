@@ -1,27 +1,29 @@
-# Deployment — Ivrit Sheli 2.12.3 private candidate / not deployed
+# Deployment — Ivrit Sheli 2.12.3 staging and release boundary
 
 This guide covers the private SQLite installation, the reproducible PostgreSQL
 Docker stack, and the separate HTTPS staging design first established for
 2.9.1. Production values belong in a secrets manager or hosting dashboard,
 never in Git.
 
-## Current boundary — 2.12.3 candidate, 2026-08-27
+## Current boundary — verified again 2026-09-05
 
-- **Prepared locally:** the repository contains a Render Blueprint in
-  [`render.yaml`](../render.yaml) for a single Free web service. It selects the
-  root Dockerfile, keeps automatic deploys off and uses `/health/ready` as its
-  health check.
-- **Not created or deployed:** no Render service, generated `onrender.com`
-  domain or verified live URL exists yet. The Blueprint is configuration, not
-  evidence of a deployment.
-- **Published source:** `v2.12.2` remains the latest GitHub source release.
-  `2.12.3` is a private, unpublished candidate and must not be presented as a
-  release or live application.
+- **Live staging:** `https://ivrit-sheli-staging.onrender.com` is a Render Free
+  private-pilot staging service, not production. Fresh checks on 2026-09-05
+  returned HTTP 200 for live, ready and version; readiness reported PostgreSQL
+  true and a 240-entry dictionary.
+- **Blueprint:** [`render.yaml`](../render.yaml) selects the root Dockerfile,
+  keeps automatic deploys off and uses `/health/ready` as its health check.
+- **Published source:** `2.12.3` source is on `main`, but `v2.12.2` remains the
+  latest tagged GitHub Release. Do not call untagged staging a production
+  release.
+- **Revision boundary:** Render reports `ed59eb84`; current `main` is
+  `6bbcb318`. Their recorded difference is documentation/README assets only,
+  not application or deployment code.
 - **Historical only:** the former Railway 2.4.0 service is offline. Its records
   below remain useful evidence, but they are not the current hosting path and
   Devpost has not been changed.
 
-## Proposed $0 path — Render Free HTTPS staging
+## Active $0 path — Render Free HTTPS staging
 
 **Staging HTTPS** means a secure rehearsal copy on the Internet: testers open a
 normal `https://` address with the browser padlock, while we verify the real
@@ -59,54 +61,43 @@ documented in the official
 [Blueprint specification](https://render.com/docs/blueprint-spec) and
 [health-check guide](https://render.com/docs/health-checks).
 
-### Required external steps before sharing a link
+### Current private-pilot gates
 
-These are gates, not completed work:
+Completed setup and current evidence:
 
-1. Reconfirm that the Supabase project remains in Sydney (`ap-southeast-2`) and
-   keep Render in Singapore, its nearest currently supported region.
-2. Rotate the Supabase `postgres` administrator password exposed on 2026-08-23.
-   Do not reuse it as the application credential.
-3. Make an encrypted PostgreSQL backup and complete a restore drill against a
-   separate database.
-4. Run `python scripts/db.py --check` through the existing
-   `ivrit_sheli_runtime` login and require all restricted-role/RLS checks to
-   pass.
-5. Name and publish the exact reviewed source revision that Render may fetch.
-   The dirty private worktree is not a deployable identity.
-6. With Kevin's explicit deployment approval, create the Free service from
-   [`render.yaml`](../render.yaml), keep automatic deploys off and enter secrets
-   only in Render's protected environment fields.
-7. Give the web application **only** the `DATABASE_URL` for username
-   `ivrit_sheli_runtime`. Never set `MIGRATION_DATABASE_URL` on the Render web
-   service. Any schema administration remains a separate, one-shot local
-   provisioning action.
-8. Use the final generated HTTPS origin as `PUBLIC_BASE_URL` and
-   `ALLOWED_ORIGINS`. In Google Auth Platform configure that exact origin and
-   the exact callback
-   `<PUBLIC_BASE_URL>/api/v1/auth/google/callback`; store the Google client
-   secret only in Render.
-9. Trigger one manual deploy of the named revision. Require
-   `/health/live`, `/health/ready` and `/version` to report the expected healthy
-   candidate and immutable commit before inviting anyone.
-10. From two controlled client networks, verify that Render supplies distinct,
-    valid `CF-Connecting-IP` values, ignores a caller's spoofed copy, and leaves
-    missing/duplicated values in the shared `render:unresolved` fail-closed
-    bucket. Render's official
-    [PocketBase guide](https://render.com/articles/host-pocketbase-on-render)
-    recommends that Cloudflare header, while its
-    [DDoS guide](https://render.com/articles/how-render-handles-ddos-attacks)
-    describes `X-Forwarded-For`; because the guidance differs, the live header
-    contract must be observed rather than inferred from local tests.
-11. Sign in with two real test accounts and prove each account can persist its
-    own progress but cannot read or modify the other's data. Also verify logout,
-    reload and a disposable-account deletion.
-12. Run the mobile, Hebrew RTL and mother-pilot acceptance checks. Only after
-    those gates pass, replace the README's “no live URL” notice with the
-    verified HTTPS link.
+- [x] Render Free service created in Singapore with automatic deploys off.
+- [x] Supabase Session Pooler selected so Render can reach PostgreSQL over IPv4.
+- [x] Source `2.12.3` published on `main`; staging deliberately remains untagged.
+- [x] Exact Render HTTPS origin and Google identity-only callback configured;
+  an earlier live login and PKCE redirect were recorded.
+- [x] Fresh 2026-09-05 live, ready and version endpoints returned HTTP 200 with
+  PostgreSQL and the 240-entry dictionary ready.
+
+Still required before calling the service production or widening the pilot:
+
+- [ ] Rotate the Supabase `postgres` administrator password exposed on
+  2026-08-23. Never reuse it as the application credential.
+- [ ] Make an encrypted PostgreSQL backup and complete a restore drill against
+  a separate database.
+- [ ] Rerun `python scripts/db.py --check` through `ivrit_sheli_runtime`, then
+  prove two disposable real accounts can persist only their own data. Verify
+  logout, reload and account deletion too.
+- [ ] From two controlled client networks, verify which Render-overwritten
+  client-IP header is delivered, that a caller cannot spoof it, and that an
+  unresolved identity enters the shared fail-closed bucket. Render's
+  [PocketBase guide](https://render.com/articles/host-pocketbase-on-render)
+  recommends `CF-Connecting-IP`, while its
+  [DDoS guide](https://render.com/articles/how-render-handles-ddos-attacks)
+  describes `X-Forwarded-For`; observe the live contract instead of inferring
+  it from local tests.
+- [ ] Remediate the current source-security queue in
+  [`SECURITY_REMEDIATION_BACKLOG.md`](SECURITY_REMEDIATION_BACKLOG.md) and rerun
+  a fresh scan on its final commit.
+- [ ] Run mobile, Hebrew RTL, five-second recognition and mother/friends pilot
+  acceptance checks with observations rather than invented success metrics.
 
 If any security, database or OAuth gate fails, leave the local app available,
-do not weaken the control, and do not share the staging URL as ready.
+do not weaken the control, and keep the Render URL labelled staging.
 
 ## 1. Choose the runtime
 

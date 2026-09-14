@@ -200,7 +200,6 @@ class Settings:
         "http://127.0.0.1:8000/api/v1/auth/google/callback"
     )
     database_url: str = ""
-    supabase_url: str = ""
     auth_required: bool = False
     session_secret: str = ""
     session_cookie_name: str = "ivrit_session"
@@ -222,6 +221,17 @@ class Settings:
     authenticated_write_rate_limit_window_seconds: int = 60
     authenticated_write_rate_limit_max_users: int = 10_000
     max_cloud_snapshot_bytes: int = 4_194_304
+    # SEC-03. A ceiling on PostgreSQL connections this process may hold open at
+    # once, and how long a request waits for one before it is refused. Tunable
+    # because the right number belongs to the database plan, not to the code.
+    max_cloud_connections: int = 8
+    cloud_connection_acquire_timeout_seconds: float = 5.0
+    # SEC-04. How many portable restores may be in flight at once. A restore
+    # buffers its upload, parses it whole, and duplicates its rows, so the cost
+    # is per-request and concurrency multiplies it. Two is enough for one
+    # household and small enough that a burst cannot decide how much memory the
+    # process uses.
+    max_concurrent_imports: int = 2
     max_request_body_bytes: int = 1_048_576
     max_ics_upload_body_bytes: int = 6_291_456
     max_audio_upload_body_bytes: int = 9_437_184
@@ -230,6 +240,11 @@ class Settings:
     github_client_secret: str = ""
     github_redirect_uri: str = "http://127.0.0.1:8000/api/v1/auth/github/callback"
     public_base_url: str = "http://127.0.0.1:8000"
+    # SEC-06. Extra Host header values this deployment answers to, beyond the
+    # loopback names and the host in PUBLIC_BASE_URL. Set it when running a LAN
+    # pilot on a named machine. Never a wildcard: an unchecked Host is what lets
+    # a browser be walked onto a local service through an attacker's domain.
+    allowed_hosts: tuple[str, ...] = ()
     local_companion_url: str = ""
     allowed_origins: tuple[str, ...] = (
         "http://localhost:5173",
@@ -413,7 +428,6 @@ class Settings:
             database_url=value("DATABASE_URL", ""),
             # No default: a live project URL in source would silently point every
             # deployment at one project. Unset means the Bearer path stays off.
-            supabase_url=value("SUPABASE_URL", ""),
             auth_required=parse_bool(values.get("AUTH_REQUIRED"), app_env == "production"),
             session_secret=value("SESSION_SECRET", ""),
             session_cookie_name=value("SESSION_COOKIE_NAME", "ivrit_session"),
@@ -455,6 +469,11 @@ class Settings:
             max_cloud_snapshot_bytes=int(
                 value("MAX_CLOUD_SNAPSHOT_BYTES", "4194304")
             ),
+            max_cloud_connections=int(value("MAX_CLOUD_CONNECTIONS", "8")),
+            cloud_connection_acquire_timeout_seconds=float(
+                value("CLOUD_CONNECTION_ACQUIRE_TIMEOUT_SECONDS", "5")
+            ),
+            max_concurrent_imports=int(value("MAX_CONCURRENT_IMPORTS", "2")),
             max_request_body_bytes=int(
                 value("MAX_REQUEST_BODY_BYTES", "1048576")
             ),
@@ -474,6 +493,7 @@ class Settings:
                 f"{public_base_url}/api/v1/auth/github/callback",
             ).strip().rstrip("/"),
             public_base_url=public_base_url,
+            allowed_hosts=parse_csv(value("ALLOWED_HOSTS", "")),
             local_companion_url=value("LOCAL_COMPANION_URL", "").strip().rstrip("/"),
             allowed_origins=allowed_origins,
             build_commit=(
@@ -510,6 +530,49 @@ class Settings:
     def cloud_mode(self) -> bool:
         """Return whether PostgreSQL-backed multi-user mode is configured."""
         return bool(self.database_url)
+
+    @property
+    def trusted_hosts(self) -> tuple[str, ...]:
+        """Return every Host header value this deployment answers to.
+
+        SEC-06. Nothing checked the Host header at all, which is what makes DNS
+        rebinding work: a browser is pointed at a name the attacker controls,
+        that name is re-resolved to 127.0.0.1, and the browser then speaks to
+        the local service as a same-origin page. An unchecked Host also lets a
+        forged value reach anything that builds an absolute URL from it.
+
+        The list is assembled, never wildcarded. Loopback is always present
+        because the platform's own health checks and the local launcher use it.
+        A LAN pilot has to name its machine through ALLOWED_HOSTS rather than
+        being silently accepted, which is the point: binding to 0.0.0.0 is now a
+        deliberate act with a deliberate host list, not a default.
+        """
+        hosts: list[str] = ["localhost", "127.0.0.1", "::1", "[::1]"]
+        public_host = urlparse(self.public_base_url).hostname
+        if public_host:
+            hosts.append(public_host)
+        # The bind address is a host only when it is a concrete one. "0.0.0.0"
+        # means "every interface", which is not a name anybody can send.
+        if self.host and self.host not in {"0.0.0.0", "::", ""}:
+            hosts.append(self.host)
+        hosts.extend(host.strip() for host in self.allowed_hosts if host.strip())
+        # Starlette reads a bare "*" as allow_any and returns before it ever
+        # looks at the Host header, and it treats a leading "*." as a live
+        # suffix match. Either one turns this control off, so neither may reach
+        # the middleware. `validate_cloud_configuration` refuses a wildcard in
+        # ALLOWED_HOSTS with a readable message; this filter is the second lock,
+        # and it also catches one smuggled through PUBLIC_BASE_URL, where
+        # `urlparse("https://*").hostname` really does return "*".
+        hosts = [host for host in hosts if "*" not in host]
+        if self.app_env != "production":
+            # Starlette's TestClient speaks to "testserver". It is not a
+            # resolvable public name, so it cannot be reached by a browser; it is
+            # still kept out of production, where nothing should need it.
+            hosts.append("testserver")
+        seen: dict[str, None] = {}
+        for host in hosts:
+            seen.setdefault(host, None)
+        return tuple(seen)
 
     @property
     def github_auth_configured(self) -> bool:
@@ -733,6 +796,23 @@ class Settings:
             raise ValueError(
                 "MAX_CLOUD_SNAPSHOT_BYTES must be between 1024 and 67108864"
             )
+        if not 1 <= self.max_cloud_connections <= 100:
+            raise ValueError("MAX_CLOUD_CONNECTIONS must be between 1 and 100")
+        if not 0.1 <= self.cloud_connection_acquire_timeout_seconds <= 30.0:
+            raise ValueError(
+                "CLOUD_CONNECTION_ACQUIRE_TIMEOUT_SECONDS must be between 0.1 and 30"
+            )
+        if not 1 <= self.max_concurrent_imports <= 32:
+            raise ValueError("MAX_CONCURRENT_IMPORTS must be between 1 and 32")
+        # Fail closed on the one input that could switch off the Host allowlist.
+        # A single "*" makes Starlette's TrustedHostMiddleware answer every Host,
+        # and "*.example" becomes a suffix match, so the obvious reaction to an
+        # unexpected 400 would silently undo SEC-06 with no log line to say so.
+        for allowed_host in self.allowed_hosts:
+            if "*" in allowed_host:
+                raise ValueError(
+                    "ALLOWED_HOSTS must name exact hosts; wildcards are not allowed"
+                )
         request_limits = {
             "MAX_REQUEST_BODY_BYTES": self.max_request_body_bytes,
             "MAX_ICS_UPLOAD_BODY_BYTES": self.max_ics_upload_body_bytes,

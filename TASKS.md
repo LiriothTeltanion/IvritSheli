@@ -1,9 +1,9 @@
 # Ivrit Sheli — Tasks & Operational Roadmap
 
-**Current Version:** `2.12.3 — Clear Counting` (private candidate)
+**Current Version:** `2.12.3 — Clear Counting` (source on `main`; untagged)
 **Baseline Branch:** `main`
-**State:** Unpublished local candidate; `v2.12.2` remains the latest published
-GitHub source release; no verified deployment or durable hosted demo
+**State:** Source published on `main`; `v2.12.2` remains the latest tagged
+GitHub Release; Render Free staging is live and verified for a private pilot
 **Public Contest Boundary:** The contest freeze **expired on 2026-08-25**. The
 latest published source release is **v2.12.2 (2026-08-27)** on `main`. The former
 2.4.0 hosted service is currently offline. Deployment remains a separate
@@ -79,6 +79,40 @@ otro panel, qué sigue siendo cierto y qué ya no. Empieza siempre por ahí.
 | [Repintado Nocturne](https://claude.ai/code/artifact/dd431abf-e079-4e6d-9f0f-320346ec2432) | Las 240 escenas: cobertura, defectos, familias, antes/después | Cuerpo válido, cabecera vencida (17 ago) |
 | [Sistema de ilustración](https://claude.ai/code/artifact/b91c5fb8-f9f6-498e-a539-0bfb60fa13f7) | Paleta, reglas de dibujo, láminas por categoría | Muestra 144 de 240 escenas (9 ago) |
 | [Inventario · Imágenes](https://claude.ai/code/artifact/d049d2fd-997f-4adb-92db-3fd7a7a9b9f5) | Inventario de recursos gráficos | Sin revisar (19 jul) |
+
+---
+
+## 🔒 Security remediation - 2026-09-05
+
+Six of seven confirmed findings fixed in source, one local commit each, none
+pushed. Full detail in [`docs/SECURITY_REMEDIATION_BACKLOG.md`](docs/SECURITY_REMEDIATION_BACKLOG.md)
+and `NOVA_HANDOFF.md`.
+
+- [x] **SEC-03** cap open PostgreSQL connections and fail closed (`ecc12ad`)
+- [x] **SEC-04** bound portable restore size and concurrency (`c091ec8`)
+- [x] **SEC-02** bound JWKS work for unverified bearer tokens (`fe1a423`)
+- [x] **SEC-06** enforce a Host allowlist on every request (`301ef44`)
+- [x] **SEC-07** serve no CDN-backed documentation UI in production (`8ae4c75`)
+- [x] **SEC-08** forget the deleted learner in this browser (`91f6fa7`)
+- [ ] **SEC-05 - Kevin's decision.** Binding to `0.0.0.0` still exposes a
+      writable local workspace to any device on the network. Choose between an
+      ephemeral per-launch pairing secret, a deliberately read-only LAN mode, or
+      retiring LAN pilots in favour of hosted staging. **Recommended: the third**,
+      since staging already has HTTPS, authentication and the real database.
+- [ ] **SEC-02 follow-up - Kevin's decision.** Nothing calls the Supabase bearer
+      path: the frontend never sends `Authorization`, and `SUPABASE_URL` is in
+      neither `render.yaml` nor `.env.example`. It is bounded now, but deliberate
+      removal may beat maintaining a public authentication surface nothing uses.
+- [ ] **SEC-01 follow-up - provider action.** Rotate the Supabase administrator
+      password exposed on 2026-08-23. Nothing depends on it, so rotating breaks
+      nothing.
+- [ ] Fresh static security scan against the final commit, then the full gates
+      and the browser matrix.
+
+Gates after the last slice: **430 backend / 1 credential-gated skip**, **862
+frontend across 50 files**, TypeScript, production build, Ruff, strict MyPy,
+and `verify_package.py` on 603 checksums. **Nothing is deployed:** Render still
+runs `ed59eb84`.
 
 ---
 
@@ -217,17 +251,26 @@ otro panel, qué sigue siendo cierto y qué ya no. Empieza siempre por ahí.
 
 ### ⏳ Current & Upcoming Tasks
 
-- [ ] **Create Render Free staging only after Kevin explicitly authorizes the
-      external deployment action**:
-  - `render.yaml` is prepared locally for a free service; it is configuration,
-    not proof that a service or public URL exists.
-  - Pin deployment to the exact reviewed source revision; do not deploy a dirty
-    worktree or silently redeploy published `v2.12.2`.
-  - Keep `MIGRATION_DATABASE_URL` out of the application and provide only the
-    restricted `ivrit_sheli_runtime` database URL.
-  - Then configure the exact Google OAuth callback/origin, run readiness and
-    two-real-account isolation, and prove backup/restore before inviting Kevin's
-    mother or friends.
+- [ ] **Remediate the 2026-09-05 security queue in small verified slices**:
+  - Current triage and exact handoff:
+    [`docs/SECURITY_REMEDIATION_BACKLOG.md`](docs/SECURITY_REMEDIATION_BACKLOG.md).
+  - First: cap total active PostgreSQL connections used by public readiness.
+  - Second: bound portable-import memory and concurrency before expensive
+    buffering, parsing and cloud snapshot work.
+  - Then: harden the optional JWKS path; add Host/LAN trust boundaries;
+    self-host or disable production Swagger; finish browser cleanup after
+    account deletion.
+  - Do not weaken RLS, tenant reset, authentication, CSRF or secret guards to
+    make any fix pass.
+
+- [ ] **Complete the private-pilot operator and human gates**:
+  - Rotate the exposed Supabase administrator password; never give it to the
+    application.
+  - Re-prove the restricted runtime role, two-account isolation and a disposable
+    backup/restore rehearsal.
+  - Observe Render client-IP headers from two controlled networks.
+  - Run Hebrew-content acceptance, five-second visual recognition and the first
+    learner pilot with Kevin's mother or friends.
 
 - [ ] **Railway is down because the trial expired — Kevin's decision, not a repair**:
   - **Measured in the dashboard on 2026-08-26.** The banner reads *Trial

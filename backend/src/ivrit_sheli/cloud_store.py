@@ -31,6 +31,16 @@ from ivrit_sheli.migrations import MIGRATION_HEAD
 DEMO_USER_ID = "00000000-0000-4000-8000-000000000042"
 RUNTIME_DATABASE_ROLE = "ivrit_sheli_runtime"
 
+# SEC-03. How many PostgreSQL connections this process may hold open at once,
+# and how long a request waits for one before it is turned away. Eight matches
+# the idle pool this class has always had; the difference is that it is now a
+# ceiling on connections that exist rather than only on connections sitting
+# unused. The timeout is deliberately shorter than the eight-second connect
+# timeout: a caller queued behind a full pool should be told to come back, not
+# held until the socket layer gives up.
+DEFAULT_MAX_CONNECTIONS = 8
+DEFAULT_CONNECTION_ACQUIRE_TIMEOUT = 5.0
+
 
 def database_url_role(database_url: str) -> str:
     """Return the PostgreSQL role a DSN authenticates as, ignoring pooler routing.
@@ -92,6 +102,23 @@ def bearer_hash(value: str, session_secret: str) -> str:
 
 class CloudSnapshotLimitError(ValueError):
     """Raised before a tenant document can exceed its configured durable ceiling."""
+
+
+class CloudCapacityError(RuntimeError):
+    """Raised when every permitted PostgreSQL connection is already in use.
+
+    SEC-03. `queue.Queue(maxsize=...)` bounded only how many connections could
+    sit **idle** waiting to be reused. When that queue was empty
+    `_acquire_connection` opened a new connection unconditionally, so nothing
+    bounded how many were open at the same time. `/health/ready` is public and
+    borrows a connection, which means an unauthenticated caller could push the
+    process past the provider's connection limit and take the database away
+    from real learners — and each new connection is a fresh round trip to the
+    database region, so the failure accelerates itself under load.
+
+    The message carries no host, role, pool size or connection detail on
+    purpose: it is returned to callers who never authenticated.
+    """
 
 
 def encode_bounded_state(state: dict[str, Any], max_bytes: int) -> str:
@@ -538,6 +565,8 @@ class PostgresCloudStore:
         database_url: str,
         session_secret: str,
         max_snapshot_bytes: int = 4_194_304,
+        max_connections: int = DEFAULT_MAX_CONNECTIONS,
+        connection_acquire_timeout: float = DEFAULT_CONNECTION_ACQUIRE_TIMEOUT,
     ) -> None:
         try:
             import psycopg
@@ -554,7 +583,20 @@ class PostgresCloudStore:
             )
         self.session_secret = session_secret
         self.max_snapshot_bytes = max_snapshot_bytes
-        self._pool: queue.Queue[Any] = queue.Queue(maxsize=8)
+        if max_connections < 1:
+            raise ValueError("max_connections must be at least 1")
+        if connection_acquire_timeout <= 0:
+            raise ValueError("connection_acquire_timeout must be positive")
+        self.max_connections = max_connections
+        self.connection_acquire_timeout = connection_acquire_timeout
+        # Two structures holding one invariant. `_capacity` counts connections
+        # checked OUT; `_pool` holds the idle ones. A connection is only ever
+        # created while a permit is held and only when `_pool` was found empty,
+        # so `open == checked_out + idle` can never exceed `max_connections`.
+        # Returning a connection releases its permit, and that release is what
+        # wakes a request waiting in `_connection`.
+        self._pool: queue.Queue[Any] = queue.Queue(maxsize=max_connections)
+        self._capacity = threading.BoundedSemaphore(max_connections)
 
     def _create_raw_connection(self) -> Any:
         # Deliberately NOT autocommit: mutate_state serialises concurrent writers
@@ -603,21 +645,45 @@ class PostgresCloudStore:
 
     @contextmanager
     def _connection(self) -> Iterator[Any]:
-        connection = self._acquire_connection()
+        # SEC-03. The permit is taken here and not inside `_acquire_connection`
+        # because this context manager is the only balanced borrow/return pair
+        # in the class: every request path reaches PostgreSQL through it, and
+        # its `finally` is the single place a permit is certain to come back.
+        # Accounting inside the two halves separately would leak a permit on
+        # every path that borrows without returning, and the ceiling would
+        # silently shrink to zero.
+        if not self._capacity.acquire(timeout=self.connection_acquire_timeout):
+            raise CloudCapacityError(
+                "The service is busy right now. Please try again in a moment."
+            )
         try:
-            yield connection
+            connection = self._acquire_connection()
         except BaseException:
-            # The connection goes back to the pool, so an aborted transaction has
-            # to be unwound here or the next borrower inherits it.
-            try:
-                connection.rollback()
-            except Exception:
-                pass
+            # Creating the connection failed, so no connection exists to return
+            # later. Give the permit back now or the ceiling drops by one for
+            # the lifetime of the process every time the database refuses.
+            self._capacity.release()
             raise
-        else:
-            connection.commit()
+        try:
+            try:
+                yield connection
+            except BaseException:
+                # The connection goes back to the pool, so an aborted transaction
+                # has to be unwound here or the next borrower inherits it.
+                try:
+                    connection.rollback()
+                except Exception:
+                    pass
+                raise
+            else:
+                connection.commit()
+            finally:
+                self._release_connection(connection)
         finally:
-            self._release_connection(connection)
+            # Outermost on purpose: even if returning the connection throws, the
+            # permit is still handed back, so one broken socket cannot cost the
+            # process a permanent slot.
+            self._capacity.release()
 
     @contextmanager
     def _tenant_connection(self, user_id: str) -> Iterator[Any]:

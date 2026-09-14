@@ -13,11 +13,12 @@ import hmac
 import logging
 import re
 import sqlite3
+import threading
 import time
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from dataclasses import asdict, dataclass
-from datetime import datetime, timezone
+from datetime import datetime
 from functools import lru_cache
 from pathlib import Path
 from typing import Annotated, Any, Literal, cast
@@ -35,6 +36,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from starlette.background import BackgroundTask
 from starlette.concurrency import run_in_threadpool
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from ivrit_sheli import __version__
 from ivrit_sheli.ai_engine import AIEngine
@@ -50,12 +52,11 @@ from ivrit_sheli.auth import (
 )
 from ivrit_sheli.cloud_repository import CloudLearningRepository
 from ivrit_sheli.cloud_store import (
-    AuthUser,
+    CloudCapacityError,
     CloudSnapshotLimitError,
     CloudStore,
     MemoryCloudStore,
     PostgresCloudStore,
-    SessionIdentity,
     bearer_hash,
 )
 from ivrit_sheli.config import Settings
@@ -78,11 +79,11 @@ from ivrit_sheli.push_notifications import (
     validate_subscription,
 )
 from ivrit_sheli.repository import (
-    MAX_PORTABLE_IMPORT_BYTES,
     LearningRepository,
 )
 from ivrit_sheli.request_limits import (
     AuthRateLimitMiddleware,
+    ImportAdmissionError,
     RequestBodyLimitMiddleware,
     RequestBodyTooLarge,
     SlidingWindowLimiter,
@@ -142,6 +143,11 @@ DOCS_CONTENT_SECURITY_POLICY = (
     )
 )
 NO_STORE_OPERATIONAL_PATHS = frozenset({"/health/live", "/health/ready", "/version"})
+# SEC-04. How long a restore waits for an admission slot before it is told to
+# come back. Short on purpose: a learner restoring a backup would rather read
+# "try again in a moment" than watch a spinner, and a caller sending restores in
+# bulk should be refused quickly rather than parked holding a connection.
+IMPORT_ADMISSION_TIMEOUT_SECONDS = 2.0
 DEMO_SAFE_POST_PATHS = frozenset(
     {
         f"{API_PREFIX}/audio/transcript-analysis",
@@ -528,6 +534,10 @@ def build_services(
                 settings.database_url,
                 session_secret=settings.session_secret,
                 max_snapshot_bytes=settings.max_cloud_snapshot_bytes,
+                max_connections=settings.max_cloud_connections,
+                connection_acquire_timeout=(
+                    settings.cloud_connection_acquire_timeout_seconds
+                ),
             )
             if settings.cloud_mode and settings.database_url != "memory://"
             else MemoryCloudStore(
@@ -630,12 +640,30 @@ def create_app(
         app.state.services.dictionary.close()
         app.state.services.cloud_store.close()
 
+    # SEC-07. Interactive API documentation is developer furniture, and both
+    # Swagger UI and ReDoc bootstrap by loading JavaScript from a public CDN and
+    # running an inline script. Serving either from the authenticated
+    # application origin means third-party code executing beside the learner's
+    # session, and it is the only reason the relaxed docs policy exists at all.
+    # Production serves neither, and without a schema to render there is nothing
+    # for them to point at, so `openapi.json` goes too.
+    #
+    # `redoc_url` is now stated rather than left to its default. It defaulted to
+    # `/redoc`, outside the API prefix, so a second documentation UI was being
+    # published that nothing in this file had ever mentioned.
+    docs_enabled = runtime_settings.app_env != "production"
+    docs_paths = (
+        frozenset({f"{API_PREFIX}/docs", f"{API_PREFIX}/redoc"})
+        if docs_enabled
+        else frozenset()
+    )
     app = FastAPI(
         title="Ivrit Sheli API",
         version=__version__,
         description="Local-first and securely authenticated cloud Hebrew-learning API",
-        docs_url=f"{API_PREFIX}/docs",
-        openapi_url=f"{API_PREFIX}/openapi.json",
+        docs_url=f"{API_PREFIX}/docs" if docs_enabled else None,
+        redoc_url=f"{API_PREFIX}/redoc" if docs_enabled else None,
+        openapi_url=f"{API_PREFIX}/openapi.json" if docs_enabled else None,
         lifespan=lifespan,
     )
     authenticated_write_limiter = SlidingWindowLimiter(
@@ -645,41 +673,67 @@ def create_app(
     )
 
     async def authorization_middleware(request: Request, call_next: Any) -> Any:
-        """Enforce auth/demo rules using Supabase JWT Bearer tokens."""
+        """Enforce auth and demo rules from the session cookie.
+
+        SEC-02, retired 2026-09-05. This used to accept a second credential: a
+        Supabase JWT in an `Authorization: Bearer` header, verified against the
+        project's published key set. No supported client ever sent one — the
+        frontend has never set that header, and `SUPABASE_URL` appears in neither
+        `render.yaml` nor `.env.example`, so the path was inert in every
+        deployment. It was hardened first and then removed rather than kept,
+        because a public authentication surface that nothing calls is a
+        maintenance cost and an attack surface with no user. Kevin authorised the
+        removal; the implementation is recoverable from `fe1a423` if a client
+        ever needs it.
+
+        One consequence is a strengthening rather than a simplification. The
+        CSRF check below carried `and not bearer_authenticated`, because a Bearer
+        token is not attached cross-site by a browser and so carried no CSRF
+        risk. With no bearer path there is no such exemption left to reason
+        about, and every authenticated state-changing request is checked.
+        """
         container = getattr(request.app.state, "services", None)
         identity = None
-        bearer_authenticated = False
 
-        # 1. Try to extract Supabase Bearer token. Only when a project URL is
-        #    actually configured — otherwise the feature stays off rather than
-        #    reaching out to some default host.
-        auth_header = request.headers.get("Authorization")
-        if runtime_settings.supabase_url and auth_header and auth_header.startswith("Bearer "):
-            token = auth_header[7:]
-            try:
-                identity = await run_in_threadpool(
-                    _resolve_supabase_bearer,
-                    token,
-                    runtime_settings.supabase_url,
-                )
-                bearer_authenticated = identity is not None
-            except Exception:
-                # A malformed or expired token is an ordinary event, not a fault:
-                # fall through so the cookie path or the 401 below decides. Logged
-                # without the token so a credential never reaches the log.
-                LOGGER.info(
-                    "supabase bearer token rejected",
-                    extra={"path": request.url.path},
-                )
-
-        # 2. Fallback to existing cookie-based session for backward compatibility / demo mode
         if identity is None:
             session_token = request.cookies.get(runtime_settings.session_cookie_name)
             if container is not None and session_token:
-                identity = await run_in_threadpool(
-                    container.auth.resolve,
-                    session_token,
-                )
+                try:
+                    identity = await run_in_threadpool(
+                        container.auth.resolve,
+                        session_token,
+                    )
+                except CloudCapacityError:
+                    # SEC-03 follow-up. Resolving the cookie session borrows a
+                    # PostgreSQL connection, and this is a user middleware.
+                    # Starlette builds the stack as ServerErrorMiddleware ->
+                    # user middleware -> ExceptionMiddleware -> router, and every
+                    # non-500 handler registered with @app.exception_handler
+                    # lives in that innermost layer. So an exception raised HERE
+                    # can never reach the CloudCapacityError handler.
+                    #
+                    # Left to propagate it becomes a 500 rather than a 503, it
+                    # skips every security header — those are set after
+                    # `call_next` in request_id_middleware, which never resumes —
+                    # and while DEBUG is on ServerErrorMiddleware renders a full
+                    # traceback in preference to any handler. That is the
+                    # dominant path in cloud mode: every cookie-authenticated
+                    # request goes through it.
+                    LOGGER.warning(
+                        "PostgreSQL connection ceiling reached while resolving a session",
+                        extra={
+                            "event": "database.postgres.capacity",
+                            "request_id": request.state.request_id,
+                        },
+                    )
+                    busy = error_response(
+                        request,
+                        503,
+                        "database_unavailable",
+                        "Cloud data storage is busy. Please try again in a moment.",
+                    )
+                    busy.headers["Retry-After"] = "5"
+                    return busy
                 
         request.state.session_identity = identity
         
@@ -715,11 +769,11 @@ def create_app(
             and not identity.user.is_demo
             and _is_private_api_path(request.url.path)
             and request.method not in {"GET", "HEAD", "OPTIONS"}
-            # A Bearer token is never attached cross-site by the browser, so it
-            # carries no CSRF risk. Keying this on how the request authenticated
-            # rather than on an empty csrf_hash means a caller cannot opt out of
-            # the check by presenting a blank one.
-            and not bearer_authenticated
+            # This once carried `and not bearer_authenticated`, exempting the
+            # Supabase bearer path because a browser never attaches a Bearer
+            # token cross-site. That path is gone (SEC-02, retired 2026-09-05),
+            # so the exemption is gone with it and there is no way to reach a
+            # state-changing request without this check.
             and not _csrf_valid(request, identity.csrf_hash, runtime_settings)
         ):
             return error_response(
@@ -747,6 +801,36 @@ def create_app(
                 return response
         return await call_next(request)
 
+    # SEC-04. The import route's byte ceiling, aligned with what a restore can
+    # actually keep.
+    #
+    # Body limits are enforced OUTSIDE the authorization middleware — a chunked
+    # request has no trustworthy Content-Length, so the limit middleware buffers
+    # up to the route's ceiling before any handler, and therefore before anyone
+    # has authenticated. With a 32 MB ceiling that handed an unauthenticated
+    # caller 32 MB of process memory per request for the asking.
+    #
+    # In cloud mode the ceiling was also fiction: a learner document is refused
+    # above `max_cloud_snapshot_bytes` when it is encoded, so an import larger
+    # than that can never succeed. It could only be buffered, written, parsed and
+    # expanded into rows, and then rejected at the last step. Accepting twice the
+    # durable ceiling leaves room for JSON and multipart overhead around the same
+    # state and refuses the rest at the door. Local SQLite mode has no such
+    # ceiling, so its configured limit is left alone.
+    import_body_limit = runtime_settings.max_import_upload_body_bytes
+    if runtime_settings.cloud_mode:
+        import_body_limit = min(
+            import_body_limit, runtime_settings.max_cloud_snapshot_bytes * 2
+        )
+    app.state.import_body_limit = import_body_limit
+    # Admission, not rate limiting: this bounds how many restores may be paying
+    # the per-request memory cost simultaneously, so the worst case is one
+    # import's cost times a number this process chose rather than times however
+    # many requests happened to arrive.
+    app.state.import_admission = threading.BoundedSemaphore(
+        runtime_settings.max_concurrent_imports
+    )
+
     # Registration order is deliberate: request ID/logging is outermost, then CORS,
     # endpoint auth limits, request-body limits, and finally session/database work.
     app.add_middleware(BaseHTTPMiddleware, dispatch=authorization_middleware)
@@ -756,7 +840,7 @@ def create_app(
         route_limits={
             f"{API_PREFIX}/audio/stt": runtime_settings.max_audio_upload_body_bytes,
             (f"{API_PREFIX}/connectors/ics/preview"): runtime_settings.max_ics_upload_body_bytes,
-            f"{API_PREFIX}/import": runtime_settings.max_import_upload_body_bytes,
+            f"{API_PREFIX}/import": import_body_limit,
         },
     )
     app.add_middleware(
@@ -766,6 +850,21 @@ def create_app(
         window_seconds=runtime_settings.auth_rate_limit_window_seconds,
         client_key_mode=runtime_settings.trusted_proxy_mode,
         max_client_keys=runtime_settings.auth_rate_limit_max_client_keys,
+    )
+    # SEC-06. `add_middleware` prepends, so the LAST registration is outermost.
+    # CORS is registered after this one and therefore wraps it; the effective
+    # order is request_id -> CORS -> TrustedHost -> AuthRateLimit -> body limit
+    # -> authorization -> route. What the security property needs is that a
+    # forged Host is refused before the body-limit middleware buffers a chunked
+    # request and before any session or route work, and that holds. CORS is left
+    # outermost on purpose: it answers preflights on `Origin`, never on `Host`.
+    #
+    # The list is assembled and can never contain a wildcard. That is enforced
+    # twice, because Starlette reads a bare "*" as allow_any and stops checking
+    # the Host header at all: `Settings.validate_cloud_configuration` refuses one
+    # in ALLOWED_HOSTS, and `Settings.trusted_hosts` filters any that survive.
+    app.add_middleware(
+        TrustedHostMiddleware, allowed_hosts=list(runtime_settings.trusted_hosts)
     )
     app.add_middleware(
         CORSMiddleware,
@@ -795,9 +894,12 @@ def create_app(
         response.headers["Referrer-Policy"] = "no-referrer"
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["Permissions-Policy"] = "camera=(), geolocation=(), microphone=(self)"
+        # SEC-07. `docs_paths` is empty in production, so the relaxed policy is
+        # not merely unused there — it is unreachable, and every response
+        # carries the strict application policy.
         response.headers["Content-Security-Policy"] = (
             DOCS_CONTENT_SECURITY_POLICY
-            if request.url.path == f"{API_PREFIX}/docs"
+            if request.url.path in docs_paths
             else APP_CONTENT_SECURITY_POLICY
         )
         response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
@@ -1005,61 +1107,6 @@ def _dictionary_readiness(container: Services) -> dict[str, Any]:
         # Readiness is intentionally fail-closed and contains no database error details.
         pass
     return details
-
-
-# Supabase access tokens are signed with an asymmetric key published as a JWKS.
-# HS256 must never appear beside those keys: a public key is public, so it also
-# works as a guessable HMAC secret, which is the classic algorithm-confusion
-# attack.
-SUPABASE_JWT_ALGORITHMS = ("ES256", "RS256")
-
-
-@lru_cache(maxsize=4)
-def _supabase_jwk_client(jwks_url: str) -> Any:
-    """Return one cached JWKS client per project.
-
-    Building the client per request meant refetching the key set on every
-    authenticated call, since its cache lives on the instance.
-    """
-    from jwt import PyJWKClient
-
-    return PyJWKClient(jwks_url, cache_keys=True, lifespan=3600, timeout=8)
-
-
-def _resolve_supabase_bearer(token: str, supabase_url: str) -> SessionIdentity | None:
-    """Verify one Supabase access token and map it onto a session identity.
-
-    Called through run_in_threadpool: fetching the key set is blocking network
-    I/O and must not run on the event loop.
-    """
-    import jwt
-
-    base = supabase_url.rstrip("/")
-    signing_key = _supabase_jwk_client(
-        f"{base}/auth/v1/.well-known/jwks.json"
-    ).get_signing_key_from_jwt(token)
-    payload = jwt.decode(
-        token,
-        signing_key.key,
-        algorithms=list(SUPABASE_JWT_ALGORITHMS),
-        audience="authenticated",
-        issuer=f"{base}/auth/v1",
-        options={"require": ["exp", "sub"]},
-    )
-    user_id = payload.get("sub")
-    if not user_id:
-        return None
-    metadata = payload.get("user_metadata") or {}
-    return SessionIdentity(
-        user=AuthUser(
-            id=str(user_id),
-            display_name=metadata.get("full_name") or metadata.get("name") or "Learner",
-            provider="google",
-            login=payload.get("email", ""),
-        ),
-        csrf_hash="",
-        expires_at=datetime.fromtimestamp(int(payload["exp"]), tz=timezone.utc),
-    )
 
 
 # The only documents /notes/ may publish. Everything else under docs/ is
@@ -2456,18 +2503,40 @@ def register_routes(app: FastAPI) -> None:
         suffix = Path(file.filename or "ivrit-sheli-export.json").suffix.lower()
         if suffix != ".json":
             raise ValueError("Learner import must be a .json export")
-        temporary = (
-            services(request).settings.data_dir
-            / "private"
-            / f"import-{uuid4().hex}.json"
-        )
+        # SEC-04. Admission is taken here, after the two cheap rejections above
+        # and before anything expensive: a missing confirmation or a wrong file
+        # extension should never have to queue behind a real restore.
+        limit = int(request.app.state.import_body_limit)
+        admission = request.app.state.import_admission
+        if not admission.acquire(timeout=IMPORT_ADMISSION_TIMEOUT_SECONDS):
+            raise ImportAdmissionError(
+                "Too many restores are already running. Please try again in a moment."
+            )
+        # Bound before the try so the finally can always test it: the path is
+        # built inside the try, and until it is there is no file to remove.
+        temporary: Path | None = None
         written = 0
         try:
+            # Inside the try, not before it. `services(request)` raises when the
+            # container is unset, and a raise between `acquire()` and the `try`
+            # would leak the permit permanently, lowering the ceiling by one
+            # every time until no restore is admitted at all.
+            temporary = (
+                services(request).settings.data_dir
+                / "private"
+                / f"import-{uuid4().hex}.json"
+            )
             with temporary.open("wb") as handle:
                 while chunk := file.file.read(1024 * 1024):
                     written += len(chunk)
-                    if written > MAX_PORTABLE_IMPORT_BYTES:
-                        raise ValueError("Learner import exceeds 32 MB")
+                    if written > limit:
+                        # Stop at the byte, not at the end of the upload: this is
+                        # the ceiling the middleware already enforced, repeated
+                        # here because a multipart envelope can carry more than
+                        # one part and only this loop sees the file itself.
+                        raise ValueError(
+                            f"Learner import exceeds the {limit}-byte restore limit"
+                        )
                     handle.write(chunk)
             repository = repository_for(request)
             result = repository.import_json(temporary)
@@ -2494,8 +2563,13 @@ def register_routes(app: FastAPI) -> None:
                 "reauthorization_required": True,
             }
         finally:
-            temporary.unlink(missing_ok=True)
+            if temporary is not None:
+                temporary.unlink(missing_ok=True)
             file.file.close()
+            # Outermost effect of the slice: a restore that fails anywhere above
+            # still gives its slot back, or the ceiling would fall to zero and
+            # every later restore would be refused.
+            admission.release()
 
 
 def register_error_handlers(app: FastAPI, settings: Settings) -> None:
@@ -2551,6 +2625,55 @@ def register_error_handlers(app: FastAPI, settings: Settings) -> None:
             "cloud_snapshot_limit_exceeded",
             str(error),
         )
+
+    @app.exception_handler(CloudCapacityError)
+    async def cloud_capacity_error(
+        request: Request, _error: CloudCapacityError
+    ) -> JSONResponse:
+        """Turn an exhausted connection ceiling into an honest, quiet refusal.
+
+        SEC-03. The alternative this replaces was opening another PostgreSQL
+        connection without limit, which degrades the database for every learner
+        rather than only for the request that arrived last. The log line is
+        deliberately structured and free of the exception text so a burst does
+        not write a caller-controlled string into the operational log.
+        """
+        LOGGER.warning(
+            "PostgreSQL connection ceiling reached",
+            extra={
+                "event": "database.postgres.capacity",
+                "request_id": request.state.request_id,
+            },
+        )
+        response = error_response(
+            request,
+            503,
+            "database_unavailable",
+            "Cloud data storage is busy. Please try again in a moment.",
+        )
+        response.headers["Retry-After"] = "5"
+        return response
+
+    @app.exception_handler(ImportAdmissionError)
+    async def import_admission_error(
+        request: Request, _error: ImportAdmissionError
+    ) -> JSONResponse:
+        """Refuse a restore quickly instead of paying its cost concurrently."""
+        LOGGER.warning(
+            "Portable import admission limit reached",
+            extra={
+                "event": "import.admission.rejected",
+                "request_id": request.state.request_id,
+            },
+        )
+        response = error_response(
+            request,
+            503,
+            "import_busy",
+            "Another restore is already running. Please try again in a moment.",
+        )
+        response.headers["Retry-After"] = "5"
+        return response
 
     @app.exception_handler(RequestBodyTooLarge)
     async def request_body_too_large(request: Request, _error: RequestBodyTooLarge) -> JSONResponse:

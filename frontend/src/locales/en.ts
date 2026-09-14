@@ -171,6 +171,7 @@ export const enMessages = {
     deviceRecordingDeleted: 'The saved recording was deleted from this device.',
     deviceRecordingDeleteFailed: 'This device could not delete the saved recording.',
     deviceAudioCleanupAfterAccountDeletion: 'Your account was deleted, but this browser could not remove its local recordings. Clear this site’s browser data on this device to remove them.',
+    accountLocalCleanupFailed: 'Your account was deleted, but this browser could not forget your name and saved sign-in. Clear this site’s browser data on this device to remove them.',
     audioLimitNotice: 'Record one word or a short phrase: maximum 20 seconds and 8 MB.',
     temporaryAudioDeleted: 'The temporary server upload was deleted after transcription.',
     temporaryAudioDeletionUnconfirmed: 'The server did not confirm deletion of the temporary upload.',
