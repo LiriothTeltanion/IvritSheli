@@ -90,7 +90,6 @@ from ivrit_sheli.request_limits import (
 )
 from ivrit_sheli.speech_evidence import SpeechEvidenceSigner
 from ivrit_sheli.structured_logging import configure_json_logging, privacy_user_hash
-from ivrit_sheli.supabase_bearer import SupabaseBearerVerifier
 from ivrit_sheli.visual_spotlight import build_visual_spotlight
 
 LOGGER = logging.getLogger(__name__)
@@ -673,42 +672,29 @@ def create_app(
         max_keys=runtime_settings.authenticated_write_rate_limit_max_users,
     )
 
-    # SEC-02. One verifier per application, built only when a project URL is
-    # actually configured. `None` is the off switch: with no Supabase project
-    # the bearer branch is not merely unused, it is unreachable, and nothing
-    # reaches out to a default host. The verifier owns the negative key-id cache
-    # and the single-flight permit, so those must not be shared between apps.
-    bearer_verifier = (
-        SupabaseBearerVerifier(runtime_settings.supabase_url)
-        if runtime_settings.supabase_url
-        else None
-    )
-
     async def authorization_middleware(request: Request, call_next: Any) -> Any:
-        """Enforce auth/demo rules using Supabase JWT Bearer tokens."""
+        """Enforce auth and demo rules from the session cookie.
+
+        SEC-02, retired 2026-09-05. This used to accept a second credential: a
+        Supabase JWT in an `Authorization: Bearer` header, verified against the
+        project's published key set. No supported client ever sent one — the
+        frontend has never set that header, and `SUPABASE_URL` appears in neither
+        `render.yaml` nor `.env.example`, so the path was inert in every
+        deployment. It was hardened first and then removed rather than kept,
+        because a public authentication surface that nothing calls is a
+        maintenance cost and an attack surface with no user. Kevin authorised the
+        removal; the implementation is recoverable from `fe1a423` if a client
+        ever needs it.
+
+        One consequence is a strengthening rather than a simplification. The
+        CSRF check below carried `and not bearer_authenticated`, because a Bearer
+        token is not attached cross-site by a browser and so carried no CSRF
+        risk. With no bearer path there is no such exemption left to reason
+        about, and every authenticated state-changing request is checked.
+        """
         container = getattr(request.app.state, "services", None)
         identity = None
-        bearer_authenticated = False
 
-        # 1. Try to extract Supabase Bearer token. Only when a project URL is
-        #    actually configured — otherwise the feature stays off rather than
-        #    reaching out to some default host.
-        auth_header = request.headers.get("Authorization")
-        if bearer_verifier is not None and auth_header and auth_header.startswith("Bearer "):
-            token = auth_header[7:]
-            try:
-                identity = await run_in_threadpool(bearer_verifier.resolve, token)
-                bearer_authenticated = identity is not None
-            except Exception:
-                # A malformed or expired token is an ordinary event, not a fault:
-                # fall through so the cookie path or the 401 below decides. Logged
-                # without the token so a credential never reaches the log.
-                LOGGER.info(
-                    "supabase bearer token rejected",
-                    extra={"path": request.url.path},
-                )
-
-        # 2. Fallback to existing cookie-based session for backward compatibility / demo mode
         if identity is None:
             session_token = request.cookies.get(runtime_settings.session_cookie_name)
             if container is not None and session_token:
@@ -783,11 +769,11 @@ def create_app(
             and not identity.user.is_demo
             and _is_private_api_path(request.url.path)
             and request.method not in {"GET", "HEAD", "OPTIONS"}
-            # A Bearer token is never attached cross-site by the browser, so it
-            # carries no CSRF risk. Keying this on how the request authenticated
-            # rather than on an empty csrf_hash means a caller cannot opt out of
-            # the check by presenting a blank one.
-            and not bearer_authenticated
+            # This once carried `and not bearer_authenticated`, exempting the
+            # Supabase bearer path because a browser never attaches a Bearer
+            # token cross-site. That path is gone (SEC-02, retired 2026-09-05),
+            # so the exemption is gone with it and there is no way to reach a
+            # state-changing request without this check.
             and not _csrf_valid(request, identity.csrf_hash, runtime_settings)
         ):
             return error_response(
@@ -1121,14 +1107,6 @@ def _dictionary_readiness(container: Services) -> dict[str, Any]:
         # Readiness is intentionally fail-closed and contains no database error details.
         pass
     return details
-
-
-# SEC-02. The Supabase bearer verification boundary moved to
-# `ivrit_sheli.supabase_bearer`. It is authentication, so all of its work happens
-# before the caller has proved anything, and it now bounds token size, rejects a
-# wrong algorithm or malformed key id before reaching the network, remembers
-# absent key ids for a bounded time, and allows at most one key-set refresh in
-# flight. See that module for the attack this closes.
 
 
 # The only documents /notes/ may publish. Everything else under docs/ is

@@ -200,7 +200,6 @@ class Settings:
         "http://127.0.0.1:8000/api/v1/auth/google/callback"
     )
     database_url: str = ""
-    supabase_url: str = ""
     auth_required: bool = False
     session_secret: str = ""
     session_cookie_name: str = "ivrit_session"
@@ -429,7 +428,6 @@ class Settings:
             database_url=value("DATABASE_URL", ""),
             # No default: a live project URL in source would silently point every
             # deployment at one project. Unset means the Bearer path stays off.
-            supabase_url=value("SUPABASE_URL", ""),
             auth_required=parse_bool(values.get("AUTH_REQUIRED"), app_env == "production"),
             session_secret=value("SESSION_SECRET", ""),
             session_cookie_name=value("SESSION_COOKIE_NAME", "ivrit_session"),
