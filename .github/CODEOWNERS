@@ -1,2 +1,21 @@
-# Ivrit Sheli public portfolio product ownership
-* @LiriothTeltanion
+# Ivrit Sheli public portfolio product ownership.
+#
+# Only the files where a change reaches Kevin's public record, the quality gates
+# or the deployment ask for his review. There is deliberately no catch-all `*`:
+# it requested a review on every Dependabot lockfile bump, eight of them on the
+# morning of 2026-09-14 alone, and buried the changes below under routine noise.
+
+# What the public GitHub profile reads and shows to recruiters.
+/portfolio/project.json @LiriothTeltanion
+
+# The quality gates and the release integrity check.
+/.github/workflows/ @LiriothTeltanion
+/scripts/verify_package.py @LiriothTeltanion
+
+# Deployment configuration.
+/render.yaml @LiriothTeltanion
+/render.frankfurt.yaml @LiriothTeltanion
+
+# The privacy and security contract.
+/PRIVACY.md @LiriothTeltanion
+/SECURITY.md @LiriothTeltanion
