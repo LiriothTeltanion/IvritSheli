@@ -7,7 +7,7 @@ uvicorn[standard]==0.53.0
 pydantic==2.13.5
 requests==2.34.2
 python-multipart==0.0.32
-psycopg[binary]==3.3.5
+psycopg[binary]==3.3.6
 SQLAlchemy==2.0.54
 alembic==1.20.0
 # Audio duration validation uses PyAV even when the optional Faster Whisper
@@ -17,4 +17,4 @@ av==17.1.0
 # image for a feature no deployment enables. See that file.
 pywebpush==2.5.0
 cryptography==50.0.1
-PyJWT==2.14.0
+PyJWT==2.15.0

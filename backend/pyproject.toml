@@ -16,7 +16,7 @@ dependencies = [
   "pydantic==2.13.5",
   "requests==2.34.2",
   "python-multipart==0.0.32",
-  "psycopg[binary]==3.3.5",
+  "psycopg[binary]==3.3.6",
   "SQLAlchemy==2.0.54",
   "alembic==1.20.0",
   "faster-whisper==1.2.1",
