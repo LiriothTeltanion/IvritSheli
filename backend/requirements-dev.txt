@@ -5,8 +5,8 @@
 -r requirements.txt
 pytest==9.1.1
 httpx==0.28.1
-mypy==2.3.1
-ruff==0.16.9
+mypy==2.4.0
+ruff==0.16.10
 types-requests==2.33.0.20260906
 pip-audit==2.10.1
 tomli==2.4.1; python_version < "3.11"
