@@ -2,8 +2,8 @@
 # Purpose: Pin the dependency set used by the Ivrit Sheli 2.12.3 candidate in cloud and local modes.
 # Author: Kevin "Lirioth" Cusnir
 # Date: 2026-07-15 | TZ: Asia/Jerusalem
-fastapi==0.141.1
-uvicorn[standard]==0.53.0
+fastapi==0.142.2
+uvicorn[standard]==0.54.0
 pydantic==2.13.5
 requests==2.34.2
 python-multipart==0.0.32
@@ -16,5 +16,5 @@ av==17.1.0
 # faster-whisper moved to requirements-speech.txt on 2026-08-26: 629 MB of
 # image for a feature no deployment enables. See that file.
 pywebpush==2.5.0
-cryptography==50.0.1
-PyJWT==2.15.0
+cryptography==50.0.2
+PyJWT==2.15.1
