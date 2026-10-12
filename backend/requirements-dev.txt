@@ -9,4 +9,4 @@ mypy==2.4.0
 ruff==0.16.10
 types-requests==2.33.0.20260906
 pip-audit==2.10.1
-tomli==2.4.1; python_version < "3.11"
+tomli==2.5.0; python_version < "3.11"
