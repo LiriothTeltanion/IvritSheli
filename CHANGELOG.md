@@ -7,6 +7,11 @@
 - Preserved 240/240 exact scenes, progressive hints and original 2.12.3 baseline captures.
 - Corrected the morning scene to show the two-person greeting described by its accessible text.
 - New local verification is recorded separately; no historical test or hosting claim is relabelled.
+- 2026-10-19: the greeting neighbours gained readable faces (open eye, brow, smile), an open-palm wave and
+  shirt shading, with the same poses, animation groups and reduced-motion stills.
+- 2026-10-19: fixed empty `/api/v1/export` bodies under Starlette 1.x (the request-body limit middleware
+  faked a client disconnect after replaying a body); backup restore works again and a regression test covers it.
+- 2026-10-19: added layered image-generation prompts for the six scenes (`docs/LIVING_SCENES_ART_PROMPTS.md`).
 
 # Changelog
 
