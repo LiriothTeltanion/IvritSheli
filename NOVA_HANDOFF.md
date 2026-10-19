@@ -1,3 +1,40 @@
+## 🌙 Sesión nocturna Nova — lunes, 19 de octubre de 2026 (Claude Code, TUF)
+
+**Rama local:** `nova/2026-10-19-living-scenes` en el worktree `D:\dev\IvritSheli-wt\living-scenes`.
+Sin push, sin PR, sin deploy. La copia de OneDrive solo se leyó.
+
+### ✅ Hecho
+- **Rescate del piloto «Living Editorial Scenes» (2.13.0 candidata):** el trabajo de Codex del 18-10 seguía
+  *staged* y sin commit en la copia de OneDrive (`codex/living-scenes-pilot`, 53 archivos, +3.242 / −103).
+  Se exportó como parche binario (`D:\dev\_rescue\2026-10-19\living-scenes-staged.patch`, SHA-256
+  `11cd368a…b5b8`) y se aplicó sobre `f623fa0`. El índice resultante coincide **blob por blob** (626/626) con
+  el índice staged de OneDrive. Commit `d6649ba`.
+- **Merge de `main` (`f7c2ba3`)** sin conflictos: commit `79af408`.
+- **Arreglo de un fallo que ya estaba en `main`:** desde la tanda de Dependabot del 12-10 (Starlette 1.9 /
+  FastAPI 0.143), `/api/v1/export` devolvía un cuerpo vacío y dos pruebas de restauración de copias fallaban
+  (también en CI, run 39195650429). Causa: `RequestBodyLimitMiddleware` inventaba un `http.disconnect` al
+  vaciar su búfer y Starlette cortaba el `FileResponse`. Arreglo de una línea + prueba de regresión que falla
+  en `main` y pasa aquí. Commit `b41e7ad`. Ningún control de seguridad se quitó ni se relajó.
+
+### 🔬 Verificado (TESTED_LOCAL, 19-10-2026 ≈ 22:00)
+- `npx tsc -b` 0 errores · `npx vitest run` **875/875** (51 archivos) · `npm run build` OK.
+- `pytest backend/tests` **430 passed, 1 skip** (PostgreSQL con credenciales) · Ruff OK · MyPy estricto OK (39).
+- `generate_checksums.py` + `verify_package.py`: 625 checksums, 230 archivos requeridos OK.
+- App servida (SQLite, datos temporales, puerto 8810) + `capture-living-scenes.mjs`: 17 capturas,
+  114 fotogramas de animación, **0 errores de página**; hojas compuestas en color y gris.
+  Evidencia: `D:\dev\_rescue\2026-10-19\ivrit-capture\` (`overview-light.png`, `studio-phone-dark-he.png`…).
+
+### ⚠️ No verificado
+- La matriz Playwright completa del piloto (11 + 36) y el axe WCAG no se repitieron esta noche.
+- Reconocimiento humano, aceptación del hebreo y el piloto con tu mamá siguen abiertos (lista «not run»).
+- CI remoto: no se ejecutó (no hubo push).
+
+### 👉 Siguiente paso
+- Revisar las 6 escenas en `overview-light.png`; si te gustan, decidir si se fusiona en `main`
+  (el arreglo `b41e7ad` también puede ir solo a `main` con cherry-pick para devolver el CI a verde).
+
+---
+
 ## Living Editorial Scenes session — 2026-10-18
 
 - Final package gate: `python scripts/verify_package.py` passed with 625 canonical Git-index checksums and 230 required files; `git diff --cached --check` passed.
