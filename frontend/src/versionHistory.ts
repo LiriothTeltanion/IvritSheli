@@ -12,6 +12,15 @@ export const VERSION_HISTORY_COPY: Record<Locale, { title: string, summary: stri
     summary: 'Chronological timeline of all major engine and visual milestones.',
     versions: [
       {
+        name: '2.13.0 — Living Editorial Scenes',
+        date: '2026-10-18',
+        highlights: [
+          'Local private candidate; no new release or deployment.',
+          'Six original SVG illustrations, finite semantic motion, accessible replay and a trilingual comparison studio.',
+          'Preserves 240 exact scenes and historical proof; the morning greeting now shows two people.',
+        ],
+      },
+      {
         name: '2.12.3 — Clear Counting & Safer Visuals',
         date: '2026-08-27',
         highlights: [
@@ -145,6 +154,15 @@ export const VERSION_HISTORY_COPY: Record<Locale, { title: string, summary: stri
     summary: 'Cronología completa y ordenada de todos los hitos visuales y de ingeniería.',
     versions: [
       {
+        name: '2.13.0 — Escenas editoriales vivas',
+        date: '2026-10-18',
+        highlights: [
+          'Candidata local; sin nueva publicación ni despliegue.',
+          'Seis ilustraciones SVG originales, movimiento semántico finito, repetición accesible y estudio trilingüe de comparación.',
+          'Conserva 240 escenas y la evidencia histórica; el saludo matutino muestra dos personas.',
+        ],
+      },
+      {
         name: '2.12.3 — Conteo claro y visuales más seguros',
         date: '2026-08-27',
         highlights: [
@@ -277,6 +295,15 @@ export const VERSION_HISTORY_COPY: Record<Locale, { title: string, summary: stri
     title: 'יומן גרסאות',
     summary: 'ציר זמן כרונולוגי מלא ומסודר של כל אבני הדרך.',
     versions: [
+      {
+        name: '2.13.0 — סצנות מאוירות חיות',
+        date: '2026-10-18',
+        highlights: [
+          'מועמד מקומי; ללא פרסום או פריסה חדשים.',
+          'שישה איורי SVG מקוריים, תנועה קצרה, הפעלה נגישה וסטודיו השוואה בשלוש שפות.',
+          'נשמרו 240 סצנות והראיות ההיסטוריות; ברכת הבוקר מציגה שני אנשים.',
+        ],
+      },
       {
         name: '2.12.3 — ספירה ברורה וחזות בטוחה יותר',
         date: '2026-08-27',

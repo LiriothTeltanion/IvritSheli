@@ -1,13 +1,21 @@
+> **Local illustration pilot — 2026-10-18.** **Current private candidate:** `2.13.0`.
+> Six original SVG scenes now have editorial materials, articulated finite motion,
+> accessible replay controls and a private comparison studio at `/?visualPilot=1`.
+> **Latest published release:** `v2.12.2`. For this new candidate,
+> no durable hosted demo is currently verified. The hosted 2.12.3 evidence and
+> the README screenshots below are historical and have not been relabelled.
+> Implementation and verification: [Living Scenes pilot](docs/LIVING_SCENES_PILOT.md).
+
 <div align="center">
   <img src="assets/brand/wordmark-nocturne.svg" alt="Ivrit Sheli wordmark" width="680" />
 
-  <h1>Ivrit Sheli 2.12.3 — El hebreo vivo de cada día</h1>
+  <h1>Ivrit Sheli 2.13.0 — El hebreo vivo de cada día</h1>
   <p><strong>A trilingual, local-first PWA for learning the Hebrew people meet in everyday life.</strong></p>
   <p>Guided enough for a complete beginner, deep enough to keep growing.</p>
 
   <p>
     <a href="https://ivrit-sheli.onrender.com"><img src="https://img.shields.io/badge/Live_Staging-Render-46E3B7?style=flat-square&logo=render" alt="Live Staging"></a>
-    <img src="https://img.shields.io/badge/Release-v2.12.3-3B82F6?style=flat-square" alt="Version">
+    <img src="https://img.shields.io/badge/Candidate-v2.13.0-3B82F6?style=flat-square" alt="Version">
     <img src="https://img.shields.io/badge/React_19_%2B_Vite-passing-22C55E?style=flat-square" alt="React 19">
     <img src="https://img.shields.io/badge/FastAPI_%2B_Python-ready-38BDF8?style=flat-square" alt="FastAPI">
     <img src="https://img.shields.io/badge/Database-PostgreSQL_17-336791?style=flat-square&logo=postgresql" alt="PostgreSQL">

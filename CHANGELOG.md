@@ -1,3 +1,13 @@
+# Local candidate update
+
+## 2.13.0 — Living Editorial Scenes — Private candidate — 2026-10-18
+
+- Repainted six original SVG scenes with shared editorial materials and distinct semantic motion.
+- Added touch/keyboard replay, reduced-motion stills and a private trilingual before/after studio.
+- Preserved 240/240 exact scenes, progressive hints and original 2.12.3 baseline captures.
+- Corrected the morning scene to show the two-person greeting described by its accessible text.
+- New local verification is recorded separately; no historical test or hosting claim is relabelled.
+
 # Changelog
 
 All notable changes are documented here. Versions follow Semantic Versioning.

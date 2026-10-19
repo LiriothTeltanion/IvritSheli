@@ -1,3 +1,35 @@
+## Living Editorial Scenes session — 2026-10-18
+
+- Final package gate: `python scripts/verify_package.py` passed with 625 canonical Git-index checksums and 230 required files; `git diff --cached --check` passed.
+
+- Host: ASUSTUFDEKEVIN. Branch: `codex/living-scenes-pilot`.
+- Before SHA: `f623fa0dff118c67c83b0c1907c032484e95db16`.
+- After SHA: unchanged; implementation is local and uncommitted. No push,
+  merge, tag, release, deployment, provider or database changes.
+- Version: 2.12.3 source baseline -> 2.13.0 local private candidate.
+- Delivered: six original SVG scenes, finite semantic animation, accessible
+  hero replay, preserved thumbnail hover/focus, reduced-motion stills and a
+  private trilingual studio at `http://127.0.0.1:8000/?visualPilot=1&lang=es`.
+- Main files and reproduction: `docs/LIVING_SCENES_PILOT.md`.
+- Tests run: 875 frontend tests / 51 files; 429 backend passes / 1
+  credential-gated PostgreSQL skip; build/TypeScript, Ruff and strict MyPy pass.
+  Pilot Playwright: 11 passes / 2 scoped skips. Existing product matrix:
+  36 passes / 40 intentional skips. Final-build preflight + studio WCAG
+  matrix: 2 passes. No CI run or publication is claimed.
+- Visual proof: 12 before renders, 17 final screenshots, 114 animation samples,
+  finite GIF, color/grayscale sheets and SHA-256 manifests. Local export folder:
+  sibling `_IVRITSHELI_EXPORTS/2026-10-18_140755_living-scenes-pilot_v1`.
+- Backup: `source-before.zip`, SHA-256
+  `a50aeba4aacbe211553216a2139310b40a2af1442783c5569673bd99a3f606ad`.
+- Preview intentionally retained for Kevin on loopback port 8000. Runtime
+  identity: `f623fa0+living-scenes-2.13.0-local`, SQLite. Launcher PID 87328,
+  Python listener child PID 27972, both created at 14:22:53 local. Before
+  stopping it, reverify process identity; do not kill by port alone.
+- Next: Kevin reviews the live scenes and before/after comparison; run the
+  human recognition/Hebrew acceptance pilot before scaling the art to more keys.
+- Package metadata retains historical README proof at 2.12.3, with tamper,
+  traversal, future-version and relabeling regression checks.
+
 # Ivrit Sheli 2.12.3 — current-source and staging handoff
 
 **Last Updated**: 2026-09-05 (`Asia/Jerusalem`)

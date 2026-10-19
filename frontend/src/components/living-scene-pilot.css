@@ -1,0 +1,453 @@
+/* Hand-authored materials remain stable in both themes. Only the surrounding
+ * paper, architecture and contrast adapt; water and skin keep their identity. */
+.semantic-art[data-living-scene] {
+  --living-paper-light: #f7efdf;
+  --living-paper-shade: #e5dcc7;
+  --living-table: #b59978;
+  --living-ground: #cab99d;
+  --living-line: #b4a487;
+  --living-linen: #e5dec6;
+  --living-leaf: #6b8060;
+  --living-steam: #9c9d89;
+  filter: none;
+  overflow: hidden;
+  border-radius: 12px;
+  isolation: isolate;
+}
+[data-theme="dark"] .semantic-art[data-living-scene] {
+  --living-paper-light: #263c3e;
+  --living-paper-shade: #15292e;
+  --living-table: #5e5042;
+  --living-ground: #827863;
+  --living-line: #5c706a;
+  --living-linen: #b8b29b;
+  --living-leaf: #809477;
+  --living-steam: #d1dbbd;
+}
+.living__paper-light {
+  stop-color: var(--living-paper-light);
+}
+.living__paper-shade {
+  stop-color: var(--living-paper-shade);
+}
+.living__frame {
+  stroke: var(--living-line);
+  stroke-width: 0.65;
+}
+.living__table {
+  fill: var(--living-table);
+}
+.living__ground {
+  fill: var(--living-ground);
+}
+.living__linen {
+  fill: var(--living-linen);
+}
+.living__linen-edge {
+  fill: none;
+  stroke: #8f8f76;
+  stroke-width: 0.6;
+  stroke-dasharray: 1 1.5;
+}
+.living__shadow {
+  fill: #172c29;
+  opacity: 0.16;
+}
+.living__wood-grain {
+  fill: none;
+  stroke: #d3b48a;
+  stroke-width: 0.55;
+  opacity: 0.45;
+}
+.living__wall-line {
+  fill: none;
+  stroke: var(--living-line);
+  stroke-width: 0.65;
+  opacity: 0.5;
+}
+.living__leaf {
+  fill: var(--living-leaf);
+}
+.living__stem {
+  fill: none;
+  stroke: #6e8062;
+  stroke-width: 1.2;
+}
+.living__paving {
+  fill: none;
+  stroke: #a28e70;
+  stroke-width: 0.7;
+  opacity: 0.55;
+}
+.living__curtain {
+  fill: #c3a180;
+  opacity: 0.85;
+}
+.living__curtain-fold {
+  fill: none;
+  stroke: #e3ceb0;
+  stroke-width: 1.6;
+}
+.living__steam-ink {
+  stroke: var(--living-steam);
+  opacity: 0.6;
+}
+.living__number-plate {
+  fill: var(--living-paper-light);
+  stroke: var(--living-line);
+  stroke-width: 0.8;
+}
+.living__number-ink {
+  stroke: var(--semantic-ink);
+}
+.living__water-flow {
+  opacity: 0.8;
+}
+.living__water-level {
+  transform: translateY(0);
+}
+.living__written-line {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+
+/* At 96px, preserve the action/silhouette and suppress subpixel texture. */
+.semantic-art--thumbnail[data-living-scene] .living__fine-detail {
+  display: none;
+}
+.semantic-art[data-living-scene] .living__greeting-arm,
+.semantic-art[data-living-scene] .living__responding-arm {
+  transform-origin: 0 0;
+}
+.semantic-art[data-living-scene] .living__pitcher {
+  transform-origin: 94px 58px;
+}
+
+.scene-player {
+  display: block;
+  width: 100%;
+}
+.scene-player__replay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 44px;
+  margin: 0.8rem auto 0;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid var(--border, #82918b);
+  border-radius: 999px;
+  background: var(--card, #fbf7ee);
+  color: var(--text, #203f3b);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 650;
+  line-height: 1.4;
+  cursor: pointer;
+}
+.scene-player__replay:hover {
+  border-color: var(--teal, #33867b);
+}
+.scene-player__replay:focus-visible {
+  outline: 3px solid var(--teal, #33867b);
+  outline-offset: 4px;
+}
+.scene-player__replay svg {
+  flex: 0 0 auto;
+}
+.scene-player__still {
+  display: block;
+  margin: 0.8rem auto 0;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+/* One explicit playback state drives the whole finite scene. No ambient loops,
+ * delayed timers, transform resets, or animation on positioning groups. */
+@media (prefers-reduced-motion: no-preference) {
+  :is(
+      [data-living-play="true"],
+      button:is(:hover, :focus-visible) .semantic-art[data-living-scene]
+    )
+    .living__bread-reveal {
+    animation: living-bread-light 1600ms ease both;
+  }
+  :is(
+      [data-living-play="true"],
+      button:is(:hover, :focus-visible) .semantic-art[data-living-scene]
+    )
+    .living__bread-slice {
+    animation: living-bread-slice 1600ms ease both;
+  }
+  :is(
+      [data-living-play="true"],
+      button:is(:hover, :focus-visible) .semantic-art[data-living-scene]
+    )
+    .living__pitcher {
+    animation: living-pour 1800ms ease-in-out both;
+  }
+  :is(
+      [data-living-play="true"],
+      button:is(:hover, :focus-visible) .semantic-art[data-living-scene]
+    )
+    .living__water-flow {
+    animation: living-water-flow 1800ms ease-in-out both;
+  }
+  :is(
+      [data-living-play="true"],
+      button:is(:hover, :focus-visible) .semantic-art[data-living-scene]
+    )
+    .living__water-level {
+    animation: living-water-level 1800ms ease both;
+  }
+  :is(
+      [data-living-play="true"],
+      button:is(:hover, :focus-visible) .semantic-art[data-living-scene]
+    )
+    .living__greeting-arm {
+    animation: living-wave 1800ms ease-in-out both;
+  }
+  :is(
+      [data-living-play="true"],
+      button:is(:hover, :focus-visible) .semantic-art[data-living-scene]
+    )
+    .living__responding-arm {
+    animation: living-response 1800ms ease-in-out both;
+  }
+  :is(
+      [data-living-play="true"],
+      button:is(:hover, :focus-visible) .semantic-art[data-living-scene]
+    )
+    .living__greeting-cue {
+    animation: living-greeting-cue 1800ms ease both;
+  }
+  :is(
+      [data-living-play="true"],
+      button:is(:hover, :focus-visible) .semantic-art[data-living-scene]
+    )
+    .living__steam {
+    animation: living-steam 1800ms ease-out both;
+  }
+  :is(
+      [data-living-play="true"],
+      button:is(:hover, :focus-visible) .semantic-art[data-living-scene]
+    )
+    .living__morning-sun {
+    animation: living-morning-light 1800ms ease both;
+  }
+  :is(
+      [data-living-play="true"],
+      button:is(:hover, :focus-visible) .semantic-art[data-living-scene]
+    )
+    .living__writing-hand {
+    animation: living-write 1800ms ease-in-out both;
+  }
+  :is(
+      [data-living-play="true"],
+      button:is(:hover, :focus-visible) .semantic-art[data-living-scene]
+    )
+    .living__written-line {
+    animation: living-written-line 1800ms ease both;
+  }
+  :is(
+      [data-living-play="true"],
+      button:is(:hover, :focus-visible) .semantic-art[data-living-scene]
+    )
+    .living__single-cup {
+    animation: living-cup 1600ms ease both;
+  }
+  :is(
+      [data-living-play="true"],
+      button:is(:hover, :focus-visible) .semantic-art[data-living-scene]
+    )
+    .living__count-reveal {
+    animation: living-count 1600ms ease both;
+  }
+}
+@keyframes living-bread-light {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  40% {
+    opacity: 0.85;
+  }
+}
+@keyframes living-bread-slice {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  45%,
+  65% {
+    transform: translateX(-5px);
+  }
+}
+@keyframes living-pour {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  30%,
+  65% {
+    transform: rotate(8deg);
+  }
+}
+@keyframes living-water-flow {
+  0%,
+  15%,
+  90%,
+  100% {
+    opacity: 0;
+  }
+  30%,
+  70% {
+    opacity: 0.9;
+    stroke-dasharray: 5 2;
+  }
+}
+@keyframes living-water-level {
+  0%,
+  20% {
+    transform: translateY(12px);
+  }
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+}
+@keyframes living-wave {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  25%,
+  65% {
+    transform: rotate(9deg);
+  }
+  45%,
+  80% {
+    transform: rotate(-5deg);
+  }
+}
+@keyframes living-response {
+  0%,
+  20%,
+  100% {
+    transform: rotate(0);
+  }
+  50%,
+  75% {
+    transform: rotate(-8deg);
+  }
+}
+@keyframes living-greeting-cue {
+  0%,
+  10% {
+    opacity: 0;
+  }
+  40%,
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.7;
+  }
+}
+@keyframes living-steam {
+  0% {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  35% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0.3;
+    transform: translateY(-5px);
+  }
+}
+@keyframes living-morning-light {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.65;
+  }
+}
+@keyframes living-write {
+  0%,
+  10% {
+    transform: translate(-41px, 1px);
+  }
+  75%,
+  100% {
+    transform: translate(0, 0);
+  }
+}
+@keyframes living-written-line {
+  0%,
+  10% {
+    stroke-dashoffset: 1;
+  }
+  75%,
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes living-cup {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  25% {
+    opacity: 0.65;
+  }
+}
+@keyframes living-count {
+  0%,
+  25% {
+    opacity: 0.2;
+  }
+  55%,
+  100% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .semantic-art[data-living-scene],
+  .semantic-art[data-living-scene] * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+@media (prefers-contrast: more) {
+  .semantic-art[data-living-scene] {
+    --living-line: currentColor;
+  }
+  .living__frame {
+    stroke-width: 1.5;
+  }
+  .living__fine-detail {
+    display: none;
+  }
+  .living__water-flow {
+    stroke: var(--semantic-ink);
+  }
+}
+@media (forced-colors: active) {
+  .scene-player__replay {
+    border: 1px solid ButtonText;
+    color: ButtonText;
+    background: ButtonFace;
+  }
+  .scene-player__replay:focus-visible {
+    outline-color: Highlight;
+  }
+}

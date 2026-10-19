@@ -1,3 +1,12 @@
+# Local illustration pilot — 2.13.0 — 2026-10-18
+
+Implemented and locally tested on `codex/living-scenes-pilot`: six original
+editorial SVG scenes, finite semantic animation, accessible replay and a
+private trilingual before/after studio. Source is uncommitted and unpublished.
+See `docs/LIVING_SCENES_PILOT.md` and the new `TEST_REPORT.md` checkpoint.
+Next: Kevin's visual review and real learner recognition/Hebrew acceptance.
+The roadmap and hosting records below retain their original historical scope.
+
 # Ivrit Sheli — Tasks & Operational Roadmap
 
 **Current Version:** `2.12.3 — Clear Counting` (source on `main`; untagged)

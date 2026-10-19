@@ -1,3 +1,10 @@
+# Current local checkpoint: 2.13.0 — Living Editorial Scenes
+
+Created and last reviewed: 2026-10-18. Status: private local candidate.
+Six original SVG replacements and accessible replay are detailed in `LIVING_SCENES_PILOT.md`.
+The 240 reviewed concepts / 240 exact semantic scenes boundary is preserved.
+The older visual direction below remains the baseline; hosting claims are historical.
+
 # Ivrit Sheli Visual Bible — 2.12.3 PRIVATE CANDIDATE
 
 > [!IMPORTANT]

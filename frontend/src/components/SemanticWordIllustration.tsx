@@ -1,7 +1,10 @@
 // Module: semantic word illustration
 // Purpose: Render detailed, exact-meaning A0 scenes from the shared visual recipe catalog.
 
-import { useId } from 'react';
+import { useId, useState } from 'react';
+import { usePrefersReducedMotion } from '../usePrefersReducedMotion';
+import { isLivingSceneKey, SCENE_PLAYBACK_COPY } from '../visuals/livingScenePilot';
+import { LivingScenePilot } from './semantic-scenes/LivingScenePilot';
 import type { DictionaryVisual, Locale } from '../types';
 import {
   getA0VisualRecipe,
@@ -35,6 +38,7 @@ import {
   type SpatialSceneFamily,
 } from './semantic-scenes/SemanticScenePrimitives';
 import './semantic-word-illustration.css';
+import './living-scene-pilot.css';
 
 export type SemanticIllustrationSize = 'thumbnail' | 'card' | 'hero';
 export type SemanticHintStage = 0 | 1 | 2;
@@ -178,14 +182,19 @@ export function hasSemanticWordIllustration(key: string): boolean {
   return isA0SemanticVisualKey(key);
 }
 
-export function SemanticWordIllustration({
+function SemanticSceneCanvas({
   visual,
   locale,
   className = '',
   size = 'card',
   hintStage = 2,
   decorative = false,
-}: SemanticWordIllustrationProps): React.JSX.Element | null {
+  playbackRun = 0,
+  onExplore,
+}: SemanticWordIllustrationProps & {
+  playbackRun?: number;
+  onExplore?: () => void;
+}): React.JSX.Element | null {
   const titleId = useId();
   if (!isA0SemanticVisualKey(visual.key)) return null;
   const recipe = getA0VisualRecipe(visual.key);
@@ -222,18 +231,61 @@ export function SemanticWordIllustration({
       data-motion-profile={recipe.template}
       data-motion-cue={motionCue}
       data-motion-direction={motionDirection}
+      data-living-scene={isLivingSceneKey(visual.key) ? 'editorial-v1' : undefined}
+      onPointerEnter={(event) => {
+        if (event.pointerType === 'mouse') onExplore?.();
+      }}
       focusable="false"
     >
       {!decorative && <title id={titleId}>{title}</title>}
-      <SceneFrame
-        hintStage={hintStage}
-        sceneId={titleId}
-        template={recipe.template}
-        spatialFamily={spatialFamily}
-        ramped={ramped}
-      />
-      <ReviewedScene visualKey={visual.key} hintStage={hintStage} sceneId={titleId} />
-      <SceneVignette sceneId={titleId} />
+      {isLivingSceneKey(visual.key) ? (
+        <g key={`${visual.key}-${playbackRun}`} data-living-play={playbackRun > 0 ? 'true' : undefined}>
+          <LivingScenePilot visualKey={visual.key} sceneId={titleId} hintStage={hintStage} />
+        </g>
+      ) : (
+        <>
+          <SceneFrame
+            hintStage={hintStage}
+            sceneId={titleId}
+            template={recipe.template}
+            spatialFamily={spatialFamily}
+            ramped={ramped}
+          />
+          <ReviewedScene visualKey={visual.key} hintStage={hintStage} sceneId={titleId} />
+          <SceneVignette sceneId={titleId} />
+        </>
+      )}
     </svg>
   );
+}
+
+/** Only large, non-decorative scenes own controls. Thumbnail artwork is often
+ * inside a word button, where adding another button would create invalid HTML.
+ * A fresh keyed scene restarts finite CSS motion without timers or global IDs. */
+function LivingScenePlayer(props: SemanticWordIllustrationProps): React.JSX.Element {
+  const [playbackRun, setPlaybackRun] = useState(0);
+  const reducedMotion = usePrefersReducedMotion();
+  const copy = SCENE_PLAYBACK_COPY[props.locale];
+  const replay = (): void => {
+    if (!reducedMotion) setPlaybackRun((previous) => previous + 1);
+  };
+  return (
+    <span className="scene-player" dir={props.locale === 'he' ? 'rtl' : 'ltr'}>
+      <SemanticSceneCanvas {...props} playbackRun={reducedMotion ? 0 : playbackRun} onExplore={replay} />
+      {reducedMotion ? <span className="scene-player__still">{copy.still}</span> : (
+        <button className="scene-player__replay" type="button" onClick={replay} title={copy.detail}>
+          <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" focusable="false">
+            <path d="M4 7a6.5 6.5 0 1 1-.4 5M4 3v4h4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          {copy.play}
+        </button>
+      )}
+    </span>
+  );
+}
+
+export function SemanticWordIllustration(props: SemanticWordIllustrationProps): React.JSX.Element | null {
+  return isLivingSceneKey(props.visual.key) && props.size === 'hero' && !props.decorative
+    ? <LivingScenePlayer key={props.visual.key} {...props} />
+    : <SemanticSceneCanvas {...props} />;
 }

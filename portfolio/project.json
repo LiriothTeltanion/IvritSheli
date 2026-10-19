@@ -2,7 +2,7 @@
   "schema": "ivrit-sheli-portfolio-project-v3",
   "slug": "ivrit-sheli",
   "name": "Ivrit Sheli — העברית שלי",
-  "source_version": "2.12.3",
+  "source_version": "2.13.0",
   "source_status": "private-candidate",
   "latest_published_release": "v2.12.2",
   "default_branch": "main",
@@ -14,7 +14,7 @@
     "last_checked_on": "2026-09-12",
     "boundary": "A free Render service runs the 2.12.3 source as staging for a private pilot, not as production. Moved from Singapore to Frankfurt on 2026-09-12 and renamed, so the URL no longer says staging. Verified against the live host that day: /health/live at 0.149 s against 0.287 s from the old Singapore service, /health/ready with postgresql true and a 240-entry dictionary, /version reporting 2.12.3, a strict production CSP with default-src 'self', HSTS for a year with includeSubDomains, a Secure HttpOnly SameSite=lax session cookie, and a Google OAuth redirect using PKCE with the exact new callback. /health/ready still costs about 2 s in both regions because the database is far from either. The free plan sleeps after 15 minutes and the wake-up is not a fixed cost: two measurements the same day gave 38.6 s and 218 s, so a first request can take minutes. Anyone checking the service should wait before concluding it is down. The human Hebrew-content and first-learner gates remain open, and no v2.12.3 tag exists. The historical Railway service is offline."
   },
-  "summary": "The 2.12.3 source of a trilingual Hebrew-learning PWA with 240 exact semantic scenes, clearer counting visuals, Alphabet Studio and deterministic coaching, published on main and running as a private-pilot staging service on Render Free. The latest tagged source release remains v2.12.2.",
+  "summary": "Private 2.13.0 candidate: six editorial SVG scenes, semantic animation, accessible replay and a local comparison studio in the 240-scene Hebrew catalog. Historical 2.12.3 staging is separate from this local pilot.",
   "languages": [
     "en",
     "es",
@@ -35,13 +35,13 @@
     "Web Push reminders"
   ],
   "tests": {
-    "version": "2.12.3",
+    "version": "2.13.0",
     "scope": "private-candidate-local-verification",
-    "backend_unique": 387,
-    "frontend": 859,
-    "frontend_files": 49,
-    "total_unique": 1246,
-    "ordinary_backend_passed": 387,
+    "backend_unique": 429,
+    "frontend": 875,
+    "frontend_files": 51,
+    "total_unique": 1304,
+    "ordinary_backend_passed": 429,
     "ordinary_backend_skipped": 1,
     "postgresql_gate_passed": 0,
     "evidence": "TEST_REPORT.md"
@@ -72,10 +72,10 @@
     "latest_github_release": "v2.12.2",
     "source_version_tagged": false,
     "source_version_github_release_published": false,
-    "release_state": "2.12.3-private-candidate-staging-verified"
+    "release_state": "2.13.0-private-candidate-staging-verified"
   },
   "candidate": {
-    "version": "2.12.3",
+    "version": "2.13.0",
     "published": false,
     "coverage": "Structured A0-A2 with an explicitly experimental B1/B2 Lab",
     "reviewed_concepts": 240,
@@ -96,15 +96,15 @@
     "alphabet_progress_persistent": true,
     "public_google_scope": "openid profile",
     "local_mode_without_account": true,
-    "verification": "The source version surfaces identify the private 2.12.3 candidate, while TEST_REPORT.md scopes its local runtime, browser and test evidence. The latest published GitHub source release remains v2.12.2; neither version is durable-host or deployment proof.",
-    "release_gate": "The 2.12.3 candidate remains local. Publication and deployment each require separate approval, with isolated HTTPS staging, two-real-account isolation, backup and restore, provider checks, human visual recognition, and the mother pilot still open."
+    "verification": "Private 2.13.0 local illustration pilot. TEST_REPORT.md records checks actually run for this source; historical 2.12.3 hosting and README screenshots are not current-candidate evidence.",
+    "release_gate": "The 2.13.0 candidate is local and unpublished. Human visual recognition, Hebrew acceptance, the mother pilot, current provider checks and isolated staging verification remain separate gates."
   },
   "visual_proof": {
-    "state": "The private 2.12.3 candidate defines 240 reviewed concepts and 240 exact semantic scenes.",
+    "state": "Private 2.13.0 candidate: 240 exact semantic scenes, with six original editorial SVG replacements. Local pilot proof is recorded separately in docs/LIVING_SCENES_PILOT.md.",
     "social_preview_version": "2.12.2",
     "readme_screenshot_source_version": "2.12.3",
-    "readme_screenshot_status": "verified-current",
-    "interactive_browser_qa": "The privacy-reviewed 2.12.3 candidate README selection represents the 240-scene candidate and is recorded in assets/readme/proof/2.12.3/manifest.json. Its five WebP assets and non-looping GIF passed source-manifest, hash, two-pass byte-identity, full-size, GitHub-scale, privacy and grayscale review on 2026-08-27. A fresh FastAPI-served 2.12.3 process also passed entry-asset discovery and a bounded Playwright smoke before capture. The immutable assets/readme/proof/2.12.2 directory remains historical published-release evidence. The full 2.12.3 Playwright matrix, contact-sheet recognition, provider verification and deployment remain separate gates."
+    "readme_screenshot_status": "historical",
+    "interactive_browser_qa": "The 240-scene catalog includes the six-scene 2.13.0 local pilot. Existing README captures remain immutable historical 2.12.3 proof from 2026-08-27, not screenshots or test evidence for 2.13.0. See docs/LIVING_SCENES_PILOT.md for current scoped browser verification."
   },
   "oauth": {
     "providers": [

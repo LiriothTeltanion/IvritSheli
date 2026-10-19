@@ -409,8 +409,23 @@ def verify_readme_visual_proof() -> list[str]:
         portfolio = json.loads(
             (ROOT / "portfolio" / "project.json").read_text(encoding="utf-8")
         )
+        # Historical README captures retain their original bytes and version.
+        # The portfolio schema already distinguishes them from current proof;
+        # follow that explicit boundary instead of requiring a relabelled copy
+        # of old screenshots every time executable metadata advances.
+        visual_proof = portfolio.get("visual_proof", {})
+        if not isinstance(visual_proof, dict):
+            return ["README visual proof metadata must be an object"]
+        proof_version = current_version
+        if visual_proof.get("readme_screenshot_status") == "historical":
+            recorded_version = visual_proof.get("readme_screenshot_source_version")
+            recorded = _semantic_version_tuple(recorded_version)
+            current = _semantic_version_tuple(current_version)
+            if recorded is None or current is None or recorded >= current:
+                return ["historical README visual proof must predate the source version"]
+            proof_version = str(recorded_version)
         manifest_path = (
-            ROOT / "assets" / "readme" / "proof" / current_version / "manifest.json"
+            ROOT / "assets" / "readme" / "proof" / proof_version / "manifest.json"
         )
         manifest_text = manifest_path.read_text(encoding="utf-8")
         manifest = json.loads(manifest_text)
@@ -427,7 +442,7 @@ def verify_readme_visual_proof() -> list[str]:
     )
     expected_scalars = {
         "schema_version": 3,
-        "source_version": current_version,
+        "source_version": proof_version,
         "publication_status": expected_publication,
         "latest_published_release": portfolio.get("latest_published_release"),
         "status": "approved_for_readme_use",
@@ -494,7 +509,7 @@ def verify_readme_visual_proof() -> list[str]:
             failures.append(f"current README visual proof dimensions are invalid for {name}")
         if not isinstance(alt, str) or not alt.strip():
             failures.append(f"current README visual proof alt text is missing for {name}")
-        readme_path = f"assets/readme/proof/{current_version}/{name}"
+        readme_path = f"assets/readme/proof/{proof_version}/{name}"
         if readme_path not in readme:
             failures.append(f"README.md does not reference reviewed proof asset {readme_path}")
         if name.endswith(".gif"):

@@ -1,3 +1,5 @@
+<!-- Local executable candidate: 2.13.0, 2026-10-18. API behavior unchanged. -->
+
 # 2.12.3 private-candidate API contract — 2026-08-27
 
 **Status: PRIVATE CANDIDATE / unpublished.** The 2.12.3 visual-safety and proof
