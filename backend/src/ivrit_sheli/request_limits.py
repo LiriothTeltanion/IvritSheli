@@ -163,7 +163,10 @@ class RequestBodyLimitMiddleware:
             async def replay_receive() -> Message:
                 if buffered:
                     return buffered.popleft()
-                return {"type": "http.disconnect"}
+                # Defer to the real channel once the body is replayed. A fabricated
+                # disconnect here makes Starlette's streaming responses (FileResponse
+                # included, Starlette >= 1.x) cancel the body as if the client left.
+                return await receive()
 
             await self.app(scope, replay_receive, send)
             return
