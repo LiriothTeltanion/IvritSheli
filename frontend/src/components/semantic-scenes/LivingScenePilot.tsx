@@ -391,7 +391,9 @@ function Neighbor({
   greeting?: boolean;
 }): React.JSX.Element {
   const skin = warm ? "#b97a53" : "#dda57d";
+  const skinShade = warm ? "#8f5a3c" : "#b57f5c";
   const shirt = warm ? "#ae6954" : "#397d77";
+  const hair = warm ? "#493b31" : "#313a36";
   return (
     <g
       transform={`translate(${x} ${y}) scale(${mirror ? -1 : 1} 1)`}
@@ -408,6 +410,16 @@ function Neighbor({
         fill="#252f34"
       />
       <path d="M-10-5q9-5 20 1l7 36q-14 7-32 1Z" fill={shirt} />
+      {/* Form shading: the side away from the scene's upper-left light. */}
+      <path d="M3-3q6 0 7 3l7 32q-6 3-12 3Z" fill="#1d2a2c" opacity=".16" />
+      <path
+        d="M-4-4q4.5 4 9.5 0"
+        fill="none"
+        stroke="#1d2a2c"
+        strokeWidth="1"
+        strokeLinecap="round"
+        opacity=".35"
+      />
       <path
         d="M-9-2q-7 17-7 30"
         fill="none"
@@ -435,12 +447,49 @@ function Neighbor({
       />
       <path
         d="M-9-20q-5-18 8-21 12-3 16 10-6-1-10-4-2 10-11 11l-1 9Z"
-        fill={warm ? "#493b31" : "#313a36"}
+        fill={hair}
       />
-      {warm && <path d="M-9-26q-8 18-5 31l-7-3q-1-27 10-36Z" fill="#493b31" />}
+      {warm && <path d="M-9-26q-8 18-5 31l-7-3q-1-27 10-36Z" fill={hair} />}
       <path
-        d="m10-22 2 .2m-2 10-5 1"
-        stroke="#634735"
+        className="living__fine-detail"
+        d="M-5-36q6-5 13-2"
+        fill="none"
+        stroke="#fff4e4"
+        strokeWidth="1.1"
+        strokeLinecap="round"
+        opacity=".22"
+      />
+      {/* A readable, friendly face: ear, open eye with a catch-light, brow, smile. */}
+      <ellipse
+        cx="-4.3"
+        cy="-17"
+        rx="1.8"
+        ry="2.7"
+        fill={skin}
+        stroke={skinShade}
+        strokeWidth=".55"
+        strokeOpacity=".55"
+      />
+      <ellipse cx="6" cy="-15.2" rx="2.5" ry="1.5" fill="#e07a63" opacity=".26" />
+      <ellipse cx="8.7" cy="-21.3" rx="1.25" ry="1.55" fill="#2b211b" />
+      <circle
+        className="living__fine-detail"
+        cx="9.2"
+        cy="-21.8"
+        r=".42"
+        fill="#fff6e8"
+      />
+      <path
+        d="M6.3-25.3q2.7-1.7 5.4-.3"
+        fill="none"
+        stroke={hair}
+        strokeWidth="1.1"
+        strokeLinecap="round"
+      />
+      <path
+        d="M7-12.8q2.7 2.1 5.4-.2"
+        fill="none"
+        stroke="#7a4a35"
         strokeWidth="1"
         strokeLinecap="round"
       />
@@ -466,14 +515,22 @@ function Neighbor({
             fill="none"
           />
           {greeting ? (
-            <g transform="translate(15 -30)">
+            <g transform="translate(15 -30)" data-hand-shape="open-palm">
+              {/* An open palm: four joined fingers and a thumb, not separate strokes. */}
               <path
-                d="m-2 2-1-8m3 7 1-9m1 9 2-7m-6 7-4-4"
-                stroke={skin}
-                strokeWidth="1.7"
-                strokeLinecap="round"
+                d="M-3.4 4.2q-1.4-4.2-.4-8.6l.4-3.4q.7-1.5 1.7 0l.3 3.2.4-4.8q.8-1.5 1.8 0l.1 4.9.9-4q.9-1.3 1.8.2l-.4 4.9 1.1-2.6q1.1-.9 1.6.4l-1.2 5.8q-.9 3.6-4 4Z"
+                fill={skin}
+                stroke={skinShade}
+                strokeWidth=".55"
+                strokeLinejoin="round"
               />
-              <ellipse cy="1" rx="3.4" ry="4.2" fill={skin} />
+              <path
+                d="M-3.3 0.6-6.4-2.6q-.9-1.2.3-1.6l3.1 2.2"
+                fill={skin}
+                stroke={skinShade}
+                strokeWidth=".55"
+                strokeLinejoin="round"
+              />
             </g>
           ) : (
             <path
