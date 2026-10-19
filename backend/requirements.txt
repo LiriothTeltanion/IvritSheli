@@ -2,9 +2,9 @@
 # Purpose: Pin the dependency set used by the Ivrit Sheli 2.12.3 candidate in cloud and local modes.
 # Author: Kevin "Lirioth" Cusnir
 # Date: 2026-07-15 | TZ: Asia/Jerusalem
-fastapi==0.143.0
+fastapi==0.143.2
 uvicorn[standard]==0.54.0
-pydantic==2.14.0
+pydantic==2.14.1
 requests==2.34.2
 python-multipart==0.0.32
 psycopg[binary]==3.3.6
