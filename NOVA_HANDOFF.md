@@ -24,8 +24,12 @@ Sin push, sin PR, sin deploy. La copia de OneDrive solo se leyó.
   114 fotogramas de animación, **0 errores de página**; hojas compuestas en color y gris.
   Evidencia: `D:\dev\_rescue\2026-10-19\ivrit-capture\` (`overview-light.png`, `studio-phone-dark-he.png`…).
 
+- Playwright contra la app **servida por FastAPI** (puerto 8810, SQLite temporal; regla 3):
+  piloto `e2e/living-scenes.spec.ts` **11 pasadas / 2 omitidas por diseño** (incluye el escaneo WCAG AA en EN/ES/HE,
+  claro y oscuro, en 390/768/1440 px); matriz completa **46 pasadas / 42 omitidas por diseño / 0 fallos** (3,2 min).
+  Logs: `D:\dev\_rescue\2026-10-19\ivrit-pw-pilot.log` y `ivrit-pw-full.log`.
+
 ### ⚠️ No verificado
-- La matriz Playwright completa del piloto (11 + 36) y el axe WCAG no se repitieron esta noche.
 - Reconocimiento humano, aceptación del hebreo y el piloto con tu mamá siguen abiertos (lista «not run»).
 - CI remoto: no se ejecutó (no hubo push).
 
