@@ -58,6 +58,16 @@
       "source_png_sha256": "29a3c08f343330e6faa1b06d00d85a7e7c919adeafe4622ae3dd0f098d88aa8a",
       "generated": "2026-10-20",
       "role": "static painted backdrop under the animated SVG layers; no people, text or letters"
+    },
+    "grain-plaster.webp": {
+      "sha256": "5083a6ed3ee4fe845f2273feee353566facef8275be04428df812296792ac8b1",
+      "bytes": 1358,
+      "width": 256,
+      "height": 256,
+      "crop": null,
+      "source_png_sha256": "1f02ea60c37195bf51c498a7a11305b5456e403c61636b3571cdd21920fe82cf",
+      "generated": "2026-10-20",
+      "role": "warm painted-plaster grain (autocontrast, darkening capped at 10 %), tiled 4 x 3 and multiplied over the inner area of every scene context layer"
     }
   }
 }

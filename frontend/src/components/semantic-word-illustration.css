@@ -206,7 +206,7 @@
   --semantic-contact-core: #cdc5d2;
   --semantic-contact-edge: #ffffff;
   --semantic-vignette-clear: rgba(60, 42, 70, 0);
-  --semantic-vignette-edge: rgba(60, 42, 70, 0.13);
+  --semantic-vignette-edge: rgba(60, 42, 70, 0.08);
 
   /* Depth tokens. Gradient stops read these, so the dark theme only has to
      restate the tokens — the artwork itself never forks. */
@@ -396,6 +396,13 @@
 
 .semantic-art__frame-motif { opacity: 0.34; }
 
+/* 2026-10-20: the scene is the frame. The inner rim, rail, seal and corner motif stay in the DOM (the gallery and
+   tests use data-frame-variant) but no longer draw, at any size, so nothing competes with the subject. */
+.semantic-art__editorial-rim,
+.semantic-art__editorial-rail,
+.semantic-art__editorial-seal,
+.semantic-art__frame-motif { display: none; }
+
 /* Spatial families turn the recipe's setting into a quiet back/mid/ground
    scaffold. These are simple planes and paths rather than SVG filters, so the
    exhaustive 720-instance QA view remains cheap to mount. */
@@ -547,6 +554,19 @@
 
 .semantic-art__vignette { pointer-events: none; }
 
+/* Gouache grain over the context layer (2026-10-20). Clipped to the paper so the card corners stay clean. */
+.semantic-art__context-grain {
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  opacity: var(--semantic-grain-strength, .45);
+  /* The room or subject area only: the paper mat around it stays clean. */
+  clip-path: inset(11px round 8px);
+}
+.semantic-art--thumbnail .semantic-art__context-grain { display: none; }
+@media (prefers-contrast: more), (forced-colors: active) {
+  .semantic-art__context-grain { display: none; }
+}
+
 .semantic-art__calendar-ring,
 .semantic-art__metal-line {
   fill: none;
@@ -618,6 +638,21 @@
   stroke-linecap: round;
 }
 .semantic-art__marker-beard { stroke: var(--semantic-hair-grey); }
+
+/* Portrait busts inside genealogy outlines (2026-10-20). The clip keeps every feature inside the frame. */
+.semantic-art__portrait--feminine { clip-path: circle(14.4px); }
+.semantic-art__portrait--masculine { clip-path: inset(.6px round 1.6px); }
+.semantic-art__portrait .semantic-art__shirt { stroke-width: 1.1; }
+.semantic-art__portrait-ring {
+  fill: none;
+  stroke: color-mix(in srgb, var(--semantic-ink) 60%, transparent);
+  stroke-width: 1.6;
+}
+.semantic-art__portrait-glasses {
+  fill: none;
+  stroke: #3a3f46;
+  stroke-width: .6;
+}
 .semantic-art__marker-role {
   fill: none;
   stroke: var(--semantic-symbol-ink);
@@ -921,8 +956,8 @@
 [data-visual-layer] .semantic-art__surface.semantic-art__outlined,
 [data-visual-layer] .semantic-art__cloud.semantic-art__outlined,
 [data-visual-layer] .semantic-art__wall.semantic-art__outlined {
-  stroke: color-mix(in srgb, var(--semantic-ink) 60%, transparent);
-  stroke-width: 2;
+  stroke: color-mix(in srgb, var(--semantic-ink) 34%, transparent);
+  stroke-width: 1.4;
 }
 
 /*
@@ -1323,6 +1358,13 @@
 .semantic-art__shirt-lit,
 .semantic-art__shirt-deep { stroke: none; }
 
+/* A short sleeve: the shirt's own colour with no contour, so it continues the torso over the top of the arm. */
+.semantic-art__person--teal .semantic-art__sleeve { fill: var(--semantic-teal); }
+.semantic-art__person--coral .semantic-art__sleeve { fill: var(--semantic-coral); }
+.semantic-art__person--gold .semantic-art__sleeve { fill: var(--semantic-gold); }
+.semantic-art__person--blue .semantic-art__sleeve { fill: var(--semantic-blue); }
+.semantic-art__sleeve { stroke: none; }
+
 /* Skin and hair get the same treatment as cloth. */
 .semantic-art__skin-shade { fill: var(--semantic-skin-deep); stroke: none; }
 .semantic-art__hair-deep { fill: color-mix(in srgb, var(--semantic-hair) 72%, #000); stroke: none; }
@@ -1342,6 +1384,30 @@
 }
 
 .semantic-art--thumbnail .semantic-art__eye { display: none; }
+
+/* Three-quarter face details (2026-10-20). Small enough to vanish with the eyes in thumbnails. */
+.semantic-art__ear {
+  fill: var(--semantic-skin);
+  stroke: var(--semantic-skin-edge, #6a3e26);
+  stroke-width: .7;
+}
+.semantic-art__eye-light { fill: #fff6e8; stroke: none; }
+.semantic-art__brow {
+  fill: none;
+  stroke: color-mix(in srgb, var(--semantic-hair) 85%, #000);
+  stroke-width: 1.05;
+  stroke-linecap: round;
+}
+.semantic-art__mouth {
+  fill: none;
+  stroke: color-mix(in srgb, var(--semantic-skin-edge, #6a3e26) 85%, #000);
+  stroke-width: 1.05;
+  stroke-linecap: round;
+}
+.semantic-art__cheek { fill: #e07a63; opacity: .26; stroke: none; }
+.semantic-art--thumbnail .semantic-art__eye-light,
+.semantic-art--thumbnail .semantic-art__brow,
+.semantic-art--thumbnail .semantic-art__cheek { display: none; }
 
 .semantic-art__bubble {
   stroke-width: 2.4;
@@ -1577,6 +1643,7 @@
   --semantic-hair-lit: rgba(255, 233, 205, 0.22);
   --semantic-vignette-clear: rgba(12, 6, 22, 0);
   --semantic-vignette-edge: rgba(12, 6, 22, 0.34);
+  --semantic-grain-strength: .3;
   --semantic-ground-rim: rgba(190, 226, 226, 0.24);
   --semantic-sun-halo: rgba(237, 185, 78, 0.16);
   --semantic-sun-core: rgba(255, 240, 190, 0.42);

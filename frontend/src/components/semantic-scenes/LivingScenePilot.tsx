@@ -205,7 +205,7 @@ function Crumb({ id }: { id: string }): React.JSX.Element {
 function Bread({ sceneId: id, hintStage }: Props): React.JSX.Element {
   return (
     <>
-      <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
+      <SceneLayer name="context" minimumStage={0} hintStage={hintStage} grain={false}>
         <PaintedBackdrop id={id} name="bread" height={128} />
         <path className="living__table" d="M1 128q108-11 238 0v51H1Z" />
         <path className="living__linen" d="m27 113 157-9 31 50-166 11Z" />
@@ -366,7 +366,7 @@ function Bread({ sceneId: id, hintStage }: Props): React.JSX.Element {
 function Water({ sceneId: id, hintStage }: Props): React.JSX.Element {
   return (
     <>
-      <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
+      <SceneLayer name="context" minimumStage={0} hintStage={hintStage} grain={false}>
         <path className="living__wall-line" d="M1 117h238M35 1v116" />
         <PaintedBackdrop id={id} name="water" height={128} />
         <path className="living__table" d="M1 128h238v51H1Z" />
@@ -810,7 +810,7 @@ function PaintedBackdrop({
 function Street({ sceneId: id, hintStage }: Props): React.JSX.Element {
   return (
     <>
-      <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
+      <SceneLayer name="context" minimumStage={0} hintStage={hintStage} grain={false}>
         <path d="M1 1h238v123H1Z" fill={`url(#${id}-sky)`} />
         <path d="M1 1h58v126H1Zm176 0h62v128h-62Z" fill={`url(#${id}-stone)`} />
         <path
@@ -994,7 +994,7 @@ function Mug({
 function Morning({ sceneId: id, hintStage }: Props): React.JSX.Element {
   return (
     <>
-      <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
+      <SceneLayer name="context" minimumStage={0} hintStage={hintStage} grain={false}>
         <rect
           x="34"
           y="12"
@@ -1089,7 +1089,7 @@ function Morning({ sceneId: id, hintStage }: Props): React.JSX.Element {
 function Writing({ sceneId: id, hintStage }: Props): React.JSX.Element {
   return (
     <>
-      <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
+      <SceneLayer name="context" minimumStage={0} hintStage={hintStage} grain={false}>
         <path className="living__table" d="M1 1h238v178H1Z" />
         <path
           className="living__wood-grain living__fine-detail"
@@ -1261,7 +1261,7 @@ function Writing({ sceneId: id, hintStage }: Props): React.JSX.Element {
 function One({ sceneId: id, hintStage }: Props): React.JSX.Element {
   return (
     <>
-      <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
+      <SceneLayer name="context" minimumStage={0} hintStage={hintStage} grain={false}>
         <PaintedBackdrop id={id} name="one" height={129} />
         <path className="living__table" d="M1 129h238v50H1Z" />
         <path d="M1 129h238v50H1Z" fill={`url(#${id}-surface)`} />
