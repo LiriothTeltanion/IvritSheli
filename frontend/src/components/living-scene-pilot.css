@@ -122,6 +122,25 @@
 .semantic-art[data-living-scene] .living__pitcher {
   transform-origin: 94px 58px;
 }
+/* Bodies lean from the feet; ripples and the count dot grow from their centre. */
+.semantic-art[data-living-scene] .living__neighbor-body {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+.semantic-art[data-living-scene] :is(.living__ripple, .living__count-pop) {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+}
+.semantic-art[data-living-scene] .living__bread-slice {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+.living__ripple {
+  opacity: 0.55;
+}
+.living__count-pop {
+  transform: scale(1);
+}
 
 .scene-player {
   display: block;
@@ -174,117 +193,141 @@
       button:is(:hover, :focus-visible) .semantic-art[data-living-scene]
     )
     .living__bread-reveal {
-    animation: living-bread-light 1600ms ease both;
+    animation: living-bread-light 2000ms ease both;
   }
   :is(
       [data-living-play="true"],
       button:is(:hover, :focus-visible) .semantic-art[data-living-scene]
     )
     .living__bread-slice {
-    animation: living-bread-slice 1600ms ease both;
+    animation: living-bread-slice 2000ms cubic-bezier(0.33, 0, 0.2, 1) both;
   }
   :is(
       [data-living-play="true"],
       button:is(:hover, :focus-visible) .semantic-art[data-living-scene]
     )
     .living__pitcher {
-    animation: living-pour 1800ms ease-in-out both;
+    animation: living-pour 2100ms ease-in-out both;
   }
   :is(
       [data-living-play="true"],
       button:is(:hover, :focus-visible) .semantic-art[data-living-scene]
     )
     .living__water-flow {
-    animation: living-water-flow 1800ms ease-in-out both;
+    animation: living-water-flow 2100ms ease-in-out both;
   }
   :is(
       [data-living-play="true"],
       button:is(:hover, :focus-visible) .semantic-art[data-living-scene]
     )
     .living__water-level {
-    animation: living-water-level 1800ms ease both;
+    animation: living-water-level 2100ms ease both;
   }
   :is(
       [data-living-play="true"],
       button:is(:hover, :focus-visible) .semantic-art[data-living-scene]
     )
     .living__greeting-arm {
-    animation: living-wave 1800ms ease-in-out both;
+    animation: living-wave 2000ms ease-in-out both;
   }
   :is(
       [data-living-play="true"],
       button:is(:hover, :focus-visible) .semantic-art[data-living-scene]
     )
     .living__responding-arm {
-    animation: living-response 1800ms ease-in-out both;
+    animation: living-response 2000ms ease-in-out both;
   }
   :is(
       [data-living-play="true"],
       button:is(:hover, :focus-visible) .semantic-art[data-living-scene]
     )
     .living__greeting-cue {
-    animation: living-greeting-cue 1800ms ease both;
+    animation: living-greeting-cue 2000ms ease both;
   }
   :is(
       [data-living-play="true"],
       button:is(:hover, :focus-visible) .semantic-art[data-living-scene]
     )
     .living__steam {
-    animation: living-steam 1800ms ease-out both;
+    animation: living-steam 2000ms ease-out both;
   }
   :is(
       [data-living-play="true"],
       button:is(:hover, :focus-visible) .semantic-art[data-living-scene]
     )
     .living__morning-sun {
-    animation: living-morning-light 1800ms ease both;
+    animation: living-morning-light 2000ms ease-out both;
   }
   :is(
       [data-living-play="true"],
       button:is(:hover, :focus-visible) .semantic-art[data-living-scene]
     )
     .living__writing-hand {
-    animation: living-write 1800ms ease-in-out both;
+    animation: living-write 2000ms ease-in-out both;
   }
   :is(
       [data-living-play="true"],
       button:is(:hover, :focus-visible) .semantic-art[data-living-scene]
     )
     .living__written-line {
-    animation: living-written-line 1800ms ease both;
+    animation: living-written-line 2000ms ease both;
   }
   :is(
       [data-living-play="true"],
       button:is(:hover, :focus-visible) .semantic-art[data-living-scene]
     )
     .living__single-cup {
-    animation: living-cup 1600ms ease both;
+    animation: living-cup 1900ms ease both;
   }
   :is(
       [data-living-play="true"],
       button:is(:hover, :focus-visible) .semantic-art[data-living-scene]
     )
     .living__count-reveal {
-    animation: living-count 1600ms ease both;
+    animation: living-count 1900ms ease both;
+  }
+  :is(
+      [data-living-play="true"],
+      button:is(:hover, :focus-visible) .semantic-art[data-living-scene]
+    )
+    .living__count-pop {
+    animation: living-count-pop 1900ms ease both;
+  }
+  :is(
+      [data-living-play="true"],
+      button:is(:hover, :focus-visible) .semantic-art[data-living-scene]
+    )
+    .living__ripple {
+    animation: living-ripple 2100ms ease-out both;
+  }
+  :is(
+      [data-living-play="true"],
+      button:is(:hover, :focus-visible) .semantic-art[data-living-scene]
+    )
+    .living__neighbor-body {
+    animation: living-lean 2000ms ease-in-out both;
   }
 }
 @keyframes living-bread-light {
-  0%,
-  100% {
-    opacity: 1;
+  0% {
+    transform: translateY(2px);
   }
-  40% {
-    opacity: 0.85;
+  35% {
+    transform: translateY(-1px);
+  }
+  60%,
+  100% {
+    transform: translateY(0);
   }
 }
 @keyframes living-bread-slice {
   0%,
   100% {
-    transform: translateX(0);
+    transform: translateX(0) rotate(0);
   }
-  45%,
-  65% {
-    transform: translateX(-5px);
+  40%,
+  70% {
+    transform: translateX(-6px) rotate(-5deg);
   }
 }
 @keyframes living-pour {
@@ -292,9 +335,12 @@
   100% {
     transform: rotate(0);
   }
-  30%,
-  65% {
-    transform: rotate(8deg);
+  28%,
+  68% {
+    transform: rotate(9deg);
+  }
+  48% {
+    transform: rotate(10deg);
   }
 }
 @keyframes living-water-flow {
@@ -303,11 +349,40 @@
   90%,
   100% {
     opacity: 0;
+    stroke-dasharray: 5 2;
+    stroke-dashoffset: 0;
   }
   30%,
   70% {
     opacity: 0.9;
     stroke-dasharray: 5 2;
+  }
+  70% {
+    stroke-dashoffset: -21;
+  }
+}
+@keyframes living-ripple {
+  0%,
+  45% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  65% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+}
+@keyframes living-lean {
+  0%,
+  100% {
+    transform: rotate(0) translateY(0);
+  }
+  35%,
+  65% {
+    transform: rotate(2deg) translateY(-0.6px);
   }
 }
 @keyframes living-water-level {
@@ -372,18 +447,26 @@
   }
 }
 @keyframes living-morning-light {
-  0%,
+  0% {
+    opacity: 0.6;
+    transform: translateY(9px);
+  }
+  70%,
   100% {
     opacity: 1;
-  }
-  50% {
-    opacity: 0.65;
+    transform: translateY(0);
   }
 }
 @keyframes living-write {
   0%,
   10% {
     transform: translate(-41px, 1px);
+  }
+  30% {
+    transform: translate(-28px, -1px);
+  }
+  50% {
+    transform: translate(-15px, 1px);
   }
   75%,
   100% {
@@ -403,10 +486,28 @@
 @keyframes living-cup {
   0%,
   100% {
-    opacity: 1;
+    transform: translateY(0);
   }
-  25% {
-    opacity: 0.65;
+  30% {
+    transform: translateY(-4px);
+  }
+  55% {
+    transform: translateY(0.6px);
+  }
+  70% {
+    transform: translateY(0);
+  }
+}
+@keyframes living-count-pop {
+  0%,
+  45% {
+    transform: scale(0.5);
+  }
+  70% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
   }
 }
 @keyframes living-count {
