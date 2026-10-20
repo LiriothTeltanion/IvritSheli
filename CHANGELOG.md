@@ -12,6 +12,8 @@
 - 2026-10-19: fixed empty `/api/v1/export` bodies under Starlette 1.x (the request-body limit middleware
   faked a client disconnect after replaying a body); backup restore works again and a regression test covers it.
 - 2026-10-19: added layered image-generation prompts for the six scenes (`docs/LIVING_SCENES_ART_PROMPTS.md`).
+- 2026-10-20: unified the six scenes with gradient-only lighting (contact shadows, rim light, vignette), richer
+  hands and props, and finite 1.9–2.1 s motion; reduced-motion stills and replay controls are unchanged.
 
 # Changelog
 

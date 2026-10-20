@@ -57,7 +57,7 @@ Decorative recognition scenes intentionally expose no replay control.
 
 - Placement and motion use different SVG groups. Animation never resets the
   parent's positioning transform.
-- Playback is finite, 1600–1800ms; there are no new ambient animation loops.
+- Playback is finite, 1600–2200ms (1900–2100ms since 2026-10-20); there are no new ambient animation loops.
 - Replay replaces the keyed scene subtree, so repeated clicks restart the
   sequence without timers, document-wide queries or stale animation handles.
 - `prefers-reduced-motion` presents the complete still composition and a

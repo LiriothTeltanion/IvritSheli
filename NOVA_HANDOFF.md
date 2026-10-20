@@ -15,6 +15,12 @@ Sin push, sin PR, sin deploy. La copia de OneDrive solo se leyó.
   (también en CI, run 39195650429). Causa: `RequestBodyLimitMiddleware` inventaba un `http.disconnect` al
   vaciar su búfer y Starlette cortaba el `FileResponse`. Arreglo de una línea + prueba de regresión que falla
   en `main` y pasa aquí. Commit `b41e7ad`. Ningún control de seguridad se quitó ni se relajó.
+- **Pulido de arte de las seis escenas (20-10-2026 ≈ 04:00, commit `95b1112`):** luz suave solo con degradados
+  (sombras de contacto, caída de luz en superficies, viñeta, luz de borde, brillos cálidos), manos y objetos más
+  ricos (mano ofrecida, mano de apoyo, virola y goma del lápiz, esmalte de la taza, cáusticas del agua) y
+  movimiento finito de 1,9–2,1 s (inclinación, vertido, onda, amanecer, taza que se eleva, punto que aparece).
+  Verificado: `tsc -b` OK · vitest **875/875** · build OK · Playwright `living-scenes` **11 passed / 2 skipped**
+  en 8811. Antes/después: `D:\dev\_rescue\2026-10-20\ivrit-art\ivrit-escenas-antes-despues.png`.
 
 ### 🔬 Verificado (TESTED_LOCAL, 19-10-2026 ≈ 22:00)
 - `npx tsc -b` 0 errores · `npx vitest run` **875/875** (51 archivos) · `npm run build` OK.
