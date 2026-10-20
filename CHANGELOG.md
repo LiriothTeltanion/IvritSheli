@@ -14,6 +14,9 @@
 - 2026-10-19: added layered image-generation prompts for the six scenes (`docs/LIVING_SCENES_ART_PROMPTS.md`).
 - 2026-10-20: unified the six scenes with gradient-only lighting (contact shadows, rim light, vignette), richer
   hands and props, and finite 1.9–2.1 s motion; reduced-motion stills and replay controls are unchanged.
+- 2026-10-20: the six scenes sit on static painted backdrops generated with Google Gemini (provenance and hashes
+  in `painted/manifest.json`); characters, props and all motion stay SVG and the vector backdrop remains as fallback.
+- 2026-10-20: `compose-living-scenes.py` reads the checked-in baselines, so a fresh capture folder composes.
 
 # Changelog
 

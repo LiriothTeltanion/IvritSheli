@@ -1,0 +1,63 @@
+{
+  "generator": "Google Gemini image generation (Antigravity), requested through Nova Bridge; converted and cropped locally with Pillow",
+  "assets": {
+    "street.webp": {
+      "sha256": "0c7ffd037106256291a34a8816d5714023aaa89a9f2735c8dabf4fa2f5bcbe58",
+      "bytes": 38566,
+      "width": 960,
+      "height": 720,
+      "source_png_sha256": "ddf273cadb6a789c5c8887522e1280a7292f18da04fa026a6674654d4c334b98",
+      "generated": "2026-10-20",
+      "role": "static painted backdrop under the animated SVG layers; no people, text or letters"
+    },
+    "morning.webp": {
+      "sha256": "a0b32c81e7523509f4f72f58bcd1b76eef46713b1c2222b1773624f325d2bee8",
+      "bytes": 26136,
+      "width": 960,
+      "height": 720,
+      "source_png_sha256": "62d85d2fe550abdd309469cb1169c7e13358302bad191311c1781140b992ec84",
+      "generated": "2026-10-20",
+      "role": "static painted backdrop under the animated SVG layers; no people, text or letters"
+    },
+    "bread.webp": {
+      "sha256": "7ffa01c086224e0af570b29d38b4a014bf545878b3a1cc27cacec9a093598b7c",
+      "bytes": 10284,
+      "width": 960,
+      "height": 517,
+      "crop": "354,0,1246,480",
+      "source_png_sha256": "24047af8f40694c180526a46d82823266dc9e2741c01c8ddc6ee3ece3a7ade2e",
+      "generated": "2026-10-20",
+      "role": "static painted backdrop under the animated SVG layers; no people, text or letters"
+    },
+    "water.webp": {
+      "sha256": "b89b3febc20bf975ac025fc206e5e718dc1aa0dd097f56aee2b2c2e9975fc2db",
+      "bytes": 13582,
+      "width": 960,
+      "height": 516,
+      "crop": "0,0,1600,860",
+      "source_png_sha256": "4e7b852255632e7f93ad343bab7fd170ed05699199931b729a977b99a2e52518",
+      "generated": "2026-10-20",
+      "role": "static painted backdrop under the animated SVG layers; no people, text or letters"
+    },
+    "write.webp": {
+      "sha256": "19cc803b46af2aae133cfceb5bb99ddeaa909ebe9746cb8294cfda5aecc8bdd9",
+      "bytes": 34782,
+      "width": 960,
+      "height": 720,
+      "crop": null,
+      "source_png_sha256": "8e8eac722d7d07f9d79473804db87b0d459ce0da8608735b1d9dfc6968086144",
+      "generated": "2026-10-20",
+      "role": "static painted backdrop under the animated SVG layers; no people, text or letters"
+    },
+    "one.webp": {
+      "sha256": "b540c2d940234b82b68feb344924ce7c923de54924f67f38d57c16f2e7076bc1",
+      "bytes": 11640,
+      "width": 960,
+      "height": 520,
+      "crop": "246,0,1353,600",
+      "source_png_sha256": "29a3c08f343330e6faa1b06d00d85a7e7c919adeafe4622ae3dd0f098d88aa8a",
+      "generated": "2026-10-20",
+      "role": "static painted backdrop under the animated SVG layers; no people, text or letters"
+    }
+  }
+}

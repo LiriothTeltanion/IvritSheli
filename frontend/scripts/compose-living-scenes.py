@@ -16,6 +16,8 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 KEYS = ["food.bread", "food.water", "greetings.hello", "greetings.good_morning", "actions.write", "numbers.one"]
 LABELS = ["Pan", "Agua", "Hola", "Buenos días", "Escribir", "Una taza · una unidad"]
 OUTPUT = Path(sys.argv[1]).resolve()
+# The f623fa0 baselines are checked in; the capture script only records the current product (after-*).
+BEFORE = Path(__file__).resolve().parent.parent / "public" / "art-direction" / "living-scenes" / "before"
 FONT_ROOT = Path("C:/Windows/Fonts")
 
 
@@ -53,7 +55,8 @@ def compare(theme: str) -> Image.Image:
         y = 112 + index * 416
         draw.text((30, y), label, font=font(23, True), fill="#243e39")
         for column, prefix in enumerate(["before", "after"]):
-            with Image.open(OUTPUT / f"{prefix}-{theme}-{key}.png") as image:
+            source = BEFORE / f"{theme}-{key}.png" if prefix == "before" else OUTPUT / f"after-{theme}-{key}.png"
+            with Image.open(source) as image:
                 rendered = ImageOps.contain(image.convert("RGB"), (490, 367), Image.Resampling.LANCZOS)
                 canvas.paste(rendered, (30 + column * 510, y + 36))
     return canvas

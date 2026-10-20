@@ -206,6 +206,7 @@ function Bread({ sceneId: id, hintStage }: Props): React.JSX.Element {
   return (
     <>
       <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
+        <PaintedBackdrop id={id} name="bread" height={128} />
         <path className="living__table" d="M1 128q108-11 238 0v51H1Z" />
         <path className="living__linen" d="m27 113 157-9 31 50-166 11Z" />
         <path
@@ -367,6 +368,7 @@ function Water({ sceneId: id, hintStage }: Props): React.JSX.Element {
     <>
       <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
         <path className="living__wall-line" d="M1 117h238M35 1v116" />
+        <PaintedBackdrop id={id} name="water" height={128} />
         <path className="living__table" d="M1 128h238v51H1Z" />
         <path d="M1 128h238v51H1Z" fill={`url(#${id}-surface)`} />
         <path d="M1 128h238" stroke={`url(#${id}-rim)`} strokeWidth="1" />
@@ -764,6 +766,47 @@ function Neighbor({
   );
 }
 
+/**
+ * A static painted environment (generated reference art, see painted/manifest.json) drawn over the vector
+ * backdrop of the same scene. It never moves: characters and props stay SVG above it, so every finite animation
+ * and the reduced-motion stills are unchanged. If the file cannot load, the vector backdrop underneath shows.
+ */
+function PaintedBackdrop({
+  id,
+  name,
+  visibleHeight,
+  height = 178,
+}: {
+  id: string;
+  name: string;
+  /** Drawn height in scene units, for a painting cropped to the wall above the scene's own furniture. */
+  height?: number;
+  /** Keep only the top of the painting (scene units) when the scene draws its own floor and furniture below. */
+  visibleHeight?: number;
+}): React.JSX.Element {
+  const clipId = visibleHeight ? `${id}-painted-${name}` : `${id}-clip`;
+  return (
+    <>
+      {visibleHeight ? (
+        <clipPath id={clipId}>
+          <rect x="1" y="1" width="238" height={visibleHeight} rx="12" />
+        </clipPath>
+      ) : null}
+      <image
+        href={`${import.meta.env.BASE_URL}art-direction/living-scenes/painted/${name}.webp`}
+        x="1"
+        y="1"
+        width="238"
+        height={height}
+        preserveAspectRatio="xMidYMid slice"
+        clipPath={`url(#${clipId})`}
+        data-painted-backdrop={name}
+        aria-hidden="true"
+      />
+    </>
+  );
+}
+
 function Street({ sceneId: id, hintStage }: Props): React.JSX.Element {
   return (
     <>
@@ -808,6 +851,7 @@ function Street({ sceneId: id, hintStage }: Props): React.JSX.Element {
           className="living__leaf"
           d="M218 124q-22-16-12-30 13 8 12 30Zm3-1q-1-29 13-29 5 17-13 29Z"
         />
+        <PaintedBackdrop id={id} name="street" />
       </SceneLayer>
       <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
         <Neighbor id={id} x={78} y={78} greeting warm />
@@ -979,6 +1023,13 @@ function Morning({ sceneId: id, hintStage }: Props): React.JSX.Element {
           className="living__curtain-fold living__fine-detail"
           d="M30 14q7 52-10 93M210 14q-7 52 10 93"
         />
+        <PaintedBackdrop id={id} name="morning" visibleHeight={130} />
+        {/* The painted sun sits low behind the neighbour; the vector sun keeps its finite rise in the window. */}
+        <g className="living__morning-sun">
+          <circle cx="125" cy="62" r="34" fill={`url(#${id}-glow)`} />
+          <circle cx="125" cy="62" r="15" fill="#f7d58e" />
+          <circle cx="120" cy="57" r="7" fill="#fdebc0" opacity=".6" />
+        </g>
         <path className="living__ground" d="M1 130h238v49H1Z" />
         <path d="M1 130h238v49H1Z" fill={`url(#${id}-surface)`} />
         {/* Window light spilling onto the floor. */}
@@ -1045,6 +1096,24 @@ function Writing({ sceneId: id, hintStage }: Props): React.JSX.Element {
           d="M1 28h238M1 83h238M1 148h238m-186-5h30m70-54h46"
         />
         <path d="M1 1h238v178H1Z" fill={`url(#${id}-surface)`} />
+        {/* Vector pencil cup stays underneath the painting as its fallback; the painting carries its own cup. */}
+        <ellipse cx="201" cy="45" rx="15" ry="3" fill={`url(#${id}-contact)`} />
+        <path d="m187 21 25-1-1 24-22 1Z" fill="#315d58" />
+        <path
+          d="m190 24 1 18"
+          stroke="#7fa79c"
+          strokeWidth="1.2"
+          strokeLinecap="round"
+          opacity=".7"
+        />
+        <path
+          d="M188 21q12-4 24-1"
+          fill="none"
+          stroke="#a2b2a1"
+          strokeWidth="1"
+        />
+        <path d="m194 22-1-15m7 15 2-15" stroke="#d3ad68" strokeWidth="2" />
+        <PaintedBackdrop id={id} name="write" />
         <ellipse className="living__shadow" cx="112" cy="129" rx="92" ry="26" />
         <ellipse
           cx="118"
@@ -1075,22 +1144,6 @@ function Writing({ sceneId: id, hintStage }: Props): React.JSX.Element {
           stroke="#c7c6ac"
           strokeWidth=".65"
         />
-        <ellipse cx="201" cy="45" rx="15" ry="3" fill={`url(#${id}-contact)`} />
-        <path d="m187 21 25-1-1 24-22 1Z" fill="#315d58" />
-        <path
-          d="m190 24 1 18"
-          stroke="#7fa79c"
-          strokeWidth="1.2"
-          strokeLinecap="round"
-          opacity=".7"
-        />
-        <path
-          d="M188 21q12-4 24-1"
-          fill="none"
-          stroke="#a2b2a1"
-          strokeWidth="1"
-        />
-        <path d="m194 22-1-15m7 15 2-15" stroke="#d3ad68" strokeWidth="2" />
       </SceneLayer>
       <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
         {/* A non-letter practice stroke avoids inventing written Hebrew. */}
@@ -1209,6 +1262,7 @@ function One({ sceneId: id, hintStage }: Props): React.JSX.Element {
   return (
     <>
       <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
+        <PaintedBackdrop id={id} name="one" height={129} />
         <path className="living__table" d="M1 129h238v50H1Z" />
         <path d="M1 129h238v50H1Z" fill={`url(#${id}-surface)`} />
         <path d="M1 129h238" stroke={`url(#${id}-rim)`} strokeWidth="1" />

@@ -77,3 +77,27 @@ Dónde va: taza y vapor; el dígito y el punto de conteo se quedan en SVG (exact
 1. Nunca pegar el PNG en la app: redibujar en SVG con las mismas clases y grupos.
 2. Pasar `npx vitest run`, la captura `scripts/capture-living-scenes.mjs` y el Playwright del piloto antes de commitear.
 3. Mostrar antes/después de UNA escena a Kevin y escalar solo con su OK.
+
+## Fondos pintados generados (2026-10-20)
+
+Nota con fecha que amplía la regla 1 (la regla original queda arriba como historia): por pedido de Kevin del
+2026-10-20, los seis **fondos** se generaron con Google Gemini (Antigravity) a través de Nova Bridge y se integran
+como imagen estática. Los personajes, manos, objetos que enseñan la palabra, el número y todo lo que se mueve
+siguen siendo SVG.
+
+| Escena | Archivo | Uso |
+|---|---|---|
+| `greetings.hello` | `painted/street.webp` | calle de piedra completa |
+| `greetings.good_morning` | `painted/morning.webp` | pared y ventana (recorte hasta y=130); el sol SVG conserva su subida |
+| `food.bread` | `painted/bread.webp` | pared de yeso y borde del mantel (recorte) |
+| `food.water` | `painted/water.webp` | azulejos y ventana (recorte) |
+| `actions.write` | `painted/write.webp` | escritorio completo con su vaso de lápices |
+| `numbers.one` | `painted/one.webp` | pared con luz (recorte) |
+
+- Cómo funciona: `PaintedBackdrop` (en `LivingScenePilot.tsx`) dibuja un `<image>` quieto al final de la capa
+  `context`, recortado con el marco redondeado de la escena. El fondo vectorial queda debajo como respaldo si la
+  imagen no carga. Movimiento reducido: sin cambios, porque la imagen nunca se anima.
+- Procedencia: `painted/manifest.json` guarda SHA-256 del WebP y del PNG original, tamaño, recorte y fecha.
+- Prompts usados: escena vacía, sin personas, manos, animales, texto, letras ni números, paleta común de arriba.
+- Pruebas observadas el 2026-10-20: vitest 875/875, Playwright del piloto 11 ✓ / 2 omitidos, captura sin errores.
+
