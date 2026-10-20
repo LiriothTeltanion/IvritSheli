@@ -68,6 +68,86 @@
       "source_png_sha256": "1f02ea60c37195bf51c498a7a11305b5456e403c61636b3571cdd21920fe82cf",
       "generated": "2026-10-20",
       "role": "warm painted-plaster grain (autocontrast, darkening capped at 10 %), tiled 4 x 3 and multiplied over the inner area of every scene context layer"
+    },
+    "room-conversation.webp": {
+      "sha256": "e94d0bb187193735f0e8a31e62b38882ca2f53625a64fec733cde37691780ad8",
+      "bytes": 14766,
+      "width": 960,
+      "height": 649,
+      "crop": "0,54,1499,1067",
+      "source_png_sha256": "9b89c3374ccd32b5034c5bc6d170df5598e411051cf195371a5915f6cbd40727",
+      "generated": "2026-10-20",
+      "role": "painted room over the shared vector room; floor line aligned at 0.781 of the room height; floor band stretched x2.4"
+    },
+    "room-action.webp": {
+      "sha256": "211880b0f920c61203e36f78e60c6cc41dce527a1ded985f036afd2bdc02bee2",
+      "bytes": 12958,
+      "width": 960,
+      "height": 667,
+      "crop": "48,0,1452,975",
+      "source_png_sha256": "9b89c3374ccd32b5034c5bc6d170df5598e411051cf195371a5915f6cbd40727",
+      "generated": "2026-10-20",
+      "role": "painted room over the shared vector room; floor line aligned at 0.867 of the room height; floor band stretched x1.2"
+    },
+    "room-warm.webp": {
+      "sha256": "58314fdfeb17fbb876dbb2d83cc07f25e20ac473f7a95f5473fd2d5485fd4517",
+      "bytes": 5840,
+      "width": 960,
+      "height": 667,
+      "crop": "38,11,1462,1000",
+      "source_png_sha256": "89431e9b183c64d0aa1dc868c0dcdd3e689bb43492c61829cb86c5797dca0f90",
+      "generated": "2026-10-20",
+      "role": "painted room over the shared vector room; floor line aligned at 0.853 of the room height"
+    },
+    "room-office.webp": {
+      "sha256": "e67913aab1be4153514411785698456793896fa7ee373184c583a8545df4efdc",
+      "bytes": 14532,
+      "width": 960,
+      "height": 688,
+      "crop": "13,2,1486,1058",
+      "source_png_sha256": "c985eb573749a7e4180e18fbfc83c79c2abcdc8826a3693c3d14ce8af9f9dfa3",
+      "generated": "2026-10-20",
+      "role": "painted room over the shared vector room; floor line aligned at 0.763 of the room height; floor band stretched x1.3"
+    },
+    "room-public.webp": {
+      "sha256": "1f9bf230f2abd513c8be892f795ef377fc98a4e6e4e6f7a7b1a8184e88389f5c",
+      "bytes": 14260,
+      "width": 960,
+      "height": 688,
+      "crop": "73,0,1427,971",
+      "source_png_sha256": "fe698b5624b7764bdd014d7be6dbea25a1dec3cd6263ebe144d32c01ba11da63",
+      "generated": "2026-10-20",
+      "role": "painted room over the shared vector room; floor line aligned at 0.750 of the room height; floor band stretched x1.5"
+    },
+    "room-service.webp": {
+      "sha256": "fb4cd15ce6d1861793aca001f2f4a3ad9d5c7afeafcec1c58864349768a68f5d",
+      "bytes": 14058,
+      "width": 960,
+      "height": 688,
+      "crop": "84,0,1415,954",
+      "source_png_sha256": "fe698b5624b7764bdd014d7be6dbea25a1dec3cd6263ebe144d32c01ba11da63",
+      "generated": "2026-10-20",
+      "role": "painted room over the shared vector room; floor line aligned at 0.763 of the room height; floor band stretched x1.5"
+    },
+    "room-action-tiles.webp": {
+      "sha256": "0e6373224f273439d3b4353f1181b3fe56dc2237c24bec460959ed9074a0b014",
+      "bytes": 11456,
+      "width": 960,
+      "height": 667,
+      "crop": "145,0,1355,840",
+      "source_png_sha256": "fe698b5624b7764bdd014d7be6dbea25a1dec3cd6263ebe144d32c01ba11da63",
+      "generated": "2026-10-20",
+      "role": "painted room over the shared vector room; floor line aligned at 0.867 of the room height; floor band stretched x1.0"
+    },
+    "street-autonomy.webp": {
+      "sha256": "a080774a90821004c4e526ec502da5dc70d24fd258792cdc8c22084fa824aae4",
+      "bytes": 39638,
+      "width": 960,
+      "height": 667,
+      "crop": "0,137,1499,1178",
+      "source_png_sha256": "c39e59de1f3b66e4551b88199376d375e34311d7bc948f700bf5283292cfb96e",
+      "generated": "2026-10-20",
+      "role": "painted room over the shared vector room; floor line aligned at 0.560 of the room height; floor band stretched x1.8"
     }
   }
 }

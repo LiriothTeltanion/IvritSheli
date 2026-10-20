@@ -17,6 +17,10 @@
 - 2026-10-20: the six scenes sit on static painted backdrops generated with Google Gemini (provenance and hashes
   in `painted/manifest.json`); characters, props and all motion stay SVG and the vector backdrop remains as fallback.
 - 2026-10-20: `compose-living-scenes.py` reads the checked-in baselines, so a fresh capture folder composes.
+- 2026-10-20 (afternoon): the other 234 scenes share the upgrade — a redrawn character (three-quarter face,
+  sleeves, straight legs), portrait busts in the family genealogy, a full-bleed frame, a Gemini-painted gouache grain
+  over each context layer and painted rooms for the communication, action, register, work, service, bureaucracy and
+  autonomy scenes. Motion, hint stages and reduced-motion stills are unchanged; high contrast keeps the flat vector.
 
 # Changelog
 

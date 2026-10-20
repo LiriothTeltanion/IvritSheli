@@ -15,7 +15,7 @@
 
 import type { A0VisualKey } from '../../visuals/a0VisualRecipes';
 import type { SemanticHintStage } from '../SemanticWordIllustration';
-import { SceneLayer, SemanticPerson, SpeechBubble } from './SemanticScenePrimitives';
+import { PaintedRoom, SceneLayer, SemanticPerson, SpeechBubble } from './SemanticScenePrimitives';
 
 interface ActionSceneProps {
   visualKey: A0VisualKey;
@@ -30,6 +30,7 @@ function Room({ floor = 'floor' }: { floor?: 'floor' | 'tiles' }): React.JSX.Ele
       <path className="semantic-art__grain" d="M12 44h216M12 80h216M12 114h216" />
       <path className={`semantic-art__${floor}`} d="M12 142h216v20H12Z" />
       <path className="semantic-art__shade" d="M12 136h216v6H12Z" />
+      <PaintedRoom name={floor === 'tiles' ? 'room-action-tiles' : 'room-action'} x={12} y={12} width={216} height={150} />
     </>
   );
 }

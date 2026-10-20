@@ -101,3 +101,34 @@ siguen siendo SVG.
 - Prompts usados: escena vacía, sin personas, manos, animales, texto, letras ni números, paleta común de arriba.
 - Pruebas observadas el 2026-10-20: vitest 875/875, Playwright del piloto 11 ✓ / 2 omitidos, captura sin errores.
 
+## Las otras 234 escenas (2026-10-20, tarde)
+
+Pedido de Kevin del 2026-10-20 ≈ 11:00: subir al máximo el resto del arte manteniendo animación y movimiento
+reducido. Se hizo en lo **compartido**, para que las 234 escenas no piloto cambien a la vez y con el mismo estilo:
+
+| Pieza | Dónde | Qué cambia |
+|---|---|---|
+| Personaje `SemanticPerson` (113 figuras) | `SemanticScenePrimitives.tsx` | Cuello más corto, hombros con mangas cortas, piernas rectas de pie, cara de 3/4 (ojo con brillo, ceja, mejilla, sonrisa fina); la sombra de la cabeza ya no sobresale. Poses, manos y brazo animado conservan sus anclajes. |
+| Retratos de familia (12 escenas) | `FamilyRelationshipScenes.tsx` | Bustos dentro del cuadrado/círculo genealógico: edad por pelo, canas, moño, barba, gafas, gorra o coletas. El árbol pequeño de referencia no cambia. |
+| Marco | `SemanticSceneFrame` + CSS | Papel a sangre con radio 14; el borde interior, el riel, el sello y el motivo dejan de dibujarse (siguen en el DOM). Viñeta y contorno de pared más suaves. |
+| Grano de gouache | `SceneLayer` (`ContextGrain`) | Textura de yeso pintada con Gemini, en mosaico y multiplicada al 45 % sobre la capa de contexto; apagada en miniaturas, alto contraste, el marco y el piloto. |
+| Cuartos pintados (≈ 56 escenas) | `PaintedRoom` en los cuartos de comunicación, acciones, registro, trabajo, servicios, burocracia y autonomía | Cinco fondos de Gemini recortados para que la línea pared/suelo caiga donde la dibuja el vector; los pies siguen en el suelo. Oscurecidos en tema oscuro y ocultos en alto contraste (queda el vector). |
+
+| Archivo | Fuente Gemini | Usado por |
+|---|---|---|
+| `painted/grain-plaster.webp` | `tex-plaster` | capa de contexto de todas las escenas no piloto |
+| `painted/room-conversation.webp` | `room-living` | `ConversationGround` (comunicación) |
+| `painted/room-action.webp` | `room-living` | `Room` (acciones) |
+| `painted/room-action-tiles.webp` | `room-public` | `Room floor="tiles"` (esperar) |
+| `painted/room-warm.webp` | `room-warm` | `WarmRoom` (registro social) |
+| `painted/room-office.webp` | `room-office` | `OfficeRoom` (trabajo) |
+| `painted/room-public.webp` | `room-public` | `PublicRoom` (burocracia) |
+| `painted/room-service.webp` | `room-public` | `Interior` (servicios; el supermercado no la usa) |
+| `painted/street-autonomy.webp` | `street-day` | `StreetGround` (autonomía) |
+
+Procedencia: `painted/manifest.json` (SHA-256 del WebP y del PNG original, recorte, estiramiento del suelo, fecha).
+Prompts: escenas vacías, sin personas, manos, animales, texto, letras ni números, con la paleta común.
+
+Pendiente (no hecho hoy): caras grandes de salud («dolor», «enfermo»), cuartos que cada escena dibuja en línea
+(no compartidos: hogar, vivienda, salud, números…), y la prueba con aprendices reales.
+

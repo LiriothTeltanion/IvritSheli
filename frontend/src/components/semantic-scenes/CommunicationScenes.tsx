@@ -3,7 +3,7 @@
 
 import type { A0VisualKey } from '../../visuals/a0VisualRecipes';
 import type { SemanticHintStage } from '../SemanticWordIllustration';
-import { SceneLayer, SemanticPerson, SpeechBubble } from './SemanticScenePrimitives';
+import { PaintedRoom, SceneLayer, SemanticPerson, SpeechBubble } from './SemanticScenePrimitives';
 
 interface CommunicationSceneProps {
   visualKey: A0VisualKey;
@@ -18,6 +18,7 @@ function ConversationGround({ variant = 'dialogue' }: { variant?: 'dialogue' | '
       <path className="semantic-art__floor" d="M12 132h216v32H12Z" />
       <path className="semantic-art__spatial-line" d="M12 164 88 132h64l76 32M88 132V42m64 90V42" />
       <path className="semantic-art__grain" d="M24 151h48m96 0h42M34 158h27m117 0h21" />
+      <PaintedRoom name="room-conversation" x={12} y={18} width={216} height={146} />
       {variant === 'studio' && <path className="semantic-art__spatial-sill" d="M25 47h48v57H25Zm8 9h32v39H33Z" />}
       {variant === 'service' && <path className="semantic-art__wood semantic-art__outlined" d="M24 112h192v25H24Z" />}
       <ellipse className="semantic-art__prop-shadow" cx="120" cy="151" rx="94" ry="8" />

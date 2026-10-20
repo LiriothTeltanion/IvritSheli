@@ -3,7 +3,13 @@
 
 import type { A0VisualKey } from '../../visuals/a0VisualRecipes';
 import type { SemanticHintStage } from '../SemanticWordIllustration';
-import { GrammarMarker, SceneLayer, SemanticPerson, SpeechBubble } from './SemanticScenePrimitives';
+import {
+  GrammarMarker,
+  PaintedRoom,
+  SceneLayer,
+  SemanticPerson,
+  SpeechBubble,
+} from './SemanticScenePrimitives';
 
 interface RegisterSceneProps {
   visualKey: A0VisualKey;
@@ -23,6 +29,7 @@ function WarmRoom(): React.JSX.Element {
       */}
       <path className="semantic-art__floor" d="M12 142h216v22H12Z" />
       <circle className="semantic-art__gold-soft" cx="192" cy="42" r="20" />
+      <PaintedRoom name="room-warm" x={12} y={14} width={216} height={150} />
       <ellipse className="semantic-art__prop-shadow" cx="120" cy="151" rx="92" ry="8" />
     </>
   );

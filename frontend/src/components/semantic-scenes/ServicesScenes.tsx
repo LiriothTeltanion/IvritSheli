@@ -26,6 +26,7 @@ import type { SemanticHintStage } from '../SemanticWordIllustration';
 import {
   MagenDavid,
   MedicalCross,
+  PaintedRoom,
   SceneLayer,
   SemanticPerson,
   SpeechBubble,
@@ -37,12 +38,13 @@ interface ServicesSceneProps {
 }
 
 /** A room seen from inside: wall, skirting, floor. */
-function Interior(): React.JSX.Element {
+function Interior({ painted = true }: { painted?: boolean }): React.JSX.Element {
   return (
     <>
       <path className="semantic-art__wall semantic-art__outlined" d="M14 14h212v122H14Z" />
       <path className="semantic-art__floor" d="M14 136h212v30H14Z" />
       <path className="semantic-art__surface-deep" d="M14 130h212v6H14Z" />
+      {painted && <PaintedRoom name="room-service" x={14} y={14} width={212} height={152} />}
     </>
   );
 }
@@ -70,7 +72,7 @@ export function ServicesScene({
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
-            <Interior />
+            <Interior painted={false} />
             {/* Two shelf runs converging: the corridor is the whole idea. */}
             <path className="semantic-art__metal semantic-art__outlined" d="M14 26h64v104H14Zm148 0h64v104h-64Z" />
             <path className="semantic-art__metal-line" d="M14 52h64m84 0h64M14 78h64m84 0h64M14 104h64m84 0h64" />

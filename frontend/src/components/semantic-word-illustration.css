@@ -563,6 +563,15 @@
   clip-path: inset(11px round 8px);
 }
 .semantic-art--thumbnail .semantic-art__context-grain { display: none; }
+
+/* Painted rooms and backdrops (2026-10-20): dimmed in the dark theme so a daylight painting does not glare,
+   and dropped in high contrast so the flat vector room underneath carries the scene. */
+.semantic-art__painted-room { pointer-events: none; }
+:root[data-theme="dark"] .semantic-art__painted-room,
+:root[data-theme="dark"] [data-painted-backdrop] { filter: brightness(.6) saturate(.85); }
+@media (prefers-contrast: more), (forced-colors: active) {
+  .semantic-art__painted-room { display: none; }
+}
 @media (prefers-contrast: more), (forced-colors: active) {
   .semantic-art__context-grain { display: none; }
 }

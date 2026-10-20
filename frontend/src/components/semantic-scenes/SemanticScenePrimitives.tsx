@@ -57,6 +57,41 @@ function ContextGrain(): React.JSX.Element {
   );
 }
 
+/**
+ * A painted room drawn over a scene's own vector room (2026-10-20).
+ *
+ * Generated once with Gemini and cropped so its wall/floor line lands where the vector room draws it, so the
+ * figures still stand on the floor. It sits at the end of the room component, under everything the scene adds,
+ * and never moves. The vector room underneath is the fallback (no file, high contrast, forced colours).
+ */
+export function PaintedRoom({
+  name,
+  x,
+  y,
+  width,
+  height,
+}: {
+  name: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}): React.JSX.Element {
+  return (
+    <image
+      className="semantic-art__painted-room"
+      href={`${import.meta.env.BASE_URL}art-direction/living-scenes/painted/${name}.webp`}
+      x={x}
+      y={y}
+      width={width}
+      height={height}
+      preserveAspectRatio="none"
+      data-painted-backdrop={name}
+      aria-hidden="true"
+    />
+  );
+}
+
 export function SceneLayer({
   name,
   minimumStage,
