@@ -1,14 +1,14 @@
 ## 🌙 Sesión nocturna Nova — lunes, 19 de octubre de 2026 (Claude Code, TUF)
 
-**Rama local:** `nova/2026-10-19-living-scenes` en el worktree `D:\dev\IvritSheli-wt\living-scenes`.
-Sin push, sin PR, sin deploy. La copia de OneDrive solo se leyó.
+**Rama local:** `nova/2026-10-19-living-scenes` en un worktree local.
+Sin push, sin PR, sin deploy. La copia de trabajo principal solo se leyó.
 
 ### ✅ Hecho
 - **Rescate del piloto «Living Editorial Scenes» (2.13.0 candidata):** el trabajo de Codex del 18-10 seguía
-  *staged* y sin commit en la copia de OneDrive (`codex/living-scenes-pilot`, 53 archivos, +3.242 / −103).
-  Se exportó como parche binario (`D:\dev\_rescue\2026-10-19\living-scenes-staged.patch`, SHA-256
+  *staged* y sin commit en la copia de trabajo principal (`codex/living-scenes-pilot`, 53 archivos, +3.242 / −103).
+  Se exportó como parche binario (guardado fuera del repositorio, SHA-256
   `11cd368a…b5b8`) y se aplicó sobre `f623fa0`. El índice resultante coincide **blob por blob** (626/626) con
-  el índice staged de OneDrive. Commit `d6649ba`.
+  el índice staged de esa copia. Commit `d6649ba`.
 - **Merge de `main` (`f7c2ba3`)** sin conflictos: commit `79af408`.
 - **Arreglo de un fallo que ya estaba en `main`:** desde la tanda de Dependabot del 12-10 (Starlette 1.9 /
   FastAPI 0.143), `/api/v1/export` devolvía un cuerpo vacío y dos pruebas de restauración de copias fallaban
@@ -20,7 +20,7 @@ Sin push, sin PR, sin deploy. La copia de OneDrive solo se leyó.
   ricos (mano ofrecida, mano de apoyo, virola y goma del lápiz, esmalte de la taza, cáusticas del agua) y
   movimiento finito de 1,9–2,1 s (inclinación, vertido, onda, amanecer, taza que se eleva, punto que aparece).
   Verificado: `tsc -b` OK · vitest **875/875** · build OK · Playwright `living-scenes` **11 passed / 2 skipped**
-  en 8811. Antes/después: `D:\dev\_rescue\2026-10-20\ivrit-art\ivrit-escenas-antes-despues.png`.
+  en 8811. Antes/después: una carpeta local fuera del repositorio.
 
 ### 🔬 Verificado (TESTED_LOCAL, 19-10-2026 ≈ 22:00)
 - `npx tsc -b` 0 errores · `npx vitest run` **875/875** (51 archivos) · `npm run build` OK.
@@ -28,12 +28,12 @@ Sin push, sin PR, sin deploy. La copia de OneDrive solo se leyó.
 - `generate_checksums.py` + `verify_package.py`: 625 checksums, 230 archivos requeridos OK.
 - App servida (SQLite, datos temporales, puerto 8810) + `capture-living-scenes.mjs`: 17 capturas,
   114 fotogramas de animación, **0 errores de página**; hojas compuestas en color y gris.
-  Evidencia: `D:\dev\_rescue\2026-10-19\ivrit-capture\` (`overview-light.png`, `studio-phone-dark-he.png`…).
+  Evidencia: una carpeta local fuera del repositorio (`overview-light.png`, `studio-phone-dark-he.png`…).
 
 - Playwright contra la app **servida por FastAPI** (puerto 8810, SQLite temporal; regla 3):
   piloto `e2e/living-scenes.spec.ts` **11 pasadas / 2 omitidas por diseño** (incluye el escaneo WCAG AA en EN/ES/HE,
   claro y oscuro, en 390/768/1440 px); matriz completa **46 pasadas / 42 omitidas por diseño / 0 fallos** (3,2 min).
-  Logs: `D:\dev\_rescue\2026-10-19\ivrit-pw-pilot.log` y `ivrit-pw-full.log`.
+  Logs: una carpeta local fuera del repositorio y `ivrit-pw-full.log`.
 
 ### ⚠️ No verificado
 - Reconocimiento humano, aceptación del hebreo y el piloto con tu mamá siguen abiertos (lista «not run»).
@@ -49,7 +49,7 @@ Sin push, sin PR, sin deploy. La copia de OneDrive solo se leyó.
 
 - Final package gate: `python scripts/verify_package.py` passed with 625 canonical Git-index checksums and 230 required files; `git diff --cached --check` passed.
 
-- Host: ASUSTUFDEKEVIN. Branch: `codex/living-scenes-pilot`.
+- Host: PC de desarrollo local (Windows). Branch: `codex/living-scenes-pilot`.
 - Before SHA: `f623fa0dff118c67c83b0c1907c032484e95db16`.
 - After SHA: unchanged; implementation is local and uncommitted. No push,
   merge, tag, release, deployment, provider or database changes.
@@ -69,8 +69,8 @@ Sin push, sin PR, sin deploy. La copia de OneDrive solo se leyó.
 - Backup: `source-before.zip`, SHA-256
   `a50aeba4aacbe211553216a2139310b40a2af1442783c5569673bd99a3f606ad`.
 - Preview intentionally retained for Kevin on loopback port 8000. Runtime
-  identity: `f623fa0+living-scenes-2.13.0-local`, SQLite. Launcher PID 87328,
-  Python listener child PID 27972, both created at 14:22:53 local. Before
+  identity: `f623fa0+living-scenes-2.13.0-local`, SQLite. Launcher and listener
+  process ids were recorded locally. Before
   stopping it, reverify process identity; do not kill by port alone.
 - Next: Kevin reviews the live scenes and before/after comparison; run the
   human recognition/Hebrew acceptance pilot before scaling the art to more keys.
