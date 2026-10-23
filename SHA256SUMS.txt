@@ -96,6 +96,10 @@ f90dc4d2b1b959567f0b7507319ba67e8042e6f5b09730fcdd7a97557cad6a5a  assets/readme/
 60126320a6d30219fed7a88fc01fd888c1679fc394e294c61abb5b0bc45b6c0d  assets/readme/proof/2.12.3/today-desktop-dark-es.webp
 061feea923f320135dea2886fee5bf8513e3213b445f182458fd18745b8c569f  assets/readme/proof/2.12.3/today-desktop-dark-he.webp
 7ce5714f08b26fb633fdb8304c32fd7a11506c70575c53cd03f71f3a06e36837  assets/readme/proof/2.12.3/today-phone-light-es.webp
+319ee2df64d4214406abc887a25c0b066e1d38bf9c97f040bfaa38ea4b7e31f9  assets/readme/proof/2.13.0/all-scenes-before-after.webp
+3d4541012d9377c95cea6edcff473fbf07d988135d6fb28e7b4a4e1b875aa185  assets/readme/proof/2.13.0/dark-theme-sample.webp
+68acf0589f988112835e95a5b73e00f1f786ff7f344699330b42ee798df6dbb9  assets/readme/proof/2.13.0/manifest.json
+a2535369ccc21d7c7e45e056252c205a944740d77b5750e7b79d84ff17fb0e11  assets/readme/proof/2.13.0/pilot-before-after-light.webp
 191175d27d556c01f8536043250ba8b22721a5b91ccc51755999ed16c66385e4  assets/readme/screenshots/dictionary-desktop-dark.png
 c961efb9f415e39651db2fb11ca79300451390af09d5aac0381a5375a6ff6e40  assets/readme/screenshots/dictionary-desktop-light.png
 bf039044ed5b6b0529dab629882d459cab06e804b026f163d9714a9f4040660c  assets/readme/screenshots/dictionary-phone-light.png

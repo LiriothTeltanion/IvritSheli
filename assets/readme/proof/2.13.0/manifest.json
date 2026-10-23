@@ -1,0 +1,61 @@
+{
+  "schema_version": 3,
+  "collection": "Ivrit Sheli 2.13.0 private-candidate art proof (living scenes and all-scene pass)",
+  "source_version": "2.13.0",
+  "publication_status": "private-candidate",
+  "latest_published_release": "v2.12.2",
+  "promoted_at": "2026-10-23T10:00:00+03:00",
+  "status": "pull_request_evidence",
+  "asset_count": 3,
+  "runtime_evidence": {
+    "repository_commit_before_proof": "19e32048bb940f39ea2af95da9bf4fb01c7e98db",
+    "environment": "local",
+    "storage": "sqlite",
+    "capture": "Playwright screenshots of the locally served build: the visual-QA gallery (?visualQa=1) and the living-scenes studio, composed into before/after sheets with Pillow.",
+    "boundary": "These images prove the locally served 2.13.0 candidate art. They do not claim publication, learner recognition, hosted staging or byte identity with any release."
+  },
+  "ai_provenance": "Painted backdrops, rooms and the gouache grain in the 'after' images were generated with Google Gemini; see frontend/public/art-direction/living-scenes/painted/manifest.json.",
+  "privacy_review": {
+    "status": "passed",
+    "reviewed_at": "2026-10-23T10:00:00+03:00",
+    "method": "Visual inspection of all three WebP files.",
+    "checks": {
+      "personal_names": false,
+      "email_addresses": false,
+      "account_handles": false,
+      "personal_learning_content": false,
+      "personal_progress": false,
+      "credentials_or_tokens": false,
+      "absolute_machine_paths": false
+    }
+  },
+  "assets": [
+    {
+      "path": "assets/readme/proof/2.13.0/all-scenes-before-after.webp",
+      "bytes": 140344,
+      "sha256": "319ee2df64d4214406abc887a25c0b066e1d38bf9c97f040bfaa38ea4b7e31f9",
+      "media_type": "image/webp",
+      "width": 1520,
+      "height": 1610,
+      "description": "Nine of the 234 non-pilot scenes before (left) and after (right) the shared character, family portrait, frame, grain and painted-room pass."
+    },
+    {
+      "path": "assets/readme/proof/2.13.0/pilot-before-after-light.webp",
+      "bytes": 138974,
+      "sha256": "a2535369ccc21d7c7e45e056252c205a944740d77b5750e7b79d84ff17fb0e11",
+      "media_type": "image/webp",
+      "width": 1060,
+      "height": 2630,
+      "description": "The six living pilot scenes before and after, light theme, with the painted backdrops."
+    },
+    {
+      "path": "assets/readme/proof/2.13.0/dark-theme-sample.webp",
+      "bytes": 25440,
+      "sha256": "3d4541012d9377c95cea6edcff473fbf07d988135d6fb28e7b4a4e1b875aa185",
+      "media_type": "image/webp",
+      "width": 1390,
+      "height": 256,
+      "description": "Four upgraded scenes in the dark theme: painted rooms dimmed, portrait busts in the family genealogy."
+    }
+  ]
+}
