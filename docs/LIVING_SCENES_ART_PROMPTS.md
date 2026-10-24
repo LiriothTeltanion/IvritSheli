@@ -131,4 +131,3 @@ Prompts: escenas vacías, sin personas, manos, animales, texto, letras ni númer
 
 Pendiente (no hecho hoy): caras grandes de salud («dolor», «enfermo»), cuartos que cada escena dibuja en línea
 (no compartidos: hogar, vivienda, salud, números…), y la prueba con aprendices reales.
-

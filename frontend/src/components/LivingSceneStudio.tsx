@@ -122,15 +122,19 @@ function isEntry(value: unknown): value is Entry {
   );
 }
 
+/**
+ * The select's value is DOM text; return a literal so only a known locale ever reaches the URLs built below
+ * (CodeQL js/xss-through-dom flagged the unchecked `as Locale` cast).
+ */
+function asLocale(value: string | null): Locale {
+  return value === "he" ? "he" : value === "en" ? "en" : "es";
+}
+
 export function LivingSceneStudio(): React.JSX.Element {
   const requestedLocale = new URLSearchParams(window.location.search).get(
     "lang",
   );
-  const [locale, setLocale] = useState<Locale>(
-    requestedLocale === "he" || requestedLocale === "en"
-      ? requestedLocale
-      : "es",
-  );
+  const [locale, setLocale] = useState<Locale>(asLocale(requestedLocale));
   const [theme, setTheme] = useState<"dark" | "light">(
     new URLSearchParams(window.location.search).get("theme") === "dark"
       ? "dark"
@@ -208,7 +212,7 @@ export function LivingSceneStudio(): React.JSX.Element {
             {copy.language}
             <select
               value={locale}
-              onChange={(event) => setLocale(event.target.value as Locale)}
+              onChange={(event) => setLocale(asLocale(event.target.value))}
             >
               <option value="es">Español</option>
               <option value="en">English</option>
