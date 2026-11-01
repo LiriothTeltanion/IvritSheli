@@ -141,6 +141,83 @@ describe("living scene integration", () => {
 });
 
 describe("the actual illustration studio", () => {
+  it.each([
+    ['<img src=x onerror="alert(1)">', '<svg onload="alert(1)">'],
+    ['javascript:alert(1)', 'dark&lang=en'],
+    ['en" onclick="alert(1)', 'dark" onmouseover="alert(1)'],
+    ['%3Cscript%3Ealert(1)%3C/script%3E', '&#x64;ark'],
+    ['EN', 'DARK'],
+  ])("keeps hostile query values in the default locale/theme (%s)", async (lang, theme) => {
+    const query = new URLSearchParams({ lang, theme });
+    window.history.replaceState({}, "", `/?${query}`);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({ ok: true, json: async () => payload() }),
+    );
+    const { container } = render(<LivingSceneStudio />);
+    await waitFor(() =>
+      expect(container.querySelectorAll("[data-pilot-key]")).toHaveLength(6),
+    );
+    expect(screen.getByRole("main")).toHaveAttribute("lang", "es");
+    expect(screen.getByRole("main")).toHaveAttribute("data-theme", "light");
+    expect(Array.from(container.querySelectorAll("a"), (link) => link.getAttribute("href")))
+      .toEqual(["/?lang=es", "/?visualQa=1&group=all&lang=es&theme=light"]);
+    expect(container.querySelector("script, [onerror], [onload], [onclick], [onmouseover]"))
+      .not.toBeInTheDocument();
+  });
+
+  it.each(["es", "en", "he"] as const)("preserves %s navigation when option labels contain HTML text", async (locale) => {
+    window.history.replaceState({}, "", `/?lang=${locale}&theme=dark`);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({ ok: true, json: async () => payload() }),
+    );
+    const { container } = render(<LivingSceneStudio />);
+    await waitFor(() =>
+      expect(container.querySelectorAll("[data-pilot-key]")).toHaveLength(6),
+    );
+    const select = screen.getByRole("combobox");
+    for (const option of select.querySelectorAll("option")) {
+      option.textContent = '<img src=x onerror="alert(1)">';
+    }
+    fireEvent.change(select, { target: { value: locale } });
+    expect(screen.getByRole("main")).toHaveAttribute("lang", locale);
+    expect(Array.from(container.querySelectorAll("a"), (link) => link.getAttribute("href")))
+      .toEqual([`/?lang=${locale}`, `/?visualQa=1&group=all&lang=${locale}&theme=dark`]);
+    fireEvent.click(screen.getByRole("radio", { name: { es: "Claro", en: "Light", he: "בהיר" }[locale] }));
+    expect(container.querySelector("footer a"))
+      .toHaveAttribute("href", `/?visualQa=1&group=all&lang=${locale}&theme=light`);
+    expect(select.querySelector("img")).not.toBeInTheDocument();
+  });
+
+  it.each([
+    '<img src=x onerror="alert(1)">',
+    '</title><svg onload="alert(1)">',
+    '&lt;img src=x onerror="alert(1)"&gt;',
+  ])("renders hostile catalog strings as literal text (%s)", async (text) => {
+    const catalog = {
+      entries: LIVING_SCENE_KEYS.map((key) => ({
+        word: text,
+        display_niqqud: text,
+        romanization: text,
+        visual: { ...visual(key), alt: { es: text, en: text, he: text } },
+        senses: [{ gloss_en: text, gloss_es: text }],
+      })),
+    };
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => catalog }));
+    const { container } = render(<LivingSceneStudio />);
+    await waitFor(() =>
+      expect(container.querySelectorAll("[data-pilot-key]")).toHaveLength(6),
+    );
+    await waitFor(() => expect(container.querySelectorAll("svg title")).toHaveLength(6));
+    for (const node of container.querySelectorAll("h2, .scene-studio__caption p, .scene-studio__romanization, svg title")) {
+      expect(node.textContent).toBe(text);
+      expect(node.children).toHaveLength(0);
+    }
+    expect(container.querySelector("script, img, [onerror], [onload]"))
+      .not.toBeInTheDocument();
+  });
+
   it("loads six product scenes, switches theme and language, and opens the real before captures", async () => {
     vi.stubGlobal(
       "fetch",
