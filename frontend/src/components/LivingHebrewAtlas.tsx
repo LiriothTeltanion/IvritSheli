@@ -334,7 +334,16 @@ export function LivingHebrewAtlas({
                   <button
                     type="button"
                     aria-pressed={isActive}
-                    aria-label={`${copy.select}: ${localized(region.name, locale)} — ${localized(region.theme, locale)}`}
+                    // WCAG 2.5.3 Label in Name: the accessible name must contain every word the
+                    // button shows, in the same order, so speech-control users can say what they see.
+                    aria-label={[
+                      `${copy.select}:`,
+                      isComplete ? '' : `${index + 1}.`,
+                      localized(region.name, locale),
+                      `— ${localized(region.theme, locale)}`,
+                      region.culturalTag ? `✦ ${localized(region.culturalTag, locale)}` : '',
+                      `· ${status}`,
+                    ].filter(Boolean).join(' ')}
                     onClick={() => onSelectRegion(region.id)}
                   >
                     <picture>
@@ -344,13 +353,19 @@ export function LivingHebrewAtlas({
                     <span className="ivrit-atlas__region-index" aria-hidden="true">
                       {isComplete ? '✓' : index + 1}
                     </span>
+                    {' '}
                     <span className="ivrit-atlas__region-copy">
                       <strong lang={locale}>{localized(region.name, locale)}</strong>
+                      {' '}
                       <small lang={locale}>{localized(region.theme, locale)}</small>
                       {region.culturalTag && (
-                        <em className="ivrit-atlas__region-tag" lang={locale}>✦ {localized(region.culturalTag, locale)}</em>
+                        <>
+                          {' '}
+                          <em className="ivrit-atlas__region-tag" lang={locale}>✦ {localized(region.culturalTag, locale)}</em>
+                        </>
                       )}
                     </span>
+                    {' '}
                     <span className="ivrit-atlas__region-status" lang={locale}>{status}</span>
                   </button>
                 ) : (

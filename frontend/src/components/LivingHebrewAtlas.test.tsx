@@ -4,6 +4,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { IvritSheliBrandLockup } from './IvritSheliBrandLockup';
+import { describeLabelMismatch, labelContainsVisibleText } from '../testing/labelInName';
 import { LivingHebrewAtlas, LivingHebrewAtlasBackdrop, atlasRegions } from './LivingHebrewAtlas';
 
 describe('LivingHebrewAtlas', () => {
@@ -40,8 +41,8 @@ describe('LivingHebrewAtlas', () => {
       />,
     );
 
-    const jerusalem = screen.getByRole('button', { name: /Explore: Jerusalem/ });
-    const haifa = screen.getByRole('button', { name: /Explore: Haifa & Carmel/ });
+    const jerusalem = screen.getByRole('button', { name: /Explore: \d+\. Jerusalem/ });
+    const haifa = screen.getByRole('button', { name: /Explore: \d+\. Haifa & Carmel/ });
     expect(jerusalem).toHaveAttribute('aria-pressed', 'true');
     expect(haifa).toHaveAttribute('aria-pressed', 'false');
 
@@ -56,7 +57,23 @@ describe('LivingHebrewAtlas', () => {
     const atlas = screen.getByRole('region', { name: 'לומדים עברית דרך מקומות ורגעים מהחיים.' });
     expect(atlas).toHaveAttribute('dir', 'rtl');
     expect(screen.getByText('הגליל')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /לגלות: ירושלים/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /לגלות: \d+\. ירושלים/ })).toBeInTheDocument();
+  });
+
+  it.each(['en', 'es', 'he'] as const)('keeps every visible region word inside its accessible name in %s', (locale) => {
+    render(
+      <LivingHebrewAtlas
+        locale={locale}
+        activeRegion="jerusalem"
+        completedRegions={['galilee']}
+        onSelectRegion={() => undefined}
+      />,
+    );
+    const buttons = screen.getAllByRole('button');
+    expect(buttons).toHaveLength(atlasRegions.length);
+    for (const button of buttons) {
+      expect(labelContainsVisibleText(button), describeLabelMismatch(button)).toBe(true);
+    }
   });
 
   it('uses the accessible mixed-script wordmark in the reusable lockup', () => {
