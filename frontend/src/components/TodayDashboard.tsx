@@ -306,9 +306,10 @@ export function TodayDashboard({
         </header>
         <div className="visual-vocabulary__grid">
           {visualSpotlight.map((word) => (
-            <button type="button" key={word.entry_id} onClick={() => onWordClick(word.word)} aria-label={t('openDictionaryFor', { word: word.word })}>
+            <button type="button" key={word.entry_id} onClick={() => onWordClick(word.word)} aria-label={`${word.display_niqqud} ${localizedSpotlightMeaning(word)} — ${t('openDictionaryFor', { word: word.word })}`}>
               <DictionaryVisualCue visual={word.visual} locale={locale} size="thumbnail" />
               <strong lang="he" dir="rtl">{word.display_niqqud}</strong>
+              {' '}
               <span>{localizedSpotlightMeaning(word)}</span>
             </button>
           ))}
