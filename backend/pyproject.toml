@@ -11,14 +11,14 @@ requires-python = ">=3.10"
 license = {text = "MIT"}
 authors = [{name = "Kevin Lirioth Cusnir"}]
 dependencies = [
-  "fastapi==0.143.0",
+  "fastapi==0.161.1",
   "uvicorn[standard]==0.54.0",
-  "pydantic==2.14.0",
+  "pydantic==2.14.1",
   "requests==2.34.2",
   "python-multipart==0.0.32",
   "psycopg[binary]==3.3.6",
-  "SQLAlchemy==2.0.54",
-  "alembic==1.20.0",
+  "SQLAlchemy==2.0.55",
+  "alembic==1.20.1",
   "faster-whisper==1.2.1",
   "pywebpush==2.5.0",
   "cryptography==50.0.2",
