@@ -122,14 +122,20 @@ function isEntry(value: unknown): value is Entry {
   );
 }
 
+/**
+ * Map untrusted text (the `lang` query parameter or the select's value) onto one
+ * of the three supported locales. Only these literals ever reach a link or an
+ * attribute, so nothing the address bar carries is written back into the page.
+ */
+export function toStudioLocale(value: string | null): Locale {
+  if (value === "he") return "he";
+  if (value === "en") return "en";
+  return "es";
+}
+
 export function LivingSceneStudio(): React.JSX.Element {
-  const requestedLocale = new URLSearchParams(window.location.search).get(
-    "lang",
-  );
-  const [locale, setLocale] = useState<Locale>(
-    requestedLocale === "he" || requestedLocale === "en"
-      ? requestedLocale
-      : "es",
+  const [locale, setLocale] = useState<Locale>(() =>
+    toStudioLocale(new URLSearchParams(window.location.search).get("lang")),
   );
   const [theme, setTheme] = useState<"dark" | "light">(
     new URLSearchParams(window.location.search).get("theme") === "dark"
@@ -208,7 +214,7 @@ export function LivingSceneStudio(): React.JSX.Element {
             {copy.language}
             <select
               value={locale}
-              onChange={(event) => setLocale(event.target.value as Locale)}
+              onChange={(event) => setLocale(toStudioLocale(event.target.value))}
             >
               <option value="es">Español</option>
               <option value="en">English</option>

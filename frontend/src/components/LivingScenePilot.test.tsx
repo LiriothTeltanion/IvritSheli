@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { DictionaryVisual } from "../types";
 import { LIVING_SCENE_KEYS } from "../visuals/livingScenePilot";
 import { DictionaryVisualCue } from "./DictionaryVisualCue";
-import { LivingSceneStudio } from "./LivingSceneStudio";
+import { LivingSceneStudio, toStudioLocale } from "./LivingSceneStudio";
 import { SemanticWordIllustration } from "./SemanticWordIllustration";
 
 function visual(key: string): DictionaryVisual {
@@ -265,6 +265,28 @@ describe("the actual illustration studio", () => {
       expect(container.querySelectorAll("[data-pilot-key]")).toHaveLength(6),
     );
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("only ever writes one of the three supported locales into its links", async () => {
+    expect(toStudioLocale("he")).toBe("he");
+    expect(toStudioLocale("en")).toBe("en");
+    expect(toStudioLocale("es")).toBe("es");
+    expect(toStudioLocale(null)).toBe("es");
+    expect(toStudioLocale('"><img src=x onerror=alert(1)>')).toBe("es");
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({ ok: true, json: async () => payload() }),
+    );
+    render(<LivingSceneStudio />);
+    fireEvent.change(screen.getByRole("combobox"), {
+      target: { value: "javascript:alert(1)" },
+    });
+    expect(screen.getByRole("main")).toHaveAttribute("lang", "es");
+    for (const link of screen.getAllByRole("link")) {
+      expect(link.getAttribute("href")).toMatch(/^\/\?/);
+      expect(link.getAttribute("href")).not.toContain("javascript");
+    }
   });
 
   it("rejects an incomplete catalog instead of presenting partial review evidence", async () => {
