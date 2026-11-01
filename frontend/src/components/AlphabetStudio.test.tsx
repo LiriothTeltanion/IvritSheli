@@ -10,6 +10,7 @@ import type {
   AlphabetUnit,
   LearnerMode,
 } from '../types';
+import { describeLabelMismatch, labelContainsVisibleText } from '../testing/labelInName';
 import { AlphabetStudio } from './AlphabetStudio';
 
 function unit(
@@ -236,6 +237,18 @@ describe('AlphabetStudio', () => {
     expect(await screen.findByRole('button', {
       name: new RegExp(`א, Alef, ${expectedStage}`, 'i'),
     })).toBeInTheDocument();
+  });
+
+  it.each(['en', 'es', 'he'])('keeps every visible letter word inside its accessible name in %s', async (locale) => {
+    window.history.replaceState({}, '', `/?lang=${locale}`);
+    renderStudio('explorer');
+
+    await screen.findAllByRole('button', { name: /א/ });
+    const buttons = document.querySelectorAll('.alphabet-grid__letter, .alphabet-glyph__audio-btn');
+    expect(buttons.length).toBeGreaterThan(CATALOG.units.length - 1);
+    for (const button of buttons) {
+      expect(labelContainsVisibleText(button), describeLabelMismatch(button)).toBe(true);
+    }
   });
 
   it('connects the reviewed example to the linked dictionary', async () => {
@@ -488,6 +501,6 @@ describe('AlphabetStudio', () => {
     expect(soundAlternatives).not.toBeNull();
     expect(within(soundAlternatives!).getByRole('button', { name: /Ayin/i })).toBeInTheDocument();
     expect(screen.getByText('Technical reference')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /ך, Final Kaf, new/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /ך, Final form, Final Kaf, new/i })).toBeInTheDocument();
   });
 });

@@ -922,11 +922,16 @@ export default function App(): React.JSX.Element {
                   className={view === item.key ? 'active' : ''}
                   onClick={() => handleSetView(item.key)}
                   aria-current={view === item.key ? 'page' : undefined}
-                  aria-label={`${t(navigationLabelKey(item.key, learnerMode))}. ${t(navigationHintKey(item.key, learnerMode))}`}
+                  aria-label={[
+                    `${t(navigationLabelKey(item.key, learnerMode))}.`,
+                    t(navigationHintKey(item.key, learnerMode)),
+                    item.key === 'learn' && dashboard.today.due_reviews > 0 ? String(dashboard.today.due_reviews) : '',
+                  ].filter(Boolean).join(' ')}
                 >
                   <Icon name={item.icon} size={20} />
                   <span>
                     <strong className="side-nav__label">{t(navigationLabelKey(item.key, learnerMode))}</strong>
+                    {' '}
                     <small className="side-nav__hint">{t(navigationHintKey(item.key, learnerMode))}</small>
                   </span>
                   {item.key === 'learn' && dashboard.today.due_reviews > 0 && <b>{dashboard.today.due_reviews}</b>}

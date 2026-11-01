@@ -10,6 +10,7 @@ import App from './App';
 import { configureApiSession } from './api';
 import { I18nProvider } from './i18n';
 import { RELEASE_DATE, RELEASE_VERSION } from './release';
+import { describeLabelMismatch, labelContainsVisibleText } from './testing/labelInName';
 import type { LearnerMode, Profile } from './types';
 
 const cloudCapabilities = {
@@ -408,6 +409,10 @@ describe('App cloud session flow', () => {
     expect(sideNav).toBeInTheDocument();
     expect(screen.getByText('Your daily starting point.')).toBeInTheDocument();
     expect(within(sideNav).getByRole('button', { name: /Today\. Your daily starting point\./ })).toBeInTheDocument();
+    // WCAG 2.5.3: speech-control users say what they see, so every visible word must be in the name.
+    for (const button of within(sideNav).getAllByRole('button')) {
+      expect(labelContainsVisibleText(button), describeLabelMismatch(button)).toBe(true);
+    }
   });
 
   it('adds the same short helper context to mobile navigation targets', async () => {
@@ -418,6 +423,9 @@ describe('App cloud session flow', () => {
     expect(mobileNav).toBeInTheDocument();
     expect(within(mobileNav).getByRole('button', { name: /Today\. Your daily starting point\./ })).toBeInTheDocument();
     expect(within(mobileNav).getByRole('button', { name: /Words\. Review today's core words and open your first lesson\./ })).toBeInTheDocument();
+    for (const button of within(mobileNav).getAllByRole('button')) {
+      expect(labelContainsVisibleText(button), describeLabelMismatch(button)).toBe(true);
+    }
   });
 
   it('localizes the dashboard hero, metrics, actions, and navigation in Hebrew RTL', async () => {
