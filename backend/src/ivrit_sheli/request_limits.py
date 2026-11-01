@@ -161,11 +161,13 @@ class RequestBodyLimitMiddleware:
                     break
 
             async def replay_receive() -> Message:
+                # Replay the bounded request first. Once it is exhausted, defer to the
+                # server's own receive channel instead of inventing a disconnect: since
+                # Starlette 1.9, FileResponse listens for http.disconnect while it
+                # streams, so a fabricated one cancelled every body-less GET mid-file
+                # and sent the backup export as a 200 with zero bytes.
                 if buffered:
                     return buffered.popleft()
-                # Defer to the real channel once the body is replayed. A fabricated
-                # disconnect here makes Starlette's streaming responses (FileResponse
-                # included, Starlette >= 1.x) cancel the body as if the client left.
                 return await receive()
 
             await self.app(scope, replay_receive, send)
