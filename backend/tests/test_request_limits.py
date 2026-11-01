@@ -810,3 +810,32 @@ def test_blocking_application_routes_are_declared_sync_for_threadpool_dispatch(
     assert all(
         not inspect.iscoroutinefunction(endpoints[path]) for path in blocking_routes
     )
+
+
+def test_bodyless_request_replay_keeps_streamed_file_responses_intact(
+    tmp_path: Path,
+) -> None:
+    """A GET has no Content-Length, so it takes the buffered replay branch.
+
+    After replaying the body the middleware must defer to the real channel. A
+    fabricated ``http.disconnect`` made Starlette 1.x cancel FileResponse bodies,
+    which emptied ``/api/v1/export`` and broke backup restore (2026-10-19).
+    """
+    from fastapi import FastAPI
+    from fastapi.responses import FileResponse
+
+    from ivrit_sheli.request_limits import RequestBodyLimitMiddleware
+
+    payload = tmp_path / "backup.json"
+    payload.write_text('{"format": "ivrit-sheli-export-v1"}', encoding="utf-8")
+    app = FastAPI()
+
+    @app.get("/file")
+    def file_route() -> FileResponse:
+        return FileResponse(payload, media_type="application/json")
+
+    app.add_middleware(RequestBodyLimitMiddleware, default_limit=1_024)
+    response = TestClient(app).get("/file")
+
+    assert response.status_code == 200
+    assert response.content == payload.read_bytes()

@@ -321,6 +321,99 @@ function MarkerRole({
   );
 }
 
+/**
+ * A portrait bust inside the genealogy outline (2026-10-20).
+ *
+ * The square/circle outline still carries gender the colour-independent way; inside it the emoji-like face
+ * became a person in the shared character language: head, neck, shoulders and clothes, with age read from
+ * the hair (a cap or pigtails for children, grey hair, a bun, a beard and glasses for grandparents). Everything
+ * stays inside the 30-unit box so the outline's clip never cuts a feature in half.
+ */
+function Portrait({
+  shape,
+  age,
+}: {
+  shape: 'masculine' | 'feminine';
+  age: MarkerAge;
+}): React.JSX.Element {
+  const variant = age === 'elder'
+    ? (shape === 'masculine' ? 'blue' : 'gold')
+    : age === 'child'
+      ? (shape === 'masculine' ? 'gold' : 'teal')
+      : (shape === 'masculine' ? 'teal' : 'coral');
+  const child = age === 'child';
+  const head = child ? { cy: -2.4, rx: 7.2, ry: 7.6 } : { cy: -3.5, rx: 6.6, ry: 7.4 };
+  const eyeY = head.cy - 0.3;
+  return (
+    <g
+      className={`semantic-art__person semantic-art__person--${variant} semantic-art__portrait ${
+        shape === 'feminine' ? 'semantic-art__portrait--feminine' : 'semantic-art__portrait--masculine'
+      }`}
+      data-portrait-age={age}
+    >
+      <rect x="-15" y="-15" width="30" height="30" fill="none" />
+      {shape === 'feminine' && age === 'adult' && (
+        <path className="semantic-art__hair" d="M-8.2 6c-1.2-6-1.6-11.6.2-15.6 2-4.4 5-5.8 8-5.8s6 1.4 8 5.8c1.8 4 1.4 9.6.2 15.6h-3.6c.4-4 .2-7.6-.6-10.6H-4.2c-.8 3-1 6.6-.6 10.6Z" />
+      )}
+      <path className="semantic-art__shirt" d={child ? 'M-11 15c.5-6 4.4-9 11-9s10.5 3 11 9Z' : 'M-13 15c.5-8 5-11.5 13-11.5s12.5 3.5 13 11.5Z'} />
+      <path className="semantic-art__shirt-deep" d={child ? 'M4 6.6c4 .9 6.6 3.6 7 8.4H5.6c0-3.4-.5-6-1.6-8.4Z' : 'M4.5 4.2c5 1.2 8 4.6 8.5 10.8H6.5c0-4.8-.6-8-2-10.8Z'} />
+      <path className="semantic-art__garment-line" d={child ? 'M-3 6.4q3 2.6 6 0' : 'M-3.5 3.6q3.5 3 7 0'} />
+      <path className="semantic-art__skin" d={child ? 'M-2.4 3h4.8v3.6h-4.8Z' : 'M-2.6-1h5.2v5h-5.2Z'} />
+      <ellipse className="semantic-art__skin" cx="0" cy={head.cy} rx={head.rx} ry={head.ry} />
+      <path className="semantic-art__skin-shade" d={`M0 ${head.cy - head.ry}a${head.rx} ${head.ry} 0 0 1 0 ${head.ry * 2} ${(head.rx * 0.58).toFixed(2)} ${head.ry} 0 0 0 0-${head.ry * 2}Z`} />
+      {shape === 'masculine' && age === 'adult' && (
+        <path className="semantic-art__hair" d="M-6.8-5c-.8-6.2 2.4-9.6 6.9-9.6 4.6 0 7.6 3.4 6.8 9.4-1.6-2.6-3.4-3.8-6.6-4-3.2.2-5.4 1.6-7.1 4.2Z" />
+      )}
+      {shape === 'feminine' && age === 'adult' && (
+        <path className="semantic-art__hair" d="M-6.7-5.5c.4-5 3-8.3 6.9-8.3 3.8 0 6.6 3 6.8 8.1-3.6-1.4-6.8-3.4-8.3-5.6-1 2.6-2.8 4.4-5.4 5.8Z" />
+      )}
+      {shape === 'feminine' && age === 'elder' && (
+        <g className="semantic-art__marker-hair--grey">
+          <circle cx="0" cy="-12.6" r="3.6" />
+          <path d="M-6.8-4.6c-.4-5.6 2.6-9 6.8-9 4.4 0 7.2 3.4 6.8 9-2-2.4-4.4-3.6-6.8-3.6s-4.8 1.2-6.8 3.6Z" />
+        </g>
+      )}
+      {shape === 'masculine' && age === 'elder' && (
+        <g className="semantic-art__marker-hair--grey">
+          <path d="M-6.9-3.4c-.6-3.6.2-6.4 1.8-8l1.4 4.4-.8 3.6Zm13.8 0c.6-3.6-.2-6.4-1.8-8l-1.4 4.4.8 3.6Z" />
+          <path d="M-5.6.4c.6 4.6 2.8 6.8 5.6 6.8s5-2.2 5.6-6.8c-1.8 1.5-3.6 2.1-5.6 2.1S-3.8 1.9-5.6.4Z" />
+        </g>
+      )}
+      {shape === 'masculine' && child && (
+        <g className="semantic-art__marker-cap">
+          <path d="M-7.6-5c0-5.4 3.3-8.8 7.6-8.8s7.6 3.4 7.6 8.8Z" />
+          <path d="M2.4-5.2h8.6" />
+        </g>
+      )}
+      {shape === 'feminine' && child && (
+        <g className="semantic-art__marker-hair">
+          <circle cx="-8.8" cy="-3.4" r="3.1" />
+          <circle cx="8.8" cy="-3.4" r="3.1" />
+          <path d="M-7-3.6c.2-5.4 3.1-8.6 7-8.6s6.8 3.2 7 8.6c-2.6-1.6-4.4-3.6-5.4-5.6-1.6 2.6-4.6 4.6-8.6 5.6Z" />
+        </g>
+      )}
+      <path className="semantic-art__brow" d={`M-3.7 ${eyeY - 2.9}q1.2-.8 2.4-.2M1.3 ${eyeY - 3.1}q1.2-.6 2.4.2`} />
+      <ellipse className="semantic-art__eye" cx="-2.5" cy={eyeY} rx={child ? 1.05 : 0.95} ry={child ? 1.3 : 1.15} />
+      <ellipse className="semantic-art__eye" cx="2.5" cy={eyeY} rx={child ? 1.05 : 0.95} ry={child ? 1.3 : 1.15} />
+      <circle className="semantic-art__eye-light" cx="-2.15" cy={eyeY - 0.45} r=".34" />
+      <circle className="semantic-art__eye-light" cx="2.85" cy={eyeY - 0.45} r=".34" />
+      {age === 'elder' && (
+        <g className="semantic-art__portrait-glasses">
+          <circle cx="-2.6" cy={eyeY} r="2.2" />
+          <circle cx="2.6" cy={eyeY} r="2.2" />
+          <path d={`M-.4 ${eyeY - 0.1}h.8`} />
+        </g>
+      )}
+      <path className="semantic-art__nose" d={`M0 ${eyeY + 0.8}v2l.8.4`} />
+      <ellipse className="semantic-art__cheek" cx="-3.7" cy={eyeY + 2.8} rx="1.4" ry=".8" />
+      <ellipse className="semantic-art__cheek" cx="3.7" cy={eyeY + 2.8} rx="1.4" ry=".8" />
+      {!(shape === 'masculine' && age === 'elder') && (
+        <path className="semantic-art__mouth" d={`M-2.2 ${eyeY + 4.4}q2.2 1.6 4.4 0`} />
+      )}
+    </g>
+  );
+}
+
 function MarkerShape({
   shape,
   x,
@@ -328,6 +421,7 @@ function MarkerShape({
   highlighted = false,
   nodeId = '',
   relationshipRole,
+  portrait = false,
 }: {
   shape: RelationshipShape;
   x: number;
@@ -335,6 +429,8 @@ function MarkerShape({
   highlighted?: boolean;
   nodeId?: string;
   relationshipRole: 'sibling' | 'child' | 'parent' | undefined;
+  /** Draw a portrait bust inside the outline instead of the schematic face (not in the small reference tree). */
+  portrait?: boolean;
 }): React.JSX.Element {
   const className = `${highlighted ? 'semantic-art__gold-soft' : 'semantic-art__surface'} semantic-art__outlined`;
   const outline = shape === 'feminine'
@@ -347,6 +443,20 @@ function MarkerShape({
           d={`M${x} ${y - 16} ${x + 16} ${y} ${x} ${y + 16} ${x - 16} ${y}Z`}
         />
       );
+  if (portrait && shape !== 'reference') {
+    return (
+      <g>
+        {outline}
+        <g transform={`translate(${x} ${y})`}>
+          <Portrait shape={shape} age={markerAge(nodeId)} />
+        </g>
+        {/* The outline again on top, as a ring, so the portrait sits inside its frame. */}
+        {shape === 'feminine'
+          ? <circle className="semantic-art__portrait-ring" cx={x} cy={y} r="15" />
+          : <rect className="semantic-art__portrait-ring" x={x - 15} y={y - 15} width="30" height="30" rx="2" />}
+      </g>
+    );
+  }
   return (
     <g>
       {outline}
@@ -511,6 +621,7 @@ function SubjectMarker({
         highlighted
         nodeId={node.id}
         relationshipRole={node.relationshipRole}
+        portrait
       />
     </g>
   );
@@ -602,6 +713,7 @@ function RelationshipDiagram({
               y={node.y}
               nodeId={node.id}
               relationshipRole={node.relationshipRole}
+              portrait
             />
             </g>
           ))}
@@ -692,6 +804,7 @@ function ChildScene({
           highlighted
           nodeId={marker.id}
           relationshipRole={marker.relationshipRole}
+          portrait
         />
         <path
           className="semantic-art__detail"

@@ -1,0 +1,153 @@
+{
+  "generator": "Google Gemini image generation (Antigravity), requested through Nova Bridge; converted and cropped locally with Pillow",
+  "assets": {
+    "street.webp": {
+      "sha256": "0c7ffd037106256291a34a8816d5714023aaa89a9f2735c8dabf4fa2f5bcbe58",
+      "bytes": 38566,
+      "width": 960,
+      "height": 720,
+      "source_png_sha256": "ddf273cadb6a789c5c8887522e1280a7292f18da04fa026a6674654d4c334b98",
+      "generated": "2026-10-20",
+      "role": "static painted backdrop under the animated SVG layers; no people, text or letters"
+    },
+    "morning.webp": {
+      "sha256": "a0b32c81e7523509f4f72f58bcd1b76eef46713b1c2222b1773624f325d2bee8",
+      "bytes": 26136,
+      "width": 960,
+      "height": 720,
+      "source_png_sha256": "62d85d2fe550abdd309469cb1169c7e13358302bad191311c1781140b992ec84",
+      "generated": "2026-10-20",
+      "role": "static painted backdrop under the animated SVG layers; no people, text or letters"
+    },
+    "bread.webp": {
+      "sha256": "7ffa01c086224e0af570b29d38b4a014bf545878b3a1cc27cacec9a093598b7c",
+      "bytes": 10284,
+      "width": 960,
+      "height": 517,
+      "crop": "354,0,1246,480",
+      "source_png_sha256": "24047af8f40694c180526a46d82823266dc9e2741c01c8ddc6ee3ece3a7ade2e",
+      "generated": "2026-10-20",
+      "role": "static painted backdrop under the animated SVG layers; no people, text or letters"
+    },
+    "water.webp": {
+      "sha256": "b89b3febc20bf975ac025fc206e5e718dc1aa0dd097f56aee2b2c2e9975fc2db",
+      "bytes": 13582,
+      "width": 960,
+      "height": 516,
+      "crop": "0,0,1600,860",
+      "source_png_sha256": "4e7b852255632e7f93ad343bab7fd170ed05699199931b729a977b99a2e52518",
+      "generated": "2026-10-20",
+      "role": "static painted backdrop under the animated SVG layers; no people, text or letters"
+    },
+    "write.webp": {
+      "sha256": "19cc803b46af2aae133cfceb5bb99ddeaa909ebe9746cb8294cfda5aecc8bdd9",
+      "bytes": 34782,
+      "width": 960,
+      "height": 720,
+      "crop": null,
+      "source_png_sha256": "8e8eac722d7d07f9d79473804db87b0d459ce0da8608735b1d9dfc6968086144",
+      "generated": "2026-10-20",
+      "role": "static painted backdrop under the animated SVG layers; no people, text or letters"
+    },
+    "one.webp": {
+      "sha256": "b540c2d940234b82b68feb344924ce7c923de54924f67f38d57c16f2e7076bc1",
+      "bytes": 11640,
+      "width": 960,
+      "height": 520,
+      "crop": "246,0,1353,600",
+      "source_png_sha256": "29a3c08f343330e6faa1b06d00d85a7e7c919adeafe4622ae3dd0f098d88aa8a",
+      "generated": "2026-10-20",
+      "role": "static painted backdrop under the animated SVG layers; no people, text or letters"
+    },
+    "grain-plaster.webp": {
+      "sha256": "5083a6ed3ee4fe845f2273feee353566facef8275be04428df812296792ac8b1",
+      "bytes": 1358,
+      "width": 256,
+      "height": 256,
+      "crop": null,
+      "source_png_sha256": "1f02ea60c37195bf51c498a7a11305b5456e403c61636b3571cdd21920fe82cf",
+      "generated": "2026-10-20",
+      "role": "warm painted-plaster grain (autocontrast, darkening capped at 10 %), tiled 4 x 3 and multiplied over the inner area of every scene context layer"
+    },
+    "room-conversation.webp": {
+      "sha256": "e94d0bb187193735f0e8a31e62b38882ca2f53625a64fec733cde37691780ad8",
+      "bytes": 14766,
+      "width": 960,
+      "height": 649,
+      "crop": "0,54,1499,1067",
+      "source_png_sha256": "9b89c3374ccd32b5034c5bc6d170df5598e411051cf195371a5915f6cbd40727",
+      "generated": "2026-10-20",
+      "role": "painted room over the shared vector room; floor line aligned at 0.781 of the room height; floor band stretched x2.4"
+    },
+    "room-action.webp": {
+      "sha256": "211880b0f920c61203e36f78e60c6cc41dce527a1ded985f036afd2bdc02bee2",
+      "bytes": 12958,
+      "width": 960,
+      "height": 667,
+      "crop": "48,0,1452,975",
+      "source_png_sha256": "9b89c3374ccd32b5034c5bc6d170df5598e411051cf195371a5915f6cbd40727",
+      "generated": "2026-10-20",
+      "role": "painted room over the shared vector room; floor line aligned at 0.867 of the room height; floor band stretched x1.2"
+    },
+    "room-warm.webp": {
+      "sha256": "58314fdfeb17fbb876dbb2d83cc07f25e20ac473f7a95f5473fd2d5485fd4517",
+      "bytes": 5840,
+      "width": 960,
+      "height": 667,
+      "crop": "38,11,1462,1000",
+      "source_png_sha256": "89431e9b183c64d0aa1dc868c0dcdd3e689bb43492c61829cb86c5797dca0f90",
+      "generated": "2026-10-20",
+      "role": "painted room over the shared vector room; floor line aligned at 0.853 of the room height"
+    },
+    "room-office.webp": {
+      "sha256": "e67913aab1be4153514411785698456793896fa7ee373184c583a8545df4efdc",
+      "bytes": 14532,
+      "width": 960,
+      "height": 688,
+      "crop": "13,2,1486,1058",
+      "source_png_sha256": "c985eb573749a7e4180e18fbfc83c79c2abcdc8826a3693c3d14ce8af9f9dfa3",
+      "generated": "2026-10-20",
+      "role": "painted room over the shared vector room; floor line aligned at 0.763 of the room height; floor band stretched x1.3"
+    },
+    "room-public.webp": {
+      "sha256": "1f9bf230f2abd513c8be892f795ef377fc98a4e6e4e6f7a7b1a8184e88389f5c",
+      "bytes": 14260,
+      "width": 960,
+      "height": 688,
+      "crop": "73,0,1427,971",
+      "source_png_sha256": "fe698b5624b7764bdd014d7be6dbea25a1dec3cd6263ebe144d32c01ba11da63",
+      "generated": "2026-10-20",
+      "role": "painted room over the shared vector room; floor line aligned at 0.750 of the room height; floor band stretched x1.5"
+    },
+    "room-service.webp": {
+      "sha256": "fb4cd15ce6d1861793aca001f2f4a3ad9d5c7afeafcec1c58864349768a68f5d",
+      "bytes": 14058,
+      "width": 960,
+      "height": 688,
+      "crop": "84,0,1415,954",
+      "source_png_sha256": "fe698b5624b7764bdd014d7be6dbea25a1dec3cd6263ebe144d32c01ba11da63",
+      "generated": "2026-10-20",
+      "role": "painted room over the shared vector room; floor line aligned at 0.763 of the room height; floor band stretched x1.5"
+    },
+    "room-action-tiles.webp": {
+      "sha256": "0e6373224f273439d3b4353f1181b3fe56dc2237c24bec460959ed9074a0b014",
+      "bytes": 11456,
+      "width": 960,
+      "height": 667,
+      "crop": "145,0,1355,840",
+      "source_png_sha256": "fe698b5624b7764bdd014d7be6dbea25a1dec3cd6263ebe144d32c01ba11da63",
+      "generated": "2026-10-20",
+      "role": "painted room over the shared vector room; floor line aligned at 0.867 of the room height; floor band stretched x1.0"
+    },
+    "street-autonomy.webp": {
+      "sha256": "a080774a90821004c4e526ec502da5dc70d24fd258792cdc8c22084fa824aae4",
+      "bytes": 39638,
+      "width": 960,
+      "height": 667,
+      "crop": "0,137,1499,1178",
+      "source_png_sha256": "c39e59de1f3b66e4551b88199376d375e34311d7bc948f700bf5283292cfb96e",
+      "generated": "2026-10-20",
+      "role": "painted room over the shared vector room; floor line aligned at 0.560 of the room height; floor band stretched x1.8"
+    }
+  }
+}

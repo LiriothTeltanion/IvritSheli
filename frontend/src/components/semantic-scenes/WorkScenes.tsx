@@ -16,7 +16,7 @@
 
 import type { A0VisualKey } from '../../visuals/a0VisualRecipes';
 import type { SemanticHintStage } from '../SemanticWordIllustration';
-import { CalendarPage, SceneLayer, SemanticPerson, SpeechBubble } from './SemanticScenePrimitives';
+import { CalendarPage, PaintedRoom, SceneLayer, SemanticPerson, SpeechBubble } from './SemanticScenePrimitives';
 
 interface WorkSceneProps {
   visualKey: A0VisualKey;
@@ -30,6 +30,7 @@ function OfficeRoom(): React.JSX.Element {
       <path className="semantic-art__wall semantic-art__outlined" d="M14 14h212v122H14Z" />
       <path className="semantic-art__floor" d="M14 136h212v30H14Z" />
       <path className="semantic-art__surface-deep" d="M14 130h212v6H14Z" />
+      <PaintedRoom name="room-office" x={14} y={14} width={212} height={152} />
     </>
   );
 }

@@ -17,7 +17,7 @@
 import { describe, expect, it } from 'vitest';
 
 const css = Object.values(
-  import.meta.glob('./semantic-word-illustration.css', { query: '?raw', import: 'default', eager: true }),
+  import.meta.glob(['./semantic-word-illustration.css', './living-scene-pilot.css'], { query: '?raw', import: 'default', eager: true }),
 ).join('\n') as string;
 
 const scenes = import.meta.glob('./semantic-scenes/*.tsx', {
@@ -99,7 +99,7 @@ function classesDeclaring(property: 'stroke' | 'fill'): Set<string> {
     for (const selector of (block[1] ?? '').split(',')) {
       const subject = selector.trim().split(/[\s>+~]+/).pop() ?? '';
       const classes = Array.from(
-        subject.matchAll(/\.(semantic-art__[a-zA-Z0-9-]+)/g),
+        subject.matchAll(/\.((?:semantic-art|living)__[a-zA-Z0-9-]+)/g),
         (hit) => hit[1]!,
       );
       if (classes.length === 1) found.add(classes[0]!);
@@ -161,12 +161,12 @@ describe('semantic art tokens', () => {
 describe('semantic art classes', () => {
   it('only uses class names the stylesheet defines', () => {
     const defined = new Set(
-      Array.from(css.matchAll(/\.(semantic-art__[a-zA-Z0-9-]+)/g), (m) => m[1]!),
+      Array.from(css.matchAll(/\.((?:semantic-art|living)__[a-zA-Z0-9-]+)/g), (m) => m[1]!),
     );
     const undefinedUses: string[] = [];
 
     for (const [path, source] of Object.entries(scenes)) {
-      for (const hit of source.matchAll(/(semantic-art__[a-zA-Z0-9-]+)/g)) {
+      for (const hit of source.matchAll(/((?:semantic-art|living)__[a-zA-Z0-9-]+)/g)) {
         const cls = hit[1]!;
         if (defined.has(cls) || INTERPOLATED_PREFIXES.has(cls)) continue;
         const use = `${path}: ${cls}`;
@@ -188,10 +188,13 @@ describe('semantic art classes', () => {
     const invisible: string[] = [];
 
     for (const [path, source] of Object.entries(scenes)) {
-      for (const tag of source.matchAll(/<path\s+className="([^"]+)"\s+d="([^"]+)"/g)) {
+      for (const tag of source.matchAll(/<path\s+className="([^"]+)"\s+d="([^"]+)"([^>]*?)\/>/g)) {
         const classNames = tag[1] ?? '';
         const geometry = tag[2] ?? '';
         if (/[zZ]/.test(geometry)) continue; // closed: it has an interior
+        // Original pilot artwork also uses explicit SVG paint attributes.
+        // Only a real non-none stroke counts; a width alone still fails.
+        if (/\bstroke="(?!none\b)[^"]+"/.test(tag[3] ?? '')) continue;
         const names = classNames.split(/\s+/).filter(Boolean);
         if (names.some((n) => strokes.has(n))) continue; // a stroke paints it
         invisible.push(`${path}: "${classNames}" on "${geometry.slice(0, 44)}"`);
@@ -218,7 +221,7 @@ describe('semantic art classes', () => {
     const unfilled: string[] = [];
     for (const [path, source] of Object.entries(scenes)) {
       for (const tag of source.matchAll(
-        /<(path|circle|ellipse|rect)\s+className="(semantic-art__[^"]+)"([^>]*?)\/>/gs,
+        /<(path|circle|ellipse|rect)\s+className="((?:semantic-art|living)__[^"]+)"([^>]*?)\/>/gs,
       )) {
         const kind = tag[1]!;
         const names = (tag[2] ?? '').split(/\s+/).filter(Boolean);

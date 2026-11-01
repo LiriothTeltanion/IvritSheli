@@ -1,3 +1,27 @@
+# Local candidate update
+
+## 2.13.0 — Living Editorial Scenes — Private candidate — 2026-10-18
+
+- Repainted six original SVG scenes with shared editorial materials and distinct semantic motion.
+- Added touch/keyboard replay, reduced-motion stills and a private trilingual before/after studio.
+- Preserved 240/240 exact scenes, progressive hints and original 2.12.3 baseline captures.
+- Corrected the morning scene to show the two-person greeting described by its accessible text.
+- New local verification is recorded separately; no historical test or hosting claim is relabelled.
+- 2026-10-19: the greeting neighbours gained readable faces (open eye, brow, smile), an open-palm wave and
+  shirt shading, with the same poses, animation groups and reduced-motion stills.
+- 2026-10-19: fixed empty `/api/v1/export` bodies under Starlette 1.x (the request-body limit middleware
+  faked a client disconnect after replaying a body); backup restore works again and a regression test covers it.
+- 2026-10-19: added layered image-generation prompts for the six scenes (`docs/LIVING_SCENES_ART_PROMPTS.md`).
+- 2026-10-20: unified the six scenes with gradient-only lighting (contact shadows, rim light, vignette), richer
+  hands and props, and finite 1.9–2.1 s motion; reduced-motion stills and replay controls are unchanged.
+- 2026-10-20: the six scenes sit on static painted backdrops generated with Google Gemini (provenance and hashes
+  in `painted/manifest.json`); characters, props and all motion stay SVG and the vector backdrop remains as fallback.
+- 2026-10-20: `compose-living-scenes.py` reads the checked-in baselines, so a fresh capture folder composes.
+- 2026-10-20 (afternoon): the other 234 scenes share the upgrade — a redrawn character (three-quarter face,
+  sleeves, straight legs), portrait busts in the family genealogy, a full-bleed frame, a Gemini-painted gouache grain
+  over each context layer and painted rooms for the communication, action, register, work, service, bureaucracy and
+  autonomy scenes. Motion, hint stages and reduced-motion stills are unchanged; high contrast keeps the flat vector.
+
 # Changelog
 
 All notable changes are documented here. Versions follow Semantic Versioning.

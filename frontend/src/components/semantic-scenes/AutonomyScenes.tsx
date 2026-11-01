@@ -3,7 +3,7 @@
 
 import type { A0VisualKey } from '../../visuals/a0VisualRecipes';
 import type { SemanticHintStage } from '../SemanticWordIllustration';
-import { CalendarPage, GrammarMarker, SceneLayer, SemanticPerson, SpeechBubble } from './SemanticScenePrimitives';
+import { CalendarPage, GrammarMarker, PaintedRoom, SceneLayer, SemanticPerson, SpeechBubble } from './SemanticScenePrimitives';
 
 interface AutonomySceneProps {
   visualKey: A0VisualKey;
@@ -16,6 +16,7 @@ function StreetGround(): React.JSX.Element {
       <path className="semantic-art__blue-soft semantic-art__outlined" d="M12 14h216v84H12Z" />
       <path className="semantic-art__stone semantic-art__outlined" d="M12 98h216v66H12Z" />
       <path className="semantic-art__grain" d="M12 118h216M12 140h216M54 98v66m66-66v66m66-66v66" />
+      <PaintedRoom name="street-autonomy" x={12} y={14} width={216} height={150} />
     </>
   );
 }

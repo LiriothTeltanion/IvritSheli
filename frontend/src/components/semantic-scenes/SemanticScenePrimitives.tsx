@@ -34,6 +34,62 @@ interface SceneLayerProps {
   minimumStage: SemanticHintStage;
   hintStage: SemanticHintStage;
   children: ReactNode;
+  /** Paint the shared gouache grain over this context layer (off for the frame and the painted pilot scenes). */
+  grain?: boolean;
+}
+
+/**
+ * A painted plaster grain (generated once with Gemini, see painted/manifest.json) multiplied over a scene's
+ * context layer only. Walls, floors and furniture read as gouache; the people and the objects that carry the
+ * meaning sit in the layers above and stay crisp. It never moves, and high contrast and thumbnails drop it.
+ */
+const GRAIN_TILES = [0, 80, 160].flatMap((x) => [0, 80, 160].map((y) => [x, y] as const));
+
+function ContextGrain(): React.JSX.Element {
+  const href = `${import.meta.env.BASE_URL}art-direction/living-scenes/painted/grain-plaster.webp`;
+  // Nine 80-unit tiles of one small image: at this scale the brushwork reads as fine gouache grain.
+  return (
+    <g className="semantic-art__context-grain" aria-hidden="true">
+      {GRAIN_TILES.map(([x, y]) => (
+        <image key={`${x},${y}`} href={href} x={x} y={y} width="80" height="80" />
+      ))}
+    </g>
+  );
+}
+
+/**
+ * A painted room drawn over a scene's own vector room (2026-10-20).
+ *
+ * Generated once with Gemini and cropped so its wall/floor line lands where the vector room draws it, so the
+ * figures still stand on the floor. It sits at the end of the room component, under everything the scene adds,
+ * and never moves. The vector room underneath is the fallback (no file, high contrast, forced colours).
+ */
+export function PaintedRoom({
+  name,
+  x,
+  y,
+  width,
+  height,
+}: {
+  name: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}): React.JSX.Element {
+  return (
+    <image
+      className="semantic-art__painted-room"
+      href={`${import.meta.env.BASE_URL}art-direction/living-scenes/painted/${name}.webp`}
+      x={x}
+      y={y}
+      width={width}
+      height={height}
+      preserveAspectRatio="none"
+      data-painted-backdrop={name}
+      aria-hidden="true"
+    />
+  );
 }
 
 export function SceneLayer({
@@ -41,9 +97,15 @@ export function SceneLayer({
   minimumStage,
   hintStage,
   children,
+  grain = true,
 }: SceneLayerProps): React.JSX.Element | null {
   if (hintStage < minimumStage) return null;
-  return <g data-visual-layer={name}>{children}</g>;
+  return (
+    <g data-visual-layer={name}>
+      {children}
+      {name === 'context' && grain && <ContextGrain />}
+    </g>
+  );
 }
 
 export function SemanticPerson({
@@ -145,13 +207,13 @@ export function SemanticPerson({
       )}
     </>
   );
-  const face = pose === 'stomach' || pose === 'shiver'
-    ? 'M-3.2-19q3.2-2.2 6.4 0'
+  const mouth = pose === 'stomach' || pose === 'shiver'
+    ? 'M1.8-17.6q2.1-1.4 4.2 0'
     : pose === 'listen'
-      ? 'M-3.2-19h6.4'
+      ? 'M2-18.2h3.6'
       : pose === 'ask'
-        ? 'M-3-19q3-1 6 0'
-        : 'M-3.2-19q3.2 1.8 6.4 0';
+        ? 'M2-18.2q1.8.6 3.6-.2'
+        : 'M1.6-18.4q2.2 1.5 4.4-.2';
   const hair = (() => {
     if (shirt === 'coral') {
       return <path className="semantic-art__hair" d="M-7-26c-1-6 2-11 8-11 5 0 8 4 7 10-4-2-10-2-15 1Zm13-6c5 0 6 7 2 9" />;
@@ -164,6 +226,7 @@ export function SemanticPerson({
     }
     return <path className="semantic-art__hair" d="M-8-27c-1-7 3-11 9-11 5 0 8 4 7 11-5-3-11-3-16 0Z" />;
   })();
+  const standing = pose !== 'walk';
   return (
     <g
       className={`semantic-art__person semantic-art__person--${shirt}`}
@@ -171,38 +234,47 @@ export function SemanticPerson({
       data-character-system="adult-editorial"
       data-person-pose={pose}
     >
-      {/* A ~1:6 head-to-body ratio keeps the shared figure readable without the
-          oversized head, tiny legs and mitten hands of the previous system. */}
-      <path className="semantic-art__skin" d="M-3-17h6v10h-6Z" />
-      <path className="semantic-art__skin-shade" d="M-3-17h6v4h-6Z" />
-      <ellipse className="semantic-art__skin" cx="0" cy="-24" rx="7.4" ry="8.2" />
-      <path className="semantic-art__skin-shade" d="M4-32a7.4 8.2 0 0 1 0 16 8.5 8.2 0 0 0 0-16Z" />
-      <ellipse className="semantic-art__skin-lit" cx="-2.8" cy="-26" rx="2.8" ry="3.4" />
-      {hair}
-      <path className="semantic-art__hair-deep" d="M5-35c3 3 4 6 3 9-2-1-3-2-5-3Z" />
-      <path className="semantic-art__hair-lit" d="M-5-30c2-3 5-4 8-4" />
-      <path className="semantic-art__shirt" d="M-13 28c1-24 5-35 13-35s12 11 13 35Z" />
-      {/* The lit plane, redrawn to sit inside the silhouette. It used to run from
-          x=-8 out to x=-20 while the shirt itself stops at -13, so a pale strip
-          of shirt colour hung in the air past the body's left edge on all 113
-          figures — it read as a sash, or as a bad cut-out. */}
-      <path className="semantic-art__shirt-lit" d="M-13 28c1-24 5-35 13-35-5 6-8 18-8 35Z" />
-      <path className="semantic-art__shirt-deep" d="M4-6c6 4 9 16 9 34H6C6 13 5 1 4-6Z" />
-      <path className="semantic-art__garment-line" d="M-5-7q5 4 10 0M-11 22h22" />
-      {shirt === 'gold' && <path className="semantic-art__garment-line" d="M0-2v23m-2-15h4m-4 7h4" />}
-      {shirt === 'blue' && <path className="semantic-art__garment-line" d="M-11 8h6m10 0h6" />}
+      {/* 2026-10-20 redraw, in the pilot neighbours' language: a shorter neck, square shoulders with short
+          sleeves, straight standing legs and a three-quarter face (one ear, a lit eye, brow, cheek and a thin
+          smile) turned the way the figure faces. Anchors, hands and the animated arm are unchanged. */}
+      <path className="semantic-art__skin" d="M-3-15h6v9h-6Z" />
+      <path className="semantic-art__skin-shade" d="M-3-15h6v3.5h-6Z" />
+      <path className="semantic-art__shirt" d="M-12 27C-12.5 12-12 0-10-4.5Q-6-8 0-8.4 6-8 10-4.5C12 0 12.5 12 12 27Z" />
+      <path className="semantic-art__shirt-lit" d="M-12 27C-12.5 12-12 0-10-4.5Q-7-7.3-3-8c-4 6-5.5 19-5 35Z" />
+      <path className="semantic-art__shirt-deep" d="M5-7.6Q8.5-6.5 10-4.5C12 0 12.5 12 12 27H6.5C7 13 6.6 1 5-7.6Z" />
+      <path className="semantic-art__garment-line" d="M-4.5-8q4.5 4.5 9 0M-11.5 23h23" />
+      {shirt === 'gold' && <path className="semantic-art__garment-line" d="M0-3.5v24m-2-16h4m-4 7h4" />}
+      {shirt === 'blue' && <path className="semantic-art__garment-line" d="M-10.5 8h6m9 0h6" />}
       <path
         className="semantic-art__trousers"
-        d={pose === 'walk'
-          ? 'M-10 27h20L5 38l13 13-5 4L0 43-9 55l-6-4 9-15Z'
-          : 'M-10 27h20L7 39l7 16H8L1 41-5 55h-7l6-18Z'}
+        d={standing
+          ? 'M-10.5 25.5h21l-1.2 29.5h-7.6L.6 33.4-1.8 55h-7.6Z'
+          : 'M-10 27h20L5 38l13 13-5 4L0 43-9 55l-6-4 9-15Z'}
       />
-      <path className="semantic-art__trouser-seam" d={pose === 'walk' ? 'M0 30 5 38M-5 36-9 51' : 'M0 30 1 41M-6 37-5 52M7 39l7 16'} />
-      <ellipse className="semantic-art__eye" cx="-2.7" cy="-24.5" rx="1.05" ry="1.25" />
-      <ellipse className="semantic-art__eye" cx="2.7" cy="-24.5" rx="1.05" ry="1.25" />
-      <path className="semantic-art__nose" d="M1-24v3l2 1" />
-      <path className="semantic-art__face" d={face} />
+      <path className="semantic-art__trouser-seam" d={standing ? 'M-5.6 35v18M5.4 35v18' : 'M0 30 5 38M-5 36-9 51'} />
+      <g transform="translate(0 2.2)">
+        <ellipse className="semantic-art__skin" cx="0" cy="-24" rx="7.4" ry="8.2" />
+        {/* Shade on the back of the head, inside the outline: a crescent between the head's own edge and a
+            flatter arc. The old crescent started outside the ellipse and stuck out beside every head like a bump. */}
+        <path className="semantic-art__skin-shade" d="M0-32.2a7.4 8.2 0 0 0 0 16.4 4.2 8.2 0 0 1 0-16.4Z" />
+        <ellipse className="semantic-art__skin-lit" cx="2.6" cy="-26.6" rx="2.6" ry="3.2" />
+        <ellipse className="semantic-art__ear" cx="-5.4" cy="-23.4" rx="1.6" ry="2.4" />
+        {hair}
+        <path className="semantic-art__hair-deep" d="M-5-35c-3 3-4 6-3 9 2-1 3-2 5-3Z" />
+        <path className="semantic-art__hair-lit" d="M-2-34c3-2 6-2 8 0" />
+        <path className="semantic-art__brow" d="M2.4-27.8q1.6-1 3.3-.3M-2.7-27.6q1.2-.7 2.4-.3" />
+        <ellipse className="semantic-art__eye" cx="3.9" cy="-24.6" rx="1.05" ry="1.3" />
+        <ellipse className="semantic-art__eye" cx="-1.4" cy="-24.6" rx=".95" ry="1.2" />
+        <circle className="semantic-art__eye-light" cx="4.3" cy="-25.1" r=".38" />
+        <circle className="semantic-art__eye-light" cx="-1" cy="-25.1" r=".34" />
+        <path className="semantic-art__nose" d="M6-23.6q1.8 1.9.2 2.6" />
+        <ellipse className="semantic-art__cheek" cx="4.4" cy="-20.6" rx="1.9" ry="1.1" />
+        <path className="semantic-art__mouth" d={mouth} />
+      </g>
       {arm}
+      {/* Short sleeves cap the top of each arm, so it starts at a shoulder instead of inside the torso. */}
+      <ellipse className="semantic-art__sleeve" cx="-9" cy="1.2" rx="3.6" ry="4.6" transform="rotate(14 -9 1.2)" />
+      <ellipse className="semantic-art__sleeve" cx="9" cy="1.2" rx="3.6" ry="4.6" transform="rotate(-14 9 1.2)" />
       {/*
        * A hand has to be wider than the arm it ends, or it is not a hand.
        *
@@ -226,7 +298,7 @@ export function SemanticPerson({
       ))}
       <path
         className="semantic-art__shoe"
-        d={pose === 'walk' ? 'M-9 51h-8q-3 0-3 4h12Zm22 0 6 2q3 1 2 4h-9Z' : 'M-5 52h-8q-3 0-3 4h11Zm13 0h8q3 0 3 4H8Z'}
+        d={pose === 'walk' ? 'M-9 51h-8q-3 0-3 4h12Zm22 0 6 2q3 1 2 4h-9Z' : 'M-9.6 52.5h7.3q2.6.4 3 3.5H-9.6ZM1.7 52.5h7.6q3.4.4 3.7 3.5H1.7Z'}
       />
     </g>
   );
@@ -591,11 +663,11 @@ export function SemanticSceneVignette({ sceneId }: { sceneId: string }): React.J
   return (
     <rect
       className="semantic-art__vignette"
-      x="4"
-      y="4"
-      width="232"
-      height="172"
-      rx="28"
+      x="1"
+      y="1"
+      width="238"
+      height="178"
+      rx="14"
       fill={`url(#${sceneId}-vignette)`}
     />
   );
@@ -708,22 +780,24 @@ export function SemanticSceneFrame({
       <SemanticSceneDefs sceneId={sceneId} ramped={ramped} />
       {/* Presentation attributes lose to any CSS rule, so the high-contrast
           media query can still flatten these back to solid fills. */}
+      {/* Full-bleed paper with a small radius, like the living pilot (2026-10-20): the old 28-unit pillow and its
+          inner rim drew a second card inside the card around every scene. */}
       <rect
         className="semantic-art__paper"
-        x="4"
-        y="4"
-        width="232"
-        height="172"
-        rx="28"
+        x="1"
+        y="1"
+        width="238"
+        height="178"
+        rx="14"
         fill={`url(#${sceneId}-paper)`}
       />
       <rect
         className="semantic-art__editorial-wash"
-        x="5"
-        y="5"
-        width="230"
-        height="170"
-        rx="27"
+        x="1"
+        y="1"
+        width="238"
+        height="178"
+        rx="14"
         fill={`url(#${sceneId}-editorial-wash)`}
       />
       <rect
@@ -768,7 +842,7 @@ export function SemanticSceneFrame({
           </>
         )}
       </g>
-      <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
+      <SceneLayer name="context" minimumStage={0} hintStage={hintStage} grain={false}>
         <SemanticSpatialBackdrop family={spatialFamily} />
         <circle
           className="semantic-art__glow"

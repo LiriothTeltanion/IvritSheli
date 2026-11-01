@@ -27,7 +27,7 @@
 
 import type { A0VisualKey } from '../../visuals/a0VisualRecipes';
 import type { SemanticHintStage } from '../SemanticWordIllustration';
-import { SceneLayer, SemanticPerson } from './SemanticScenePrimitives';
+import { PaintedRoom, SceneLayer, SemanticPerson } from './SemanticScenePrimitives';
 
 interface BureaucracySceneProps {
   visualKey: A0VisualKey;
@@ -42,6 +42,7 @@ function PublicRoom(): React.JSX.Element {
       <path className="semantic-art__surface-deep" d="M14 128h212v6H14Z" />
       <path className="semantic-art__floor" d="M14 134h212v32H14Z" />
       <path className="semantic-art__tiles" d="M14 134h212M58 134v32m46-32v32m46-32v32m46-32v32" />
+      <PaintedRoom name="room-public" x={14} y={14} width={212} height={152} />
     </>
   );
 }

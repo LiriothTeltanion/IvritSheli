@@ -1,3 +1,27 @@
+# Ivrit Sheli 2.13.0 — Local illustration pilot
+
+- **Current private candidate:** `2.13.0` / local branch `codex/living-scenes-pilot`.
+- Date: 2026-10-18. No push, release or deployment.
+- Current scoped evidence: `docs/LIVING_SCENES_PILOT.md`.
+- Human recognition, Hebrew acceptance and the first-learner pilot remain unrun.
+- Everything below is a historical ledger, with original version labels preserved.
+
+## Executed local gate — 2026-10-18
+
+- Final package gate: `python scripts/verify_package.py` passed with 625 canonical Git-index checksums and 230 required files; `git diff --cached --check` passed.
+
+- Build and TypeScript: passed for 2.13.0. Existing Vite deprecation warning remains.
+- Frontend: 875 passed across 51 files. Post-format/alt-text focused checks: 84 passed.
+- Backend: 429 passed, 1 skipped (PostgreSQL integration requires runtime/migration credentials).
+- Ruff: passed for backend source and modified package verifier/tests. Strict MyPy: passed, 39 source files.
+- Served pilot Playwright: 11 passed / 2 scoped skips; includes actual replay hit testing at 390/768/1440px, finite motion, reduced-motion placement and EN/ES/HE x light/dark WCAG checks.
+- Existing served product Playwright: 36 passed / 40 intentional scoped skips / 0 failures, including the full 240-scene catalog.
+- Final-build entry-asset preflight and studio accessibility matrix: 2 passed after the final formatting and before-image alt-text adjustment.
+- Browser capture: 17 final screenshots, 114 animation samples, zero page errors; retained original baseline, finite GIF and static sheets have separate hash manifests.
+- Not run: PostgreSQL integration, live provider sign-in, hosted staging/deployment, human five-second recognition, Hebrew-content acceptance and Kevin's mother pilot.
+- Detailed implementation and visual-review scope: `docs/LIVING_SCENES_PILOT.md`.
+
+
 # Ivrit Sheli — Verification Ledger
 
 - **Current private candidate:** `2.12.3` / clean `main` at `6bbcb318` /
