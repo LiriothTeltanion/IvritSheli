@@ -5,7 +5,16 @@ Docker stack, and the separate HTTPS staging design first established for
 2.9.1. Production values belong in a secrets manager or hosting dashboard,
 never in Git.
 
-## Current boundary — verified again 2026-09-05
+## Current boundary — 2026-11-03
+
+- **Live staging:** `https://ivrit-sheli.onrender.com`, Render Free in Frankfurt, declared by
+  `render.frankfurt.yaml`. It runs `9d64fc7`, the 2.13.0 product, redeployed by hand on 2026-11-02; `/version`
+  and `/health/ready` (PostgreSQL true, 240 entries) were rechecked on 2026-11-03. A private pilot, not
+  production.
+- **Published source:** `v2.13.0` is the latest tagged GitHub Release (2026-11-03).
+- The 2026-09-05 boundary below is kept as history.
+
+## Boundary on 2026-09-05 (historical)
 
 - **Live staging:** `https://ivrit-sheli-staging.onrender.com` is a Render Free
   private-pilot staging service, not production. Fresh checks on 2026-09-05

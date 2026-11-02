@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | Created / last verified | 2026-10-18, Asia/Jerusalem |
-| Source version | 2.13.0, private local candidate |
+| Source version | 2.13.0, published source release (2026-11-03) |
 | Owner | Kevin Cusnir / Ivrit Sheli |
 | Host | Local Windows development PC |
 | Branch / baseline | `codex/living-scenes-pilot` / `f623fa0` |

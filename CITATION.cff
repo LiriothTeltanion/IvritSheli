@@ -1,15 +1,15 @@
 cff-version: 1.2.0
-message: "Please cite the Ivrit Sheli source release v2.12.2. No durable hosted demo is currently verified."
+message: "Please cite the Ivrit Sheli source release v2.13.0. Its free Render staging service is a private pilot, not production."
 type: software
 title: "Ivrit Sheli — העברית שלי"
-version: 2.12.2
-date-released: 2026-08-27
+version: 2.13.0
+date-released: 2026-11-03
 authors:
   - given-names: Kevin
     family-names: Cusnir
     alias: Lirioth Teltanion
 repository-code: "https://github.com/LiriothTeltanion/IvritSheli"
-url: "https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.12.2"
+url: "https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.13.0"
 license: MIT
 keywords:
   - Hebrew learning
