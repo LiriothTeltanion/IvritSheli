@@ -151,18 +151,48 @@ export function HealthScene({
               the doctor had no arms at all — the only limb evidence was a brown
               crescent peeking past one edge, a hand attached to nothing.
             */}
-            <path className="semantic-art__surface-line" d="M83 108q-4 11-9 21m22-21q7 11 20 21" />
-            <ellipse className="semantic-art__hand" cx="74" cy="130" rx="6" ry="4.6" transform="rotate(-16 74 130)" />
-            <ellipse className="semantic-art__hand" cx="125" cy="130" rx="6" ry="4.6" transform="rotate(16 125 130)" />
+            <path className="semantic-art__surface semantic-art__outlined" d="M76 99Q70 102 69 115L68 125 77 128 84 111Z" />
+            <path className="semantic-art__surface-deep" d="M76 108 74 121 78 122 77 128 71 126Z" />
+            <path className="semantic-art__surface semantic-art__outlined" d="M111 100Q118 104 121 115L129 123 123 131 112 121 105 110Z" />
+            <path className="semantic-art__surface-deep" d="M116 116 126 125 123 129 112 120Z" />
+            <path className="semantic-art__garment-line" d="M69 123 78 126M121 123l6 4M110 135h11v8h-11" />
+            {/* Same palm/thenar construction as PersonBody; centres stay at
+                (74,130) and (125,130). The right thumb is above its clipboard. */}
+            <g className="semantic-art__person--teal" transform="translate(74 130) rotate(-16) scale(1.4)">
+              <path className="semantic-art__hand" d="M-3.6 1.7Q-4.5.4-3.8-1.3L-2.4-2Q-2.6-3.8-1.4-4Q-.4-4.1-.3-2.5L.2-2.2L2.6-2.5Q4.1-2.5 4.4-1Q4.9.7 3.5 1.9Q1.1 3.3-1.4 2.8Q-3 2.7-3.6 1.7Z" />
+              <path className="semantic-art__skin-shade" d="M-3 1.6Q1 3 4 .2Q3.8 3-1.4 2.8Z" />
+              <path className="semantic-art__body-hand-detail" d="M1.4-.8Q2.6-.5 3.5-.9M-.5-1.9Q-.6-.6-1.4-.2" />
+            </g>
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            {/* Stethoscope hung round the neck, below the collar. */}
-            <path className="semantic-art__metal-line" d="M84 97q-5 26 8 34m20-34q5 22-4 30" />
-            <circle className="semantic-art__metal semantic-art__outlined" cx="94" cy="134" r="6" />
+            {/* Ear tubes join one Y; the rubber loop ends in a metal diaphragm.
+                Nested scaling keeps the tubing finer than the shared 4px line. */}
+            <g className="semantic-art__motion-part semantic-art__prop-pivot">
+              <g transform="scale(.5)">
+                <path className="semantic-art__metal-line" d="M166 196 163 207Q160 225 174 229M218 196 223 208Q226 224 210 229" />
+                <path className="semantic-art__detail" d="M174 228Q176 242 192 246Q207 242 210 228M192 246V260Q190 270 184 268" />
+                <path className="semantic-art__metal-line" d="M164 195 168 199M216 195 220 198" />
+              </g>
+              <circle className="semantic-art__metal-deep semantic-art__outlined" cx="94" cy="134" r="6" />
+              <circle className="semantic-art__metal" cx="93" cy="133" r="4.2" />
+              <path className="semantic-art__metal-lit semantic-art__prop-glint" d="M90 133a3 3 0 0 1 5-2l-3 3Z" />
+            </g>
             <MedicalCross x={188} y={50} size={30} />
-            {/* Name badge on the lapel. */}
-            <path className="semantic-art__surface semantic-art__outlined" d="M112 112h16v11h-16Z" />
-            <path className="semantic-art__detail semantic-art__detail--thin" d="M115 116h10m-10 4h7" />
+            <g className="semantic-art__motion-part semantic-art__prop-pivot">
+              {/* Board thickness, a folded sheet and a spring clip; no text. */}
+              <path className="semantic-art__wood-deep semantic-art__outlined" d="m112 111 17-2 3 24-18 2Z" />
+              <path className="semantic-art__surface" d="m113 112 14-1 2 20-14 2Z" />
+              <path className="semantic-art__surface-deep" d="m124 111 3 0 .5 5-3-2Z" />
+              <path className="semantic-art__metal semantic-art__outlined" d="m117 109 7-.5 .3 4-7 .5Z" />
+              <g transform="scale(.5)">
+                <path className="semantic-art__detail semantic-art__detail--thin" d="m232 236 18-2m-17 8 18-2m-17 8 12-1" />
+              </g>
+              <g className="semantic-art__person--teal" transform="translate(125 130) rotate(16) scale(1.4)">
+                <path className="semantic-art__hand" d="M-3.6 1.7Q-4.5.4-3.8-1.3L-2.4-2Q-2.6-3.8-1.4-4Q-.4-4.1-.3-2.5L.2-2.2L2.6-2.5Q4.1-2.5 4.4-1Q4.9.7 3.5 1.9Q1.1 3.3-1.4 2.8Q-3 2.7-3.6 1.7Z" />
+                <path className="semantic-art__skin-shade" d="M-3 1.6Q1 3 4 .2Q3.8 3-1.4 2.8Z" />
+                <path className="semantic-art__body-hand-detail" d="M1.4-.8Q2.6-.5 3.5-.9M-.5-1.9Q-.6-.6-1.4-.2" />
+              </g>
+            </g>
           </SceneLayer>
         </>
       );
