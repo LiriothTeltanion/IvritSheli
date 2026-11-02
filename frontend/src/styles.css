@@ -976,6 +976,16 @@ legend {
   .mobile-brand .ivrit-wordmark__text { display: none; }
   .mobile-brand .ivrit-wordmark--compact .ivrit-wordmark__icon { width: 36px; height: 36px; }
 }
+@media (max-width: 360px) {
+  /* At 320 px the four top-bar actions (48 px each) wrapped under the brand: the row needed 324 px of 302. Here
+     they are 44 px, the platform touch minimum, with tighter gaps and side padding (measured 2026-11-02). */
+  .topbar { padding-inline: 12px; }
+  .topbar-actions { gap: 4px; }
+  .topbar-actions > .icon-button,
+  .topbar-actions > .topbar-help,
+  .topbar-actions > .capture-button,
+  .topbar-actions > .session-identity { width: 44px; min-width: 44px; height: 44px; }
+}
 
 /* At 200% browser zoom a 1440px display exposes 720 CSS pixels. Compact the
    utility cluster before that accessibility boundary so it cannot push the
