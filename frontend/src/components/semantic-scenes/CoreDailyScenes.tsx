@@ -201,6 +201,7 @@ export function CoreDailyScene({
           hintStage={hintStage}
           context={(
             <>
+              <PaintedRoom name="wall-kitchen" x={12} y={12} width={216} height={156} />
               <path
                 className="semantic-art__wood semantic-art__outlined"
                 d="M17 123h206v31H17Z"
@@ -274,6 +275,7 @@ export function CoreDailyScene({
           hintStage={hintStage}
           context={(
             <>
+              <PaintedRoom name="wall-kitchen" x={12} y={12} width={216} height={156} />
               <path
                 className="semantic-art__wood semantic-art__outlined"
                 d="M122 119h99v30h-99Z"
@@ -483,6 +485,7 @@ export function CoreDailyScene({
           hintStage={hintStage}
           context={(
             <>
+              <PaintedRoom name="wall-home" x={12} y={12} width={216} height={156} />
               <path
                 className="semantic-art__wood semantic-art__outlined"
                 d="M124 18h99v144h-99Z"
@@ -730,6 +733,7 @@ export function CoreDailyScene({
           hintStage={hintStage}
           context={(
             <>
+              <PaintedRoom name="scene-buy" x={12} y={12} width={216} height={156} />
               <SunHeat />
               <path
                 className="semantic-art__gold-soft semantic-art__outlined"

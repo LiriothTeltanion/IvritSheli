@@ -306,6 +306,7 @@ export function TransportScene({
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wall semantic-art__outlined" d="M12 12h216v150H12Z" />
+            <PaintedRoom name="wall-study" x={12} y={12} width={216} height={156} />
             <path className="semantic-art__grain" d="M12 46h216M12 84h216M12 122h216" />
             <path className="semantic-art__shade" d="M196 12h32v150h-32Z" />
           </SceneLayer>
@@ -375,6 +376,7 @@ export function TransportScene({
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wall semantic-art__outlined" d="M12 12h216v92H12Z" />
             <path className="semantic-art__grain" d="M12 40h216M12 70h216" />
+            <PaintedRoom name="scene-dog" x={12} y={12} width={216} height={156} />
             <path className="semantic-art__green semantic-art__outlined" d="M12 104h216v58H12Z" />
             {/* Lane markings, which is what the alt text names. */}
             <path className="semantic-art__surface" d="M12 110h216v4H12Zm0 44h216v4H12Z" />
@@ -440,6 +442,7 @@ export function TransportScene({
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__surface semantic-art__outlined" d="M12 12h216v128H12Z" />
+            <PaintedRoom name="scene-taxi" x={12} y={12} width={216} height={156} />
             <path className="semantic-art__floor" d="M12 138h216v24H12Z" />
             {/* The bus is behind him, cropped, so he stays the subject. */}
             <path className="semantic-art__blue semantic-art__outlined" d="M138 40h92v98h-92Z" />
@@ -473,6 +476,7 @@ export function TransportScene({
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
+            <PaintedRoom name="wall-study" x={12} y={12} width={216} height={156} />
             <path className="semantic-art__wood semantic-art__outlined" d="M12 132h216v30H12Z" />
             <path className="semantic-art__grain" d="M20 142h200M20 152h132" />
           </SceneLayer>

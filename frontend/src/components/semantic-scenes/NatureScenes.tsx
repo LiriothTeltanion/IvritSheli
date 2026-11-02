@@ -200,6 +200,7 @@ export function NatureScene({
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wall semantic-art__outlined" d="M14 18h212v124H14Z" />
+            <PaintedRoom name="wall-home" x={12} y={12} width={216} height={156} />
             <path className="semantic-art__surface semantic-art__outlined" d="M12 130h216v26H12Z" />
             <path className="semantic-art__gloss" d="M18 134h204" />
           </SceneLayer>
@@ -313,7 +314,8 @@ export function NatureScene({
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
-            <path className="semantic-art__green-soft semantic-art__outlined" d="M12 140h216v22H12Z" />
+            <PaintedRoom name="scene-bird" x={12} y={12} width={216} height={156} />
+            <path className="semantic-art__green-soft semantic-art__outlined semantic-art__glaze" d="M12 140h216v22H12Z" />
             <NatureSun x={202} y={38} r={14} />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
@@ -403,6 +405,7 @@ export function NatureScene({
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wall semantic-art__outlined" d="M12 20h216v122H12Z" />
             <path className="semantic-art__grain" d="M12 46h216M12 74h216M12 102h216" />
+            <PaintedRoom name="wall-home" x={12} y={12} width={216} height={156} />
             <path className="semantic-art__floor" d="M12 132h216v30H12Z" />
             {/* The band of shade where the cat is sitting. */}
             <path className="semantic-art__shade" d="M12 20h118v142H12Z" />

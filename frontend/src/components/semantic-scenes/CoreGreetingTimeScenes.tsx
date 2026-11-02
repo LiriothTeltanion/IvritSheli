@@ -221,6 +221,7 @@ export function CoreGreetingTimeScene({
               className="semantic-art__wall semantic-art__outlined"
               d="M19 27h202v121H19Z"
             />
+            <PaintedRoom name="wall-home" x={12} y={12} width={216} height={156} />
             <path
               className="semantic-art__gold-soft semantic-art__outlined"
               d="M89 27h62v121H89Z"

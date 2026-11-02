@@ -202,6 +202,7 @@ export function HealthScene({
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
+            <PaintedRoom name="wall-home" x={12} y={12} width={216} height={156} />
             <path className="semantic-art__surface semantic-art__outlined" d="M12 120h216v42H12Z" />
             <path className="semantic-art__gloss" d="M20 126h200" />
           </SceneLayer>
@@ -550,6 +551,7 @@ export function HealthScene({
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
+            <PaintedRoom name="wall-study" x={12} y={12} width={216} height={156} />
             <path className="semantic-art__wood semantic-art__outlined" d="M12 116h216v46H12Z" />
             <path className="semantic-art__grain" d="M20 128h200M20 142h200M20 154h132" />
           </SceneLayer>

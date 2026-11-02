@@ -300,6 +300,11 @@ stay calm because a person or a teaching prop is drawn there. Hide props, vehicl
 the render first; the model tends to keep whatever it is shown. Never ask for a "plain wall behind" a building: it
 paints one, and it shows beside the roof where sky belongs.
 
+**Shared paintings first.** A new word whose scene is an object on a table or counter does not need its own
+painting: put `wall-kitchen` (food), `wall-home` (objects at home) or `wall-study` (papers, screens, maps) behind it,
+or `desk-top` under a document seen from above. These walls keep their middle calm for any object. Schematic scenes
+(maps, left/right arrows, notice cards) stay unpainted like the diagram family: there the drawing is what teaches.
+
 **Glaze, not collage.** When a teaching shape covers the whole ground of a painted scene (dunes, a field, hills,
 the sea, a lawn, a mountain outline), give it `semantic-art__glaze`: it keeps its outline and a quarter of its fill,
 so the painting shows through. Kevin chose this over opaque shapes on 2026-11-02. A flat backdrop whose texture would

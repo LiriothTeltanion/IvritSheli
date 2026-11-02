@@ -218,6 +218,7 @@ export function FoodHomeScene({
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
+            <PaintedRoom name="wall-kitchen" x={12} y={12} width={216} height={156} />
             <TableSlab x={25} y={137} width={190} height={18} />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
@@ -311,6 +312,7 @@ export function FoodHomeScene({
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
+            <PaintedRoom name="wall-kitchen" x={12} y={12} width={216} height={156} />
             <TableSlab x={22} y={128} width={196} height={25} />
             <circle className="semantic-art__gold semantic-art__outlined" cx="196" cy="40" r="15" />
             <circle className="semantic-art__sun-core" cx="192" cy="36" r="8" />
@@ -377,6 +379,7 @@ export function FoodHomeScene({
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
+            <PaintedRoom name="wall-kitchen" x={12} y={12} width={216} height={156} />
             <TableSlab x={34} y={136} width={172} height={20} />
             <g className="semantic-art__motion-part semantic-art__prop-pivot">
               <g className="semantic-art__prop-sway">
@@ -434,6 +437,7 @@ export function FoodHomeScene({
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
+            <PaintedRoom name="wall-kitchen" x={12} y={12} width={216} height={156} />
             <TableSlab x={25} y={119} width={190} height={35} />
             {/* A rounded chopping board with a visible end-grain edge, on top
                 of the table. The old white oval competed with the cheese. */}
@@ -590,6 +594,7 @@ export function FoodHomeScene({
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             {/* The table follows the plate left, so the plate keeps a rim of table
                 under it instead of overhanging into the air. */}
+            <PaintedRoom name="wall-kitchen" x={12} y={12} width={216} height={156} />
             <TableSlab x={75} y={115} width={132} height={35} />
             <path className="semantic-art__detail semantic-art__detail--thin" d="M93 150v13m95-13v13" />
           </SceneLayer>
@@ -655,6 +660,7 @@ export function FoodHomeScene({
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wall semantic-art__outlined" d="M22 26h196v124H22Z" />
+            <PaintedRoom name="wall-home" x={12} y={12} width={216} height={156} />
             <path className="semantic-art__floor" d="M22 126h196v24H22Z" />
             <circle className="semantic-art__gold-soft semantic-art__outlined" cx="187" cy="48" r="16" />
             {/* Lamplight pooling on the wall behind the bed. */}
@@ -767,6 +773,7 @@ export function FoodHomeScene({
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wall semantic-art__outlined" d="M21 25h198v125H21Z" />
+            <PaintedRoom name="wall-home" x={12} y={12} width={216} height={156} />
             <path className="semantic-art__floor" d="M21 124h198v26H21Z" />
             {/*
               A potted plant standing on the floor beside the chair. It was a
@@ -838,6 +845,7 @@ export function FoodHomeScene({
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wall semantic-art__outlined" d="M22 22h196v133H22Z" />
+            <PaintedRoom name="wall-home" x={12} y={12} width={216} height={156} />
             <path className="semantic-art__grain" d="M22 52h60M22 78h60M22 104h60M22 122h60" />
             <path className="semantic-art__floor" d="M22 139h196v16H22Z" />
             <path className="semantic-art__gold-soft semantic-art__outlined" d="M34 39h48v36H34Z" />

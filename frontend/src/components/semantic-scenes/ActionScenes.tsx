@@ -249,6 +249,7 @@ export function ActionScene({
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
+            <PaintedRoom name="wall-study" x={12} y={12} width={216} height={156} />
             <path className="semantic-art__wood semantic-art__outlined" d="M12 116h216v46H12Z" />
             <path className="semantic-art__wood-lit" d="M12 116h216v33H12Z" />
             <path className="semantic-art__wood-deep" d="M12 149h216v13H12Z" />

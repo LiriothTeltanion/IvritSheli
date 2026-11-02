@@ -69,7 +69,8 @@ export function WeatherScene({
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
-            <path className="semantic-art__green-soft semantic-art__outlined" d="M12 138q56-20 108 0t108 0v24H12Z" />
+            <PaintedRoom name="scene-sun" x={12} y={12} width={216} height={156} />
+            <path className="semantic-art__green-soft semantic-art__outlined semantic-art__glaze" d="M12 138q56-20 108 0t108 0v24H12Z" />
             <path className="semantic-art__leaf-lit" d="M28 136q46-16 88 2" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
@@ -315,6 +316,7 @@ export function WeatherScene({
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
+            <PaintedRoom name="scene-summer" x={12} y={12} width={216} height={156} />
             <path className="semantic-art__wood semantic-art__outlined" d="M12 112h216v50H12Z" />
             <path className="semantic-art__grain" d="M20 124h200M20 136h200M20 148h132" />
             <circle className="semantic-art__sun-halo" cx="200" cy="34" r="32" />
@@ -435,7 +437,8 @@ export function WeatherScene({
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
-            <path className="semantic-art__green-soft semantic-art__outlined" d="M12 140h216v22H12Z" />
+            <PaintedRoom name="scene-rain-park" x={12} y={12} width={216} height={156} />
+            <path className="semantic-art__green-soft semantic-art__outlined semantic-art__glaze" d="M12 140h216v22H12Z" />
             <Cloud x={20} y={16} scale={0.7} grey />
             <Cloud x={148} y={12} scale={0.8} grey />
           </SceneLayer>

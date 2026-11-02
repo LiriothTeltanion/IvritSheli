@@ -181,6 +181,7 @@ export function WorkScene({ visualKey, hintStage }: WorkSceneProps): React.JSX.E
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wall semantic-art__outlined" d="M14 14h212v152H14Z" />
+            <PaintedRoom name="wall-study" x={12} y={12} width={216} height={156} />
             <path className="semantic-art__grain" d="M14 52h212M14 96h212M14 140h212" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
@@ -365,6 +366,7 @@ export function WorkScene({ visualKey, hintStage }: WorkSceneProps): React.JSX.E
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wall semantic-art__outlined" d="M14 14h212v152H14Z" />
+            <PaintedRoom name="wall-study" x={12} y={12} width={216} height={156} />
             <ellipse className="semantic-art__prop-shadow" cx="120" cy="160" rx="46" ry="7" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
@@ -443,6 +445,7 @@ export function WorkScene({ visualKey, hintStage }: WorkSceneProps): React.JSX.E
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wall semantic-art__outlined" d="M14 14h212v152H14Z" />
+            <PaintedRoom name="wall-study" x={12} y={12} width={216} height={156} />
             <ellipse className="semantic-art__prop-shadow" cx="76" cy="152" rx="48" ry="7" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>

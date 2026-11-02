@@ -174,6 +174,7 @@ export function ShoppingScene({
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
+            <PaintedRoom name="wall-home" x={12} y={12} width={216} height={156} />
             <path className="semantic-art__wood semantic-art__outlined" d="M12 122h216v40H12Z" />
             <path className="semantic-art__grain" d="M20 134h200M20 146h200M20 156h130" />
           </SceneLayer>
@@ -242,6 +243,7 @@ export function ShoppingScene({
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wall semantic-art__outlined" d="M12 12h216v150H12Z" />
+            <PaintedRoom name="wall-home" x={12} y={12} width={216} height={156} />
             <path className="semantic-art__grain" d="M12 50h216M12 100h216" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
@@ -382,6 +384,7 @@ export function ShoppingScene({
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
+            <PaintedRoom name="room-service" x={12} y={12} width={216} height={156} />
             <path className="semantic-art__wood semantic-art__outlined" d="M12 128h216v34H12Z" />
             <path className="semantic-art__grain" d="M20 140h200M20 152h132" />
           </SceneLayer>
@@ -452,6 +455,7 @@ export function ShoppingScene({
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
+            <PaintedRoom name="room-service" x={12} y={12} width={216} height={156} />
             <path className="semantic-art__wood semantic-art__outlined" d="M12 122h216v40H12Z" />
             <path className="semantic-art__grain" d="M20 134h200M20 148h132" />
           </SceneLayer>
@@ -751,6 +755,7 @@ export function ShoppingScene({
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
+            <PaintedRoom name="scene-synagogue" x={12} y={12} width={216} height={156} />
             <path className="semantic-art__floor" d="M12 142h216v20H12Z" />
             {/* The building itself, with a small ribbed dome; no separate scenery is added. */}
             <path className="semantic-art__stone-lit semantic-art__outlined" d="M78 60q0-48 42-48t42 48Z" />

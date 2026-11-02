@@ -206,6 +206,7 @@ export function ServicesScene({
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__surface semantic-art__outlined" d="M14 14h212v122H14Z" />
+            <PaintedRoom name="scene-clinic" x={12} y={12} width={216} height={156} />
             <path className="semantic-art__floor" d="M14 136h212v30H14Z" />
             {/* Painted bay markings on the ground: an ambulance stops here. */}
             <path className="semantic-art__detail semantic-art__detail--thin" d="M30 148h34m20 0h34m20 0h34m20 0h34" />
