@@ -413,11 +413,12 @@ export function GreetingTimeScene({
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__window semantic-art__outlined" d="M12 12h216v106H12Z" />
             <path className="semantic-art__coral-soft" d="M12 62h216v56H12Z" />
+            <PaintedRoom name="scene-evening" x={12} y={12} width={216} height={156} />
             <circle className="semantic-art__sun-halo" cx="186" cy="72" r="40" />
             <circle className="semantic-art__gold semantic-art__outlined" cx="186" cy="72" r="22" />
             <circle className="semantic-art__sun-core" cx="180" cy="66" r="11" />
             {/* The city going dark behind them, one window at a time. */}
-            <path className="semantic-art__blue-deep semantic-art__outlined" d="M14 84h26v34H14Zm32-12h22v46H46Zm28 20h24v26H74Zm104-6h22v32h-22Zm28 10h22v22h-22Z" />
+            <path className="semantic-art__blue-deep semantic-art__outlined semantic-art__glaze" d="M14 84h26v34H14Zm32-12h22v46H46Zm28 20h24v26H74Zm104-6h22v32h-22Zm28 10h22v22h-22Z" />
             <path className="semantic-art__window-lit" d="M20 92h6v8h-6Zm10 0h6v8h-6Zm22-12h6v8h-6Zm-22 24h6v8h-6Zm60 0h6v8h-6Zm102-8h6v8h-6Z" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>

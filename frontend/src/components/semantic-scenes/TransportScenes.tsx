@@ -176,6 +176,7 @@ export function TransportScene({
             <path className="semantic-art__grain" d="M12 40h50M12 68h50M178 40h50M178 68h50" />
             <path className="semantic-art__ink" d="M12 118h216v44H12Z" />
             <path className="semantic-art__gloss" d="M24 142h34m18 0h34m18 0h34m18 0h30" />
+            <PaintedRoom name="scene-taxi" x={12} y={12} width={216} height={156} />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <ellipse className="semantic-art__prop-shadow" cx="120" cy="134" rx="86" ry="8" />
@@ -202,6 +203,7 @@ export function TransportScene({
             <path className="semantic-art__surface semantic-art__outlined" d="M12 12h216v128H12Z" />
             <path className="semantic-art__floor" d="M12 138h216v24H12Z" />
             <path className="semantic-art__grain" d="M52 138v24m48-24v24m48-24v24m48-24v24" />
+            <PaintedRoom name="scene-station" x={12} y={12} width={216} height={156} />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <path className="semantic-art__teal semantic-art__outlined" d="M28 40h158v14H28Z" />

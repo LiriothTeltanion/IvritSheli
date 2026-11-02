@@ -189,6 +189,7 @@ export function FoodHomeScene({
             <path className="semantic-art__detail semantic-art__detail--thin" d="M120 25v73M30 62h180" />
             <path className="semantic-art__wood semantic-art__outlined" d="M21 123h198v29H21Z" />
             <path className="semantic-art__grain" d="M29 131h182M29 139h182M29 146h124" />
+            <PaintedRoom name="scene-cafe" x={12} y={12} width={216} height={156} />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <ellipse className="semantic-art__prop-shadow" cx="116" cy="139" rx="76" ry="8" />

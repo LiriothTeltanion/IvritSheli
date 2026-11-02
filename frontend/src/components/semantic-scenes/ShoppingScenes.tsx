@@ -355,6 +355,7 @@ export function ShoppingScene({
             <path className="semantic-art__wood semantic-art__outlined" d="M12 116h216v46H12Z" />
             <path className="semantic-art__grain" d="M20 128h200M20 142h200" />
             <path className="semantic-art__gloss" d="M16 120h208" />
+            <PaintedRoom name="scene-cashier" x={12} y={12} width={216} height={156} />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             {/* A fan of notes, offered rather than lying flat. */}
@@ -446,6 +447,7 @@ export function ShoppingScene({
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__tiles" d="M12 12h216v128H12ZM64 12v128m52-128v128m52-128v128M12 54h216M12 98h216" />
             <path className="semantic-art__floor" d="M12 140h216v22H12Z" />
+            <PaintedRoom name="scene-shower" x={12} y={12} width={216} height={156} />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <path className="semantic-art__metal-line" d="M120 20v20" />
@@ -477,6 +479,7 @@ export function ShoppingScene({
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__tiles" d="M12 12h216v130H12ZM64 12v130m52-130v130m52-130v130M12 56h216M12 100h216" />
             <path className="semantic-art__floor" d="M12 142h216v20H12Z" />
+            <PaintedRoom name="scene-fridge" x={12} y={12} width={216} height={156} />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <ellipse className="semantic-art__prop-shadow" cx="118" cy="146" rx="72" ry="7" />

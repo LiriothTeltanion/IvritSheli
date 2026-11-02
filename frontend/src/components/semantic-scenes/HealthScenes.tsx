@@ -131,6 +131,7 @@ export function HealthScene({
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__tiles" d="M12 12h216v130H12ZM64 12v130m52-130v130m52-130v130M12 56h216M12 100h216" />
             <path className="semantic-art__floor" d="M12 140h216v22H12Z" />
+            <PaintedRoom name="scene-doctor" x={12} y={12} width={216} height={156} />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <SemanticPerson x={94} y={104} shirt="teal" pose="neutral" scale={1.4} />

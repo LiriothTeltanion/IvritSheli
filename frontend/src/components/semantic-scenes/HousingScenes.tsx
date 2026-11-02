@@ -111,10 +111,11 @@ export function HousingScene({ visualKey, hintStage }: HousingSceneProps): React
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wall semantic-art__outlined" d="M12 12h216v154H12Z" />
-            <circle className="semantic-art__sun-halo" cx="206" cy="34" r="26" />
             {/* Neighbouring blocks, cut off by the frame: this one stands in a row. */}
             <path className="semantic-art__surface-deep semantic-art__outlined" d="M12 62h30v104H12Zm186 12h30v92h-30Z" />
             <path className="semantic-art__facade-shade" d="M12 62h30v104H12Z" />
+            <PaintedRoom name="scene-apartment" x={12} y={12} width={216} height={156} />
+            <circle className="semantic-art__sun-halo" cx="206" cy="34" r="26" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             {/* Stone cladding, in courses. Israeli blocks are faced, not rendered. */}
@@ -248,6 +249,7 @@ export function HousingScene({ visualKey, hintStage }: HousingSceneProps): React
             <path className="semantic-art__wall semantic-art__outlined" d="M12 12h216v154H12Z" />
             <path className="semantic-art__tiles" d="M12 140h216M52 140v26m48-26v26m48-26v26m48-26v26" />
             <path className="semantic-art__floor" d="M12 140h216v26H12Z" />
+            <PaintedRoom name="scene-elevator" x={12} y={12} width={216} height={156} />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <path className="semantic-art__stone semantic-art__outlined" d="M38 18h164v122H38Z" />
