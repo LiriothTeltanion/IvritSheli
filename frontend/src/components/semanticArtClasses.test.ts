@@ -34,6 +34,7 @@ const scenes = import.meta.glob('./semantic-scenes/*.tsx', {
 const INTERPOLATED_PREFIXES = new Set([
   'semantic-art__person', // grouping hook; the tone comes from `--${shirt}`
   'semantic-art__person--', // completed by the `shirt` prop
+  'semantic-art__face--', // PersonHead's per-shirt palette hook, completed by the `shirt` prop
 ]);
 
 /**

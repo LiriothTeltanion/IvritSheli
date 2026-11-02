@@ -1424,40 +1424,44 @@
 .semantic-art--thumbnail .semantic-art__brow,
 .semantic-art--thumbnail .semantic-art__cheek { display: none; }
 
-/* Face pass (2026-11-02): an open mouth for talking and surprise, a tongue, grey at a temple, a hair tie, an ear
-   fold and two fine age lines. All are small enough to drop in thumbnails with the eyes. */
-.semantic-art__face-mouth-open {
-  fill: color-mix(in srgb, var(--semantic-skin-edge, #6a3e26) 70%, #1a0d0a);
-  stroke: color-mix(in srgb, var(--semantic-skin-edge, #6a3e26) 85%, #000);
-  stroke-width: .5;
+/* Faces (2026-11-02): the PersonHead drawn by Codex, with a beard, two blushed cheeks and stronger brows taken
+   from the Gemini reference sheet. Paint comes from the shared classes; these are the extra pieces. */
+.semantic-art__face-head {
+  --semantic-art-face-hair-light: #70594b;
+  --semantic-art-face-silver: #b7aca1;
+  --semantic-art-face-mouth-cavity: #59271e;
+  --semantic-art-face-teeth: #fff4df;
+  --semantic-art-face-tongue: #c36c55;
+}
+.semantic-art__face--gold { --semantic-art-face-hair-light: #ded5cb; }
+.semantic-art__face--blue { --semantic-art-face-hair-light: #78685c; }
+.semantic-art__person .semantic-art__hair { stroke-width: .8; }
+.semantic-art__face-head .semantic-art__face-line,
+.semantic-art__face-head .semantic-art__face-age-line { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.semantic-art__face-head .semantic-art__brow { stroke-width: .62; }
+.semantic-art__face-head .semantic-art__nose { stroke-width: .28; }
+.semantic-art__face-head .semantic-art__mouth { stroke-width: .34; }
+.semantic-art__face-head .semantic-art__face-age-line { stroke-width: .22; opacity: .55; }
+.semantic-art__face-head .semantic-art__cheek { opacity: .34; }
+.semantic-art__face-hair-highlight { fill: var(--semantic-art-face-hair-light); stroke: none; }
+.semantic-art__face-temple { fill: var(--semantic-art-face-silver); stroke: none; }
+.semantic-art__face-beard {
+  fill: color-mix(in srgb, var(--semantic-hair) 70%, var(--semantic-hair-grey));
+  stroke: color-mix(in srgb, var(--semantic-hair) 72%, #000);
+  stroke-width: .3;
   stroke-linejoin: round;
 }
-.semantic-art__face-tongue { fill: #d77a6c; stroke: none; }
-.semantic-art__face-hair-grey { fill: var(--semantic-hair-grey); stroke: none; }
-.semantic-art__face-hair-tie { fill: var(--semantic-coral-deep, #a2432f); stroke: none; }
-.semantic-art__face-ear-line,
-.semantic-art__face-nostril {
-  fill: none;
-  stroke: color-mix(in srgb, var(--semantic-skin-edge, #6a3e26) 70%, transparent);
-  stroke-width: .5;
-  stroke-linecap: round;
-}
-/* Drawn strands instead of the thick outline and light band that made every head read as a helmet. */
-.semantic-art__person .semantic-art__hair { stroke-width: .8; }
-.semantic-art__face-hair-strand {
-  fill: none;
-  stroke: color-mix(in srgb, var(--semantic-hair) 62%, #000);
-  stroke-width: .55;
-  stroke-linecap: round;
-}
-.semantic-art--thumbnail .semantic-art__face-mouth-open,
+.semantic-art__face-mouth-open { fill: var(--semantic-art-face-mouth-cavity); stroke: none; }
+.semantic-art__face-teeth { fill: var(--semantic-art-face-teeth); stroke: none; }
+.semantic-art__face-tongue { fill: var(--semantic-art-face-tongue); stroke: none; }
+.semantic-art--thumbnail .semantic-art__face-teeth,
 .semantic-art--thumbnail .semantic-art__face-tongue,
-.semantic-art--thumbnail .semantic-art__face-ear-line,
-.semantic-art--thumbnail .semantic-art__face-nostril,
-.semantic-art--thumbnail .semantic-art__face-hair-strand { display: none; }
-/* Blinks and speech scale around their own centre, never the scene's origin. */
+.semantic-art--thumbnail .semantic-art__face-age-line,
+.semantic-art--thumbnail .semantic-art__face-hair-highlight { display: none; }
+/* Blinks, speech and the nod move around their own box, never the scene's origin; the nod pivots at the neck. */
 .semantic-art__face-eyes,
 .semantic-art__face-mouth { transform-box: fill-box; transform-origin: center; }
+.semantic-art__face-head { transform-box: fill-box; transform-origin: 50% 100%; }
 
 .semantic-art__bubble {
   stroke-width: 2.4;
@@ -1912,8 +1916,8 @@
   to { transform: scale(1.08) rotate(3deg); }
 }
 
-/* Faces (2026-11-02): every adult blinks once when the scene is explored, and a talking mouth says two
-   syllables. Finite, like every other scene motion; reduced motion never reaches these rules. */
+/* Faces (2026-11-02): when a scene is explored every adult nods, blinks and lifts the brows once, and a talking
+   mouth says three syllables. Finite, like every other scene motion; reduced motion never reaches these rules. */
 @keyframes semanticFaceBlink {
   0%, 40%, 62%, 100% { transform: scaleY(1); }
   50% { transform: scaleY(0.12); }
@@ -1921,11 +1925,23 @@
 
 @keyframes semanticFaceTalk {
   0%, 100% { transform: scaleY(1); }
-  25%, 75% { transform: scaleY(0.45); }
-  50% { transform: scaleY(1.12); }
+  17%, 50%, 83% { transform: scaleY(0.45); }
+  33%, 67% { transform: scaleY(1.12); }
+}
+
+@keyframes semanticFaceNod {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  30% { transform: rotate(5deg) translateY(0.4px); }
+  60% { transform: rotate(-2deg) translateY(0); }
 }
 
 @media (prefers-reduced-motion: no-preference) {
+  .semantic-art--hero:hover .semantic-art__face-head,
+  .semantic-art[data-exploring] .semantic-art__face-head,
+  button:hover .semantic-art .semantic-art__face-head,
+  button:focus-visible .semantic-art .semantic-art__face-head {
+    animation: semanticFaceNod 760ms ease-in-out;
+  }
   .semantic-art--hero:hover .semantic-art__face-eyes,
   .semantic-art[data-exploring] .semantic-art__face-eyes,
   button:hover .semantic-art .semantic-art__face-eyes,
@@ -1936,9 +1952,10 @@
   .semantic-art[data-exploring] [data-person-expression="talk"] .semantic-art__face-mouth,
   button:hover .semantic-art [data-person-expression="talk"] .semantic-art__face-mouth,
   button:focus-visible .semantic-art [data-person-expression="talk"] .semantic-art__face-mouth {
-    animation: semanticFaceTalk 640ms ease-in-out;
+    animation: semanticFaceTalk 780ms ease-in-out;
   }
 }
+
 
 @keyframes semanticMeaningMotion {
   0%, 100% { transform: rotate(0deg); }
