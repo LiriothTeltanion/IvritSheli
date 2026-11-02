@@ -1263,7 +1263,8 @@
   --semantic-skin: #dda176;
   --semantic-skin-deep: #b97751;
   --semantic-skin-edge: #855036;
-  --semantic-hair: #73503a;
+  /* The older woman's bob is grey (2026-11-02); a brown cap read as the same young figure as the others. */
+  --semantic-hair: #a39a92;
   --semantic-trousers: #31566d;
   --semantic-trouser-edge: #1a3040;
   --semantic-garment-edge: #7d5310;
@@ -1419,6 +1420,41 @@
 .semantic-art--thumbnail .semantic-art__eye-light,
 .semantic-art--thumbnail .semantic-art__brow,
 .semantic-art--thumbnail .semantic-art__cheek { display: none; }
+
+/* Face pass (2026-11-02): an open mouth for talking and surprise, a tongue, grey at a temple, a hair tie, an ear
+   fold and two fine age lines. All are small enough to drop in thumbnails with the eyes. */
+.semantic-art__face-mouth-open {
+  fill: color-mix(in srgb, var(--semantic-skin-edge, #6a3e26) 70%, #1a0d0a);
+  stroke: color-mix(in srgb, var(--semantic-skin-edge, #6a3e26) 85%, #000);
+  stroke-width: .5;
+  stroke-linejoin: round;
+}
+.semantic-art__face-tongue { fill: #d77a6c; stroke: none; }
+.semantic-art__face-hair-grey { fill: var(--semantic-hair-grey); stroke: none; }
+.semantic-art__face-hair-tie { fill: var(--semantic-coral-deep, #a2432f); stroke: none; }
+.semantic-art__face-ear-line,
+.semantic-art__face-nostril {
+  fill: none;
+  stroke: color-mix(in srgb, var(--semantic-skin-edge, #6a3e26) 70%, transparent);
+  stroke-width: .5;
+  stroke-linecap: round;
+}
+/* Drawn strands instead of the thick outline and light band that made every head read as a helmet. */
+.semantic-art__person .semantic-art__hair { stroke-width: .8; }
+.semantic-art__face-hair-strand {
+  fill: none;
+  stroke: color-mix(in srgb, var(--semantic-hair) 62%, #000);
+  stroke-width: .55;
+  stroke-linecap: round;
+}
+.semantic-art--thumbnail .semantic-art__face-mouth-open,
+.semantic-art--thumbnail .semantic-art__face-tongue,
+.semantic-art--thumbnail .semantic-art__face-ear-line,
+.semantic-art--thumbnail .semantic-art__face-nostril,
+.semantic-art--thumbnail .semantic-art__face-hair-strand { display: none; }
+/* Blinks and speech scale around their own centre, never the scene's origin. */
+.semantic-art__face-eyes,
+.semantic-art__face-mouth { transform-box: fill-box; transform-origin: center; }
 
 .semantic-art__bubble {
   stroke-width: 2.4;
@@ -1871,6 +1907,34 @@
 @keyframes semanticSpark {
   from { transform: scale(0.9) rotate(-3deg); }
   to { transform: scale(1.08) rotate(3deg); }
+}
+
+/* Faces (2026-11-02): every adult blinks once when the scene is explored, and a talking mouth says two
+   syllables. Finite, like every other scene motion; reduced motion never reaches these rules. */
+@keyframes semanticFaceBlink {
+  0%, 40%, 62%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.12); }
+}
+
+@keyframes semanticFaceTalk {
+  0%, 100% { transform: scaleY(1); }
+  25%, 75% { transform: scaleY(0.45); }
+  50% { transform: scaleY(1.12); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .semantic-art--hero:hover .semantic-art__face-eyes,
+  .semantic-art[data-exploring] .semantic-art__face-eyes,
+  button:hover .semantic-art .semantic-art__face-eyes,
+  button:focus-visible .semantic-art .semantic-art__face-eyes {
+    animation: semanticFaceBlink 520ms ease-in-out 120ms;
+  }
+  .semantic-art--hero:hover [data-person-expression="talk"] .semantic-art__face-mouth,
+  .semantic-art[data-exploring] [data-person-expression="talk"] .semantic-art__face-mouth,
+  button:hover .semantic-art [data-person-expression="talk"] .semantic-art__face-mouth,
+  button:focus-visible .semantic-art [data-person-expression="talk"] .semantic-art__face-mouth {
+    animation: semanticFaceTalk 640ms ease-in-out;
+  }
 }
 
 @keyframes semanticMeaningMotion {

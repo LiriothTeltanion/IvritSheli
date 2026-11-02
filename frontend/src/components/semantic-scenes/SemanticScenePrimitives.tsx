@@ -108,6 +108,135 @@ export function SceneLayer({
   );
 }
 
+type PersonShirt = 'teal' | 'coral' | 'gold' | 'blue';
+export type PersonExpression = 'neutral' | 'smile' | 'talk' | 'surprised' | 'worried';
+
+/*
+ * The four shared adults (2026-11-02 face pass, drawn from the Gemini and Codex reference sheets).
+ *
+ * The gender is grammar, not decoration: the `_f` / `_m` scenes (register.agree, autonomy.need_help, ...) pick
+ * coral for the feminine form and blue for the masculine one, so coral must read as a woman and blue as a man at
+ * a glance. A test pins it.
+ */
+export const PERSON_CHARACTERS: Record<PersonShirt, { name: string; gender: 'female' | 'male' }> = {
+  teal: { name: 'younger-man-curls', gender: 'male' },
+  coral: { name: 'woman-ponytail', gender: 'female' },
+  gold: { name: 'older-woman-bob', gender: 'female' },
+  blue: { name: 'older-man-grey-temples', gender: 'male' },
+};
+
+export function expressionForPose(pose: SemanticPersonPose): PersonExpression {
+  switch (pose) {
+    case 'ask':
+    case 'answer':
+    case 'explain':
+    case 'request':
+      return 'talk';
+    case 'wave':
+    case 'reach':
+    case 'point':
+    case 'hold':
+      return 'smile';
+    case 'stomach':
+    case 'shiver':
+      return 'worried';
+    default:
+      return 'neutral';
+  }
+}
+
+/**
+ * Hair is the silhouette that tells the four adults apart at card size, so each is a distinct shape. A thin
+ * contour and a few drawn strands, not a thick outline and a light band, which together read as a helmet.
+ */
+function PersonHair({ shirt }: { shirt: PersonShirt }): React.JSX.Element {
+  switch (shirt) {
+    case 'coral':
+      // A high ponytail behind the crown, a soft side part and a small tie: reads as a woman even at 30 px.
+      return (
+        <>
+          <path className="semantic-art__hair" d="M-5.6-32.4c-3.9-.4-6.9 2.4-7.3 6.6-.4 4.1 1 7.9 3.4 10.3.2-3.5-.3-7 .1-9.9.7-2.6 2.4-4.6 3.8-7Z" />
+          <path className="semantic-art__hair" d="M-6.9-23.4c-1.6-7.4 1.9-12.7 8.3-12.5 5 .2 8.2 3.6 8 8.4-2.9-2.7-6.8-3.7-10.4-2.6-2.6.8-4.3 3.4-5.9 6.7Z" />
+          <ellipse className="semantic-art__face-hair-tie" cx="-6" cy="-31.4" rx="1.1" ry="1.5" transform="rotate(-24 -6 -31.4)" />
+          <path className="semantic-art__face-hair-strand" d="M-9.8-26q-.4 4 1.6 7.6M-3.6-33.4q3.6-1.8 7.4-.6M-4.8-30.4q1.6-1.6 4-2" />
+        </>
+      );
+    case 'gold':
+      // A grey bob with a wavy edge that falls to the jaw behind the ear, and a fringe swept to the front.
+      return (
+        <>
+          <path className="semantic-art__hair" d="M-7.4-17.6c-1.2-1.6-1.8-3.4-1.4-5.2-1-1.6-1-3.6.1-5.1-.3-2.3.9-4.4 3-5.4 1.4-1.9 3.9-2.7 6.2-2 2.4-.3 4.7.9 5.7 3 1.3.9 1.9 2.4 1.5 3.9-2.6-1.7-6.3-2.3-9.2-1.2-1.7.7-2.8 2.2-3.2 4-.4 2 .1 4.2 1.1 5.9.3.9-.1 1.8-1.1 2.1-.9.3-1.8.3-2.7 0Z" />
+          <path className="semantic-art__face-hair-strand" d="M-5.4-30q2.4-2.4 6-2.6M-7-25.4q-.5 2.6.5 5M1.8-33.8q2.8-.2 4.6 1.6" />
+        </>
+      );
+    case 'blue':
+      // Short, side-parted, with grey at the temple: an older man.
+      return (
+        <>
+          <path className="semantic-art__hair" d="M-7-24.8c-1.2-6.4 1.8-10.8 7.4-11 4.8-.2 7.8 2.7 7.6 6.6-2.4-1.6-5.8-2-8.2-1-1.8.8-2.8 2.4-3.3 4.6-1.4-.5-2.4-.4-3.5.8Z" />
+          <path className="semantic-art__face-hair-grey" d="M-6.6-25.4c-.6-2.2-.3-4 .8-5.4.5 1.6 1 3.2 1.1 4.6-.6.1-1.2.3-1.9.8Z" />
+          <path className="semantic-art__face-hair-strand" d="M-2.4-33.6q3.6-1.6 7.6.2M-4.2-31q2-1.4 4.6-1.6" />
+        </>
+      );
+    default:
+      // Short dark curls: a run of small arcs along the crown instead of one smooth cap.
+      return (
+        <>
+          <path className="semantic-art__hair" d="M-7.2-24.6c-1.7-1.6-1.9-3.9-.8-5.6-.6-2 .4-4 2.3-4.6.6-1.9 2.6-2.9 4.5-2.3 1.6-1.3 3.9-1.1 5.2.4 2 .1 3.4 1.7 3.3 3.6 1.3 1 1.5 2.7.6 3.9-2.7-1.8-6.2-2.3-9.2-1.2-2.4.9-4.2 3-5.9 5.8Z" />
+          <path className="semantic-art__face-hair-strand" d="M-4.6-32.6q.6-1.2 1.8-1.2M-.6-34.4q.9-.9 2.2-.6M3.6-33.4q1-.4 1.8.4M-6-28.4q.3-1.2 1.4-1.6" />
+        </>
+      );
+  }
+}
+
+/**
+ * A three-quarter head facing +x (the figure mirrors itself to face left).
+ *
+ * Eyes and mouth are their own groups so CSS can blink and move them on hover or a press; the expression only
+ * changes which mouth and brows are drawn, so every pose keeps one stable head.
+ */
+function PersonHead({ shirt, expression }: { shirt: PersonShirt; expression: PersonExpression }): React.JSX.Element {
+  const raised = expression === 'surprised' ? -0.9 : expression === 'worried' ? -0.4 : 0;
+  const brows = expression === 'worried'
+    ? `M-0.4 ${-27.6 + raised}q1.8-.9 3.5.2M4.8 ${-27.9 + raised}q1.1.6 2.4-.4`
+    : `M-0.6 ${-27.9 + raised}q1.9-1.4 3.8-.4M4.7 ${-28.1 + raised}q1.2-.9 2.6-.1`;
+  return (
+    <g transform="translate(0 2.2)" data-person-expression={expression}>
+      {/* One outline with a nose bump and a chin turned the way the figure faces, instead of a plain ellipse. */}
+      <path
+        className="semantic-art__skin"
+        d="M-7-26.4c-.2-5.7 3.2-9.4 7.9-9.4 4.9 0 7.9 3.6 7.9 8.3 0 1.5.4 2.6 1 3.5.4.7 0 1.2-.8 1.3-.1 2.9-1.4 5.9-4.6 6.6-2.5.6-5-.1-7.2-1.9C-5.5-19.8-6.9-22.6-7-26.4Z"
+      />
+      <path className="semantic-art__skin-shade" d="M-6.2-21.6c.9 1.6 2.2 2.9 3.6 3.8-1.6-2.4-2.4-5.6-2.3-9.2-.8 1.6-1.2 3.4-1.3 5.4Z" />
+      <ellipse className="semantic-art__skin-lit" cx="3.4" cy="-27.4" rx="2.6" ry="3" />
+      <ellipse className="semantic-art__ear" cx="-4.9" cy="-23.6" rx="1.6" ry="2.3" />
+      <path className="semantic-art__face-ear-line" d="M-5.2-24.6q.8.6.3 2" />
+      <PersonHair shirt={shirt} />
+      <path className="semantic-art__brow" d={brows} />
+      <g className="semantic-art__face-eyes">
+        <ellipse className="semantic-art__eye" cx="1.4" cy="-24.7" rx="1.25" ry="1.6" />
+        <ellipse className="semantic-art__eye" cx="5.9" cy="-24.8" rx=".95" ry="1.42" />
+        <circle className="semantic-art__eye-light" cx="1.85" cy="-25.35" r=".45" />
+        <circle className="semantic-art__eye-light" cx="6.2" cy="-25.4" r=".36" />
+      </g>
+      <path className="semantic-art__face-nostril" d="M8-22.3q.6.4 1.2.1" />
+      <ellipse className="semantic-art__cheek" cx="2.2" cy="-21.4" rx="1.8" ry="1.05" />
+      <g className="semantic-art__face-mouth">
+        {expression === 'talk' && (
+          <>
+            <path className="semantic-art__face-mouth-open" d="M3.4-20.1q2-.5 3.9-.1-.3 2.7-2 2.8-1.6-.1-1.9-2.7Z" />
+            <path className="semantic-art__face-tongue" d="M4.2-18.3q1-.6 2 0-.9.8-2 0Z" />
+          </>
+        )}
+        {expression === 'surprised' && <ellipse className="semantic-art__face-mouth-open" cx="5.2" cy="-19" rx=".85" ry="1.15" />}
+        {expression === 'smile' && <path className="semantic-art__mouth" d="M3.1-20q2 2 4.2.1" />}
+        {expression === 'worried' && <path className="semantic-art__mouth" d="M3.4-18.6q1.8-1.2 3.6 0" />}
+        {expression === 'neutral' && <path className="semantic-art__mouth" d="M3.4-19.5q1.7.6 3.6-.1" />}
+      </g>
+    </g>
+  );
+}
+
 export function SemanticPerson({
   x,
   y,
@@ -207,25 +336,6 @@ export function SemanticPerson({
       )}
     </>
   );
-  const mouth = pose === 'stomach' || pose === 'shiver'
-    ? 'M1.8-17.6q2.1-1.4 4.2 0'
-    : pose === 'listen'
-      ? 'M2-18.2h3.6'
-      : pose === 'ask'
-        ? 'M2-18.2q1.8.6 3.6-.2'
-        : 'M1.6-18.4q2.2 1.5 4.4-.2';
-  const hair = (() => {
-    if (shirt === 'coral') {
-      return <path className="semantic-art__hair" d="M-7-26c-1-6 2-11 8-11 5 0 8 4 7 10-4-2-10-2-15 1Zm13-6c5 0 6 7 2 9" />;
-    }
-    if (shirt === 'blue') {
-      return <path className="semantic-art__hair" d="M-8-27c0-7 3-11 8-11 6 0 9 4 8 11-3-3-4-4-6-2-2-3-5-3-6 0-2-2-3-1-4 2Z" />;
-    }
-    if (shirt === 'gold') {
-      return <path className="semantic-art__hair" d="M-8-27c0-7 4-11 9-11 4 0 7 3 7 8-6-2-11 0-16 3Z" />;
-    }
-    return <path className="semantic-art__hair" d="M-8-27c-1-7 3-11 9-11 5 0 8 4 7 11-5-3-11-3-16 0Z" />;
-  })();
   const standing = pose !== 'walk';
   return (
     <g
@@ -233,6 +343,8 @@ export function SemanticPerson({
       transform={`translate(${x} ${y}) scale(${direction} ${scale})`}
       data-character-system="adult-editorial"
       data-person-pose={pose}
+      data-person-character={PERSON_CHARACTERS[shirt].name}
+      data-person-gender={PERSON_CHARACTERS[shirt].gender}
     >
       {/* 2026-10-20 redraw, in the pilot neighbours' language: a shorter neck, square shoulders with short
           sleeves, straight standing legs and a three-quarter face (one ear, a lit eye, brow, cheek and a thin
@@ -252,25 +364,7 @@ export function SemanticPerson({
           : 'M-10 27h20L5 38l13 13-5 4L0 43-9 55l-6-4 9-15Z'}
       />
       <path className="semantic-art__trouser-seam" d={standing ? 'M-5.6 35v18M5.4 35v18' : 'M0 30 5 38M-5 36-9 51'} />
-      <g transform="translate(0 2.2)">
-        <ellipse className="semantic-art__skin" cx="0" cy="-24" rx="7.4" ry="8.2" />
-        {/* Shade on the back of the head, inside the outline: a crescent between the head's own edge and a
-            flatter arc. The old crescent started outside the ellipse and stuck out beside every head like a bump. */}
-        <path className="semantic-art__skin-shade" d="M0-32.2a7.4 8.2 0 0 0 0 16.4 4.2 8.2 0 0 1 0-16.4Z" />
-        <ellipse className="semantic-art__skin-lit" cx="2.6" cy="-26.6" rx="2.6" ry="3.2" />
-        <ellipse className="semantic-art__ear" cx="-5.4" cy="-23.4" rx="1.6" ry="2.4" />
-        {hair}
-        <path className="semantic-art__hair-deep" d="M-5-35c-3 3-4 6-3 9 2-1 3-2 5-3Z" />
-        <path className="semantic-art__hair-lit" d="M-2-34c3-2 6-2 8 0" />
-        <path className="semantic-art__brow" d="M2.4-27.8q1.6-1 3.3-.3M-2.7-27.6q1.2-.7 2.4-.3" />
-        <ellipse className="semantic-art__eye" cx="3.9" cy="-24.6" rx="1.05" ry="1.3" />
-        <ellipse className="semantic-art__eye" cx="-1.4" cy="-24.6" rx=".95" ry="1.2" />
-        <circle className="semantic-art__eye-light" cx="4.3" cy="-25.1" r=".38" />
-        <circle className="semantic-art__eye-light" cx="-1" cy="-25.1" r=".34" />
-        <path className="semantic-art__nose" d="M6-23.6q1.8 1.9.2 2.6" />
-        <ellipse className="semantic-art__cheek" cx="4.4" cy="-20.6" rx="1.9" ry="1.1" />
-        <path className="semantic-art__mouth" d={mouth} />
-      </g>
+      <PersonHead shirt={shirt} expression={expressionForPose(pose)} />
       {arm}
       {/* Short sleeves cap the top of each arm, so it starts at a shoulder instead of inside the torso. */}
       <ellipse className="semantic-art__sleeve" cx="-9" cy="1.2" rx="3.6" ry="4.6" transform="rotate(14 -9 1.2)" />
