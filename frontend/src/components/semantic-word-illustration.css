@@ -656,7 +656,8 @@
 /* Portrait busts inside genealogy outlines (2026-10-20). The clip keeps every feature inside the frame. */
 .semantic-art__portrait--feminine { clip-path: circle(14.4px); }
 .semantic-art__portrait--masculine { clip-path: inset(.6px round 1.6px); }
-.semantic-art__portrait .semantic-art__shirt { stroke-width: 1.1; }
+.semantic-art__portrait .semantic-art__shirt,
+.semantic-art__portrait .semantic-art__body-sleeve-outline { stroke-width: 1.1; }
 .semantic-art__portrait-ring {
   fill: none;
   stroke: color-mix(in srgb, var(--semantic-ink) 60%, transparent);
@@ -1379,6 +1380,8 @@
 .semantic-art__person--gold .semantic-art__sleeve { fill: var(--semantic-gold); }
 .semantic-art__person--blue .semantic-art__sleeve { fill: var(--semantic-blue); }
 .semantic-art__sleeve { stroke: none; }
+/* Only the sleeve's open silhouette and hem are stroked, so it joins the shirt without a seam across the chest. */
+.semantic-art__body-sleeve-outline { fill: none; stroke: var(--semantic-garment-edge, #06403d); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 
 /* Skin and hair get the same treatment as cloth. */
 .semantic-art__skin-shade { fill: var(--semantic-skin-deep); stroke: none; }
@@ -1803,7 +1806,8 @@
   [data-visual-layer] .semantic-art__outlined,
   .semantic-art__window,
   .semantic-art__hair,
-  .semantic-art__shirt {
+  .semantic-art__shirt,
+  .semantic-art__body-sleeve-outline {
     stroke: currentColor;
     stroke-width: 4;
   }

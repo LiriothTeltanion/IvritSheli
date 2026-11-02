@@ -77,6 +77,64 @@ function Hand({ anchor }: { anchor: HandAnchor }): React.JSX.Element {
   );
 }
 
+/** Read the shoulder and initial tangent of each existing M…C / M…Q arm.
+ * These paths are deliberately left untouched: scene props depend on them.
+ */
+function Sleeves({ arms }: { arms: Arms }): React.JSX.Element {
+  const number = '(-?\\d*\\.?\\d+)';
+  const starts = new RegExp(`M${number}[ ,]*${number}[CQ]${number}[ ,]*${number}`, 'g');
+  const shoulders = [...`${arms.still ?? ''}${arms.gesture ?? ''}`.matchAll(starts)];
+
+  return (
+    <>
+      {shoulders.map((match) => {
+        const [x = 0, y = 0, cx = 0, cy = 0] = match.slice(1).map(Number);
+        const side = x < 0 ? -1 : 1;
+        const length = Math.hypot(cx - x, cy - y);
+        const ux = (cx - x) / length;
+        const uy = (cy - y) / length;
+        const nx = side * uy;
+        const ny = -side * ux;
+        const hemX = x + ux * 6.6;
+        const hemY = y + uy * 6.6;
+        const outerX = hemX + nx * 4.6;
+        const outerY = hemY + ny * 4.6;
+        let innerX = hemX - nx * 4.6;
+        let innerY = hemY - ny * 4.6;
+
+        // Stop the hem where it meets the shirt side. A hem drawn all the
+        // way across the hidden half of the arm makes the old C-shaped seam.
+        const bodyX = side * 11.25;
+        const hiddenHem = side * innerX < 11.25;
+        if (hiddenHem) {
+          const fraction = (bodyX - outerX) / (innerX - outerX);
+          innerY = outerY + (innerY - outerY) * fraction;
+          innerX = bodyX;
+        }
+        const joinY = hiddenHem ? innerY : Math.max(7.5, innerY + 2);
+        // A raised arm needs a short shoulder join, not a cap control point
+        // swung back into the chest. Downward sleeves round over the shoulder.
+        const capX = side * (8.1 + Math.max(0, uy) * 5.7);
+        const capY = -5.8 + Math.max(0, uy) * 1.8;
+        const outline = `M${side * 8.1} -5.8C${capX} ${capY} ${outerX - ux * 3} ${outerY - uy * 3} ${outerX - ux * 1.5} ${outerY - uy * 1.5}`
+          + `C${outerX + ux * 1.2} ${outerY + uy * 1.2} ${innerX + ux * 1.2} ${innerY + uy * 1.2} ${innerX} ${innerY}`
+          + (hiddenHem ? '' : `Q${innerX - side} ${joinY - 1} ${bodyX} ${joinY}`);
+        const fabric = `${outline}L${bodyX} ${joinY}L${side * 3} 9L${side * 3} -4Z`;
+
+        return (
+          <g key={x}>
+            {/* Paint after the two arm strokes, covering their shoulder caps.
+                Only the exposed silhouette and soft hem receive an outline;
+                the unstroked root overlaps the shirt without a closed seam. */}
+            <path className="semantic-art__sleeve" d={fabric} />
+            <path className="semantic-art__body-sleeve-outline" d={outline} />
+          </g>
+        );
+      })}
+    </>
+  );
+}
+
 /** Everything below the face in the adult scene's original local coordinates. */
 export function PersonBody({
   shirt,
@@ -90,10 +148,6 @@ export function PersonBody({
 }): React.JSX.Element {
   const walking = pose === 'walk';
   const arms = ARMS[pose];
-  const rightSleeveAngle = pose === 'wave' ? -55
-    : pose === 'listen' ? -32
-      : pose === 'point' || pose === 'reach' || pose === 'explain' ? -44
-        : pose === 'ask' || pose === 'answer' ? -18 : 0;
 
   return (
     <g data-person-body={pose}>
@@ -126,14 +180,7 @@ export function PersonBody({
       {arms.still && <Arm d={arms.still} />}
       {arms.gesture && <Arm d={arms.gesture} motion />}
 
-      {/* Fabric caps follow the upper arm; asymmetric, rounded hems replace
-          the old identical ellipses without moving the shoulder starts. */}
-      <path className="semantic-art__sleeve" d="M-5.8-5.4Q-10.2-5.4-12-1.9Q-13.3 1.4-12.8 4.1Q-10.5 6-7.1 5.2L-6.2.9Z" />
-      <path className="semantic-art__garment-line" d="M-12.6 3.6Q-10.4 5.1-7.3 4.6" />
-      <g transform={`rotate(${rightSleeveAngle} 8 1)`}>
-        <path className="semantic-art__sleeve" d="M5.6-5.5Q9.9-5.3 11.7-1.9Q13.2 1.3 12.5 4.6Q10 6 6.9 4.9L6 .8Z" />
-        <path className="semantic-art__garment-line" d="M7.1 4.4Q9.9 5.5 12.3 4.1" />
-      </g>
+      <Sleeves arms={arms} />
 
       {HANDS[pose].map((anchor) => <Hand key={`${anchor[0]},${anchor[1]}`} anchor={anchor} />)}
       {pose === 'wave' && (
