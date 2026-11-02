@@ -582,6 +582,8 @@ export interface Dashboard {
   stats: {
     total_items: number;
     recent_accuracy: number;
+    /** Answers the accuracy is taken over; 0 means there is nothing to measure yet. Missing on older servers. */
+    recent_answers?: number;
     mastery_percent: number;
     streak_days: number;
   };

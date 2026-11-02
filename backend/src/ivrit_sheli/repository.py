@@ -2430,11 +2430,13 @@ class LearningRepository:
             ]
             recent_accuracy_row = connection.execute(
                 """
-                SELECT AVG(is_correct) AS accuracy
+                SELECT AVG(is_correct) AS accuracy, COUNT(*) AS answers
                 FROM (SELECT is_correct FROM attempts ORDER BY created_at DESC LIMIT 50)
                 """
             ).fetchone()
             accuracy = float(recent_accuracy_row["accuracy"] or 0)
+            # How many answers the accuracy is taken over: with none yet, 0.0 means "no data", not "all wrong".
+            recent_answers = int(recent_accuracy_row["answers"] or 0)
             daily_goal = self._daily_goal_state(connection)
             alphabet_summary = self._alphabet_summary(connection)
         finally:
@@ -2453,6 +2455,7 @@ class LearningRepository:
             "stats": {
                 "total_items": int(total_items),
                 "recent_accuracy": round(accuracy, 4),
+                "recent_answers": recent_answers,
                 "mastery_percent": round(accuracy * 100),
                 "streak_days": self._calculate_streak(),
             },
