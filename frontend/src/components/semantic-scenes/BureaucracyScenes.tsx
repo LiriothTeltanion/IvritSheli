@@ -27,7 +27,7 @@
 
 import type { A0VisualKey } from '../../visuals/a0VisualRecipes';
 import type { SemanticHintStage } from '../SemanticWordIllustration';
-import { PaintedRoom, SceneLayer, SemanticPerson } from './SemanticScenePrimitives';
+import { MagenDavid, PaintedRoom, SceneLayer, SemanticPerson } from './SemanticScenePrimitives';
 import { PersonHead } from './PersonHead';
 
 interface BureaucracySceneProps {
@@ -388,9 +388,19 @@ export function BureaucracyScene({
             <path className="semantic-art__stone semantic-art__outlined" d="M22 140h196v12H22Z" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            <path className="semantic-art__metal-line" d="M120 24V6" />
-            <path className="semantic-art__surface semantic-art__outlined" d="M120 8h40v22h-40Z" />
-            <path className="semantic-art__blue" d="M120 10h40v4h-40Zm0 14h40v4h-40Z" />
+            <path className="semantic-art__metal-line" d="M120 25V14" />
+            <circle className="semantic-art__gold semantic-art__outlined" cx="120" cy="14" r="2" />
+            {/* Hoist and fly follow the same gentle cloth wave; the complete
+                emblem stays inside the painted crop, including at 96 px. */}
+            <g className="semantic-art__motion-part semantic-art__prop-pivot semantic-art__prop-flutter">
+              <path className="semantic-art__surface semantic-art__outlined" d="M122 16q10-2 20 0t20 0v22q-10 2-20 0t-20 0Z" />
+              <path className="semantic-art__surface-deep" d="M153 17q5 0 9-1v22q-5 1-9 0Z" />
+              <path className="semantic-art__blue" d="M122 18q10-2 20 0t20 0v3q-10 2-20 0t-20 0Zm0 15q10-2 20 0t20 0v3q-10 2-20 0t-20 0Z" />
+              <MagenDavid x={142} y={27} size={11} tone="blue" />
+              {/* The helper supplies both triangles; a small open centre keeps
+                  the star recognisable instead of a solid six-pointed dot. */}
+              <path className="semantic-art__surface-lit" d="m142 25 1.7 1v2l-1.7 1-1.7-1v-2Z" />
+            </g>
             {/* The clock every city hall in the country seems to carry. */}
             <circle className="semantic-art__surface semantic-art__outlined" cx="120" cy="98" r="20" />
             <path className="semantic-art__detail semantic-art__detail--thin" d="M120 82v4m0 24v4m-20-16h4m32 0h4" />

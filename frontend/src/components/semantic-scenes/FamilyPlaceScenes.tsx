@@ -18,14 +18,17 @@ interface FamilyPlaceSceneProps {
   hintStage: SemanticHintStage;
 }
 
-function Tree({ x, y, scale = 1 }: { x: number; y: number; scale?: number }): React.JSX.Element {
+function Tree({ x, y, scale = 1, groundY }: { x: number; y: number; scale?: number; groundY?: number }): React.JSX.Element {
+  // Keep the crown's anchor, but let foreground trees reach the painted ground.
+  // Other callers retain their original pavement/park contact at local y=58.
+  const root = groundY === undefined ? 58 : (groundY - y) / scale;
   return (
     <g transform={`translate(${x} ${y}) scale(${scale})`}>
-      <ellipse className="semantic-art__prop-shadow" cx="0" cy="58" rx="16" ry="3" />
-      <path className="semantic-art__wood semantic-art__outlined" d="M-9 58q6-19 5-33L-15 9l5-3L0 21 13 5l4 4L5 27q-1 17 6 31Z" />
-      <path className="semantic-art__wood-deep" d="M1 25 13 5l4 4L5 27q-1 17 6 31H3q-4-18-2-33Z" />
-      <path className="semantic-art__wood-lit" d="M-6 53q4-15 3-28l-7-13 4 3 7 11-3 27Z" />
-      <path className="semantic-art__grain" d="M-1 34v12m5-24 5-8" />
+      <ellipse className="semantic-art__prop-shadow" cx="1" cy={root + 1} rx="21" ry="4" />
+      <path className="semantic-art__wood semantic-art__outlined" d={`M-16 ${root} C-9 ${root - 9} -8 ${root - 23} -6 ${root - 34} L-5 26-15 9l5-3L0 21 13 5l4 4L6 28 7 ${root - 34} C7 ${root - 17} 10 ${root - 8} 17 ${root} l-9-2-7 2-7-2Z`} />
+      <path className="semantic-art__wood-deep" d={`M1 25 13 5l4 4L6 28 7 ${root - 34} C7 ${root - 17} 10 ${root - 8} 17 ${root} l-9-2-7 2 Q4 ${root - 20} 1 25Z`} />
+      <path className="semantic-art__wood-lit" d={`M-11 ${root - 4} Q-4 ${root - 20} -3 ${root - 34} L-3 25l-7-13 4 3 7 11L0 ${root - 34} Q-2 ${root - 18} -6 ${root - 4}Z`} />
+      <path className="semantic-art__grain" d={`M-1 34q-2 11 0 18m5-30 5-8M1 ${root - 19}q-4 9-9 14m12-6 5 8`} />
       {/* An old olive: forked wood shows through airy, overlapping sprays.
           Only the foliage sways; the root and its contact shadow stay planted. */}
       <g className="semantic-art__motion-part semantic-art__prop-pivot semantic-art__prop-sway">
@@ -43,6 +46,27 @@ function Tree({ x, y, scale = 1 }: { x: number; y: number; scale?: number }): Re
       </g>
     </g>
   );
+}
+
+/** One feather-shaped frond: two serrated leaflet bands share a curved midrib.
+ * Explicit crown directions leave air between the nine leaves at 96 px. */
+function PalmFrond({ cx, cy, tx, ty }: { cx: number; cy: number; tx: number; ty: number }): React.JSX.Element {
+  const edge = (side: number, width: number): string => Array.from({ length: 19 }, (_, i) => {
+    const t = i / 18;
+    const px = 2 * (1 - t) * t * cx + t * t * tx;
+    const py = 2 * (1 - t) * t * cy + t * t * ty;
+    const dx = 2 * ((1 - t) * cx + t * (tx - cx));
+    const dy = 2 * ((1 - t) * cy + t * (ty - cy));
+    const length = Math.hypot(dx, dy) || 1;
+    const spread = Math.sin(Math.PI * t) * width * (i % 2 ? 0.68 : 1);
+    return `${(px - side * dy / length * spread).toFixed(2)} ${(py + side * dx / length * spread).toFixed(2)}`;
+  }).join('L');
+  const rib = `M0 0Q${cx} ${cy} ${tx} ${ty}`;
+  return <g>
+    <path className="semantic-art__green-deep" d={`${rib}L${edge(1, 3.7).split('L').reverse().join('L')}Z`} />
+    <path className="semantic-art__green-lit" d={`${rib}L${edge(-1, 3.7).split('L').reverse().join('L')}Z`} />
+    <path className="semantic-art__green" d={`M${edge(-1, 0.45)}L${edge(1, 0.45).split('L').reverse().join('L')}Z`} />
+  </g>;
 }
 
 function Building({
@@ -249,8 +273,8 @@ export function FamilyPlaceScene({
             <>
               <path className="semantic-art__ink" d="M103 144v-25q0-18 17-18t17 18v25Z" />
               <path className="semantic-art__gold" d="M118 128h4v16h-4Z" />
-              <Tree x={190} y={100} scale={0.47} />
-              <Tree x={44} y={104} scale={0.38} />
+              <Tree x={190} y={100} scale={0.47} groundY={159} />
+              <Tree x={44} y={104} scale={0.38} groundY={159} />
             </>
           )}
         />
@@ -286,23 +310,18 @@ export function FamilyPlaceScene({
               <path className="semantic-art__wood-lit" d="M184 132q5-15 1-28h2q5 15-1 28Z" />
               <path className="semantic-art__grain" d="m185 108 5-1m-4 7 5-1m-5 7h5m-6 6 5 1m-7 5 5 1" />
               <g className="semantic-art__motion-part semantic-art__prop-pivot semantic-art__prop-sway">
-                {/* Each frond is a tapered blade with separate hanging leaflets,
-                    not a single star-shaped crown. Local rotations fan the crown. */}
-                {[-78, -49, -20, 18, 50, 80].map((angle) => (
-                  <g key={angle} transform={`translate(186 102) rotate(${angle})`}>
-                    <path className="semantic-art__green-deep" d="M0 1Q-5-15 0-26q5-4 10 0-7-2-10 4Q-3-12 2 0Z" />
-                    {[-5, -10, -15, -20].map((fy) => <g key={fy}>
-                      <path className="semantic-art__green-deep" d={`M-1 ${fy - 2}q-6 1-8 8 5-3 8-6 4 1 8 7-1-7-8-9Z`} />
-                      <path className="semantic-art__green-lit" d={`M-1 ${fy - 2}q-6 1-8 8 3-5 8-6Z`} />
-                    </g>)}
-                    <path className="semantic-art__green" d="M0 0q-4-15 1-25l6-2q-7 4-7 14L2 0Z" />
-                  </g>
-                ))}
-                <path className="semantic-art__wood-line" d="M185 102q-6 2-5 8m8-8q7 2 6 8" />
+                {/* All nine arching leaves start at exactly one crown point. */}
+                <g transform="translate(186 102)">
+                  {([[-26, -21, -30, 11], [-25, -25, -33, -4], [-18, -32, -27, -20], [-8, -38, -15, -29], [-3, -29, 2, -35], [13, -36, 17, -28], [26, -30, 29, -17], [31, -18, 34, -1], [26, -10, 29, 13]] as const).map(([cx, cy, tx, ty], index) => (
+                    <PalmFrond key={index} cx={cx} cy={cy} tx={tx} ty={ty} />
+                  ))}
+                </g>
+                <path className="semantic-art__wood" d="M185 102q-6 2-6 7h2q0-4 5-5 5 1 6 5h2q-1-6-7-7Z" />
                 {[180, 193].map((dx) => <g key={dx}>
                   {([[0, 108], [-2, 110], [2, 111], [-1, 113], [1, 115]] as const).map(([fx, fy]) => <g key={`${fx}-${fy}`}>
-                    <ellipse className="semantic-art__gold-deep" cx={dx + fx} cy={fy} rx="1.4" ry="2.1" />
-                    <ellipse className="semantic-art__gold-lit" cx={dx + fx - 0.4} cy={fy - 0.5} rx="0.5" ry="1" />
+                    <ellipse className="semantic-art__coral-deep" cx={dx + fx} cy={fy} rx="1.4" ry="2.1" />
+                    <ellipse className="semantic-art__gold" cx={dx + fx - 0.35} cy={fy - 0.4} rx="1" ry="1.6" />
+                    <ellipse className="semantic-art__gold-lit" cx={dx + fx - 0.6} cy={fy - 0.8} rx="0.35" ry="0.65" />
                   </g>)}
                 </g>)}
               </g>
@@ -593,9 +612,23 @@ export function FamilyPlaceScene({
               <circle className="semantic-art__sun-halo" cx="191" cy="39" r="32" />
               <circle className="semantic-art__gold semantic-art__outlined" cx="191" cy="39" r="18" />
               <circle className="semantic-art__sun-core" cx="186" cy="34" r="9" />
-              {/* Two shells on the dry sand. */}
-              <path className="semantic-art__surface semantic-art__outlined" d="M46 152q9-13 18 0Z" />
-              <path className="semantic-art__surface semantic-art__outlined" d="M108 156q7-10 14 0Z" />
+              {/* A hinged scallop and a coiled shell, each resting on the sand.
+                  Ribs are tapered fills so they stay delicate beside the towel. */}
+              <g className="semantic-art__motion-part semantic-art__prop-pivot">
+                <ellipse className="semantic-art__prop-shadow" cx="55" cy="153" rx="10" ry="2" />
+                <path className="semantic-art__surface-deep semantic-art__outlined" d="m53 153-8-8q-1-3 2-3-1-4 3-4 1-4 4-2 3-3 5 1 4-1 4 3 4 1 2 5l-8 8Z" />
+                <path className="semantic-art__surface-lit" d="m54 151-8-7q0-2 3-1-2-4 2-3 1-4 3-2 3-2 4 1 3 0 3 3l-5 9Z" />
+                <path className="semantic-art__gold-soft" d="m54 151-5-9 1-1Zm1 0-2-13h1Zm1 0 3-11 1 1Zm1 0 6-7v2Z" />
+                <path className="semantic-art__surface-deep" d="m51 153 3-3h2l4 3Z" />
+              </g>
+              <g className="semantic-art__motion-part semantic-art__prop-pivot">
+                <ellipse className="semantic-art__prop-shadow" cx="115" cy="157" rx="9" ry="2" />
+                <path className="semantic-art__gold-soft semantic-art__outlined" d="M108 153q-2-5 2-8 5-4 9 0l4 9-5 3h-7Z" />
+                <path className="semantic-art__surface-lit" d="M109 152q-2-5 2-7 4-2 7 1l-1 4-5 4Z" />
+                <path className="semantic-art__surface-deep" d="m117 147 6 7-5 3h-7l-3-4q6 2 10-2Z" />
+                <path className="semantic-art__wood-deep" d="M112 152q-5-4-1-6 4-2 6 2 1 4-3 4-3-1-2-3 1-2 3 0-2-1-2 1 3 2 3-2-1-2-4-1-3 1 0 5Z" />
+                <path className="semantic-art__gold-deep" d="m119 151 2 3-3 1Z" />
+              </g>
             </>
           )}
         />
