@@ -12,10 +12,12 @@
   <h1>Ivrit Sheli 2.13.0 — El hebreo vivo de cada día</h1>
   <p><strong>A trilingual, local-first PWA for learning the Hebrew people meet in everyday life.</strong></p>
   <p>Guided enough for a complete beginner, deep enough to keep growing.</p>
+  <p>Made for adults in Israel who are new to Hebrew, and often to apps, and who read Spanish or English.</p>
 
   <p>
     <a href="https://ivrit-sheli.onrender.com"><img src="https://img.shields.io/badge/Live_Staging-Render-46E3B7?style=flat-square&logo=render" alt="Live Staging"></a>
     <img src="https://img.shields.io/badge/Candidate-v2.13.0-3B82F6?style=flat-square" alt="Version">
+    <img src="https://img.shields.io/badge/Release-v2.12.2-3B82F6?style=flat-square" alt="Latest published release v2.12.2">
     <img src="https://img.shields.io/badge/React_19_%2B_Vite-passing-22C55E?style=flat-square" alt="React 19">
     <img src="https://img.shields.io/badge/FastAPI_%2B_Python-ready-38BDF8?style=flat-square" alt="FastAPI">
     <img src="https://img.shields.io/badge/Database-PostgreSQL_17-336791?style=flat-square&logo=postgresql" alt="PostgreSQL">

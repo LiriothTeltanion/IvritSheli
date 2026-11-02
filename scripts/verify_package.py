@@ -94,8 +94,6 @@ def _is_public_https_url(value: object) -> bool:
 
 REQUIRED_FILES = (
     "README.md",
-    "NOVA_HANDOFF.md",
-    "NOVA_PHASE4_REPORT.md",
     "AGENTS.md",
     "START_PRIVATE_PILOT.bat",
     "portfolio/project.json",

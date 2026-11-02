@@ -95,7 +95,7 @@ otro panel, qué sigue siendo cierto y qué ya no. Empieza siempre por ahí.
 
 Six of seven confirmed findings fixed in source, one local commit each, none
 pushed. Full detail in [`docs/SECURITY_REMEDIATION_BACKLOG.md`](docs/SECURITY_REMEDIATION_BACKLOG.md)
-and `NOVA_HANDOFF.md`.
+and `NOVA_HANDOFF.md` (local only since 2026-11-02).
 
 - [x] **SEC-03** cap open PostgreSQL connections and fail closed (`ecc12ad`)
 - [x] **SEC-04** bound portable restore size and concurrency (`c091ec8`)
@@ -211,7 +211,7 @@ runs `ed59eb84`.
   - Fixed `AuthGate.test.tsx` and `App.test.tsx` navigation helper hints and role link assertions.
   - Fixed `backend/src/ivrit_sheli/audio.py` transcribe method indentation.
 - [x] **Documentation & Release Traceability**:
-  - Updated `CHANGELOG.md`, `docs/LIVING_HEBREW_FIELD_NOTES.md`, `versionHistory.ts` (EN/ES/HE), `NOVA_HANDOFF.md`, and `PROMPT-NUEVA-SESION.md`.
+  - Updated `CHANGELOG.md`, `docs/LIVING_HEBREW_FIELD_NOTES.md`, `versionHistory.ts` (EN/ES/HE), `NOVA_HANDOFF.md`, and `PROMPT-NUEVA-SESION.md` (the last two are local only since 2026-11-02).
 
 ---
 

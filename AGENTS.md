@@ -314,9 +314,9 @@ Read these before proposing work; do not reconstruct state from conversation.
 | Source | What it holds |
 |---|---|
 | [Centro de mando](https://claude.ai/code/artifact/23ca714a-9a56-4c4c-955a-aa8f3311808d) | The authority: measured state, what is stale in every other panel, the whole backlog with an owner per row |
-| `COMO-CORRER-COSAS.md` | Which commands are Kevin's and which are yours, and where he runs them |
+| `COMO-CORRER-COSAS.md` (local only, not published) | Which commands are Kevin's and which are yours, and where he runs them |
 | `TASKS.md` | Task tracker and the panel index |
-| `NOVA_HANDOFF.md` | Current state, what a session changed, open blockers |
+| `NOVA_HANDOFF.md` (local only, not published) | Current state, what a session changed, open blockers |
 | `TEST_REPORT.md` | Verification ledger, including what was **not** run |
 | `docs/VISUAL_BIBLE.md` | Visual authority, including the wordmark |
 | `docs/ART_DIRECTION_REFERENCES.md` | Art direction and the mistakes already made |
