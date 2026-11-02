@@ -20,12 +20,22 @@ interface TransportSceneProps {
   hintStage: SemanticHintStage;
 }
 
-/** Road wheel with a hub, used by every vehicle here at the same weight. */
+/** A recessed hubcap inside a rounded tyre. Keep tiny train bogies uncluttered. */
 function Wheel({ cx, cy, r = 12 }: { cx: number; cy: number; r?: number }): React.JSX.Element {
   return (
     <g>
       <circle className="semantic-art__ink" cx={cx} cy={cy} r={r} />
-      <circle className="semantic-art__metal" cx={cx} cy={cy} r={r * 0.42} />
+      <path className="semantic-art__metal-deep" d={`M${cx - r * .83} ${cy}a${r * .83} ${r * .83} 0 0 1 ${r * 1.66} 0l${-r * .17} ${-r * .08}a${r * .67} ${r * .67} 0 0 0 ${-r * 1.32} 0Z`} />
+      <circle className="semantic-art__metal-deep" cx={cx} cy={cy + r * .04} r={r * .61} />
+      <circle className="semantic-art__metal" cx={cx - r * .04} cy={cy - r * .05} r={r * .51} />
+      {r >= 8 && <>
+        {/* Broad cutouts survive at 96 px; bolts would just turn into noise. */}
+        {[0, 72, 144, 216, 288].map((angle) => <path key={angle}
+          className="semantic-art__metal-deep"
+          transform={`rotate(${angle} ${cx} ${cy})`}
+          d={`M${cx - r * .09} ${cy - r * .23}l${-r * .08} ${-r * .17}h${r * .34}l${-r * .08} ${r * .17}Z`} />)}
+        <circle className="semantic-art__metal-lit" cx={cx - r * .04} cy={cy - r * .05} r={r * .17} />
+      </>}
     </g>
   );
 }
@@ -167,7 +177,7 @@ export function TransportScene({
         </>
       );
 
-    /* A taxi: small car, roof sign, chequer stripe. */
+    /* A sedan: raked glazing and a short visible bonnet, not a square minivan. */
     case 'transport.taxi':
       return (
         <>
@@ -178,20 +188,47 @@ export function TransportScene({
             <path className="semantic-art__gloss" d="M24 142h34m18 0h34m18 0h34m18 0h30" />
             <PaintedRoom name="scene-taxi" x={12} y={12} width={216} height={156} />
           </SceneLayer>
-          <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
-            <ellipse className="semantic-art__prop-shadow" cx="120" cy="134" rx="86" ry="8" />
-            <path className="semantic-art__gold semantic-art__outlined" d="M38 128V98q0-8 10-10l20-26q4-6 12-6h72q8 0 12 6l20 26q10 2 10 10v30Z" />
-            <path className="semantic-art__window" d="M74 62h34v26H74Zm42 0h34v26h-34Z" />
-            <path className="semantic-art__shade" d="M170 88q10 2 10 10v30h-24V88Z" />
-          </SceneLayer>
-          <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            {/* Roof sign and chequer band: what makes it a taxi, not a car. */}
-            <path className="semantic-art__ink semantic-art__outlined" d="M96 30h48v18H96Z" />
-            <path className="semantic-art__window-lit" d="M100 34h40v10h-40Z" />
-            <path className="semantic-art__ink" d="M44 106h12v10H44Zm24 0h12v10H68Zm24 0h12v10H92Zm24 0h12v10h-12Zm24 0h12v10h-12Zm24 0h12v10h-12Z" />
-            <Wheel cx={70} cy={128} r={13} />
-            <Wheel cx={166} cy={128} r={13} />
-          </SceneLayer>
+          {/* One suspension pivot keeps sign, wheels and coachwork together. */}
+          <g className="semantic-art__motion-part semantic-art__prop-pivot">
+            <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
+              <ellipse className="semantic-art__prop-shadow" cx="120" cy="137" rx="84" ry="5" />
+              <path className="semantic-art__gold semantic-art__outlined" d="M38 126v-22q0-10 12-13l13-3 17-26q4-6 12-6h45q9 0 14 7l19 25 14 5q10 4 10 15v18Z" />
+              {/* Upper-left light: roof lip, shoulder, bonnet, then deep fascia. */}
+              <path className="semantic-art__gold-lit" d="m63 88 19-26q3-4 11-4h42q8 0 12 5H91L75 88Zm-13 5 16-3h102l16 5-7 4H49Z" />
+              <path className="semantic-art__gold-deep" d="M184 95q10 4 10 13v18h-12v-20l-9-6ZM38 119h144v7H38Z" />
+              <path className="semantic-art__ink" d="m70 88 17-23h48q6 0 10 5l14 18Z" />
+              <path className="semantic-art__window" d="m77 85 13-17h18v17Zm37-17h20q4 0 7 4l9 13h-36Z" />
+              {/* The front windscreen is a second plane, beyond the A pillar. */}
+              <path className="semantic-art__window" d="m143 66 10 6 12 16h-8Z" />
+              <path className="semantic-art__surface-lit semantic-art__prop-glint" d="m80 82 11-12h7L87 82Zm37-12h7l-7 7Zm30 0 6 5 3 6-4-3Z" />
+              <path className="semantic-art__gold-deep" d="M108 89h3v28h-3Zm44 1h2v21h-2Z" />
+              <path className="semantic-art__grain" d="M79 114h24m13 0h29M51 97h12m95-4 20 4" />
+              <path className="semantic-art__ink" d="M96 93h8v3h-8Zm44 0h8v3h-8Z" />
+              <path className="semantic-art__gold-lit" d="M96 92h8v1h-8Zm44 0h8v1h-8Z" />
+              <path className="semantic-art__gold-deep semantic-art__outlined" d="m153 83 8 1 3 6h-11Z" />
+              <path className="semantic-art__metal" d="m155 84 5 1 1 2h-6Z" />
+              <path className="semantic-art__surface-lit" d="m181 99 9 3v6l-10-3Z" />
+              <path className="semantic-art__coral" d="M39 101h5v8h-5Z" />
+              <path className="semantic-art__ink" d="m185 113 9 1v5l-9-1ZM40 122h12v4H40Z" />
+              {/* Arches cut into the body, with a lit rolled edge over each tyre. */}
+              <path className="semantic-art__gold-lit" d="M51 128a19 19 0 0 1 38 0h-4a15 15 0 0 0-30 0Zm96 0a19 19 0 0 1 38 0h-4a15 15 0 0 0-30 0Z" />
+              <path className="semantic-art__ink" d="M54 128a16 16 0 0 1 32 0Zm96 0a16 16 0 0 1 32 0Z" />
+            </SceneLayer>
+            <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
+              {/* Attached, illuminated roof box; no lettering or invented logo. */}
+              <path className="semantic-art__metal-deep" d="M103 47h5v9h-5Zm29 0h5v9h-5Z" />
+              <path className="semantic-art__gold-deep semantic-art__outlined" d="M96 34 101 30h39l4 4v14H96Z" />
+              <path className="semantic-art__gold-lit" d="m96 34 5-4h39l4 4Z" />
+              <path className="semantic-art__ink" d="M99 35h42v11H99Z" />
+              <path className="semantic-art__window-lit semantic-art__prop-glint" d="M102 37h36v7h-36Z" />
+              <path className="semantic-art__surface-lit semantic-art__prop-glint" d="M103 37h19l-5 2h-14Z" />
+              {/* A small two-row chequer stripe leaves the doors readable. */}
+              <path className="semantic-art__gold-lit" d="M90 101h55v8H90Z" />
+              {[90, 100, 110, 120, 130, 140].map((x) => <path key={x} className="semantic-art__ink" d={`M${x} 101h5v4h-5Zm5 4h5v4h-5Z`} />)}
+              <Wheel cx={70} cy={128} r={13} />
+              <Wheel cx={166} cy={128} r={13} />
+            </SceneLayer>
+          </g>
         </>
       );
 
@@ -206,19 +243,55 @@ export function TransportScene({
             <PaintedRoom name="scene-station" x={12} y={12} width={216} height={156} />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
-            <path className="semantic-art__teal semantic-art__outlined" d="M28 40h158v14H28Z" />
-            <path className="semantic-art__metal-line" d="M38 54v84m138-84v84" />
-            <path className="semantic-art__glass semantic-art__outlined" d="M44 60h126v58H44Z" />
-            <path className="semantic-art__gloss" d="m52 114 48-50m10 50 40-42" />
-            <path className="semantic-art__wood semantic-art__outlined" d="M56 120h100v9H56Zm6 9v12m88-12v12" />
+            <ellipse className="semantic-art__prop-shadow" cx="107" cy="140" rx="81" ry="4" />
+            {/* Folded canopy: bright top, deep fascia, a separate underside. */}
+            <path className="semantic-art__teal semantic-art__outlined" d="M28 40h150l8 5v9H28Z" />
+            <path className="semantic-art__teal-lit" d="M29 41h148l7 4H29Z" />
+            <path className="semantic-art__teal-deep" d="M29 49h156v5H29Zm147-8 9 4v4h-9Z" />
+            <path className="semantic-art__metal-deep" d="M35 54h7v84h-7Zm138 0h7v84h-7Z" />
+            <path className="semantic-art__metal-lit" d="M35 55h2v81h-2Zm138 0h2v81h-2Z" />
+            <path className="semantic-art__metal" d="M32 136h13v4H32Zm138 0h13v4h-13Z" />
+            {/* Three panes and a return panel make a shelter, not a billboard. */}
+            <path className="semantic-art__glass semantic-art__outlined semantic-art__glaze" d="M44 60h126v58H44Z" />
+            <path className="semantic-art__glass semantic-art__glaze" d="m38 60 6 5v53l-6 9Z" />
+            <path className="semantic-art__surface-lit semantic-art__prop-glint" d="M47 64h14l-14 18Zm22 0h5l-27 34v-6Zm32 0h9l-16 20v-11Zm44 0h9l-18 24v-11Z" />
+            <path className="semantic-art__metal-deep" d="M88 60h3v58h-3Zm43 0h3v58h-3Z" />
+            <path className="semantic-art__metal-lit" d="M44 60h126v2H44Z" />
+            <path className="semantic-art__gloss" d="m112 112 12-13m21 11 19-20" />
+            {/* Slatted timber back and seat, with the metal brackets below it. */}
+            <path className="semantic-art__metal-deep" d="M60 109h4v30h-4Zm86 0h4v30h-4Z" />
+            <path className="semantic-art__wood semantic-art__outlined" d="M56 110h100v5H56Zm0 8h100v5H56Z" />
+            <path className="semantic-art__wood-lit" d="M57 110h98v2H57Zm-1 13h98l3 3H55Z" />
+            <path className="semantic-art__wood semantic-art__outlined" d="M55 126h102v4H55Z" />
+            <path className="semantic-art__wood-deep" d="M56 128h100v2H56Z" />
+            <path className="semantic-art__grain" d="M65 113h25m44 0h13M64 121h19m52 6h12" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            {/* Stop sign on its pole, and the timetable behind the glass. */}
-            <path className="semantic-art__metal-line" d="M204 138V44" />
-            <circle className="semantic-art__coral semantic-art__outlined" cx="204" cy="38" r="18" />
-            <path className="semantic-art__surface" d="M192 34h24v9h-24Z" />
-            <path className="semantic-art__surface semantic-art__outlined" d="M64 66h34v42H64Z" />
-            <path className="semantic-art__detail semantic-art__detail--thin" d="M70 74h22m-22 9h22m-22 9h22m-22 9h14" />
+            {/* The old no-entry bar taught the wrong street cue. A bus pictogram
+                identifies the stop without letters, route numbers or a logo. */}
+            <path className="semantic-art__metal-deep" d="M201 52h6v86h-6Z" />
+            <path className="semantic-art__metal-lit" d="M201 54h2v82h-2Z" />
+            <path className="semantic-art__metal" d="M197 136h14v4h-14Z" />
+            <g className="semantic-art__motion-part semantic-art__prop-pivot">
+              <rect className="semantic-art__teal-deep semantic-art__outlined" x="189" y="20" width="30" height="37" rx="4" />
+              <path className="semantic-art__metal-lit" d="M191 22h26v2h-26Z" />
+              <path className="semantic-art__gold-lit" d="M193 26h22v25h-22Z" />
+              <rect className="semantic-art__ink" x="197" y="30" width="14" height="15" rx="3" />
+              <path className="semantic-art__window-lit semantic-art__prop-glint" d="M199 32h10v6h-10Z" />
+              <path className="semantic-art__surface-lit" d="M199 41h2v2h-2Zm8 0h2v2h-2Z" />
+              <path className="semantic-art__ink" d="M198 44h3v3h-3Zm9 0h3v3h-3Z" />
+              <path className="semantic-art__surface-lit" d="M197 53h14v1h-14Z" />
+            </g>
+            <g className="semantic-art__motion-part semantic-art__prop-pivot">
+              <path className="semantic-art__prop-shadow" d="M66 68h34v42H66Z" />
+              <path className="semantic-art__metal-deep semantic-art__outlined" d="M64 66h34v42H64Z" />
+              <path className="semantic-art__surface" d="M67 69h27v35H67Z" />
+              <path className="semantic-art__teal" d="M67 69h27v5H67Z" />
+              {/* Ruled content is a teaching cue, not decorative grain (which
+                  disappears in high contrast and becomes pale in dark mode). */}
+              <path className="semantic-art__metal-deep" d="M71 78h19v2H71Zm0 6h19v2H71Zm0 6h19v2H71Zm0 6h13v2H71ZM75 77h1v23h-1Z" />
+              <path className="semantic-art__metal-lit" d="M64 66h34v2H64Z" />
+            </g>
             {/* Someone waiting, and the tactile strip along the platform edge. */}
             <SemanticPerson x={118} y={124} shirt="coral" pose="neutral" scale={0.74} />
             <path className="semantic-art__gold" d="M12 152h216v6H12Z" />
@@ -339,11 +412,12 @@ export function TransportScene({
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
+            <PaintedRoom name="scene-vehicle" x={12} y={12} width={216} height={156} />
             <path className="semantic-art__gold-soft semantic-art__outlined" d="M126 60 176 24l50 36v68h-100Z" />
             <path className="semantic-art__coral semantic-art__outlined" d="m120 62 56-40 56 40-8 10-48-34-48 34Z" />
             <path className="semantic-art__window semantic-art__outlined" d="M144 76h22v20h-22Z" />
             <path className="semantic-art__teal semantic-art__outlined" d="M186 90h26v38h-26Z" />
-            <path className="semantic-art__green-soft semantic-art__outlined" d="M12 128h216v34H12Z" />
+            <path className="semantic-art__green-soft semantic-art__outlined semantic-art__glaze" d="M12 128h216v34H12Z" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <ellipse className="semantic-art__prop-shadow" cx="72" cy="134" rx="62" ry="7" />

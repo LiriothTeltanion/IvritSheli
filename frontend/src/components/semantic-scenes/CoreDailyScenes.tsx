@@ -772,10 +772,11 @@ export function CoreDailyScene({
           hintStage={hintStage}
           context={(
             <>
+              <PaintedRoom name="scene-cold" x={12} y={12} width={216} height={156} />
               {/* Low, wind-shaped banks, with broken blue shadow pockets.
                   The original ground contact remains at y=162. */}
               <path
-                className="semantic-art__metal-lit semantic-art__outlined"
+                className="semantic-art__metal-lit semantic-art__outlined semantic-art__glaze"
                 d="M12 143q12-14 31-12 17 1 27 8 13 7 26 4 14-16 33-17 21-2 39 10 17 14 31 5 16-8 29 2v19H12Z"
               />
               <path className="semantic-art__blue-soft" d="M12 153q28-11 56-4-27-1-36 6l44-1 16 3q-37 5-80 5Z M142 144q18-6 36 4l19 5q-34-1-55 5l-17-3Z M203 146q14-8 25-1v8q-9-8-25-7Z" />

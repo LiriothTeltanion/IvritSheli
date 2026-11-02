@@ -271,6 +271,7 @@ export function GreetingTimeScene({
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wall semantic-art__outlined" d="M12 12h216v122H12Z" />
+            <PaintedRoom name="scene-please" x={12} y={12} width={216} height={156} />
             <path className="semantic-art__awning semantic-art__outlined" d="M18 22h204l-12 26H30Z" />
             <path className="semantic-art__awning-lines" d="m58 22-5 26m44-26-2 26m56-26 2 26m36-26 5 26" />
             {/* A shelf of cups behind: this is a place that serves things. */}

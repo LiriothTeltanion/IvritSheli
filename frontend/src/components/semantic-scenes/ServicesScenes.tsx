@@ -370,6 +370,7 @@ export function ServicesScene({
             <path className="semantic-art__wall semantic-art__outlined" d="M14 14h212v128H14Z" />
             <path className="semantic-art__floor" d="M14 142h212v24H14Z" />
             <path className="semantic-art__tiles" d="M14 142h212M50 142v24m36-24v24m36-24v24m36-24v24m36-24v24" />
+            <PaintedRoom name="scene-delivery" x={12} y={12} width={216} height={156} />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             {/* A front door, shut. The box is outside it, which is what makes

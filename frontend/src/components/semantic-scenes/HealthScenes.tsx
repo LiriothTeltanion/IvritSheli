@@ -488,10 +488,11 @@ export function HealthScene({
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__surface semantic-art__outlined" d="M12 12h216v128H12Z" />
-            <path className="semantic-art__gold-soft semantic-art__outlined" d="M24 24h192v96H24Z" />
+            <path className="semantic-art__gold-soft semantic-art__outlined semantic-art__glaze" d="M24 24h192v96H24Z" />
             <path className="semantic-art__grain" d="M24 48h192M24 72h192M24 96h192" />
             <path className="semantic-art__facade-shade" d="M196 24h20v96h-20Z" />
             <path className="semantic-art__floor" d="M12 140h216v22H12Z" />
+            <PaintedRoom name="scene-clinic" x={12} y={12} width={216} height={156} />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             {/* Sliding glass doors under a canopy. */}

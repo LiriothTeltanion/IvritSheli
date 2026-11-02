@@ -319,7 +319,8 @@ export function NatureScene({
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
-            <path className="semantic-art__green-soft semantic-art__outlined" d="M12 128h216v34H12Z" />
+            <PaintedRoom name="scene-dog" x={12} y={12} width={216} height={156} />
+            <path className="semantic-art__green-soft semantic-art__outlined semantic-art__glaze" d="M12 128h216v34H12Z" />
             <path className="semantic-art__grain" d="M20 138h200M20 150h136" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>

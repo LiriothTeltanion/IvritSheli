@@ -309,6 +309,7 @@ export function ShoppingScene({
             <path className="semantic-art__gold-soft semantic-art__outlined" d="M12 12h216v122H12Z" />
             <path className="semantic-art__grain" d="M12 44h60M12 76h60M168 44h60M168 76h60" />
             <path className="semantic-art__floor" d="M12 134h216v28H12Z" />
+            <PaintedRoom name="scene-buy" x={12} y={12} width={216} height={156} />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             {/*

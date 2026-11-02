@@ -560,6 +560,7 @@ export function FoodHomeScene({
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wall semantic-art__outlined" d="M20 25h200v125H20Z" />
             <path className="semantic-art__floor" d="M20 121h200v29H20Z" />
+            <PaintedRoom name="scene-table" x={12} y={12} width={216} height={156} />
             <ellipse className="semantic-art__prop-shadow" cx="120" cy="156" rx="94" ry="8" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
@@ -690,6 +691,7 @@ export function FoodHomeScene({
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wall semantic-art__outlined" d="M20 23h200v132H20Z" />
+            <PaintedRoom name="scene-window" x={12} y={12} width={216} height={156} />
             <circle className="semantic-art__gold semantic-art__outlined" cx="120" cy="65" r="22" />
             <circle className="semantic-art__sun-core" cx="114" cy="59" r="11" />
             <path className="semantic-art__green-soft semantic-art__outlined" d="M38 131c23-48 51-50 78 0Zm82 0c28-48 58-49 84 0Z" />
