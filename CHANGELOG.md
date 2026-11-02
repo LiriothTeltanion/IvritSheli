@@ -39,6 +39,8 @@
 - 2026-11-02: the Today metric cards follow the theme tokens, so the light theme no longer shows grey slabs with white
   numbers; the phone help button keeps its ? badge; and until a name is chosen Today greets "Shalom" instead of
   "Shalom, Local".
+- 2026-11-02: "excuse me" (greetings.excuse_me) gains a painted Israel Railways carriage with a dark-theme version,
+  so 157 of the 165 paintable scenes now sit on painted settings; the eight left are maps, arrows and notice cards.
 - 2026-11-02: README visual proof moves to 2.13.0: five captures from a clean commit and a ten-second tour that plays
   once and includes the painted scenes. The 2.12.3 and 2.12.2 sets and the 2.13.0 art-pass sheets stay preserved.
 

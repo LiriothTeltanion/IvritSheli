@@ -16,7 +16,7 @@ export const VERSION_HISTORY_COPY: Record<Locale, { title: string, summary: stri
         date: '2026-11-02',
         highlights: [
           'Private candidate, untagged; the latest published release remains v2.12.2.',
-          'Painted settings of everyday Israel, with dark-theme versions, behind 156 of the 165 paintable scenes.',
+          'Painted settings of everyday Israel, with dark-theme versions, behind 157 of the 165 paintable scenes.',
           'One family of adults with faces, sleeves and hands runs through all 240 exact scenes.',
           'Scenes replay on a tap and wake once when they come into view, still within five seconds.',
           'Your theme and language are saved with your profile, and Today greets you by the name you chose.',
@@ -160,7 +160,7 @@ export const VERSION_HISTORY_COPY: Record<Locale, { title: string, summary: stri
         date: '2026-11-02',
         highlights: [
           'Candidata privada sin etiqueta; la última versión publicada sigue siendo v2.12.2.',
-          'Lugares pintados del Israel cotidiano, con versión oscura, detrás de 156 de las 165 escenas pintables.',
+          'Lugares pintados del Israel cotidiano, con versión oscura, detrás de 157 de las 165 escenas pintables.',
           'Una misma familia de adultos, con caras, mangas y manos, recorre las 240 escenas exactas.',
           'Las escenas se mueven al tocarlas y despiertan una vez al aparecer, siempre en menos de cinco segundos.',
           'Tu tema y tu idioma se guardan en tu perfil, y «Hoy» te saluda con el nombre que elegiste.',
@@ -304,7 +304,7 @@ export const VERSION_HISTORY_COPY: Record<Locale, { title: string, summary: stri
         date: '2026-11-02',
         highlights: [
           'גרסת מועמד פרטית ללא תג; הגרסה האחרונה שפורסמה נשארת v2.12.2.',
-          'מקומות מצוירים מהחיים בישראל, עם גרסה כהה, מאחורי 156 מתוך 165 הסצנות שאפשר לצייר.',
+          'מקומות מצוירים מהחיים בישראל, עם גרסה כהה, מאחורי 157 מתוך 165 הסצנות שאפשר לצייר.',
           'אותה משפחת מבוגרים, עם פנים, שרוולים וידיים, מופיעה בכל 240 הסצנות.',
           'הסצנות זזות בנגיעה ומתעוררות פעם אחת כשהן מופיעות, תמיד בפחות מחמש שניות.',
           'ערכת הנושא והשפה נשמרות בפרופיל, ומסך „היום“ מברך אותך בשם שבחרת.',

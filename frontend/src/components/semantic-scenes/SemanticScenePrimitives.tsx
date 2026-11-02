@@ -137,6 +137,7 @@ const DARK_PAINTINGS: ReadonlySet<string> = new Set([
   'scene-egg',
   'scene-elevator',
   'scene-evening',
+  'scene-excuse-me',
   'scene-field',
   'scene-forest',
   'scene-fridge',

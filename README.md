@@ -1,5 +1,5 @@
 > **Living painted scenes — 2026-11-02.** **Current private candidate:** `2.13.0`.
-> One family of animated adults now runs through all 240 scenes, 156 of the 165 paintable scenes sit on painted
+> One family of animated adults now runs through all 240 scenes, 157 of the 165 paintable scenes sit on painted
 > gouache settings with dark-theme versions, and every scene wakes with a short, finite motion when it scrolls into
 > view. **Latest published release:** `v2.12.2`. The staging host is redeployed by hand from `main`, so it can trail
 > the source; its `/version` endpoint reports what it runs.

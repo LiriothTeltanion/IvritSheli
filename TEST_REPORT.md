@@ -8,7 +8,7 @@
 
 ## Executed local gate — 2026-11-02 (phone header, Today fixes, README proof)
 
-- Frontend: `npm run typecheck` 0 errors; `npm run test:run` 1092 passed across 58 files; Playwright against the
+- Frontend: `npm run typecheck` 0 errors; `npm run test:run` 1094 passed across 58 files; Playwright against the
   served FastAPI build (CSP active) 46 passed / 42 intentional scoped skips / 0 failures, after fixing a
   label-in-name violation on the compact language button that the 390 px axe scan caught.
 - Top bar swept at 15 viewports from 320 to 1440 px in Spanish and Hebrew (90 checks): no wrapped or overflowing bar.

@@ -45,6 +45,8 @@ export function CoreGreetingTimeScene({
             <path className="semantic-art__metal-line" d="M25 40h190" />
             <path className="semantic-art__metal-line" d="M60 40v14m60-14v14m60-14v14" />
             <path className="semantic-art__shade" d="M17 132h206v13H17Z" />
+            {/* The painting carries the carriage, its windows and grab rail, so it goes over the flat ones above. */}
+            <PaintedRoom name="scene-excuse-me" x={12} y={12} width={216} height={156} />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <SemanticPerson x={52} y={112} shirt="coral" pose="neutral" />
