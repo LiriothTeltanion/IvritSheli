@@ -78,7 +78,7 @@ describe('wake when seen', () => {
     report = undefined;
   });
 
-  it('wakes a scene that comes into view and lets it rest within five seconds', () => {
+  it('wakes a scene with the press motion, then the slow pass, and lets it rest within five seconds', () => {
     vi.useFakeTimers();
     vi.stubGlobal('IntersectionObserver', FakeObserver);
     const { container } = render(<SemanticWordIllustration visual={visual('greetings.how_are_things')} locale="es" size="card" />);
@@ -86,8 +86,12 @@ describe('wake when seen', () => {
     act(() => report?.(0.2));
     expect(scene).not.toHaveAttribute('data-awake');
     act(() => report?.(0.8));
+    expect(scene).toHaveAttribute('data-exploring');
+    expect(scene).not.toHaveAttribute('data-awake');
+    act(() => vi.advanceTimersByTime(1250));
+    expect(scene).not.toHaveAttribute('data-exploring');
     expect(scene).toHaveAttribute('data-awake');
-    act(() => vi.advanceTimersByTime(4900));
+    act(() => vi.advanceTimersByTime(3600));
     expect(scene).not.toHaveAttribute('data-awake');
   });
 
@@ -103,7 +107,7 @@ describe('wake when seen', () => {
     vi.stubGlobal('matchMedia', (query: string) => ({ matches: query.includes('reduce'), addEventListener() {}, removeEventListener() {} }));
     const { container } = render(<SemanticWordIllustration visual={visual('greetings.how_are_things')} locale="es" size="card" />);
     act(() => report?.(1));
-    expect(container.querySelector('svg[data-awake]')).toBeNull();
+    expect(container.querySelector('svg[data-awake], svg[data-exploring]')).toBeNull();
   });
 
   it('keeps every wake-up animation under five seconds in total', () => {
@@ -111,7 +115,8 @@ describe('wake when seen', () => {
     expect(rules.length).toBeGreaterThan(5);
     for (const [, name, value, unit, count] of rules) {
       const ms = Number(value) * (unit === 's' ? 1000 : 1) * Number(count ?? 1);
-      expect(ms, name).toBeLessThanOrEqual(5000);
+      // The slow pass follows the 1.2 s press motion, so it has 3.8 s of the five.
+      expect(ms, name).toBeLessThanOrEqual(3800);
     }
   });
 });

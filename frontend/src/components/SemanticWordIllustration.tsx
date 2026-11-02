@@ -184,8 +184,8 @@ export function hasSemanticWordIllustration(key: string): boolean {
 
 /** Longer than the slowest press-triggered animation (820 ms), so none is cut off. */
 const EXPLORE_MS = 1200;
-/** The wake-up motion when a scene comes into view: two breaths in one pass. Under the five seconds WCAG 2.2.2 allows. */
-const AWAKE_MS = 4800;
+/** The slow at-rest pass that follows the press motion when a scene wakes: 1.2 + 3.6 s, under WCAG 2.2.2's five. */
+const AWAKE_MS = 3600;
 
 function SemanticSceneCanvas({
   visual,
@@ -213,9 +213,9 @@ function SemanticSceneCanvas({
     return () => window.clearTimeout(timer);
   }, [exploring]);
   /*
-   * Alive at rest: a card or hero scene "wakes" once each time at least half of it comes into view, then is still.
-   * Thumbnails are skipped (a dictionary page shows dozens at once) and so is reduced motion, where the CSS rules
-   * never apply anyway.
+   * Alive at rest: each time at least half of a card or hero scene comes into view it wakes once — the press motion
+   * first, so every teaching part moves, then the slow at-rest pass — and is still again after 4.8 s. Thumbnails are
+   * skipped (a dictionary page shows dozens at once) and so is reduced motion, where the CSS rules never apply anyway.
    */
   const svgRef = useRef<SVGSVGElement>(null);
   const reducedMotion = usePrefersReducedMotion();
@@ -223,17 +223,21 @@ function SemanticSceneCanvas({
   useEffect(() => {
     const node = svgRef.current;
     if (!node || size === 'thumbnail' || reducedMotion || typeof IntersectionObserver === 'undefined') return undefined;
-    let timer: number | undefined;
+    let timers: number[] = [];
     const observer = new IntersectionObserver(([entry]) => {
       if (!entry || entry.intersectionRatio < 0.5) return;
-      window.clearTimeout(timer);
-      setAwake(true);
-      timer = window.setTimeout(() => setAwake(false), AWAKE_MS);
+      timers.forEach((timer) => window.clearTimeout(timer));
+      setAwake(false);
+      setExploring(true);
+      timers = [
+        window.setTimeout(() => setAwake(true), EXPLORE_MS),
+        window.setTimeout(() => setAwake(false), EXPLORE_MS + AWAKE_MS),
+      ];
     }, { threshold: 0.5 });
     observer.observe(node);
     return () => {
       observer.disconnect();
-      window.clearTimeout(timer);
+      timers.forEach((timer) => window.clearTimeout(timer));
     };
   }, [size, reducedMotion]);
   const explore = (): void => {
