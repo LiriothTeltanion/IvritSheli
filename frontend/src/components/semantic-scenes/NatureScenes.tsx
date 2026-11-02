@@ -519,13 +519,39 @@ export function NatureScene({
             ))}
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            {/* The path, narrowing away from the viewer. */}
-            <path className="semantic-art__wood semantic-art__outlined semantic-art__glaze" d="M84 162h72l-7-23-7-18-4-17h-36l-5 18-6 18Z" />
-            <path className="semantic-art__wood-lit semantic-art__glaze" d="m84 162 7-22 6-18 5-18h3l-6 20-5 17-6 21Z" />
-            <path className="semantic-art__wood-deep semantic-art__glaze" d="m135 104 4 18 7 18 6 22h4l-7-23-7-18-4-17Z" />
-            <path className="semantic-art__green-deep" d="m91 140-3 3 2 5-4 7 4-2 3-9Z M143 126l3 6-1 5 3 5 1-3-3-12Z M100 109l-3 6 3-2Z" />
-            <path className="semantic-art__stone-lit" d="m93 149 3-1 2 2-4 1Z M139 143l3-1 2 3h-4Z M103 119l3-1 1 2h-4Z" />
-            <path className="semantic-art__grain" d="M100 152h40m-36-16h32m-28-16h24" />
+            {/* No perimeter stroke: the painted earth remains visible through
+                a meandering glaze. Broken banks replace the old trapezoid and
+                crossbars, with smaller details receding towards the clearing. */}
+            <path className="semantic-art__wood semantic-art__glaze" d="M84 162q6-5 5-12 1-5 6-8-1-6 4-12l-1-6q6-6 5-12l-1-8q8 3 17 0 10-3 19 0-2 6 2 11l-1 7q-2 7 4 13l1 9q7 7 6 12l6 6Z" />
+            <path className="semantic-art__wood-lit semantic-art__glaze" d="M91 160q5-6 4-11 5-5 6-13l5-10q-2-7 4-12l4-9 6-1q-8 9-7 17l-5 13q-4 5-2 12l-6 16Z" />
+            <path className="semantic-art__wood-deep semantic-art__glaze" d="M133 107q2 6 0 11l3 8q0 7 6 12l-1 7q7 7 6 14l9 3-6-6q1-5-6-12l-1-9q-6-6-4-13l1-7-2-11Z M90 146q0 7-6 16h4q6-7 5-13l5-5-2-3Z" />
+            {/* Dappled warm light is fragmented along the earth, never a
+                luminous stripe; all broad paint retains the existing glaze. */}
+            <path className="semantic-art__gold-soft semantic-art__glaze" d="m102 155 9-4 13 1 8 3-16 3-13-1Z m10-18 7-3 8 1 7 2-12 2Z m-2-21 7-2 10 1-6 2Z m13 29 8-2 9 3-11 1Z" />
+            {/* Roots enter from a bank and taper before crossing the path;
+                their light upper plane sits over the earth contact shadow. */}
+            <path className="semantic-art__wood-deep" d="M87 153q8-4 15 0l6 3-7-1q-6-4-14 1Z M142 139q-5-4-12-2l-6-1 6-1q7-2 12 1Z M99 122q5-1 9 1l4 3-6-2-7 1Z" />
+            <path className="semantic-art__wood-lit" d="M88 153q8-3 14 0l-1 1q-6-3-13 0Z M132 136q6-1 10 2v-1q-5-3-10-1Z" />
+            {/* Irregular pebbles have a shaded foot and a lit facet; larger
+                foreground stones and a few tiny distant ones convey depth. */}
+            <g>
+              <path className="semantic-art__prop-shadow" d="M96 152q4-2 8 0-3 3-8 1Z M134 148q4-2 8 0-2 3-8 1Z M108 125h5l-1 2h-4Z" />
+              <path className="semantic-art__stone" d="m96 151 2-4 4 1 2 4-5 1Z m38-5 2-3 4 1 2 4-5 1Z m-26-22 1-2 3 1 1 2-4 1Z m17-13 2-1 2 1-1 1h-3Z" />
+              <path className="semantic-art__stone-lit" d="m96 151 2-4 3 1-2 2Z m38-5 2-3 3 1-2 2Z m-26-22 1-2 2 1-1 1Z" />
+              <path className="semantic-art__stone-deep" d="m99 150 3-2 2 4-5 1Z m38-4 3-2 2 4-5 1Z" />
+            </g>
+            {/* A few needles, leaf litter and tufts soften the banks. Static
+                earth stays still; living border grass follows foliage motion. */}
+            <path className="semantic-art__wood-deep semantic-art__glaze" d="m113 149 4-2-2 3Z m20 7 4-3 2 2-4 2Z m-20-24 3-1-1 2Z m9-11 2-1 1 1-2 1Z" />
+            <path className="semantic-art__wood-lit" d="m92 157 5 1-5-2Z m14-13 5 2-4-3Z m25 10 5-1-5 2Z m-10-24 3 1-2-2Z m-12-11 3 1-3-2Z" />
+            {([[87, 157, 1], [146, 151, 0.9], [97, 135, 0.7], [140, 129, 0.6], [103, 113, 0.4]] as const).map(([x, y, scale]) => (
+              <g key={x} transform={`translate(${x} ${y}) scale(${scale})`}>
+                <g className="semantic-art__motion-part semantic-art__prop-pivot semantic-art__prop-sway">
+                  <path className="semantic-art__green-deep" d="M-3 2q1-5-2-9 4 2 5 7 0-7 4-10-2 5-1 9l4-4-3 7Z" />
+                  <path className="semantic-art__green-lit" d="M0 1q0-5-2-7 3 2 3 7Z M2 0q1-5 2-7-1 5-1 7Z" />
+                </g>
+              </g>
+            ))}
             <path className="semantic-art__leaf-lit" d="M20 20c10-8 22-6 30 2m36-4c9-7 19-6 26 1" />
           </SceneLayer>
         </>

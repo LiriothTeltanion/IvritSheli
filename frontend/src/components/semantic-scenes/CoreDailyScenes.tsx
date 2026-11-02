@@ -9,7 +9,6 @@ import {
   SemanticPerson,
   SpeechBubble,
 } from './SemanticScenePrimitives';
-import { Cloud } from './WeatherScenes';
 
 interface CoreDailySceneProps {
   visualKey: A0VisualKey;
@@ -92,11 +91,24 @@ function Snowflake({ x, y, scale = 0.5 }: { x: number; y: number; scale?: number
 function SnowCloud(): React.JSX.Element {
   return (
     <g>
-      <Cloud x={29} y={29} />
-      {/* Six arms with forked tips: unmistakable snow, rather than plus signs. */}
-      {[45, 72, 99].map((x) => (
-        <Snowflake key={x} x={x} y={76} scale={0.4} />
+      {/* One continuous heavy cloud, with overlapping rounded volumes rather
+          than a straight icon baseline. Its shadow belongs to the cloud. */}
+      <g transform="translate(7 3) scale(0.75)">
+        <g className="semantic-art__cloud semantic-art__motion-part semantic-art__prop-bob">
+        <path className="semantic-art__metal semantic-art__outlined" d="M29 49q-2-12 11-16 1-13 16-13 9-13 23-7 15-6 24 9 15-3 21 10 13 1 15 12 3 12-10 16-9 5-21 1-11 5-23 0-13 5-25 0-17 4-28-3Z" />
+        <path className="semantic-art__metal-deep" d="M30 46q10 9 22 2 11 10 26 4 12 9 28 1 17 8 32-5 1 10-10 12-10 5-20 1-11 5-23 0-13 5-25 0-18 4-28-3Z" />
+        <path className="semantic-art__metal-lit" d="M33 41q2-10 13-9 0-12 13-10 8-12 20-6 14-6 22 10 13-3 18 7-14-5-22 3-8-12-22-7-13-5-19 6-13-3-23 6Z" />
+        <path className="semantic-art__metal-lit" d="M54 25q8-10 20-7-9 1-14 8Z M34 41q4-6 12-5-6 1-9 6Z" />
+        <path className="semantic-art__metal" d="M55 48q5-10 15-5-8-1-10 7Z M96 44q12-6 20 3-9-4-17 0Z" />
+        </g>
+      </g>
+      {/* Different heights and scales read as drifting snow, not a row of glyphs. */}
+      {([[39, 76, 0.27], [68, 91, 0.35], [96, 70, 0.22], [50, 108, 0.18], [88, 114, 0.25], [194, 107, 0.21]] as const).map(([x, y, scale]) => (
+        <Snowflake key={x} x={x} y={y} scale={scale} />
       ))}
+      <g className="semantic-art__motion-part semantic-art__prop-bob">
+        <path className="semantic-art__metal-lit" d="m55 68 1-2 2 2-1 2Z m26 13 2-2 1 2-2 2Z m-48 13 1-2 2 1-1 2Z m67-1 1-2 2 2-1 2Z m79 30 2-2 1 2-2 2Z" />
+      </g>
     </g>
   );
 }
@@ -458,42 +470,55 @@ export function CoreDailyScene({
                 className="semantic-art__wood semantic-art__outlined"
                 d="M124 18h99v144h-99Z"
               />
-              {/* Door panel and grain, so the slab reads as the door it unlocks. */}
-              <path className="semantic-art__grain" d="M124 40h99M124 140h99" />
-              <path className="semantic-art__detail semantic-art__detail--thin" d="M138 52h71v76h-71Z" />
+              {/* Recessed joinery and broken grain establish the wooden door;
+                  the escutcheon has a bevel, two screws and an actual aperture. */}
+              <path className="semantic-art__wood-lit" d="M126 20h95v3h-92v137h-3Z M137 50h72v3h-69v75h-3Z" />
+              <path className="semantic-art__wood-deep" d="M138 53h71v75h-71v-3h68V53Z M124 138h99v3h-99Z" />
+              <path className="semantic-art__grain" d="M132 29q3 16 0 29m4 80 1 15m77-124q-4 13-1 26m-69 4q-3 11 0 20m56 29 1 11" />
               <path className="semantic-art__shade" d="M208 18h15v144h-15Z" />
-              <circle className="semantic-art__metal semantic-art__outlined" cx="174" cy="91" r="24" />
-              <path className="semantic-art__metal-deep" d="M184 70a24 24 0 0 1-2 44l-4-4q24-9 6-40Z" />
-              <circle className="semantic-art__metal-lit semantic-art__outlined" cx="174" cy="91" r="17" />
-              <path className="semantic-art__gloss semantic-art__prop-glint" d="M160 82a24 24 0 0 1 14-15" />
-              <path className="semantic-art__wood-deep" d="M170 94a7 7 0 1 1 8 0l2 10h-12Z" />
-              <path className="semantic-art__metal-line" d="m159 78 2 2m26 22 2 2" />
+              <path className="semantic-art__prop-shadow" d="M163 64q14-7 27 3l-2 11q8 13 0 27l2 14q-14 8-27 0l2-14q-8-14 0-27Z" />
+              <path className="semantic-art__gold semantic-art__outlined" d="M160 62q14-7 28 0l-2 13q8 14 0 28l2 14q-14 8-28 0l2-14q-8-14 0-28Z" />
+              <path className="semantic-art__gold-deep" d="M183 61l5 1-2 13q8 14 0 28l2 14q-14 8-28 0v-3q14 5 24 0l-2-12q8-13 0-26Z" />
+              <path className="semantic-art__gold-lit" d="M161 64q11-5 22-2-13 0-19 4l2 10q-8 13-1 24l-2 12-2 1 2-12q-8-13 0-26Z" />
+              <path className="semantic-art__wood-deep" d="M170 94a6 6 0 1 1 8 0l2 10h-12Z" />
+              <path className="semantic-art__gold-deep" d="M167 88q0-10 9-9 6 1 7 7-3-6-8-5-7 0-8 7Z" />
+              <circle className="semantic-art__gold-deep" cx="174" cy="68" r="2.5" />
+              <circle className="semantic-art__gold-deep" cx="174" cy="112" r="2.5" />
+              <path className="semantic-art__gold-lit" d="m172 67 4 1-.4 1-4-1Z m0 44 4 1-.4 1-4-1Z" />
+              <path className="semantic-art__gloss semantic-art__prop-glint" d="M161 83q-2 6 0 12" />
             </>
           )}
           meaning={(
             <>
-              <path className="semantic-art__skin" d="M13 124Q32 101 53 88Q67 77 80 74Q87 71 92 77L108 88Q114 93 110 98L100 106Q92 113 90 124L84 160H13Z" />
-              <path className="semantic-art__skin-shade" d="M75 96Q86 98 99 91L110 93Q114 98 100 106Q92 113 90 124L84 160H61Q77 131 75 112Z" />
-              <path className="semantic-art__skin-lit" d="M24 123Q46 98 65 92L70 97Q49 105 31 128Z" />
-              {/* The key and its gripping fingers move together; the wrist and
-                  cuff stay at their original lower-left attachment. */}
-              <g className="semantic-art__motion-part semantic-art__prop-pivot">
-                <g transform="rotate(-10 113 87)">
-                  <path className="semantic-art__gold semantic-art__outlined" fillRule="evenodd" d="M109 87a31 31 0 1 0-62 0 31 31 0 0 0 62 0ZM90 87a12 12 0 1 1-24 0 12 12 0 0 1 24 0Z" />
-                  <path className="semantic-art__gold-deep" d="M87 57a31 31 0 0 1-3 60l-2-5q31-13 5-55Z" />
-                  <path className="semantic-art__gold semantic-art__outlined" d="M108 78h76v18h-18v16h-18V96h-40Z" />
-                  <path className="semantic-art__gold-deep" d="M108 90h76v6h-18v16h-18V96h-40Z" />
-                  <path className="semantic-art__gold-lit" d="M110 80h72v4h-72Z M151 97h4v12h-4Z" />
-                  <path className="semantic-art__gloss semantic-art__prop-glint" d="M57 74Q62 61 77 60" />
-                  <path className="semantic-art__grain" d="M115 87h55" />
+              <path className="semantic-art__skin" d="M13 132q20-23 40-32l11-7q7-4 12 0l13 15q9 10 1 20l-9 32H13Z" />
+              <path className="semantic-art__skin-shade" d="M69 105q15 5 20 3 10 10 1 20l-9 32H59l14-38Z" />
+              <path className="semantic-art__skin-lit" d="M24 128q20-19 37-25l3 4q-21 9-36 25Z" />
+              {/* Place the keyhole at the turning group's local origin. The
+                  stationary placement group retains the shared base-pivot
+                  class; only its child rotates, keeping the inserted tip in
+                  the aperture as the pinching fingers turn with the brass. */}
+              <g transform="translate(174 91)" className="semantic-art__prop-pivot">
+                <g className="semantic-art__motion-part">
+                  <g transform="translate(-174 -91) rotate(-6 174 91)">
+                    {/* Index behind the bow; three relaxed fingers curl into
+                        the palm below it. Thumb is painted over the brass. */}
+                    <path className="semantic-art__hand" d="M56 108q-4-11 1-21l7-10q4-5 8-1 3 3 0 7l-5 9 3 11 15 5q8 1 10 7 2 5-4 9l-10 7q-12 5-21-3Z" />
+                    <path className="semantic-art__skin-shade" d="M61 113q11 9 24 1l10 2q2 5-5 9l-9 6q-12 5-21-3Z" />
+                    <path className="semantic-art__gold semantic-art__outlined" fillRule="evenodd" d="M103 87q6-10-2-18-6-6-14-4-8-12-19-6-8 3-9 12-13 2-13 14-1 10 9 15-1 12 12 16 10 3 17-6 11 2 17-6 5-7 2-17ZM84 86q1-10-7-10-10-1-12 10-2 9 6 12 10 3 13-12Z" />
+                    <path className="semantic-art__gold-deep" d="M92 67q17 4 11 20 3 10-2 17-6 8-17 6-7 9-17 6-10-3-12-11 10 10 20 5 5-6 9-6 12 3 13-9-1-6 2-11 2-10-7-17Z" />
+                    <path className="semantic-art__gold-lit" d="M50 85q0-9 12-11 1-11 11-13 8-2 12 7-12-7-19 9-12 0-16 8Z M68 103q10 6 18-9-1 12-11 13Z" />
+                    {/* A shouldered shaft and two cut wards, with its tip
+                        directly in the aperture rather than hovering above it. */}
+                    <path className="semantic-art__gold semantic-art__outlined" d="M101 85h67l10 3v6h-12v14h-7v-9h-6v11h-9V96h-43Z" />
+                    <path className="semantic-art__gold-deep" d="M103 92h75v2h-12v14h-7v-3h4V94h-16v13h6v3h-9V96h-41Z" />
+                    <path className="semantic-art__gold-lit" d="M104 86h62l8 2h-70Z M146 98h2v7h-2Z M160 97h2v6h-2Z" />
+                    <path className="semantic-art__gold-deep" d="M108 89h45v1h-45Z M89 72l3 2-2 3-3-2Z M56 83l3 1-1 3-3-1Z" />
+                    <path className="semantic-art__gloss semantic-art__prop-glint" d="M62 70q2-9 10-9" />
+                    <path className="semantic-art__hand" d="M56 109q-1-7 5-12l10-8q5-4 9 0 3 4-2 8l-7 7q5 1 8 5 3 5-1 8-5 4-10 0l-5-1q-7 1-7-7Z" />
+                    <path className="semantic-art__skin-lit" d="M59 104q1-4 7-8l7-5q3-2 4 0-7 4-12 10l-4 6Z" />
+                    <path className="semantic-art__body-hand-detail" d="M74 113q-5-3-9-2M78 123l11-7m-6 11 9-7M72 94l3 2" />
+                  </g>
                 </g>
-                {/* A thumb crosses the bow, separate knuckles curl underneath.
-                    These are the same skin/hand tokens as PersonBody. */}
-                <path className="semantic-art__hand" d="M64 110Q68 107 72 109L87 103Q94 101 96 107Q98 113 91 117L77 128Q70 132 64 124Z" />
-                <path className="semantic-art__skin-shade" d="M65 119Q71 125 78 121L93 110Q96 116 90 120L77 128Q70 132 64 124Z" />
-                <path className="semantic-art__hand" d="M64 113Q58 107 60 101L68 91Q73 85 79 90L88 99Q92 104 87 107Q83 110 78 106L73 102Q69 112 64 113Z" />
-                <path className="semantic-art__body-hand-detail" d="M66 107 70 100M72 118l13-9m-7 14 12-9M78 95l7 7" />
-                <path className="semantic-art__skin-highlight" d="M67 98l4-5q4-3 7 0" />
               </g>
               <path className="semantic-art__teal semantic-art__outlined" d="M13 135 37 115 63 141 54 160H13Z" />
               <path className="semantic-art__teal-deep" d="m37 115 26 26-9 19H40l11-18Z" />
@@ -712,44 +737,85 @@ export function CoreDailyScene({
           hintStage={hintStage}
           context={(
             <>
-              <SnowCloud />
+              {/* Low, wind-shaped banks, with broken blue shadow pockets.
+                  The original ground contact remains at y=162. */}
               <path
                 className="semantic-art__metal-lit semantic-art__outlined"
-                d="M12 143Q31 125 54 128Q78 129 96 143Q117 121 140 124Q164 124 183 143Q204 121 228 143v19H12Z"
+                d="M12 143q12-14 31-12 17 1 27 8 13 7 26 4 14-16 33-17 21-2 39 10 17 14 31 5 16-8 29 2v19H12Z"
               />
-              <path className="semantic-art__shade" d="M12 153Q57 147 96 154Q142 142 183 154Q205 147 228 150v12H12Z" />
-              <path className="semantic-art__surface-lit" d="M24 140Q53 119 83 138Q56 128 24 140Z M109 138Q137 113 165 135Q139 125 109 138Z M191 140Q207 128 222 140Q206 135 191 140Z" />
+              <path className="semantic-art__blue-soft" d="M12 153q28-11 56-4-27-1-36 6l44-1 16 3q-37 5-80 5Z M142 144q18-6 36 4l19 5q-34-1-55 5l-17-3Z M203 146q14-8 25-1v8q-9-8-25-7Z" />
+              <path className="semantic-art__surface-lit" d="M20 141q23-19 47-4-28-9-47 4Z M105 140q23-21 47-9-20-5-47 9Z M171 148q24-11 49-2-27-3-49 2Z" />
+              <ellipse className="semantic-art__prop-shadow" cx="126" cy="160" rx="23" ry="3" />
+              <SnowCloud />
             </>
           )}
           meaning={(
             <>
               <SemanticPerson x={125} y={106} shirt="blue" pose="shiver" scale={1.42} />
-              {/* Neck at y=92, below the shared adult's chin. The old y=77
-                  band covered his mouth. Keep ends above the clasped hands. */}
-              <g className="semantic-art__motion-part semantic-art__prop-pivot">
-                <g className="semantic-art__prop-flutter">
-                  <path className="semantic-art__coral semantic-art__outlined" d="M129 99q-3 9-1 19l10 2q-4-12-1-21Z" />
-                  <path className="semantic-art__coral-deep" d="m134 100 3-1q-3 9 1 21l-4-1Z" />
-                  <path className="semantic-art__grain" d="m128 116 9 2m-7 1-1 4m4-3v4m3-4 1 4M130 106l5 1m-5 4 5 1" />
+              {/* Clothes use the shared adult's exact coordinates and tokens.
+                  The face, beard, trousers and shoes remain SemanticPerson;
+                  shoulders rise into a coat, with sleeved arms held tightly
+                  across the chest and the original (-2,14)/(2,14) hand anchors. */}
+              <g transform="translate(125 106) scale(1.42)" className="semantic-art__person--blue">
+                <g className="semantic-art__body-breath">
+                  <path className="semantic-art__shirt" d="M-13 31q-2-15-1-29-1-9 6-15l5 4h7l5-4q7 5 6 15l-1 29q-13 5-27 0Z" />
+                  <path className="semantic-art__shirt-lit" d="M-12 29q-2-15-1-27-1-8 5-12l3 3q-6 11-3 38Z" />
+                  <path className="semantic-art__shirt-deep" d="M9-11q7 4 6 13l-1 29-6 1q3-22-2-40Z" />
+                  <path className="semantic-art__garment-line" d="M0-4v34M-11 26q12 3 23 0M-9 19l5 2m10 0 5-2" />
+                  <circle className="semantic-art__gold-deep" cx="2" cy="23" r="0.9" />
                 </g>
-                <path className="semantic-art__coral semantic-art__outlined" d="M110 91q15 7 31 0l-1 9q-15 9-29 0Z" />
-                <path className="semantic-art__coral-deep" d="M111 97q15 7 29-1v4q-15 9-29 0Z" />
-                <path className="semantic-art__coral-lit" d="M112 92q13 6 27 0v3q-14 6-27-1Z" />
-                <path className="semantic-art__grain" d="m115 96 1 4m4-3 1 5m4-4v5m5-5v4m5-5-1 4" />
+                <g className="semantic-art__motion-part semantic-art__prop-pivot">
+                  {/* Far sleeve crosses first; the near sleeve wraps over it. */}
+                  <path className="semantic-art__sleeve" d="M-9-8q-7 4-5 15 1 7 8 9l10-7-3-6-9 5-1-12Z" />
+                  <path className="semantic-art__shirt-deep" d="M-13 3q0 9 7 10l7-5 3 1-10 7q-8-1-8-9Z" />
+                  <path className="semantic-art__body-sleeve-outline" d="M-9-8q-7 4-5 15 1 7 8 9l10-7" />
+                  <path className="semantic-art__sleeve" d="M9-8q7 4 5 14-1 7-8 9L-5 8l3-6 10 6 1-11Z" />
+                  <path className="semantic-art__shirt-lit" d="M12-3q3 8-1 12-2 2-5 2l-8-6 1-2 9 5q5-3 4-11Z" />
+                  <path className="semantic-art__shirt-deep" d="M14 6q-1 7-8 9L-5 8l1-2 11 6q5-1 7-6Z" />
+                  <path className="semantic-art__body-sleeve-outline" d="M9-8q7 4 5 14-1 7-8 9L-5 8" />
+                  <path className="semantic-art__hand" d="M-6 11q1-2 3-1l2 1 2-1q2 0 2 2l-1 4q-2 3-5 1l-2-1q-2-2-1-5Z M2 11q1-2 3-1l2 3q2 3-1 5-3 1-5-2l-1-2q0-2 2-3Z" />
+                  <path className="semantic-art__body-hand-detail" d="M-3 12l2 2m4-1 2 2" />
+                  <path className="semantic-art__garment-line" d="m-8 8 3 5M7 9l-3 5" />
+                </g>
+                {/* Ribbed wool cap sits over the existing hair, clear of eyes. */}
+                <path className="semantic-art__shirt" d="M-8-28q-3-10 7-12 10-2 11 11l-3 3Z" />
+                <path className="semantic-art__blue-deep" d="M2-40q8 0 8 11l-3 3-4-2q4-6-1-12Z" />
+                <path className="semantic-art__blue-lit" d="M-7-32q0-7 7-7-5 3-5 8Z" />
+                <path className="semantic-art__shirt" d="M-9-30q9-3 19 0v5q-10-3-19 0Z" />
+                <path className="semantic-art__garment-line" d="m-6-30 .4 4m3-4 .3 4m3-4v4m3-4-.2 4m3-3-.3 3M-4-35l1-2m3 0 1 2" />
+                <g className="semantic-art__motion-part semantic-art__prop-pivot">
+                  <g className="semantic-art__prop-flutter">
+                    <path className="semantic-art__coral" d="M6-10q10-4 17-1l13-1 1 6q-9 4-18 0L7-3Z" />
+                    <path className="semantic-art__coral-deep" d="M8-7q11-4 19 0l9-2 1 3q-9 4-18 0L7-3Z" />
+                    <path className="semantic-art__coral-lit" d="M12-10q7-3 13 1l10-1v1q-9 3-13 0l-10 1Z" />
+                    <path className="semantic-art__grain" d="m18-10-1 3m6-2-1 3m6-3v3m8-5 3-1m-3 3 4-1m-4 3 3 1" />
+                    <path className="semantic-art__coral" d="M5-8q6 5 13 4l10 5-3 5-12-6Q6 0 2-3Z" />
+                    <path className="semantic-art__coral-deep" d="M6-4q5 3 9 2l12 5-2 3-12-6Q6 0 2-3Z" />
+                    <path className="semantic-art__grain" d="m15-2-1 3m6-1-2 3m8-1 3 2m-5 0 3 2" />
+                  </g>
+                  <path className="semantic-art__coral" d="M-9-13q8 4 17 0l2 7q-10 6-20 0Z" />
+                  <path className="semantic-art__coral-deep" d="M-9-7q10 4 18-1l1 2q-10 6-20 0Z" />
+                  <path className="semantic-art__coral-lit" d="M-8-12q8 3 15 0l1 2q-8 3-15 0Z" />
+                  <path className="semantic-art__garment-line" d="m-6-10 .5 4m3-3 .3 4m3-3v3m3-4-.3 4m3-5-.5 4" />
+                </g>
               </g>
               <path
                 className="semantic-art__motion semantic-art__motion-part"
-                d="M82 81c-10 3-14 11-6 17m93-17c10 3 14 11 6 17"
+                d="M97 103q-4 4-1 8m59-7q4 4 1 8"
               />
             </>
           )}
           anchor={(
             <>
-              <path
-                className="semantic-art__breath semantic-art__motion-part"
-                d="M144 79q9-5 17-1t15-2m-24 10q8-3 16-1t15-2"
-              />
-              <Snowflake x={42} y={125} scale={0.65} />
+              <g className="semantic-art__motion-part semantic-art__prop-bob">
+                <path className="semantic-art__breath" d="M150 77q12-5 25-1t30-3m-43 10q13-3 25-1t25-3M24 101q9-4 17-1t14-1" />
+                <path className="semantic-art__surface-lit" d="m181 77 3-1 3 1-4 2Z m21-8 3-1 2 2-3 1Z m-11 18 4-1 2 1-4 2Z" />
+              </g>
+              <Snowflake x={40} y={130} scale={0.38} />
+              <Snowflake x={193} y={143} scale={0.2} />
+              <g className="semantic-art__prop-glint">
+                <path className="semantic-art__surface-lit" d="m63 148 1-4 1 4 4 1-4 1-1 4-1-4-4-1Z m106 6 1-2 1 2 3 1-3 1-1 2-1-2-2-1Z m95-2 1-3 1 3 3 1-3 1-1 3-1-3-3-1Z" />
+              </g>
             </>
           )}
         />
