@@ -203,7 +203,7 @@ describe('App cloud session flow', () => {
     expect(screen.getByRole('button', { name: 'Explore read-only demo' })).toBeEnabled();
     expect(screen.getByText(/No password is created or stored here/i)).toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: 'HE' }));
+    await user.click(screen.getByRole('radio', { name: 'עברית' }));
     expect(screen.getByRole('heading', { name: 'העברית שלך. ההתקדמות שלך. המקום שלך.' })).toBeInTheDocument();
     expect(screen.getAllByText('הדרך שלך לעברית').length).toBeGreaterThan(0);
     // The tagline now appears in the hero and again in the footer, where the
@@ -213,7 +213,7 @@ describe('App cloud session flow', () => {
     expect(screen.getByLabelText('יכולות מרחב הלימוד')).toBeInTheDocument();
     expect(document.documentElement).toHaveAttribute('dir', 'rtl');
 
-    await user.click(screen.getByRole('button', { name: 'ES' }));
+    await user.click(screen.getByRole('radio', { name: 'Español' }));
     expect(screen.getByRole('heading', { name: 'Tu hebreo. Tu progreso. Tu espacio.' })).toBeInTheDocument();
     expect(document.documentElement).toHaveAttribute('dir', 'ltr');
   });
@@ -337,7 +337,7 @@ describe('App cloud session flow', () => {
 
     await screen.findByText('Your progress is saved');
     const switcher = document.querySelector<HTMLElement>('.topbar .locale-switch')!;
-    await user.click(within(switcher).getByRole('button', { name: 'ES' }));
+    await user.click(within(switcher).getByRole('radio', { name: 'Español' }));
 
     await waitFor(() => {
       const saves = fetchMock.mock.calls.filter(([url, init]) => String(url).endsWith('/profile') && init?.method === 'PUT');
@@ -765,6 +765,15 @@ describe('App cloud session flow', () => {
     expect(await screen.findByRole('button', { name: /Open profile menu: Kiko/i })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /Shalom, Kiko/i })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: /Shalom, Ana/i })).not.toBeInTheDocument();
+  });
+
+  it('greets without a name while the learner has not chosen one', async () => {
+    // Local mode's only name is the session placeholder "Local learner"; the greeting read "Shalom, Local".
+    vi.stubGlobal('fetch', routeFetch(localSession, { ...profile, display_name: 'Learner' }));
+    renderApp();
+
+    expect(await screen.findByRole('heading', { name: /^Shalom$/i })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: /Shalom, Local/i })).not.toBeInTheDocument();
   });
 
   it('falls back to the session name while no name has been chosen', async () => {

@@ -18,7 +18,11 @@ import { DictionaryVisualCue } from './DictionaryVisualCue';
 import { LivingHebrewAtlas, type AtlasRegionId } from './LivingHebrewAtlas';
 import { MetricRing } from './MetricRing';
 import { PersonalCoachCard } from './PersonalCoachCard';
+import { isPaintedLeadScene } from './SemanticWordIllustration';
 import { DailyMetrics } from './DailyMetrics';
+
+/** The profile default and the local session's name: neither is a name the learner chose. */
+const GENERIC_LEARNER_NAMES = new Set(['Learner', 'Local learner']);
 
 interface TodayDashboardProps {
   dashboard: Dashboard;
@@ -121,7 +125,9 @@ export function TodayDashboard({
   const visualSpotlight = dashboard.visual_spotlight?.length
     ? dashboard.visual_spotlight.slice(0, 6)
     : fallbackSpotlight;
-  const firstWord = visualSpotlight[0]!;
+  // The hero card leads with a painted place. The daily rotation can open on a counting diagram or a notice card,
+  // which teach well in the strip below but read as a chart in the largest card on the page.
+  const firstWord = visualSpotlight.find((word) => isPaintedLeadScene(word.visual.key)) ?? visualSpotlight[0]!;
   const localizedSpotlightMeaning = (word: VisualSpotlightEntry): string => (
     locale === 'he'
       ? word.translation_he
@@ -129,7 +135,8 @@ export function TodayDashboard({
         ? word.translation_es
         : word.translation_en
   );
-  const firstName = learnerName.split(' ')[0] || learnerName;
+  // The placeholder names mean nobody has chosen one yet: greet without a name instead of "Shalom, Local".
+  const firstName = GENERIC_LEARNER_NAMES.has(learnerName.trim()) ? '' : learnerName.split(' ')[0] || learnerName;
   const focusReason = (() => {
     if (locale === 'en') return dashboard.focus.reason;
     if (dashboard.focus.reason.startsWith('No recurring mistake pattern')) return t('balancedFocusReason');
@@ -196,7 +203,7 @@ export function TodayDashboard({
             <span aria-hidden="true">🌱</span>
             <span>{readOnly ? t('readOnly') : t('yourProgressIsSaved')}</span>
           </div>
-          <h1>{t('hello')}, <span>{firstName}</span> <b aria-hidden="true">👋</b></h1>
+          <h1>{t('hello')}{firstName && <>, <span>{firstName}</span></>} <b aria-hidden="true">👋</b></h1>
           <p>{t('guidedPlanDescription', { count: dashboard.today.estimated_minutes })}</p>
           <div className="hero-actions">
             <button type="button" className="primary-button primary-button--large" onClick={onStart}><Icon name="play" size={19} /> {firstStepsComplete ? t('continueMyLesson') : t('startFirstLesson')}</button>

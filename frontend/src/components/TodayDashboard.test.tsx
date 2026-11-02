@@ -187,7 +187,9 @@ describe('TodayDashboard product tour', () => {
     await waitFor(() => {
       expect(document.querySelectorAll('.visual-vocabulary__grid [data-visual-detail="semantic"]')).toHaveLength(6);
     });
-    expect(document.querySelector('.hero-visual [data-visual-id="family.mother"]')).toBeInTheDocument();
+    // The family tree is a diagram, so the hero card leads with the first painted place: the bread.
+    expect(document.querySelector('.hero-visual [data-visual-id="food.bread"]')).toBeInTheDocument();
+    expect(document.querySelector('.hero-visual [data-visual-id="family.mother"]')).not.toBeInTheDocument();
 
     for (const button of document.querySelectorAll('.visual-vocabulary__grid button')) {
       expect(labelContainsVisibleText(button), describeLabelMismatch(button)).toBe(true);
@@ -220,7 +222,8 @@ describe('TodayDashboard product tour', () => {
     window.history.replaceState({}, '', '/?lang=he');
     renderDashboard(false, actionSpies());
 
-    expect(screen.getAllByText('משמעות אמא')).toHaveLength(2);
-    expect(screen.queryByText('mother')).not.toBeInTheDocument();
+    // Once in the painted hero card and once in the strip.
+    expect(screen.getAllByText('משמעות לחם')).toHaveLength(2);
+    expect(screen.queryByText('bread')).not.toBeInTheDocument();
   });
 });

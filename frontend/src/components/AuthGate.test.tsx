@@ -466,7 +466,7 @@ describe('AuthGate beginner preview', () => {
     expect(screen.getByText(/^Version$/i)).toBeInTheDocument();
 
     /* Switch the way she would, with the control on the screen. */
-    await user.click(screen.getByRole('button', { name: 'ES' }));
+    await user.click(screen.getByRole('radio', { name: 'Español' }));
     expect(screen.getByText(/^Versión$/i)).toBeInTheDocument();
     expect(screen.getByText(RELEASE_VERSION)).toBeInTheDocument();
   });

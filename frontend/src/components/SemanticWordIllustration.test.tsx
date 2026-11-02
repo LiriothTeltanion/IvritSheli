@@ -10,7 +10,7 @@ import {
   semanticFingerprint,
 } from '../visuals/a0VisualRecipes';
 import { DictionaryVisualCue } from './DictionaryVisualCue';
-import { SemanticWordIllustration } from './SemanticWordIllustration';
+import { isPaintedLeadScene, SCHEMATIC_SCENE_KEYS, SemanticWordIllustration } from './SemanticWordIllustration';
 
 function visual(key: string): DictionaryVisual {
   return {
@@ -211,5 +211,26 @@ describe('SemanticWordIllustration', () => {
       'data-visual-fallback',
       'true',
     );
+  });
+
+  it('keeps the schematic list honest: every other non-diagram scene renders a painting', () => {
+    const unpainted: string[] = [];
+    for (const key of A0_SEMANTIC_VISUAL_KEYS) {
+      const { container, unmount } = render(
+        <SemanticWordIllustration visual={visual(key)} locale="en" size="card" hintStage={2} />,
+      );
+      const family = container.querySelector('svg')?.getAttribute('data-spatial-family');
+      const painted = container.querySelector('[data-painted-backdrop]') !== null;
+      if (family !== 'diagram' && !painted) unpainted.push(key);
+      unmount();
+    }
+    expect(unpainted.sort()).toEqual([...SCHEMATIC_SCENE_KEYS].sort());
+  });
+
+  it('lets only painted places lead a page', () => {
+    expect(isPaintedLeadScene('greetings.excuse_me')).toBe(true);
+    expect(isPaintedLeadScene('register.advisable')).toBe(false);
+    expect(isPaintedLeadScene('numbers.two')).toBe(false);
+    expect(isPaintedLeadScene('not.a.scene')).toBe(false);
   });
 });

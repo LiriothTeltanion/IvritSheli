@@ -399,6 +399,24 @@ def verify_json_files() -> list[str]:
     return failures
 
 
+def _readme_proof_files(proof_version: str) -> set[str]:
+    """Name the six reviewed README assets of a proof set.
+
+    Up to 2.12.3 the README showed Spanish captures. From 2.13.0 it shows English ones, with the Hebrew RTL frame
+    kept, because the README's readers are recruiters and the Spanish interface is one tap away in the app.
+    """
+    version = _semantic_version_tuple(proof_version)
+    locale = "en" if version is not None and version >= (2, 13, 0) else "es"
+    return {
+        f"alphabet-desktop-light-{locale}.webp",
+        f"dictionary-desktop-dark-{locale}.webp",
+        f"today-desktop-dark-{locale}.webp",
+        "today-desktop-dark-he.webp",
+        f"today-phone-light-{locale}.webp",
+        "ivrit-sheli-tour.gif",
+    }
+
+
 def verify_readme_visual_proof() -> list[str]:
     """Bind the README's current visual proof to its reviewed bytes and truth state."""
     try:
@@ -454,14 +472,7 @@ def verify_readme_visual_proof() -> list[str]:
     if re.search(r"[A-Za-z]:[\\/]", manifest_text):
         failures.append("current README visual proof leaks an absolute Windows path")
 
-    expected_files = {
-        "alphabet-desktop-light-es.webp",
-        "dictionary-desktop-dark-es.webp",
-        "today-desktop-dark-es.webp",
-        "today-desktop-dark-he.webp",
-        "today-phone-light-es.webp",
-        "ivrit-sheli-tour.gif",
-    }
+    expected_files = _readme_proof_files(proof_version)
     assets = manifest.get("assets")
     if not isinstance(assets, list):
         return failures + ["current README visual proof assets must be a list"]

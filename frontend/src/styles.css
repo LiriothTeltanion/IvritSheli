@@ -256,6 +256,23 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .locale-switch { display: flex; padding: 3px; border: 1px solid var(--border); background: var(--surface-soft); border-radius: 10px; }
 .locale-switch button { min-width: 48px; min-height: 48px; border: 0; background: transparent; color: var(--text-muted); border-radius: 9px; padding: 8px; font-size: .78rem; font-weight: 800; cursor: pointer; }
 .locale-switch button.active { background: var(--surface-raised); color: var(--teal); box-shadow: var(--shadow-soft); }
+/* The inline options are ChoiceGroup radios (still buttons, so the rules above apply). */
+.locale-switch [role="radio"]:focus-visible { outline: 3px solid var(--focus-ring, var(--teal)); outline-offset: 2px; }
+/* Phones: one 44 px button with the current code opens the same choice as a short list (LanguageSwitch.tsx). */
+.language-switch { position: relative; display: flex; align-items: center; flex: 0 0 auto; }
+.locale-compact { display: none; width: 44px; height: 44px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-soft); color: var(--text); font-size: .8rem; font-weight: 800; letter-spacing: .02em; cursor: pointer; }
+.locale-compact[aria-expanded="true"] { border-color: var(--teal); color: var(--teal); }
+.locale-compact:focus-visible { outline: 3px solid var(--focus-ring, var(--teal)); outline-offset: 2px; }
+.locale-compact__menu { position: absolute; top: calc(100% + 8px); inset-inline-end: 0; z-index: 60; min-width: 176px; padding: 6px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface-raised); box-shadow: var(--shadow-soft), 0 18px 40px rgba(0, 0, 0, .28); }
+.locale-compact__list { display: grid; gap: 4px; }
+.locale-compact__option { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 48px; padding: 8px 12px; border: 0; border-radius: 10px; background: transparent; color: var(--text); font-size: 1rem; text-align: start; cursor: pointer; }
+.locale-compact__option b { min-width: 28px; color: var(--text-muted); font-size: .78rem; }
+.locale-compact__option.active { background: var(--surface-soft); color: var(--teal); }
+.locale-compact__option.active b { color: var(--teal); }
+.locale-compact__option:focus-visible { outline: 3px solid var(--focus-ring, var(--teal)); outline-offset: -2px; }
+@media (max-width: 760px) {
+  .locale-compact { display: inline-grid; place-items: center; }
+}
 /* 2026-08-24: measured 42x48 -- the theme toggle was two pixels short. */
 .icon-button { width: 48px; min-width: 44px; height: 48px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-soft); display: inline-grid; place-items: center; cursor: pointer; transition: transform .2s var(--ease), background .2s, border-color .2s; }
 
@@ -986,12 +1003,23 @@ legend {
   /* Narrower still, the page title goes too: the sidebar already highlights the current page. */
   .topbar-context { display: none; }
 }
+@media (max-width: 430px) {
+  /* The language button joined the phone top bar on 2026-11-02. With five 48 px actions the row needed 356 px of 339
+     at 375 px and the bar broke into two lines; at 44 px, the platform touch minimum, with 4 px gaps it fits again.
+     `.topbar` raises the gap above the later 680 px rule, which would put it back to 6 px and cost the last pixel. */
+  .topbar .topbar-actions { gap: 4px; }
+  .topbar-actions > .icon-button,
+  .topbar-actions > .topbar-help,
+  .topbar-actions > .capture-button,
+  .topbar-actions > .session-identity { width: 44px; min-width: 44px; height: 44px; }
+}
 @media (max-width: 360px) {
   /* At 320 px the four top-bar actions (48 px each) wrapped under the brand: the row needed 324 px of 302. Here
-     they are 44 px, the platform touch minimum, with tighter gaps and side padding (measured 2026-11-02). */
+     they are 44 px, the platform touch minimum, with tighter gaps and side padding (measured 2026-11-02). With the
+     language button there is room for only four, so the theme toggle steps aside: Settings keeps it. */
   .topbar { padding-inline: 12px; }
   .topbar-actions { gap: 4px; }
-  .topbar-actions > .icon-button,
+  .topbar-actions > .icon-button { display: none; }
   .topbar-actions > .topbar-help,
   .topbar-actions > .capture-button,
   .topbar-actions > .session-identity { width: 44px; min-width: 44px; height: 44px; }
@@ -3504,6 +3532,7 @@ body { line-height: 1.5; }
 .onboarding-reassurance { position: relative; z-index: 1; margin: 18px auto 0; display: flex; justify-content: center; align-items: center; gap: 8px; color: var(--text-muted); font-size: 0.88rem; text-align: center; }
 .local-pilot-welcome__card { min-height: 0; display: grid; gap: 28px; }
 .local-pilot-welcome .locale-switch { display: flex; flex: 0 0 auto; }
+.local-pilot-welcome .locale-compact { display: none; }
 .local-pilot-welcome .onboarding-header { flex-wrap: wrap; }
 .local-pilot-welcome__copy { max-width: 700px; }
 .local-pilot-welcome__copy h1 { margin: 10px 0; color: var(--warm-navy); font-size: clamp(2rem, 5vw, 3.3rem); line-height: 1.05; letter-spacing: -0.045em; }
@@ -4774,6 +4803,8 @@ body { line-height: 1.5; }
 
 @media (max-width: 680px) {
   .topbar-help { width: 44px; padding: 0; font-size: 0; }
+  /* font-size 0 hides the word «Help»; the ? badge needs its own size back or the button is a blank dot. */
+  .topbar-help > span { font-size: 0.875rem; }
   .pre-account-word { grid-template-columns: 86px minmax(0, 1fr); gap: 12px; }
   .pre-account-word__visual .word-art { max-width: 86px; }
   .pre-account-quiz > div { grid-template-columns: 1fr; }

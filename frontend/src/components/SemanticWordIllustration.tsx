@@ -182,6 +182,27 @@ export function hasSemanticWordIllustration(key: string): boolean {
   return isA0SemanticVisualKey(key);
 }
 
+/** Scenes drawn on purpose as a map, arrows or a notice card: there the schema is what teaches, so they carry no
+ *  painting. A test keeps this list honest against the scenes that actually render one. */
+export const SCHEMATIC_SCENE_KEYS: ReadonlySet<string> = new Set([
+  'autonomy.where_can',
+  'communication.notify',
+  'housing.address',
+  'places.israel',
+  'register.advisable',
+  'register.important',
+  'transport.left',
+  'transport.right',
+]);
+
+/** Whether a scene is a painted place, the kind that can lead a page such as Today's hero card. Diagrams and the
+ *  schematic scenes above teach well but read as a chart at that size (Kevin, 2026-11-02). */
+export function isPaintedLeadScene(key: string): boolean {
+  if (!isA0SemanticVisualKey(key) || SCHEMATIC_SCENE_KEYS.has(key)) return false;
+  const recipe = getA0VisualRecipe(key);
+  return spatialFamilyFor(recipe.setting, recipe.template) !== 'diagram';
+}
+
 /** Longer than the slowest press-triggered animation (820 ms), so none is cut off. */
 const EXPLORE_MS = 1200;
 /** The slow at-rest pass that follows the press motion when a scene wakes: 1.2 + 3.6 s, under WCAG 2.2.2's five. */
