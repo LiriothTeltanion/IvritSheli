@@ -8,7 +8,7 @@
 <div align="center">
   <img src="assets/brand/wordmark-nocturne.svg" alt="Ivrit Sheli wordmark" width="680" />
 
-  <h1>Ivrit Sheli 2.13.0 — El hebreo vivo de cada día</h1>
+  <h1>Ivrit Sheli 2.13.0 — Living Hebrew for every day</h1>
   <p><strong>A trilingual, local-first PWA for learning the Hebrew people meet in everyday life.</strong></p>
   <p>Guided enough for a complete beginner, deep enough to keep growing.</p>
   <p>Made for adults in Israel who are new to Hebrew, and often to apps, and who read Spanish or English.</p>
@@ -134,12 +134,12 @@ The latest published release is still **v2.12.2**; `2.12.3` and `2.13.0` are del
 ## 📸 2.13.0 Visual Proof
 
 <p align="center">
-  <img src="assets/readme/proof/2.13.0/today-desktop-dark-es.webp" width="100%" alt="Spanish dark-theme Ivrit Sheli 2.13.0 Today dashboard: a Shalom greeting over a painted evening street, the כְּדַאי (kedai, worth it) word card, and the streak, level and accuracy cards." />
+  <img src="assets/readme/proof/2.13.0/today-desktop-dark-en.webp" width="100%" alt="English dark-theme Ivrit Sheli 2.13.0 Today dashboard: a Shalom greeting over a painted evening street, the אֲנִי מַסְכִּים (ani maskim, I agree) word card with its painted scene, and the streak, level and accuracy cards." />
 </p>
 <p align="center">
-  <img src="assets/readme/proof/2.13.0/ivrit-sheli-tour.gif" width="960" alt="Ten-second non-looping Ivrit Sheli 2.13.0 tour: the Spanish Today dashboard, twelve painted word scenes, the light Alphabet Studio, the dark linked dictionary and the Hebrew RTL Today dashboard." />
+  <img src="assets/readme/proof/2.13.0/ivrit-sheli-tour.gif" width="960" alt="Ten-second non-looping Ivrit Sheli 2.13.0 tour: the English Today dashboard, twelve painted word scenes, the light Alphabet Studio, the dark linked dictionary and the Hebrew RTL Today dashboard." />
 </p>
-<p align="center"><em>A ten-second, non-looping tour: four privacy-reviewed 2.13.0 candidate captures and the painted-scene showcase.</em></p>
+<p align="center"><em>A ten-second, non-looping tour: privacy-reviewed 2.13.0 candidate captures in English and Hebrew and the painted-scene showcase.</em></p>
 
 <table>
   <tr>
@@ -147,8 +147,8 @@ The latest published release is still **v2.12.2**; `2.12.3` and `2.13.0` are del
     <td width="60%" align="center"><strong>Real Hebrew RTL layout</strong></td>
   </tr>
   <tr>
-    <td><img src="assets/readme/proof/2.13.0/today-phone-light-es.webp" width="100%" alt="Spanish light-theme phone Today dashboard: the compact ES language button, help and capture actions, the כְּדַאי word card over a painted sunlit window, the first-lesson button and bottom navigation." /></td>
-    <td><img src="assets/readme/proof/2.13.0/today-desktop-dark-he.webp" width="100%" alt="Hebrew RTL dark-theme Today dashboard with mirrored navigation, the כְּדַאי word card and a painted evening street behind the greeting." /></td>
+    <td><img src="assets/readme/proof/2.13.0/today-phone-light-en.webp" width="100%" alt="English light-theme phone Today dashboard: the compact EN language button, help and capture actions, the אֲנִי מַסְכִּים word card over a painted sunlit window, the first-lesson button and bottom navigation." /></td>
+    <td><img src="assets/readme/proof/2.13.0/today-desktop-dark-he.webp" width="100%" alt="Hebrew RTL dark-theme Today dashboard with mirrored navigation, the אֲנִי מַסְכִּים word card and a painted evening street behind the greeting." /></td>
   </tr>
 </table>
 
@@ -158,13 +158,13 @@ The latest published release is still **v2.12.2**; `2.12.3` and `2.13.0` are del
     <td width="50%" align="center"><strong>Linked dictionary</strong></td>
   </tr>
   <tr>
-    <td><img src="assets/readme/proof/2.13.0/alphabet-desktop-light-es.webp" width="100%" alt="Spanish light-theme Alphabet Studio in Ivrit Sheli, explaining 22 Hebrew base letters plus 5 positional final forms." /></td>
-    <td><img src="assets/readme/proof/2.13.0/dictionary-desktop-dark-es.webp" width="100%" alt="Spanish dark-theme linked dictionary in Ivrit Sheli with an empty search field for Hebrew, English or Spanish." /></td>
+    <td><img src="assets/readme/proof/2.13.0/alphabet-desktop-light-en.webp" width="100%" alt="English light-theme Alphabet Studio in Ivrit Sheli, explaining 22 Hebrew base letters plus 5 positional final forms." /></td>
+    <td><img src="assets/readme/proof/2.13.0/dictionary-desktop-dark-en.webp" width="100%" alt="English dark-theme linked dictionary in Ivrit Sheli with an empty search field for Hebrew, English or Spanish." /></td>
   </tr>
 </table>
 
-These five WebP assets were captured on 2026-11-02 Asia/Jerusalem from a fresh,
-generic local learner with no personal progress, built from a clean commit. Every
+These five WebP assets — English, plus the Hebrew RTL frame; the Spanish interface is one tap away
+in the app — were captured on 2026-11-02 Asia/Jerusalem from a fresh, generic local learner with no personal progress, built from a clean commit. Every
 image was reviewed at full size, at GitHub display scale and in grayscale. The GIF
 was rendered twice to byte-identical output, checked frame by frame, and contains
 no loop extension. Hashes, physical dimensions, source PNG hashes, locale,

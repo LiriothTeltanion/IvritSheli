@@ -8,11 +8,12 @@
 
 ## Executed local gate — 2026-11-02 (phone header, Today fixes, README proof)
 
-- Frontend: `npm run typecheck` 0 errors; `npm run test:run` 1094 passed across 58 files; Playwright against the
+- Frontend: `npm run typecheck` 0 errors; `npm run test:run` 1096 passed across 58 files; Playwright against the
   served FastAPI build (CSP active) 46 passed / 42 intentional scoped skips / 0 failures, after fixing a
   label-in-name violation on the compact language button that the 390 px axe scan caught.
 - Top bar swept at 15 viewports from 320 to 1440 px in Spanish and Hebrew (90 checks): no wrapped or overflowing bar.
-- README proof captured with `npm run capture:readme` from a fresh generic local learner at a clean commit; WebP and
+- README proof captured in English and Hebrew with `npm run capture:readme` from a fresh generic local learner at a
+  clean commit; WebP and
   GIF files reviewed at full size, at display scale and in grayscale; the GIF rendered twice to identical bytes.
 - Hosted staging rechecked on 2026-11-02 after a manual redeploy of `7a4756a`: `/version` 2.13.0 at that commit,
   `/health/ready` with `postgresql: true` and 240 entries, strict CSP and HSTS headers, Google redirect starts.

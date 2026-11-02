@@ -4,11 +4,11 @@
   "source_version": "2.13.0",
   "publication_status": "private-candidate",
   "latest_published_release": "v2.12.2",
-  "promoted_at": "2026-11-02T22:05:00+02:00",
+  "promoted_at": "2026-11-02T22:30:00+02:00",
   "status": "approved_for_readme_use",
   "asset_count": 6,
   "runtime_evidence": {
-    "repository_commit": "ed08c188a2e5bba4e4bff144a6712140050a6bc7",
+    "repository_commit": "1ff60b9ec910eb4cf212922ebfef3a203e790ea7",
     "repository_working_tree_dirty": false,
     "environment": "local",
     "storage": "sqlite",
@@ -25,7 +25,7 @@
   },
   "privacy_review": {
     "status": "passed",
-    "reviewed_at": "2026-11-02T22:05:00+02:00",
+    "reviewed_at": "2026-11-02T22:30:00+02:00",
     "method": "Visual inspection of all five final WebP files and all five GIF frames, in colour and in grayscale, plus the capture tool's generic local-identity and fresh-activity gate.",
     "checks": {
       "personal_names": false,
@@ -41,18 +41,18 @@
   },
   "provenance_runs": [
     {
-      "run_id": "readme-2.13.0-es",
+      "run_id": "readme-2.13.0-en",
       "capture_manifest_schema": 2,
-      "capture_manifest_sha256": "3E534266AAD7A9D438DE14ADF1DF2D5FA21BCD7EDC5D5F2B213D7BB3E5E6E834",
+      "capture_manifest_sha256": "4EFCAFCA43823309253963EC5AEF5D905A1A4B95D44542510C08F93BD276B058",
       "capture_status": "candidate",
       "publication_status": "not-published",
       "public_assets_written_by_capture": false,
-      "language": "es",
+      "language": "en",
       "direction": "ltr",
       "authentication_mode": "local",
-      "started_at": "2026-11-02T19:46:30.454Z",
-      "finished_at": "2026-11-02T19:46:58.775Z",
-      "repository_commit": "ed08c188a2e5bba4e4bff144a6712140050a6bc7",
+      "started_at": "2026-11-02T20:20:35.508Z",
+      "finished_at": "2026-11-02T20:21:03.920Z",
+      "repository_commit": "1ff60b9ec910eb4cf212922ebfef3a203e790ea7",
       "repository_working_tree_dirty": false,
       "runtime_version": "2.13.0",
       "runtime_environment": "development",
@@ -63,16 +63,16 @@
     {
       "run_id": "readme-2.13.0-he",
       "capture_manifest_schema": 2,
-      "capture_manifest_sha256": "52B89EBF9CF421802793373A308F758A93094143408100A199A4A953BFEE7CE6",
+      "capture_manifest_sha256": "489157CE9009BBA62844ABD0DC19646FD6A1F0ADEE7782D85D82ACD862A7BA90",
       "capture_status": "candidate",
       "publication_status": "not-published",
       "public_assets_written_by_capture": false,
       "language": "he",
       "direction": "rtl",
       "authentication_mode": "local",
-      "started_at": "2026-11-02T19:46:59.021Z",
-      "finished_at": "2026-11-02T19:47:01.670Z",
-      "repository_commit": "ed08c188a2e5bba4e4bff144a6712140050a6bc7",
+      "started_at": "2026-11-02T20:21:04.178Z",
+      "finished_at": "2026-11-02T20:21:13.573Z",
+      "repository_commit": "1ff60b9ec910eb4cf212922ebfef3a203e790ea7",
       "repository_working_tree_dirty": false,
       "runtime_version": "2.13.0",
       "runtime_environment": "development",
@@ -86,23 +86,23 @@
   "grayscale_review": "All five WebP files and all five GIF frames remain legible in grayscale.",
   "assets": [
     {
-      "file": "today-desktop-dark-es.webp",
+      "file": "today-desktop-dark-en.webp",
       "media_type": "image/webp",
-      "bytes": 63726,
+      "bytes": 65704,
       "dimensions": {
         "width": 1600,
         "height": 1000
       },
       "pixel_format": "yuv420p",
-      "sha256": "B1E7098CE235E09A66CCCA1CA93259EB1C4FE10A090A41AB65B92BA929CDFE2B",
-      "language": "es",
+      "sha256": "9368DB03ADE5BBFCFFA129665A424604AD8C06E5601198B20B9C08D4F2299813",
+      "language": "en",
       "direction": "ltr",
       "theme": "dark",
       "viewport": "desktop",
       "source": {
-        "run_id": "readme-2.13.0-es",
-        "artifact": "today-desktop-dark-es.png",
-        "captured_at": "2026-11-02T19:46:31.047Z",
+        "run_id": "readme-2.13.0-en",
+        "artifact": "today-desktop-dark-en.png",
+        "captured_at": "2026-11-02T20:20:36.135Z",
         "viewport": {
           "width": 1440,
           "height": 900
@@ -111,29 +111,29 @@
           "width": 2880,
           "height": 1800
         },
-        "bytes": 2068078,
-        "sha256": "4E641121F206F199743DB07DD33BBD29079E3F984864D6789B339897642A1485"
+        "bytes": 2116420,
+        "sha256": "D0E9D0BFF88496D19C1B31287BE3CDFA9C32AAFA3179BA3578B0DCF537866D1F"
       },
-      "alt": "Spanish dark-theme Ivrit Sheli 2.13.0 Today dashboard: a Shalom greeting over a painted evening street, the כְּדַאי (kedai, worth it) word card, and the streak, level and accuracy cards."
+      "alt": "English dark-theme Ivrit Sheli 2.13.0 Today dashboard: a Shalom greeting over a painted evening street, the אֲנִי מַסְכִּים (ani maskim, I agree) word card with its painted scene, and the streak, level and accuracy cards."
     },
     {
-      "file": "alphabet-desktop-light-es.webp",
+      "file": "alphabet-desktop-light-en.webp",
       "media_type": "image/webp",
-      "bytes": 69264,
+      "bytes": 65404,
       "dimensions": {
         "width": 1600,
         "height": 1000
       },
       "pixel_format": "yuv420p",
-      "sha256": "C8E00B510C4C5752B55A309CFB5C6E0855D9FD53176828A615E13BBE6572A03B",
-      "language": "es",
+      "sha256": "ACA3B9201E476481C5C3A2DFDC325ABA63C866FA85C5B352BA0FF4206BF93FB1",
+      "language": "en",
       "direction": "ltr",
       "theme": "light",
       "viewport": "desktop",
       "source": {
-        "run_id": "readme-2.13.0-es",
-        "artifact": "learn-desktop-light-es.png",
-        "captured_at": "2026-11-02T19:46:40.597Z",
+        "run_id": "readme-2.13.0-en",
+        "artifact": "learn-desktop-light-en.png",
+        "captured_at": "2026-11-02T20:20:45.807Z",
         "viewport": {
           "width": 1440,
           "height": 900
@@ -142,29 +142,29 @@
           "width": 2880,
           "height": 1800
         },
-        "bytes": 1409535,
-        "sha256": "425E6F6FA40CDD89AC0C68513DD3BE8AF73E37150C175FB05BA72AD58474E200"
+        "bytes": 1433970,
+        "sha256": "9E68A9F9A446549C898ED9B0F52300B305FFEEA94AFC0BC98A0B20C62A711057"
       },
-      "alt": "Spanish light-theme Alphabet Studio in Ivrit Sheli, explaining 22 Hebrew base letters plus 5 positional final forms."
+      "alt": "English light-theme Alphabet Studio in Ivrit Sheli, explaining 22 Hebrew base letters plus 5 positional final forms."
     },
     {
-      "file": "dictionary-desktop-dark-es.webp",
+      "file": "dictionary-desktop-dark-en.webp",
       "media_type": "image/webp",
-      "bytes": 51866,
+      "bytes": 47726,
       "dimensions": {
         "width": 1600,
         "height": 1000
       },
       "pixel_format": "yuv420p",
-      "sha256": "34C6D094C4BDCA8E5DAC6B4BB5F6124D317795B5F3D703D4CDCCA077A2A7639D",
-      "language": "es",
+      "sha256": "E87205E7756A7B270C78FBD32C458E66D2D0D1863A45960DAF5CB22B6556B4BC",
+      "language": "en",
       "direction": "ltr",
       "theme": "dark",
       "viewport": "desktop",
       "source": {
-        "run_id": "readme-2.13.0-es",
-        "artifact": "dictionary-desktop-dark-es.png",
-        "captured_at": "2026-11-02T19:46:35.823Z",
+        "run_id": "readme-2.13.0-en",
+        "artifact": "dictionary-desktop-dark-en.png",
+        "captured_at": "2026-11-02T20:20:40.985Z",
         "viewport": {
           "width": 1440,
           "height": 900
@@ -173,21 +173,21 @@
           "width": 2880,
           "height": 1800
         },
-        "bytes": 1397459,
-        "sha256": "48EAAD89445FC6BE65A63F637BEFF7843C802B7B514FE0C4E4145EF2089C86C0"
+        "bytes": 1377353,
+        "sha256": "609F4EFE638ED3A1193644F3823B13A6A0CA24AD3A03FBA89524962E3FC4F4C0"
       },
-      "alt": "Spanish dark-theme linked dictionary in Ivrit Sheli with an empty search field for Hebrew, English or Spanish."
+      "alt": "English dark-theme linked dictionary in Ivrit Sheli with an empty search field for Hebrew, English or Spanish."
     },
     {
       "file": "today-desktop-dark-he.webp",
       "media_type": "image/webp",
-      "bytes": 71302,
+      "bytes": 74070,
       "dimensions": {
         "width": 1600,
         "height": 1000
       },
       "pixel_format": "yuv420p",
-      "sha256": "258205145778552F45ADCF475A2D8211F50253251D89A214C0D10097D5CAB302",
+      "sha256": "90469A39384D3926A03D0B474D698973BE67DDF2D1B8E6843FEE265D885A9D90",
       "language": "he",
       "direction": "rtl",
       "theme": "dark",
@@ -195,7 +195,7 @@
       "source": {
         "run_id": "readme-2.13.0-he",
         "artifact": "today-desktop-dark-he.png",
-        "captured_at": "2026-11-02T19:46:59.535Z",
+        "captured_at": "2026-11-02T20:21:04.706Z",
         "viewport": {
           "width": 1440,
           "height": 900
@@ -204,29 +204,29 @@
           "width": 2880,
           "height": 1800
         },
-        "bytes": 2270911,
-        "sha256": "F73AA10154DC562F3092E0A7F56C3DC5E08E4981EB7D5E378D79A2353EE09664"
+        "bytes": 2315449,
+        "sha256": "E599E24925A9B208C7394300F9C1C49DF65B11C9ECC9C591D058CE387308DF2B"
       },
-      "alt": "Hebrew RTL dark-theme Today dashboard with mirrored navigation, the כְּדַאי word card and a painted evening street behind the greeting."
+      "alt": "Hebrew RTL dark-theme Today dashboard with mirrored navigation, the אֲנִי מַסְכִּים word card and a painted evening street behind the greeting."
     },
     {
-      "file": "today-phone-light-es.webp",
+      "file": "today-phone-light-en.webp",
       "media_type": "image/webp",
-      "bytes": 56494,
+      "bytes": 57582,
       "dimensions": {
         "width": 720,
         "height": 1466
       },
       "pixel_format": "yuv420p",
-      "sha256": "EE958D525AB56449856C40833546800C42AB56A79F250E8072626964C1BA12EE",
-      "language": "es",
+      "sha256": "228C10C3621921D65A0A219517B427BF2046317F58E5A58E5C77EB74F7F868C7",
+      "language": "en",
       "direction": "ltr",
       "theme": "light",
       "viewport": "phone",
       "source": {
-        "run_id": "readme-2.13.0-es",
-        "artifact": "today-phone-light-es.png",
-        "captured_at": "2026-11-02T19:46:52.553Z",
+        "run_id": "readme-2.13.0-en",
+        "artifact": "today-phone-light-en.png",
+        "captured_at": "2026-11-02T20:20:57.660Z",
         "viewport": {
           "width": 412,
           "height": 839
@@ -235,15 +235,15 @@
           "width": 1082,
           "height": 2202
         },
-        "bytes": 1285310,
-        "sha256": "61EA37FD2D7C0DF1BB63E5897CFE8647883710E978A19082F3F6C327803FEDAA"
+        "bytes": 1318553,
+        "sha256": "0960E0EF59D932D638540F2A4836B3ECA145F3A1B1C32AA6735B95568ADF0CC2"
       },
-      "alt": "Spanish light-theme phone Today dashboard: the compact ES language button, help and capture actions, the כְּדַאי word card over a painted sunlit window, the first-lesson button and bottom navigation."
+      "alt": "English light-theme phone Today dashboard: the compact EN language button, help and capture actions, the אֲנִי מַסְכִּים word card over a painted sunlit window, the first-lesson button and bottom navigation."
     },
     {
       "file": "ivrit-sheli-tour.gif",
       "media_type": "image/gif",
-      "bytes": 822639,
+      "bytes": 826448,
       "dimensions": {
         "width": 960,
         "height": 600
@@ -252,16 +252,16 @@
       "duration_seconds": 10.0,
       "frame_duration_ms": 2000,
       "loop_policy": "no-loop",
-      "sha256": "4E8EC89F4B675D5758A4B0B05C9AF8F38D05A1AF8E147A5B1B734F1F23E046AF",
+      "sha256": "B2A5BC1A09387EF2CC22072C355C2FD85B96DB9785016E301219A98AD95CBEBE",
       "source_assets": [
-        "today-desktop-dark-es.webp",
+        "today-desktop-dark-en.webp",
         "assets/readme/showcase/living-scenes-2.13.0-light.webp",
-        "alphabet-desktop-light-es.webp",
-        "dictionary-desktop-dark-es.webp",
+        "alphabet-desktop-light-en.webp",
+        "dictionary-desktop-dark-en.webp",
         "today-desktop-dark-he.webp"
       ],
       "motion_review": "Plays once; five two-second views joined by clean cuts, with no flashing, strobing or fades.",
-      "alt": "Ten-second non-looping Ivrit Sheli 2.13.0 tour: the Spanish Today dashboard, twelve painted word scenes, the light Alphabet Studio, the dark linked dictionary and the Hebrew RTL Today dashboard."
+      "alt": "Ten-second non-looping Ivrit Sheli 2.13.0 tour: the English Today dashboard, twelve painted word scenes, the light Alphabet Studio, the dark linked dictionary and the Hebrew RTL Today dashboard."
     }
   ]
 }
