@@ -7,6 +7,6 @@ pytest==9.2.0
 httpx==0.28.1
 mypy==2.4.1
 ruff==0.17.3
-types-requests==2.33.0.20261006
+types-requests==2.33.0.20261030
 pip-audit==2.10.1
 tomli==2.5.0; python_version < "3.11"
