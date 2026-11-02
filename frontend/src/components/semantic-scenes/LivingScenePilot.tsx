@@ -3,7 +3,7 @@
 // No raster trace, remote image, external font, or SVG filter is required.
 import type { LivingSceneKey } from "../../visuals/livingScenePilot";
 import type { SemanticHintStage } from "../SemanticWordIllustration";
-import { SceneLayer } from "./SemanticScenePrimitives";
+import { hasDarkPainting, paintedHref, SceneLayer } from "./SemanticScenePrimitives";
 
 interface Props {
   visualKey: LivingSceneKey;
@@ -792,17 +792,24 @@ function PaintedBackdrop({
           <rect x="1" y="1" width="238" height={visibleHeight} rx="12" />
         </clipPath>
       ) : null}
-      <image
-        href={`${import.meta.env.BASE_URL}art-direction/living-scenes/painted/${name}.webp`}
-        x="1"
-        y="1"
-        width="238"
-        height={height}
-        preserveAspectRatio="xMidYMid slice"
-        clipPath={`url(#${clipId})`}
-        data-painted-backdrop={name}
-        aria-hidden="true"
-      />
+      {(['light', 'dark'] as const)
+        .filter((variant) => variant === 'light' || hasDarkPainting(name))
+        .map((variant) => (
+          <image
+            key={variant}
+            className={variant === "dark" ? "semantic-art__painted--dark" : "semantic-art__painted--light"}
+            href={paintedHref(name, variant)}
+            x="1"
+            y="1"
+            width="238"
+            height={height}
+            preserveAspectRatio="xMidYMid slice"
+            clipPath={`url(#${clipId})`}
+            data-painted-backdrop={name}
+            data-painted-variant={variant}
+            aria-hidden="true"
+          />
+        ))}
     </>
   );
 }

@@ -77,19 +77,38 @@ export function PaintedRoom({
   width: number;
   height: number;
 }): React.JSX.Element {
-  return (
+  const image = (variant: 'light' | 'dark'): React.JSX.Element => (
     <image
-      className="semantic-art__painted-room"
-      href={`${import.meta.env.BASE_URL}art-direction/living-scenes/painted/${name}.webp`}
+      key={variant}
+      className={`semantic-art__painted-room ${variant === 'dark' ? 'semantic-art__painted--dark' : 'semantic-art__painted--light'}`}
+      href={paintedHref(name, variant)}
       x={x}
       y={y}
       width={width}
       height={height}
       preserveAspectRatio="none"
       data-painted-backdrop={name}
+      data-painted-variant={variant}
       aria-hidden="true"
     />
   );
+  return <>{image('light')}{hasDarkPainting(name) && image('dark')}</>;
+}
+
+/*
+ * Dark-theme paintings (2026-11-02): the same composition repainted in a low-key palette, same time of day, so the
+ * dark theme no longer shows a daylight painting dimmed to mud. Generated with Gemini and Codex from each original
+ * and kept only where the edges line up with the vector room (see painted/manifest.json). A name not listed here
+ * keeps the old dimmed daylight painting.
+ */
+const DARK_PAINTINGS: ReadonlySet<string> = new Set([]);
+
+export function hasDarkPainting(name: string): boolean {
+  return DARK_PAINTINGS.has(name);
+}
+
+export function paintedHref(name: string, variant: 'light' | 'dark' = 'light'): string {
+  return `${import.meta.env.BASE_URL}art-direction/living-scenes/painted/${name}${variant === 'dark' ? '-dark' : ''}.webp`;
 }
 
 export function SceneLayer({

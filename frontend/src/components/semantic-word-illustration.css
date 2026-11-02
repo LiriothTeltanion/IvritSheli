@@ -567,8 +567,11 @@
 /* Painted rooms and backdrops (2026-10-20): dimmed in the dark theme so a daylight painting does not glare,
    and dropped in high contrast so the flat vector room underneath carries the scene. */
 .semantic-art__painted-room { pointer-events: none; }
-:root[data-theme="dark"] .semantic-art__painted-room,
-:root[data-theme="dark"] [data-painted-backdrop] { filter: brightness(.6) saturate(.85); }
+:root[data-theme="dark"] [data-painted-variant="light"] { filter: brightness(.6) saturate(.85); }
+/* A painting with its own dark-theme version (2026-11-02) shows that instead of the dimmed daylight one. */
+.semantic-art__painted--dark { display: none; }
+:root[data-theme="dark"] .semantic-art__painted--dark { display: inline; }
+:root[data-theme="dark"] .semantic-art__painted--light:has(+ .semantic-art__painted--dark) { display: none; }
 /* Kevin compared both on 2026-11-02 and kept the paintings in the app's high contrast too, as the living-scene
    backdrops already were. Only the system forced-colours mode still drops the rooms. */
 @media (forced-colors: active) {
