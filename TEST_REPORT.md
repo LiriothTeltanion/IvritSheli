@@ -6,6 +6,17 @@
 - Human recognition, Hebrew acceptance and the first-learner pilot remain unrun.
 - Everything below is a historical ledger, with original version labels preserved.
 
+## Executed local gate — 2026-11-02 (living painted scenes)
+
+- Frontend: `npm run typecheck` 0 errors; `npm run test:run` 1087 passed across 56 files; Playwright served product
+  46 passed / 42 intentional scoped skips / 0 failures.
+- Backend: 434 passed, 1 skipped (PostgreSQL integration requires runtime/migration credentials); Ruff and strict MyPy
+  passed.
+- Package: `python scripts/verify_package.py` passed.
+- Browser review: every repainted scene captured in light, dark and high contrast and at thumbnail size before commit.
+- Not run: PostgreSQL integration, live provider sign-in, a fresh hosted staging check of this commit, human
+  five-second recognition, native-speaker review of the new Hebrew strings and the first-learner pilot.
+
 ## Executed local gate — 2026-10-18
 
 - Final package gate: `python scripts/verify_package.py` passed with 625 canonical Git-index checksums and 230 required files; `git diff --cached --check` passed.

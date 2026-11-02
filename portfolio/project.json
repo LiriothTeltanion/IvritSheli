@@ -14,7 +14,7 @@
     "last_checked_on": "2026-09-12",
     "boundary": "A free Render service runs the 2.12.3 source as staging for a private pilot, not as production. Moved from Singapore to Frankfurt on 2026-09-12 and renamed, so the URL no longer says staging. Verified against the live host that day: /health/live at 0.149 s against 0.287 s from the old Singapore service, /health/ready with postgresql true and a 240-entry dictionary, /version reporting 2.12.3, a strict production CSP with default-src 'self', HSTS for a year with includeSubDomains, a Secure HttpOnly SameSite=lax session cookie, and a Google OAuth redirect using PKCE with the exact new callback. /health/ready still costs about 2 s in both regions because the database is far from either. The free plan sleeps after 15 minutes and the wake-up is not a fixed cost: two measurements the same day gave 38.6 s and 218 s, so a first request can take minutes. Anyone checking the service should wait before concluding it is down. The human Hebrew-content and first-learner gates remain open, and no v2.12.3 tag exists. The historical Railway service is offline."
   },
-  "summary": "Private 2.13.0 candidate: six editorial SVG scenes, semantic animation, accessible replay and a local comparison studio in the 240-scene Hebrew catalog. Historical 2.12.3 staging is separate from this local pilot.",
+  "summary": "Private 2.13.0 candidate: painted gouache settings with dark-theme versions for 156 of the 165 paintable scenes, one family of animated adults across all 240 exact semantic scenes, finite wake-on-view and tap motion, and learner theme and language saved with the profile.",
   "languages": [
     "en",
     "es",
@@ -100,7 +100,7 @@
     "release_gate": "The 2.13.0 candidate is local and unpublished. Human visual recognition, Hebrew acceptance, the mother pilot, current provider checks and isolated staging verification remain separate gates."
   },
   "visual_proof": {
-    "state": "Private 2.13.0 candidate: 240 exact semantic scenes, with six original editorial SVG replacements. Local pilot proof is recorded separately in docs/LIVING_SCENES_PILOT.md.",
+    "state": "Private 2.13.0 candidate: 240 exact semantic scenes; 156 of 165 paintable scenes on painted settings, one shared family of adults. README showcase captured locally on 2026-11-02.",
     "social_preview_version": "2.12.2",
     "readme_screenshot_source_version": "2.12.3",
     "readme_screenshot_status": "historical",

@@ -21,6 +21,18 @@
   sleeves, straight legs), portrait busts in the family genealogy, a full-bleed frame, a Gemini-painted gouache grain
   over each context layer and painted rooms for the communication, action, register, work, service, bureaucracy and
   autonomy scenes. Motion, hint stages and reduced-motion stills are unchanged; high contrast keeps the flat vector.
+- 2026-11-02: 156 of the 165 paintable scenes sit on painted gouache settings with dark-theme versions at the same
+  time of day; shared walls (kitchen, living room, study) and a painted desk serve object and document scenes. Maps,
+  arrows and notice cards stay drawn, like the diagram family.
+- 2026-11-02: teaching ground shapes over a painting become a glaze (outline plus a light wash) instead of an opaque
+  collage; forced colours keeps them solid.
+- 2026-11-02: one family of adults everywhere — hands with a thumb, sleeves as shirt fabric, a sleep expression and
+  the last older-style figures redrawn; props across 60+ scenes gained lit and deep planes and detail.
+- 2026-11-02: scenes wake once when they scroll into view (press motion, then a slow at-rest pass, 4.8 s in all,
+  single-pass animations); thumbnails and reduced motion stay still.
+- 2026-11-02: the learner's theme is saved with their profile (SQLite migration 11; the cloud keeps it in the tenant
+  snapshot), the language choice follows the profile, Today greets by the chosen name, the capture button never
+  wraps, and the accuracy card shows a dash until the first answer.
 
 # Changelog
 
