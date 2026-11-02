@@ -23,7 +23,7 @@ from ivrit_sheli.cloud_store import (
     bearer_hash,
 )
 from ivrit_sheli.config import Settings
-from ivrit_sheli.request_limits import _client_identity
+from ivrit_sheli.request_limits import RequestBodyLimitMiddleware, _client_identity
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 
@@ -214,6 +214,53 @@ def test_declared_and_streamed_bodies_are_bounded_with_upload_overrides(
             files={"file": ("sample.webm", b"a" * 2200, "audio/webm")},
         )
         assert oversized_upload.status_code == 413
+
+
+def test_body_less_request_defers_to_the_server_once_replay_is_exhausted() -> None:
+    """A request without Content-Length must never be told the client left.
+
+    The chunked branch buffers the bounded body and replays it. It used to answer
+    every later receive() with a synthetic http.disconnect, which Starlette 1.9's
+    FileResponse treats as the client hanging up: the backup export streamed as a
+    200 with an empty body. After the replay, receive() must reach the server.
+    """
+    server_messages: list[dict[str, Any]] = [
+        {"type": "http.request", "body": b"", "more_body": False},
+        {"type": "http.disconnect"},
+    ]
+    server_calls = 0
+    seen: list[dict[str, Any]] = []
+
+    async def server_receive() -> dict[str, Any]:
+        nonlocal server_calls
+        server_calls += 1
+        return server_messages.pop(0)
+
+    async def inner_app(scope: Any, receive: Any, send: Any) -> None:
+        seen.append(await receive())
+        seen.append(await receive())
+
+    async def discard_send(message: Any) -> None:
+        return None
+
+    middleware = RequestBodyLimitMiddleware(inner_app, default_limit=64)
+    scope = {"type": "http", "method": "GET", "path": "/api/v1/export", "headers": []}
+    asyncio.run(middleware(scope, server_receive, discard_send))
+
+    assert seen[0] == {"type": "http.request", "body": b"", "more_body": False}
+    # The disconnect the app sees is the server's real one, fetched on demand.
+    assert seen[1] == {"type": "http.disconnect"}
+    assert server_calls == 2
+
+
+def test_backup_export_streams_its_whole_body_through_the_limit_middleware(
+    tmp_path: Path,
+) -> None:
+    with TestClient(create_app(local_settings(tmp_path))) as client:
+        exported = client.get("/api/v1/export")
+    assert exported.status_code == 200
+    assert int(exported.headers["content-length"]) == len(exported.content)
+    assert b"ivrit-sheli-export-v1" in exported.content
 
 
 def test_direct_auth_client_bucket_blocks_same_peer_and_ignores_spoofed_xff(
