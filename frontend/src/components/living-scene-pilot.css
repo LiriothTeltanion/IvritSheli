@@ -145,6 +145,7 @@
 .scene-player {
   display: block;
   width: 100%;
+  container-type: inline-size;
 }
 .scene-player__replay {
   display: flex;
@@ -175,6 +176,19 @@
 }
 .scene-player__replay svg {
   flex: 0 0 auto;
+}
+/* In a narrow column (the first-lesson word card is about 90 px) the pill collapsed into a circle that broke
+   "Repetir la escena" over three lines. There it takes the column's width with the icon above the label. */
+@container (max-width: 200px) {
+  .scene-player__replay {
+    flex-direction: column;
+    width: 100%;
+    border-radius: 14px;
+    padding: 0.4rem 0.45rem;
+    gap: 0.15rem;
+    font-size: 0.78rem;
+    line-height: 1.2;
+  }
 }
 .scene-player__still {
   display: block;
