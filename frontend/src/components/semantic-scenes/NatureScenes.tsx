@@ -32,6 +32,26 @@ function NatureSun({ x, y, r = 17, hot = false }: {
   );
 }
 
+/** The same layered olive canopy serves the teaching tree and distant trees. */
+function TreeCrown({ dark = false }: { dark?: boolean }): React.JSX.Element {
+  return (
+      <g className="semantic-art__motion-part semantic-art__prop-pivot semantic-art__prop-sway semantic-art__prop-foliage">
+        <path className="semantic-art__green-deep semantic-art__outlined" d="M-28 3q-5-10 3-16-1-10 10-12 8-3 15 6 10-9 22-3 11 3 9 14 2 10-8 14-8 7-19 3-9 9-19 4-12 2-13-10Z" />
+        <path className="semantic-art__green semantic-art__outlined" d="M-29-3q-3-9 5-13 0-8 9-9 9-2 14 6 5 7-1 15-2 8-12 9-11 3-15-8Z" />
+        <path className="semantic-art__green semantic-art__outlined" d="M0-17q5-10 16-7 6 0 9 7 8 2 6 11-1 9-11 11-9 4-17-2-7-7-3-20Z" />
+        <path className="semantic-art__green-deep" d="M4-6q11 8 25-3 2 10-9 14-9 4-17-2Z" />
+        <path className={`${dark ? 'semantic-art__green' : 'semantic-art__green-lit'} semantic-art__outlined`} d="M-17-24q-3-9 5-12 6-5 14-2 10-2 14 7 5 8-1 15-5 8-16 5-12 2-16-8Z" />
+        <path className="semantic-art__green-soft" d="M-13-29q2-7 10-6 8-3 14 4-7-3-11 2-6-3-13 0Z" />
+        <path className="semantic-art__green-lit" d="M-24-13q3-8 11-8l5 3q-9-1-16 5Z" />
+        <path className="semantic-art__leaf-lit" d="m-9-28 4-2m13 12 4 1m-33 5 3-2" />
+        {/* Small overlapping leaf tongues connect the round clusters. They
+            disappear gracefully at 96px; the broad lit/deep masses remain. */}
+        <path className="semantic-art__green-deep" d="M-16 1q7-6 14-2-5 0-7 5l-5 2Z M8-16q6-5 12 0-6-1-8 4Z" />
+        <path className="semantic-art__green-lit" d="M-21-7q4-5 8-2-4 0-6 4Z M2-26q5-5 10-1-5-1-8 3Z M15-9q5-4 9 0-5-1-7 3Z" />
+      </g>
+  );
+}
+
 /** Olive-like broadleaf: the same bounds and rooted base for every caller. */
 function LeafTree({ x, y, scale = 1, dark = false }: {
   x: number; y: number; scale?: number; dark?: boolean;
@@ -39,20 +59,40 @@ function LeafTree({ x, y, scale = 1, dark = false }: {
   return (
     <g transform={`translate(${x} ${y}) scale(${scale})`}>
       <ellipse className="semantic-art__prop-shadow" cx="0" cy="52" rx="14" ry="2.5" />
-      <path className="semantic-art__wood semantic-art__outlined" d="M-5 52q3-16 2-28L-13 7l4-3L1 19 12 3l4 3L5 26q-2 13 0 26Z" />
-      <path className="semantic-art__wood-deep" d="M1 24 12 3l4 3L5 26q-2 13 0 26H1q-2-15 0-28Z" />
+      <path className="semantic-art__wood semantic-art__outlined" d="M-5 52q3-16 2-28L-13 7l4-3L1 19 12 3l4 3L5 26q-2 13 0 26h5H-9Z" />
+      <path className="semantic-art__wood-deep" d="M1 24 12 3l4 3L5 26q-2 13 0 26h5H1q-2-15 0-28Z" />
       <path className="semantic-art__wood-lit" d="M-4 48q3-12 2-23l-7-15 3 2 6 12q0 14-1 24Z" />
-      <path className="semantic-art__grain" d="M-1 32v9m4-21 4-7" />
-      {/* Irregular overlapping clusters read as foliage, even when detail is
-          hidden in thumbnails. Only the canopy sways; the roots stay planted. */}
-      <g className="semantic-art__motion-part semantic-art__prop-foliage">
-        <path className="semantic-art__green-deep semantic-art__outlined" d="M-28 3q-5-10 3-16-1-10 10-12 8-3 15 6 10-9 22-3 11 3 9 14 2 10-8 14-8 7-19 3-9 9-19 4-12 2-13-10Z" />
-        <path className={`${dark ? 'semantic-art__green' : 'semantic-art__green-soft'} semantic-art__outlined`} d="M-29-3q-3-9 5-13 0-8 9-9 9-2 14 6 5 7-1 15-2 8-12 9-11 3-15-8Z" />
-        <path className="semantic-art__green semantic-art__outlined" d="M0-17q5-10 16-7 6 0 9 7 8 2 6 11-1 9-11 11-9 4-17-2-7-7-3-20Z" />
-        <path className="semantic-art__green-deep" d="M4-6q11 8 25-3 2 10-9 14-9 4-17-2Z" />
-        <path className={`${dark ? 'semantic-art__green' : 'semantic-art__green-soft'} semantic-art__outlined`} d="M-17-24q-3-9 5-12 6-5 14-2 10-2 14 7 5 8-1 15-5 8-16 5-12 2-16-8Z" />
-        <path className="semantic-art__green-lit" d="M-13-29q2-7 10-6 8-3 14 4-7-3-11 2-6-3-13 0ZM-24-13q3-8 11-8l5 3q-9-1-16 5Z" />
-        <path className="semantic-art__leaf-lit" d="m-9-28 4-2m13 12 4 1m-33 5 3-2" />
+      <path className="semantic-art__grain" d="M-1 32v9m4-21 4-7M-3 47l-3 5m8-5 3 5" />
+      <TreeCrown dark={dark} />
+    </g>
+  );
+}
+
+/** Warm limestone with a broad top facet, never the old metallic oval. */
+function StreamRock({ x, y, width, height }: {
+  x: number; y: number; width: number; height: number;
+}): React.JSX.Element {
+  return (
+    <g transform={`translate(${x} ${y}) scale(${width / 32} ${height / 23})`}>
+      <ellipse className="semantic-art__prop-shadow" cx="0" cy="0" rx="17" ry="2" />
+      <path className="semantic-art__stone semantic-art__outlined" d="M-16 0-15-10-8-20 3-23 12-16 16-5 16 0Z" />
+      <path className="semantic-art__stone-lit" d="m-15-10 7-10 11-3 6 7-10 4Z" />
+      <path className="semantic-art__stone-deep" d="m9-16 3 0 4 11v5H2L-1-12Z" />
+      <path className="semantic-art__stone-lit" d="m-13-8 9-2-6 8h-4Z" />
+      <path className="semantic-art__grain" d="m-7-18 5 2m6 8 4 4" />
+    </g>
+  );
+}
+
+/** Roots remain at the bank while stalks and narrow leaves sway together. */
+function Reeds({ x, y, scale = 1 }: { x: number; y: number; scale?: number }): React.JSX.Element {
+  return (
+    <g transform={`translate(${x} ${y}) scale(${scale})`}>
+      <g className="semantic-art__motion-part semantic-art__prop-pivot semantic-art__prop-sway">
+        <path className="semantic-art__stem" d="M0 0v-26M8 0q3-10 1-20M-8 0q-1-10-2-18" />
+        <path className="semantic-art__green" d="M0-7q-9-5-8-13 7 4 8 13Z M8-4q7-7 6-13-6 6-6 13Z M-8-3q-7-3-7-9 6 2 7 9Z" />
+        <path className="semantic-art__gold-deep semantic-art__outlined" d="M-1-30h2v7h-2Z M8-24h2v6H8Z" />
+        <path className="semantic-art__green-lit" d="M0-9-5-17l5 5Z M9-6l3-7-1 7Z" />
       </g>
     </g>
   );
@@ -85,12 +125,15 @@ export function NatureScene({
             {/* A lone acacia and three camel tracks: scale, and that this is
                 somewhere people cross rather than an abstract gradient. */}
             <ellipse className="semantic-art__prop-shadow" cx="47" cy="155" rx="14" ry="3" />
-            <path className="semantic-art__wood semantic-art__outlined" d="M44 154q3-10 1-15l-8-9 2-2 8 8 7-10 2 1-7 13v14Z" />
+            <path className="semantic-art__wood semantic-art__outlined" d="M44 154q3-10 1-15l-8-9 2-2 8 8 7-10 2 1-7 13v12l5 2Z" />
             <path className="semantic-art__wood-deep" d="m47 138 7-12 2 1-7 13v14h-2Z" />
-            <g className="semantic-art__motion-part semantic-art__prop-foliage">
+            <path className="semantic-art__wood-lit" d="m45 140 2 1-1 11h-1Z" />
+            <g className="semantic-art__motion-part semantic-art__prop-pivot semantic-art__prop-sway semantic-art__prop-foliage">
               <path className="semantic-art__green-deep semantic-art__outlined" d="M26 128q-1-4 5-5 1-4 8-3 5-3 10-1 5-2 9 2 6-1 8 7-7 4-15 3-6 4-12 0-8 2-13-3Z" />
               <path className="semantic-art__green" d="M27 126q3-4 8-3 3-4 10-2 5-2 10 1 6-1 9 4-10 2-18 0-10 3-19 0Z" />
               <path className="semantic-art__green-lit" d="M30 125q3-3 8-2 6-3 12-1 5-1 9 2l-11-1-8 2Z" />
+              <path className="semantic-art__green-deep" d="M28 128q9 2 15-1 9 4 20 0-3 5-12 4-6 4-12 0-6 1-11-3Z" />
+              <path className="semantic-art__leaf-lit" d="m34 124 4-1m8-1h4m5 3 4 1" />
             </g>
             <path className="semantic-art__grain" d="M104 158h6m10 2h6m10-2h6" />
           </SceneLayer>
@@ -131,21 +174,13 @@ export function NatureScene({
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <ellipse className="semantic-art__prop-shadow" cx="112" cy="136" rx="46" ry="7" />
-            <path className="semantic-art__wood semantic-art__outlined" d="M104 134q-3-38 3-54h8q7 18 4 54Z" />
-            <path className="semantic-art__wood-deep" d="M115 80h4q7 18 4 54h-8q3-36 0-54Z" />
-            <path className="semantic-art__grain" d="M109 126q-2-28 1-42" />
-            {/* Olive foliage in three values: the mass hangs dark underneath,
-                the base sits in the middle, the lit crown catches the sun. */}
-            <circle className="semantic-art__green-deep" cx="78" cy="78" r="25" />
-            <circle className="semantic-art__green-deep" cx="146" cy="74" r="27" />
-            <circle className="semantic-art__green-deep" cx="112" cy="54" r="29" />
-            <circle className="semantic-art__green semantic-art__outlined" cx="76" cy="70" r="26" />
-            <circle className="semantic-art__green semantic-art__outlined" cx="146" cy="66" r="28" />
-            <circle className="semantic-art__green semantic-art__outlined" cx="112" cy="44" r="30" />
-            <circle className="semantic-art__green-lit" cx="104" cy="34" r="20" />
-            <circle className="semantic-art__green-lit" cx="66" cy="60" r="14" />
-            <circle className="semantic-art__green-lit" cx="140" cy="56" r="15" />
-            <path className="semantic-art__leaf-lit" d="M92 28c12-9 27-6 36 5M56 60c-2-12 3-20 12-25" />
+            <path className="semantic-art__wood semantic-art__outlined" d="M99 134q10-9 7-22l1-28-14-17 6-3 14 16 17-17 5 4-17 20q-2 18 3 34l7 13h-12l-5-6-4 6Z" />
+            <path className="semantic-art__wood-deep" d="m113 80 17-17 5 4-17 20q-2 18 3 34l7 13h-12l-5-6q6-19 2-48Z" />
+            <path className="semantic-art__wood-lit" d="M108 88h3q-2 20 0 31l-7 12h-3q8-12 6-21Z" />
+            <path className="semantic-art__grain" d="M110 91q-3 8 0 13m4 7 2 12m-8 4-2 5" />
+            <g transform="translate(112 82) scale(1.95 1.7)">
+              <TreeCrown />
+            </g>
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
             {/* Olives, the detail that names the tree. */}
@@ -153,6 +188,8 @@ export function NatureScene({
             <circle className="semantic-art__ink" cx="132" cy="72" r="4" />
             <circle className="semantic-art__ink" cx="118" cy="34" r="4" />
             <circle className="semantic-art__ink" cx="156" cy="56" r="4" />
+            <path className="semantic-art__green-lit" d="M88 56q-2-7 5-7l-1 6Z M128 68q-2-7 5-7l-1 6Z M114 30q-2-7 5-7l-1 6Z M152 52q-2-7 5-7l-1 6Z" />
+            <path className="semantic-art__metal-lit" d="M90 58h2v2h-2Z M130 70h2v2h-2Z M116 32h2v2h-2Z M154 54h2v2h-2Z" />
           </SceneLayer>
         </>
       );
@@ -238,8 +275,13 @@ export function NatureScene({
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
             {/* A bench: the fixture that makes a lawn read as a public park. */}
-            <ellipse className="semantic-art__prop-shadow" cx="126" cy="148" rx="50" ry="5" />
-            <path className="semantic-art__wood semantic-art__outlined" d="M156 126h50v8h-50Zm4 8v14m42-14v14" />
+            <ellipse className="semantic-art__prop-shadow" cx="181" cy="148" rx="29" ry="4" />
+            {/* Slatted back, a seat with thickness and two grounded supports. */}
+            <path className="semantic-art__metal-deep semantic-art__outlined" d="M160 119h3v29h-3Z M199 119h3v29h-3Z" />
+            <path className="semantic-art__wood semantic-art__outlined" d="M156 115h50v5h-50Z M156 122h50v5h-50Z M156 129h50v5h-50Z" />
+            <path className="semantic-art__wood-lit" d="M157 116h48v1h-48Z M157 123h48v1h-48Z M157 130h48v1h-48Z" />
+            <path className="semantic-art__wood-deep" d="M156 132h50v2h-50Z M201 115h5v5h-5Z M201 122h5v5h-5Z" />
+            <path className="semantic-art__grain" d="M166 118h20m5 7h9m-37 11v9m38-9v9" />
             <path className="semantic-art__motion semantic-art__motion-part" d="M118 66q10-9 20 0" />
           </SceneLayer>
         </>
@@ -362,8 +404,8 @@ export function NatureScene({
                 rather than a pond. */}
             <path className="semantic-art__water" d="M78 92q10 26-16 40t-2 30h64q-24-16 0-32t10-38Z" />
             <path className="semantic-art__water-deep" d="M74 128q-18 12-14 34h34q-14-18-20-34Z" />
-            <path className="semantic-art__water-stream" d="M92 100q8 20-14 32t-4 30m40-62q6 18-12 30t-2 32" />
-            <path className="semantic-art__foam" d="M70 138q14-6 26 2m-16 12q12-5 22 2" />
+            <path className="semantic-art__water-stream semantic-art__motion-part semantic-art__prop-bob" d="M92 100q8 20-14 32t-4 30m40-62q6 18-12 30t-2 32" />
+            <path className="semantic-art__foam semantic-art__motion-part semantic-art__prop-bob" d="M70 138q14-6 26 2m-16 12q12-5 22 2" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
             {/*
@@ -371,16 +413,13 @@ export function NatureScene({
               ellipses in the cool metal grey they read as puddles on the
               grass, or as plates someone had left there.
             */}
-            <path className="semantic-art__stone semantic-art__outlined" d="M30 150c-2-15 6-23 16-23s18 8 16 23Z" />
-            <path className="semantic-art__stone-lit" d="M37 141c0-8 4-13 9-13-4 4-6 8-6 13Z" />
-            <path className="semantic-art__stone semantic-art__outlined" d="M153 141c-2-12 5-19 13-19s15 7 13 19Z" />
-            <path className="semantic-art__stone-deep" d="M170 123c5 3 8 9 7 18h-7Z" />
-            <path className="semantic-art__stem" d="M186 132v-26m8 26v-20m-16 20v-18M20 130v-20m6 22v-14" />
+            <StreamRock x={46} y={150} width={32} height={23} />
+            <StreamRock x={166} y={141} width={26} height={19} />
+            <Reeds x={186} y={132} />
+            <Reeds x={22} y={132} scale={0.7} />
             {/* Stepping stones and a bank tree: a stream you could cross. */}
-            <ellipse className="semantic-art__stone semantic-art__outlined" cx="86" cy="120" rx="11" ry="7" />
-            <ellipse className="semantic-art__stone-lit" cx="84" cy="118" rx="6" ry="3" />
-            <ellipse className="semantic-art__stone semantic-art__outlined" cx="112" cy="112" rx="9" ry="6" />
-            <ellipse className="semantic-art__stone-lit" cx="110" cy="110" rx="5" ry="2.5" />
+            <StreamRock x={86} y={127} width={22} height={14} />
+            <StreamRock x={112} y={118} width={18} height={12} />
             <LeafTree x={196} y={92} scale={0.42} dark />
             <LeafTree x={34} y={96} scale={0.34} />
           </SceneLayer>
@@ -414,6 +453,9 @@ export function NatureScene({
                 <path className="semantic-art__wood-deep" d={`M${wall + 7} 92v-7h3v7Z`} />
                 <path className="semantic-art__window semantic-art__outlined" d={`M${wall + 2} ${eave + 4}h3v3h-3Z`} />
                 <path className="semantic-art__surface-lit" d={`M${wall + 1.5} ${eave + 7}h4v1h-4Z`} />
+                <path className="semantic-art__wood-deep" d={`M${wall} ${eave + 1}H${end}v1H${wall}Z M${wall + 6} 92v-8h5v1h-4v7Z`} />
+                <path className="semantic-art__window-lit" d={`M${wall + 2.5} ${eave + 4.5}h1v2h-1Z`} />
+                <path className="semantic-art__stone" d={`M${wall + 5} 91h7v1h-7Z`} />
               </g>
             ))}
           </SceneLayer>
@@ -454,6 +496,10 @@ export function NatureScene({
                 {/* Broken bark seams and one knot avoid a ruled-post trunk. */}
                 <path className="semantic-art__grain" d={`M${x + w * 0.45} 76l-0.5 14m1 8 0.5 20m-1 10-0.5 13M${x + 3} 46l1 6`} />
                 <ellipse className="semantic-art__wood-deep" cx={x + w * 0.45} cy={104 + (x % 3) * 9} rx={w * 0.15} ry="2.5" />
+                {/* Root flares connect every trunk to its original ground,
+                    with a broken highlight rather than a straight pole. */}
+                <path className="semantic-art__wood-deep" d={`M${x + 1} 151q1 7-1 11h${w}l-3-4-1-7Z`} />
+                <path className="semantic-art__wood-lit" d={`M${x + 2} 151v6l-1 4h2l1-8Z M${x + 2} 92l1-12 1 5-1 9Z`} />
               </g>
             ))}
             {/* Broad oak/pine masses retain the four original crown envelopes.
@@ -461,7 +507,7 @@ export function NatureScene({
                 replace its SVG translation or scale. */}
             {([[34, 34, 26], [76, 26, 24], [190, 30, 26], [224, 26, 22]] as const).map(([x, y, r]) => (
               <g key={x} transform={`translate(${x} ${y}) scale(${r / 26})`}>
-                <g className="semantic-art__motion-part semantic-art__prop-foliage">
+                <g className="semantic-art__motion-part semantic-art__prop-pivot semantic-art__prop-sway semantic-art__prop-foliage">
                   <path className="semantic-art__green-deep semantic-art__outlined" d="M-25 3q-3-9 3-15-1-9 9-10 7-7 16-2 10-4 15 5 9 3 7 12 4 10-5 16-1 10-13 10-9 9-18 3-11 0-14-10Z" />
                   <path className="semantic-art__green" d="M-24-1q-3-9 5-13 0-8 10-8 7-5 13 0 11-3 14 6 8 3 6 11-5 8-14 4-7 7-15 2-11 5-19-2Z" />
                   <path className="semantic-art__green-soft" d="M-20-10q0-8 10-9 6-5 14 0-9-1-12 5-7-2-12 4Z" />
@@ -474,7 +520,11 @@ export function NatureScene({
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
             {/* The path, narrowing away from the viewer. */}
-            <path className="semantic-art__wood semantic-art__outlined semantic-art__glaze" d="M84 162h72l-18-58h-36Z" />
+            <path className="semantic-art__wood semantic-art__outlined semantic-art__glaze" d="M84 162h72l-7-23-7-18-4-17h-36l-5 18-6 18Z" />
+            <path className="semantic-art__wood-lit semantic-art__glaze" d="m84 162 7-22 6-18 5-18h3l-6 20-5 17-6 21Z" />
+            <path className="semantic-art__wood-deep semantic-art__glaze" d="m135 104 4 18 7 18 6 22h4l-7-23-7-18-4-17Z" />
+            <path className="semantic-art__green-deep" d="m91 140-3 3 2 5-4 7 4-2 3-9Z M143 126l3 6-1 5 3 5 1-3-3-12Z M100 109l-3 6 3-2Z" />
+            <path className="semantic-art__stone-lit" d="m93 149 3-1 2 2-4 1Z M139 143l3-1 2 3h-4Z M103 119l3-1 1 2h-4Z" />
             <path className="semantic-art__grain" d="M100 152h40m-36-16h32m-28-16h24" />
             <path className="semantic-art__leaf-lit" d="M20 20c10-8 22-6 30 2m36-4c9-7 19-6 26 1" />
           </SceneLayer>

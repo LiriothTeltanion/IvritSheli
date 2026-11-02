@@ -9,6 +9,7 @@ import {
   SemanticPerson,
   SpeechBubble,
 } from './SemanticScenePrimitives';
+import { Cloud } from './WeatherScenes';
 
 interface CoreDailySceneProps {
   visualKey: A0VisualKey;
@@ -78,20 +79,24 @@ function SunHeat({ x = 193, y = 38 }: { x?: number; y?: number }): React.JSX.Ele
   );
 }
 
+/** Draw large locally then scale down: CSS snow strokes otherwise merge the
+ * forked tips into a solid asterisk at card/thumbnail sizes. */
+function Snowflake({ x, y, scale = 0.5 }: { x: number; y: number; scale?: number }): React.JSX.Element {
+  return (
+    <g transform={`translate(${x} ${y}) scale(${scale})`}>
+      <path className="semantic-art__snowflake semantic-art__motion-part semantic-art__prop-bob" d="M0-22V22M-19-11 19 11M-19 11 19-11M-5-17 0-12 5-17M-5 17 0 12 5 17M-17-4-10-6-12-13M17 4 10 6 12 13M-17 4-10 6-12 13M17-4 10-6 12-13" />
+    </g>
+  );
+}
+
 function SnowCloud(): React.JSX.Element {
   return (
     <g>
-      <path
-        className="semantic-art__cloud semantic-art__outlined"
-        d="M29 49c0-14 13-24 27-20 6-14 30-15 37 1 17-3 29 8 27 24H29Z"
-      />
-      {/* Underside of the cloud, so it has a heavy side and a lit one. */}
-      <path className="semantic-art__shade" d="M29 41c22 6 70 8 91-1 3 4 4 8 0 14H29Z" />
-      <path className="semantic-art__gloss" d="M40 34c4-9 12-14 21-13" />
-      <path
-        className="semantic-art__snowflake semantic-art__motion-part"
-        d="M45 67v18m-8-9h16m19-9v18m-8-9h16m19-9v18m-8-9h16"
-      />
+      <Cloud x={29} y={29} />
+      {/* Six arms with forked tips: unmistakable snow, rather than plus signs. */}
+      {[45, 72, 99].map((x) => (
+        <Snowflake key={x} x={x} y={76} scale={0.4} />
+      ))}
     </g>
   );
 }
@@ -457,28 +462,43 @@ export function CoreDailyScene({
               <path className="semantic-art__detail semantic-art__detail--thin" d="M138 52h71v76h-71Z" />
               <path className="semantic-art__shade" d="M208 18h15v144h-15Z" />
               <circle className="semantic-art__metal semantic-art__outlined" cx="174" cy="91" r="24" />
-              <path className="semantic-art__gloss" d="M160 82a24 24 0 0 1 14-15" />
-              <path className="semantic-art__ink" d="M169 80h10v29h-10Z" />
+              <path className="semantic-art__metal-deep" d="M184 70a24 24 0 0 1-2 44l-4-4q24-9 6-40Z" />
+              <circle className="semantic-art__metal-lit semantic-art__outlined" cx="174" cy="91" r="17" />
+              <path className="semantic-art__gloss semantic-art__prop-glint" d="M160 82a24 24 0 0 1 14-15" />
+              <path className="semantic-art__wood-deep" d="M170 94a7 7 0 1 1 8 0l2 10h-12Z" />
+              <path className="semantic-art__metal-line" d="m159 78 2 2m26 22 2 2" />
             </>
           )}
           meaning={(
             <>
-              <path
-                className="semantic-art__skin semantic-art__outlined"
-                d="M13 124q35-48 73-51l37 23q-27 25-39 64H13Z"
-              />
-              <g transform="rotate(-10 113 87)">
-                <circle className="semantic-art__gold semantic-art__outlined" cx="78" cy="87" r="31" />
-                <circle className="semantic-art__surface semantic-art__outlined" cx="78" cy="87" r="12" />
-                {/* Brass catches light along its upper left and darkens opposite. */}
-                <path className="semantic-art__gloss" d="M58 68a31 31 0 0 1 20-12" />
-                <path className="semantic-art__shade" d="M78 56a31 31 0 0 1 0 62 24 31 0 0 0 0-62Z" />
-                <path
-                  className="semantic-art__gold semantic-art__outlined"
-                  d="M108 78h76v18h-18v16h-18V96h-40Z"
-                />
-                <path className="semantic-art__gloss" d="M110 82h72" />
+              <path className="semantic-art__skin" d="M13 124Q32 101 53 88Q67 77 80 74Q87 71 92 77L108 88Q114 93 110 98L100 106Q92 113 90 124L84 160H13Z" />
+              <path className="semantic-art__skin-shade" d="M75 96Q86 98 99 91L110 93Q114 98 100 106Q92 113 90 124L84 160H61Q77 131 75 112Z" />
+              <path className="semantic-art__skin-lit" d="M24 123Q46 98 65 92L70 97Q49 105 31 128Z" />
+              {/* The key and its gripping fingers move together; the wrist and
+                  cuff stay at their original lower-left attachment. */}
+              <g className="semantic-art__motion-part semantic-art__prop-pivot">
+                <g transform="rotate(-10 113 87)">
+                  <path className="semantic-art__gold semantic-art__outlined" fillRule="evenodd" d="M109 87a31 31 0 1 0-62 0 31 31 0 0 0 62 0ZM90 87a12 12 0 1 1-24 0 12 12 0 0 1 24 0Z" />
+                  <path className="semantic-art__gold-deep" d="M87 57a31 31 0 0 1-3 60l-2-5q31-13 5-55Z" />
+                  <path className="semantic-art__gold semantic-art__outlined" d="M108 78h76v18h-18v16h-18V96h-40Z" />
+                  <path className="semantic-art__gold-deep" d="M108 90h76v6h-18v16h-18V96h-40Z" />
+                  <path className="semantic-art__gold-lit" d="M110 80h72v4h-72Z M151 97h4v12h-4Z" />
+                  <path className="semantic-art__gloss semantic-art__prop-glint" d="M57 74Q62 61 77 60" />
+                  <path className="semantic-art__grain" d="M115 87h55" />
+                </g>
+                {/* A thumb crosses the bow, separate knuckles curl underneath.
+                    These are the same skin/hand tokens as PersonBody. */}
+                <path className="semantic-art__hand" d="M64 110Q68 107 72 109L87 103Q94 101 96 107Q98 113 91 117L77 128Q70 132 64 124Z" />
+                <path className="semantic-art__skin-shade" d="M65 119Q71 125 78 121L93 110Q96 116 90 120L77 128Q70 132 64 124Z" />
+                <path className="semantic-art__hand" d="M64 113Q58 107 60 101L68 91Q73 85 79 90L88 99Q92 104 87 107Q83 110 78 106L73 102Q69 112 64 113Z" />
+                <path className="semantic-art__body-hand-detail" d="M66 107 70 100M72 118l13-9m-7 14 12-9M78 95l7 7" />
+                <path className="semantic-art__skin-highlight" d="M67 98l4-5q4-3 7 0" />
               </g>
+              <path className="semantic-art__teal semantic-art__outlined" d="M13 135 37 115 63 141 54 160H13Z" />
+              <path className="semantic-art__teal-deep" d="m37 115 26 26-9 19H40l11-18Z" />
+              <path className="semantic-art__teal-lit" d="m15 136 21-17 5 5-24 23Z" />
+              <path className="semantic-art__surface semantic-art__outlined" d="m37 115 5-4 27 26-6 7Z" />
+              <path className="semantic-art__garment-line" d="m20 147 6-5m16 8 6-7" />
             </>
           )}
           anchor={(
@@ -692,24 +712,32 @@ export function CoreDailyScene({
             <>
               <SnowCloud />
               <path
-                className="semantic-art__cloud semantic-art__outlined"
-                d="M12 143q42-29 84 0 43-38 87 0 22-22 45 0v19H12Z"
+                className="semantic-art__metal-lit semantic-art__outlined"
+                d="M12 143Q31 125 54 128Q78 129 96 143Q117 121 140 124Q164 124 183 143Q204 121 228 143v19H12Z"
               />
-              {/* Snow lies brightest on the tops of the drifts. */}
-              <path className="semantic-art__gloss" d="M26 138q32-22 64 0m14-2q34-30 68-2" />
+              <path className="semantic-art__shade" d="M12 153Q57 147 96 154Q142 142 183 154Q205 147 228 150v12H12Z" />
+              <path className="semantic-art__surface-lit" d="M24 140Q53 119 83 138Q56 128 24 140Z M109 138Q137 113 165 135Q139 125 109 138Z M191 140Q207 128 222 140Q206 135 191 140Z" />
             </>
           )}
           meaning={(
             <>
               <SemanticPerson x={125} y={106} shirt="blue" pose="shiver" scale={1.42} />
-              <path
-                className="semantic-art__coral semantic-art__outlined semantic-art__motion-part"
-                d="M103 77q23 21 48 0v15q-25 20-48 0Z"
-              />
-              <path className="semantic-art__grain" d="M113 82v18m12-14v18m12-20v18" />
+              {/* Neck at y=92, below the shared adult's chin. The old y=77
+                  band covered his mouth. Keep ends above the clasped hands. */}
+              <g className="semantic-art__motion-part semantic-art__prop-pivot">
+                <g className="semantic-art__prop-flutter">
+                  <path className="semantic-art__coral semantic-art__outlined" d="M129 99q-3 9-1 19l10 2q-4-12-1-21Z" />
+                  <path className="semantic-art__coral-deep" d="m134 100 3-1q-3 9 1 21l-4-1Z" />
+                  <path className="semantic-art__grain" d="m128 116 9 2m-7 1-1 4m4-3v4m3-4 1 4M130 106l5 1m-5 4 5 1" />
+                </g>
+                <path className="semantic-art__coral semantic-art__outlined" d="M110 91q15 7 31 0l-1 9q-15 9-29 0Z" />
+                <path className="semantic-art__coral-deep" d="M111 97q15 7 29-1v4q-15 9-29 0Z" />
+                <path className="semantic-art__coral-lit" d="M112 92q13 6 27 0v3q-14 6-27-1Z" />
+                <path className="semantic-art__grain" d="m115 96 1 4m4-3 1 5m4-4v5m5-5v4m5-5-1 4" />
+              </g>
               <path
                 className="semantic-art__motion semantic-art__motion-part"
-                d="M82 81q-14 8 0 16m87-16q14 8 0 16"
+                d="M82 81c-10 3-14 11-6 17m93-17c10 3 14 11 6 17"
               />
             </>
           )}
@@ -717,12 +745,9 @@ export function CoreDailyScene({
             <>
               <path
                 className="semantic-art__breath semantic-art__motion-part"
-                d="M145 72q16-10 29 0t26 0"
+                d="M144 79q9-5 17-1t15-2m-24 10q8-3 16-1t15-2"
               />
-              <path
-                className="semantic-art__snowflake"
-                d="M42 110v30m-13-15h26m-22-11 18 22m0-22-18 22"
-              />
+              <Snowflake x={42} y={125} scale={0.65} />
             </>
           )}
         />
