@@ -93,6 +93,24 @@ interface ShoreshTreeViewerProps {
   onWordClick?: (word: string) => void;
 }
 
+/*
+ * The five binyanim shown in the matrix tab. The descriptions and glosses used to be Spanish text in the JSX, so
+ * the English and Hebrew interfaces showed them in Spanish (2026-11-02).
+ */
+const BINYANIM: ReadonlyArray<{
+  key: 'paal' | 'piel' | 'hifil' | 'hitpael' | 'nifal';
+  name: string;
+  meaning: Record<Locale, string>;
+  example: string;
+  gloss: Record<Locale, string>;
+}> = [
+  { key: 'paal', name: "פָּעַל (Pa'al)", meaning: { en: 'Simple active action', es: 'Acción simple activa', he: 'פעולה פשוטה' }, example: 'לִכְתּוֹב', gloss: { en: 'to write', es: 'escribir', he: 'לכתוב' } },
+  { key: 'piel', name: "פִּעֵל (Pi'el)", meaning: { en: 'Intensive or causative action', es: 'Acción intensiva / causativa', he: 'פעולה מוגברת' }, example: 'לְלַמֵּד', gloss: { en: 'to teach', es: 'enseñar', he: 'ללמד' } },
+  { key: 'hifil', name: "הִפְעִיל (Hif'il)", meaning: { en: 'Active causative', es: 'Causativo activo', he: 'גרימת פעולה' }, example: 'לְהַשְׁמִיעַ', gloss: { en: 'to make heard', es: 'hacer sonar', he: 'להשמיע' } },
+  { key: 'hitpael', name: "הִתְפַּעֵל (Hitpa'el)", meaning: { en: 'Reflexive or reciprocal', es: 'Reflexivo / recíproco', he: 'פעולה חוזרת או הדדית' }, example: 'לְהִתְכַּתֵּב', gloss: { en: 'to write to each other', es: 'escribirse mutuamente', he: 'לכתוב זה לזה' } },
+  { key: 'nifal', name: "נִפְעַל (Nif'al)", meaning: { en: "Passive of Pa'al", es: "Pasivo de Pa'al", he: 'סביל של פעל' }, example: 'נִכְתַּב', gloss: { en: 'was written', es: 'fue escrito', he: 'נכתב' } },
+];
+
 export function ShoreshTreeViewer({
   initialRoot = 'כ-ת-ב',
   locale,
@@ -226,31 +244,13 @@ export function ShoreshTreeViewer({
         </div>
       ) : (
         <div className="shoresh-binyanim-matrix">
-          <div className="binyan-card is-paal">
-            <span className="binyan-name">1. פָּעַל (Pa'al)</span>
-            <small>Acción simple activa</small>
-            <strong dir="rtl" lang="he">לִכְתּוֹב (escribir)</strong>
-          </div>
-          <div className="binyan-card is-piel">
-            <span className="binyan-name">2. פִּעֵל (Pi'el)</span>
-            <small>Acción intensiva / causativa</small>
-            <strong dir="rtl" lang="he">לְלַמֵּד (enseñar)</strong>
-          </div>
-          <div className="binyan-card is-hifil">
-            <span className="binyan-name">3. הִפְעִיל (Hif'il)</span>
-            <small>Causativo activo</small>
-            <strong dir="rtl" lang="he">לְהַשְׁמִיעַ (hacer sonar)</strong>
-          </div>
-          <div className="binyan-card is-hitpael">
-            <span className="binyan-name">4. הִתְפַּעֵל (Hitpa'el)</span>
-            <small>Reflexivo / recíproco</small>
-            <strong dir="rtl" lang="he">לְהִתְכַּתֵּב (escribirse mutuamente)</strong>
-          </div>
-          <div className="binyan-card is-nifal">
-            <span className="binyan-name">5. נִפְעַל (Nif'al)</span>
-            <small>Pasivo de Pa'al</small>
-            <strong dir="rtl" lang="he">נִכְתַּב (fue escrito)</strong>
-          </div>
+          {BINYANIM.map((binyan, index) => (
+            <div key={binyan.key} className={`binyan-card is-${binyan.key}`}>
+              <span className="binyan-name">{index + 1}. {binyan.name}</span>
+              <small>{binyan.meaning[locale]}</small>
+              <strong dir="rtl" lang="he">{binyan.example} <bdi>({binyan.gloss[locale]})</bdi></strong>
+            </div>
+          ))}
         </div>
       )}
     </div>

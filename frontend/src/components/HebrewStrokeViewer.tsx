@@ -64,6 +64,7 @@ export function HebrewStrokeViewer({
       cursive: 'Cursive (Ktav)',
       replay: 'Play stroke',
       order: 'Stroke',
+      scriptMode: 'Script style',
     },
     es: {
       title: 'Orden de Trazo y Animación',
@@ -72,6 +73,7 @@ export function HebrewStrokeViewer({
       cursive: 'Cursiva (Ktav)',
       replay: 'Ver trazo',
       order: 'Trazo',
+      scriptMode: 'Tipo de letra',
     },
     he: {
       title: 'סדר כתיבה ואנימציה',
@@ -80,6 +82,7 @@ export function HebrewStrokeViewer({
       cursive: 'כתב יד',
       replay: 'הצג כתיבה',
       order: 'קו',
+      scriptMode: 'סוג כתב',
     },
   }[locale];
 
@@ -90,7 +93,7 @@ export function HebrewStrokeViewer({
           <Icon name="sparkles" size={14} />
           <span>{scriptType === 'cursive' ? labels.cursiveTitle : labels.title}</span>
         </span>
-        <div className="stroke-viewer__modes" role="tablist" aria-label="Script mode">
+        <div className="stroke-viewer__modes" role="tablist" aria-label={labels.scriptMode}>
           <button
             type="button"
             className={`stroke-viewer__mode-btn ${scriptType === 'print' ? 'is-active' : ''}`}

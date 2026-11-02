@@ -364,25 +364,25 @@ export function TodayDashboard({
         </div>
       </section>}
 
-      <section className="cross-section-nav card" aria-label="Ecosistema de Aprendizaje">
+      <section className="cross-section-nav card" aria-label={t('quickNavAria')}>
         <header className="section-heading">
-          <div><span className="eyebrow"><Icon name="sparkles" size={16} /> Navegación Rápida</span><h2>Tu Ecosistema</h2></div>
+          <div><span className="eyebrow"><Icon name="sparkles" size={16} /> {t('quickNavEyebrow')}</span><h2>{t('quickNavTitle')}</h2></div>
         </header>
         <div className="cross-section-links">
           <button type="button" className="glass-card" onClick={onOpenDictionary}>
             <span className="orb dictionary-orb"><Icon name="book" /></span>
-            <strong>Diccionario</strong>
-            <small>Explora vocabulario</small>
+            <strong>{t('dictionary')}</strong>
+            <small>{t('quickNavDictionaryHint')}</small>
           </button>
           <button type="button" className="glass-card" onClick={() => window.scrollTo({ top: 400, behavior: 'smooth' })}>
             <span className="orb atlas-orb"><Icon name="sparkles" /></span>
-            <strong>Atlas Vivo</strong>
-            <small>Viaja por Israel</small>
+            <strong>{t('quickNavAtlas')}</strong>
+            <small>{t('quickNavAtlasHint')}</small>
           </button>
           <button type="button" className="glass-card" onClick={onOpenSettings}>
             <span className="orb settings-orb"><Icon name="settings" /></span>
-            <strong>Ajustes</strong>
-            <small>Configura tu perfil</small>
+            <strong>{t('settings')}</strong>
+            <small>{t('quickNavSettingsHint')}</small>
           </button>
         </div>
       </section>
