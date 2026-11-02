@@ -2,7 +2,7 @@
 
 This folder stores the 26 scene images from:
 
-- `C:\Users\kevin\Downloads\Repintado Nocturne_files\saved_resource.html`
+- `<Downloads>\Repintado Nocturne_files\saved_resource.html`
 
 They are imported as **reference review material only**. Use them to compare:
 
