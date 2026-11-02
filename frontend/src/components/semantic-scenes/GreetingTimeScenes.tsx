@@ -419,6 +419,7 @@ export function GreetingTimeScene({
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wall semantic-art__outlined" d="M20 24h200v130H20Z" />
+            <PaintedRoom name="scene-good-night" x={12} y={12} width={216} height={156} />
             <path className="semantic-art__window semantic-art__outlined" d="M145 37h54v55h-54Z" />
             {/* Night sky in the pane, and moonlight falling across the room.
                 The sky used to be painted with the deep *water* token — the same

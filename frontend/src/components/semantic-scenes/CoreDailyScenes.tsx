@@ -395,6 +395,7 @@ export function CoreDailyScene({
                 className="semantic-art__detail semantic-art__detail--thin"
                 d="M120 24v132M18 116h204"
               />
+              <PaintedRoom name="scene-room" x={12} y={12} width={216} height={156} />
             </>
           )}
           meaning={(
@@ -527,6 +528,7 @@ export function CoreDailyScene({
                 className="semantic-art__floor"
                 d="M18 135h204v23H18Z"
               />
+              <PaintedRoom name="scene-bathroom" x={12} y={12} width={216} height={156} />
             </>
           )}
           meaning={(

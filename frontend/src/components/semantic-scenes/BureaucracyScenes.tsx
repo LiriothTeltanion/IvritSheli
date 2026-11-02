@@ -85,6 +85,7 @@ export function BureaucracyScene({
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wood semantic-art__outlined" d="M14 14h212v152H14Z" />
             <path className="semantic-art__grain" d="M14 54h212M14 106h212" />
+            <PaintedRoom name="desk-top" x={12} y={12} width={216} height={156} />
             {/* The form it is being copied onto, half under the card. */}
             <path className="semantic-art__surface semantic-art__outlined" d="M118 20h100v138h-100Z" transform="rotate(6 168 89)" />
             <path className="semantic-art__detail semantic-art__detail--thin" d="M132 44h68m-68 16h56m-56 16h68m-68 16h48m-48 16h64" transform="rotate(6 168 89)" />
@@ -163,6 +164,7 @@ export function BureaucracyScene({
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wood semantic-art__outlined" d="M14 14h212v152H14Z" />
             <path className="semantic-art__grain" d="M14 50h212M14 100h212M14 150h212" />
+            <PaintedRoom name="desk-top" x={12} y={12} width={216} height={156} />
             <ellipse className="semantic-art__prop-shadow" cx="118" cy="158" rx="76" ry="7" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
@@ -433,6 +435,7 @@ export function BureaucracyScene({
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wood semantic-art__outlined" d="M14 14h212v152H14Z" />
             <path className="semantic-art__grain" d="M14 52h212M14 104h212M14 152h212" />
+            <PaintedRoom name="desk-top" x={12} y={12} width={216} height={156} />
             <ellipse className="semantic-art__prop-shadow" cx="120" cy="140" rx="92" ry="9" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
