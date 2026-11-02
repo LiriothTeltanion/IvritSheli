@@ -97,13 +97,12 @@ jobs:
         working-directory: frontend
         run: npm run build
 
-      # En una rama, un digest desfasado en SHA256SUMS.txt solo significa que no
-      # se regenero el manifiesto: Git conserva los bytes canonicos y el fichero
-      # se reconstruye desde ellos. Ahi sale como aviso, para que una subida de
-      # dependencia no quede bloqueada por algo que Dependabot no sabe hacer. En
-      # push a main vuelve a ser fallo, que es donde importa, y en un paquete
-      # extraido sin .git lo es siempre. Las otras catorce comprobaciones no
-      # cambian.
+      # On a branch, a stale digest in SHA256SUMS.txt only means the manifest was
+      # not regenerated: Git keeps the canonical bytes and the file is rebuilt from
+      # them. There it shows as a warning, so a dependency bump is not blocked by
+      # something Dependabot cannot do. On a push to main it fails again, which is
+      # where it matters, and in a package extracted without .git it always fails.
+      # The other fourteen checks do not change.
       - name: Verify distributable package
         run: >-
           python scripts/verify_package.py

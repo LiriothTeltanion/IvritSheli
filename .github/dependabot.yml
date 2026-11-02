@@ -1,20 +1,20 @@
 version: 2
 
-# Agrupado a proposito: las subidas menores y de parche llegan en un solo PR
-# por ecosistema. Las de version mayor siguen llegando sueltas, porque son las
-# unicas que pueden romper algo y merecen revisarse una a una.
+# Grouped on purpose: minor and patch bumps arrive in a single PR per
+# ecosystem. Major bumps still arrive one by one, because they are the only
+# ones that can break something and deserve a review each.
 #
-# Mensual y no semanal desde el 14 sep 2026: cada tanda semanal traia hasta ocho
-# PR con su CI y su aviso aunque el codigo no hubiera cambiado. Las alertas de
-# seguridad no siguen este calendario y llegan en cuanto aparecen.
+# Monthly, not weekly, since 2026-09-14: each weekly batch brought up to eight
+# PRs with their own CI run and notification even when no code had changed.
+# Security alerts do not follow this schedule; they arrive as soon as they appear.
 #
-# cooldown: una version recien publicada espera antes de proponerse. Las rotas
-# suelen retirarse o corregirse en ese plazo; las mayores esperan un mes.
+# cooldown: a freshly published version waits before it is proposed. Broken
+# releases are usually yanked or patched in that window; majors wait a month.
 #
-# Menores, parches y digests de imagen se fusionan solos al pasar las
-# comprobaciones (.github/workflows/dependabot-auto-merge.yml). Las mayores y
-# cualquier cambio de mantenedor esperan a Kevin. Fusionar el Dockerfile no toca
-# produccion: el despliegue en Render es manual (autoDeployTrigger: off).
+# Minor, patch and image-digest updates merge on their own once the checks pass
+# (.github/workflows/dependabot-auto-merge.yml). Majors and any maintainer change
+# wait for Kevin. Merging the Dockerfile does not touch production: the Render
+# deployment is manual (autoDeployTrigger: off).
 
 updates:
   - package-ecosystem: pip
