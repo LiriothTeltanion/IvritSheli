@@ -1,5 +1,6 @@
-// Module: press-to-explore tests
-// Purpose: A finger has no hover, so a press must play the same finite scene motion, and never under reduced motion.
+// Module: press-to-explore and wake-up tests
+// Purpose: A finger has no hover, so a press must play the same finite scene motion, and a scene that comes into view
+//          wakes once for under five seconds; neither ever moves under reduced motion.
 
 import { act, fireEvent, render } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -43,7 +44,7 @@ describe('press to explore', () => {
       if (char === '{') {
         const head = selector.trim();
         if (head.startsWith('@media') && head.includes('prefers-reduced-motion: no-preference')) motionDepth = depth;
-        else if (head.includes('[data-exploring]') && motionDepth < 0) outside.push(head);
+        else if ((head.includes('[data-exploring]') || head.includes('[data-awake]')) && motionDepth < 0) outside.push(head);
         depth += 1;
         selector = '';
       } else if (char === '}') {
@@ -57,6 +58,60 @@ describe('press to explore', () => {
       }
     }
     expect(css).toContain('[data-exploring]');
+    expect(css).toContain('[data-awake]');
     expect(outside).toEqual([]);
+  });
+});
+
+describe('wake when seen', () => {
+  let report: ((ratio: number) => void) | undefined;
+  class FakeObserver {
+    constructor(callback: IntersectionObserverCallback) {
+      report = (ratio) => callback([{ intersectionRatio: ratio } as IntersectionObserverEntry], this as unknown as IntersectionObserver);
+    }
+    observe(): void {}
+    disconnect(): void {}
+  }
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    report = undefined;
+  });
+
+  it('wakes a scene that comes into view and lets it rest within five seconds', () => {
+    vi.useFakeTimers();
+    vi.stubGlobal('IntersectionObserver', FakeObserver);
+    const { container } = render(<SemanticWordIllustration visual={visual('greetings.how_are_things')} locale="es" size="card" />);
+    const scene = container.querySelector('svg[data-visual-id="greetings.how_are_things"]')!;
+    act(() => report?.(0.2));
+    expect(scene).not.toHaveAttribute('data-awake');
+    act(() => report?.(0.8));
+    expect(scene).toHaveAttribute('data-awake');
+    act(() => vi.advanceTimersByTime(4900));
+    expect(scene).not.toHaveAttribute('data-awake');
+  });
+
+  it('never wakes a thumbnail, where a page shows dozens at once', () => {
+    vi.stubGlobal('IntersectionObserver', FakeObserver);
+    const { container } = render(<SemanticWordIllustration visual={visual('greetings.how_are_things')} locale="es" size="thumbnail" />);
+    expect(report).toBeUndefined();
+    expect(container.querySelector('svg[data-awake]')).toBeNull();
+  });
+
+  it('never wakes a scene under reduced motion', () => {
+    vi.stubGlobal('IntersectionObserver', FakeObserver);
+    vi.stubGlobal('matchMedia', (query: string) => ({ matches: query.includes('reduce'), addEventListener() {}, removeEventListener() {} }));
+    const { container } = render(<SemanticWordIllustration visual={visual('greetings.how_are_things')} locale="es" size="card" />);
+    act(() => report?.(1));
+    expect(container.querySelector('svg[data-awake]')).toBeNull();
+  });
+
+  it('keeps every wake-up animation under five seconds in total', () => {
+    const rules = [...css.matchAll(/\[data-awake\][^{]*\{[^}]*animation:\s*(\w+)\s+([\d.]+)(m?s)[^;]*?(\d+)?;/g)];
+    expect(rules.length).toBeGreaterThan(5);
+    for (const [, name, value, unit, count] of rules) {
+      const ms = Number(value) * (unit === 's' ? 1000 : 1) * Number(count ?? 1);
+      expect(ms, name).toBeLessThanOrEqual(5000);
+    }
   });
 });

@@ -300,9 +300,16 @@ stay calm because a person or a teaching prop is drawn there. Hide props, vehicl
 the render first; the model tends to keep whatever it is shown. Never ask for a "plain wall behind" a building: it
 paints one, and it shows beside the roof where sky belongs.
 
+**Glaze, not collage.** When a teaching shape covers the whole ground of a painted scene (dunes, a field, hills,
+the sea, a lawn, a mountain outline), give it `semantic-art__glaze`: it keeps its outline and a quarter of its fill,
+so the painting shows through. Kevin chose this over opaque shapes on 2026-11-02. A flat backdrop whose texture would
+fight the painting (a stone wall, a row of flat buildings) goes under the painting instead.
+
 **Motion is part of the art.** Every scene must react to hover, keyboard focus and a press (`data-exploring`); the
-adults nod, blink, breathe and, when talking, speak. All motion is finite and lives inside
-`prefers-reduced-motion: no-preference`.
+adults nod, blink, breathe and, when talking, speak. A card or hero scene also wakes once when half of it comes into
+view (`data-awake`, 4.8 s): two slow breaths, two blinks, a head tilt, the sun glowing, clouds, steam and water
+drifting. All motion is finite — the wake-up ends inside the five seconds WCAG 2.2.2 allows — and lives inside
+`prefers-reduced-motion: no-preference`; thumbnails never wake.
 
 **What Kevin kept.** Paintings stay in diagram scenes and in high contrast; only the system forced-colours mode
 drops the rooms. Do not remove a painting without asking him.

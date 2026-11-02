@@ -1,7 +1,7 @@
 // Module: semantic word illustration
 // Purpose: Render detailed, exact-meaning A0 scenes from the shared visual recipe catalog.
 
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { usePrefersReducedMotion } from '../usePrefersReducedMotion';
 import { isLivingSceneKey, SCENE_PLAYBACK_COPY } from '../visuals/livingScenePilot';
 import { LivingScenePilot } from './semantic-scenes/LivingScenePilot';
@@ -184,6 +184,8 @@ export function hasSemanticWordIllustration(key: string): boolean {
 
 /** Longer than the slowest press-triggered animation (820 ms), so none is cut off. */
 const EXPLORE_MS = 1200;
+/** The wake-up motion when a scene comes into view: two 2.4 s breaths. Under the five seconds WCAG 2.2.2 allows. */
+const AWAKE_MS = 4800;
 
 function SemanticSceneCanvas({
   visual,
@@ -210,6 +212,30 @@ function SemanticSceneCanvas({
     const timer = window.setTimeout(() => setExploring(false), EXPLORE_MS);
     return () => window.clearTimeout(timer);
   }, [exploring]);
+  /*
+   * Alive at rest: a card or hero scene "wakes" once each time at least half of it comes into view, then is still.
+   * Thumbnails are skipped (a dictionary page shows dozens at once) and so is reduced motion, where the CSS rules
+   * never apply anyway.
+   */
+  const svgRef = useRef<SVGSVGElement>(null);
+  const reducedMotion = usePrefersReducedMotion();
+  const [awake, setAwake] = useState(false);
+  useEffect(() => {
+    const node = svgRef.current;
+    if (!node || size === 'thumbnail' || reducedMotion || typeof IntersectionObserver === 'undefined') return undefined;
+    let timer: number | undefined;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry || entry.intersectionRatio < 0.5) return;
+      window.clearTimeout(timer);
+      setAwake(true);
+      timer = window.setTimeout(() => setAwake(false), AWAKE_MS);
+    }, { threshold: 0.5 });
+    observer.observe(node);
+    return () => {
+      observer.disconnect();
+      window.clearTimeout(timer);
+    };
+  }, [size, reducedMotion]);
   const explore = (): void => {
     onExplore?.();
     // Drop the attribute for about a frame so a second press restarts the motion instead of being ignored.
@@ -234,6 +260,7 @@ function SemanticSceneCanvas({
 
   return (
     <svg
+      ref={svgRef}
       className={`semantic-art semantic-art--${size} ${className}`.trim()}
       style={semanticRampVariables(titleId, ramped)}
       viewBox="0 0 240 180"
@@ -254,6 +281,7 @@ function SemanticSceneCanvas({
       data-motion-direction={motionDirection}
       data-living-scene={isLivingSceneKey(visual.key) ? 'editorial-v1' : undefined}
       data-exploring={exploring ? '' : undefined}
+      data-awake={awake ? '' : undefined}
       onPointerEnter={(event) => {
         if (event.pointerType === 'mouse') onExplore?.();
       }}
