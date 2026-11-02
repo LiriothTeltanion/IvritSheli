@@ -13,7 +13,7 @@
 
 import type { A0VisualKey } from '../../visuals/a0VisualRecipes';
 import type { SemanticHintStage } from '../SemanticWordIllustration';
-import { SceneLayer, SemanticPerson } from './SemanticScenePrimitives';
+import { PaintedRoom, SceneLayer, SemanticPerson } from './SemanticScenePrimitives';
 
 interface TransportSceneProps {
   visualKey: A0VisualKey;
@@ -222,11 +222,12 @@ export function TransportScene({
             <path className="semantic-art__coral semantic-art__outlined" d="M12 34h44v44H12Zm52 0h38v44H64Z" />
             <path className="semantic-art__blue semantic-art__outlined" d="M138 30h40v48h-40Zm48 4h42v44h-42Z" />
             <path className="semantic-art__window-lit" d="M20 44h12v12H20Zm22 0h10v12H42Zm30 0h10v12H72Zm74-6h12v14h-12Zm22 0h8v14h-8Zm26 4h12v12h-12Z" />
+            <PaintedRoom name="scene-street" x={12} y={12} width={216} height={156} />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             {/* The carriageway widening toward the viewer gives the street depth. */}
-            <path className="semantic-art__ink" d="M96 78h48l68 84H28Z" />
-            <path className="semantic-art__floor" d="M12 78h84l-68 84H12Zm132 0h84v84h-16Z" />
+            <path className="semantic-art__ink semantic-art__glaze" d="M96 78h48l68 84H28Z" />
+            <path className="semantic-art__floor semantic-art__glaze" d="M12 78h84l-68 84H12Zm132 0h84v84h-16Z" />
             <path className="semantic-art__gloss" d="M118 92h4l2 12h-8Zm-4 26h12l3 16h-18Zm-5 34h22l4 10h-30Z" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>

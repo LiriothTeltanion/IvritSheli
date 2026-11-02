@@ -8,6 +8,7 @@
 import type { A0VisualKey } from '../../visuals/a0VisualRecipes';
 import type { SemanticHintStage } from '../SemanticWordIllustration';
 import {
+  PaintedRoom,
   SceneLayer,
   SemanticPerson,
 } from './SemanticScenePrimitives';
@@ -193,6 +194,7 @@ export function FamilyPlaceScene({
               <path className="semantic-art__grain" d="M18 101h204M18 122h204M18 133h204M18 146h204" />
               <path className="semantic-art__gloss" d="M22 95h196" />
               <path className="semantic-art__shade" d="M190 92h32v68h-32Z" />
+              <PaintedRoom name="scene-jerusalem" x={12} y={12} width={216} height={156} />
             </>
           )}
           meaning={(
@@ -230,6 +232,7 @@ export function FamilyPlaceScene({
           hintStage={hintStage}
           context={(
             <>
+              <PaintedRoom name="scene-tel-aviv" x={12} y={12} width={216} height={156} />
               <SeaWaves y={137} />
               <circle className="semantic-art__gold semantic-art__outlined" cx="198" cy="34" r="17" />
             </>
@@ -265,10 +268,11 @@ export function FamilyPlaceScene({
           hintStage={hintStage}
           context={(
             <>
+              <PaintedRoom name="scene-haifa" x={12} y={12} width={216} height={156} />
               <SeaWaves y={143} />
-              <path className="semantic-art__green-soft semantic-art__outlined" d="M18 135 92 34l89 101Z" />
+              <path className="semantic-art__green-soft semantic-art__outlined semantic-art__glaze" d="M18 135 92 34l89 101Z" />
               {/* The Carmel's slopes: one face to the sun, one away from it. */}
-              <path className="semantic-art__shade" d="M92 34l89 101h-89Z" />
+              <path className="semantic-art__shade semantic-art__glaze" d="M92 34l89 101h-89Z" />
               <path className="semantic-art__gloss" d="M40 118 90 50" />
             </>
           )}
@@ -314,10 +318,11 @@ export function FamilyPlaceScene({
           hintStage={hintStage}
           context={(
             <>
-              <path className="semantic-art__gold-soft semantic-art__outlined" d="M17 126q48-43 91 0 55-48 115 0v34H17Z" />
+              <PaintedRoom name="scene-beer-sheva" x={12} y={12} width={216} height={156} />
+              <path className="semantic-art__gold-soft semantic-art__outlined semantic-art__glaze" d="M17 126q48-43 91 0 55-48 115 0v34H17Z" />
               {/* Lit crests and shaded lee sides on the dunes. */}
               <path className="semantic-art__gloss" d="M34 120q38-33 70-2m18 2q42-38 78-4" />
-              <path className="semantic-art__shade" d="M108 126q55-48 115 0v34H108Z" />
+              <path className="semantic-art__shade semantic-art__glaze" d="M108 126q55-48 115 0v34H108Z" />
               <circle className="semantic-art__sun-halo" cx="193" cy="37" r="34" />
               <circle className="semantic-art__hot semantic-art__outlined" cx="193" cy="37" r="20" />
               <circle className="semantic-art__sun-core" cx="188" cy="32" r="9" />
@@ -390,9 +395,10 @@ export function FamilyPlaceScene({
           hintStage={hintStage}
           context={(
             <>
-              <path className="semantic-art__blue semantic-art__outlined" d="M17 101q30-34 60 0t60 0 60 0 27 0v58H17Z" />
+              <PaintedRoom name="scene-sea" x={12} y={12} width={216} height={156} />
+              <path className="semantic-art__blue semantic-art__outlined semantic-art__glaze" d="M17 101q30-34 60 0t60 0 60 0 27 0v58H17Z" />
               {/* Deep water below, so the sea has a near and a far. */}
-              <path className="semantic-art__water-deep" d="M17 138h206v21H17Z" />
+              <path className="semantic-art__water-deep semantic-art__glaze" d="M17 138h206v21H17Z" />
               <circle className="semantic-art__sun-halo" cx="194" cy="37" r="32" />
               <circle className="semantic-art__gold semantic-art__outlined" cx="194" cy="37" r="18" />
               <circle className="semantic-art__sun-core" cx="190" cy="33" r="9" />
@@ -429,8 +435,9 @@ export function FamilyPlaceScene({
           hintStage={hintStage}
           context={(
             <>
+              <PaintedRoom name="scene-beach" x={12} y={12} width={216} height={156} />
               <SeaWaves y={112} />
-              <path className="semantic-art__gold-soft semantic-art__outlined" d="M16 136q66-32 111 0 53-25 97 0v25H16Z" />
+              <path className="semantic-art__gold-soft semantic-art__outlined semantic-art__glaze" d="M16 136q66-32 111 0 53-25 97 0v25H16Z" />
               {/* Wet line where the last wave reached, and dry sand above it. */}
               <path className="semantic-art__foam" d="M22 132q60-28 105 0m14 0q48-22 82 0" />
               <path className="semantic-art__gloss" d="M30 143q56-20 96 2" />
@@ -471,9 +478,10 @@ export function FamilyPlaceScene({
           hintStage={hintStage}
           context={(
             <>
+              <PaintedRoom name="scene-park" x={12} y={12} width={216} height={156} />
               <Tree x={51} y={70} scale={0.92} />
               <Tree x={190} y={76} scale={0.76} />
-              <path className="semantic-art__green-soft semantic-art__outlined" d="M18 137q53-35 103 0t101 0v22H18Z" />
+              <path className="semantic-art__green-soft semantic-art__outlined semantic-art__glaze" d="M18 137q53-35 103 0t101 0v22H18Z" />
             </>
           )}
           meaning={(

@@ -9,7 +9,7 @@
 
 import type { A0VisualKey } from '../../visuals/a0VisualRecipes';
 import type { SemanticHintStage } from '../SemanticWordIllustration';
-import { SceneLayer } from './SemanticScenePrimitives';
+import { PaintedRoom, SceneLayer } from './SemanticScenePrimitives';
 
 interface WeatherSceneProps {
   visualKey: A0VisualKey;
@@ -89,6 +89,7 @@ export function WeatherScene({
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wall semantic-art__outlined" d="M12 14h216v148H12Z" />
             <path className="semantic-art__grain" d="M12 44h40M12 74h40M12 104h40M188 44h40M188 74h40M188 104h40" />
+            <PaintedRoom name="scene-rain" x={12} y={12} width={216} height={156} />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <rect className="semantic-art__window semantic-art__outlined" x="56" y="26" width="128" height="106" rx="5" />

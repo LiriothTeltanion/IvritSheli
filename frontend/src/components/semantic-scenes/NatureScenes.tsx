@@ -102,6 +102,7 @@ export function NatureScene({
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
+            <PaintedRoom name="scene-mountain" x={12} y={12} width={216} height={156} />
             <NatureSun x={200} y={34} r={15} />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
