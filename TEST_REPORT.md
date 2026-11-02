@@ -4,8 +4,9 @@
 - Hosted staging: Render Free in Frankfurt runs `9d64fc7`, the same 2.13.0 product; the release commit changes
   documentation and release labels only.
 - Current scoped evidence: `docs/LIVING_SCENES_PILOT.md` and the gates below.
-- Human five-second recognition, the native-speaker review of the new Hebrew strings and the first-learner pilot
-  remain unrun; Kevin approved the source release with them open.
+- Human five-second recognition, the native-speaker review of the new Hebrew strings, PostgreSQL integration with
+  live credentials and the first-learner pilot remain unrun; Kevin approved the source release with them open.
+  The first-learner pilot is planned for 2026-11-03 or 2026-11-04.
 - Everything below is a historical ledger, with original version labels preserved.
 
 ## Executed local gate — 2026-11-02 (phone header, Today fixes, README proof)
