@@ -7,6 +7,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { I18nProvider } from '../i18n';
 import { SessionAccessProvider } from '../session';
 import type { Dashboard } from '../types';
+import { describeLabelMismatch, labelContainsVisibleText } from '../testing/labelInName';
 import { TodayDashboard } from './TodayDashboard';
 
 const dashboard: Dashboard = {
@@ -187,7 +188,10 @@ describe('TodayDashboard product tour', () => {
     });
     expect(document.querySelector('.hero-visual [data-visual-id="family.mother"]')).toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: 'Open dictionary for לחם' }));
+    for (const button of document.querySelectorAll('.visual-vocabulary__grid button')) {
+      expect(labelContainsVisibleText(button), describeLabelMismatch(button)).toBe(true);
+    }
+    await user.click(screen.getByRole('button', { name: /Open dictionary for לחם$/ }));
     expect(actions.onWordClick).toHaveBeenCalledWith('לחם');
   });
 

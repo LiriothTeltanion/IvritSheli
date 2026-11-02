@@ -35,25 +35,25 @@ services:
         value: ""
       - key: GOOGLE_REFRESH_TOKEN
         value: ""
-      # Estos tres se copiaron con `fromService` desde ivrit-sheli-staging al
-      # crear el servicio, para que nadie tuviera que teclear un secreto. Ya
-      # estan puestos y verificados en produccion: la base guarda progreso y el
-      # acceso con Google funciona, comprobado el 13 sep 2026.
+      # These three were copied with `fromService` from ivrit-sheli-staging when the
+      # service was created, so nobody had to type a secret. They are already set and
+      # verified in production: the database keeps progress and Google sign-in works,
+      # checked on 2026-09-13.
       #
-      # Pasan a `sync: false` justo por eso. Mientras apuntaran al servicio
-      # viejo, borrarlo habria roto la siguiente sincronizacion del plano. Con
-      # `sync: false` Render deja de gestionarlos y conserva el valor que ya
-      # tienen, asi que el origen puede desaparecer sin consecuencias.
+      # That is exactly why they move to `sync: false`. While they pointed at the old
+      # service, deleting it would have broken the next Blueprint sync. With
+      # `sync: false` Render stops managing them and keeps the value they already
+      # have, so the source can disappear without consequences.
       - key: DATABASE_URL
         sync: false
       - key: GOOGLE_AUTH_CLIENT_ID
         sync: false
       - key: GOOGLE_AUTH_CLIENT_SECRET
         sync: false
-      # Este NO se copia: tiene que ser distinto, es la URL del servicio nuevo.
+      # This one is NOT copied: it must differ, it is the new service's URL.
       - key: PUBLIC_BASE_URL
         sync: false
-      # Secreto propio y nuevo. Las sesiones no se heredan de todos modos,
-      # porque el dominio de la cookie cambia con la URL.
+      # Its own new secret. Sessions are not inherited anyway, because the cookie
+      # domain changes with the URL.
       - key: SESSION_SECRET
         generateValue: true

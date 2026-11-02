@@ -3,10 +3,10 @@
 # Author: Kevin "Lirioth" Cusnir
 # Date: 2026-07-15 | TZ: Asia/Jerusalem
 -r requirements.txt
-pytest==9.1.1
+pytest==9.2.0
 httpx==0.28.1
-mypy==2.4.0
-ruff==0.16.10
+mypy==2.4.1
+ruff==0.17.3
 types-requests==2.33.0.20261006
 pip-audit==2.10.1
 tomli==2.5.0; python_version < "3.11"

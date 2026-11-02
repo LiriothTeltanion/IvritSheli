@@ -501,10 +501,15 @@ export function AlphabetStudio({
                 progress?.stage === 'mastered' ? 'is-mastered' : '',
               ].filter(Boolean).join(' ')}
               aria-pressed={unit.key === selectedUnit.key}
-              aria-label={`${unit.letter}, ${localized(unit.name, locale)}, ${stageLabels[unitStage]}`}
+              aria-label={
+                unit.is_final
+                  ? `${unit.letter}, ${strings.finalForm}, ${localized(unit.name, locale)}, ${stageLabels[unitStage]}`
+                  : `${unit.letter}, ${localized(unit.name, locale)}, ${stageLabels[unitStage]}`
+              }
               onClick={() => selectUnit(unit.key)}
             >
               <b lang="he">{unit.letter}</b>
+              {' '}
               <small>{unit.is_final ? strings.finalForm : localized(unit.name, locale)}</small>
               {progress?.stage === 'mastered' && <Icon name="check" size={14} />}
             </button>
@@ -596,7 +601,7 @@ export function AlphabetStudio({
               type="button"
               className={`alphabet-glyph__audio-btn ${voiceState === 'playing' ? 'is-playing' : ''}`}
               onClick={() => speak(selectedUnit.tts_text || selectedUnit.name_niqqud)}
-              aria-label={`${selectedUnit.letter} (${localized(selectedUnit.name, locale)})`}
+              aria-label={`${localized(selectedUnit.name, locale)} (${selectedUnit.letter})`}
             >
               <Icon name="volume" size={16} />
               <span>{localized(selectedUnit.name, locale)}</span>
