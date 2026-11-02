@@ -359,8 +359,9 @@ export function BureaucracyScene({
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wall semantic-art__outlined" d="M14 14h212v138H14Z" />
-            <circle className="semantic-art__sun-halo" cx="206" cy="38" r="26" />
             <path className="semantic-art__floor" d="M14 152h212v14H14Z" />
+            <PaintedRoom name="scene-municipality" x={12} y={12} width={216} height={156} />
+            <circle className="semantic-art__sun-halo" cx="206" cy="38" r="26" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <path className="semantic-art__stone-lit semantic-art__outlined" d="M32 62h176v90H32Z" />

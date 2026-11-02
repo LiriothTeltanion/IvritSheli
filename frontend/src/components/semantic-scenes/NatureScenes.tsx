@@ -58,6 +58,7 @@ export function NatureScene({
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
+            <PaintedRoom name="scene-desert" x={12} y={12} width={216} height={156} />
             <NatureSun x={192} y={38} r={19} hot />
             <path className="semantic-art__sun-rays semantic-art__sun-rays--hot semantic-art__motion-part" d="M192 8V1m0 74v-7m-30-30h-8m76 0h-8m-51-21-6-6m54 54-6-6m6-42 6-6m-54 54-6 6" />
           </SceneLayer>
@@ -179,8 +180,9 @@ export function NatureScene({
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
-            <NatureSun x={198} y={36} r={15} />
             <path className="semantic-art__teal-soft semantic-art__outlined" d="M12 96q46-38 92-6 44-32 124 6v20H12Z" />
+            <PaintedRoom name="scene-hills" x={12} y={12} width={216} height={156} />
+            <NatureSun x={198} y={36} r={15} />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <path className="semantic-art__green-soft semantic-art__outlined" d="M12 118q54-34 106-4 46-28 110 4v22H12Z" />
@@ -373,6 +375,7 @@ export function NatureScene({
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
+            <PaintedRoom name="scene-field" x={12} y={12} width={216} height={156} />
             <NatureSun x={202} y={32} r={13} />
             {/* Village on the skyline, small, so the field stays the subject. */}
             <path className="semantic-art__surface semantic-art__outlined" d="M26 78h20v14H26Zm26 0h16v14H52Zm22-4h18v18H74Z" />
@@ -400,6 +403,7 @@ export function NatureScene({
             <path className="semantic-art__green-soft semantic-art__outlined" d="M12 18h216v144H12Z" />
             <path className="semantic-art__shade" d="M12 18h216v144H12Z" />
             <path className="semantic-art__window-lit" d="m118 18 34 0-52 144H70Z" opacity="0.3" />
+            <PaintedRoom name="scene-forest" x={12} y={12} width={216} height={156} />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             {/* Trunks at varying widths read as depth into the wood. */}

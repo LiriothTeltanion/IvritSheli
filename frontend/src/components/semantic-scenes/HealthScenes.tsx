@@ -215,6 +215,7 @@ export function HealthScene({
             <path className="semantic-art__wall semantic-art__outlined" d="M12 12h216v130H12Z" />
             <path className="semantic-art__floor" d="M12 142h216v20H12Z" />
             <path className="semantic-art__grain" d="M12 142h216M42 142v20m52-20v20m52-20v20m52-20v20" />
+            <PaintedRoom name="scene-path" x={12} y={12} width={216} height={156} />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <ellipse className="semantic-art__prop-shadow" cx="130" cy="158" rx="92" ry="8" />
@@ -417,6 +418,7 @@ export function HealthScene({
             <path className="semantic-art__grain" d="M12 42h56M12 74h56M172 42h56M172 74h56" />
             <path className="semantic-art__ink" d="M12 116h216v46H12Z" />
             <path className="semantic-art__gloss" d="M22 142h36m18 0h36m18 0h36m18 0h32" />
+            <PaintedRoom name="scene-ambulance-street" x={12} y={12} width={216} height={156} />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <ellipse className="semantic-art__prop-shadow" cx="120" cy="130" rx="96" ry="8" />

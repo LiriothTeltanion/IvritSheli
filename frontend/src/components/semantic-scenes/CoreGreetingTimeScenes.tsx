@@ -5,6 +5,7 @@ import type { A0VisualKey } from '../../visuals/a0VisualRecipes';
 import type { SemanticHintStage } from '../SemanticWordIllustration';
 import {
   CalendarPage,
+  PaintedRoom,
   SceneLayer,
   SemanticBus,
   SemanticPerson,
@@ -126,6 +127,7 @@ export function CoreGreetingTimeScene({
               className="semantic-art__surface semantic-art__outlined"
               d="M18 27h204v121H18Z"
             />
+            <PaintedRoom name="scene-bus-stop" x={12} y={12} width={216} height={156} />
             <path
               className="semantic-art__detail semantic-art__detail--thin"
               d="M20 139h200M40 139V74h44v65"
@@ -170,6 +172,7 @@ export function CoreGreetingTimeScene({
               d="M18 137c16-37 45-46 73-14 29-38 61-38 91 0 17-18 32-17 40 14H18Z"
             />
             <path className="semantic-art__leaf-lit" d="M32 130c14-27 35-33 54-12m24 0c22-29 47-28 66 2" />
+            <PaintedRoom name="scene-park-bench" x={12} y={12} width={216} height={156} />
             <ellipse className="semantic-art__prop-shadow" cx="120" cy="158" rx="72" ry="6" />
             <path
               className="semantic-art__wood semantic-art__outlined"

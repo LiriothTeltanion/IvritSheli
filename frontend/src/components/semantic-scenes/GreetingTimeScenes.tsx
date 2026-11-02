@@ -207,6 +207,7 @@ export function GreetingTimeScene({
             <path className="semantic-art__wall semantic-art__outlined" d="M12 12h216v122H12Z" />
             <path className="semantic-art__floor" d="M12 134h216v32H12Z" />
             <path className="semantic-art__surface-deep" d="M12 128h216v6H12Z" />
+            <PaintedRoom name="scene-neighborhood" x={12} y={12} width={216} height={156} />
             {/* The doorway someone has just arrived at. */}
             <path className="semantic-art__wood semantic-art__outlined" d="M148 24h68v110h-68Z" />
             <path className="semantic-art__wood-deep" d="M202 24h14v110h-14Z" />
