@@ -56,8 +56,7 @@ has a device frame and nav bar baked into it, so it cannot be used whole.
 Four Imagen pieces in `docs/art-direction/repintado-nocturne-candidates/`:
 `conceptual_bg_city.jpg`, `conceptual_header_alef.jpg`, `conceptual_ai_coach.jpg`
 and `conceptual_dictionary_card.jpg`. They are UI mockups rather than clean
-plates; any use needs a crop. Prompt guidelines are in
-`docs/IMAGE_PROMPTS_SKILL.md`.
+plates; any use needs a crop.
 
 ### Regional journey assets
 

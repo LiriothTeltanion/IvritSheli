@@ -518,7 +518,7 @@ export function AuthGate({
                 the button beside it signs her into Google and her progress
                 lives in Supabase from that moment on. A claim that is false in
                 the flow the screen is steering her towards is the kind of
-                user-facing claim AGENTS.md forbids weakening, and the fix is
+                user-facing claim the project rules forbid weakening, and the fix is
                 not to soften the wording but to state something that is true
                 in every mode and can be checked. Zero third-party trackers is
                 that: there is no analytics script in the bundle, and the app's

@@ -94,7 +94,6 @@ def _is_public_https_url(value: object) -> bool:
 
 REQUIRED_FILES = (
     "README.md",
-    "AGENTS.md",
     "START_PRIVATE_PILOT.bat",
     "portfolio/project.json",
     "PACKAGE_MANIFEST.md",

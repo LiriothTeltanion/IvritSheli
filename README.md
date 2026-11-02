@@ -173,4 +173,5 @@ For deep technical dives, deployment runbooks, or local installation, please ref
 ## 👤 Author and License
 
 Built with ❤️ by **Kevin Cusnir / [Lirioth Teltanion](https://github.com/LiriothTeltanion)**.
+Built with AI-assisted tooling; I reviewed, tested and can explain every change.
 Released under the [MIT License](LICENSE).
