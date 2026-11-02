@@ -1,7 +1,7 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-title Ivrit Sheli 2.12.3 - Mama Private Pilot
+title Ivrit Sheli 2.13.0 - Mama Private Pilot
 set "MOTHER_PILOT_DATA=%LOCALAPPDATA%\IvritSheli\pilots\mama"
 
 REM SEC-05. This used to bind 0.0.0.0 and print a Wi-Fi link to send over

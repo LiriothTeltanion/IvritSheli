@@ -1,3 +1,11 @@
+# Ivrit Sheli 2.13.0 — Living Editorial Scenes
+
+- Source version: `2.13.0`
+- Latest published source release: `v2.12.2`
+- Status: local private candidate, unpublished, 2026-10-18.
+- Scope: six scenes within the 240-scene catalog; accessible replay and private studio.
+- Historical package and verification records below remain attached to their original versions.
+
 # Ivrit Sheli 2.12.3 — Clear Counting & Safer Visuals Package Manifest
 
 - Source version: `2.12.3`

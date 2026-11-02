@@ -1,0 +1,120 @@
+{
+  "schema": "ivrit-sheli-living-scenes-v1",
+  "version": "2.13.0",
+  "status": "local-private-candidate",
+  "created_on": "2026-10-18",
+  "artwork": {
+    "method": "Original authored SVG geometry and CSS; no generative raster replacement",
+    "owner": "Kevin Cusnir / Ivrit Sheli",
+    "implementation": "frontend/src/components/semantic-scenes/LivingScenePilot.tsx",
+    "keys": [
+      "food.bread",
+      "food.water",
+      "greetings.hello",
+      "greetings.good_morning",
+      "actions.write",
+      "numbers.one"
+    ],
+    "motion": "Finite 1600-1800ms semantic sequences; explicit replay; system reduced-motion still alternative",
+    "source_material": "Existing project semantic recipes and original art direction; no external photo, logo, identifiable public figure or third-party character"
+  },
+  "baseline_assets": [
+    {
+      "file": "before/dark-actions.write.png",
+      "bytes": 143652,
+      "sha256": "e9c5258067b0685b3332e75fcd21c90e6f3c175e39452c49cc31bf5ea25a0256",
+      "source_version": "2.12.3",
+      "source_commit": "f623fa0dff118c67c83b0c1907c032484e95db16",
+      "capture": "FastAPI-served production build, local visual QA gallery, 2026-10-18"
+    },
+    {
+      "file": "before/dark-food.bread.png",
+      "bytes": 156484,
+      "sha256": "09ac7701efb361fffea5b307b6947276dadf644b2432a5e0d19bcab1fc25cd1f",
+      "source_version": "2.12.3",
+      "source_commit": "f623fa0dff118c67c83b0c1907c032484e95db16",
+      "capture": "FastAPI-served production build, local visual QA gallery, 2026-10-18"
+    },
+    {
+      "file": "before/dark-food.water.png",
+      "bytes": 154669,
+      "sha256": "2d163935df90f76af5459af6e27a21539a79f8dafbdb3c69fb4efb5f8fad44f5",
+      "source_version": "2.12.3",
+      "source_commit": "f623fa0dff118c67c83b0c1907c032484e95db16",
+      "capture": "FastAPI-served production build, local visual QA gallery, 2026-10-18"
+    },
+    {
+      "file": "before/dark-greetings.good_morning.png",
+      "bytes": 157021,
+      "sha256": "5d535c1b4ef44c142622b7caec281e627b76317052ddc5ff69cad0d1aaf90379",
+      "source_version": "2.12.3",
+      "source_commit": "f623fa0dff118c67c83b0c1907c032484e95db16",
+      "capture": "FastAPI-served production build, local visual QA gallery, 2026-10-18"
+    },
+    {
+      "file": "before/dark-greetings.hello.png",
+      "bytes": 144518,
+      "sha256": "bf69725a6bad215cabfd23e49ee578f1eb1498e406a5f1643128d75eb08dc093",
+      "source_version": "2.12.3",
+      "source_commit": "f623fa0dff118c67c83b0c1907c032484e95db16",
+      "capture": "FastAPI-served production build, local visual QA gallery, 2026-10-18"
+    },
+    {
+      "file": "before/dark-numbers.one.png",
+      "bytes": 141122,
+      "sha256": "feb5ee7c4945bb24211402fe60123552ec23e076b4cab7d937dd31e21a0da974",
+      "source_version": "2.12.3",
+      "source_commit": "f623fa0dff118c67c83b0c1907c032484e95db16",
+      "capture": "FastAPI-served production build, local visual QA gallery, 2026-10-18"
+    },
+    {
+      "file": "before/light-actions.write.png",
+      "bytes": 152685,
+      "sha256": "e1088e3a487628fd5e00ee618d56d1eb2270f25b5c8603834a28cba346a5a79f",
+      "source_version": "2.12.3",
+      "source_commit": "f623fa0dff118c67c83b0c1907c032484e95db16",
+      "capture": "FastAPI-served production build, local visual QA gallery, 2026-10-18"
+    },
+    {
+      "file": "before/light-food.bread.png",
+      "bytes": 166901,
+      "sha256": "fdd50d9c1944ee7ee989f579d2ec6732112d6f7fe4dcada62673f30faf423663",
+      "source_version": "2.12.3",
+      "source_commit": "f623fa0dff118c67c83b0c1907c032484e95db16",
+      "capture": "FastAPI-served production build, local visual QA gallery, 2026-10-18"
+    },
+    {
+      "file": "before/light-food.water.png",
+      "bytes": 162677,
+      "sha256": "275d9354b60434c8d76a4e3a4115eb9bf3a11fe84ecef7078187ff98131411df",
+      "source_version": "2.12.3",
+      "source_commit": "f623fa0dff118c67c83b0c1907c032484e95db16",
+      "capture": "FastAPI-served production build, local visual QA gallery, 2026-10-18"
+    },
+    {
+      "file": "before/light-greetings.good_morning.png",
+      "bytes": 167151,
+      "sha256": "57828d310022cc68565dd89fb2784cdd691f69d21aa033b79bf4d0c8e1cd390f",
+      "source_version": "2.12.3",
+      "source_commit": "f623fa0dff118c67c83b0c1907c032484e95db16",
+      "capture": "FastAPI-served production build, local visual QA gallery, 2026-10-18"
+    },
+    {
+      "file": "before/light-greetings.hello.png",
+      "bytes": 149918,
+      "sha256": "37ab492795f5cc6a2a964be8b9860bf717cf368ec318868a0ba8036c1e834df9",
+      "source_version": "2.12.3",
+      "source_commit": "f623fa0dff118c67c83b0c1907c032484e95db16",
+      "capture": "FastAPI-served production build, local visual QA gallery, 2026-10-18"
+    },
+    {
+      "file": "before/light-numbers.one.png",
+      "bytes": 158020,
+      "sha256": "de85d83831040d4220bed69bf01eeb6e08578639970ca482695e9b6c63447889",
+      "source_version": "2.12.3",
+      "source_commit": "f623fa0dff118c67c83b0c1907c032484e95db16",
+      "capture": "FastAPI-served production build, local visual QA gallery, 2026-10-18"
+    }
+  ],
+  "review_boundary": "Automated tests and local visual review are recorded in docs/LIVING_SCENES_PILOT.md. Human learner recognition and Hebrew acceptance remain open."
+}

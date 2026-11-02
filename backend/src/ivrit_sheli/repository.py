@@ -2430,11 +2430,13 @@ class LearningRepository:
             ]
             recent_accuracy_row = connection.execute(
                 """
-                SELECT AVG(is_correct) AS accuracy
+                SELECT AVG(is_correct) AS accuracy, COUNT(*) AS answers
                 FROM (SELECT is_correct FROM attempts ORDER BY created_at DESC LIMIT 50)
                 """
             ).fetchone()
             accuracy = float(recent_accuracy_row["accuracy"] or 0)
+            # How many answers the accuracy is taken over: with none yet, 0.0 means "no data", not "all wrong".
+            recent_answers = int(recent_accuracy_row["answers"] or 0)
             daily_goal = self._daily_goal_state(connection)
             alphabet_summary = self._alphabet_summary(connection)
         finally:
@@ -2453,6 +2455,7 @@ class LearningRepository:
             "stats": {
                 "total_items": int(total_items),
                 "recent_accuracy": round(accuracy, 4),
+                "recent_answers": recent_answers,
                 "mastery_percent": round(accuracy * 100),
                 "streak_days": self._calculate_streak(),
             },
@@ -2794,6 +2797,7 @@ class LearningRepository:
             "text_scale",
             "focus_status",
             "avatar_preset_id",
+            "theme",
         }
         clean: dict[str, Any] = {
             key: value for key, value in payload.items() if key in allowed_fields
@@ -2821,6 +2825,8 @@ class LearningRepository:
                 raise ValueError("cefr_band must be one of A0, A1, A2, B1, B2, C1, or C2")
         if "text_scale" in clean and not 0.8 <= float(clean["text_scale"]) <= 2.0:
             raise ValueError("text_scale must be between 0.8 and 2.0")
+        if "theme" in clean and clean["theme"] not in {"", "light", "dark"}:
+            raise ValueError("theme must be light, dark, or empty")
         if "focus_status" in clean and clean["focus_status"] not in {
             "available",
             "busy",

@@ -26,6 +26,7 @@ import type { SemanticHintStage } from '../SemanticWordIllustration';
 import {
   MagenDavid,
   MedicalCross,
+  PaintedRoom,
   SceneLayer,
   SemanticPerson,
   SpeechBubble,
@@ -37,12 +38,13 @@ interface ServicesSceneProps {
 }
 
 /** A room seen from inside: wall, skirting, floor. */
-function Interior(): React.JSX.Element {
+function Interior({ painted = true }: { painted?: boolean }): React.JSX.Element {
   return (
     <>
       <path className="semantic-art__wall semantic-art__outlined" d="M14 14h212v122H14Z" />
       <path className="semantic-art__floor" d="M14 136h212v30H14Z" />
       <path className="semantic-art__surface-deep" d="M14 130h212v6H14Z" />
+      {painted && <PaintedRoom name="room-service" x={14} y={14} width={212} height={152} />}
     </>
   );
 }
@@ -70,7 +72,8 @@ export function ServicesScene({
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
-            <Interior />
+            <Interior painted={false} />
+            <PaintedRoom name="scene-supermarket" x={12} y={12} width={216} height={156} />
             {/* Two shelf runs converging: the corridor is the whole idea. */}
             <path className="semantic-art__metal semantic-art__outlined" d="M14 26h64v104H14Zm148 0h64v104h-64Z" />
             <path className="semantic-art__metal-line" d="M14 52h64m84 0h64M14 78h64m84 0h64M14 104h64m84 0h64" />
@@ -203,6 +206,7 @@ export function ServicesScene({
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__surface semantic-art__outlined" d="M14 14h212v122H14Z" />
+            <PaintedRoom name="scene-clinic" x={12} y={12} width={216} height={156} />
             <path className="semantic-art__floor" d="M14 136h212v30H14Z" />
             {/* Painted bay markings on the ground: an ambulance stops here. */}
             <path className="semantic-art__detail semantic-art__detail--thin" d="M30 148h34m20 0h34m20 0h34m20 0h34" />
@@ -301,6 +305,7 @@ export function ServicesScene({
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wood semantic-art__outlined" d="M14 14h212v152H14Z" />
             <path className="semantic-art__grain" d="M14 48h212M14 96h212M14 144h212" />
+            <PaintedRoom name="desk-top" x={12} y={12} width={216} height={156} />
             <ellipse className="semantic-art__prop-shadow" cx="122" cy="158" rx="70" ry="7" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
@@ -366,6 +371,7 @@ export function ServicesScene({
             <path className="semantic-art__wall semantic-art__outlined" d="M14 14h212v128H14Z" />
             <path className="semantic-art__floor" d="M14 142h212v24H14Z" />
             <path className="semantic-art__tiles" d="M14 142h212M50 142v24m36-24v24m36-24v24m36-24v24m36-24v24" />
+            <PaintedRoom name="scene-delivery" x={12} y={12} width={216} height={156} />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             {/* A front door, shut. The box is outside it, which is what makes

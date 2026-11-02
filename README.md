@@ -1,13 +1,21 @@
+> **Living painted scenes — 2026-11-02.** **Current private candidate:** `2.13.0`.
+> One family of animated adults now runs through all 240 scenes, 156 of the 165 paintable scenes sit on painted
+> gouache settings with dark-theme versions, and every scene wakes with a short, finite motion when it scrolls into
+> view. **Latest published release:** `v2.12.2`. The staging host is redeployed by hand from `main`, so it can trail
+> the source; its `/version` endpoint reports what it runs.
+> Details: [Visual Bible](docs/VISUAL_BIBLE.md) · [Living Scenes pilot](docs/LIVING_SCENES_PILOT.md).
+
 <div align="center">
   <img src="assets/brand/wordmark-nocturne.svg" alt="Ivrit Sheli wordmark" width="680" />
 
-  <h1>Ivrit Sheli 2.12.3 — El hebreo vivo de cada día</h1>
+  <h1>Ivrit Sheli 2.13.0 — El hebreo vivo de cada día</h1>
   <p><strong>A trilingual, local-first PWA for learning the Hebrew people meet in everyday life.</strong></p>
   <p>Guided enough for a complete beginner, deep enough to keep growing.</p>
   <p>Made for adults in Israel who are new to Hebrew, and often to apps, and who read Spanish or English.</p>
 
   <p>
     <a href="https://ivrit-sheli.onrender.com"><img src="https://img.shields.io/badge/Live_Staging-Render-46E3B7?style=flat-square&logo=render" alt="Live Staging"></a>
+    <img src="https://img.shields.io/badge/Candidate-v2.13.0-3B82F6?style=flat-square" alt="Version">
     <img src="https://img.shields.io/badge/Release-v2.12.2-3B82F6?style=flat-square" alt="Latest published release v2.12.2">
     <img src="https://img.shields.io/badge/React_19_%2B_Vite-passing-22C55E?style=flat-square" alt="React 19">
     <img src="https://img.shields.io/badge/FastAPI_%2B_Python-ready-38BDF8?style=flat-square" alt="FastAPI">
@@ -22,6 +30,35 @@
 <br />
 
 > **The Living Hebrew Journey** — explore a beautifully crafted, evidence-based learning environment with 240 exact semantic scenes that adapts to your language, your pacing, and your daily life in Israel. Privacy is built-in; your progress stays local by default until you decide to back it up.
+
+## 🎨 2.13.0 — Living, painted scenes
+
+<p align="center">
+  <img src="assets/readme/showcase/living-scenes-2.13.0-light.webp" width="100%" alt="Twelve Ivrit Sheli word scenes in the light theme: the Jerusalem walls, the Tel Aviv seafront, the Negev, a snowy Jerusalem day, a plate of hummus and falafel, a man helped up, a gift at the door, a team at a table, a beach, a taxi, the city hall with the Israeli flag and the Carmel forest." />
+</p>
+<p align="center">
+  <img src="assets/readme/showcase/living-scenes-2.13.0-dark.webp" width="100%" alt="Four of the same scenes in the dark theme, painted at the same time of day in a low-key palette." />
+</p>
+<p align="center"><em>Captured from the 2.13.0 candidate on 2026-11-02: light theme above, dark theme below.</em></p>
+
+Every word in the starter catalog is taught by a scene, and in 2.13.0 those scenes grew up:
+
+- **Painted places, vector meaning.** Settings are gouache paintings of everyday Israel — the Negev, the Carmel,
+  Jerusalem stone, the Tel Aviv seafront, kitchens, clinics and bus stops — each with a dark-theme version at the same
+  time of day. People, hands, the objects that teach the word and everything that moves stay SVG, so the three
+  teaching layers (context → meaning → anchor) still reveal one by one.
+- **A glaze, not a collage.** Where a teaching shape covers the ground (dunes, a field, the sea, a road), it keeps its
+  outline and a light wash, and the painting shows through.
+- **One family of people.** Four adults with three-quarter faces, sleeves, hands with a thumb and real shoes appear in
+  every scene; the feminine and masculine grammar scenes rely on them.
+- **Alive, never restless.** A tap or a key replays the scene's teaching motion. When a card scrolls into view it wakes
+  once — a breath, a blink, steam rising, a crown swaying — and is still again within five seconds (WCAG 2.2.2).
+  Reduced motion shows complete stills, and thumbnails never move on their own.
+- **Built to grow.** Shared painted walls (a kitchen, a living room, a study) and a painted desk sit behind object and
+  document scenes, so a new word starts at the same quality. Maps, arrows and notice cards stay drawn: there the
+  schema is what teaches.
+- **Remembered choices.** The interface language and theme a learner picks are saved with their profile, and Today
+  greets them by the name they chose.
 
 ## 🏛️ Learning Hubs & Experience Depth
 
@@ -67,19 +104,19 @@ Three persistent depths change how information is presented without hiding rooms
   <img src="assets/readme/deployment.svg" width="100%" alt="Deployment Animation" />
 </p>
 
-The 2.12.3 private candidate source is published on `main` and runs on a free Render service.
+The private candidate source on `main` runs on a free Render service that is redeployed by hand.
 That service is **verified staging for a private pilot, not production**: the gates in the
-table below were exercised against the live host on 2026-08-27, while the human gates —
-Hebrew-content acceptance and the first real learner — remain open.
+table below were exercised against the live host on 2026-08-27 with 2.12.3, while the human
+gates — Hebrew-content acceptance and the first real learner — remain open.
 
-The latest published release is still **v2.12.2**; `2.12.3` is deliberately untagged.
+The latest published release is still **v2.12.2**; `2.12.3` and `2.13.0` are deliberately untagged.
 
 | Component | Status | Details |
 |---|---|---|
 | **Web service** | 🟢 Live (staging) | [ivrit-sheli.onrender.com](https://ivrit-sheli.onrender.com) — Render Free, Frankfurt |
 | **Database** | 🟢 Live | Supabase PostgreSQL 17 over the IPv4 session pooler |
 | **Authentication** | 🟢 Live | Google OAuth 2.0 with PKCE (`S256`) and strict origin validation |
-| **Tagged release** | `v2.12.2` | `2.12.3` is published on `main` but deliberately untagged |
+| **Tagged release** | `v2.12.2` | `2.12.3` and `2.13.0` are on `main` but deliberately untagged |
 
 > **The free plan sleeps.** Render Free suspends the service after 15 minutes without
 > traffic, and the next visitor waits while it wakes. Measured against the live host on

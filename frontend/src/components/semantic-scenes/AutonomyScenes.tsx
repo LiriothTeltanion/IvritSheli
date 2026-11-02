@@ -3,7 +3,7 @@
 
 import type { A0VisualKey } from '../../visuals/a0VisualRecipes';
 import type { SemanticHintStage } from '../SemanticWordIllustration';
-import { CalendarPage, GrammarMarker, SceneLayer, SemanticPerson, SpeechBubble } from './SemanticScenePrimitives';
+import { CalendarPage, GrammarMarker, PaintedRoom, SceneLayer, SemanticPerson, SpeechBubble } from './SemanticScenePrimitives';
 
 interface AutonomySceneProps {
   visualKey: A0VisualKey;
@@ -16,6 +16,7 @@ function StreetGround(): React.JSX.Element {
       <path className="semantic-art__blue-soft semantic-art__outlined" d="M12 14h216v84H12Z" />
       <path className="semantic-art__stone semantic-art__outlined" d="M12 98h216v66H12Z" />
       <path className="semantic-art__grain" d="M12 118h216M12 140h216M54 98v66m66-66v66m66-66v66" />
+      <PaintedRoom name="street-autonomy" x={12} y={14} width={216} height={150} />
     </>
   );
 }
@@ -34,9 +35,25 @@ function CheckBadge({ x, y, positive = true }: { x: number; y: number; positive?
 function Magnifier({ x, y }: { x: number; y: number }): React.JSX.Element {
   return (
     <g transform={`translate(${x} ${y})`}>
-      <circle className="semantic-art__surface semantic-art__outlined" cx="0" cy="0" r="23" />
-      <path className="semantic-art__blue-line" d="M17 17 36 36" />
-      <circle className="semantic-art__gloss" cx="-8" cy="-9" r="5" />
+      <g className="semantic-art__motion-part semantic-art__prop-pivot">
+        {/* The ferrule sits behind the rim; a broad grip survives at 96 px. */}
+        <path className="semantic-art__metal semantic-art__outlined" d="m14 18 5-5 10 10-6 6Z" />
+        <path className="semantic-art__teal semantic-art__outlined" d="m25 22 13 13q4 5-1 8t-8-1L18 29Z" />
+        <path className="semantic-art__teal-deep" d="m22 31 10 10q3 3 6-1l1-3q2 7-3 7-3 1-7-2Z" />
+        <path className="semantic-art__gloss" d="m26 27 9 9" />
+        <circle className="semantic-art__metal-deep semantic-art__outlined" r="23" />
+        <circle className="semantic-art__metal-lit" cy="-1" r="21" />
+        <circle className="semantic-art__glass semantic-art__outlined" r="18.5" />
+        <path className="semantic-art__blue-soft" d="M-18 3Q-13 18 3 18L13 13Q-4 18-18 3Z" />
+        {/* An enlarged key, rather than an unexplained yellow rectangle. */}
+        <g transform="translate(2 0)">
+          <path className="semantic-art__gold semantic-art__outlined" fillRule="evenodd" d="M0-12a6 6 0 1 1 0 12v12h7v-4H4V5H2V0a6 6 0 0 1-2-12Zm0 3a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z" />
+          <path className="semantic-art__gold-lit" d="M-3-9q-3 3 0 6l-1 1q-5-4-1-8Z" />
+        </g>
+        <g className="semantic-art__prop-glint">
+          <path className="semantic-art__gloss" d="M-14-4q1-8 9-10m-8 14 2-5" />
+        </g>
+      </g>
     </g>
   );
 }
@@ -141,8 +158,21 @@ export function AutonomyScene({ visualKey, hintStage }: AutonomySceneProps): Rea
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}><StreetGround /></SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <SemanticPerson x={92} y={109} shirt="teal" pose="hold" scale={1.1} />
-            <path className="semantic-art__gold semantic-art__outlined" d="M88 100h12v35H88Zm10 0h28v8H98Z" />
-            <circle className="semantic-art__gold" cx="124" cy="104" r="6" />
+            <g className="semantic-art__motion-part semantic-art__prop-pivot">
+              {/* The lower bow edge stays at the hold-hand anchor (92,131).
+                  A straight horizontal blade, two square teeth and an open
+                  round bow remain distinct even in the 96 px thumbnail. */}
+              <path className="semantic-art__gold-deep semantic-art__outlined" fillRule="evenodd" d="M108 121h37v7h-5v8h-6v-5h-5v5h-6v-8h-15a13 13 0 1 1 0-7ZM89 124.5a7 7 0 1 0 14 0 7 7 0 0 0-14 0Z" />
+              <path className="semantic-art__gold semantic-art__outlined" fillRule="evenodd" d="M108 118h37v7h-5v8h-6v-5h-5v5h-6v-8h-15a13 13 0 1 1 0-7ZM89 121.5a7 7 0 1 0 14 0 7 7 0 0 0-14 0Z" />
+              <path className="semantic-art__gold-lit" d="M85 122q-1-13 12-13l4 2q-12-1-13 11Z M110 119h33v2h-33Z" />
+              <path className="semantic-art__gold-deep" d="M104 115q6 11-4 17l-3-1q10-5 7-16Z M111 123h28v2h-28Z" />
+              <path className="semantic-art__gloss semantic-art__prop-glint" d="M88 117q2-6 8-6m38 8h5" />
+              <g className="semantic-art__person--teal">
+                <path className="semantic-art__hand" d="M87 131q-2-4 1-7l3-4q3-2 4 1l-2 6 5-2q3 0 3 3l-2 5q-4 4-9 2Z" />
+                <path className="semantic-art__skin-lit" d="m89 127 3-5 1 1-2 5Z" />
+                <path className="semantic-art__body-hand-detail" d="m94 130 4-2m-5 5 4-2" />
+              </g>
+            </g>
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}><CheckBadge x={168} y={76} /></SceneLayer>
         </>
@@ -174,7 +204,6 @@ export function AutonomyScene({ visualKey, hintStage }: AutonomySceneProps): Rea
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <SemanticPerson x={72} y={111} shirt={feminine ? 'coral' : 'blue'} pose="reach" scale={1.0} />
             <Magnifier x={153} y={91} />
-            <path className="semantic-art__gold semantic-art__outlined" d="M151 83h9v16h-9Z" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
             <GrammarMarker x={50} y={62} feminine={feminine} anchor={[66, 84]} />

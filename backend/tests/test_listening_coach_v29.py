@@ -51,7 +51,7 @@ def test_schema_head_is_stamped_and_carries_every_migrated_column(
         ).fetchall()
     }
 
-    assert SCHEMA_VERSION == 10
+    assert SCHEMA_VERSION == 11
     assert version is not None and int(version["value"]) == SCHEMA_VERSION
     assert {
         "learning_feedback",
@@ -67,7 +67,7 @@ def test_schema_head_is_stamped_and_carries_every_migrated_column(
         str(row["name"])
         for row in connection.execute("PRAGMA table_info(profiles)").fetchall()
     }
-    assert {"text_scale", "focus_status", "avatar_preset_id"}.issubset(profile_columns)
+    assert {"text_scale", "focus_status", "avatar_preset_id", "theme"}.issubset(profile_columns)
 
 
 def test_feedback_is_idempotent_bounded_and_reset_keeps_learning(

@@ -31,7 +31,7 @@ export function IvritSheliWordmark({
       {showIcon && (
         <span className="ivrit-wordmark__icon" aria-hidden="true">
           <img
-            src="/icons/app-icon.svg?v=2.12.3"
+            src="/icons/app-icon.svg?v=2.13.0"
             alt=""
             width="38"
             height="38"

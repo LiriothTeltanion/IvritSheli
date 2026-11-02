@@ -151,7 +151,7 @@ export function AICoach({
           ))}
         </div>
         {task === 'dialogue' && (
-          <div className="coach-scenarios-row" role="group" aria-label="Israeli Scenarios">
+          <div className="coach-scenarios-row" role="group" aria-label={t('coachScenariosAria')}>
             {SCENARIOS.map((sc) => (
               <button
                 key={sc.id}

@@ -27,7 +27,8 @@
 
 import type { A0VisualKey } from '../../visuals/a0VisualRecipes';
 import type { SemanticHintStage } from '../SemanticWordIllustration';
-import { SceneLayer, SemanticPerson } from './SemanticScenePrimitives';
+import { MagenDavid, PaintedRoom, SceneLayer, SemanticPerson } from './SemanticScenePrimitives';
+import { PersonHead } from './PersonHead';
 
 interface BureaucracySceneProps {
   visualKey: A0VisualKey;
@@ -42,6 +43,7 @@ function PublicRoom(): React.JSX.Element {
       <path className="semantic-art__surface-deep" d="M14 128h212v6H14Z" />
       <path className="semantic-art__floor" d="M14 134h212v32H14Z" />
       <path className="semantic-art__tiles" d="M14 134h212M58 134v32m46-32v32m46-32v32m46-32v32" />
+      <PaintedRoom name="room-public" x={14} y={14} width={212} height={152} />
     </>
   );
 }
@@ -83,6 +85,7 @@ export function BureaucracyScene({
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wood semantic-art__outlined" d="M14 14h212v152H14Z" />
             <path className="semantic-art__grain" d="M14 54h212M14 106h212" />
+            <PaintedRoom name="desk-top" x={12} y={12} width={216} height={156} />
             {/* The form it is being copied onto, half under the card. */}
             <path className="semantic-art__surface semantic-art__outlined" d="M118 20h100v138h-100Z" transform="rotate(6 168 89)" />
             <path className="semantic-art__detail semantic-art__detail--thin" d="M132 44h68m-68 16h56m-56 16h68m-68 16h48m-48 16h64" transform="rotate(6 168 89)" />
@@ -100,9 +103,19 @@ export function BureaucracyScene({
               card size.
             */}
             <path className="semantic-art__surface semantic-art__outlined" d="M28 80h44v48H28Z" />
-            <circle className="semantic-art__skin semantic-art__outlined" cx="50" cy="98" r="12" />
-            <path className="semantic-art__hair" d="M39 96c-1-10 5-15 11-14 7 1 11 5 10 14-6-4-15-4-21 0Z" />
-            <path className="semantic-art__teal" d="M34 128c1-14 7-22 16-22s15 8 16 22Z" />
+            {/* The photograph uses the same young adult as the living scenes;
+                a cropped bust fits inside the existing 44 by 48 photo frame. */}
+            <g className="semantic-art__person--teal">
+              <path className="semantic-art__skin" d="M46 104h8v9l-4 4-4-4Z" />
+              <path className="semantic-art__skin-shade" d="M46 104h8v5l-8-2Z" />
+              <path className="semantic-art__shirt" d="M34 128l1-9q1-8 11-9l4 4 4-4q10 1 11 9l1 9Z" />
+              <path className="semantic-art__shirt-lit" d="M35 119q1-7 8-8l-4 17h-5Z" />
+              <path className="semantic-art__shirt-deep" d="M58 111q6 2 7 8l1 9h-7Z" />
+              <path className="semantic-art__body-sleeve-outline" d="m46 111 4 4 4-4" />
+              <g transform="translate(49 98) scale(1.25) translate(0 25)">
+                <PersonHead shirt="teal" expression="neutral" />
+              </g>
+            </g>
             <path className="semantic-art__detail" d="M84 84h84m-84 16h60" />
             <BoxedField x={84} y={110} count={9} w={10} />
           </SceneLayer>
@@ -151,6 +164,7 @@ export function BureaucracyScene({
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wood semantic-art__outlined" d="M14 14h212v152H14Z" />
             <path className="semantic-art__grain" d="M14 50h212M14 100h212M14 150h212" />
+            <PaintedRoom name="desk-top" x={12} y={12} width={216} height={156} />
             <ellipse className="semantic-art__prop-shadow" cx="118" cy="158" rx="76" ry="7" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
@@ -183,6 +197,7 @@ export function BureaucracyScene({
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wall semantic-art__outlined" d="M14 14h212v152H14Z" />
+            <PaintedRoom name="wall-study" x={12} y={12} width={216} height={156} />
             <ellipse className="semantic-art__prop-shadow" cx="120" cy="152" rx="90" ry="9" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
@@ -215,6 +230,7 @@ export function BureaucracyScene({
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__surface semantic-art__outlined" d="M14 14h212v152H14Z" />
+            <PaintedRoom name="desk-top" x={12} y={12} width={216} height={156} />
             <path className="semantic-art__detail semantic-art__detail--thin" d="M34 34h172m-172 16h146m-172 16h172m-172 16h130" opacity="0.5" />
             <path className="semantic-art__detail" d="M34 120h172" />
             <path className="semantic-art__detail semantic-art__detail--thin" d="M34 132h58" />
@@ -358,8 +374,9 @@ export function BureaucracyScene({
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wall semantic-art__outlined" d="M14 14h212v138H14Z" />
-            <circle className="semantic-art__sun-halo" cx="206" cy="38" r="26" />
             <path className="semantic-art__floor" d="M14 152h212v14H14Z" />
+            <PaintedRoom name="scene-municipality" x={12} y={12} width={216} height={156} />
+            <circle className="semantic-art__sun-halo" cx="206" cy="38" r="26" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <path className="semantic-art__stone-lit semantic-art__outlined" d="M32 62h176v90H32Z" />
@@ -373,9 +390,19 @@ export function BureaucracyScene({
             <path className="semantic-art__stone semantic-art__outlined" d="M22 140h196v12H22Z" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            <path className="semantic-art__metal-line" d="M120 24V6" />
-            <path className="semantic-art__surface semantic-art__outlined" d="M120 8h40v22h-40Z" />
-            <path className="semantic-art__blue" d="M120 10h40v4h-40Zm0 14h40v4h-40Z" />
+            <path className="semantic-art__metal-line" d="M120 25V14" />
+            <circle className="semantic-art__gold semantic-art__outlined" cx="120" cy="14" r="2" />
+            {/* Hoist and fly follow the same gentle cloth wave; the complete
+                emblem stays inside the painted crop, including at 96 px. */}
+            <g className="semantic-art__motion-part semantic-art__prop-pivot semantic-art__prop-flutter">
+              <path className="semantic-art__surface semantic-art__outlined" d="M122 16q10-2 20 0t20 0v22q-10 2-20 0t-20 0Z" />
+              <path className="semantic-art__surface-deep" d="M153 17q5 0 9-1v22q-5 1-9 0Z" />
+              <path className="semantic-art__blue" d="M122 18q10-2 20 0t20 0v3q-10 2-20 0t-20 0Zm0 15q10-2 20 0t20 0v3q-10 2-20 0t-20 0Z" />
+              <MagenDavid x={142} y={27} size={11} tone="blue" />
+              {/* The helper supplies both triangles; a small open centre keeps
+                  the star recognisable instead of a solid six-pointed dot. */}
+              <path className="semantic-art__surface-lit" d="m142 25 1.7 1v2l-1.7 1-1.7-1v-2Z" />
+            </g>
             {/* The clock every city hall in the country seems to carry. */}
             <circle className="semantic-art__surface semantic-art__outlined" cx="120" cy="98" r="20" />
             <path className="semantic-art__detail semantic-art__detail--thin" d="M120 82v4m0 24v4m-20-16h4m32 0h4" />
@@ -420,6 +447,7 @@ export function BureaucracyScene({
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wood semantic-art__outlined" d="M14 14h212v152H14Z" />
             <path className="semantic-art__grain" d="M14 52h212M14 104h212M14 152h212" />
+            <PaintedRoom name="desk-top" x={12} y={12} width={216} height={156} />
             <ellipse className="semantic-art__prop-shadow" cx="120" cy="140" rx="92" ry="9" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>

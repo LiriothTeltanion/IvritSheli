@@ -9,6 +9,7 @@ interface DailyMetricsProps {
 
 export function DailyMetrics({ dashboard }: DailyMetricsProps): React.JSX.Element {
   const { locale } = useI18n();
+  const noAnswersYet = dashboard.stats.recent_answers === 0;
 
   return (
     <div className="daily-metrics-container" dir={locale === 'he' ? 'rtl' : 'ltr'}>
@@ -35,8 +36,8 @@ export function DailyMetrics({ dashboard }: DailyMetricsProps): React.JSX.Elemen
             <strong>{locale === 'es' ? `Nivel ${dashboard.xp.level}` : locale === 'he' ? `רמה ${dashboard.xp.level}` : `Level ${dashboard.xp.level}`}</strong>
             <span className="xp-text">{dashboard.xp.xp_in_level} / {dashboard.xp.next_threshold} XP</span>
           </div>
-          <div className="xp-bar">
-            <div className="xp-bar-fill" style={{ width: `${Math.min(100, Math.max(0, dashboard.xp.percent))}%` }} />
+          <div className="daily-metrics__xp-track">
+            <div className="daily-metrics__xp-fill" style={{ width: `${Math.min(100, Math.max(0, dashboard.xp.percent))}%` }} />
           </div>
         </div>
       </div>
@@ -47,10 +48,22 @@ export function DailyMetrics({ dashboard }: DailyMetricsProps): React.JSX.Elemen
           <Icon name="target" size={24} />
         </div>
         <div className="metric-info">
-          <strong>{Math.round(dashboard.stats.recent_accuracy * 100)}%</strong>
-          <span>
-            {locale === 'es' ? 'Precisión reciente' : locale === 'he' ? 'דיוק אחרון' : 'Recent accuracy'}
-          </span>
+          {/* Before the first answer there is no accuracy to show: "0%" would read as "all wrong" on day one. */}
+          {noAnswersYet ? (
+            <>
+              <strong aria-hidden="true">—</strong>
+              <span>
+                {locale === 'es' ? 'Tu precisión aparecerá al responder' : locale === 'he' ? 'הדיוק יופיע אחרי התשובה הראשונה' : 'Your accuracy appears once you answer'}
+              </span>
+            </>
+          ) : (
+            <>
+              <strong>{Math.round(dashboard.stats.recent_accuracy * 100)}%</strong>
+              <span>
+                {locale === 'es' ? 'Precisión reciente' : locale === 'he' ? 'דיוק אחרון' : 'Recent accuracy'}
+              </span>
+            </>
+          )}
         </div>
       </div>
     </div>

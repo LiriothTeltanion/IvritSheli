@@ -16,7 +16,7 @@
 
 import type { A0VisualKey } from '../../visuals/a0VisualRecipes';
 import type { SemanticHintStage } from '../SemanticWordIllustration';
-import { CalendarPage, SceneLayer, SemanticPerson, SpeechBubble } from './SemanticScenePrimitives';
+import { CalendarPage, PaintedRoom, SceneLayer, SemanticPerson, SpeechBubble } from './SemanticScenePrimitives';
 
 interface WorkSceneProps {
   visualKey: A0VisualKey;
@@ -30,21 +30,30 @@ function OfficeRoom(): React.JSX.Element {
       <path className="semantic-art__wall semantic-art__outlined" d="M14 14h212v122H14Z" />
       <path className="semantic-art__floor" d="M14 136h212v30H14Z" />
       <path className="semantic-art__surface-deep" d="M14 130h212v6H14Z" />
+      <PaintedRoom name="room-office" x={14} y={14} width={212} height={152} />
+      {/* A shallow contact pool follows the floor without drawing over the painting's perspective. */}
+      <ellipse className="semantic-art__prop-shadow" cx="120" cy="164" rx="96" ry="2" opacity="0.25" />
     </>
   );
 }
 
-/** A desk seen front-on, used wherever a work word needs a surface. */
+/** A shallow top plane keeps objects on the desk, with the far legs inset. */
 function Desk({ x, y, w }: { x: number; y: number; w: number }): React.JSX.Element {
   return (
     <g>
-      <path className="semantic-art__wood semantic-art__outlined" d={`M${x} ${y}h${w}v11H${x}Z`} />
-      <path className="semantic-art__wood-lit" d={`M${x} ${y}h${w}v4H${x}Z`} />
-      <path className="semantic-art__wood-deep" d={`M${x} ${y + 11}h${w}v5H${x}Z`} />
+      <path className="semantic-art__wood-deep" d={`M${x + 16} ${y + 10}h5v30h-5Zm${w - 40} 0h5v30h-5Z`} />
+      <path className="semantic-art__wood semantic-art__outlined" d={`M${x + 5} ${y}h${w - 10}l5 7v6H${x}V${y + 7}Z`} />
+      <path className="semantic-art__wood-lit" d={`M${x + 5} ${y}h${w - 10}l5 7H${x}Z`} />
+      <path className="semantic-art__wood-deep" d={`M${x} ${y + 8}h${w}v8H${x}Z`} />
       <path
         className="semantic-art__wood semantic-art__outlined"
         d={`M${x + 8} ${y + 16}h10v30h-10Zm${w - 34} 0h10v30h-10Z`}
       />
+      <path className="semantic-art__wood-lit" d={`M${x + 9} ${y + 16}h3v28h-3Zm${w - 34} 0h3v28h-3Z`} />
+      <path className="semantic-art__wood-deep" d={`M${x + 15} ${y + 16}h3v30h-3Zm${w - 34} 0h3v30h-3Z`} />
+      <path className="semantic-art__grain" d={`M${x + 7} ${y + 6}h${w * 0.55}m8 0h${w * 0.18}`} />
+      <path className="semantic-art__grain" d={`M${x + 17} ${y + 3}h${w * 0.34}m9 0h${w * 0.18}`} />
+      <path className="semantic-art__wood-deep" d={`M${x + 8} ${y + 43}h10v3h-10Zm${w - 34} 0h10v3h-10Z`} />
     </g>
   );
 }
@@ -172,6 +181,7 @@ export function WorkScene({ visualKey, hintStage }: WorkSceneProps): React.JSX.E
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wall semantic-art__outlined" d="M14 14h212v152H14Z" />
+            <PaintedRoom name="wall-study" x={12} y={12} width={216} height={156} />
             <path className="semantic-art__grain" d="M14 52h212M14 96h212M14 140h212" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
@@ -209,25 +219,66 @@ export function WorkScene({ visualKey, hintStage }: WorkSceneProps): React.JSX.E
             <ellipse className="semantic-art__prop-shadow" cx="120" cy="152" rx="92" ry="8" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
+            {/* Chair backs and an inset rear stretcher place the colleagues behind one table. */}
+            <path className="semantic-art__wood-deep semantic-art__outlined" d="M38 108q16-6 32 0v40H38Zm66-6q16-6 32 0v40h-32Zm66 6q16-6 32 0v40h-32Z" />
             <SemanticPerson x={54} y={108} facing="right" shirt="teal" scale={1} />
             <SemanticPerson x={120} y={102} facing="right" shirt="gold" scale={1} />
             <SemanticPerson x={186} y={108} facing="left" shirt="coral" scale={1} />
             {/* One table across all three, so they read as one group rather
                 than three people who happen to stand near each other. */}
-            <path className="semantic-art__wood semantic-art__outlined" d="M28 124h184v13H28Z" />
-            <path className="semantic-art__wood-lit" d="M28 124h184v4H28Z" />
-            <path className="semantic-art__wood-deep" d="M28 137h184v6H28Z" />
             <path className="semantic-art__wood semantic-art__outlined" d="M40 143h11v22H40Zm149 0h11v22h-11Z" />
+            <path className="semantic-art__wood-lit" d="M41 143h3v20h-3Zm149 0h3v20h-3Z" />
+            <path className="semantic-art__wood-deep" d="M47 143h4v22h-4Zm149 0h4v22h-4Z" />
+            <path className="semantic-art__wood semantic-art__outlined" d="M36 124h168l8 10v9H28v-9Z" />
+            <path className="semantic-art__wood-lit" d="M36 124h168l8 10H28Z" />
+            <path className="semantic-art__wood-deep" d="M28 134h184v9H28Z" />
+            <path className="semantic-art__wood" d="M30 135h180v4H30Z" />
+            <path className="semantic-art__grain" d="M39 129q22-2 41 0m66 1q30-2 54 0M39 137h38m78 0h45" />
+            {/* These are the existing neutral wrists, repainted over the top plane;
+                their centres stay (40,126), (76,126), (200,126), (164,126). */}
+            {([['teal', 54, 1], ['coral', 186, -1]] as const).map(([shirt, x, direction]) => (
+              <g key={shirt} className={`semantic-art__person--${shirt}`} transform={`translate(${x} 108) scale(${direction} 1)`}>
+                <path className="semantic-art__limb-edge semantic-art__body-arm-edge" d="M-13 12q-1 3-1 6M17 15q2 2 5 3" />
+                <path className="semantic-art__skin-line semantic-art__body-arm-fill" d="M-13 12q-1 3-1 6M17 15q2 2 5 3" />
+                {([-14, 22] as const).map((handX) => <path key={handX} className="semantic-art__hand" transform={`translate(${handX} 18)`} d="M-3.6 1.7Q-4.5.4-3.8-1.3L-2.4-2Q-2.6-3.8-1.4-4Q-.4-4.1-.3-2.5L.2-2.2L2.6-2.5Q4.1-2.5 4.4-1Q4.9.7 3.5 1.9Q1.1 3.3-1.4 2.8Q-3 2.7-3.6 1.7Z" />)}
+              </g>
+            ))}
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            <path className="semantic-art__surface semantic-art__outlined" d="M92 106h56v20H92Z" />
-            <path className="semantic-art__detail semantic-art__detail--thin" d="M99 112h42m-42 7h30" />
+            <g className="semantic-art__motion-part semantic-art__prop-pivot">
+              <path className="semantic-art__metal-deep semantic-art__outlined" d="M92 106h56v19H92Z" />
+              <path className="semantic-art__surface" d="M94 108h52v15H94Z" />
+              <path className="semantic-art__surface-deep" d="m94 108 52 0v3H94Z" />
+              <path className="semantic-art__teal" d="M100 116h6v5h-6Zm10-3h6v8h-6Zm10-3h6v11h-6Z" />
+              <path className="semantic-art__gold" d="M130 111h9v3h-9Z" />
+              <path className="semantic-art__detail semantic-art__detail--thin" d="M130 118h9" />
+              <path className="semantic-art__gloss semantic-art__prop-glint" d="m96 120 16-10" />
+              <path className="semantic-art__metal semantic-art__outlined" d="m92 124-3 3h62l-3-3Z" />
+              <path className="semantic-art__metal-deep" d="M114 125h12v1h-12Z" />
+            </g>
             {/* Mugs standing on the table. As pale rectangles these read as two
                 more sheets of paper laid across the sitters' chests. */}
-            <path className="semantic-art__teal semantic-art__outlined" d="M58 108h20v11c0 3-4 5-10 5s-10-2-10-5Z" />
-            <path className="semantic-art__detail" d="M78 111c6 0 6 8 0 8" />
-            <path className="semantic-art__coral semantic-art__outlined" d="M162 108h20v11c0 3-4 5-10 5s-10-2-10-5Z" />
-            <path className="semantic-art__detail" d="M182 111c6 0 6 8 0 8" />
+            <g className="semantic-art__motion-part semantic-art__prop-pivot">
+              <path className="semantic-art__teal-line" d="M77 111c10-3 10 12 0 9" />
+              <path className="semantic-art__teal semantic-art__outlined" d="M58 108h20l-1 11c0 6-17 6-18 0Z" />
+              <path className="semantic-art__teal-deep" d="M72 110h6l-1 9q-1 5-10 5 7-3 5-14Z" />
+              <path className="semantic-art__teal-lit" d="M60 111h3l1 9-3-2Z" />
+              <ellipse className="semantic-art__surface" cx="68" cy="108" rx="10" ry="2.5" />
+              <ellipse className="semantic-art__wood-deep" cx="68" cy="108" rx="8" ry="1.4" />
+            </g>
+            <g className="semantic-art__motion-part semantic-art__prop-pivot">
+              <path className="semantic-art__coral-line" d="M181 111c10-3 10 12 0 9" />
+              <path className="semantic-art__coral semantic-art__outlined" d="M162 108h20l-1 11c0 6-17 6-18 0Z" />
+              <path className="semantic-art__coral-deep" d="M176 110h6l-1 9q-1 5-10 5 7-3 5-14Z" />
+              <path className="semantic-art__coral-lit" d="M164 111h3l1 9-3-2Z" />
+              <ellipse className="semantic-art__surface" cx="172" cy="108" rx="10" ry="2.5" />
+              <ellipse className="semantic-art__wood-deep" cx="172" cy="108" rx="8" ry="1.4" />
+            </g>
+            <path className="semantic-art__steam" d="M67 103c-4-4 4-6 0-10m104 10c-4-4 4-6 0-10" />
+            <path className="semantic-art__prop-shadow" d="m151 125 22 1-3 6-23-2Z" />
+            <path className="semantic-art__surface semantic-art__outlined" d="m151 123 21 2-3 5-22-2Z" />
+            <path className="semantic-art__detail semantic-art__detail--thin" d="m154 126 12 1" />
+            <path className="semantic-art__blue-line" d="m179 128 14 1" />
           </SceneLayer>
         </>
       );
@@ -279,16 +330,32 @@ export function WorkScene({ visualKey, hintStage }: WorkSceneProps): React.JSX.E
             <path className="semantic-art__wood semantic-art__outlined" d="M104 124h92v42h-92Z" />
             <path className="semantic-art__wood-lit" d="M104 124h92v6h-92Z" />
             <path className="semantic-art__wood-deep" d="M176 130h20v36h-20Z" />
-            <path className="semantic-art__grain" d="M112 142h76m-76 13h58" />
-            <path className="semantic-art__surface semantic-art__outlined" d="M98 114h104v11H98Z" />
+            <path className="semantic-art__wood-lit" d="M105 131h4v32h-4Z" />
+            <path className="semantic-art__wood-deep" d="M104 160h92v6h-92Z" />
+            <path className="semantic-art__wood-deep" d="M112 134h61v24h-61Z" />
+            <path className="semantic-art__wood-lit" d="M114 136h57v2h-55v18h-2Z" />
+            <path className="semantic-art__wood" d="M117 139h53v16h-53Z" />
+            <path className="semantic-art__grain" d="M122 144q15-2 38 0m-35 7h29" />
+            <path className="semantic-art__prop-shadow" d="M104 125h92v5h-92Z" />
+            <path className="semantic-art__surface semantic-art__outlined" d="M104 114h92l6 5v6H98v-6Z" />
+            <path className="semantic-art__surface-lit" d="M104 114h92l6 5H98Z" />
+            <path className="semantic-art__surface-deep" d="M99 122h102v3H99Z" />
+            <path className="semantic-art__highlight semantic-art__detail--thin" d="M104 120h89" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            <g transform="translate(26 34) scale(0.62)">
-              <SpeechBubble x={0} y={0} question />
+            <g transform="translate(29 37) scale(0.62)">
+              <SpeechBubble x={0} y={0} question tail="right" />
             </g>
-            <path className="semantic-art__metal semantic-art__outlined" d="M118 104c0-9 14-9 14 0v10h-14Z" />
-            <circle className="semantic-art__metal-deep" cx="125" cy="100" r="3" />
-            <path className="semantic-art__detail semantic-art__detail--thin" d="M114 114h22" />
+            <g className="semantic-art__motion-part semantic-art__prop-pivot">
+              {/* A low dome, plunger and broad foot make this a service bell. */}
+              <ellipse className="semantic-art__prop-shadow" cx="125" cy="114" rx="12" ry="2" />
+              <path className="semantic-art__metal semantic-art__outlined" d="M115 111c0-15 20-15 20 0Z" />
+              <path className="semantic-art__metal-deep" d="M125 101q10 2 10 10h-7q3-6-3-10Z" />
+              <path className="semantic-art__metal-lit semantic-art__prop-glint" d="M118 109q0-6 5-6l-2 6Z" />
+              <path className="semantic-art__metal-line" d="M125 101v-3" />
+              <ellipse className="semantic-art__metal" cx="125" cy="98" rx="3" ry="1.5" />
+              <path className="semantic-art__metal-deep semantic-art__outlined" d="M114 111h22v3h-22Z" />
+            </g>
           </SceneLayer>
         </>
       );
@@ -299,6 +366,7 @@ export function WorkScene({ visualKey, hintStage }: WorkSceneProps): React.JSX.E
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wall semantic-art__outlined" d="M14 14h212v152H14Z" />
+            <PaintedRoom name="wall-study" x={12} y={12} width={216} height={156} />
             <ellipse className="semantic-art__prop-shadow" cx="120" cy="160" rx="46" ry="7" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
@@ -377,24 +445,49 @@ export function WorkScene({ visualKey, hintStage }: WorkSceneProps): React.JSX.E
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wall semantic-art__outlined" d="M14 14h212v152H14Z" />
+            <PaintedRoom name="wall-study" x={12} y={12} width={216} height={156} />
             <ellipse className="semantic-art__prop-shadow" cx="76" cy="152" rx="48" ry="7" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
-            <path className="semantic-art__surface semantic-art__outlined" d="M28 26h96v122H28Z" />
-            <path className="semantic-art__teal-soft semantic-art__outlined" d="M28 26h96v20H28Z" />
-            <path className="semantic-art__detail semantic-art__detail--thin" d="M38 62h58M38 78h58M38 94h44" />
-            <path className="semantic-art__detail" d="M38 110h78" />
-            {/* The total, on its own line at the foot of the slip. */}
-            <text className="semantic-art__currency" x="76" y="136" fontSize="26">₪</text>
+            <g className="semantic-art__motion-part semantic-art__prop-pivot">
+            <path className="semantic-art__surface-deep" d="M31 29h80l13 13v106q-45-3-94 1Z" />
+            <path className="semantic-art__surface semantic-art__outlined" d="M28 26h82l14 14v104q-50-3-96 4Z" />
+            <path className="semantic-art__surface-lit" d="M29 27h6v116l-6 3Z" />
+            <path className="semantic-art__teal-soft" d="M30 28h79l12 12v8H30Z" />
+            <path className="semantic-art__teal-deep" d="M30 45h91v3H30Z" />
+            <path className="semantic-art__teal" d="M38 34h13v6H38Zm19 1h39v2H57Zm0 5h26v2H57Z" />
+            {/* Two payroll columns, short aligned marks, and a boxed total: no glyphs. */}
+            <path className="semantic-art__detail semantic-art__detail--thin" d="M38 58h35m12 0h27M38 70h28m19 0h19M38 82h34m13 0h25M38 94h25m22 0h26" />
+            <path className="semantic-art__surface-deep" d="m31 99 89-2v3l-89 2Z" />
+            <path className="semantic-art__surface-lit" d="m31 102 89-2v2l-89 2Z" />
+            <path className="semantic-art__teal-soft semantic-art__outlined" d="M37 110h75v17H37Z" />
+            <path className="semantic-art__teal-deep" d="M42 116h24v3H42Z" />
+            {/* The total is in shekels: the sign is what makes this a payslip, so it stays. */}
+            <text className="semantic-art__currency semantic-art__currency--small" x="97" y="119">₪</text>
+            <g transform="rotate(-9 51 136)">
+              <rect className="semantic-art__surface semantic-art__outlined" x="38" y="131" width="26" height="9" rx="2" />
+              <path className="semantic-art__teal-line" d="M43 135h15" />
+            </g>
+            <path className="semantic-art__surface-deep" d="m110 26 14 14-14 3Z" />
+            <path className="semantic-art__surface-lit semantic-art__outlined" d="m110 26 14 14h-14Z" />
+            <path className="semantic-art__grain" d="M76 135h32" />
+            </g>
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
             {/* The arrow has to stop short of the card, or the card is drawn
                 over its head and only a red stub is left showing. */}
             <path className="semantic-art__arrow" d="M130 88h16m0 0-8-7m8 7-8 7" />
-            <path className="semantic-art__blue semantic-art__outlined" d="M156 62h58a6 6 0 0 1 6 6v46a6 6 0 0 1-6 6h-58a6 6 0 0 1-6-6V68a6 6 0 0 1 6-6Z" />
-            <path className="semantic-art__blue-deep" d="M150 76h70v12h-70Z" />
-            <path className="semantic-art__gold semantic-art__outlined" d="M160 96h18v13h-18Z" />
-            <path className="semantic-art__detail semantic-art__detail--thin" d="M188 106h26" />
+            <g className="semantic-art__motion-part semantic-art__prop-pivot">
+              <ellipse className="semantic-art__prop-shadow" cx="185" cy="118" rx="33" ry="3" />
+              <rect className="semantic-art__blue semantic-art__outlined" x="150" y="70" width="70" height="44" rx="6" />
+              <path className="semantic-art__blue-lit" d="M156 72h58q4 0 4 4v2h-66v-2q0-4 4-4Z" />
+              <path className="semantic-art__blue-deep" d="M150 80h70v10h-70Zm0 28q24 4 70-4v4q0 6-6 6h-58q-6 0-6-6Z" />
+              <rect className="semantic-art__gold semantic-art__outlined" x="160" y="95" width="18" height="13" rx="2" />
+              <path className="semantic-art__gold-lit" d="M161 96h16v3h-16Z" />
+              <path className="semantic-art__grain" d="M166 95v4l6 5v4m-12-7h6m6 0h6m-18 4h7" />
+              <path className="semantic-art__blue-lit" d="M187 103h26v2h-26Z" />
+              <path className="semantic-art__gloss semantic-art__prop-glint" d="m205 73-8 5" />
+            </g>
           </SceneLayer>
         </>
       );

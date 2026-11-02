@@ -206,7 +206,7 @@
   --semantic-contact-core: #cdc5d2;
   --semantic-contact-edge: #ffffff;
   --semantic-vignette-clear: rgba(60, 42, 70, 0);
-  --semantic-vignette-edge: rgba(60, 42, 70, 0.13);
+  --semantic-vignette-edge: rgba(60, 42, 70, 0.08);
 
   /* Depth tokens. Gradient stops read these, so the dark theme only has to
      restate the tokens — the artwork itself never forks. */
@@ -396,6 +396,13 @@
 
 .semantic-art__frame-motif { opacity: 0.34; }
 
+/* 2026-10-20: the scene is the frame. The inner rim, rail, seal and corner motif stay in the DOM (the gallery and
+   tests use data-frame-variant) but no longer draw, at any size, so nothing competes with the subject. */
+.semantic-art__editorial-rim,
+.semantic-art__editorial-rail,
+.semantic-art__editorial-seal,
+.semantic-art__frame-motif { display: none; }
+
 /* Spatial families turn the recipe's setting into a quiet back/mid/ground
    scaffold. These are simple planes and paths rather than SVG filters, so the
    exhaustive 720-instance QA view remains cheap to mount. */
@@ -547,6 +554,39 @@
 
 .semantic-art__vignette { pointer-events: none; }
 
+/* Gouache grain over the context layer (2026-10-20). Clipped to the paper so the card corners stay clean. */
+.semantic-art__context-grain {
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  opacity: var(--semantic-grain-strength, .45);
+  /* The room or subject area only: the paper mat around it stays clean. */
+  clip-path: inset(11px round 8px);
+}
+.semantic-art--thumbnail .semantic-art__context-grain { display: none; }
+
+/* Painted rooms and backdrops (2026-10-20): dimmed in the dark theme so a daylight painting does not glare,
+   and dropped in high contrast so the flat vector room underneath carries the scene. */
+.semantic-art__painted-room { pointer-events: none; }
+:root[data-theme="dark"] [data-painted-variant="light"] { filter: brightness(.6) saturate(.85); }
+/* A painting with its own dark-theme version (2026-11-02) shows that instead of the dimmed daylight one. */
+.semantic-art__painted--dark { display: none; }
+:root[data-theme="dark"] .semantic-art__painted--dark { display: inline; }
+:root[data-theme="dark"] .semantic-art__painted--light:has(+ .semantic-art__painted--dark) { display: none; }
+/* Kevin compared both on 2026-11-02 and kept the paintings in the app's high contrast too, as the living-scene
+   backdrops already were. Only the system forced-colours mode still drops the rooms. */
+/* A glaze (Kevin's choice, 2026-11-02): where a painted landscape lies under a teaching shape that covers the
+   whole ground (dunes, a field, hills, a forest path), the shape keeps its outline and only a wash of its colour,
+   so the painted sand, wheat or lake shows through instead of a flat collage over the painting. */
+.semantic-art__glaze { fill-opacity: .25; }
+@media (forced-colors: active) {
+  .semantic-art__painted-room { display: none; }
+  /* No painting under it here, so the shape is solid again. */
+  .semantic-art__glaze { fill-opacity: 1; }
+}
+@media (prefers-contrast: more), (forced-colors: active) {
+  .semantic-art__context-grain { display: none; }
+}
+
 .semantic-art__calendar-ring,
 .semantic-art__metal-line {
   fill: none;
@@ -618,6 +658,22 @@
   stroke-linecap: round;
 }
 .semantic-art__marker-beard { stroke: var(--semantic-hair-grey); }
+
+/* Portrait busts inside genealogy outlines (2026-10-20). The clip keeps every feature inside the frame. */
+.semantic-art__portrait--feminine { clip-path: circle(14.4px); }
+.semantic-art__portrait--masculine { clip-path: inset(.6px round 1.6px); }
+.semantic-art__portrait .semantic-art__shirt,
+.semantic-art__portrait .semantic-art__body-sleeve-outline { stroke-width: 1.1; }
+.semantic-art__portrait-ring {
+  fill: none;
+  stroke: color-mix(in srgb, var(--semantic-ink) 60%, transparent);
+  stroke-width: 1.6;
+}
+.semantic-art__portrait-glasses {
+  fill: none;
+  stroke: #3a3f46;
+  stroke-width: .6;
+}
 .semantic-art__marker-role {
   fill: none;
   stroke: var(--semantic-symbol-ink);
@@ -650,6 +706,12 @@
   stroke: var(--semantic-leaf-lit);
   stroke-width: 3;
   stroke-linecap: round;
+}
+
+/* Canopies pivot above their fixed trunks; placement stays on the parent. */
+.semantic-art__prop-foliage {
+  transform-box: fill-box;
+  transform-origin: center bottom;
 }
 
 .semantic-art__ground-rim {
@@ -921,8 +983,8 @@
 [data-visual-layer] .semantic-art__surface.semantic-art__outlined,
 [data-visual-layer] .semantic-art__cloud.semantic-art__outlined,
 [data-visual-layer] .semantic-art__wall.semantic-art__outlined {
-  stroke: color-mix(in srgb, var(--semantic-ink) 60%, transparent);
-  stroke-width: 2;
+  stroke: color-mix(in srgb, var(--semantic-ink) 34%, transparent);
+  stroke-width: 1.4;
 }
 
 /*
@@ -1217,7 +1279,8 @@
   --semantic-skin: #dda176;
   --semantic-skin-deep: #b97751;
   --semantic-skin-edge: #855036;
-  --semantic-hair: #73503a;
+  /* The older woman's bob is grey (2026-11-02); a brown cap read as the same young figure as the others. */
+  --semantic-hair: #a39a92;
   --semantic-trousers: #31566d;
   --semantic-trouser-edge: #1a3040;
   --semantic-garment-edge: #7d5310;
@@ -1323,6 +1386,15 @@
 .semantic-art__shirt-lit,
 .semantic-art__shirt-deep { stroke: none; }
 
+/* A short sleeve: the shirt's own colour with no contour, so it continues the torso over the top of the arm. */
+.semantic-art__person--teal .semantic-art__sleeve { fill: var(--semantic-teal); }
+.semantic-art__person--coral .semantic-art__sleeve { fill: var(--semantic-coral); }
+.semantic-art__person--gold .semantic-art__sleeve { fill: var(--semantic-gold); }
+.semantic-art__person--blue .semantic-art__sleeve { fill: var(--semantic-blue); }
+.semantic-art__sleeve { stroke: none; }
+/* Only the sleeve's open silhouette and hem are stroked, so it joins the shirt without a seam across the chest. */
+.semantic-art__body-sleeve-outline { fill: none; stroke: var(--semantic-garment-edge, #06403d); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+
 /* Skin and hair get the same treatment as cloth. */
 .semantic-art__skin-shade { fill: var(--semantic-skin-deep); stroke: none; }
 .semantic-art__hair-deep { fill: color-mix(in srgb, var(--semantic-hair) 72%, #000); stroke: none; }
@@ -1342,6 +1414,85 @@
 }
 
 .semantic-art--thumbnail .semantic-art__eye { display: none; }
+
+/* Three-quarter face details (2026-10-20). Small enough to vanish with the eyes in thumbnails. */
+.semantic-art__ear {
+  fill: var(--semantic-skin);
+  stroke: var(--semantic-skin-edge, #6a3e26);
+  stroke-width: .7;
+}
+.semantic-art__eye-light { fill: #fff6e8; stroke: none; }
+.semantic-art__brow {
+  fill: none;
+  stroke: color-mix(in srgb, var(--semantic-hair) 85%, #000);
+  stroke-width: 1.05;
+  stroke-linecap: round;
+}
+.semantic-art__mouth {
+  fill: none;
+  stroke: color-mix(in srgb, var(--semantic-skin-edge, #6a3e26) 85%, #000);
+  stroke-width: 1.05;
+  stroke-linecap: round;
+}
+.semantic-art__cheek { fill: #e07a63; opacity: .26; stroke: none; }
+.semantic-art--thumbnail .semantic-art__eye-light,
+.semantic-art--thumbnail .semantic-art__brow,
+.semantic-art--thumbnail .semantic-art__cheek { display: none; }
+
+/* Faces (2026-11-02): the PersonHead drawn by Codex, with a beard, two blushed cheeks and stronger brows taken
+   from the Gemini reference sheet. Paint comes from the shared classes; these are the extra pieces. */
+.semantic-art__face-head {
+  --semantic-art-face-hair-light: #70594b;
+  --semantic-art-face-silver: #b7aca1;
+  --semantic-art-face-mouth-cavity: #59271e;
+  --semantic-art-face-teeth: #fff4df;
+  --semantic-art-face-tongue: #c36c55;
+}
+.semantic-art__face--gold { --semantic-art-face-hair-light: #ded5cb; }
+.semantic-art__face--blue { --semantic-art-face-hair-light: #78685c; }
+.semantic-art__person .semantic-art__hair { stroke-width: .8; }
+.semantic-art__face-head .semantic-art__face-line,
+.semantic-art__face-head .semantic-art__face-age-line { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.semantic-art__face-head .semantic-art__brow { stroke-width: .62; }
+.semantic-art__face-head .semantic-art__nose { stroke-width: .28; }
+.semantic-art__face-head .semantic-art__mouth { stroke-width: .34; }
+.semantic-art__face-head .semantic-art__face-age-line { stroke-width: .22; opacity: .55; }
+.semantic-art__face-head .semantic-art__cheek { opacity: .34; }
+.semantic-art__face-hair-highlight { fill: var(--semantic-art-face-hair-light); stroke: none; }
+.semantic-art__face-temple { fill: var(--semantic-art-face-silver); stroke: none; }
+.semantic-art__face-beard {
+  fill: color-mix(in srgb, var(--semantic-hair) 70%, var(--semantic-hair-grey));
+  stroke: color-mix(in srgb, var(--semantic-hair) 72%, #000);
+  stroke-width: .3;
+  stroke-linejoin: round;
+}
+.semantic-art__face-mouth-open { fill: var(--semantic-art-face-mouth-cavity); stroke: none; }
+.semantic-art__face-teeth { fill: var(--semantic-art-face-teeth); stroke: none; }
+.semantic-art__face-tongue { fill: var(--semantic-art-face-tongue); stroke: none; }
+.semantic-art--thumbnail .semantic-art__face-teeth,
+.semantic-art--thumbnail .semantic-art__face-tongue,
+.semantic-art--thumbnail .semantic-art__face-age-line,
+.semantic-art--thumbnail .semantic-art__face-hair-highlight { display: none; }
+/* Blinks, speech and the nod move around their own box, never the scene's origin; the nod pivots at the neck. */
+.semantic-art__face-eyes,
+.semantic-art__face-mouth { transform-box: fill-box; transform-origin: center; }
+.semantic-art__face-head { transform-box: fill-box; transform-origin: 50% 100%; }
+/* Bodies (2026-11-02, PersonBody.tsx by Codex): a crease in each palm and a seam on each shoe, both small enough
+   to drop in thumbnails. The arm hooks only name the two paint layers of an arm; the torso breathes from its
+   waist. */
+.semantic-art__body-hand-detail,
+.semantic-art__body-shoe-detail {
+  fill: none;
+  stroke: color-mix(in srgb, var(--semantic-skin-edge, #6a3e26) 62%, transparent);
+  stroke-width: .42;
+  stroke-linecap: round;
+}
+.semantic-art__body-shoe-detail { stroke: color-mix(in srgb, var(--semantic-trouser-edge, #1d2c37) 55%, #fff 10%); }
+.semantic-art__body-arm-edge,
+.semantic-art__body-arm-fill { stroke-linejoin: round; }
+.semantic-art__body-breath { transform-box: fill-box; transform-origin: 50% 100%; }
+.semantic-art--thumbnail .semantic-art__body-hand-detail,
+.semantic-art--thumbnail .semantic-art__body-shoe-detail { display: none; }
 
 .semantic-art__bubble {
   stroke-width: 2.4;
@@ -1415,6 +1566,12 @@
   stroke: var(--semantic-brew);
   stroke-width: 7;
   stroke-linecap: round;
+}
+
+/* Redrawn roof beacons and gift bow pivot on their attachment, not the SVG origin. */
+.semantic-art__prop-pivot {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
 }
 
 .semantic-art__spark {
@@ -1577,6 +1734,7 @@
   --semantic-hair-lit: rgba(255, 233, 205, 0.22);
   --semantic-vignette-clear: rgba(12, 6, 22, 0);
   --semantic-vignette-edge: rgba(12, 6, 22, 0.34);
+  --semantic-grain-strength: .3;
   --semantic-ground-rim: rgba(190, 226, 226, 0.24);
   --semantic-sun-halo: rgba(237, 185, 78, 0.16);
   --semantic-sun-core: rgba(255, 240, 190, 0.42);
@@ -1666,7 +1824,8 @@
   [data-visual-layer] .semantic-art__outlined,
   .semantic-art__window,
   .semantic-art__hair,
-  .semantic-art__shirt {
+  .semantic-art__shirt,
+  .semantic-art__body-sleeve-outline {
     stroke: currentColor;
     stroke-width: 4;
   }
@@ -1737,6 +1896,90 @@
   }
 }
 
+/* Alive at rest (2026-11-02, approved by Kevin): when a card or hero scene comes into view it wakes once in two
+   phases. First the press motion plays (`data-exploring`, 1.2 s), so every teaching part — arrows, sparks, streams,
+   question and answer cues — moves; then the slow life-at-rest pass (`data-awake`, 3.6 s): breaths, blinks, a head
+   tilt, the sun glowing, clouds, steam, water and crowns drifting, and any prop marked `__prop-sway`, `__prop-bob`,
+   `__prop-glint` or `__prop-flutter`. 4.8 s in all, inside the five seconds WCAG 2.2.2 allows for motion that starts
+   by itself, and every animation is a single pass with any repeats inside its keyframes (the living-scene check
+   counts iterations). The press/hover rules below are declared later, so a tap always wins. */
+@keyframes semanticIdleBreath {
+  0%, 50%, 100% { transform: scale(1, 1); }
+  25%, 75% { transform: scale(1.01, 1.022); }
+}
+@keyframes semanticIdleBlink {
+  0%, 20%, 30%, 74%, 84%, 100% { transform: scaleY(1); }
+  25%, 79% { transform: scaleY(0.12); }
+}
+@keyframes semanticIdleTilt {
+  0%, 100% { transform: rotate(0deg); }
+  35% { transform: rotate(2.4deg); }
+  70% { transform: rotate(-1.2deg); }
+}
+@keyframes semanticIdleGlow {
+  0%, 50%, 100% { transform: scale(1); opacity: 1; }
+  25%, 75% { transform: scale(1.06); opacity: 0.86; }
+}
+@keyframes semanticIdleTurn {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(7deg); }
+}
+@keyframes semanticIdleDrift {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(3.5px); }
+}
+@keyframes semanticIdleRise {
+  0%, 50%, 100% { transform: translateY(0); opacity: 1; }
+  30%, 80% { transform: translateY(-2.5px); opacity: 0.7; }
+}
+@keyframes semanticIdleBob {
+  0%, 50%, 100% { transform: translateY(0); }
+  25%, 75% { transform: translateY(1.2px); }
+}
+@keyframes semanticIdleGlint {
+  0%, 50%, 100% { opacity: 1; }
+  25%, 75% { opacity: 0.62; }
+}
+@keyframes semanticIdleFlutter {
+  0%, 100% { transform: skewX(0deg); }
+  30% { transform: skewX(3deg); }
+  65% { transform: skewX(-2deg); }
+}
+/* Generic at-rest classes for props (sway and flutter pivot at their base, bob moves the whole part). */
+.semantic-art__prop-sway,
+.semantic-art__prop-flutter { transform-box: fill-box; transform-origin: center bottom; }
+.semantic-art__prop-bob { transform-box: fill-box; }
+@keyframes semanticIdleSway {
+  0%, 100% { transform: rotate(0deg); }
+  30% { transform: rotate(1.6deg); }
+  70% { transform: rotate(-1.2deg); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .semantic-art[data-awake] .semantic-art__body-breath { animation: semanticIdleBreath 3.6s ease-in-out; }
+  .semantic-art[data-awake] .semantic-art__face-eyes { animation: semanticIdleBlink 3.6s ease-in-out; }
+  .semantic-art[data-awake] .semantic-art__face-head { animation: semanticIdleTilt 3.6s ease-in-out; }
+  .semantic-art[data-awake] .semantic-art__sun-halo {
+    animation: semanticIdleGlow 3.6s ease-in-out;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .semantic-art[data-awake] .semantic-art__sun-rays {
+    animation: semanticIdleTurn 3.6s ease-in-out;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .semantic-art[data-awake] .semantic-art__cloud { animation: semanticIdleDrift 3.6s ease-in-out; }
+  .semantic-art[data-awake] .semantic-art__prop-foliage,
+  .semantic-art[data-awake] .semantic-art__prop-sway { animation: semanticIdleSway 3.6s ease-in-out; }
+  .semantic-art[data-awake] .semantic-art__prop-bob { animation: semanticIdleBob 3.6s ease-in-out; }
+  .semantic-art[data-awake] .semantic-art__prop-glint { animation: semanticIdleGlint 3.6s ease-in-out; }
+  .semantic-art[data-awake] .semantic-art__prop-flutter { animation: semanticIdleFlutter 3.6s ease-in-out; }
+  .semantic-art[data-awake] .semantic-art__steam { animation: semanticIdleRise 3.6s ease-in-out; }
+  .semantic-art[data-awake] .semantic-art__foam,
+  .semantic-art[data-awake] .semantic-art__water-deep { animation: semanticIdleBob 3.6s ease-in-out; }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   button:hover .semantic-art[data-size="thumbnail"],
   button:focus-visible .semantic-art[data-size="thumbnail"] {
@@ -1746,24 +1989,29 @@
 
   button:hover .semantic-art__motion-part,
   button:focus-visible .semantic-art__motion-part,
+  .semantic-art[data-exploring] .semantic-art__motion-part,
   .semantic-art--hero:hover .semantic-art__motion-part {
     animation: semanticMeaningMotion 650ms ease-in-out;
   }
 
   button:hover .semantic-art__water-stream,
   button:focus-visible .semantic-art__water-stream,
+  .semantic-art[data-exploring] .semantic-art__water-stream,
   .semantic-art--hero:hover .semantic-art__water-stream,
   button:hover .semantic-art__milk-stream,
   button:focus-visible .semantic-art__milk-stream,
+  .semantic-art[data-exploring] .semantic-art__milk-stream,
   .semantic-art--hero:hover .semantic-art__milk-stream,
   button:hover .semantic-art__brew-stream,
   button:focus-visible .semantic-art__brew-stream,
+  .semantic-art[data-exploring] .semantic-art__brew-stream,
   .semantic-art--hero:hover .semantic-art__brew-stream {
     animation: semanticWaterFlow 720ms ease-in-out;
   }
 
   button:hover .semantic-art__sun-rays,
   button:focus-visible .semantic-art__sun-rays,
+  .semantic-art[data-exploring] .semantic-art__sun-rays,
   .semantic-art--hero:hover .semantic-art__sun-rays {
     animation: semanticSunPulse 760ms ease-in-out;
     transform-box: fill-box;
@@ -1772,12 +2020,14 @@
 
   button:hover .semantic-art__arrow,
   button:focus-visible .semantic-art__arrow,
+  .semantic-art[data-exploring] .semantic-art__arrow,
   .semantic-art--hero:hover .semantic-art__arrow {
     animation: semanticArrowMove 620ms ease-in-out;
   }
 
   button:hover .semantic-art__spark,
   button:focus-visible .semantic-art__spark,
+  .semantic-art[data-exploring] .semantic-art__spark,
   .semantic-art--hero:hover .semantic-art__spark {
     animation: semanticSpark 620ms ease-in-out;
   }
@@ -1787,6 +2037,58 @@
   from { transform: scale(0.9) rotate(-3deg); }
   to { transform: scale(1.08) rotate(3deg); }
 }
+
+/* Faces (2026-11-02): when a scene is explored every adult nods, blinks and lifts the brows once, and a talking
+   mouth says three syllables. Finite, like every other scene motion; reduced motion never reaches these rules. */
+@keyframes semanticFaceBlink {
+  0%, 40%, 62%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.12); }
+}
+
+@keyframes semanticFaceTalk {
+  0%, 100% { transform: scaleY(1); }
+  17%, 50%, 83% { transform: scaleY(0.45); }
+  33%, 67% { transform: scaleY(1.12); }
+}
+
+@keyframes semanticBodyBreath {
+  0%, 100% { transform: scale(1, 1); }
+  45% { transform: scale(1.015, 1.03); }
+}
+
+@keyframes semanticFaceNod {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  30% { transform: rotate(5deg) translateY(0.4px); }
+  60% { transform: rotate(-2deg) translateY(0); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .semantic-art--hero:hover .semantic-art__face-head,
+  .semantic-art[data-exploring] .semantic-art__face-head,
+  button:hover .semantic-art .semantic-art__face-head,
+  button:focus-visible .semantic-art .semantic-art__face-head {
+    animation: semanticFaceNod 760ms ease-in-out;
+  }
+  .semantic-art--hero:hover .semantic-art__body-breath,
+  .semantic-art[data-exploring] .semantic-art__body-breath,
+  button:hover .semantic-art .semantic-art__body-breath,
+  button:focus-visible .semantic-art .semantic-art__body-breath {
+    animation: semanticBodyBreath 900ms ease-in-out;
+  }
+  .semantic-art--hero:hover .semantic-art__face-eyes,
+  .semantic-art[data-exploring] .semantic-art__face-eyes,
+  button:hover .semantic-art .semantic-art__face-eyes,
+  button:focus-visible .semantic-art .semantic-art__face-eyes {
+    animation: semanticFaceBlink 520ms ease-in-out 120ms;
+  }
+  .semantic-art--hero:hover [data-person-expression="talk"] .semantic-art__face-mouth,
+  .semantic-art[data-exploring] [data-person-expression="talk"] .semantic-art__face-mouth,
+  button:hover .semantic-art [data-person-expression="talk"] .semantic-art__face-mouth,
+  button:focus-visible .semantic-art [data-person-expression="talk"] .semantic-art__face-mouth {
+    animation: semanticFaceTalk 780ms ease-in-out;
+  }
+}
+
 
 @keyframes semanticMeaningMotion {
   0%, 100% { transform: rotate(0deg); }
@@ -1847,6 +2149,7 @@
    Object scenes breathe, directional scenes travel, exchanges lean toward each
    other and quantity/time scenes pulse their temporal anchor. */
 @media (prefers-reduced-motion: no-preference) {
+  .semantic-art[data-motion-profile="object-focus"][data-exploring] [data-visual-layer="anchor"],
   .semantic-art--hero[data-motion-profile="object-focus"]:hover [data-visual-layer="anchor"],
   button:hover .semantic-art[data-motion-profile="object-focus"] [data-visual-layer="anchor"],
   button:focus-visible .semantic-art[data-motion-profile="object-focus"] [data-visual-layer="anchor"] {
@@ -1855,6 +2158,7 @@
     transform-origin: center;
   }
 
+  .semantic-art[data-motion-profile="direction"][data-exploring] [data-visual-layer="meaning"],
   .semantic-art--hero[data-motion-profile="direction"]:hover [data-visual-layer="meaning"],
   button:hover .semantic-art[data-motion-profile="direction"] [data-visual-layer="meaning"],
   button:focus-visible .semantic-art[data-motion-profile="direction"] [data-visual-layer="meaning"] {
@@ -1863,18 +2167,21 @@
     transform-origin: center;
   }
 
+  .semantic-art[data-motion-profile="direction"][data-motion-direction="left"][data-exploring] [data-visual-layer="meaning"],
   .semantic-art--hero[data-motion-profile="direction"][data-motion-direction="left"]:hover [data-visual-layer="meaning"],
   button:hover .semantic-art[data-motion-profile="direction"][data-motion-direction="left"] [data-visual-layer="meaning"],
   button:focus-visible .semantic-art[data-motion-profile="direction"][data-motion-direction="left"] [data-visual-layer="meaning"] {
     animation-name: semanticDirectionTravelLeft;
   }
 
+  .semantic-art[data-motion-profile="direction"][data-motion-direction="right"][data-exploring] [data-visual-layer="meaning"],
   .semantic-art--hero[data-motion-profile="direction"][data-motion-direction="right"]:hover [data-visual-layer="meaning"],
   button:hover .semantic-art[data-motion-profile="direction"][data-motion-direction="right"] [data-visual-layer="meaning"],
   button:focus-visible .semantic-art[data-motion-profile="direction"][data-motion-direction="right"] [data-visual-layer="meaning"] {
     animation-name: semanticDirectionTravelRight;
   }
 
+  .semantic-art[data-motion-profile="exchange"][data-exploring] [data-visual-layer="meaning"],
   .semantic-art--hero[data-motion-profile="exchange"]:hover [data-visual-layer="meaning"],
   button:hover .semantic-art[data-motion-profile="exchange"] [data-visual-layer="meaning"],
   button:focus-visible .semantic-art[data-motion-profile="exchange"] [data-visual-layer="meaning"] {
@@ -1883,6 +2190,7 @@
     transform-origin: center;
   }
 
+  .semantic-art[data-motion-profile="quantity-time"][data-exploring] [data-visual-layer="anchor"],
   .semantic-art--hero[data-motion-profile="quantity-time"]:hover [data-visual-layer="anchor"],
   button:hover .semantic-art[data-motion-profile="quantity-time"] [data-visual-layer="anchor"],
   button:focus-visible .semantic-art[data-motion-profile="quantity-time"] [data-visual-layer="anchor"] {
@@ -1928,30 +2236,35 @@
 @media (prefers-reduced-motion: no-preference) {
   button:hover .semantic-art[data-motion-cue="ask"] .semantic-art__semantic-motion-cue,
   button:focus-visible .semantic-art[data-motion-cue="ask"] .semantic-art__semantic-motion-cue,
+  .semantic-art[data-motion-cue="ask"][data-exploring] .semantic-art__semantic-motion-cue,
   .semantic-art--hero[data-motion-cue="ask"]:hover .semantic-art__semantic-motion-cue {
     animation: semanticQuestionOrigin 640ms var(--ease, ease) both;
   }
 
   button:hover .semantic-art[data-motion-cue="answer"] .semantic-art__semantic-motion-cue,
   button:focus-visible .semantic-art[data-motion-cue="answer"] .semantic-art__semantic-motion-cue,
+  .semantic-art[data-motion-cue="answer"][data-exploring] .semantic-art__semantic-motion-cue,
   .semantic-art--hero[data-motion-cue="answer"]:hover .semantic-art__semantic-motion-cue {
     animation: semanticAnswerReturn 660ms var(--ease, ease) both;
   }
 
   button:hover .semantic-art[data-motion-cue="request"] .semantic-art__semantic-motion-cue,
   button:focus-visible .semantic-art[data-motion-cue="request"] .semantic-art__semantic-motion-cue,
+  .semantic-art[data-motion-cue="request"][data-exploring] .semantic-art__semantic-motion-cue,
   .semantic-art--hero[data-motion-cue="request"]:hover .semantic-art__semantic-motion-cue {
     animation: semanticRequestOffer 700ms var(--ease, ease) both;
   }
 
   button:hover .semantic-art[data-motion-cue="explain"] .semantic-art__semantic-motion-cue,
   button:focus-visible .semantic-art[data-motion-cue="explain"] .semantic-art__semantic-motion-cue,
+  .semantic-art[data-motion-cue="explain"][data-exploring] .semantic-art__semantic-motion-cue,
   .semantic-art--hero[data-motion-cue="explain"]:hover .semantic-art__semantic-motion-cue {
     animation: semanticExplainSequence 760ms var(--ease, ease) both;
   }
 
   button:hover .semantic-art[data-motion-cue="person-action"] [data-visual-layer="meaning"],
   button:focus-visible .semantic-art[data-motion-cue="person-action"] [data-visual-layer="meaning"],
+  .semantic-art[data-motion-cue="person-action"][data-exploring] [data-visual-layer="meaning"],
   .semantic-art--hero[data-motion-cue="person-action"]:hover [data-visual-layer="meaning"] {
     animation: semanticActionIntent 620ms var(--ease, ease) both;
     transform-box: fill-box;
@@ -1960,6 +2273,7 @@
 
   button:hover .semantic-art[data-motion-cue="place-reveal"] [data-visual-layer="meaning"],
   button:focus-visible .semantic-art[data-motion-cue="place-reveal"] [data-visual-layer="meaning"],
+  .semantic-art[data-motion-cue="place-reveal"][data-exploring] [data-visual-layer="meaning"],
   .semantic-art--hero[data-motion-cue="place-reveal"]:hover [data-visual-layer="meaning"] {
     animation: semanticPlaceReveal 760ms var(--ease, ease) both;
     transform-box: fill-box;
@@ -1968,6 +2282,7 @@
 
   button:hover .semantic-art[data-motion-cue="comparison"] [data-visual-layer="anchor"],
   button:focus-visible .semantic-art[data-motion-cue="comparison"] [data-visual-layer="anchor"],
+  .semantic-art[data-motion-cue="comparison"][data-exploring] [data-visual-layer="anchor"],
   .semantic-art--hero[data-motion-cue="comparison"]:hover [data-visual-layer="anchor"] {
     animation: semanticComparisonRead 680ms var(--ease, ease) both;
     transform-box: fill-box;

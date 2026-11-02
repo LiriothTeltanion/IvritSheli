@@ -427,3 +427,36 @@ def test_api_contract_validates_and_resumes_daily_practice(
     assert accepted.status_code == 200
     assert accepted.json()["saved"] is True
     assert client.get("/api/v1/practice/today").json()["session"]["current_step"] == 1
+
+
+def test_theme_travels_with_the_profile_and_can_be_cleared(
+    repository: LearningRepository,
+) -> None:
+    """The theme a learner picks is saved on her profile, so the next device opens in it (2026-11-02)."""
+    assert repository.get_profile()["theme"] == ""
+
+    assert repository.update_profile({"theme": "light"})["theme"] == "light"
+    assert repository.get_profile()["theme"] == "light"
+    assert repository.update_profile({"theme": ""})["theme"] == ""
+
+    with pytest.raises(ValueError):
+        repository.update_profile({"theme": "sepia"})
+    assert repository.get_profile()["theme"] == ""
+
+
+def test_dashboard_reports_how_many_answers_the_accuracy_covers(
+    repository: LearningRepository,
+) -> None:
+    """On day one the accuracy is 0.0 only because there is nothing to measure yet; the count says so."""
+    stats = repository.dashboard()["stats"]
+    assert stats["recent_answers"] == 0
+    assert stats["recent_accuracy"] == 0
+
+    item = repository.create_item({"hebrew_text": "שלום", "translation_en": "hello"})
+    repository.submit_review(
+        item["id"],
+        {"is_correct": True, "confidence": 4, "modality": "recognition", "response_ms": 900},
+    )
+    stats = repository.dashboard()["stats"]
+    assert stats["recent_answers"] == 1
+    assert stats["recent_accuracy"] == 1.0

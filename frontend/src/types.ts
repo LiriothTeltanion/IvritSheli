@@ -177,6 +177,8 @@ export interface Profile {
   display_name: string;
   /** The avatar the learner picked. Optional: a server that predates it omits it. */
   avatar_preset_id?: string;
+  /** The theme the learner picked; '' or missing means not chosen yet (2026-11-02). */
+  theme?: '' | 'light' | 'dark';
   interface_language: Locale;
   hebrew_level: string;
   daily_minutes: number;
@@ -580,6 +582,8 @@ export interface Dashboard {
   stats: {
     total_items: number;
     recent_accuracy: number;
+    /** Answers the accuracy is taken over; 0 means there is nothing to measure yet. Missing on older servers. */
+    recent_answers?: number;
     mastery_percent: number;
     streak_days: number;
   };

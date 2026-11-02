@@ -334,7 +334,7 @@ export function SettingsPanel({
       </section>
 
       {/* Category Navigation Tabs for Zero-Chaos Experience */}
-      <nav className="settings-nav-tabs" aria-label="Settings Categories">
+      <nav className="settings-nav-tabs" aria-label={t('settingsCategoriesAria')}>
         <button
           type="button"
           className={`settings-nav-tab ${activeTab === 'all' ? 'is-active' : ''}`}

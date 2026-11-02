@@ -1,3 +1,10 @@
+# Current local checkpoint: 2.13.0 — Living Editorial Scenes
+
+Created and last reviewed: 2026-10-18. Status: private local candidate.
+Six original SVG replacements and accessible replay are detailed in `LIVING_SCENES_PILOT.md`.
+The 240 reviewed concepts / 240 exact semantic scenes boundary is preserved.
+The older visual direction below remains the baseline; hosting claims are historical.
+
 # Ivrit Sheli Visual Bible — 2.12.3 PRIVATE CANDIDATE
 
 > [!IMPORTANT]
@@ -261,6 +268,56 @@ Before an illustration is accepted, check it at:
 - 200% text zoom/reflow.
 
 A learner should identify the intended sense in about five seconds without reading the translation. If two meanings remain plausible, improve the context/action/anchor before adding visual polish.
+
+## Scene art for new words — the 2026-11-02 standard
+
+Kevin chose this style on 2026-11-02 after side-by-side comparisons; every word added to the dictionary follows it.
+
+**What is painted and what stays SVG.** A scene's setting (sky, landscape, street, room, wall, shelf, desk) may be
+a painted gouache backdrop. People, faces, hands, the objects that teach the word, arrows, markers, the sun and
+clouds, and everything that moves stay SVG. The three teaching layers (`context` → `meaning` → `anchor`) are never
+flattened into one picture.
+
+**Characters.** Use `SemanticPerson` only; never draw a person by hand. Its head (`PersonHead.tsx`) and body
+(`PersonBody.tsx`) were drawn by Codex with touches from the Gemini reference sheet. The four adults are fixed:
+coral = woman with a ponytail, blue = older man with a short beard and grey temples, gold = older woman with a grey
+bob, teal = younger man. The feminine and masculine grammar scenes depend on coral and blue, and a test pins them.
+Hand centres, arm ends and feet are an API: place props at the existing hand anchors.
+
+**Painting a scene.** Render the scene's own context with people, props, sun and clouds hidden, cropped to
+`12..228 × 12..168`, and repaint it image-to-image (Codex `image_gen` has given the best alignment) keeping every
+ground, shelf and desk line. Make a dark-theme version at the same time of day — never turn a morning into night.
+Save `scene-<name>.webp` and `scene-<name>-dark.webp` (quality 80, about 25–150 kB), record them in
+`painted/manifest.json`, list the name in `DARK_PAINTINGS`, and place `PaintedRoom` in the context layer over the
+flat ground and under anything animated. Check edge alignment and the scene in light, dark and high contrast;
+`paintedFiles.test.ts` fails if a named painting, its dark version or its manifest entry is missing.
+
+**Brief each scene by name, not "repaint this".** Most contexts are a bare wall and a ground band; handed only that,
+the image model returns the same bare wall with paper texture (first attempt, 2026-11-02). Treat the render as a
+placeholder for the ground lines and write, per scene, what the setting contains (stone apartment blocks with
+balconies, a crater rim on the horizon, mailboxes in a lobby), the pixel lines that must not move, and which areas
+stay calm because a person or a teaching prop is drawn there. Hide props, vehicles, doors, benches and suns from
+the render first; the model tends to keep whatever it is shown. Never ask for a "plain wall behind" a building: it
+paints one, and it shows beside the roof where sky belongs.
+
+**Shared paintings first.** A new word whose scene is an object on a table or counter does not need its own
+painting: put `wall-kitchen` (food), `wall-home` (objects at home) or `wall-study` (papers, screens, maps) behind it,
+or `desk-top` under a document seen from above. These walls keep their middle calm for any object. Schematic scenes
+(maps, left/right arrows, notice cards) stay unpainted like the diagram family: there the drawing is what teaches.
+
+**Glaze, not collage.** When a teaching shape covers the whole ground of a painted scene (dunes, a field, hills,
+the sea, a lawn, a mountain outline), give it `semantic-art__glaze`: it keeps its outline and a quarter of its fill,
+so the painting shows through. Kevin chose this over opaque shapes on 2026-11-02. A flat backdrop whose texture would
+fight the painting (a stone wall, a row of flat buildings) goes under the painting instead.
+
+**Motion is part of the art.** Every scene must react to hover, keyboard focus and a press (`data-exploring`); the
+adults nod, blink, breathe and, when talking, speak. A card or hero scene also wakes once when half of it comes into
+view (`data-awake`, 4.8 s): two slow breaths, two blinks, a head tilt, the sun glowing, clouds, steam and water
+drifting. All motion is finite — the wake-up ends inside the five seconds WCAG 2.2.2 allows — and lives inside
+`prefers-reduced-motion: no-preference`; thumbnails never wake.
+
+**What Kevin kept.** Paintings stay in diagram scenes and in high contrast; only the system forced-colours mode
+drops the rooms. Do not remove a painting without asking him.
 
 ## Release rule
 

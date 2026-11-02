@@ -4,6 +4,8 @@
 import type { ReactNode } from 'react';
 import type { SemanticHintStage } from '../SemanticWordIllustration';
 import type { VisualTemplate } from '../../visuals/a0VisualRecipes';
+import { PersonBody } from './PersonBody';
+import { PersonHead, type Expression, type Shirt } from './PersonHead';
 
 export type SpatialSceneFamily =
   | 'interior'
@@ -34,6 +36,168 @@ interface SceneLayerProps {
   minimumStage: SemanticHintStage;
   hintStage: SemanticHintStage;
   children: ReactNode;
+  /** Paint the shared gouache grain over this context layer (off for the frame and the painted pilot scenes). */
+  grain?: boolean;
+}
+
+/**
+ * A painted plaster grain (generated once with Gemini, see painted/manifest.json) multiplied over a scene's
+ * context layer only. Walls, floors and furniture read as gouache; the people and the objects that carry the
+ * meaning sit in the layers above and stay crisp. It never moves, and high contrast and thumbnails drop it.
+ */
+const GRAIN_TILES = [0, 80, 160].flatMap((x) => [0, 80, 160].map((y) => [x, y] as const));
+
+function ContextGrain(): React.JSX.Element {
+  const href = `${import.meta.env.BASE_URL}art-direction/living-scenes/painted/grain-plaster.webp`;
+  // Nine 80-unit tiles of one small image: at this scale the brushwork reads as fine gouache grain.
+  return (
+    <g className="semantic-art__context-grain" aria-hidden="true">
+      {GRAIN_TILES.map(([x, y]) => (
+        <image key={`${x},${y}`} href={href} x={x} y={y} width="80" height="80" />
+      ))}
+    </g>
+  );
+}
+
+/**
+ * A painted room drawn over a scene's own vector room (2026-10-20).
+ *
+ * Generated once with Gemini and cropped so its wall/floor line lands where the vector room draws it, so the
+ * figures still stand on the floor. It sits at the end of the room component, under everything the scene adds,
+ * and never moves. The vector room underneath is the fallback (no file, high contrast, forced colours).
+ */
+export function PaintedRoom({
+  name,
+  x,
+  y,
+  width,
+  height,
+}: {
+  name: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}): React.JSX.Element {
+  const image = (variant: 'light' | 'dark'): React.JSX.Element => (
+    <image
+      key={variant}
+      className={`semantic-art__painted-room ${variant === 'dark' ? 'semantic-art__painted--dark' : 'semantic-art__painted--light'}`}
+      href={paintedHref(name, variant)}
+      x={x}
+      y={y}
+      width={width}
+      height={height}
+      preserveAspectRatio="none"
+      data-painted-backdrop={name}
+      data-painted-variant={variant}
+      aria-hidden="true"
+    />
+  );
+  return <>{image('light')}{hasDarkPainting(name) && image('dark')}</>;
+}
+
+/*
+ * Dark-theme paintings (2026-11-02): the same composition repainted in a low-key palette, same time of day, so the
+ * dark theme no longer shows a daylight painting dimmed to mud. Generated with Gemini and Codex from each original
+ * and kept only where the edges line up with the vector room (see painted/manifest.json). A name not listed here
+ * keeps the old dimmed daylight painting.
+ */
+const DARK_PAINTINGS: ReadonlySet<string> = new Set([
+  'bread',
+  'desk-top',
+  'morning',
+  'one',
+  'room-action',
+  'room-action-tiles',
+  'room-conversation',
+  'room-office',
+  'room-public',
+  'room-service',
+  'room-warm',
+  'scene-allergy',
+  'scene-ambulance-street',
+  'scene-apartment',
+  'scene-bathroom',
+  'scene-beach',
+  'scene-beer-sheva',
+  'scene-bird',
+  'scene-bus',
+  'scene-bus-stop',
+  'scene-buy',
+  'scene-cafe',
+  'scene-cashier',
+  'scene-city',
+  'scene-clinic',
+  'scene-cold',
+  'scene-delivery',
+  'scene-desert',
+  'scene-doctor',
+  'scene-dog',
+  'scene-egg',
+  'scene-elevator',
+  'scene-evening',
+  'scene-field',
+  'scene-forest',
+  'scene-fridge',
+  'scene-garden',
+  'scene-good-night',
+  'scene-haifa',
+  'scene-hills',
+  'scene-hotel',
+  'scene-house',
+  'scene-jerusalem',
+  'scene-kitchen',
+  'scene-landlord',
+  'scene-mountain',
+  'scene-municipality',
+  'scene-neighborhood',
+  'scene-neighbours',
+  'scene-park',
+  'scene-park-bench',
+  'scene-path',
+  'scene-pharmacy',
+  'scene-please',
+  'scene-rain',
+  'scene-rain-park',
+  'scene-restaurant',
+  'scene-room',
+  'scene-school',
+  'scene-sea',
+  'scene-shower',
+  'scene-sky',
+  'scene-station',
+  'scene-store',
+  'scene-stream',
+  'scene-street',
+  'scene-summer',
+  'scene-sun',
+  'scene-supermarket',
+  'scene-synagogue',
+  'scene-table',
+  'scene-taxi',
+  'scene-tel-aviv',
+  'scene-train',
+  'scene-tree',
+  'scene-vehicle',
+  'scene-window',
+  'scene-winter',
+  'scene-yesterday',
+  'street',
+  'street-autonomy',
+  'wall-home',
+  'wall-kitchen',
+  'wall-study',
+  'water',
+  'write',
+]);
+
+export function hasDarkPainting(name: string): boolean {
+  return DARK_PAINTINGS.has(name);
+}
+
+export function paintedHref(name: string, variant: 'light' | 'dark' = 'light'): string {
+  return `${import.meta.env.BASE_URL}art-direction/living-scenes/painted/${name}${variant === 'dark' ? '-dark' : ''}.webp`;
 }
 
 export function SceneLayer({
@@ -41,9 +205,52 @@ export function SceneLayer({
   minimumStage,
   hintStage,
   children,
+  grain = true,
 }: SceneLayerProps): React.JSX.Element | null {
   if (hintStage < minimumStage) return null;
-  return <g data-visual-layer={name}>{children}</g>;
+  return (
+    <g data-visual-layer={name}>
+      {children}
+      {name === 'context' && grain && <ContextGrain />}
+    </g>
+  );
+}
+
+type PersonShirt = Shirt;
+export type PersonExpression = Expression;
+
+/*
+ * The four shared adults (2026-11-02 face pass; the head itself is in PersonHead.tsx).
+ *
+ * The gender is grammar, not decoration: the `_f` / `_m` scenes (register.agree, autonomy.need_help, ...) pick
+ * coral for the feminine form and blue for the masculine one, so coral must read as a woman and blue as a man at
+ * a glance. A test pins it.
+ */
+export const PERSON_CHARACTERS: Record<PersonShirt, { name: string; gender: 'female' | 'male' }> = {
+  teal: { name: 'younger-man', gender: 'male' },
+  coral: { name: 'woman-ponytail', gender: 'female' },
+  gold: { name: 'older-woman-bob', gender: 'female' },
+  blue: { name: 'older-man-beard-grey-temples', gender: 'male' },
+};
+
+export function expressionForPose(pose: SemanticPersonPose): PersonExpression {
+  switch (pose) {
+    case 'ask':
+    case 'answer':
+    case 'explain':
+    case 'request':
+      return 'talk';
+    case 'wave':
+    case 'reach':
+    case 'point':
+    case 'hold':
+      return 'smile';
+    case 'stomach':
+    case 'shiver':
+      return 'worried';
+    default:
+      return 'neutral';
+  }
 }
 
 export function SemanticPerson({
@@ -62,171 +269,26 @@ export function SemanticPerson({
   scale?: number;
 }): React.JSX.Element {
   const direction = facing === 'left' ? -scale : scale;
-  /*
-   * Where each pose's arms actually end.
-   *
-   * The arms are single strokes, so without this they stop in mid-air and the
-   * figure reads as unfinished. `wave` and `point` are deliberately absent a
-   * hand on the active arm: there the drawing already ends in splayed fingers
-   * or a pointing finger, and a disc on top would bury it.
-   */
-  const hands: ReadonlyArray<readonly [number, number, number]> = (() => {
-    switch (pose) {
-      case 'wave': return [[-14, 18, -16]];
-      case 'point': return [[-14, 18, -16]];
-      case 'stomach': return [[0, 16, 0]];
-      case 'shiver': return [[-2, 14, -22], [2, 14, 22]];
-      case 'listen': return [[-14, 18, -16], [15, -18, 72]];
-      case 'hold': return [[0, 20, 0]];
-      case 'reach': return [[-18, 12, -18], [30, -2, -8]];
-      case 'ask': return [[-14, 18, -16], [28, 5, -8]];
-      case 'answer': return [[-14, 18, -16], [25, 8, 8]];
-      case 'request': return [[0, 18, 0]];
-      // The gesturing arm ends at (38, -2) and had no hand there, so every
-      // explaining figure pointed with a blunt tube.
-      case 'explain': return [[-14, 18, -16], [38, -2, -6]];
-      case 'walk': return [[-13, 18, -18], [22, 18, 18]];
-      default: return [[-14, 18, -16], [22, 18, 16]];
-    }
-  })();
-  /*
-   * The arm geometry, separated from how it is painted.
-   *
-   * A stroke cannot carry an outline, so each arm is drawn twice — a wider copy
-   * in the skin's edge colour, then the skin stroke over it. Keeping the path in
-   * one place is what lets all thirteen poses gain a contour without any of them
-   * being redrawn.
-   */
-  const RESTING_ARM = 'M-8 3q-3 8-6 15';
-  /*
-   * `still` is the arm that hangs; `gesture` is the one the meaning lives in and
-   * the only one that animates. They used to share a single path, so a figure
-   * asking a question swung both arms at once.
-   *
-   * `wave`, `point` and `listen` had no resting arm at all, yet all three placed
-   * a hand at (-14, 18) — exactly where a hanging arm ends. Every waving,
-   * pointing and listening figure in the catalogue therefore had a disc of skin
-   * floating beside its hip, attached to nothing.
-   */
-  const armPath: { still?: string; gesture?: string } = (() => {
-    switch (pose) {
-      // The raised arm stops at the wrist and the hand is drawn below. As three
-      // splayed strokes at the arm's own width it fused into a mitten roughly the
-      // size of the head.
-      case 'wave': return { still: RESTING_ARM, gesture: 'M8 4 19-7l3-15' };
-      case 'point': return { still: `${RESTING_ARM}M8 3q9-7 18-5h12` };
-      case 'listen': return { still: `${RESTING_ARM}M8 3q8-2 9-11l-2-10` };
-      case 'stomach': return { still: 'M-8 5 0 16 10 7M8 5 0 16-9 8' };
-      case 'shiver': return { gesture: 'M-9 5-2 14 7 4M9 5 2 14-7 5' };
-      case 'hold': return { still: 'M-8 5-2 18 0 20M8 5 2 18 0 20' };
-      case 'reach': return { still: 'M-8 3q-5 5-10 9M8 3q10-3 22-5' };
-      case 'ask': return { still: RESTING_ARM, gesture: 'M8 3q9 8 20 2' };
-      case 'answer': return { still: RESTING_ARM, gesture: 'M8 3q8 1 17 5' };
-      case 'request': return { still: 'M-8 3q1 10 8 15M8 3q-1 10-8 15' };
-      case 'explain': return { still: RESTING_ARM, gesture: 'M8 3q10-5 30-5' };
-      default: return { still: 'M-8 3q-3 8-6 15M8 3q5 8 14 15' };
-    }
-  })();
-  const limb = (d: string, motion: boolean): React.JSX.Element => (
-    <>
-      <path className={`semantic-art__limb-edge${motion ? ' semantic-art__motion-part' : ''}`} d={d} />
-      <path className={`semantic-art__skin-line${motion ? ' semantic-art__motion-part' : ''}`} d={d} />
-    </>
-  );
-  const arm = (
-    <>
-      {armPath.still && limb(armPath.still, false)}
-      {armPath.gesture && limb(armPath.gesture, true)}
-      {pose === 'wave' && (
-        <g className="semantic-art__motion-part">
-          <path className="semantic-art__finger" d="M19-26l-2-5M22-27v-6M25.5-26l2.5-5" />
-          <ellipse className="semantic-art__hand" cx="22" cy="-23" rx="4.4" ry="3.8" />
-        </g>
-      )}
-    </>
-  );
-  const face = pose === 'stomach' || pose === 'shiver'
-    ? 'M-3.2-19q3.2-2.2 6.4 0'
-    : pose === 'listen'
-      ? 'M-3.2-19h6.4'
-      : pose === 'ask'
-        ? 'M-3-19q3-1 6 0'
-        : 'M-3.2-19q3.2 1.8 6.4 0';
-  const hair = (() => {
-    if (shirt === 'coral') {
-      return <path className="semantic-art__hair" d="M-7-26c-1-6 2-11 8-11 5 0 8 4 7 10-4-2-10-2-15 1Zm13-6c5 0 6 7 2 9" />;
-    }
-    if (shirt === 'blue') {
-      return <path className="semantic-art__hair" d="M-8-27c0-7 3-11 8-11 6 0 9 4 8 11-3-3-4-4-6-2-2-3-5-3-6 0-2-2-3-1-4 2Z" />;
-    }
-    if (shirt === 'gold') {
-      return <path className="semantic-art__hair" d="M-8-27c0-7 4-11 9-11 4 0 7 3 7 8-6-2-11 0-16 3Z" />;
-    }
-    return <path className="semantic-art__hair" d="M-8-27c-1-7 3-11 9-11 5 0 8 4 7 11-5-3-11-3-16 0Z" />;
-  })();
+  const expression = expressionForPose(pose);
   return (
     <g
       className={`semantic-art__person semantic-art__person--${shirt}`}
       transform={`translate(${x} ${y}) scale(${direction} ${scale})`}
       data-character-system="adult-editorial"
       data-person-pose={pose}
+      data-person-character={PERSON_CHARACTERS[shirt].name}
+      data-person-gender={PERSON_CHARACTERS[shirt].gender}
     >
-      {/* A ~1:6 head-to-body ratio keeps the shared figure readable without the
-          oversized head, tiny legs and mitten hands of the previous system. */}
-      <path className="semantic-art__skin" d="M-3-17h6v10h-6Z" />
-      <path className="semantic-art__skin-shade" d="M-3-17h6v4h-6Z" />
-      <ellipse className="semantic-art__skin" cx="0" cy="-24" rx="7.4" ry="8.2" />
-      <path className="semantic-art__skin-shade" d="M4-32a7.4 8.2 0 0 1 0 16 8.5 8.2 0 0 0 0-16Z" />
-      <ellipse className="semantic-art__skin-lit" cx="-2.8" cy="-26" rx="2.8" ry="3.4" />
-      {hair}
-      <path className="semantic-art__hair-deep" d="M5-35c3 3 4 6 3 9-2-1-3-2-5-3Z" />
-      <path className="semantic-art__hair-lit" d="M-5-30c2-3 5-4 8-4" />
-      <path className="semantic-art__shirt" d="M-13 28c1-24 5-35 13-35s12 11 13 35Z" />
-      {/* The lit plane, redrawn to sit inside the silhouette. It used to run from
-          x=-8 out to x=-20 while the shirt itself stops at -13, so a pale strip
-          of shirt colour hung in the air past the body's left edge on all 113
-          figures — it read as a sash, or as a bad cut-out. */}
-      <path className="semantic-art__shirt-lit" d="M-13 28c1-24 5-35 13-35-5 6-8 18-8 35Z" />
-      <path className="semantic-art__shirt-deep" d="M4-6c6 4 9 16 9 34H6C6 13 5 1 4-6Z" />
-      <path className="semantic-art__garment-line" d="M-5-7q5 4 10 0M-11 22h22" />
-      {shirt === 'gold' && <path className="semantic-art__garment-line" d="M0-2v23m-2-15h4m-4 7h4" />}
-      {shirt === 'blue' && <path className="semantic-art__garment-line" d="M-11 8h6m10 0h6" />}
-      <path
-        className="semantic-art__trousers"
-        d={pose === 'walk'
-          ? 'M-10 27h20L5 38l13 13-5 4L0 43-9 55l-6-4 9-15Z'
-          : 'M-10 27h20L7 39l7 16H8L1 41-5 55h-7l6-18Z'}
-      />
-      <path className="semantic-art__trouser-seam" d={pose === 'walk' ? 'M0 30 5 38M-5 36-9 51' : 'M0 30 1 41M-6 37-5 52M7 39l7 16'} />
-      <ellipse className="semantic-art__eye" cx="-2.7" cy="-24.5" rx="1.05" ry="1.25" />
-      <ellipse className="semantic-art__eye" cx="2.7" cy="-24.5" rx="1.05" ry="1.25" />
-      <path className="semantic-art__nose" d="M1-24v3l2 1" />
-      <path className="semantic-art__face" d={face} />
-      {arm}
-      {/*
-       * A hand has to be wider than the arm it ends, or it is not a hand.
-       *
-       * These were 3 × 2.15 — six units across — while the arm is a 5.3 stroke
-       * inside a 7.4 contour. The hand was therefore *narrower* than the limb it
-       * terminated and vanished inside it, so every reaching, offering and
-       * handing-over figure in the catalogue ended in a blunt tube. It is the
-       * single most common defect in the `interior` family, where two people
-       * holding one object between them is the standard composition.
-       */}
-      {hands.map(([hx, hy, angle]) => (
-        <ellipse
-          key={`${hx},${hy}`}
-          className="semantic-art__hand"
-          cx={hx}
-          cy={hy}
-          rx="4.4"
-          ry="3.4"
-          transform={`rotate(${angle} ${hx} ${hy})`}
-        />
-      ))}
-      <path
-        className="semantic-art__shoe"
-        d={pose === 'walk' ? 'M-9 51h-8q-3 0-3 4h12Zm22 0 6 2q3 1 2 4h-9Z' : 'M-5 52h-8q-3 0-3 4h11Zm13 0h8q3 0 3 4H8Z'}
+      {/* 2026-11-02: body and head drawn by Codex (PersonBody.tsx, PersonHead.tsx). Hand centres, arm ends and
+          feet keep the coordinates scenes attach objects and floors to. */}
+      <PersonBody
+        shirt={shirt}
+        pose={pose}
+        head={(
+          <g transform="translate(0 2.2)" data-person-expression={expression}>
+            <PersonHead shirt={shirt} expression={expression} />
+          </g>
+        )}
       />
     </g>
   );
@@ -328,16 +390,24 @@ export function SpeechBubble({
   tail?: 'left' | 'right';
 }): React.JSX.Element {
   const bubble = tail === 'left'
-    ? 'M0 0h47a10 10 0 0 1 10 10v15a10 10 0 0 1-10 10H26l-10 9 2-9H0A10 10 0 0 1-10 25V10A10 10 0 0 1 0 0Z'
-    : 'M0 0h47a10 10 0 0 1 10 10v15a10 10 0 0 1-10 10H31l10 9-2-9H0A10 10 0 0 1-10 25V10A10 10 0 0 1 0 0Z';
+    ? 'M2 1Q22-1 44 1q13 1 13 12v10q0 11-12 12H28q-4 6-12 9 3-6 2-9H2q-12-1-12-12V13Q-10 2 2 1Z'
+    : 'M2 1Q22-1 44 1q13 1 13 12v10q0 11-12 12h-6q-1 3 2 9-8-3-12-9H2q-12-1-12-12V13Q-10 2 2 1Z';
   return (
     <g transform={`translate(${x} ${y})`} data-bubble-tail={tail}>
-      {/* Offset copy behind the bubble: a drop shadow that lifts it off the scene. */}
-      <path className="semantic-art__bubble-shadow" d={bubble} transform="translate(3 4)" />
+      <g className="semantic-art__motion-part"><g className="semantic-art__prop-bob">
+      {/* Two restrained offset silhouettes soften the shadow without a filter. */}
+      <path className="semantic-art__bubble-shadow" d={bubble} transform="translate(3 4)" opacity="0.3" />
+      <path className="semantic-art__bubble-shadow" d={bubble} transform="translate(1.5 2)" opacity="0.5" />
       <path className="semantic-art__surface semantic-art__bubble semantic-art__outlined" d={bubble} />
+      {/* A rolled lower lip and a broad upper-left light model a soft, inflated
+          form. The tail remains part of that silhouette at every call site. */}
+      <path className="semantic-art__surface-deep" d="M-8 21q3 9 14 9h36q10 0 13-8v3q-1 8-11 8H3q-11 0-11-12Z" />
+      <path className="semantic-art__surface-lit" d="M-6 12Q-6 5 4 4q20-2 37 0l4 3Q23 5 5 7q-8 0-11 5Z" />
+      <path className="semantic-art__surface-deep" d={tail === 'left' ? 'm19 35 6-2q-3 5-7 8Z' : 'm31 33 7 2 2 7q-6-4-9-9Z'} />
       {question
         ? <path className="semantic-art__detail" d="M21 10c0-7 14-7 14 0 0 5-7 5-7 10m0 7h.1" />
         : <path className="semantic-art__detail" d="M7 13h33M12 23h23" />}
+      </g></g>
     </g>
   );
 }
@@ -353,11 +423,32 @@ export function SemanticBus({
 }): React.JSX.Element {
   return (
     <g transform={`translate(${x} ${y})`}>
-      <path className="semantic-art__blue semantic-art__outlined" d="M0 8c0-8 6-14 14-14h55c9 0 15 6 15 15v34H0Z" />
-      <path className="semantic-art__window" d="M10 4h23v17H10Zm30 0h28v17H40Z" />
-      <path className="semantic-art__surface semantic-art__outlined" d="M61 24h15v19H61Z" />
+      {/* A low-floor bus: one long glazing belt, a short nose, double
+          passenger doors and a blank destination display above the driver. */}
+      <path className="semantic-art__blue semantic-art__outlined" d="M0 8C0 0 6-6 14-6H69Q84-6 84 9V43H0Z" />
+      <path className="semantic-art__blue-lit" d="M3 5Q3-3 14-3H68Q76-3 79 2H5Z" />
+      <path className="semantic-art__blue-deep" d="M77 4Q83 6 84 13V43H75Z" />
+      <path className="semantic-art__ink" d="M4 5H77V24H4Z" />
+      <path className="semantic-art__window" d="M7 7H21V21H7ZM25 7H39V21H25ZM43 7H54V21H43ZM68 7H78L80 24H68Z" />
+      <path className="semantic-art__window-lit" d="M8 8H18L8 17ZM26 8H36L26 17ZM44 8H51L44 15ZM70 9H76L77 14H70Z" />
+      <path className="semantic-art__surface" d="M1 29H55V41H1ZM69 29H82V41H69Z" />
+      <path className="semantic-art__blue-deep" d="M1 39H55V43H1ZM69 39H83V43H69Z" />
+      <path className="semantic-art__ink" d="M55 5H68V42H55Z" />
+      <path className="semantic-art__window" d="M57 8H60V35H57ZM63 8H66V35H63Z" />
+      <path className="semantic-art__metal" d="M56 38H67V41H56Z" />
+      <path className="semantic-art__ink" d="M61-2H77V3H61Z" />
+      <path className="semantic-art__gold" d="M63-.5H74V1H63Z" />
+      <path className="semantic-art__metal-deep" d="M81 12H84V21H82V15H80Z" />
+      <path className="semantic-art__gold-lit" d="M78 29H82V33H78Z" />
+      <path className="semantic-art__coral-deep" d="M1 29H3V34H1Z" />
+      <path className="semantic-art__metal-deep" d="M1 41H7V44H1ZM77 41H84V44H77Z" />
+      <path className="semantic-art__ink" d="M8 44a9 9 0 0 1 18 0ZM58 44a9 9 0 0 1 18 0Z" />
       <circle className="semantic-art__ink" cx="17" cy="45" r="7" />
+      <circle className="semantic-art__metal" cx="17" cy="45" r="3.6" />
+      <circle className="semantic-art__metal-lit" cx="16" cy="44" r="1.5" />
       <circle className="semantic-art__ink" cx="67" cy="45" r="7" />
+      <circle className="semantic-art__metal" cx="67" cy="45" r="3.6" />
+      <circle className="semantic-art__metal-lit" cx="66" cy="44" r="1.5" />
       {departing && <path className="semantic-art__motion semantic-art__motion-part" d="M-9 5h-19M-7 18h-27M-8 31h-16" />}
     </g>
   );
@@ -591,11 +682,11 @@ export function SemanticSceneVignette({ sceneId }: { sceneId: string }): React.J
   return (
     <rect
       className="semantic-art__vignette"
-      x="4"
-      y="4"
-      width="232"
-      height="172"
-      rx="28"
+      x="1"
+      y="1"
+      width="238"
+      height="178"
+      rx="14"
       fill={`url(#${sceneId}-vignette)`}
     />
   );
@@ -708,22 +799,24 @@ export function SemanticSceneFrame({
       <SemanticSceneDefs sceneId={sceneId} ramped={ramped} />
       {/* Presentation attributes lose to any CSS rule, so the high-contrast
           media query can still flatten these back to solid fills. */}
+      {/* Full-bleed paper with a small radius, like the living pilot (2026-10-20): the old 28-unit pillow and its
+          inner rim drew a second card inside the card around every scene. */}
       <rect
         className="semantic-art__paper"
-        x="4"
-        y="4"
-        width="232"
-        height="172"
-        rx="28"
+        x="1"
+        y="1"
+        width="238"
+        height="178"
+        rx="14"
         fill={`url(#${sceneId}-paper)`}
       />
       <rect
         className="semantic-art__editorial-wash"
-        x="5"
-        y="5"
-        width="230"
-        height="170"
-        rx="27"
+        x="1"
+        y="1"
+        width="238"
+        height="178"
+        rx="14"
         fill={`url(#${sceneId}-editorial-wash)`}
       />
       <rect
@@ -768,7 +861,7 @@ export function SemanticSceneFrame({
           </>
         )}
       </g>
-      <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
+      <SceneLayer name="context" minimumStage={0} hintStage={hintStage} grain={false}>
         <SemanticSpatialBackdrop family={spatialFamily} />
         <circle
           className="semantic-art__glow"

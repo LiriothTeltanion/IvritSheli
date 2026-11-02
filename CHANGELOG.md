@@ -1,3 +1,39 @@
+# Local candidate update
+
+## 2.13.0 — Living Editorial Scenes — Private candidate — 2026-10-18
+
+- Repainted six original SVG scenes with shared editorial materials and distinct semantic motion.
+- Added touch/keyboard replay, reduced-motion stills and a private trilingual before/after studio.
+- Preserved 240/240 exact scenes, progressive hints and original 2.12.3 baseline captures.
+- Corrected the morning scene to show the two-person greeting described by its accessible text.
+- New local verification is recorded separately; no historical test or hosting claim is relabelled.
+- 2026-10-19: the greeting neighbours gained readable faces (open eye, brow, smile), an open-palm wave and
+  shirt shading, with the same poses, animation groups and reduced-motion stills.
+- 2026-10-19: fixed empty `/api/v1/export` bodies under Starlette 1.x (the request-body limit middleware
+  faked a client disconnect after replaying a body); backup restore works again and a regression test covers it.
+- 2026-10-19: added layered image-generation prompts for the six scenes (`docs/LIVING_SCENES_ART_PROMPTS.md`).
+- 2026-10-20: unified the six scenes with gradient-only lighting (contact shadows, rim light, vignette), richer
+  hands and props, and finite 1.9–2.1 s motion; reduced-motion stills and replay controls are unchanged.
+- 2026-10-20: the six scenes sit on static painted backdrops generated with Google Gemini (provenance and hashes
+  in `painted/manifest.json`); characters, props and all motion stay SVG and the vector backdrop remains as fallback.
+- 2026-10-20: `compose-living-scenes.py` reads the checked-in baselines, so a fresh capture folder composes.
+- 2026-10-20 (afternoon): the other 234 scenes share the upgrade — a redrawn character (three-quarter face,
+  sleeves, straight legs), portrait busts in the family genealogy, a full-bleed frame, a Gemini-painted gouache grain
+  over each context layer and painted rooms for the communication, action, register, work, service, bureaucracy and
+  autonomy scenes. Motion, hint stages and reduced-motion stills are unchanged; high contrast keeps the flat vector.
+- 2026-11-02: 156 of the 165 paintable scenes sit on painted gouache settings with dark-theme versions at the same
+  time of day; shared walls (kitchen, living room, study) and a painted desk serve object and document scenes. Maps,
+  arrows and notice cards stay drawn, like the diagram family.
+- 2026-11-02: teaching ground shapes over a painting become a glaze (outline plus a light wash) instead of an opaque
+  collage; forced colours keeps them solid.
+- 2026-11-02: one family of adults everywhere — hands with a thumb, sleeves as shirt fabric, a sleep expression and
+  the last older-style figures redrawn; props across 60+ scenes gained lit and deep planes and detail.
+- 2026-11-02: scenes wake once when they scroll into view (press motion, then a slow at-rest pass, 4.8 s in all,
+  single-pass animations); thumbnails and reduced motion stay still.
+- 2026-11-02: the learner's theme is saved with their profile (SQLite migration 11; the cloud keeps it in the tenant
+  snapshot), the language choice follows the profile, Today greets by the chosen name, the capture button never
+  wraps, and the accuracy card shows a dash until the first answer.
+
 # Changelog
 
 All notable changes are documented here. Versions follow Semantic Versioning.

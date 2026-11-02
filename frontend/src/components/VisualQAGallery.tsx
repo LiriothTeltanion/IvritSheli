@@ -196,7 +196,7 @@ const GALLERY_COPY: Record<Locale, GalleryCopy> = {
     accountProviderUnknown: 'Saved locally',
     notebookTitle: 'Living Hebrew notebook',
     notebookSummary: 'Unpublished candidate workbench used for visual QA and onboarding context.',
-    notebookVersion: '2.12.3 PRIVATE CANDIDATE · latest published v2.12.2 · no live URL',
+    notebookVersion: '2.13.0 LOCAL PRIVATE CANDIDATE · six-scene illustration pilot · latest tagged release v2.12.2',
     notebookHistoryTitle: 'Release history',
     notebookHistorySummary: 'Candidate, latest published release, and historical milestones.',
     notebookVersionHistory: [
@@ -406,7 +406,7 @@ const GALLERY_COPY: Record<Locale, GalleryCopy> = {
     accountProviderUnknown: 'Guardada localmente',
     notebookTitle: 'Cuaderno operativo',
     notebookSummary: 'Cuaderno del candidato no publicado para seguimiento de arte, pruebas y hallazgos.',
-    notebookVersion: '2.12.3 CANDIDATO PRIVADO · último publicado v2.12.2 · sin URL live',
+    notebookVersion: '2.13.0 CANDIDATO LOCAL · piloto de seis escenas · último release etiquetado v2.12.2',
     notebookHistoryTitle: 'Historial de versiones',
     notebookHistorySummary: 'Candidato, último release publicado e hitos históricos.',
     notebookVersionHistory: [
@@ -616,7 +616,7 @@ const GALLERY_COPY: Record<Locale, GalleryCopy> = {
     accountProviderUnknown: 'נשמר מקומית',
     notebookTitle: 'ספר רישומים חי',
     notebookSummary: 'סביבת עבודה של מועמד שלא פורסם לבדיקות חזותיות ולהקשר ההצטרפות.',
-    notebookVersion: '2.12.3 מועמד פרטי · הגרסה האחרונה שפורסמה v2.12.2 · ללא קישור חי',
+    notebookVersion: '2.13.0 מועמד מקומי · פיילוט של שש סצנות · הגרסה המתויגת האחרונה v2.12.2',
     notebookHistoryTitle: 'יומן גרסאות',
     notebookHistorySummary: 'המועמד, המהדורה האחרונה שפורסמה ואבני דרך היסטוריות.',
     notebookVersionHistory: [

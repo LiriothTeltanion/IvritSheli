@@ -448,15 +448,39 @@ export default function App(): React.JSX.Element {
       setProfile(nextProfile);
       setGamification(nextGamification);
       setError('');
-      if (!localeOverrideFromSearch(window.location.search) && !localStorage.getItem('ivrit-sheli-locale')) {
+      /* The learner's saved language wins over whatever this device last showed. The old check was "no locale
+         stored yet", but every tap on EN/ES/HE stores one, including on the sign-in screen, so once a device had
+         shown any language the profile's was never applied again (2026-11-02). Only a ?lang= visit or a choice
+         made explicitly on this device still outranks it, and those choices are now written to the profile too.
+         The read-only demo is excluded: its profile is the sample's, not the visitor's. */
+      if (
+        !auth?.read_only
+        && !localeOverrideFromSearch(window.location.search)
+        && localStorage.getItem('ivrit-sheli-locale-explicit') !== 'true'
+      ) {
         setLocale(nextProfile.interface_language);
+      }
+      // The theme the learner chose travels with her profile, like her language (2026-11-02). Not in the demo,
+      // whose profile is the sample's.
+      if (!auth?.read_only && (nextProfile.theme === 'light' || nextProfile.theme === 'dark')) {
+        setExplicitTheme(nextProfile.theme);
       }
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : String(reason));
     } finally {
       setLoading(false);
     }
-  }, [setLocale]);
+  }, [auth?.read_only, setExplicitTheme, setLocale]);
+
+  /** A theme picked in the top bar or in Settings: applied here, and saved to the profile so it follows her. */
+  const chooseTheme = (next: 'light' | 'dark'): void => {
+    setExplicitTheme(next);
+    if (!auth?.read_only) {
+      void api.updateProfile({ theme: next }).then(setProfile).catch(() => {
+        // The device keeps the choice; the next successful save carries it.
+      });
+    }
+  };
 
   const checkAuth = useCallback(async (): Promise<void> => {
     setAuthChecking(true);
@@ -979,9 +1003,15 @@ export default function App(): React.JSX.Element {
               {(['en', 'es', 'he'] as Locale[]).map((code) => <button key={code} type="button" className={locale === code ? 'active' : ''} onClick={() => {
                 window.localStorage.setItem('ivrit-sheli-locale-explicit', 'true');
                 setLocale(code);
+                // Saved to the profile as well, so the next device opens in the language chosen here.
+                if (!auth.read_only) {
+                  void api.updateProfile({ interface_language: code }).then(setProfile).catch(() => {
+                    // The device keeps the choice; the next successful save carries it.
+                  });
+                }
               }}>{code.toUpperCase()}</button>)}
             </div>
-            <button type="button" className="icon-button" onClick={toggleTheme} aria-label={t('toggleTheme')}>{theme === 'dark' ? '☀' : '☾'}</button>
+            <button type="button" className="icon-button" onClick={() => chooseTheme(theme === 'dark' ? 'light' : 'dark')} aria-label={t('toggleTheme')}>{theme === 'dark' ? '☀' : '☾'}</button>
             {learnerMode === 'guided' && (
               <button type="button" className="topbar-help" onClick={() => handleSetView('help')}>
                 <span aria-hidden="true">?</span>{t('help')}
@@ -1119,6 +1149,7 @@ export default function App(): React.JSX.Element {
           {view === 'today' && !firstStepsOpen && (
             <TodayDashboard
               dashboard={dashboard}
+              learnerName={identityName}
               firstStepsComplete={firstStepsComplete}
               onWordClick={openDictionary}
               onCapture={() => setCaptureOpen(true)}
@@ -1190,7 +1221,7 @@ export default function App(): React.JSX.Element {
                  is why this survived: the theme was reachable, just not from
                  the screen that exists to change it. */
               theme={theme}
-              onThemeChange={setExplicitTheme}
+              onThemeChange={chooseTheme}
               /* The avatar picker moved here from the profile menu on
                  2026-08-26. It writes through the same path the menu used, so
                  her choice still outranks the provider photo and still reaches

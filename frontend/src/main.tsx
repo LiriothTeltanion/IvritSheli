@@ -24,6 +24,10 @@ const VisualQAGallery = lazy(async () => {
   return { default: module.VisualQAGallery };
 });
 
+const LivingSceneStudio = lazy(async () => ({
+  default: (await import('./components/LivingSceneStudio')).LivingSceneStudio,
+}));
+
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {
     void navigator.serviceWorker.register('/sw.js');
@@ -49,12 +53,16 @@ const visualQARequested = (
   || currentPath === '/art-gallery'
 );
 const visualQAMode = visualQARequested && (import.meta.env.DEV || isPrivateQAHost(window.location.hostname));
+const livingStudioMode = currentSearch.get('visualPilot') === '1'
+  && (import.meta.env.DEV || isPrivateQAHost(window.location.hostname));
 
 createRoot(root).render(
   <StrictMode>
     <I18nProvider>
       <ErrorBoundary>
-        {visualQAMode
+        {livingStudioMode
+          ? <Suspense fallback={<main className="app-loading">Loading illustration studio…</main>}><LivingSceneStudio /></Suspense>
+          : visualQAMode
           ? <Suspense fallback={<main className="app-loading">Loading visual QA…</main>}><VisualQAGallery /></Suspense>
           : <App />}
       </ErrorBoundary>
@@ -68,7 +76,7 @@ createRoot(root).render(
  * screen can draw, so fetching it on the login screen spent that much of a slow
  * connection for nothing. The workbench renders scenes directly and opts out.
  */
-if (visualQAMode) {
+if (visualQAMode || livingStudioMode) {
   skipSceneLayerWarm();
 }
 

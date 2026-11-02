@@ -292,6 +292,60 @@ describe('App cloud session flow', () => {
     expect(localStorage.getItem('ivrit-sheli-locale')).toBeNull();
   });
 
+  it('opens in the profile language even after this device showed another one', async () => {
+    // A tap on EN/ES/HE on the sign-in screen stores a locale without making it an explicit choice. The old check
+    // treated any stored locale as a choice, so the saved profile language was never applied again (2026-11-02).
+    localStorage.setItem('ivrit-sheli-locale', 'en');
+    const spanishProfile = { ...profile, interface_language: 'es' as const };
+    vi.stubGlobal('fetch', routeFetch(googleSession, spanishProfile));
+    renderApp();
+
+    expect(await screen.findByText('Tu progreso está guardado')).toBeInTheDocument();
+    expect(document.documentElement).toHaveAttribute('lang', 'es');
+  });
+
+  it('opens in the theme saved on the profile, even on a device that defaults to dark', async () => {
+    const lightProfile = { ...profile, theme: 'light' as const };
+    vi.stubGlobal('fetch', routeFetch(googleSession, lightProfile));
+    renderApp();
+
+    await screen.findByText('Your progress is saved');
+    await waitFor(() => expect(document.documentElement).toHaveAttribute('data-theme', 'light'));
+  });
+
+  it('saves a theme chosen in the top bar to the profile', async () => {
+    const fetchMock = routeFetch(googleSession);
+    vi.stubGlobal('fetch', fetchMock);
+    const user = userEvent.setup();
+    renderApp();
+
+    await screen.findByText('Your progress is saved');
+    await user.click(screen.getByRole('button', { name: 'Toggle theme' }));
+
+    await waitFor(() => {
+      const saves = fetchMock.mock.calls.filter(([url, init]) => String(url).endsWith('/profile') && init?.method === 'PUT');
+      expect(saves.map(([, init]) => JSON.parse(String(init?.body)))).toContainEqual({ theme: 'light' });
+    });
+    expect(document.documentElement).toHaveAttribute('data-theme', 'light');
+  });
+
+  it('saves a language chosen in the top bar to the profile, so the next device opens in it', async () => {
+    const fetchMock = routeFetch(googleSession);
+    vi.stubGlobal('fetch', fetchMock);
+    const user = userEvent.setup();
+    renderApp();
+
+    await screen.findByText('Your progress is saved');
+    const switcher = document.querySelector<HTMLElement>('.topbar .locale-switch')!;
+    await user.click(within(switcher).getByRole('button', { name: 'ES' }));
+
+    await waitFor(() => {
+      const saves = fetchMock.mock.calls.filter(([url, init]) => String(url).endsWith('/profile') && init?.method === 'PUT');
+      expect(saves.map(([, init]) => JSON.parse(String(init?.body)))).toContainEqual({ interface_language: 'es' });
+    });
+    expect(localStorage.getItem('ivrit-sheli-locale-explicit')).toBe('true');
+  });
+
   it.each([
     ['guided', false, false],
     ['explorer', true, false],
@@ -699,6 +753,18 @@ describe('App cloud session flow', () => {
     expect(
       screen.queryByRole('button', { name: /Open profile menu: Kevin/i }),
     ).not.toBeInTheDocument();
+  });
+
+  it('greets her with the same name as the profile menu after a rename on this device', async () => {
+    /* The greeting read the dashboard's copy of the profile, loaded once, so the menu said Kiko while the
+       greeting still said Ana (Kevin saw it on 2026-11-02). Both now read the chosen name. */
+    localStorage.setItem('ivrit-sheli:learner-identity:v1:42', JSON.stringify({ displayName: 'Kiko' }));
+    vi.stubGlobal('fetch', routeFetch(googleSession, { ...profile, display_name: 'Ana' }));
+    renderApp();
+
+    expect(await screen.findByRole('button', { name: /Open profile menu: Kiko/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Shalom, Kiko/i })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: /Shalom, Ana/i })).not.toBeInTheDocument();
   });
 
   it('falls back to the session name while no name has been chosen', async () => {

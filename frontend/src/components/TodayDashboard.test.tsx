@@ -119,6 +119,7 @@ function renderDashboard(
       <SessionAccessProvider readOnly={readOnly} readOnlyReason="Demo is read-only" localMode={false}>
         <TodayDashboard
           dashboard={value}
+          learnerName={value.profile.display_name}
           firstStepsComplete
           onWordClick={actions.onWordClick}
           onCapture={actions.onCapture}

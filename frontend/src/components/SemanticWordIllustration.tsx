@@ -1,7 +1,10 @@
 // Module: semantic word illustration
 // Purpose: Render detailed, exact-meaning A0 scenes from the shared visual recipe catalog.
 
-import { useId } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
+import { usePrefersReducedMotion } from '../usePrefersReducedMotion';
+import { isLivingSceneKey, SCENE_PLAYBACK_COPY } from '../visuals/livingScenePilot';
+import { LivingScenePilot } from './semantic-scenes/LivingScenePilot';
 import type { DictionaryVisual, Locale } from '../types';
 import {
   getA0VisualRecipe,
@@ -35,6 +38,7 @@ import {
   type SpatialSceneFamily,
 } from './semantic-scenes/SemanticScenePrimitives';
 import './semantic-word-illustration.css';
+import './living-scene-pilot.css';
 
 export type SemanticIllustrationSize = 'thumbnail' | 'card' | 'hero';
 export type SemanticHintStage = 0 | 1 | 2;
@@ -178,15 +182,71 @@ export function hasSemanticWordIllustration(key: string): boolean {
   return isA0SemanticVisualKey(key);
 }
 
-export function SemanticWordIllustration({
+/** Longer than the slowest press-triggered animation (820 ms), so none is cut off. */
+const EXPLORE_MS = 1200;
+/** The slow at-rest pass that follows the press motion when a scene wakes: 1.2 + 3.6 s, under WCAG 2.2.2's five. */
+const AWAKE_MS = 3600;
+
+function SemanticSceneCanvas({
   visual,
   locale,
   className = '',
   size = 'card',
   hintStage = 2,
   decorative = false,
-}: SemanticWordIllustrationProps): React.JSX.Element | null {
+  playbackRun = 0,
+  onExplore,
+}: SemanticWordIllustrationProps & {
+  playbackRun?: number;
+  onExplore?: () => void;
+}): React.JSX.Element | null {
   const titleId = useId();
+  /*
+   * A press or a click plays the same finite motion a mouse gets on hover. Fingers have no hover, so before this
+   * a learner on a phone never saw any of the 234 non-living scenes move. The attribute only names the moment;
+   * every rule it triggers sits inside prefers-reduced-motion: no-preference, so reduced motion stays still.
+   */
+  const [exploring, setExploring] = useState(false);
+  useEffect(() => {
+    if (!exploring) return undefined;
+    const timer = window.setTimeout(() => setExploring(false), EXPLORE_MS);
+    return () => window.clearTimeout(timer);
+  }, [exploring]);
+  /*
+   * Alive at rest: each time at least half of a card or hero scene comes into view it wakes once — the press motion
+   * first, so every teaching part moves, then the slow at-rest pass — and is still again after 4.8 s. Thumbnails are
+   * skipped (a dictionary page shows dozens at once) and so is reduced motion, where the CSS rules never apply anyway.
+   */
+  const svgRef = useRef<SVGSVGElement>(null);
+  const reducedMotion = usePrefersReducedMotion();
+  const [awake, setAwake] = useState(false);
+  useEffect(() => {
+    const node = svgRef.current;
+    if (!node || size === 'thumbnail' || reducedMotion || typeof IntersectionObserver === 'undefined') return undefined;
+    let timers: number[] = [];
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry || entry.intersectionRatio < 0.5) return;
+      timers.forEach((timer) => window.clearTimeout(timer));
+      setAwake(false);
+      setExploring(true);
+      timers = [
+        window.setTimeout(() => setAwake(true), EXPLORE_MS),
+        window.setTimeout(() => setAwake(false), EXPLORE_MS + AWAKE_MS),
+      ];
+    }, { threshold: 0.5 });
+    observer.observe(node);
+    return () => {
+      observer.disconnect();
+      timers.forEach((timer) => window.clearTimeout(timer));
+    };
+  }, [size, reducedMotion]);
+  const explore = (): void => {
+    onExplore?.();
+    // Drop the attribute for about a frame so a second press restarts the motion instead of being ignored.
+    // A timer rather than requestAnimationFrame, which never fires in a background tab.
+    setExploring(false);
+    window.setTimeout(() => setExploring(true), 16);
+  };
   if (!isA0SemanticVisualKey(visual.key)) return null;
   const recipe = getA0VisualRecipe(visual.key);
   const sceneCategory = visual.key.split('.', 1)[0];
@@ -204,6 +264,7 @@ export function SemanticWordIllustration({
 
   return (
     <svg
+      ref={svgRef}
       className={`semantic-art semantic-art--${size} ${className}`.trim()}
       style={semanticRampVariables(titleId, ramped)}
       viewBox="0 0 240 180"
@@ -222,18 +283,64 @@ export function SemanticWordIllustration({
       data-motion-profile={recipe.template}
       data-motion-cue={motionCue}
       data-motion-direction={motionDirection}
+      data-living-scene={isLivingSceneKey(visual.key) ? 'editorial-v1' : undefined}
+      data-exploring={exploring ? '' : undefined}
+      data-awake={awake ? '' : undefined}
+      onPointerEnter={(event) => {
+        if (event.pointerType === 'mouse') onExplore?.();
+      }}
+      onPointerDown={explore}
       focusable="false"
     >
       {!decorative && <title id={titleId}>{title}</title>}
-      <SceneFrame
-        hintStage={hintStage}
-        sceneId={titleId}
-        template={recipe.template}
-        spatialFamily={spatialFamily}
-        ramped={ramped}
-      />
-      <ReviewedScene visualKey={visual.key} hintStage={hintStage} sceneId={titleId} />
-      <SceneVignette sceneId={titleId} />
+      {isLivingSceneKey(visual.key) ? (
+        <g key={`${visual.key}-${playbackRun}`} data-living-play={playbackRun > 0 ? 'true' : undefined}>
+          <LivingScenePilot visualKey={visual.key} sceneId={titleId} hintStage={hintStage} />
+        </g>
+      ) : (
+        <>
+          <SceneFrame
+            hintStage={hintStage}
+            sceneId={titleId}
+            template={recipe.template}
+            spatialFamily={spatialFamily}
+            ramped={ramped}
+          />
+          <ReviewedScene visualKey={visual.key} hintStage={hintStage} sceneId={titleId} />
+          <SceneVignette sceneId={titleId} />
+        </>
+      )}
     </svg>
   );
+}
+
+/** Only large, non-decorative scenes own controls. Thumbnail artwork is often
+ * inside a word button, where adding another button would create invalid HTML.
+ * A fresh keyed scene restarts finite CSS motion without timers or global IDs. */
+function LivingScenePlayer(props: SemanticWordIllustrationProps): React.JSX.Element {
+  const [playbackRun, setPlaybackRun] = useState(0);
+  const reducedMotion = usePrefersReducedMotion();
+  const copy = SCENE_PLAYBACK_COPY[props.locale];
+  const replay = (): void => {
+    if (!reducedMotion) setPlaybackRun((previous) => previous + 1);
+  };
+  return (
+    <span className="scene-player" dir={props.locale === 'he' ? 'rtl' : 'ltr'}>
+      <SemanticSceneCanvas {...props} playbackRun={reducedMotion ? 0 : playbackRun} onExplore={replay} />
+      {reducedMotion ? <span className="scene-player__still">{copy.still}</span> : (
+        <button className="scene-player__replay" type="button" onClick={replay} title={copy.detail}>
+          <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" focusable="false">
+            <path d="M4 7a6.5 6.5 0 1 1-.4 5M4 3v4h4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          {copy.play}
+        </button>
+      )}
+    </span>
+  );
+}
+
+export function SemanticWordIllustration(props: SemanticWordIllustrationProps): React.JSX.Element | null {
+  return isLivingSceneKey(props.visual.key) && props.size === 'hero' && !props.decorative
+    ? <LivingScenePlayer key={props.visual.key} {...props} />
+    : <SemanticSceneCanvas {...props} />;
 }

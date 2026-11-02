@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import json
+import shutil
 from pathlib import Path
 
 import pytest
@@ -43,7 +44,7 @@ def test_checked_in_portfolio_manifest_preserves_truth_boundaries() -> None:
     manifest = _current_manifest()
 
     assert verify_package.verify_portfolio_manifest() == []
-    assert manifest["source_version"] == "2.12.3"
+    assert manifest["source_version"] == "2.13.0"
     assert manifest["source_status"] == "private-candidate"
     assert manifest["latest_published_release"] == "v2.12.2"
     assert manifest["durable_demo"] == {
@@ -65,6 +66,36 @@ def test_checked_in_source_version_surfaces_use_the_exact_patch_version() -> Non
 def test_checked_in_readme_visual_proof_is_bound_to_reviewed_bytes() -> None:
     """Every displayed candidate asset must match its approved proof ledger."""
     assert verify_package.verify_readme_visual_proof() == []
+
+
+@pytest.mark.parametrize("mutation", ("future", "path", "tampered", "relabelled"))
+def test_historical_proof_cannot_be_future_tampered_or_relabelled(
+    mutation: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """An executable bump must retain old proof without laundering its identity."""
+    original_root = verify_package.ROOT
+    manifest = _current_manifest()
+    (tmp_path / "backend").mkdir()
+    (tmp_path / "portfolio").mkdir()
+    (tmp_path / "backend" / "pyproject.toml").write_text(
+        '[project]\nversion = "2.13.0"\n', encoding="utf-8",
+    )
+    proof = tmp_path / "assets" / "readme" / "proof" / "2.12.3"
+    shutil.copytree(original_root / "assets" / "readme" / "proof" / "2.12.3", proof)
+    shutil.copy2(original_root / "README.md", tmp_path / "README.md")
+    visual = manifest["visual_proof"]
+    assert isinstance(visual, dict)
+    if mutation == "future":
+        visual["readme_screenshot_source_version"] = "2.14.0"
+    elif mutation == "path":
+        visual["readme_screenshot_source_version"] = "../../private"
+    elif mutation == "tampered":
+        (proof / "today-desktop-dark-es.webp").write_bytes(b"tampered")
+    else:
+        visual["readme_screenshot_status"] = "verified-current"
+    (tmp_path / "portfolio" / "project.json").write_text(json.dumps(manifest), encoding="utf-8")
+    monkeypatch.setattr(verify_package, "ROOT", tmp_path)
+    assert verify_package.verify_readme_visual_proof()
 
 
 @pytest.mark.parametrize(
@@ -107,7 +138,7 @@ def test_current_screenshot_evidence_can_advance_without_a_false_boolean(
     manifest = _current_manifest()
     visual_proof = copy.deepcopy(manifest["visual_proof"])
     assert isinstance(visual_proof, dict)
-    visual_proof["readme_screenshot_source_version"] = "2.12.3"
+    visual_proof["readme_screenshot_source_version"] = manifest["source_version"]
     visual_proof["readme_screenshot_status"] = "verified-current"
     manifest["visual_proof"] = visual_proof
 
@@ -129,7 +160,7 @@ def test_current_screenshot_evidence_can_advance_without_a_false_boolean(
             (
                 "publication",
                 "release_state",
-                "2.12.3-private-candidate-verified-live-demo",
+                "2.13.0-private-candidate-verified-live-demo",
             ),
             "publication.release_state must match",
         ),
@@ -179,7 +210,7 @@ def test_private_candidate_preserves_latest_release_with_staging() -> None:
         "latest_github_release": "v2.12.2",
         "source_version_tagged": False,
         "source_version_github_release_published": False,
-        "release_state": "2.12.3-private-candidate-staging-verified",
+        "release_state": "2.13.0-private-candidate-staging-verified",
     }
     assert manifest["candidate"]["published"] is False
     assert manifest["durable_demo"]["status"] == "staging-verified"
@@ -193,9 +224,9 @@ def test_manifest_accepts_a_coherent_future_publication_transition(
     """Publication is valid only when every GitHub-facing field advances together."""
     manifest = _current_manifest()
     manifest["source_status"] = "published-source-release"
-    manifest["latest_published_release"] = "v2.12.3"
+    manifest["latest_published_release"] = "v2.13.0"
     manifest["summary"] = (
-        "The published 2.12.3 source release is a trilingual Hebrew-learning PWA with "
+        "The published 2.13.0 source release is a trilingual Hebrew-learning PWA with "
         "240 exact semantic scenes. No durable hosted demo is currently verified."
     )
 
@@ -220,11 +251,11 @@ def test_manifest_accepts_a_coherent_future_publication_transition(
     assert isinstance(publication, dict)
     publication.update(
         {
-            "latest_git_tag": "v2.12.3",
-            "latest_github_release": "v2.12.3",
+            "latest_git_tag": "v2.13.0",
+            "latest_github_release": "v2.13.0",
             "source_version_tagged": True,
             "source_version_github_release_published": True,
-            "release_state": "2.12.3-published-source-release-no-durable-demo",
+            "release_state": "2.13.0-published-source-release-no-durable-demo",
         }
     )
     manifest["publication"] = publication
@@ -236,7 +267,7 @@ def test_manifest_accepts_a_coherent_future_publication_transition(
 
     visual_proof = copy.deepcopy(manifest["visual_proof"])
     assert isinstance(visual_proof, dict)
-    visual_proof["social_preview_version"] = "2.12.3"
+    visual_proof["social_preview_version"] = "2.13.0"
     manifest["visual_proof"] = visual_proof
 
     assert _validate_manifest(manifest, tmp_path, monkeypatch) == []
@@ -249,7 +280,7 @@ def test_manifest_accepts_a_coherent_verified_staging_transition(
     """A staging URL becomes valid only with HTTPS, provider, date, and privacy parity."""
     manifest = _current_manifest()
     manifest["summary"] = (
-        "The private 2.12.3 candidate is a trilingual Hebrew-learning PWA with 240 exact "
+        "The private 2.13.0 candidate is a trilingual Hebrew-learning PWA with 240 exact "
         "semantic scenes and a verified HTTPS staging demo for invited testers."
     )
 
@@ -271,7 +302,7 @@ def test_manifest_accepts_a_coherent_verified_staging_transition(
 
     publication = copy.deepcopy(manifest["publication"])
     assert isinstance(publication, dict)
-    publication["release_state"] = "2.12.3-private-candidate-staging-verified"
+    publication["release_state"] = "2.13.0-private-candidate-staging-verified"
     manifest["publication"] = publication
 
     privacy = copy.deepcopy(manifest["privacy"])

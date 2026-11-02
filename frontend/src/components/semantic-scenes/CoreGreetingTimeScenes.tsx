@@ -5,6 +5,7 @@ import type { A0VisualKey } from '../../visuals/a0VisualRecipes';
 import type { SemanticHintStage } from '../SemanticWordIllustration';
 import {
   CalendarPage,
+  PaintedRoom,
   SceneLayer,
   SemanticBus,
   SemanticPerson,
@@ -126,6 +127,7 @@ export function CoreGreetingTimeScene({
               className="semantic-art__surface semantic-art__outlined"
               d="M18 27h204v121H18Z"
             />
+            <PaintedRoom name="scene-bus-stop" x={12} y={12} width={216} height={156} />
             <path
               className="semantic-art__detail semantic-art__detail--thin"
               d="M20 139h200M40 139V74h44v65"
@@ -154,10 +156,15 @@ export function CoreGreetingTimeScene({
               floating between them, which says affection, not parting — and
               two other greeting scenes carried the same heart.
             */}
-            <path className="semantic-art__clay semantic-art__outlined" d="M150 118h40v28h-40Z" />
-            <path className="semantic-art__clay-deep" d="M178 118h12v28h-12Z" />
-            <path className="semantic-art__detail" d="M162 118v-6a8 5 0 0 1 16 0v6" />
-            <path className="semantic-art__detail semantic-art__detail--thin" d="M150 130h40" />
+            {/* Soft travel duffel: the handle still meets the traveller's hand,
+                while the end panel and piping explain the bag's volume. */}
+            <path className="semantic-art__detail" d="M162 119V113Q162 107 170 107Q178 107 178 113V119" />
+            <path className="semantic-art__clay semantic-art__outlined" d="M150 124Q150 118 156 118H182Q189 118 190 125V141Q190 146 185 146H155Q150 146 150 141Z" />
+            <path className="semantic-art__clay-lit" d="M152 125Q152 120 157 120H181L178 125Z" />
+            <path className="semantic-art__clay-deep" d="M181 119Q189 119 190 126V141Q190 146 185 146H179Q183 140 182 131Z" />
+            <path className="semantic-art__wood-deep" d="M158 120H161V144H158ZM174 120H177V144H174Z" />
+            <path className="semantic-art__grain" d="M153 128H179M154 142H180M185 125Q188 135 185 141" />
+            <path className="semantic-art__metal-lit" d="M169 126H172V130H169Z" />
           </SceneLayer>
         </>
       );
@@ -170,6 +177,7 @@ export function CoreGreetingTimeScene({
               d="M18 137c16-37 45-46 73-14 29-38 61-38 91 0 17-18 32-17 40 14H18Z"
             />
             <path className="semantic-art__leaf-lit" d="M32 130c14-27 35-33 54-12m24 0c22-29 47-28 66 2" />
+            <PaintedRoom name="scene-park-bench" x={12} y={12} width={216} height={156} />
             <ellipse className="semantic-art__prop-shadow" cx="120" cy="158" rx="72" ry="6" />
             <path
               className="semantic-art__wood semantic-art__outlined"
@@ -213,6 +221,7 @@ export function CoreGreetingTimeScene({
               className="semantic-art__wall semantic-art__outlined"
               d="M19 27h202v121H19Z"
             />
+            <PaintedRoom name="wall-home" x={12} y={12} width={216} height={156} />
             <path
               className="semantic-art__gold-soft semantic-art__outlined"
               d="M89 27h62v121H89Z"
@@ -282,15 +291,29 @@ export function CoreGreetingTimeScene({
             <path className="semantic-art__gloss" d="M60 68v72" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            <path
-              className="semantic-art__skin semantic-art__outlined"
-              d="M23 147c21-27 43-45 72-57l21 23c-22 15-38 30-49 48H23Z"
-            />
-            <path className="semantic-art__skin-line" d="M85 113 111 96" />
-            <path
-              className="semantic-art__coral semantic-art__outlined"
-              d="m112 90 7 13 15 2-11 10 3 15-14-7-14 7 3-15-11-10 15-2Z"
-            />
+            {/* Index behind the star, thumb in front: a real pinch preserves
+                the original star position and the forearm's lower-left entry. */}
+            <g className="semantic-art__person--teal">
+              <g className="semantic-art__motion-part semantic-art__prop-pivot">
+                <g className="semantic-art__prop-sway">
+                  <path className="semantic-art__hand" d="M23 147c21-27 43-45 66-54q10-5 17-1 7 5 1 10l-9 6q10-5 16-2 7 4 1 10l-12 8q-8 4-15-2-13 10-21 25l-6 14H23Z" />
+                  <path className="semantic-art__skin-lit" d="M39 136q27-29 51-39 9-4 13-2l-14 10q-24 12-45 36Z" />
+                  <path className="semantic-art__skin-shade" d="M62 161h-9q12-29 35-44 9 6 17 3l10-6-12 10q-8 4-15-2-13 10-21 25Z" />
+                  <path className="semantic-art__sleeve" d="m23 147 19-23q13 8 27 23l-8 14H23Z" />
+                  <path className="semantic-art__shirt-lit" d="m23 147 19-23 5 4-18 26v7h-6Z" />
+                  <path className="semantic-art__shirt-deep" d="m59 138 10 9-8 14H50Z" />
+                  <path className="semantic-art__body-sleeve-outline" d="m23 147 19-23q13 8 27 23l-8 14H23Zm16-18q13 9 26 23" />
+                  <path className="semantic-art__coral semantic-art__outlined" d="m112 90 7 13 15 2-11 10 3 15-14-7-14 7 3-15-11-10 15-2Z" />
+                  <path className="semantic-art__coral-lit" d="m112 90 1 18-23-3 15-2Z" />
+                  <path className="semantic-art__coral-deep" d="m113 108 21-3-11 10 3 15-14-7Z" />
+                  <path className="semantic-art__hand" d="M93 111q3-10 11-12l6 1q4 2 1 5l-8 5q-1 7-6 8" />
+                  <path className="semantic-art__skin-lit" d="M96 109q3-7 8-8h4l-8 6-2 4Z" />
+                  <g transform="scale(2)">
+                    <path className="semantic-art__body-hand-detail" d="M45 52.5q1 2.5 3 3M46 58q1.5 1 3 .5M49.5 61l2-1M51 49l2-1" />
+                  </g>
+                </g>
+              </g>
+            </g>
           </SceneLayer>
         </>
       );

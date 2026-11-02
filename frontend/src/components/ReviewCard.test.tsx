@@ -84,4 +84,17 @@ describe('ReviewCard', () => {
 
     expect(onStartPractice).toHaveBeenCalledOnce();
   });
+
+  it('does not tell a learner with nothing to review that a session was completed', async () => {
+    vi.spyOn(api, 'nextReviews').mockResolvedValue([]);
+
+    render(
+      <I18nProvider>
+        <ReviewCard active onWordClick={vi.fn()} onReviewed={vi.fn()} onStartPractice={vi.fn()} />
+      </I18nProvider>,
+    );
+
+    expect(await screen.findByRole('heading', { name: 'Nothing to review yet' })).toBeInTheDocument();
+    expect(screen.queryByText('Session complete')).not.toBeInTheDocument();
+  });
 });
