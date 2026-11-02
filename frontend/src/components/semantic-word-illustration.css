@@ -575,6 +575,10 @@
 @media (prefers-contrast: more), (forced-colors: active) {
   .semantic-art__context-grain { display: none; }
 }
+/* Diagram scenes are never painted (2026-11-02): the schematic is what teaches, so the shared rooms they reuse
+   drop the painting and the grain there and the flat vector room underneath carries the scene. */
+.semantic-art[data-spatial-family="diagram"] [data-painted-backdrop],
+.semantic-art[data-spatial-family="diagram"] .semantic-art__context-grain { display: none; }
 
 .semantic-art__calendar-ring,
 .semantic-art__metal-line {
