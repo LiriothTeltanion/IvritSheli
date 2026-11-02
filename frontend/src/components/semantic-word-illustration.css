@@ -570,9 +570,7 @@
 :root[data-theme="dark"] .semantic-art__painted-room,
 :root[data-theme="dark"] [data-painted-backdrop] { filter: brightness(.6) saturate(.85); }
 @media (prefers-contrast: more), (forced-colors: active) {
-  /* Both kinds: the shared rooms carry the class, the six living-scene backdrops only the data attribute. */
-  .semantic-art__painted-room,
-  [data-painted-backdrop] { display: none; }
+  .semantic-art__painted-room { display: none; }
 }
 @media (prefers-contrast: more), (forced-colors: active) {
   .semantic-art__context-grain { display: none; }
