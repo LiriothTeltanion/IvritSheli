@@ -291,11 +291,18 @@ export function FoodHomeScene({
             <path className="semantic-art__green semantic-art__outlined" d="M126 48c17-19 40-15 46 5-18 14-35 11-46-5Z" />
             <path className="semantic-art__detail semantic-art__detail--thin" d="M133 51c13-4 25-3 34 3" />
             <path className="semantic-art__leaf-lit" d="M134 45c12-8 25-6 32 3" />
-            {/* A bitten wedge on the board: an apple you eat, not a red ball. */}
-            <ellipse className="semantic-art__prop-shadow" cx="204" cy="147" rx="20" ry="5" />
-            <path className="semantic-art__gold-soft semantic-art__outlined" d="M188 146q4-30 20-30t14 30Z" />
-            <path className="semantic-art__coral" d="M188 146q1-8 3-14h27q2 6 2 14Z" />
-            <path className="semantic-art__detail semantic-art__detail--thin" d="M202 129h6" />
+            {/* A cut half, flesh toward the learner. The red peel follows the
+                outer contour rather than forming a cupcake-like horizontal band. */}
+            <g className="semantic-art__motion-part semantic-art__prop-pivot">
+              <ellipse className="semantic-art__prop-shadow" cx="204" cy="147" rx="20" ry="4" />
+              <path className="semantic-art__coral-deep semantic-art__outlined" d="M187 131Q187 113 201 119Q207 113 216 120Q226 130 218 144Q213 151 202 148Q190 150 187 137Z" />
+              <path className="semantic-art__surface semantic-art__outlined" d="M189 130Q190 117 201 122Q209 117 215 123Q222 131 215 142Q211 147 202 145Q192 147 189 136Z" />
+              <path className="semantic-art__gold-soft" d="M201 123Q197 129 201 134Q197 139 202 144Q208 140 204 134Q208 129 203 123Z" />
+              <path className="semantic-art__surface-deep" d="M215 123Q222 131 215 142Q211 147 202 145L202 143Q216 143 215 123Z" />
+              <path className="semantic-art__wood-deep" d="M198 130Q202 132 200 135Q196 136 198 130ZM206 134Q209 138 206 140Q202 139 206 134Z" />
+              <path className="semantic-art__wood-line" d="M202 121 205 115" />
+              <path className="semantic-art__gloss semantic-art__prop-glint" d="M192 128Q193 122 198 123" />
+            </g>
             {/* A thumb curves over the apple, four fingers cradle it below.
                 Keep the original wrist and contact footprint on the board. */}
             <g className="semantic-art__person--teal semantic-art__motion-part semantic-art__prop-pivot semantic-art__prop-sway">
@@ -388,18 +395,32 @@ export function FoodHomeScene({
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
             <g className="semantic-art__motion-part semantic-art__prop-pivot">
-              {/* Intact eggs taper at the crown and broaden toward the base. */}
-              <ellipse className="semantic-art__prop-shadow" cx="55" cy="65" rx="22" ry="4" />
-              <path className="semantic-art__surface semantic-art__outlined" d="M35 54c0-11 11-28 20-28s20 17 20 28c0 18-40 18-40 0Z" />
-              <path className="semantic-art__surface-deep" d="M59 27c9 5 16 18 16 27 0 13-20 18-31 8q29 4 15-35Z" />
-              <path className="semantic-art__gloss" d="M43 46q3-10 10-13" />
-              <ellipse className="semantic-art__prop-shadow" cx="98" cy="67" rx="22" ry="4" />
-              <path className="semantic-art__surface semantic-art__outlined" d="M78 56c0-11 11-28 20-28s20 17 20 28c0 18-40 18-40 0Z" />
-              <path className="semantic-art__surface-deep" d="M102 29c9 5 16 18 16 27 0 13-20 18-31 8q29 4 15-35Z" />
-              <path className="semantic-art__gloss" d="M86 48q3-10 10-13" />
+              {/* A wall ledge supports a shallow bowl. Its back lip precedes
+                  the eggs, its front lip overlaps their bases: nothing floats. */}
+              <path className="semantic-art__prop-shadow" d="M28 73H122V79H28Z" />
+              <path className="semantic-art__wood semantic-art__outlined" d="M25 70 30 66H119L124 70V74H25Z" />
+              <path className="semantic-art__wood-lit" d="M25 70 30 66H119L124 70Z" />
+              <ellipse className="semantic-art__prop-shadow" cx="75" cy="68" rx="43" ry="4" />
+              <ellipse className="semantic-art__teal-deep semantic-art__outlined" cx="75" cy="58" rx="43" ry="8" />
+              {/* Asymmetric ovals: narrow crowns, broad lower bellies. */}
+              <path className="semantic-art__surface semantic-art__outlined" d="M41 49C40 38 47 26 53 26C61 26 70 43 69 53Q68 65 55 65Q41 64 41 49Z" />
+              <path className="semantic-art__surface-deep" d="M56 28Q70 43 69 53Q68 65 55 65L48 63Q66 61 62 46Z" />
+              <path className="semantic-art__surface-lit" d="M45 46Q44 34 52 30Q55 33 51 38L48 48Z" />
+              <path className="semantic-art__gloss" d="M46 40Q47 34 51 32" />
+              <g transform="rotate(12 94 49)">
+                <path className="semantic-art__surface semantic-art__outlined" d="M79 50C78 38 85 27 92 27C100 27 109 44 108 54Q106 67 94 66Q80 65 79 50Z" />
+                <path className="semantic-art__surface-deep" d="M95 29Q110 45 108 54Q106 67 94 66L87 64Q104 60 101 46Z" />
+                <path className="semantic-art__surface-lit" d="M83 46Q82 35 90 31L92 34Q86 38 86 46Z" />
+                <path className="semantic-art__detail semantic-art__detail--thin" d="m97 38-5 7 5 4-6 7 3 6" />
+                <path className="semantic-art__gold" d="M93 54Q95 59 94 62L96 67Q96 70 93 70Q90 69 92 66L91 62Z" />
+              </g>
+              <path className="semantic-art__teal semantic-art__outlined" d="M32 58Q75 72 118 58L111 69Q75 79 39 69Z" />
+              <path className="semantic-art__teal-deep" d="M91 65Q108 63 118 58L111 69Q95 74 75 73Z" />
+              <path className="semantic-art__teal-lit" d="M34 59Q75 72 116 59L114 62Q75 75 36 62Z" />
+              <path className="semantic-art__gloss semantic-art__prop-glint" d="M42 66 61 70" />
             </g>
-            <path className="semantic-art__detail" d="m75 47 7 8-7 8" />
-            <path className="semantic-art__steam" d="M92 77c-7-11 7-14 0-27m34 28c-7-11 7-14 0-27" />
+            <path className="semantic-art__detail" d="m128 59 8 8-8 8" />
+            <path className="semantic-art__steam" d="M145 83c-7-11 7-14 0-27m15 26c-7-11 7-14 0-27" />
           </SceneLayer>
         </>
       );

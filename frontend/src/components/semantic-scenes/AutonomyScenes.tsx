@@ -159,12 +159,18 @@ export function AutonomyScene({ visualKey, hintStage }: AutonomySceneProps): Rea
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <SemanticPerson x={92} y={109} shirt="teal" pose="hold" scale={1.1} />
             <g className="semantic-art__motion-part semantic-art__prop-pivot">
-              {/* A brass door key: open bow, solid shoulder, shaft and two bits.
-                  The shaft still crosses the hold hand at (92, 131). */}
-              <path className="semantic-art__gold semantic-art__outlined" fillRule="evenodd" d="M112 100a9 9 0 1 1 0 8H99v12h8v5h-8v5h6v5H89v-35Zm8-1a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z" />
-              <path className="semantic-art__gold-deep" d="M94 106h5v14h8v5h-8v5h6v5H94Z" />
-              <path className="semantic-art__gold-lit" d="M91 102h21v2H93v27h-2Z" />
-              <path className="semantic-art__gloss semantic-art__prop-glint" d="M115 98q5-3 9 0" />
+              {/* A large ring bow stays at the original hold-hand anchor
+                  (92, 131). The blade projects clear of the torso, and the
+                  fingers pinch the bow's lower left edge, never the teeth. */}
+              <path className="semantic-art__gold-deep semantic-art__outlined" fillRule="evenodd" d="M96 110A14 14 0 1 1 103 137L97 153H88L90 145H85L87 138H91L92 135A14 14 0 0 1 96 110ZM98 116a8 8 0 1 0 4 15 8 8 0 0 0-4-15Z" />
+              <path className="semantic-art__gold semantic-art__outlined" fillRule="evenodd" d="M96 108A14 14 0 1 1 103 135L97 151H88L90 143H85L87 136H91L92 133A14 14 0 0 1 96 108ZM98 114a8 8 0 1 0 4 15 8 8 0 0 0-4-15Z" />
+              <path className="semantic-art__gold-lit" d="M86 121Q86 109 97 109L101 110Q89 111 89 122L87 126ZM96 135l3 1-5 12h-3Z" />
+              <path className="semantic-art__gold-deep" d="M108 114Q115 126 104 132L101 131Q111 125 108 114Z" />
+              <path className="semantic-art__gloss semantic-art__prop-glint" d="M90 118Q92 113 97 113" />
+              <g className="semantic-art__person--teal">
+                <path className="semantic-art__hand" d="M87 131Q86 128 89 126L92 124Q95 124 95 126L92 130Q97 128 98 131Q99 134 95 135L90 135Z" />
+                <path className="semantic-art__body-hand-detail" d="M90 130 93 132" />
+              </g>
             </g>
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}><CheckBadge x={168} y={76} /></SceneLayer>

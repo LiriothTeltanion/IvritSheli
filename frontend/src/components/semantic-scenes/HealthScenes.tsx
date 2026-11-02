@@ -22,33 +22,49 @@ interface HealthSceneProps {
   hintStage: SemanticHintStage;
 }
 
-/** A close-up of the actual adult family, shared by pain and fever. */
+/** A seated bust of the actual adult family, shared by pain and fever.
+ * The jaw meets a visible neck and shoulders; enlarging only PersonHead made
+ * both learners look like disembodied portraits above a strip of bedding.
+ */
 function BigFace({ pain = false }: { pain?: boolean }): React.JSX.Element {
   return (
     <g className={`semantic-art__person semantic-art__person--${pain ? 'blue' : 'teal'}`} data-person-expression="worried">
-      <path className="semantic-art__shirt" d="M58 162q7-25 37-28h48q29 4 38 28Z" />
-      <path className="semantic-art__shirt-deep" d="M142 136q29 4 39 26h-28Z" />
-      <path className="semantic-art__skin" d="M99 127h35v18q-16 13-35 0Z" />
-      <path className="semantic-art__skin-shade" d="M99 129h35v9q-18 6-35-3Z" />
-      <g transform="translate(112 239) scale(6)">
-        <PersonHead shirt={pain ? 'blue' : 'teal'} expression="worried" />
+      <g className="semantic-art__body-breath">
+        <path className="semantic-art__shirt" d="M58 162Q61 128 84 123L100 119H128L145 125Q171 132 181 162Z" />
+        <path className="semantic-art__shirt-lit" d="M59 160Q64 130 86 126L98 123Q81 135 82 162Z" />
+        <path className="semantic-art__shirt-deep" d="M142 126Q171 132 181 162H156Q155 141 142 126Z" />
+        <path className="semantic-art__garment-line" d="M75 142 70 158M145 143l5 16M101 127q14 10 29-1" />
+      </g>
+      <path className="semantic-art__skin" d="M103 110H127V124Q115 135 101 124Z" />
+      <path className="semantic-art__skin-shade" d="M103 110H127V117Q116 123 103 117Z" />
+      <g transform="translate(111 181) scale(3.8)">
+        <PersonHead shirt={pain ? 'blue' : 'teal'} expression={pain ? 'worried' : 'sleep'} />
         <g className="semantic-art__face-head">
           {/* Match PersonHead's bounds so its nod and these closed eyelids
               rotate around the same chin pivot, rather than separate eyes. */}
-          <rect x="-7.562" y="-35.126" width="15.906" height="19.426" fill="none" />
+          <rect className="semantic-art__prop-shadow" opacity="0" x="-7.562" y="-35.126" width="15.906" height="19.426" />
           {pain ? (
             <>
               {/* Rounded skin strokes cover the open eyes without square
                   shadow patches. The close-up wince survives thumbnail LOD. */}
               <path className="semantic-art__finger" d="M.9-25.55v.3m4.3-.6v.3" />
               <path className="semantic-art__mouth semantic-art__face-line" d="m-.2-26.2 1.7.7-1.8.7m6-1.8-1.2.8 1.4.5" />
+              {/* Gauze wraps the curve of the same head, with a narrow return
+                  at the temple and an overlapping central pad. */}
+              <path className="semantic-art__surface semantic-art__outlined" d="M-6.8-30.8Q-.7-33.4 6.3-31.3L6.6-27.8Q.1-29.7-6.3-27.2Z" />
+              <path className="semantic-art__surface-deep" d="M-6.5-28.6Q.1-31 6.5-29L6.6-27.8Q.1-29.7-6.3-27.2Z" />
+              <path className="semantic-art__surface-lit" d="M-2.3-31.7 1.2-32 1.6-28.5-1.8-28.2Z" />
+              <path className="semantic-art__face-age-line semantic-art__nose" d="M-1.7-30.7.7-30.9M-1.5-29.8.8-30" />
             </>
           ) : (
-            /* Ordinary portrait eyes disappear in thumbnails; in a close-up
-               they are a teaching cue, so retain the family's exact features. */
+            /* Heavy half-lids and a little iris read as fatigue, not sleep. */
             <g className="semantic-art__face-eyes">
-              <ellipse className="semantic-art__ink" cx=".9" cy="-25.4" rx=".79" ry="1" />
-              <ellipse className="semantic-art__ink" cx="5.2" cy="-25.7" rx=".65" ry=".91" />
+              <path className="semantic-art__finger" d="M.8-25.1v.3m4.4-.6v.3" />
+              <path className="semantic-art__surface" d="M-.4-25.2Q.9-24.8 2.2-25.3Q1-23.7-.4-25.2ZM4.2-25.5Q5.2-25.1 6.2-25.6Q5.2-24.1 4.2-25.5Z" />
+              <path className="semantic-art__ink" d="M.6-25 1.4-25 .9-24.4ZM4.9-25.3 5.7-25.3 5.2-24.7Z" />
+              <path className="semantic-art__mouth semantic-art__face-line" d="M-.4-25.2Q.9-24.8 2.2-25.3M4.2-25.5Q5.2-25.1 6.2-25.6" />
+              <ellipse className="semantic-art__cheek" cx="-.4" cy="-21.8" rx="2.1" ry="1.4" />
+              <ellipse className="semantic-art__cheek" cx="5.6" cy="-22" rx="1.1" ry="1.2" />
             </g>
           )}
         </g>
@@ -61,11 +77,12 @@ function BigFace({ pain = false }: { pain?: boolean }): React.JSX.Element {
 function MedicineBox({ x, y, w, h, coral = false }: { x: number; y: number; w: number; h: number; coral?: boolean }): React.JSX.Element {
   return (
     <g transform={`translate(${x} ${y})`}>
-      <path className="semantic-art__surface semantic-art__outlined" d={`M0 0h${w}v${h}H0Z`} />
-      <path className="semantic-art__surface-deep" d={`M${w - 4} 0h4v${h}h-4Z`} />
-      <path className={coral ? 'semantic-art__coral' : 'semantic-art__teal'} d={`M1 ${h * .32}h${w - 5}v${Math.max(3, h * .18)}H1Z`} />
-      <path className="semantic-art__gloss" d={`M2 2h${w - 5}`} />
-      <path className="semantic-art__grain" d={`M3 ${h - 5}h${w - 10}`} />
+      <path className="semantic-art__prop-shadow" d={`M1 ${h - 1}h${w}v3H1Z`} />
+      <path className="semantic-art__surface semantic-art__outlined" d={`M0 3 4 0H${w}V${h - 2}L${w - 4} ${h}H0Z`} />
+      <path className="semantic-art__surface-deep" d={`M${w - 4} 3 ${w} 0V${h - 2}L${w - 4} ${h}Z`} />
+      <path className="semantic-art__surface-lit" d={`M0 3 4 0H${w}L${w - 4} 3Z`} />
+      <path className={coral ? 'semantic-art__coral' : 'semantic-art__teal'} d={`M1 ${h * .34}h${w - 6}v${Math.max(3, h * .2)}H1Z`} />
+      <path className="semantic-art__grain" d={`M3 ${h - 5}h${Math.max(3, w - 11)}`} />
     </g>
   );
 }
@@ -73,10 +90,31 @@ function MedicineBox({ x, y, w, h, coral = false }: { x: number; y: number; w: n
 function PharmacyShelf({ y }: { y: number }): React.JSX.Element {
   return (
     <g>
-      <path className="semantic-art__prop-shadow" d={`M20 ${y + 3}h200v8H20Z`} />
-      <path className="semantic-art__wood semantic-art__outlined" d={`M20 ${y}h200v6H20Z`} />
-      <path className="semantic-art__wood-lit" d={`M21 ${y}h198v2H21Z`} />
-      <path className="semantic-art__wood-deep" d={`M21 ${y + 4}h198v2H21Z`} />
+      <path className="semantic-art__prop-shadow" d={`M20 ${y + 5}h200v7H20Z`} />
+      <path className="semantic-art__wood semantic-art__outlined" d={`M20 ${y}l5-4h190l5 4v6H20Z`} />
+      <path className="semantic-art__wood-lit" d={`M20 ${y}l5-4h190l5 4Z`} />
+      <path className="semantic-art__wood-deep" d={`M21 ${y + 3}h198v3H21Z`} />
+      <path className="semantic-art__grain" d={`M26 ${y + 1}h58m15 0h70m-133 5v5m165-5v5`} />
+    </g>
+  );
+}
+
+/** Rounded glass shoulders, opaque contents, paper band and ribbed cap.
+ * Jar and bottle variants share their exact shelf-contact coordinate.
+ */
+function MedicineBottle({ x, y, jar = false, coral = false }: { x: number; y: number; jar?: boolean; coral?: boolean }): React.JSX.Element {
+  return (
+    <g transform={`translate(${x} ${y})`}>
+      <g className="semantic-art__motion-part semantic-art__prop-pivot">
+        <ellipse className="semantic-art__prop-shadow" cy="1" rx="10" ry="2" />
+        <path className="semantic-art__glass semantic-art__outlined" d={jar ? 'M-8-18H8L10-14V-3Q10 0 7 0H-7Q-10 0-10-3V-14Z' : 'M-4-23H4V-18Q9-16 9-12V-3Q9 0 6 0H-6Q-9 0-9-3V-12Q-9-16-4-18Z'} />
+        <path className={coral ? 'semantic-art__coral-deep' : 'semantic-art__teal-deep'} d="M3-15Q8-15 8-12V-3Q8-1 5-1H2Z" />
+        <path className="semantic-art__surface" d="M-8-12H8V-5H-8Z" />
+        <path className={coral ? 'semantic-art__coral' : 'semantic-art__green'} d="M-5-10H4V-7H-5Z" />
+        <path className="semantic-art__metal semantic-art__outlined" d={jar ? 'M-9-21H9V-17H-9Z' : 'M-5-26H5V-22H-5Z'} />
+        <path className="semantic-art__grain" d={jar ? 'M-5-20v2m4-2v2m4-2v2m4-2v2' : 'M-2-25v2m4-2v2'} />
+        <path className="semantic-art__gloss semantic-art__prop-glint" d="M-5-16-6-14v7" />
+        </g>
     </g>
   );
 }
@@ -170,11 +208,6 @@ export function HealthScene({
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <BigFace pain />
-            {/* A layered dressing follows the forehead, leaving hair visible. */}
-            <path className="semantic-art__surface semantic-art__outlined" d="M76 58q42-17 76-4l3 20q-40-13-78 4Z" />
-            <path className="semantic-art__surface-deep" d="m77 70 76-6 2 10q-40-13-78 4Z" />
-            <path className="semantic-art__surface-lit" d="m103 54 22-2 2 21-22 2Z" />
-            <path className="semantic-art__grain" d="m108 57 13-1m-12 5 13-1m-12 5 13-1" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
             {/* Pain radiating from where the bandage sits. */}
@@ -182,10 +215,15 @@ export function HealthScene({
             <path className="semantic-art__motion semantic-art__motion-part" d="M46 44q-8-10-2-18m14 6q-6-8-1-14" />
             {/* A hand held to the sore spot, and brows drawn together. */}
             <g className="semantic-art__person--blue semantic-art__motion-part semantic-art__prop-pivot">
-              <path className="semantic-art__sleeve" d="m174 163-12-34 18-6 22 40Z" />
-              <path className="semantic-art__hand" d="m164 135-8-19-3-22q0-6 4-5l4 16-1-23q1-5 4-3l5 21-1-22q1-5 4-2l5 23 1-16q2-5 5-1l2 29-2 17-8 9Z" />
-              <path className="semantic-art__skin-shade" d="m179 88 6 23-2 17-8 9-11-2-2-6q16 3 17-13Z" />
-              <path className="semantic-art__body-hand-detail" d="m161 105 3 12m5-17 2 14m6-15 1 13m-13 10q5-4 11-2" />
+              {/* The elbow stays over the shoulder; four curved fingertips
+                  actually overlap the temple instead of waving beside it. */}
+              <path className="semantic-art__hand" d="M173 155Q166 141 158 126L145 111Q140 105 139 96L136 79Q136 75 139 76L143 88L141 72Q141 68 144 70L148 87L147 70Q148 66 150 71L154 88L155 77Q156 74 158 78L161 102Q164 110 161 118L184 145Z" />
+              <path className="semantic-art__skin-shade" d="M156 88 161 102Q164 110 161 118L184 145 179 153 154 119Q159 109 156 88Z" />
+              <path className="semantic-art__skin-lit" d="M140 79 146 97Q145 105 151 111L160 123Q148 117 144 109Q139 102 140 79Z" />
+              <path className="semantic-art__body-hand-detail" d="M143 88 147 99m1-12 3 10m3-9 2 10m-11 6q6-3 12 1" />
+              <path className="semantic-art__sleeve" d="M166 147 181 138Q190 147 199 162H174Z" />
+              <path className="semantic-art__shirt-deep" d="M181 138Q190 147 199 162H189Z" />
+              <path className="semantic-art__body-sleeve-outline" d="M166 147 181 138Q190 147 199 162M168 149l14-9" />
             </g>
             <path className="semantic-art__spark semantic-art__motion-part" d="m206 44 5 10 10 5-10 5-5 10-5-10-10-5 10-5Z" />
           </SceneLayer>
@@ -202,29 +240,41 @@ export function HealthScene({
             <path className="semantic-art__grain" d="M40 138v24m40-24v24m40-24v24m40-24v24m40-24v24" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
-            <path className="semantic-art__surface semantic-art__outlined" d="M40 82q12-15 35-12l15 67-45 6q-13-29-5-61Z" />
-            <path className="semantic-art__surface-deep" d="m45 127 38-8 7 18-45 6Z" />
+            {/* A deep pillow cradles the back of the head, with compressed
+                corners and a sewn edge rather than a white strip beside it. */}
+            <path className="semantic-art__prop-shadow" d="M61 78Q83 58 136 69L152 126 65 144Z" />
+            <path className="semantic-art__surface semantic-art__outlined" d="M48 76Q69 61 94 67L115 118Q94 139 53 143Q40 117 48 76Z" />
+            <path className="semantic-art__surface-deep" d="M48 112Q57 130 103 119L115 118Q94 139 53 143Z" />
+            <path className="semantic-art__grain" d="M52 80Q65 71 82 73M53 130Q74 137 98 126" />
             <BigFace />
-            <ellipse className="semantic-art__cheek" cx="105" cy="111" rx="10" ry="7" />
-            <ellipse className="semantic-art__cheek" cx="147" cy="110" rx="6" ry="5" />
+            {/* Blanket meets the chest, leaving the neck and shoulders visible. */}
+            <g className="semantic-art__body-breath">
+              <path className="semantic-art__coral semantic-art__outlined" d="M42 142Q77 132 112 139Q164 126 205 141L218 162H34Z" />
+              <path className="semantic-art__coral-lit" d="M42 142Q77 132 112 139Q164 126 205 141L207 147Q166 135 113 146Q76 140 39 149Z" />
+              <path className="semantic-art__coral-deep" d="M195 139 205 141 218 162H34L36 156H205Z" />
+              <path className="semantic-art__grain" d="M63 146 59 156m30-11-1 11m38-12 3 12m28-15 5 15m24-11 5 11" />
+            </g>
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
             {/* Thermometer in the mouth, with a red column. */}
             <g className="semantic-art__motion-part semantic-art__prop-pivot">
-              <path className="semantic-art__surface semantic-art__outlined" d="m138 123 41 17q6 3 3 8t-8 1l-40-21Z" />
-              <path className="semantic-art__coral-line" d="m142 127 33 16" />
-              <circle className="semantic-art__coral" cx="177" cy="145" r="3" />
-              <path className="semantic-art__grain" d="m153 128-2 4m8-1-2 4m8-1-2 4" />
+              <path className="semantic-art__surface semantic-art__outlined" d="M125 107 164 122Q170 124 167 128Q165 131 161 128L124 111Z" />
+              <path className="semantic-art__coral-line" d="M130 111 162 125" />
+              <circle className="semantic-art__coral" cx="164" cy="126" r="2" />
+              <path className="semantic-art__grain" d="m141 113-1 3m7-1-1 3m7-1-1 3" />
             </g>
             <path className="semantic-art__steam semantic-art__motion-part" d="M62 34q-8-12 2-22m20 22q-8-12 2-22" />
-            <path className="semantic-art__coral semantic-art__outlined" d="M12 148h216v14H12Z" />
-            <path className="semantic-art__coral-deep" d="M12 157h216v5H12Z" />
-            <path className="semantic-art__grain" d="M44 148v14m40-14v14m40-14v14m40-14v14" />
             {/* Folded tissue, distinct from the thermometer and pillow. */}
-            <g className="semantic-art__motion-part semantic-art__prop-flutter">
-              <path className="semantic-art__surface semantic-art__outlined" d="m40 127 14-9 12 6 8-2 9 23-29 7Z" />
-              <path className="semantic-art__surface-deep" d="m54 123 8 16 21 6-29 7Z" />
-              <path className="semantic-art__grain" d="m54 123 8 16 12 6m-12-6-9 8" />
+            <g className="semantic-art__person--teal semantic-art__motion-part semantic-art__prop-pivot">
+              <path className="semantic-art__sleeve" d="M64 148 73 136 87 146 82 157Z" />
+              <path className="semantic-art__body-sleeve-outline" d="M64 148 73 136 87 146 82 157" />
+              <path className="semantic-art__hand" d="M75 138 79 128Q81 123 84 125L88 129 98 130Q102 132 99 135L91 143 84 147Z" />
+              <g className="semantic-art__prop-flutter">
+                <path className="semantic-art__surface semantic-art__outlined" d="M77 117 85 112 92 119 99 116 107 136 89 140Z" />
+                <path className="semantic-art__surface-deep" d="m85 118 7 13 15 5-18 4Z" />
+                <path className="semantic-art__grain" d="m85 118 7 13 9 4m-9-4-3 7" />
+              </g>
+              <path className="semantic-art__hand" d="M80 128Q82 126 85 129L91 133Q94 135 92 137Q91 138 88 136L84 135 84 141 80 140Z" />
             </g>
           </SceneLayer>
         </>
@@ -338,25 +388,36 @@ export function HealthScene({
             <PharmacyShelf y={54} />
             <PharmacyShelf y={86} />
             <MedicineBox x={28} y={29} w={20} h={25} />
-            <MedicineBox x={54} y={33} w={16} h={21} coral />
+            <MedicineBottle x={61} y={54} coral />
             <MedicineBox x={76} y={27} w={22} h={27} />
-            <MedicineBox x={104} y={35} w={18} h={19} coral />
+            <MedicineBottle x={113} y={51} jar />
             <MedicineBox x={128} y={30} w={20} h={24} />
-            <MedicineBox x={154} y={26} w={16} h={28} />
+            <MedicineBottle x={161} y={54} />
             <MedicineBox x={176} y={33} w={20} h={21} coral />
             <MedicineBox x={30} y={65} w={22} h={21} coral />
             <MedicineBox x={58} y={62} w={18} h={24} />
-            <MedicineBox x={82} y={68} w={20} h={18} coral />
+            <MedicineBottle x={92} y={86} jar coral />
             <MedicineBox x={108} y={63} w={16} h={23} />
             <MedicineBox x={130} y={66} w={22} h={20} coral />
-            <MedicineBox x={158} y={64} w={18} h={22} />
+            <MedicineBottle x={167} y={83} coral />
+            <MedicineBottle x={200} y={86} jar />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <path className="semantic-art__wood semantic-art__outlined" d="M12 116h216v46H12Z" />
-            <path className="semantic-art__wood-deep" d="M12 148h216v14H12Zm190-24h26v24h-26Z" />
+            <path className="semantic-art__wood-deep" d="M12 154h216v8H12Zm190-30h38v30h-38Z" />
             <path className="semantic-art__wood-lit" d="M12 116h216v9H12Z" />
             <path className="semantic-art__wood-deep" d="M12 125h216v4H12Z" />
-            <path className="semantic-art__grain" d="M22 134h66m12 0h92M22 146h42m14 0h100M64 129v26m114-26v26" />
+            {/* Recessed glass display: merchandise sits behind the reflection,
+                and a broad wooden stile supports the countertop above it. */}
+            <path className="semantic-art__metal-deep semantic-art__outlined" d="M20 130H177V154H20Z" />
+            <path className="semantic-art__glass" d="M23 132H174V151H23Z" />
+            <MedicineBox x={30} y={135} w={25} h={15} coral />
+            <MedicineBox x={65} y={137} w={30} h={13} />
+            <MedicineBox x={106} y={134} w={18} h={16} />
+            <MedicineBox x={136} y={138} w={25} h={12} coral />
+            <path className="semantic-art__window-lit" d="M24 133H72L54 151H24ZM131 133H145L127 151H113Z" opacity=".35" />
+            <path className="semantic-art__metal-line" d="M98 132V152" />
+            <path className="semantic-art__grain" d="M184 136h29m-29 9h22M26 158h145" />
             <path className="semantic-art__gloss" d="M16 119h208" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
@@ -364,6 +425,14 @@ export function HealthScene({
             {/* A packet left on the counter, mid-transaction. */}
             <g className="semantic-art__motion-part semantic-art__prop-pivot">
               <MedicineBox x={52} y={98} w={40} h={18} />
+            </g>
+            {/* A small woven pickup basket, standing on the same counter. */}
+            <g className="semantic-art__motion-part semantic-art__prop-pivot">
+              <path className="semantic-art__wood-line" d="M23 103V99Q33 85 43 99V103" />
+              <path className="semantic-art__wood semantic-art__outlined" d="M19 101H47L43 116H23Z" />
+              <path className="semantic-art__wood-deep" d="M40 102H47L43 116H36Z" />
+              <path className="semantic-art__wood-lit" d="M20 102H46V105H21Z" />
+              <path className="semantic-art__grain" d="m26 106 1 7m6-7v7m6-7-1 7M23 110h20" />
             </g>
             {/* Till, and a mortar and pestle: a dispensary, not a corner shop. */}
             <path className="semantic-art__metal semantic-art__outlined" d="M108 110h38v6h-38Zm4-18h30v18h-30Z" />

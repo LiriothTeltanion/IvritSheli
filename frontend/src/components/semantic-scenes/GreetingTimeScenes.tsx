@@ -115,8 +115,10 @@ function CrescentMoon({
         className="semantic-art__gold semantic-art__outlined"
         d="M17-21C-9-18-18 8-4 26 7 40 31 35 38 18 14 25-2 1 17-21Z"
       />
+      <path className="semantic-art__gold-deep" d="M-4 26Q17 40 38 18Q30 39 9 34Q1 33-4 26Z" />
+      <path className="semantic-art__gold-lit" d="M17-21Q-6-9-7 10Q-12-8 17-21Z" />
       <path
-        className="semantic-art__spark"
+        className="semantic-art__spark semantic-art__prop-glint"
         d="m40-16 3 6 6 3-6 3-3 6-3-6-6-3 6-3Z"
       />
     </g>
@@ -340,12 +342,31 @@ export function GreetingTimeScene({
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__gold-soft semantic-art__outlined" d="M14 14h212v120H14Z" />
             <path className="semantic-art__wood semantic-art__outlined" d="M104 26h100v108h-100Z" />
+            {/* Mitred casing and recessed jamb keep the door in the wall.
+                Each lit bevel has a darker return on its opposite edge. */}
+            <path className="semantic-art__wood-lit" d="M104 26H204L198 32H110V134H104Z" />
+            <path className="semantic-art__wood-deep" d="M198 32 204 26V134H193V36H110V32Z" />
             <path className="semantic-art__teal semantic-art__outlined" d="M114 36h80v98h-80Z" />
-            <path className="semantic-art__teal-deep" d="M178 36h16v98h-16Z" />
-            <path className="semantic-art__detail semantic-art__detail--thin" d="M126 50h48v30h-48Zm0 40h48v32h-48Z" />
-            <circle className="semantic-art__gold semantic-art__outlined" cx="168" cy="86" r="5" />
+            <path className="semantic-art__teal-deep" d="M186 36H194V134H114V130H186Z" />
+            <path className="semantic-art__teal-lit" d="M115 37H185V40H118V128H115Z" />
+            <path className="semantic-art__teal-deep semantic-art__outlined" d="M124 48H179V79H124ZM124 93H179V123H124Z" />
+            <path className="semantic-art__teal-lit" d="M125 49H178L174 53H129V75L125 78ZM125 94H178L174 98H129V119L125 122Z" />
+            <path className="semantic-art__teal" d="M130 54H173V74H130ZM130 99H173V118H130Z" />
+            <path className="semantic-art__grain" d="M109 40V119M201 65V124M135 58h30M135 104h24" />
+            <path className="semantic-art__metal-deep semantic-art__outlined" d="M117 52h4v12h-4Zm0 56h4v12h-4Z" />
+            {/* Backplate, lever, keyhole and the lever's small contact shadow. */}
+            <path className="semantic-art__prop-shadow" d="M170 80h8v15h-8Z" />
+            <path className="semantic-art__gold-deep semantic-art__outlined" d="M168 78q3-2 6 0v16h-6Z" />
+            <path className="semantic-art__gold-lit" d="M169 79h2v13h-2Z" />
+            <path className="semantic-art__metal-line" d="M171 84H161" />
+            <path className="semantic-art__gloss semantic-art__prop-glint" d="M162 82h8" />
+            <circle className="semantic-art__ink" cx="171" cy="90" r="1.3" />
             <path className="semantic-art__floor" d="M14 134h212v32H14Z" />
             <path className="semantic-art__surface-deep" d="M14 128h212v6H14Z" />
+            <path className="semantic-art__prop-shadow" d="M102 135H205V139H102Z" />
+            <path className="semantic-art__stone semantic-art__outlined" d="M108 129H201L206 135H103Z" />
+            <path className="semantic-art__metal-lit" d="M108 129H201L203 132H106Z" />
+            <path className="semantic-art__metal-deep" d="M103 135H206V138H103Z" />
             <path className="semantic-art__clay semantic-art__outlined" d="M212 108h22l-4 22h-14Z" />
             <path className="semantic-art__stem" d="M223 108V92" />
             <path className="semantic-art__green semantic-art__outlined" d="M223 96c-13 1-18-9-11-15 8-6 16 5 11 15Z" />
@@ -368,11 +389,19 @@ export function GreetingTimeScene({
             <path className="semantic-art__motion semantic-art__motion-part" d="M36 54q18-11 36 0m-40 9q22-13 44 0" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            <circle className="semantic-art__coral semantic-art__outlined" cx="196" cy="42" r="26" />
-            <path
-              className="semantic-art__surface semantic-art__outlined"
-              d="m178 28 7-7 11 11 11-11 7 7-11 11 11 11-7 7-11-11-11 11-7-7 11-11Z"
-            />
+            <g className="semantic-art__motion-part semantic-art__prop-pivot semantic-art__prop-sway">
+              <circle className="semantic-art__prop-shadow" cx="198" cy="45" r="27" />
+              <circle className="semantic-art__metal-deep semantic-art__outlined" cx="196" cy="42" r="27" />
+              <circle className="semantic-art__coral semantic-art__outlined" cx="196" cy="42" r="26" />
+              <path className="semantic-art__coral-deep" d="M219 30Q232 65 194 68Q215 61 219 30Z" />
+              <path className="semantic-art__coral-lit" d="M173 37Q177 18 195 18L204 20Q181 19 176 39Z" />
+              <path
+                className="semantic-art__surface semantic-art__outlined"
+                d="m178 28 7-7 11 11 11-11 7 7-11 11 11 11-7 7-11-11-11 11-7-7 11-11Z"
+              />
+              <circle className="semantic-art__metal-deep" cx="196" cy="19" r="3" />
+              <circle className="semantic-art__metal-lit semantic-art__prop-glint" cx="195.4" cy="18.3" r="1.2" />
+              </g>
           </SceneLayer>
         </>
       );
@@ -420,18 +449,34 @@ export function GreetingTimeScene({
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wall semantic-art__outlined" d="M20 24h200v130H20Z" />
             <PaintedRoom name="scene-good-night" x={12} y={12} width={216} height={156} />
-            <path className="semantic-art__window semantic-art__outlined" d="M145 37h54v55h-54Z" />
+            <path className="semantic-art__shade" d="M20 24h200v130H20Z" />
+            {/* A deep wooden picture frame, separate from its recessed sky.
+                The lower ledge and right return cast a small wall shadow. */}
+            <path className="semantic-art__prop-shadow" d="M147 40H203V96H147Z" />
+            <path className="semantic-art__wood semantic-art__outlined" d="M145 37H199V92H145Z" />
+            <path className="semantic-art__wood-lit" d="M146 38H198L193 43H151V86L146 91Z" />
+            <path className="semantic-art__wood-deep" d="M193 43 198 38V91H146L151 86H193Z" />
             {/* Night sky in the pane, and moonlight falling across the room.
                 The sky used to be painted with the deep *water* token — the same
                 fault as milk poured from the water class. A sky is not a body of
                 water, and it now has a token that says so. */}
-            <path className="semantic-art__night-sky" d="M148 40h48v49h-48Z" />
-            <path className="semantic-art__detail semantic-art__detail--thin" d="M172 37v55m-27-27h54" />
+            <path className="semantic-art__night-sky semantic-art__outlined" d="M151 43H193V86H151Z" />
+            {/* Three faint, overlapping flats soften the glow without filters
+                or new gradient definitions; high contrast removes the halo. */}
+            <ellipse className="semantic-art__sun-halo" cx="168" cy="64" rx="16" ry="18" opacity=".25" />
+            <ellipse className="semantic-art__sun-halo" cx="168" cy="64" rx="13" ry="15" opacity=".3" />
+            <ellipse className="semantic-art__sun-halo" cx="168" cy="64" rx="10" ry="12" opacity=".35" />
+            <path className="semantic-art__blue-deep" d="M152 83 158 80 165 82 174 77 181 80 192 76V85H152Z" />
             <g className="semantic-art__motion-part semantic-art__prop-glint">
-              <CrescentMoon x={166} y={61} scale={0.5} />
+              <CrescentMoon x={164} y={60} scale={0.43} />
             </g>
-            <path className="semantic-art__shade" d="M20 24h200v130H20Z" />
-            <path className="semantic-art__window-lit" d="m145 92 54-55v18l-36 37Z" opacity="0.35" />
+            <g className="semantic-art__prop-glint">
+              <path className="semantic-art__gold-lit" d="m157 49 1 2 2 1-2 1-1 2-1-2-2-1 2-1Zm29 20 1 2 2 1-2 1-1 2-1-2-2-1 2-1Z" />
+              <circle className="semantic-art__surface-lit" cx="174" cy="48" r=".9" />
+              <circle className="semantic-art__surface-lit" cx="156" cy="70" r=".8" />
+              <circle className="semantic-art__surface-lit" cx="187" cy="50" r=".8" />
+            </g>
+            <path className="semantic-art__gloss" d="M147 39H195M196 88h-44" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <ellipse className="semantic-art__prop-shadow" cx="103" cy="147" rx="76" ry="7" />
