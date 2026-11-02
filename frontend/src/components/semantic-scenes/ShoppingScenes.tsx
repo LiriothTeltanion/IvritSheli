@@ -43,13 +43,58 @@ function Note({ x, y, w = 70, h = 36 }: { x: number; y: number; w?: number; h?: 
 /** A fabric parasol with separate light, shade and a moving scalloped hem. */
 function BeachUmbrella(): React.JSX.Element {
   return <g>
-    <path className="semantic-art__wood semantic-art__outlined" d="M174 117h4v21h-4Z" />
-    <path className="semantic-art__wood-lit" d="M175 118h1v18h-1Z" />
+    <ellipse className="semantic-art__prop-shadow" cx="178" cy="139" rx="23" ry="3" />
+    <path className="semantic-art__wood semantic-art__outlined" d="M174 115h3v24h-3Z" />
+    <path className="semantic-art__wood-lit" d="M174 117h1v20h-1Z" />
     <g className="semantic-art__motion-part semantic-art__prop-pivot semantic-art__prop-flutter">
-      <path className="semantic-art__coral semantic-art__outlined" d="M158 118q18-24 36 0l-6 2-12-1-11 1Z" />
-      <path className="semantic-art__coral-lit" d="M159 117q8-10 17-11-7 5-10 12Z" />
-      <path className="semantic-art__coral-deep" d="M176 106q11 1 18 12l-6 2q-3-9-12-14Z" />
-      <path className="semantic-art__grain" d="M166 118q3-9 10-12 7 5 12 13m-12-13v12" />
+      <path className="semantic-art__coral semantic-art__outlined" d="M155 117q6-13 20-16 15 3 22 16l-7 3-7-2-8 2-7-2-7 2Z" />
+      <path className="semantic-art__surface-lit" d="M175 102q-10 5-14 15l7 1q0-9 7-16Zm0 0q9 6 15 18l7-3q-8-12-22-15Z" />
+      <path className="semantic-art__coral-lit" d="M175 102q-3 7-1 16l-6 0q1-11 7-16Z" />
+      <path className="semantic-art__coral-deep" d="M175 102q9 7 8 16l-8 2q3-8 0-18ZM155 117l6 1 7-1 7 1 8-1 7 1 7-1-7 3-7-2-8 2-7-2-7 2Z" />
+      <path className="semantic-art__detail semantic-art__detail--thin" d="M161 117q4-10 14-15-7 8-7 15m7-15q10 7 15 16" />
+      <path className="semantic-art__gold" d="M174 99h2v4h-2Z" />
+    </g>
+    {/* A slatted lounger rests on two splayed legs in the sand. */}
+    <g className="semantic-art__motion-part semantic-art__prop-pivot">
+      <path className="semantic-art__prop-shadow" d="m179 145 31 1 4 4h-33Z" />
+      <path className="semantic-art__wood-deep" d="m184 139-4 9h3l5-8Zm20-3 7 12h3l-7-14Z" />
+      <path className="semantic-art__wood semantic-art__outlined" d="m177 138 22 1 8-15 3 2-9 17-23-2Z" />
+      <path className="semantic-art__surface semantic-art__outlined" d="m179 135 18 1 8-13 3 2-9 15-20-2Z" />
+      <path className="semantic-art__teal" d="m185 136 3 0 13-7-2 4-11 6h-3Zm9 1 3-1 8-13 2 1-9 15h-4Z" />
+      <path className="semantic-art__surface-deep" d="m179 138 20 2 9-15-7 18-22-2Z" />
+    </g>
+  </g>;
+}
+
+/** A recessed guest room and its projecting balcony, reused on both storeys. */
+function HotelBalcony({ x, y }: { x: number; y: number }): React.JSX.Element {
+  return <g transform={`translate(${x} ${y})`}>
+    <path className="semantic-art__surface-deep" d="M0 0h23v22H0Z" />
+    <path className="semantic-art__teal-deep" d="M2 2h19v18H2Z" />
+    <path className="semantic-art__window" d="M3 3h8v16H3Zm10 0h7v16h-7Z" />
+    <path className="semantic-art__window-lit semantic-art__prop-glint" d="m4 4 6 0-6 9Zm10 0h5l-5 10Z" />
+    <path className="semantic-art__surface-lit" d="M11 2h2v18h-2Z" />
+    <path className="semantic-art__prop-shadow" d="m-2 22 28 1-2 3H0Z" />
+    <path className="semantic-art__surface semantic-art__outlined" d="m-3 20 3-3h24l3 3v3H-3Z" />
+    <path className="semantic-art__surface-deep" d="M-3 21h30v3H-3Z" />
+    {/* Filled slender bars stay fine at hero scale and legible at 96 px. */}
+    <path className="semantic-art__teal-deep" d="M-2 13h28v1.5H-2Zm0 0h1.5v8H-2Zm6 0h1v8H4Zm7 0h1v8h-1Zm7 0h1v8h-1Zm6 0h1.5v8H24Z" />
+    <path className="semantic-art__surface-lit" d="M-3 20h30v1H-3Z" />
+  </g>;
+}
+
+/** Short date palms in deep terracotta planters flank the hotel entrance. */
+function HotelPlanter({ x }: { x: number }): React.JSX.Element {
+  return <g transform={`translate(${x} 120)`}>
+    <ellipse className="semantic-art__prop-shadow" cx="0" cy="8" rx="7" ry="2" />
+    <path className="semantic-art__coral semantic-art__outlined" d="M-6-3H6L4 7h-8Z" />
+    <path className="semantic-art__coral-deep" d="M1-2h4L3 6H0Z" />
+    <path className="semantic-art__coral-lit" d="M-5-2h2l1 8h-2Z" />
+    <ellipse className="semantic-art__wood-deep" cx="0" cy="-3" rx="5" ry="1.5" />
+    <path className="semantic-art__wood" d="M-1-3v-13h2V-3Z" />
+    <g className="semantic-art__motion-part semantic-art__prop-pivot semantic-art__prop-sway">
+      <path className="semantic-art__green-deep" d="M0-16q-8-10-13-3 7-2 12 5-9-3-9 5 4-5 10-4 5-1 10 4 0-8-9-6 5-8 12-5-5-8-13 4 4-12-4-13 5 6 4 13Z" />
+      <path className="semantic-art__green-lit" d="M-11-19q7-6 11 4-2-8 8-8-5 3-8 10Z" />
     </g>
   </g>;
 }
@@ -464,41 +509,43 @@ export function ShoppingScene({
             <path className="semantic-art__water semantic-art__glaze" d="M12 108q20-12 40 0t40 0 40 0 40 0 36 0v54H12Z" />
             <path className="semantic-art__water-deep semantic-art__glaze" d="M12 136h216v26H12Z" />
             <path className="semantic-art__foam" d="M28 106q18-10 34 0m18 0q18-10 34 0" />
+            <path className="semantic-art__gold-soft semantic-art__glaze" d="M12 109q60-8 115 5t101 9v39H12Z" />
+            <path className="semantic-art__gold-soft" d="M12 121q32-16 76-12t66 13q35 8 74 4v36H12Z" />
+            <path className="semantic-art__grain" d="m18 139 11-2m112 12 8 1m61-10 9 1m-184 11 8-1" />
             <circle className="semantic-art__sun-halo" cx="204" cy="30" r="28" />
             <circle className="semantic-art__gold semantic-art__outlined" cx="204" cy="30" r="15" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
-            {/* A tall block of identical rooms, each with its own balcony —
-                the row of balconies is what separates a hotel from an office. */}
-            <path className="semantic-art__surface semantic-art__outlined" d="M40 34h108v76H40Z" />
-            <path className="semantic-art__surface-deep" d="M124 34h24v76h-24Z" />
-            <path className="semantic-art__surface-lit" d="M42 36h4v72h-4Z" />
-            <path className="semantic-art__surface semantic-art__outlined" d="M37 32h114v5H37Z" />
-            <path className="semantic-art__window semantic-art__outlined" d="M50 44h18v16H50Zm26 0h18v16H76Zm26 0h18v16h-18Zm-52 24h18v16H50Zm26 0h18v16H76Zm26 0h18v16h-18Z" />
-            <path className="semantic-art__window-lit" d="M52 46h14v12H52Zm52 0h14v12h-14Zm-26 24h14v12H78Z" />
-            {[60, 84].map((y) => <g key={y}>
-              <path className="semantic-art__surface-deep" d={`M46 ${y + 3}h79v5H46Z`} />
-              <path className="semantic-art__metal-line" d={`M47 ${y - 3}h77m-76 0v7m25-7v7m26-7v7m24-7v7`} />
-              <path className="semantic-art__surface semantic-art__outlined" d={`M45 ${y + 3}h81v3H45Z`} />
-            </g>)}
-            <path className="semantic-art__window" d="M131 45h10v15h-10Zm0 24h10v15h-10Z" />
-            {/* Roofline plant room, so the block does not end in a flat cut. */}
-            <path className="semantic-art__surface-deep semantic-art__outlined" d="M62 34V24h34v10Z" />
+            {/* Set-back upper rooms, a shaded return wall and projecting slabs
+                give the seaside hotel depth without increasing its footprint. */}
+            <ellipse className="semantic-art__prop-shadow" cx="96" cy="125" rx="59" ry="5" />
+            <path className="semantic-art__surface-deep semantic-art__outlined" d="m132 34 16 6v73l-16 7Z" />
+            <path className="semantic-art__surface semantic-art__outlined" d="M40 116V63h9V35h13V23h58v12h13v28h7v53Z" />
+            <path className="semantic-art__surface-lit" d="M42 66h4v46h-4Zm9-28h4v24h-4Zm13-12h3v9h-3Z" />
+            <path className="semantic-art__surface-deep" d="M122 37h11v27h7v51h-11V65h-7Z" />
+            <path className="semantic-art__gold-soft semantic-art__outlined" d="M59 21h64v5H59Zm-12 12h89v5H47Zm-10 29h106v5H37Z" />
+            <path className="semantic-art__surface-lit" d="M60 22h61v1H60Zm-11 12h85v1H49Zm-10 29h102v1H39Z" />
+            {[57, 88].map((x) => <HotelBalcony key={`upper-${x}`} x={x} y={40} />)}
+            {[48, 78, 108].map((x) => <HotelBalcony key={`lower-${x}`} x={x} y={69} />)}
+            <path className="semantic-art__teal-deep" d="m136 46 7 3v11l-7-2Zm7 24-7-2v15l7 1Z" />
+            <path className="semantic-art__window-lit" d="m137 47 4 2v8l-4-1Zm0 23 4 1v9l-4-1Z" />
+            <path className="semantic-art__gold-soft" d="M43 113h94v3H43Z" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            {/* Canopy over the entrance, and parasols on the sand. */}
-            <path className="semantic-art__coral semantic-art__outlined" d="M70 96h48v10H70Z" />
-            <path className="semantic-art__coral-lit" d="m70 96 5-4h48l-5 4Z" />
-            <path className="semantic-art__coral-deep" d="M70 103h48v3H70Z" />
-            <path className="semantic-art__surface semantic-art__outlined" d="M78 107h32v18H78Z" />
-            <path className="semantic-art__teal semantic-art__outlined" d="M84 106h20v18H84Z" />
-            <path className="semantic-art__window" d="M87 109h14v12H87Z" />
-            <path className="semantic-art__metal-line" d="M94 107v17" />
-            <path className="semantic-art__gold" d="M91 116h1v4h-1Zm5 0h1v4h-1Z" />
-            <path className="semantic-art__surface-deep" d="M78 124h33v3H78Z" />
-            <path className="semantic-art__surface semantic-art__outlined" d="M52 20h84v14H52Z" />
-            <path className="semantic-art__surface-lit" d="M55 22h78v3H55Z" />
-            <path className="semantic-art__surface-deep" d="M54 30h80v3H54Z" />
+            {/* The shaded lobby is behind the projecting canopy and its posts. */}
+            <path className="semantic-art__teal-deep semantic-art__outlined" d="M77 99h34v24H77Z" />
+            <path className="semantic-art__window" d="M80 102h12v20H80Zm15 0h13v20H95Z" />
+            <path className="semantic-art__window-lit semantic-art__prop-glint" d="m81 103 10 0-10 12Zm15 0h10l-10 12Z" />
+            <path className="semantic-art__gold" d="M90 113h1.5v6H90Zm6 0h1.5v6H96Z" />
+            <path className="semantic-art__prop-shadow" d="M69 102h50v5H69Z" />
+            <path className="semantic-art__coral semantic-art__outlined" d="m68 100 7-6h44l4 6v4H68Z" />
+            <path className="semantic-art__coral-lit" d="m69 99 7-4h42l3 4Z" />
+            <path className="semantic-art__coral-deep" d="M69 101h53v3H69Z" />
+            <path className="semantic-art__wood" d="M71 104h2v19h-2Zm45 0h2v19h-2Z" />
+            <path className="semantic-art__surface semantic-art__outlined" d="M74 123h41v3H74Z" />
+            <path className="semantic-art__surface-deep" d="M72 126h45v2H72Z" />
+            <HotelPlanter x={59} />
+            <HotelPlanter x={130} />
             <BeachUmbrella />
           </SceneLayer>
         </>

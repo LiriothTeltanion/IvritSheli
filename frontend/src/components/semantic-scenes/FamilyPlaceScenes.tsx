@@ -26,16 +26,20 @@ function Tree({ x, y, scale = 1 }: { x: number; y: number; scale?: number }): Re
       <path className="semantic-art__wood-deep" d="M1 25 13 5l4 4L5 27q-1 17 6 31H3q-4-18-2-33Z" />
       <path className="semantic-art__wood-lit" d="M-6 53q4-15 3-28l-7-13 4 3 7 11-3 27Z" />
       <path className="semantic-art__grain" d="M-1 34v12m5-24 5-8" />
-      {/* As in LeafTree, asymmetric leaf masses replace circular blobs. The
-          canopy moves independently so the roots never slide off the ground. */}
+      {/* An old olive: forked wood shows through airy, overlapping sprays.
+          Only the foliage sways; the root and its contact shadow stay planted. */}
       <g className="semantic-art__motion-part semantic-art__prop-pivot semantic-art__prop-sway">
-        <path className="semantic-art__green-deep semantic-art__outlined" d="M-29 5q-7-10 1-19-2-12 11-14 9-3 17 5 12-9 23-2 11 4 8 16 6 10-5 17-8 8-21 3-10 9-20 3-12 2-14-9Z" />
-        <path className="semantic-art__green semantic-art__outlined" d="M-29 0q-5-10 3-16 0-10 11-11 10-2 15 8 6 10-3 18-11 9-20 5Z" />
-        <path className="semantic-art__green semantic-art__outlined" d="M0-20q10-9 19-3 10 1 10 11 7 8 0 16-12 8-24 0-8-8-5-24Z" />
-        <path className="semantic-art__green-deep" d="M5-5q13 9 25-5 5 8-1 14-12 8-24 0Z" />
-        <path className="semantic-art__green-soft semantic-art__outlined" d="M-17-22q-4-9 5-14 6-5 14-2 12-2 16 9 3 10-8 16-15 6-27-9Z" />
-        <path className="semantic-art__green-lit" d="M-13-28q1-8 10-7 7-3 14 4-8-3-12 2-6-3-12 1ZM-25-12q3-9 12-10l5 4q-10-2-17 6Z" />
-        <path className="semantic-art__leaf-lit" d="m-9-28 4-2m15 15 4 1m-35 3 3-2" />
+        <path className="semantic-art__green-deep semantic-art__outlined" d="M-31-4q-7-10 1-16 0-8 11-9 6-8 15-3 8-8 17-2 12-2 14 9 11 3 8 13 6 10-5 15-8 5-17 1-9 7-17 0-13 5-17-4Z" />
+        <path className="semantic-art__wood" d="m-2 25-2-26-17-12 2-3L-2-6 6-23l3 1L4-2 22-11l2 3L3 6l2 18Z" />
+        {([[-24, -10, -12], [-15, -25, 8], [0, -30, -6], [18, -21, 12], [23, -5, -10], [-10, 0, 7], [8, 2, -8]] as const).map(([tx, ty, turn]) => (
+          <g key={`${tx}-${ty}`} transform={`translate(${tx} ${ty}) rotate(${turn})`}>
+            <path className="semantic-art__green" d="M-12 0q-3-5 3-7 1-5 6-3 5-5 9-1 7-1 8 4 5 5-1 9-4 4-9 1-4 5-9 1-6 3-7-4Z" />
+            <path className="semantic-art__green-soft" d="M-11-2q-1-4 4-4 2-5 6-2 5-5 9-1-5-1-7 3-4-2-6 2-3-2-6 2Z" />
+            <path className="semantic-art__green-deep" d="M-7 3q5 2 8-1 7 3 12-3-1 7-8 5-5 5-12-1Z" />
+            <path className="semantic-art__leaf-lit" d="m-7-2 3-2m5 0 3-2m1 6 3-2" />
+          </g>
+        ))}
+        <path className="semantic-art__green-deep" d="m-16 5 2-3 2 3-2 3Zm31-5 2-3 2 3-2 3Z" />
       </g>
     </g>
   );
@@ -276,12 +280,31 @@ export function FamilyPlaceScene({
               <path className="semantic-art__blue-deep" d="M133 41h10v94h-10Z" />
               <path className="semantic-art__metal semantic-art__outlined" d="M101 33h46v5h-46Z" />
               <path className="semantic-art__window" d="M109 101h8v20h-8Zm15 0h8v20h-8Z" />
-              <path className="semantic-art__wood semantic-art__outlined" d="M183 136q3-18 1-35h5q-2 22 2 35Z" />
-              <path className="semantic-art__grain" d="m185 111 4 2m-4 6 4 2m-4 6 5 2" />
+              <ellipse className="semantic-art__prop-shadow" cx="187" cy="136" rx="12" ry="2.5" />
+              <path className="semantic-art__wood semantic-art__outlined" d="M182 136q7-17 2-34l4-1q8 18 3 35Z" />
+              <path className="semantic-art__wood-deep" d="M187 102q8 18 4 34h-4q5-20 0-34Z" />
+              <path className="semantic-art__wood-lit" d="M184 132q5-15 1-28h2q5 15-1 28Z" />
+              <path className="semantic-art__grain" d="m185 108 5-1m-4 7 5-1m-5 7h5m-6 6 5 1m-7 5 5 1" />
               <g className="semantic-art__motion-part semantic-art__prop-pivot semantic-art__prop-sway">
-                <path className="semantic-art__green-deep semantic-art__outlined" d="M186 101q-22-11-27 5 13-8 26 1-12 0-16 17 11-12 18-15 12 7 17 18 1-19-15-23 18-7 25 2-5-20-26-9 2-18-12-19 9 10 10 23Z" />
-                <path className="semantic-art__green-lit" d="M186 100q-12-15-23-4 15-4 23 7 1-18 14-18-13-6-14 15Z" />
-                <path className="semantic-art__grain" d="M165 103q12-5 21 1m0-1q15-8 23 1m-23 0-12 14m13-14 13 16" />
+                {/* Each frond is a tapered blade with separate hanging leaflets,
+                    not a single star-shaped crown. Local rotations fan the crown. */}
+                {[-78, -49, -20, 18, 50, 80].map((angle) => (
+                  <g key={angle} transform={`translate(186 102) rotate(${angle})`}>
+                    <path className="semantic-art__green-deep" d="M0 1Q-5-15 0-26q5-4 10 0-7-2-10 4Q-3-12 2 0Z" />
+                    {[-5, -10, -15, -20].map((fy) => <g key={fy}>
+                      <path className="semantic-art__green-deep" d={`M-1 ${fy - 2}q-6 1-8 8 5-3 8-6 4 1 8 7-1-7-8-9Z`} />
+                      <path className="semantic-art__green-lit" d={`M-1 ${fy - 2}q-6 1-8 8 3-5 8-6Z`} />
+                    </g>)}
+                    <path className="semantic-art__green" d="M0 0q-4-15 1-25l6-2q-7 4-7 14L2 0Z" />
+                  </g>
+                ))}
+                <path className="semantic-art__wood-line" d="M185 102q-6 2-5 8m8-8q7 2 6 8" />
+                {[180, 193].map((dx) => <g key={dx}>
+                  {([[0, 108], [-2, 110], [2, 111], [-1, 113], [1, 115]] as const).map(([fx, fy]) => <g key={`${fx}-${fy}`}>
+                    <ellipse className="semantic-art__gold-deep" cx={dx + fx} cy={fy} rx="1.4" ry="2.1" />
+                    <ellipse className="semantic-art__gold-lit" cx={dx + fx - 0.4} cy={fy - 0.5} rx="0.5" ry="1" />
+                  </g>)}
+                </g>)}
               </g>
               {/* Promenade and a parasol on the sand: the seafront it is named for. */}
               <path className="semantic-art__gold-soft semantic-art__outlined" d="M14 137h212v10H14Z" />
@@ -332,10 +355,40 @@ export function FamilyPlaceScene({
           )}
           anchor={(
             <>
-              <ellipse className="semantic-art__prop-shadow" cx="188" cy="139" rx="22" ry="4" />
-              <path className="semantic-art__surface semantic-art__outlined" d="m186 111 18 27h-36Z" />
-              <path className="semantic-art__shade" d="m186 111 18 27h-18Z" />
-              <path className="semantic-art__wood semantic-art__outlined" d="M184 83h4v55h-4Z" />
+              {/* Contour walls turn round the eastern slope rather than ending
+                  at a triangular cut. Their shaded risers separate the levels. */}
+              <path className="semantic-art__green-soft semantic-art__glaze" d="M134 76q33 10 46 37l27 21-55 8Z" />
+              {[{ x: 135, y: 88, w: 34 }, { x: 145, y: 102, w: 38 }, { x: 154, y: 116, w: 43 }, { x: 162, y: 130, w: 47 }].map(({ x, y, w }) => (
+                <g key={y}>
+                  <path className="semantic-art__gold-soft semantic-art__outlined" d={`M${x} ${y}q${w / 2} 9 ${w} 7v7q${-w / 2} 2 ${-w} -7Z`} />
+                  <path className="semantic-art__gold-deep" d={`M${x} ${y + 4}q${w / 2} 9 ${w} 7v3q${-w / 2} 2 ${-w} -7Z`} />
+                  <path className="semantic-art__green-deep" d={`M${x} ${y - 4}q${w / 2} 9 ${w} 7v4q${-w / 2} 2 ${-w} -7Z`} />
+                  <path className="semantic-art__green-lit" d={`M${x} ${y - 5}q${w / 2} 9 ${w} 7v2q${-w / 2} 2 ${-w} -7Z`} />
+                  {[10, 15, 20].map((fx) => <g key={fx}>
+                    <path className="semantic-art__green" d={`M${x + fx} ${y}v-5l-3 1 3 2 3-2Z`} />
+                    <circle className="semantic-art__coral" cx={x + fx} cy={y - 3 + fx * 0.1} r="1.8" />
+                    <circle className="semantic-art__gold-lit" cx={x + fx - 0.4} cy={y - 3.5 + fx * 0.1} r="0.6" />
+                  </g>)}
+                  <path className="semantic-art__grain" d={`m${x + 4} ${y + 4} 6 2m8 2 8 2`} />
+                </g>
+              ))}
+              <path className="semantic-art__gold-soft semantic-art__outlined" d="m167 98 3 2q-12 11-3 21t8 18h-3q4-7-8-18t3-23Z" />
+              <path className="semantic-art__gold-line" d="m164 110 5 2m-5 6 4-1m0 10 5-2m-2 8h5" />
+              <g className="semantic-art__motion-part semantic-art__prop-pivot semantic-art__prop-sway">
+                <path className="semantic-art__wood" d="m199 136 1-17h2l1 17Z" />
+                <path className="semantic-art__green-deep" d="M198 123q-5-5 3-17 8 13 3 18Z" />
+                <path className="semantic-art__green-lit" d="M199 121q-2-6 2-12l-1 13Z" />
+              </g>
+              {/* A continuous shore, a shallow harbour edge and a small boat
+                  occupy the old sail's footprint without hiding the gardens. */}
+              <path className="semantic-art__gold-soft semantic-art__outlined" d="M111 140q36-6 62 1t50 1l-2 6q-29 4-50-2t-58 1Z" />
+              <path className="semantic-art__foam" d="M119 149q30-6 54 0t48 1" />
+              <g className="semantic-art__motion-part semantic-art__prop-bob">
+                <ellipse className="semantic-art__prop-shadow" cx="192" cy="153" rx="15" ry="2" />
+                <path className="semantic-art__wood semantic-art__outlined" d="m179 146 25 1-5 6h-15Z" />
+                <path className="semantic-art__surface" d="m184 143 12 1 3 3-16-1Z" />
+                <path className="semantic-art__wood-lit" d="m181 147 20 1-2 2-16-1Z" />
+              </g>
               {/*
                 The shrine crowning the terraces: a colonnade under a golden
                 dome. It used to be a bare arc with a red disc floating beside
@@ -510,14 +563,28 @@ export function FamilyPlaceScene({
             <>
               <ellipse className="semantic-art__prop-shadow" cx="92" cy="148" rx="42" ry="6" />
               <Parasol x={85} y={80} />
-              {/* A striped towel spread on the sand. It was an upright white
-                  rectangle set into a dark frame and hinged to a teal slab, which
-                  read as an open laptop sitting on the beach. */}
+              {/* A shallow cloth plane: every stripe follows the same converging
+                  edges. The turned corner reveals the underside, not a slab. */}
               <g className="semantic-art__motion-part semantic-art__prop-pivot">
-                <path className="semantic-art__surface semantic-art__outlined" d="M138 130h60l-5 18h-60Z" />
-                <path className="semantic-art__surface-deep" d="m134 145 59-1v4h-60Z" />
-                <path className="semantic-art__coral" d="m140 132 6 0-5 14h-6Zm14 0h6l-5 14h-6Zm14 0h6l-5 14h-6Zm14 0h6l-5 14h-6Z" />
-                <path className="semantic-art__grain semantic-art__prop-flutter" d="m134 149-1 3m6-3-1 3m6-3-1 3m6-3-1 3m6-3-1 3m6-3-1 3m6-3-1 3m6-3-1 3m6-3-1 3m6-3-1 3m6-3-1 3" />
+                <path className="semantic-art__prop-shadow" d="m140 131 58 2-5 17q-29-2-62 0Z" />
+                <path className="semantic-art__surface semantic-art__outlined" d="M140 129q29 1 57 3l-5 15q-32-2-59 1Z" />
+                <path className="semantic-art__surface-deep" d="m134 145 48-1 10 3q-32-2-59 1Z" />
+                <path className="semantic-art__coral" d="m145 130 5 0-6 17-6 0Zm12 0 5 1-6 15-6 1Zm12 1 5 0-5 15-6 0Zm12 0 5 1-4 14h-6Z" />
+                <path className="semantic-art__coral-deep" d="m139 144 6-1-1 4h-6Zm12-1h6l-1 3-6 1Zm13 0h6l-1 3h-6Z" />
+                <path className="semantic-art__gloss" d="m142 131 46 2m-50 9q20-3 41-1" />
+                <path className="semantic-art__surface-deep semantic-art__outlined" d="m188 147 7-8-1 6Z" />
+                <path className="semantic-art__surface-lit" d="m188 147 4-6 2 4Z" />
+                <path className="semantic-art__grain semantic-art__prop-flutter" d="m134 149-2 3m7-3-1 3m6-3-1 3m6-3-1 3m6-4-1 3m6-3-1 3m6-3-1 3m6-3-1 3m6-3-1 3m6-2-1 3m6-3-1 3" />
+              </g>
+              {/* A pair of sandals has a sole thickness and Y-shaped straps;
+                  this human detail makes the cloth read as a beach towel. */}
+              <g transform="rotate(-12 207 144)">
+                {[202, 212].map((sx) => <g key={sx}>
+                  <ellipse className="semantic-art__prop-shadow" cx={sx} cy="146" rx="4" ry="8" />
+                  <path className="semantic-art__wood-deep" d={`M${sx - 3} 139q3-6 6 0v9q-3 5-6 0Z`} />
+                  <path className="semantic-art__gold" d={`M${sx - 3} 138q3-5 6 0v9q-3 4-6 0Z`} />
+                  <path className="semantic-art__teal" d={`m${sx - 3} 143 2.4-4v-2h1.2v2l2.4 4-1 0.6-2-3.3-2 3.3Z`} />
+                </g>)}
               </g>
             </>
           )}
