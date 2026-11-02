@@ -5,7 +5,7 @@
 //
 // Why this file is at App level and not beside SettingsPanel.
 //
-// `AGENTS.md` hard rule 8: a component test that passes the prop proves the
+// Project rule: a component test that passes the prop proves the
 // component, and only a test that renders the real caller proves the feature.
 // Every existing deletion test renders `SettingsPanel` with an `onAccountDeleted`
 // spy, so all of them stayed green while the App-level handler forgot to remove
