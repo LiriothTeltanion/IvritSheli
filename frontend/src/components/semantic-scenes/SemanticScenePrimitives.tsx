@@ -101,7 +101,22 @@ export function PaintedRoom({
  * and kept only where the edges line up with the vector room (see painted/manifest.json). A name not listed here
  * keeps the old dimmed daylight painting.
  */
-const DARK_PAINTINGS: ReadonlySet<string> = new Set([]);
+const DARK_PAINTINGS: ReadonlySet<string> = new Set([
+  'bread',
+  'morning',
+  'one',
+  'room-action',
+  'room-action-tiles',
+  'room-conversation',
+  'room-office',
+  'room-public',
+  'room-service',
+  'room-warm',
+  'street',
+  'street-autonomy',
+  'water',
+  'write',
+]);
 
 export function hasDarkPainting(name: string): boolean {
   return DARK_PAINTINGS.has(name);

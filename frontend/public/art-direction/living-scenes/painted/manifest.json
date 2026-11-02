@@ -148,6 +148,146 @@
       "source_png_sha256": "c39e59de1f3b66e4551b88199376d375e34311d7bc948f700bf5283292cfb96e",
       "generated": "2026-10-20",
       "role": "painted room over the shared vector room; floor line aligned at 0.560 of the room height; floor band stretched x1.8"
+    },
+    "bread-dark.webp": {
+      "sha256": "3507ab9caeaf008368504c294b25f3d3d67e7d497f6485dfaa9b2bf001025a9e",
+      "bytes": 8460,
+      "width": 960,
+      "height": 517,
+      "source_png_sha256": "0e8a17ace2755d1a47554b0a51cb727dca15c9b04032c2f5467e6b5faa42503e",
+      "generated": "2026-11-02",
+      "generator": "OpenAI Codex CLI image_gen (underlying model not exposed), edited from bread.webp",
+      "role": "dark-theme version of bread.webp: same composition and time of day, low-key palette; no people, text or letters"
+    },
+    "morning-dark.webp": {
+      "sha256": "869d6f5676fa2e2df1dd8e21d95dded19c7222708a160896b21174a98de6fb2e",
+      "bytes": 29596,
+      "width": 960,
+      "height": 720,
+      "source_png_sha256": "c6f7554627f6d2863625f0c3e28e07d821d1d98b95453be4dcbd02e54b66db24",
+      "generated": "2026-11-02",
+      "generator": "OpenAI Codex CLI image_gen (underlying model not exposed), edited from morning.webp",
+      "role": "dark-theme version of morning.webp: same composition and time of day, low-key palette; no people, text or letters"
+    },
+    "one-dark.webp": {
+      "sha256": "12e0555d614be83a34c16ba2f79ab233b206fddbe5cb24cf6327bec87b9bf513",
+      "bytes": 5968,
+      "width": 960,
+      "height": 520,
+      "source_png_sha256": "e97734ea39d90cc9da8f5b2f839de034d5945e9c3a35fdfe19af9a054eab9afb",
+      "generated": "2026-11-02",
+      "generator": "OpenAI Codex CLI image_gen (underlying model not exposed), edited from one.webp",
+      "role": "dark-theme version of one.webp: same composition and time of day, low-key palette; no people, text or letters"
+    },
+    "room-action-dark.webp": {
+      "sha256": "996a8cf51d4f828b079e080281083dec196951e269bab2aa527ec6dbc5e0d5f9",
+      "bytes": 12548,
+      "width": 960,
+      "height": 667,
+      "source_png_sha256": "274448d7212723b6e3fdeb0a968d43a5fa079c7ee6cca9246739ddf9e28f3ab5",
+      "generated": "2026-11-02",
+      "generator": "OpenAI Codex CLI image_gen (underlying model not exposed), edited from room-action.webp",
+      "role": "dark-theme version of room-action.webp: same composition and time of day, low-key palette; no people, text or letters"
+    },
+    "room-action-tiles-dark.webp": {
+      "sha256": "6edb0e312cd26d720ca616872eed392deafebf08d5b90e00a75c107a912e7c38",
+      "bytes": 14228,
+      "width": 960,
+      "height": 667,
+      "source_png_sha256": "8d74e5c996233d01c6d50c086b87cf75ed44e526e24115c672c3ccff6aa50a80",
+      "generated": "2026-11-02",
+      "generator": "OpenAI Codex CLI image_gen (underlying model not exposed), edited from room-action-tiles.webp",
+      "role": "dark-theme version of room-action-tiles.webp: same composition and time of day, low-key palette; no people, text or letters"
+    },
+    "room-conversation-dark.webp": {
+      "sha256": "18ca98d608490b0141b2b89a52ebf62b85c9d669e3ab870d47caf65242383d65",
+      "bytes": 13254,
+      "width": 960,
+      "height": 649,
+      "source_png_sha256": "891d2635af33573307e79c27292fc5d9dd924f8c6b0ec027c0389aacbe6eaf2e",
+      "generated": "2026-11-02",
+      "generator": "OpenAI Codex CLI image_gen (underlying model not exposed), edited from room-conversation.webp",
+      "role": "dark-theme version of room-conversation.webp: same composition and time of day, low-key palette; no people, text or letters"
+    },
+    "room-office-dark.webp": {
+      "sha256": "a9f5498be80fc6468e6128bf0f70a5db689574adf0be10c1c3a183bcd8631b53",
+      "bytes": 16220,
+      "width": 960,
+      "height": 688,
+      "source_png_sha256": "231e90ced941c78190c138b436bc65d9e5816fd64720118446d9c576476c18a1",
+      "generated": "2026-11-02",
+      "generator": "OpenAI Codex CLI image_gen (underlying model not exposed), edited from room-office.webp",
+      "role": "dark-theme version of room-office.webp: same composition and time of day, low-key palette; no people, text or letters"
+    },
+    "room-public-dark.webp": {
+      "sha256": "358256e93cd4feb2038d1344743f46886edf43900439d660635879914e34b846",
+      "bytes": 15414,
+      "width": 960,
+      "height": 688,
+      "source_png_sha256": "8981d551c8ba0011334ed909b43645cf00531c28b245e72823420943af6993cb",
+      "generated": "2026-11-02",
+      "generator": "OpenAI Codex CLI image_gen (underlying model not exposed), edited from room-public.webp",
+      "role": "dark-theme version of room-public.webp: same composition and time of day, low-key palette; no people, text or letters"
+    },
+    "room-service-dark.webp": {
+      "sha256": "cb11a0af5c36cb208d71432b2ea7f9cd0ad48c9ef49eaf6e83d238bc231adf8c",
+      "bytes": 15066,
+      "width": 960,
+      "height": 688,
+      "source_png_sha256": "18a0033cfbca4bafee883d7daf6d1adb18470d3915864e9bbca7d0ed9bc79082",
+      "generated": "2026-11-02",
+      "generator": "OpenAI Codex CLI image_gen (underlying model not exposed), edited from room-service.webp",
+      "role": "dark-theme version of room-service.webp: same composition and time of day, low-key palette; no people, text or letters"
+    },
+    "room-warm-dark.webp": {
+      "sha256": "0e4daf4f7c27b4667d73f7ca2b44d51d698fab2b525d3ed48427c02348ee2082",
+      "bytes": 7864,
+      "width": 960,
+      "height": 667,
+      "source_png_sha256": "bcbcb138acdd120476c6cf838f5953ddd22ffaf568da29049d67696d3ad46d70",
+      "generated": "2026-11-02",
+      "generator": "OpenAI Codex CLI image_gen (underlying model not exposed), edited from room-warm.webp",
+      "role": "dark-theme version of room-warm.webp: same composition and time of day, low-key palette; no people, text or letters"
+    },
+    "street-autonomy-dark.webp": {
+      "sha256": "b3ebaa153e9deaeee487382c30118fa4c07bcd4b3f8f3858131fd7de63c1828f",
+      "bytes": 51562,
+      "width": 960,
+      "height": 667,
+      "source_png_sha256": "21ca77414fb3348c481c9b2c8e412a057e2455b49927bea149151a31c1355a7b",
+      "generated": "2026-11-02",
+      "generator": "OpenAI Codex CLI image_gen (underlying model not exposed), edited from street-autonomy.webp",
+      "role": "dark-theme version of street-autonomy.webp: same composition and time of day, low-key palette; no people, text or letters"
+    },
+    "street-dark.webp": {
+      "sha256": "e14d841dc88bd9bbc876b83cbe98d8bb7c42908703fdea9bd2c76a0c0583e672",
+      "bytes": 40692,
+      "width": 960,
+      "height": 720,
+      "source_png_sha256": "d68730a2dca14c8b628ffe788da01481206ecb9e35188b0e92cd5d2b44cd06aa",
+      "generated": "2026-11-02",
+      "generator": "OpenAI Codex CLI image_gen (underlying model not exposed), edited from street.webp",
+      "role": "dark-theme version of street.webp: same composition and time of day, low-key palette; no people, text or letters"
+    },
+    "water-dark.webp": {
+      "sha256": "83c7b89048344f35b81d920bfb389d103b20e9857c23c9edb67afa7a91a7cb9a",
+      "bytes": 15114,
+      "width": 960,
+      "height": 516,
+      "source_png_sha256": "6901a033540896efe0f71b1fef25d2cb5103ace88f18cefb605ba9e461cb799e",
+      "generated": "2026-11-02",
+      "generator": "OpenAI Codex CLI image_gen (underlying model not exposed), edited from water.webp",
+      "role": "dark-theme version of water.webp: same composition and time of day, low-key palette; no people, text or letters"
+    },
+    "write-dark.webp": {
+      "sha256": "a27db1609260f8e91dab0d7a8d368abae9eea8242d6e7e32c347a184025fe697",
+      "bytes": 34608,
+      "width": 960,
+      "height": 720,
+      "source_png_sha256": "f93309d8126a1c0e5902d27c6928633736650227d080f4ad6a0b2ee6df9b118c",
+      "generated": "2026-11-02",
+      "generator": "OpenAI Codex CLI image_gen (underlying model not exposed), edited from write.webp",
+      "role": "dark-theme version of write.webp: same composition and time of day, low-key palette; no people, text or letters"
     }
   }
 }
