@@ -256,6 +256,8 @@ class ProfilePayload(StrictModel):
     focus_status: Literal["available", "busy"] | None = None
     # No min_length: "" is how a learner clears the avatar she picked.
     avatar_preset_id: str | None = Field(default=None, max_length=64)
+    # "" means not chosen, so the device keeps its own default theme.
+    theme: Literal["", "light", "dark"] | None = None
     goals: list[dict[str, Any]] | None = None
 
 

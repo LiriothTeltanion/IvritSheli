@@ -2794,6 +2794,7 @@ class LearningRepository:
             "text_scale",
             "focus_status",
             "avatar_preset_id",
+            "theme",
         }
         clean: dict[str, Any] = {
             key: value for key, value in payload.items() if key in allowed_fields
@@ -2821,6 +2822,8 @@ class LearningRepository:
                 raise ValueError("cefr_band must be one of A0, A1, A2, B1, B2, C1, or C2")
         if "text_scale" in clean and not 0.8 <= float(clean["text_scale"]) <= 2.0:
             raise ValueError("text_scale must be between 0.8 and 2.0")
+        if "theme" in clean and clean["theme"] not in {"", "light", "dark"}:
+            raise ValueError("theme must be light, dark, or empty")
         if "focus_status" in clean and clean["focus_status"] not in {
             "available",
             "busy",

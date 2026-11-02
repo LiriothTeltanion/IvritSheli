@@ -547,6 +547,19 @@ MIGRATIONS = (
             CHECK (length(avatar_preset_id) <= 64);
         """,
     ),
+    Migration(
+        version=11,
+        name="learner_chosen_theme",
+        sql="""
+        -- The light or dark theme the learner picked travels with her
+        -- profile, so a second device opens the way she left the first
+        -- (2026-11-02). Empty string is "not chosen yet": the device keeps
+        -- its own default, and, as with the avatar, a value can be cleared
+        -- because the API drops None from an update payload.
+        ALTER TABLE profiles ADD COLUMN theme TEXT NOT NULL DEFAULT ''
+            CHECK (theme IN ('', 'light', 'dark'));
+        """,
+    ),
 )
 SCHEMA_VERSION = MIGRATIONS[-1].version
 

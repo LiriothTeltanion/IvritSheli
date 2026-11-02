@@ -427,3 +427,18 @@ def test_api_contract_validates_and_resumes_daily_practice(
     assert accepted.status_code == 200
     assert accepted.json()["saved"] is True
     assert client.get("/api/v1/practice/today").json()["session"]["current_step"] == 1
+
+
+def test_theme_travels_with_the_profile_and_can_be_cleared(
+    repository: LearningRepository,
+) -> None:
+    """The theme a learner picks is saved on her profile, so the next device opens in it (2026-11-02)."""
+    assert repository.get_profile()["theme"] == ""
+
+    assert repository.update_profile({"theme": "light"})["theme"] == "light"
+    assert repository.get_profile()["theme"] == "light"
+    assert repository.update_profile({"theme": ""})["theme"] == ""
+
+    with pytest.raises(ValueError):
+        repository.update_profile({"theme": "sepia"})
+    assert repository.get_profile()["theme"] == ""

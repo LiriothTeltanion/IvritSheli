@@ -177,6 +177,8 @@ export interface Profile {
   display_name: string;
   /** The avatar the learner picked. Optional: a server that predates it omits it. */
   avatar_preset_id?: string;
+  /** The theme the learner picked; '' or missing means not chosen yet (2026-11-02). */
+  theme?: '' | 'light' | 'dark';
   interface_language: Locale;
   hebrew_level: string;
   daily_minutes: number;

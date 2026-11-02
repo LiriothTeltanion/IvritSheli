@@ -1,5 +1,5 @@
 // Centralized light/dark preference persistence for the application shell.
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 export type AppTheme = 'dark' | 'light';
 
@@ -33,9 +33,10 @@ export function usePersistentTheme(): [AppTheme, () => void, (next: AppTheme) =>
     }
   }, [theme]);
 
-  const setExplicitTheme = (next: AppTheme): void => {
+  // Stable identities: App applies the profile's theme from a callback that lists this in its dependencies.
+  const setExplicitTheme = useCallback((next: AppTheme): void => {
     setTheme(next);
-  };
-  const toggleTheme = (): void => setTheme((current) => current === 'dark' ? 'light' : 'dark');
+  }, []);
+  const toggleTheme = useCallback((): void => setTheme((current) => current === 'dark' ? 'light' : 'dark'), []);
   return [theme, toggleTheme, setExplicitTheme];
 }

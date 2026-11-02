@@ -138,6 +138,8 @@ class CloudLearningRepository:
                         hydrated_row["focus_status"] = "available"
                     if table == "profiles" and "avatar_preset_id" not in hydrated_row:
                         hydrated_row["avatar_preset_id"] = ""
+                    if table == "profiles" and "theme" not in hydrated_row:
+                        hydrated_row["theme"] = ""
                     columns = tuple(
                         column for column in hydrated_row if column in allowed_columns
                     )

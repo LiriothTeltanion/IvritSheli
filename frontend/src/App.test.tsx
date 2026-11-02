@@ -304,6 +304,31 @@ describe('App cloud session flow', () => {
     expect(document.documentElement).toHaveAttribute('lang', 'es');
   });
 
+  it('opens in the theme saved on the profile, even on a device that defaults to dark', async () => {
+    const lightProfile = { ...profile, theme: 'light' as const };
+    vi.stubGlobal('fetch', routeFetch(googleSession, lightProfile));
+    renderApp();
+
+    await screen.findByText('Your progress is saved');
+    await waitFor(() => expect(document.documentElement).toHaveAttribute('data-theme', 'light'));
+  });
+
+  it('saves a theme chosen in the top bar to the profile', async () => {
+    const fetchMock = routeFetch(googleSession);
+    vi.stubGlobal('fetch', fetchMock);
+    const user = userEvent.setup();
+    renderApp();
+
+    await screen.findByText('Your progress is saved');
+    await user.click(screen.getByRole('button', { name: 'Toggle theme' }));
+
+    await waitFor(() => {
+      const saves = fetchMock.mock.calls.filter(([url, init]) => String(url).endsWith('/profile') && init?.method === 'PUT');
+      expect(saves.map(([, init]) => JSON.parse(String(init?.body)))).toContainEqual({ theme: 'light' });
+    });
+    expect(document.documentElement).toHaveAttribute('data-theme', 'light');
+  });
+
   it('saves a language chosen in the top bar to the profile, so the next device opens in it', async () => {
     const fetchMock = routeFetch(googleSession);
     vi.stubGlobal('fetch', fetchMock);
