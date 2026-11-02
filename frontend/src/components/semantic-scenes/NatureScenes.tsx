@@ -205,25 +205,46 @@ export function NatureScene({
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <ellipse className="semantic-art__prop-shadow" cx="122" cy="132" rx="34" ry="6" />
-            <path className="semantic-art__stem" d="M120 92V60m-16 34 10-30m22 30-10-30m-28 34 6-22m40 22-6-22" />
-            <path className="semantic-art__blue semantic-art__outlined" d="M98 92h44l-8 40h-28Z" />
-            <path className="semantic-art__gloss" d="M104 98v28" />
-            <path className="semantic-art__shade" d="M130 92h12l-8 40h-10Z" />
+            <g className="semantic-art__motion-part semantic-art__prop-pivot semantic-art__prop-sway">
+              <path className="semantic-art__stem" d="M120 100V54m-8 44-14-38m30 38 14-38m-24 38-10-60m18 60 8-60M108 96 88 46m44 50 20-52" />
+              {/* Pointed paired leaves belong to the stems, rather than floating beside them. */}
+              <path className="semantic-art__green-deep" d="M114 80q-18 2-20-13 14-1 20 13Zm11 3q17 0 23-15-17-1-23 15Zm-20-9Q90 70 88 58q14 2 17 16Zm27-7q7-14 19-13-3 13-19 13Z" />
+              <path className="semantic-art__green-lit" d="m97 69 17 11q-13-1-17-11Zm32 11 15-10q-3 8-15 10Z" />
+            </g>
+            {/* A ceramic vase: a thick elliptical lip and a broad unlit side. */}
+            <path className="semantic-art__blue semantic-art__outlined" d="M98 92Q120 88 142 92l-8 40h-28Z" />
+            <path className="semantic-art__blue-deep" d="M130 92h12l-8 40h-10Z" />
+            <path className="semantic-art__blue-lit" d="M100 94h7l6 35h-5Z" />
+            <ellipse className="semantic-art__blue-deep" cx="120" cy="92" rx="22" ry="3" />
+            <ellipse className="semantic-art__blue-lit" cx="120" cy="91" rx="20" ry="1.4" />
+            <path className="semantic-art__gloss semantic-art__prop-glint" d="M104 98l4 22" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
             {([[120, 52], [98, 60], [142, 60], [108, 38], [134, 38]] as const).map(([cx, cy], i) => (
-              <g key={`${cx}`}>
-                <circle className={i % 2 ? 'semantic-art__coral semantic-art__outlined' : 'semantic-art__gold semantic-art__outlined'} cx={cx} cy={cy} r="11" />
-                <circle className="semantic-art__surface" cx={cx} cy={cy} r="4" />
+              <g key={`${cx}`} transform={`translate(${cx} ${cy})`}>
+                <g className="semantic-art__motion-part semantic-art__prop-pivot semantic-art__prop-sway">
+                  {/* Broad overlapping petals and a dark stamen crown: poppies and anemones. */}
+                  <path className="semantic-art__coral-deep semantic-art__outlined" d="M0 3C-15 9-15-4-9-7-12-17 2-17 5-10 16-15 19-1 10 3 14 14 1 16 0 3Z" />
+                  <path className={i % 2 ? 'semantic-art__coral-lit' : 'semantic-art__coral'} d="M0 0C-10 5-14-5-8-8-9-14 1-14 3-9 9-13 15-5 10-1 5 1 4 6 0 0Z" />
+                  <path className="semantic-art__coral-lit" d="M-9-7q4-5 9-3L-2-2Z" />
+                  <path className="semantic-art__coral" d="M2 2q11-5 9 3-3 8-9 5Z" />
+                  <circle className="semantic-art__plum-deep" r="4" />
+                  <circle className="semantic-art__gold-lit" cx="-.8" cy="-.6" r="1.4" />
+                  <path className="semantic-art__gold-soft" d="M-4-2h1v1h-1Zm5-3h1v1H1Zm2 5h1v1H3Zm-5 3h1v1h-1Z" />
+                </g>
               </g>
             ))}
-            <path className="semantic-art__leaf-lit" d="M92 74q10-8 20-4m28 0q10-6 18 2" />
             {/* Petals fallen on the cloth, and buds not yet open. */}
-            <ellipse className="semantic-art__coral semantic-art__outlined" cx="68" cy="140" rx="9" ry="5" transform="rotate(-18 68 140)" />
-            <ellipse className="semantic-art__gold semantic-art__outlined" cx="176" cy="143" rx="8" ry="5" transform="rotate(14 176 143)" />
-            <circle className="semantic-art__green semantic-art__outlined" cx="88" cy="46" r="6" />
-            <circle className="semantic-art__green semantic-art__outlined" cx="152" cy="44" r="6" />
-            <path className="semantic-art__stem" d="M88 52v14m64-14v14" />
+            <path className="semantic-art__coral-deep semantic-art__outlined" d="M60 142q-4-8 6-9t10 6q-8 8-16 3Zm109 0q2-8 10-4t3 9q-8 2-13-5Z" />
+            <path className="semantic-art__coral-lit" d="M61 139q2-6 12-3l-7 5Zm110 2q4-4 9 1l-2 3Z" />
+            {([[88, 46], [152, 44]] as const).map(([x, y]) => (
+              <g key={x} transform={`translate(${x} ${y})`}>
+                <g className="semantic-art__motion-part semantic-art__prop-pivot semantic-art__prop-sway">
+                  <path className="semantic-art__green semantic-art__outlined" d="M0 6Q-9 1-4-6 4-12 6-3 7 3 0 6Z" />
+                  <path className="semantic-art__green-lit" d="M-1 3q-5-5 0-8l2 6Z" />
+                </g>
+              </g>
+            ))}
           </SceneLayer>
         </>
       );
@@ -296,20 +317,40 @@ export function NatureScene({
             <NatureSun x={202} y={38} r={14} />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
-            <path className="semantic-art__wood semantic-art__outlined" d="M18 122q60-14 200-6v9Q78 118 18 131Z" />
-            <path className="semantic-art__grain" d="M30 124q70-10 176-4" />
-            <path className="semantic-art__green semantic-art__outlined" d="M60 118q-14-14-2-22 12 4 2 22Zm90-2q-12-14 0-22 12 6 0 22Z" />
-            {/* The bird itself, drawn large enough to be the subject. */}
-            <ellipse className="semantic-art__blue semantic-art__outlined" cx="112" cy="86" rx="30" ry="24" />
-            <circle className="semantic-art__blue semantic-art__outlined" cx="140" cy="66" r="17" />
+            <path className="semantic-art__wood semantic-art__outlined" d="M18 122q60-14 200-6l-2 9Q78 118 18 131Z" />
+            <path className="semantic-art__wood-lit" d="M20 123q68-12 194-6v2Q77 115 20 128Z" />
+            <path className="semantic-art__grain" d="M30 124q70-10 176-4m-32-1 7 3m-124 0 7-2" />
+            <g className="semantic-art__motion-part semantic-art__prop-pivot semantic-art__prop-sway">
+              <path className="semantic-art__stem" d="m52 118 7-14m85 13 11-13" />
+              <path className="semantic-art__green semantic-art__outlined" d="M59 111q-15-4-12-17 15 1 12 17Zm-1-4q0-14 13-15 1 13-13 15Zm96 6q-12-11-4-21 13 7 4 21Z" />
+              <path className="semantic-art__green-lit" d="M49 97q7 5 10 14-9-3-10-14Zm102-1 3 17q-6-8-3-17Z" />
+            </g>
+            {/* A house sparrow: buff breast, chestnut cap, cheek and a short conical beak. */}
+            <path className="semantic-art__fur-deep semantic-art__outlined" d="m91 88-17 11 5-17 18-2Z" />
+            <path className="semantic-art__fur semantic-art__outlined" d="M83 83q4-23 31-22 20 0 25 20 9 26-19 29-35 2-37-27Z" />
+            <path className="semantic-art__clay-soft" d="M87 88q11 17 38 10l10-9q4 20-17 20-24 0-31-21Z" />
+            <path className="semantic-art__fur-deep" d="M126 69q19 16 11 30l-15 9q11-17 4-39Z" />
+            <circle className="semantic-art__fur semantic-art__outlined" cx="140" cy="66" r="17" />
+            <path className="semantic-art__wood-deep" d="M123 63q1-15 16-15 14 0 17 12l-16-3-12 9Z" />
+            <path className="semantic-art__clay-soft" d="M130 65q12-7 23 3-2 14-14 13-10-2-9-16Z" />
+            <path className="semantic-art__fur-deep" d="m147 71 7-1q-2 12-12 13l-5-6Z" />
             <path className="semantic-art__gold semantic-art__outlined" d="m156 66 16 6-16 6Z" />
-            <circle className="semantic-art__ink" cx="146" cy="62" r="3" />
+            <path className="semantic-art__gold-deep" d="m156 72 16 0-16 6Z" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            <path className="semantic-art__shade" d="M112 86q26 4 30 14-14 12-38 8Z" />
-            <path className="semantic-art__gloss" d="M96 74q10-8 22-6" />
-            <path className="semantic-art__wood-line" d="M104 110v12m18-12v12" />
-            <path className="semantic-art__detail" d="M86 92q22 10 42 2" />
+            <g className="semantic-art__motion-part semantic-art__prop-pivot semantic-art__prop-flutter">
+              <path className="semantic-art__wood semantic-art__outlined" d="M94 76q23-9 39 9-9 18-35 13-11-8-4-22Z" />
+              <path className="semantic-art__wood-deep" d="M99 86q18 5 34-1-7 18-35 13Z" />
+              <path className="semantic-art__fur" d="m96 78 8-1 13 10-9-1Zm11-1 7 1 12 10-9-1Z" />
+              <path className="semantic-art__clay-soft" d="M95 90q17 7 30-2l-5 5q-13 6-25 0Z" />
+            </g>
+            <g className="semantic-art__face-eyes">
+              <circle className="semantic-art__ink" cx="146" cy="62" r="3" />
+              <circle className="semantic-art__surface-lit" cx="145.1" cy="61.1" r=".9" />
+            </g>
+            {/* Toes wrap over the top of the branch and curl below it. */}
+            <path className="semantic-art__wood-line" d="m104 110-1 8m19-8-1 8" />
+            <path className="semantic-art__detail semantic-art__detail--thin" d="m103 118-4 3m4-3 3 4m-3-4v5m18-5-4 3m4-3 3 4m-3-4v5" />
           </SceneLayer>
         </>
       );
@@ -355,7 +396,7 @@ export function NatureScene({
         </>
       );
 
-    /* A street cat resting in shade: lying down, pointed ears, long tail. */
+    /* A sitting tabby: upright shoulders, folded forepaws and a curled tail. */
     case 'nature.cat':
       return (
         <>
@@ -363,29 +404,45 @@ export function NatureScene({
             <path className="semantic-art__wall semantic-art__outlined" d="M12 20h216v122H12Z" />
             <path className="semantic-art__grain" d="M12 46h216M12 74h216M12 102h216" />
             <path className="semantic-art__floor" d="M12 132h216v30H12Z" />
-            {/* The band of shade it chose to lie in. */}
+            {/* The band of shade where the cat is sitting. */}
             <path className="semantic-art__shade" d="M12 20h118v142H12Z" />
           </SceneLayer>
           {/* The cat was drawn entirely in `__metal` — a cool blue-grey with a
               gloss — so it read as a ceramic figurine rather than as an animal
-              asleep on a warm floor. Fur is a material and now has a token. */}
+              resting on a warm floor. Fur is a material and now has a token. */}
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <ellipse className="semantic-art__prop-shadow" cx="106" cy="136" rx="62" ry="7" />
-            <path className="semantic-art__fur semantic-art__outlined" d="M50 132q-6-32 26-34h44q26 4 22 34Z" />
+            <g className="semantic-art__motion-part semantic-art__prop-pivot semantic-art__prop-sway">
+              <path className="semantic-art__fur semantic-art__outlined" d="M132 125q34 10 30-12-2-10-9-8-7 2-2 7 1 3 4 2-1 10-20 2Z" />
+              <path className="semantic-art__fur-deep" d="m143 119 6 1 1 9-7-1Zm13-18q7 0 9 9l-7 2q1-7-6-7Z" />
+            </g>
+            <path className="semantic-art__fur semantic-art__outlined" d="M50 132q-4-22 9-40l18-8q12 4 16 13 10-15 23-6 23 13 17 41Z" />
+            <path className="semantic-art__fur-deep" d="M113 92q25 13 20 40h-21q13-19 1-40Z" />
+            <path className="semantic-art__clay-soft" d="M57 99q4 18 1 31h19l4-37q-14 11-24 6Z" />
             <circle className="semantic-art__fur semantic-art__outlined" cx="62" cy="82" r="24" />
             {/* Pointed ears, the clearest cat-versus-dog signal. */}
             <path className="semantic-art__fur semantic-art__outlined" d="m44 66-4-20 20 10Zm36 0 4-20-20 10Z" />
-            <path className="semantic-art__fur semantic-art__outlined semantic-art__motion-part" d="M142 130q30 4 32-24-16-4-20 12" />
+            <path className="semantic-art__clay-soft" d="m44 52 3 11 8-7Zm36 0-3 11-8-7Z" />
+            <path className="semantic-art__fur-deep" d="M76 64q14 15 6 30-8 12-20 12 18-13 14-42Z" />
+            <path className="semantic-art__fur-deep" d="m55 59 3 9 3-10Zm9-1 1 10 4-9ZM41 74l7 3-8 2Zm-1 9 8 1-6 4Zm43-9-8 3 9 2Zm0 9-8 1 6 4Z" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            <path className="semantic-art__detail" d="M53 78v8m18-8v8" />
-            <path className="semantic-art__detail semantic-art__detail--thin" d="M62 92v4m-6 4q6 4 12 0M34 90h-16m16 6-16 4m56-10h16m-16 6 16 4" />
-            <path className="semantic-art__gloss" d="M46 68q8-8 18-6" />
+            <g className="semantic-art__face-eyes">
+              <ellipse className="semantic-art__green-soft semantic-art__outlined" cx="53" cy="80" rx="4" ry="5" />
+              <ellipse className="semantic-art__green-soft semantic-art__outlined" cx="71" cy="80" rx="4" ry="5" />
+              <ellipse className="semantic-art__ink" cx="53" cy="80" rx="1.5" ry="4" />
+              <ellipse className="semantic-art__ink" cx="71" cy="80" rx="1.5" ry="4" />
+              <path className="semantic-art__surface-lit" d="M51 77h1.4v1.4H51Zm18 0h1.4v1.4H69Z" />
+            </g>
+            <ellipse className="semantic-art__clay-soft" cx="57" cy="93" rx="7" ry="5" />
+            <ellipse className="semantic-art__clay-soft" cx="67" cy="93" rx="7" ry="5" />
+            <path className="semantic-art__clay-deep" d="m59 89 6 0-3 4Z" />
+            <path className="semantic-art__detail semantic-art__detail--thin" d="M62 93v3m-6 0q3 4 6 0 3 4 6 0M49 92l-16-3m16 6-16 2m42-5 15-3m-15 6 15 2" />
             {/* Front paws tucked, and stripes: a resting street cat. */}
             <ellipse className="semantic-art__fur semantic-art__outlined" cx="64" cy="128" rx="13" ry="7" />
             <ellipse className="semantic-art__fur semantic-art__outlined" cx="90" cy="130" rx="13" ry="7" />
-            <path className="semantic-art__grain" d="M84 104v18m14-20v20m14-18v16" />
-            <path className="semantic-art__shade" d="M110 100q22 6 20 32h-24Z" />
+            <path className="semantic-art__fur-deep" d="m92 99 9-5-3 16Zm13-8 8 2-5 15Zm14 5 7 8-5 9ZM59 111l5 2-5 3Zm14 0 6-3-2 7Z" />
+            <path className="semantic-art__grain" d="M60 129v3m5-3v3m21-1v3m5-3v3" />
           </SceneLayer>
         </>
       );

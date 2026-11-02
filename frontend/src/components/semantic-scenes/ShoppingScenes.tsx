@@ -197,17 +197,41 @@ export function ShoppingScene({
               the gather is two rounded lobes leaning against each other. The leaf
               is gone.
             */}
-            <path className="semantic-art__grain" d="M94 70q-20 18-26 36m32-36q-6 24-6 46m12-46q18 18 22 34" />
+            <path className="semantic-art__clay-deep" d="M92 67q-12 18-16 35l-6 6q6-24 22-41Zm8 2q-3 19-1 46l-5 3q-2-27 6-49Zm7-1q16 17 22 36l-6-6q-4-14-16-30Z" />
+            <path className="semantic-art__clay-lit" d="M89 73q-10 16-13 26l3-5q3-13 10-21Zm13 1q0 27 3 43l-4 3q-2-30 1-46Z" />
+            {/* Short broken hatching suggests woven cloth without outlining every fold. */}
+            <g transform="scale(.5)">
+              <path className="semantic-art__hatch" d="m150 199 6 3m-7 4 6 3m-6 4 6 3m65-24 5-3m-3 9 5-3m-3 9 5-3m-44 17 6 1m-6 5 6 1" />
+            </g>
             {/* Gathered neck above the tie, then the cord itself. */}
             <path className="semantic-art__clay semantic-art__outlined" d="M86 62q-2-16 6-22 6-5 4-14 4 9 10 12 8 5 6 24Z" />
-            <path className="semantic-art__grain" d="M90 58q2-10 8-16m12 16q-2-10-6-15" />
-            <path className="semantic-art__metal-line" d="M84 64q16-6 32 0" />
-            
+            <path className="semantic-art__clay-deep" d="M105 39q10 4 7 23h-8q7-12 1-23Z" />
+            <path className="semantic-art__clay-lit" d="M90 57q0-13 8-19-4 11-3 20Z" />
+            <g className="semantic-art__motion-part semantic-art__prop-pivot semantic-art__prop-flutter">
+              <path className="semantic-art__wood-line" d="M84 64q16-6 32 0m-5-2q12-13 14-3-2 8-14 3 8 6 12 15m-12-15 3 17" />
+              <path className="semantic-art__gold-line" d="M85 63q15-5 28 0" />
+              <ellipse className="semantic-art__wood-deep semantic-art__outlined" cx="112" cy="63" rx="4" ry="3" />
+            </g>
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
             <Note x={148} y={78} w={72} h={38} />
-            <Coin cx={44} cy={104} r={20} />
-            <Coin cx={196} cy={132} r={16} />
+            {/* These two coins alone belong to this job; other scenes retain their shared Coin. */}
+            {([[44, 104, 20], [196, 132, 16]] as const).map(([cx, cy, r]) => (
+              <g key={cx} transform={`translate(${cx} ${cy}) scale(${r / 20})`}>
+                <g className="semantic-art__motion-part semantic-art__prop-pivot">
+                  <circle className="semantic-art__gold-deep semantic-art__outlined" r="20" />
+                  <path className="semantic-art__gold-lit" d="M-19 2a19 19 0 0 1 33-15q-23-13-33 15Z" />
+                  <circle className="semantic-art__gold" r="17.5" />
+                  <circle className="semantic-art__gold-soft" r="14.4" />
+                  <path className="semantic-art__gold-lit" d="M-11 10q14 7 24-9-3 19-21 11Z" />
+                  <g transform="scale(.5)">
+                    <path className="semantic-art__grain" d="m-37-7 3 1m-3 5h3m-2 7 3-1m1 9 3-2m57-18 3-1m-2 8h3m-5 9 3 1m-7 6 3 2" />
+                  </g>
+                  <text className="semantic-art__currency" x="0" y="0" fontSize="22">₪</text>
+                  <path className="semantic-art__gloss semantic-art__prop-glint" d="M-14-4a17 17 0 0 1 10-10" />
+                </g>
+              </g>
+            ))}
           </SceneLayer>
         </>
       );
@@ -223,23 +247,40 @@ export function ShoppingScene({
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             {/* The goods the tag is attached to. */}
             <path className="semantic-art__teal semantic-art__outlined" d="M40 60h68v92H40Z" />
-            <path className="semantic-art__shade" d="M92 60h16v92H92Z" />
+            <path className="semantic-art__teal-deep" d="M92 60h16v92H92Z" />
+            <path className="semantic-art__teal-lit" d="M42 62h5v84l-5 4Zm6 0h43v3H48Z" />
+            <path className="semantic-art__teal-deep" d="m40 152 10-9 42 2 16 7Zm52-92 7 11-3 68-4 13Z" />
+            <path className="semantic-art__teal-lit" d="m99 71 7-9-5 78 5 10-10-6Z" />
+            {/* Rear handle remains behind the front rope; the mouth has a folded paper lip. */}
+            <path className="semantic-art__teal-deep semantic-art__outlined" d="M52 64V43q0-12 14-12t14 12v21h-4V43q0-8-10-8t-10 8v21Z" />
             <path className="semantic-art__metal-line" d="M74 60V38q0-14 24-14t24 14v16" />
+            <path className="semantic-art__teal-lit" d="m40 60 8 5h44l8-5Z" />
+            <path className="semantic-art__teal-deep" d="M71 59h6v5h-6Zm27 0h6v5h-6Z" />
             <ellipse className="semantic-art__prop-shadow" cx="76" cy="154" rx="40" ry="6" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
             {/* The tag itself, hung on a string, angled as a real one hangs. */}
             <g transform="rotate(9 176 96)">
+              <g className="semantic-art__motion-part semantic-art__prop-pivot semantic-art__prop-sway">
               <path className="semantic-art__gold semantic-art__outlined" d="M136 62h74a8 8 0 0 1 8 8v52a8 8 0 0 1-8 8h-74l-16-34Z" />
-              <circle className="semantic-art__surface semantic-art__outlined" cx="136" cy="96" r="5" />
+              <path className="semantic-art__gold-lit" d="m136 63 71 0-5 4h-64l-15 29-2-1Z" />
+              <path className="semantic-art__gold-deep" d="M213 69q4 0 4 4v49q0 7-7 7h-73l-2-4h70q7 0 7-7Z" />
+              <path className="semantic-art__gold-soft" d="m200 63 13 0 3 12-9-5Z" />
+              <path className="semantic-art__gold-deep" d="m200 63 7 7 9 5-15-4Z" />
+              <circle className="semantic-art__gold-deep" cx="136" cy="96" r="6" />
+              <circle className="semantic-art__gold-soft" cx="136" cy="96" r="4.8" />
+              <circle className="semantic-art__surface semantic-art__outlined" cx="136" cy="96" r="3.5" />
               <text className="semantic-art__numeral" x="176" y="96">18</text>
               <text className="semantic-art__currency semantic-art__currency--small" x="206" y="96">₪</text>
+              </g>
             </g>
-            <path className="semantic-art__metal-line" d="M120 54q10 24 22 30" />
+            <path className="semantic-art__metal-line" d="M120 54q6 23 17 36" />
             {/* Shelf edge and a second tag: a price sits among other prices. */}
             <path className="semantic-art__wood semantic-art__outlined" d="M14 152h212v10H14Z" />
             <path className="semantic-art__grain" d="M22 157h196" />
             <path className="semantic-art__gold-soft semantic-art__outlined" d="M22 122h46a6 6 0 0 1 6 6v18a6 6 0 0 1-6 6H22l-10-15Z" />
+            <path className="semantic-art__gold-lit" d="M23 123h43l-4 2H24l-9 12-2-1Z" />
+            <path className="semantic-art__gold-deep" d="M70 126q4 17-2 24H23l-1-2h43q6-1 5-22Z" />
             <circle className="semantic-art__surface semantic-art__outlined" cx="24" cy="137" r="3" />
             <text className="semantic-art__numeral semantic-art__numeral--small" x="46" y="137">9</text>
           </SceneLayer>
@@ -710,17 +751,44 @@ export function ShoppingScene({
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
-            <path className="semantic-art__gold-soft semantic-art__outlined" d="M12 12h216v130H12Z" />
-            {/* Jerusalem stone courses on the façade. */}
-            <path className="semantic-art__grain" d="M12 40h216M12 68h216M12 96h216M12 122h216" />
-            <path className="semantic-art__facade-shade" d="M198 12h30v130h-30Z" />
             <path className="semantic-art__floor" d="M12 142h216v20H12Z" />
+            {/* The building itself, with a small ribbed dome; no separate scenery is added. */}
+            <path className="semantic-art__stone-lit semantic-art__outlined" d="M78 60q0-48 42-48t42 48Z" />
+            <path className="semantic-art__stone" d="M120 12q42 0 42 48h-17q0-39-25-48Z" />
+            <path className="semantic-art__gold-soft" d="M82 56q1-32 26-41-17 13-19 41Z" />
+            <path className="semantic-art__grain" d="M120 13q-25 16-25 44m25-44q25 16 25 44" />
+            <path className="semantic-art__stone-lit semantic-art__outlined" d="M12 58h216v84H12Z" />
+            <path className="semantic-art__gold-soft" d="M14 60h180v80H14Z" />
+            <path className="semantic-art__stone" d="M198 59h30v83h-30Z" />
+            {/* Staggered ashlar joints stop at each course; the doorway covers their centre. */}
+            <g transform="scale(.5)">
+              <path className="semantic-art__grain" d="M24 140h432M24 172h432M24 204h432M24 236h432M24 268h432M76 120v20m72 0v32m-104 0v32m66 0v32m-36 0v32m310-148v20m-66 0v32m96 0v32m-70 0v32m66 0v32" />
+            </g>
+            <path className="semantic-art__stone-lit" d="M16 62h178v2H16Zm0 26h58v2H16Zm151 28h27v2h-27Z" />
+            <path className="semantic-art__stone-deep semantic-art__outlined" d="M70 140h100l8 9H62Z" />
+            <path className="semantic-art__stone-lit semantic-art__outlined" d="M62 149h116v5H62Zm-8 5h132v6H54Z" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             {/* An arched doorway with double doors. */}
             <path className="semantic-art__wood semantic-art__outlined" d="M78 142V88q0-32 42-32t42 32v54Z" />
-            <path className="semantic-art__coral semantic-art__outlined" d="M88 142V90q0-24 32-24t32 24v52Z" />
-            <path className="semantic-art__detail" d="M120 66v76" />
+            <path className="semantic-art__stone-lit semantic-art__outlined" d="M79 140V88q0-31 41-31t41 31v52h-6V90q0-27-35-27T85 90v50Z" />
+            <path className="semantic-art__wood-deep semantic-art__outlined" d="M88 142V90q0-24 32-24t32 24v52Z" />
+            {/* Wooden leaves sit below a glazed arched fanlight, with no added symbol. */}
+            <path className="semantic-art__wood semantic-art__outlined" d="M89 94h30v47H89Zm32 0h30v47h-30Z" />
+            <path className="semantic-art__wood-lit" d="M91 96h3v43h-3Zm32 0h3v43h-3Z" />
+            <path className="semantic-art__wood-deep" d="M96 101h17v19H96Zm32 0h17v19h-17Zm-32 25h17v10H96Zm32 0h17v10h-17Z" />
+            <path className="semantic-art__wood" d="M98 103h13v15H98Zm32 0h13v15h-13Zm-32 25h13v6H98Zm32 0h13v6h-13Z" />
+            <path className="semantic-art__glass semantic-art__outlined" d="M89 90q0-23 31-23t31 23Z" />
+            <g transform="scale(.5)">
+              <path className="semantic-art__wood-line" d="M240 180v-46m0 46-42-32m42 32 42-32m-42 32-60-8m60 8 60-8" />
+            </g>
+            <path className="semantic-art__detail semantic-art__detail--thin" d="M120 94v48" />
+            {([96, 120, 136] as const).map((y) => (
+              <g key={y}>
+                <circle className="semantic-art__gold-deep" cx="91" cy={y} r="1.3" />
+                <circle className="semantic-art__gold-deep" cx="149" cy={y} r="1.3" />
+              </g>
+            ))}
             <circle className="semantic-art__gold semantic-art__outlined" cx="110" cy="112" r="4" />
             <circle className="semantic-art__gold semantic-art__outlined" cx="130" cy="112" r="4" />
           </SceneLayer>
@@ -729,7 +797,7 @@ export function ShoppingScene({
             <circle className="semantic-art__window semantic-art__outlined" cx="120" cy="34" r="20" />
             <path className="semantic-art__detail" d="m120 20 12 21h-24Zm0 28-12-21h24Z" />
             <path className="semantic-art__metal-line" d="M64 142V96m112 46V96" />
-            <path className="semantic-art__gloss" d="M92 96v44" />
+            <path className="semantic-art__gloss semantic-art__prop-glint" d="M97 82q3-7 11-9" />
           </SceneLayer>
         </>
       );

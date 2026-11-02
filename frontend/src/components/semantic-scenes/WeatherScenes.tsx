@@ -40,10 +40,21 @@ export function Cloud({ x, y, scale = 1, grey = false }: {
 function Umbrella({ x, y, scale = 1 }: { x: number; y: number; scale?: number }): React.JSX.Element {
   return (
     <g transform={`translate(${x} ${y}) scale(${scale})`}>
-      <path className="semantic-art__coral semantic-art__outlined" d="M-56 0q8-46 56-46T56 0q-14-10-28 0-14-10-28 0-14-10-28 0Z" />
-      <path className="semantic-art__detail semantic-art__detail--thin" d="M0-46V-4m-28 4q6-32 28-46M28 0Q22-32 0-46" />
-      <path className="semantic-art__shade" d="M0-46q48 0 56 46-14-10-28 0-14-10-28 0Z" />
+      <g className="semantic-art__motion-part semantic-art__prop-pivot semantic-art__prop-sway">
+        <path className="semantic-art__coral semantic-art__outlined" d="M-56 0q8-46 56-46T56 0q-14-10-28 0-14-10-28 0-14-10-28 0Z" />
+        <path className="semantic-art__coral-lit" d="M-56 0q8-46 56-46-23 13-28 46-14-10-28 0Z" />
+        <path className="semantic-art__coral-deep" d="M0-46q48 0 56 46-14-10-28 0-5-32-28-46Z" />
+        <path className="semantic-art__coral-lit" d="M-27-3Q-21-31 0-46-8-22 0-3q-14-10-27 0Z" opacity=".5" />
+        {/* Fine ribs follow the tension of each panel; the tips curl below the hem. */}
+        <g transform="scale(.5)">
+          <path className="semantic-art__detail semantic-art__detail--thin" d="M0-92V-6m-56 6Q-44-64 0-92M56 0Q44-64 0-92M-112 0v3M-56 0v3M0 0v3M56 0v3M112 0v3" />
+        </g>
+        <path className="semantic-art__gloss" d="M-44-16q7-16 22-22" />
+        <path className="semantic-art__metal-deep" d="M-1-47q1-5 2 0v4h-2Z" />
+      </g>
       <path className="semantic-art__metal-line" d="M0-4v52q0 12-12 12t-12-10" />
+      <path className="semantic-art__wood-deep semantic-art__outlined" d="M-3 39h6v10q0 15-15 15-15 0-15-14 0-4 5-4 3 0 3 4 0 7 7 7 9 0 9-8Z" />
+      <path className="semantic-art__wood-lit" d="M-1 42h2v9q-1 11-12 11-8 0-11-6 7 7 15 2 6-3 6-10Z" />
     </g>
   );
 }
@@ -63,7 +74,10 @@ export function WeatherScene({
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <circle className="semantic-art__sun-halo" cx="118" cy="76" r="70" />
+            <circle className="semantic-art__sun-halo" cx="118" cy="76" r="54" />
             <circle className="semantic-art__gold semantic-art__outlined" cx="118" cy="76" r="42" />
+            <path className="semantic-art__gold-deep" d="M145 44a42 42 0 0 1-59 59q40 18 59-19 10-21 0-40Z" />
+            <path className="semantic-art__gold-lit" d="M82 85q-6-32 20-44 17-8 33-2-35-3-47 25Z" />
             <circle className="semantic-art__sun-core" cx="106" cy="64" r="20" />
             <path className="semantic-art__gloss" d="M86 56a42 42 0 0 1 26-16" />
           </SceneLayer>
@@ -77,9 +91,19 @@ export function WeatherScene({
             <path className="semantic-art__wood semantic-art__outlined" d="M158 126h48v7h-48Zm5 7v14m38-14v14" />
             <path className="semantic-art__grain" d="M164 129h36" />
             <ellipse className="semantic-art__prop-shadow" cx="182" cy="150" rx="28" ry="4" />
-            <path className="semantic-art__green semantic-art__outlined" d="M36 138q-14-16-2-26 14 6 2 26Z" />
-            <path className="semantic-art__green semantic-art__outlined" d="M56 140q-12-14-2-23 12 6 2 23Z" />
-            <path className="semantic-art__leaf-lit" d="M34 130q-6-10 0-16m22 18q-5-9 0-14" />
+            {([[35, 141, 1], [56, 143, .8]] as const).map(([x, y, scale]) => (
+              <g key={x} transform={`translate(${x} ${y}) scale(${scale})`}>
+                <g className="semantic-art__motion-part semantic-art__prop-pivot semantic-art__prop-sway">
+                  <path className="semantic-art__stem" d="M0 0v-20" />
+                  <path className="semantic-art__green-deep" d="M0-4Q-14-7-12-16 0-16 0-4Zm0-5q1-12 11-13 1 10-11 13Z" />
+                  <path className="semantic-art__green-lit" d="M-10-14 0-4q-9-3-10-10Z" />
+                  <path className="semantic-art__coral semantic-art__outlined" d="M0-19q-10 5-10-2-5-6 2-9 0-7 7-4 6-5 9 2 8 1 4 8 0 7-12 5Z" />
+                  <path className="semantic-art__coral-lit" d="M-7-29q4-6 7 1 3-7 7-2l-4 7-6 1Z" />
+                  <circle className="semantic-art__gold-deep" cy="-25" r="4" />
+                  <circle className="semantic-art__gold-lit" cx="-1" cy="-26" r="2" />
+                </g>
+              </g>
+            ))}
             {/* Short shadows on the ground: the sun is high, not setting. */}
             <ellipse className="semantic-art__prop-shadow" cx="40" cy="142" rx="10" ry="3" />
             <ellipse className="semantic-art__prop-shadow" cx="59" cy="144" rx="9" ry="3" />
@@ -300,22 +324,44 @@ export function WeatherScene({
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <ellipse className="semantic-art__prop-shadow" cx="96" cy="116" rx="72" ry="8" />
             {/* Two wedges: rind, flesh, seeds. */}
-            <path className="semantic-art__green semantic-art__outlined" d="M28 112q14-58 60-58t60 58Z" />
-            <path className="semantic-art__coral" d="M40 106q13-44 48-44t48 44Z" />
-            <path className="semantic-art__surface" d="M34 110q13-52 54-52t54 52l-6 2q-8-46-48-46t-48 46Z" />
+            <path className="semantic-art__green-deep semantic-art__outlined" d="M28 112q14-58 60-58t60 58Z" />
+            <path className="semantic-art__green-lit" d="M30 110q14-54 58-54t58 54h-4q-14-51-54-51t-54 51Z" />
+            <path className="semantic-art__green-soft" d="M34 110q13-52 54-52t54 52Z" />
+            <path className="semantic-art__coral semantic-art__outlined" d="M40 106q13-44 48-44t48 44Z" />
+            <path className="semantic-art__coral-deep" d="M88 62q34 0 48 44h-12q-11-34-36-44Z" />
+            <path className="semantic-art__coral-lit" d="M43 103q15-39 43-40-26 7-35 40Z" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            <path className="semantic-art__ink" d="M72 90h4v6h-4Zm26-12h4v6h-4Zm26 14h4v6h-4Zm-40 12h4v6h-4Zm30 0h4v6h-4Z" />
-            <path className="semantic-art__gloss" d="M56 96q12-30 32-32" />
+            {/* Teardrop seeds, rather than square marks, follow the curved flesh. */}
+            {([[73, 91, -20], [99, 79, 15], [123, 94, 32], [85, 103, -8], [114, 103, 18]] as const).map(([x, y, turn]) => (
+              <path key={x} className="semantic-art__ink" transform={`translate(${x} ${y}) rotate(${turn})`} d="M0-3Q-4 2 0 3q4-1 0-6Z" />
+            ))}
             {/* A third wedge lying on its side behind them. */}
             <path className="semantic-art__green semantic-art__outlined" d="M160 112q6-30 30-30v30Z" />
+            <path className="semantic-art__green-soft" d="M163 110q6-25 25-25v25Z" />
             <path className="semantic-art__coral" d="M168 108q5-20 20-20v20Z" />
+            <path className="semantic-art__coral-deep" d="m185 89 3-1v20h-5Z" />
+            <path className="semantic-art__ink" d="M180 98q-3 4 0 4 3-1 0-4Z" />
             {/* A cold drink sweating next to it. */}
             <ellipse className="semantic-art__prop-shadow" cx="210" cy="114" rx="16" ry="4" />
             <path className="semantic-art__glass semantic-art__outlined" d="M194 62h32l-5 50h-22Z" />
-            <path className="semantic-art__water" d="M197 82q13 5 26 0l-3 28h-20Z" />
-            <path className="semantic-art__gloss" d="M199 68v40" />
-            <path className="semantic-art__water-drop" d="M190 88c-4 5-3 9 0 9s4-4 0-9Z" />
+            <path className="semantic-art__gold-soft" d="M197 78q13 3 26 0l-3 32h-20Z" />
+            <path className="semantic-art__gold-lit" d="m217 79 6-1-3 32h-5Z" />
+            <ellipse className="semantic-art__gold-soft semantic-art__outlined" cx="210" cy="78" rx="13" ry="2.3" />
+            <g className="semantic-art__motion-part semantic-art__prop-pivot semantic-art__prop-sway">
+              <path className="semantic-art__teal-deep" d="m211 92 3-35 8-7 2 2-7 7-3 33Z" />
+              <path className="semantic-art__teal-lit" d="m211 92 3-35 8-7 1 1-7 7-3 34Z" />
+            </g>
+            {/* Two translucent ice cubes and a lemon half-wheel caught on the rim. */}
+            <path className="semantic-art__glass semantic-art__outlined" d="m199 77 7-1 2 7-7 1Zm11 4 7-2 2 7-7 2Z" />
+            <path className="semantic-art__gold semantic-art__outlined" d="M198 72a8 8 0 1 1 14-8l-7 5Z" />
+            <path className="semantic-art__gold-soft" d="M199 70a6 6 0 1 1 11-5l-5 3Z" />
+            <path className="semantic-art__gloss semantic-art__prop-glint" d="M199 84l3 23m0-29 3 3m8 1 3 2" />
+            <g className="semantic-art__motion-part semantic-art__prop-bob">
+              <path className="semantic-art__water-drop" d="M191 91c-3 4-2 7 0 7s3-3 0-7Zm33 7q-3 4 0 5 3-1 0-5Z" />
+              <circle className="semantic-art__glass semantic-art__outlined" cx="198" cy="90" r="1.3" />
+              <circle className="semantic-art__glass semantic-art__outlined" cx="222" cy="87" r="1" />
+            </g>
           </SceneLayer>
         </>
       );
@@ -402,13 +448,21 @@ export function WeatherScene({
               className="semantic-art__rain semantic-art__motion-part"
               d="M32 46v18m18-24v20m134-14v18m18-22v20M24 82v16m184-16v16"
             />
-            <path className="semantic-art__water-drop" d="M60 96c-6 8-5 14 0 14s6-6 0-14Zm116 4c-6 8-5 14 0 14s6-6 0-14Z" />
+            <g className="semantic-art__motion-part semantic-art__prop-bob">
+              <path className="semantic-art__water-drop" d="M60 96c-4 6-3 10 0 10s4-4 0-10Zm116 4c-3 5-2 8 0 8s3-3 0-8ZM46 119q-3 5 0 5 3-1 0-5Zm143 9q-4 6 0 7 4-1 0-7Z" />
+            </g>
             <ellipse className="semantic-art__prop-shadow" cx="112" cy="148" rx="46" ry="6" />
             {/* A puddle taking the run-off, with rings where drops land. */}
             <ellipse className="semantic-art__water" cx="112" cy="152" rx="40" ry="8" />
             <ellipse className="semantic-art__water-deep" cx="112" cy="154" rx="24" ry="4" />
-            <path className="semantic-art__foam" d="M92 150q10-4 20 0m8 4q9-3 16 0" />
-            <path className="semantic-art__water-stream semantic-art__motion-part" d="M62 108v30m108-30v30" />
+            <g className="semantic-art__motion-part semantic-art__prop-bob">
+              <ellipse className="semantic-art__foam" cx="91" cy="150" rx="9" ry="2.3" />
+              <ellipse className="semantic-art__foam" cx="135" cy="154" rx="8" ry="2" />
+              <path className="semantic-art__rain" d="m81 146-2-3m7 2 1-4m53 10 2-4m3 6 3-2" />
+            </g>
+            <g transform="scale(.5)">
+              <path className="semantic-art__water-stream semantic-art__motion-part" d="m124 224 0 18m216-18v14m-10 18v10m-194-6v12" />
+            </g>
           </SceneLayer>
         </>
       );
