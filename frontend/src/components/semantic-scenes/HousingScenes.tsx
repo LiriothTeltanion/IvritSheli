@@ -317,19 +317,32 @@ export function HousingScene({ visualKey, hintStage }: HousingSceneProps): React
             <path className="semantic-art__surface-deep" d="M12 128h216v6H12Z" />
             <PaintedRoom name="scene-landlord" x={12} y={12} width={216} height={156} />
             {/* The door they are standing at. */}
+            <path className="semantic-art__prop-shadow" d="M95 29h53v100H95Z" />
             <path className="semantic-art__wood semantic-art__outlined" d="M92 26h56v102H92Z" />
-            <path className="semantic-art__wood-deep" d="M134 26h14v102h-14Z" />
+            <path className="semantic-art__wood-deep" d="M140 26h8v102h-8Z" />
             <path className="semantic-art__wood-lit" d="M94 28h52v4H98v94h-4Z" />
-            <path className="semantic-art__wood-deep" d="M99 33h36v94h-36Z" />
-            <path className="semantic-art__wood semantic-art__outlined" d="M101 35h32v91h-32Z" />
+            <path className="semantic-art__wood-deep" d="M99 33h42v94H99Z" />
+            <path className="semantic-art__wood semantic-art__outlined" d="M102 36h36v90h-36Z" />
+            <path className="semantic-art__wood-lit" d="M102 36h2v89h-2Z" />
             {/* Raised panel bevels carry the same light direction as the frame. */}
-            <path className="semantic-art__wood-lit" d="M104 40h26v3h-23v28h-3Zm0 46h26v3h-23v28h-3Z" />
-            <path className="semantic-art__wood-deep" d="M127 43h3v31h-26v-3h23Zm0 46h3v31h-26v-3h23Z" />
-            <path className="semantic-art__grain" d="M111 48v15m10 31v15" />
-            <rect className="semantic-art__gold-deep" x="125" y="76" width="5" height="12" rx="2" />
-            <circle className="semantic-art__gold semantic-art__outlined" cx="127" cy="80" r="3" />
-            <path className="semantic-art__gold-lit" d="M127 78h8v3h-8Z" />
-            <path className="semantic-art__metal semantic-art__outlined" d="M92 126h56v2H92Z" />
+            <path className="semantic-art__wood-deep" d="M105 40h29v34h-29Zm0 46h29v34h-29Z" />
+            <path className="semantic-art__wood-lit" d="M105 40h29l-4 4h-21v26l-4 4Zm0 46h29l-4 4h-21v26l-4 4Z" />
+            <path className="semantic-art__wood" d="M110 45h19v24h-19Zm0 46h19v24h-19Z" />
+            <path className="semantic-art__grain" d="M112 48q-2 7 0 15m7-13v10m-7 36q2 8 0 14m7-12v9" />
+            {/* A peephole and two hinge leaves make this an apartment door,
+                while the lever sits on a recessed, bevelled backplate. */}
+            <circle className="semantic-art__metal-deep semantic-art__outlined" cx="117" cy="58" r="2.5" />
+            <circle className="semantic-art__metal-lit" cx="116.5" cy="57.5" r="1" />
+            <path className="semantic-art__metal-deep" d="M100 47h3v9h-3Zm0 57h3v9h-3Z" />
+            <path className="semantic-art__metal-lit" d="M100 48h1v7h-1Zm0 57h1v7h-1Z" />
+            <rect className="semantic-art__gold-deep semantic-art__outlined" x="130" y="76" width="6" height="14" rx="2" />
+            <path className="semantic-art__gold-lit" d="M131 77h3v1h-2v10h-1Z" />
+            <path className="semantic-art__gold semantic-art__outlined" d="M131 79h9v3h-9Z" />
+            <path className="semantic-art__gold-lit" d="M132 79h7v1h-7Z" />
+            <path className="semantic-art__ink" d="M132 85h2v3h-2Z" />
+            <path className="semantic-art__metal semantic-art__outlined" d="m96 124 48 0 4 4H92Z" />
+            <path className="semantic-art__metal-lit" d="M96 124h48l2 2H94Z" />
+            <path className="semantic-art__metal-deep" d="M92 127h56v2H92Z" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <SemanticPerson x={54} y={100} facing="right" shirt="blue" pose="reach" scale={1.05} />
@@ -344,9 +357,12 @@ export function HousingScene({ visualKey, hintStage }: HousingSceneProps): React
               {/* The cut-out really is a hole: the door remains visible through it. */}
               <path className="semantic-art__gold semantic-art__outlined" fillRule="evenodd" d="M123 98a11 11 0 1 1-22 0 11 11 0 0 1 22 0Zm-7 0a4 4 0 1 0-8 0 4 4 0 0 0 8 0Z" />
               <path className="semantic-art__gold-deep" d="M120 91q8 13-5 18h-5q11-4 10-18Z" />
+              <path className="semantic-art__gold-lit" d="M103 96q1-6 7-7h4q-9 2-9 8v3l-2-1Z" />
               <path className="semantic-art__gold semantic-art__outlined" d="M122 94h32v9h-8v7h-6v-7h-6v9h-6v-9h-6Z" />
               <path className="semantic-art__gold-lit" d="M123 95h29v2h-29Z" />
               <path className="semantic-art__gold-deep" d="M123 100h30v3h-7v7h-3v-10h-9v12h-3v-12Z" />
+              <path className="semantic-art__gold-deep" d="M124 95h3v5h-3Z" />
+              <path className="semantic-art__gold-lit" d="M129 104h2v6h-2Zm12 0h2v4h-2Z" />
               <path className="semantic-art__highlight semantic-art__detail--thin" d="M104 96q1-6 7-6" />
             </g></g>
             <path className="semantic-art__spark semantic-art__motion-part" d="M112 78v-8m18 12 6-5m-48 5-6-5" />

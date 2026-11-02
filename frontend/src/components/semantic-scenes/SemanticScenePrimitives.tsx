@@ -362,8 +362,8 @@ export function SpeechBubble({
   tail?: 'left' | 'right';
 }): React.JSX.Element {
   const bubble = tail === 'left'
-    ? 'M2 0h43Q57 0 57 12v11q0 12-12 12H28q-4 6-12 9 3-6 2-9H2q-12 0-12-12V12Q-10 0 2 0Z'
-    : 'M2 0h43Q57 0 57 12v11q0 12-12 12h-6q-1 3 2 9-8-3-12-9H2q-12 0-12-12V12Q-10 0 2 0Z';
+    ? 'M2 1Q22-1 44 1q13 1 13 12v10q0 11-12 12H28q-4 6-12 9 3-6 2-9H2q-12-1-12-12V13Q-10 2 2 1Z'
+    : 'M2 1Q22-1 44 1q13 1 13 12v10q0 11-12 12h-6q-1 3 2 9-8-3-12-9H2q-12-1-12-12V13Q-10 2 2 1Z';
   return (
     <g transform={`translate(${x} ${y})`} data-bubble-tail={tail}>
       <g className="semantic-art__motion-part"><g className="semantic-art__prop-bob">
@@ -371,8 +371,11 @@ export function SpeechBubble({
       <path className="semantic-art__bubble-shadow" d={bubble} transform="translate(3 4)" opacity="0.3" />
       <path className="semantic-art__bubble-shadow" d={bubble} transform="translate(1.5 2)" opacity="0.5" />
       <path className="semantic-art__surface semantic-art__bubble semantic-art__outlined" d={bubble} />
-      <path className="semantic-art__surface-deep" d="M-8 23q0 10 11 10h41q10 0 11-10v3q-1 8-11 8H3q-11 0-11-11Z" />
-      <path className="semantic-art__surface-lit" d="M-6 10q0-7 10-7h36v2H4q-7 0-8 5Z" />
+      {/* A rolled lower lip and a broad upper-left light model a soft, inflated
+          form. The tail remains part of that silhouette at every call site. */}
+      <path className="semantic-art__surface-deep" d="M-8 21q3 9 14 9h36q10 0 13-8v3q-1 8-11 8H3q-11 0-11-12Z" />
+      <path className="semantic-art__surface-lit" d="M-6 12Q-6 5 4 4q20-2 37 0l4 3Q23 5 5 7q-8 0-11 5Z" />
+      <path className="semantic-art__surface-deep" d={tail === 'left' ? 'm19 35 6-2q-3 5-7 8Z' : 'm31 33 7 2 2 7q-6-4-9-9Z'} />
       {question
         ? <path className="semantic-art__detail" d="M21 10c0-7 14-7 14 0 0 5-7 5-7 10m0 7h.1" />
         : <path className="semantic-art__detail" d="M7 13h33M12 23h23" />}
