@@ -63,10 +63,10 @@ export function NatureScene({
             <path className="semantic-art__sun-rays semantic-art__sun-rays--hot semantic-art__motion-part" d="M192 8V1m0 74v-7m-30-30h-8m76 0h-8m-51-21-6-6m54 54-6-6m6-42 6-6m-54 54-6 6" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
-            <path className="semantic-art__gold-soft semantic-art__outlined" d="M14 118q44-40 88 0 46-44 124 0v44H14Z" />
-            <path className="semantic-art__shade" d="M102 118q46-44 124 0v44H102Z" />
+            <path className="semantic-art__gold-soft semantic-art__outlined semantic-art__glaze" d="M14 118q44-40 88 0 46-44 124 0v44H14Z" />
+            <path className="semantic-art__shade semantic-art__glaze" d="M102 118q46-44 124 0v44H102Z" />
             <path className="semantic-art__gloss" d="M28 112q38-33 70-2m22 2q42-38 82-2" />
-            <path className="semantic-art__gold semantic-art__outlined" d="M14 146q52-26 104 0t108 0v16H14Z" />
+            <path className="semantic-art__gold semantic-art__outlined semantic-art__glaze" d="M14 146q52-26 104 0t108 0v16H14Z" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
             {/* Wind-carved ripples across the near dune. */}
@@ -185,8 +185,8 @@ export function NatureScene({
             <NatureSun x={198} y={36} r={15} />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
-            <path className="semantic-art__green-soft semantic-art__outlined" d="M12 118q54-34 106-4 46-28 110 4v22H12Z" />
-            <path className="semantic-art__green semantic-art__outlined" d="M12 140q60-28 116 0t100 0v20H12Z" />
+            <path className="semantic-art__green-soft semantic-art__outlined semantic-art__glaze" d="M12 118q54-34 106-4 46-28 110 4v22H12Z" />
+            <path className="semantic-art__green semantic-art__outlined semantic-art__glaze" d="M12 140q60-28 116 0t100 0v20H12Z" />
             <path className="semantic-art__leaf-lit" d="M30 112q42-24 78-2m26-2q38-22 74 0" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
@@ -382,8 +382,8 @@ export function NatureScene({
             <path className="semantic-art__coral semantic-art__outlined" d="m24 78 12-10 12 10Zm26 0 8-8 10 8Zm22-4 9-9 11 9Z" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
-            <path className="semantic-art__green semantic-art__outlined" d="M12 92h216v70H12Z" />
-            <path className="semantic-art__green-soft" d="M12 92h216v14H12Z" />
+            <path className="semantic-art__green semantic-art__outlined semantic-art__glaze" d="M12 92h216v70H12Z" />
+            <path className="semantic-art__green-soft semantic-art__glaze" d="M12 92h216v14H12Z" />
             {/* Furrows converging: flat land with depth, not a green rectangle. */}
             <path className="semantic-art__grain" d="M12 162 78 94m26 68 20-68m52 68-2-68m78 68-56-68M12 116h216m-216 22h216" />
           </SceneLayer>
@@ -421,7 +421,7 @@ export function NatureScene({
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
             {/* The path, narrowing away from the viewer. */}
-            <path className="semantic-art__wood semantic-art__outlined" d="M84 162h72l-18-58h-36Z" />
+            <path className="semantic-art__wood semantic-art__outlined semantic-art__glaze" d="M84 162h72l-18-58h-36Z" />
             <path className="semantic-art__grain" d="M100 152h40m-36-16h32m-28-16h24" />
             <path className="semantic-art__leaf-lit" d="M20 20c10-8 22-6 30 2m36-4c9-7 19-6 26 1" />
           </SceneLayer>

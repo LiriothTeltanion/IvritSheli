@@ -574,8 +574,14 @@
 :root[data-theme="dark"] .semantic-art__painted--light:has(+ .semantic-art__painted--dark) { display: none; }
 /* Kevin compared both on 2026-11-02 and kept the paintings in the app's high contrast too, as the living-scene
    backdrops already were. Only the system forced-colours mode still drops the rooms. */
+/* A glaze (Kevin's choice, 2026-11-02): where a painted landscape lies under a teaching shape that covers the
+   whole ground (dunes, a field, hills, a forest path), the shape keeps its outline and only a wash of its colour,
+   so the painted sand, wheat or lake shows through instead of a flat collage over the painting. */
+.semantic-art__glaze { fill-opacity: .25; }
 @media (forced-colors: active) {
   .semantic-art__painted-room { display: none; }
+  /* No painting under it here, so the shape is solid again. */
+  .semantic-art__glaze { fill-opacity: 1; }
 }
 @media (prefers-contrast: more), (forced-colors: active) {
   .semantic-art__context-grain { display: none; }
