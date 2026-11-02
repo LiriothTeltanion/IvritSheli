@@ -299,7 +299,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 
 .icon-button:hover { transform: translateY(-2px); background: var(--surface-hover); border-color: var(--border-strong); }
 /* 2026-08-24: measured 39x48 on a 390px viewport -- narrow enough to miss. */
-.capture-button { min-width: 44px; min-height: 44px; border: 0; border-radius: 12px; padding: 10px 14px; justify-content: center; display: flex; align-items: center; gap: 8px; color: #04221d; background: linear-gradient(135deg, var(--teal-fill), var(--cyan-fill)); font-weight: 800; cursor: pointer; box-shadow: 0 8px 24px color-mix(in srgb, var(--teal) 20%, transparent); transition: transform .2s var(--ease), box-shadow .2s; }
+.capture-button { min-width: 44px; min-height: 44px; border: 0; border-radius: 12px; padding: 10px 14px; white-space: nowrap; justify-content: center; display: flex; align-items: center; gap: 8px; color: #04221d; background: linear-gradient(135deg, var(--teal-fill), var(--cyan-fill)); font-weight: 800; cursor: pointer; box-shadow: 0 8px 24px color-mix(in srgb, var(--teal) 20%, transparent); transition: transform .2s var(--ease), box-shadow .2s; }
 .capture-button:hover { transform: translateY(-2px); box-shadow: 0 12px 34px color-mix(in srgb, var(--teal) 28%, transparent); }
 .profile-button { position: relative; width: 48px; height: 48px; padding: 2px; border: 1px solid var(--border-strong); border-radius: 50%; background: linear-gradient(145deg, var(--teal), var(--violet)); cursor: pointer; }
 .profile-button span { width: 100%; height: 100%; display: grid; place-items: center; border-radius: 50%; background: var(--surface-solid); font-weight: 800; }
@@ -1008,6 +1008,12 @@ legend {
   .capture-button span { display: none; }
   .topbar-actions { min-width: 0; gap: 6px; }
   .capture-button { width: 44px; height: 44px; padding: 0; justify-content: center; }
+}
+@media (min-width: 761px) and (max-width: 800px) {
+  /* Here the capture label either wrapped onto two lines (a 68 px button in Spanish) or, kept on one line, pushed the
+     English top bar 4-11 px past the screen (measured 2026-11-02): show the icon alone, as below 760 px. */
+  .capture-button span { display: none; }
+  .capture-button { width: 44px; height: 44px; padding: 0; }
 }
 
 /* On a narrow phone, enlarged text can make the labelled wordmark and the four
