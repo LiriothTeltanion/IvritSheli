@@ -269,6 +269,35 @@ Before an illustration is accepted, check it at:
 
 A learner should identify the intended sense in about five seconds without reading the translation. If two meanings remain plausible, improve the context/action/anchor before adding visual polish.
 
+## Scene art for new words — the 2026-11-02 standard
+
+Kevin chose this style on 2026-11-02 after side-by-side comparisons; every word added to the dictionary follows it.
+
+**What is painted and what stays SVG.** A scene's setting (sky, landscape, street, room, wall, shelf, desk) may be
+a painted gouache backdrop. People, faces, hands, the objects that teach the word, arrows, markers, the sun and
+clouds, and everything that moves stay SVG. The three teaching layers (`context` → `meaning` → `anchor`) are never
+flattened into one picture.
+
+**Characters.** Use `SemanticPerson` only; never draw a person by hand. Its head (`PersonHead.tsx`) and body
+(`PersonBody.tsx`) were drawn by Codex with touches from the Gemini reference sheet. The four adults are fixed:
+coral = woman with a ponytail, blue = older man with a short beard and grey temples, gold = older woman with a grey
+bob, teal = younger man. The feminine and masculine grammar scenes depend on coral and blue, and a test pins them.
+Hand centres, arm ends and feet are an API: place props at the existing hand anchors.
+
+**Painting a scene.** Render the scene's own context with people, props, sun and clouds hidden, cropped to
+`12..228 × 12..168`, and repaint it image-to-image (Codex `image_gen` has given the best alignment) keeping every
+ground, shelf and desk line. Make a dark-theme version at the same time of day — never turn a morning into night.
+Save `scene-<name>.webp` and `scene-<name>-dark.webp` (quality 80, about 10–45 kB), record them in
+`painted/manifest.json`, list the name in `DARK_PAINTINGS`, and place `PaintedRoom` in the context layer over the
+flat ground and under anything animated. Check edge alignment and the scene in light, dark and high contrast.
+
+**Motion is part of the art.** Every scene must react to hover, keyboard focus and a press (`data-exploring`); the
+adults nod, blink, breathe and, when talking, speak. All motion is finite and lives inside
+`prefers-reduced-motion: no-preference`.
+
+**What Kevin kept.** Paintings stay in diagram scenes and in high contrast; only the system forced-colours mode
+drops the rooms. Do not remove a painting without asking him.
+
 ## Release rule
 
 A beautiful asset does not override Ivrit Sheli's release-truth discipline. New visuals are source-complete only after semantic-key coverage, automated checks and package verification pass; they become release evidence only after the relevant browser matrix is rerun and recorded.
