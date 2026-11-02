@@ -61,7 +61,7 @@ changes scope.
 
 Expected workspace:
 
-`C:\Users\kevin\OneDrive\Escritorio\NovaDev\002_PROJECTS_NEXUS\040_LEARNING_ACADEMY\IvritSheli`
+`<NovaDev>\002_PROJECTS_NEXUS\040_LEARNING_ACADEMY\IvritSheli`
 
 Prove the path with `git rev-parse --show-toplevel`. Then read only the current
 sections needed for this release, in this order:
