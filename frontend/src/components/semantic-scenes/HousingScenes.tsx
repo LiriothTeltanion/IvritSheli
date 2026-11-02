@@ -317,8 +317,17 @@ export function HousingScene({ visualKey, hintStage }: HousingSceneProps): React
             {/* The door they are standing at. */}
             <path className="semantic-art__wood semantic-art__outlined" d="M92 26h56v102H92Z" />
             <path className="semantic-art__wood-deep" d="M134 26h14v102h-14Z" />
-            <path className="semantic-art__detail semantic-art__detail--thin" d="M102 40h32v34h-32Zm0 44h32v34h-32Z" />
-            <circle className="semantic-art__gold semantic-art__outlined" cx="127" cy="80" r="4" />
+            <path className="semantic-art__wood-lit" d="M94 28h52v4H98v94h-4Z" />
+            <path className="semantic-art__wood-deep" d="M99 33h36v94h-36Z" />
+            <path className="semantic-art__wood semantic-art__outlined" d="M101 35h32v91h-32Z" />
+            {/* Raised panel bevels carry the same light direction as the frame. */}
+            <path className="semantic-art__wood-lit" d="M104 40h26v3h-23v28h-3Zm0 46h26v3h-23v28h-3Z" />
+            <path className="semantic-art__wood-deep" d="M127 43h3v31h-26v-3h23Zm0 46h3v31h-26v-3h23Z" />
+            <path className="semantic-art__grain" d="M111 48v15m10 31v15" />
+            <rect className="semantic-art__gold-deep" x="125" y="76" width="5" height="12" rx="2" />
+            <circle className="semantic-art__gold semantic-art__outlined" cx="127" cy="80" r="3" />
+            <path className="semantic-art__gold-lit" d="M127 78h8v3h-8Z" />
+            <path className="semantic-art__metal semantic-art__outlined" d="M92 126h56v2H92Z" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <SemanticPerson x={54} y={100} facing="right" shirt="blue" pose="reach" scale={1.05} />
@@ -329,11 +338,16 @@ export function HousingScene({ visualKey, hintStage }: HousingSceneProps): React
               The key is between the two hands and belongs to neither: that gap
               is what makes this a handover rather than someone holding a key.
             */}
-            <circle className="semantic-art__gold semantic-art__outlined" cx="112" cy="98" r="11" />
-            <circle className="semantic-art__wall" cx="112" cy="98" r="4" />
-            <path className="semantic-art__gold semantic-art__outlined" d="M122 94h32v9h-8v7h-6v-7h-6v9h-6v-9h-6Z" />
-            <path className="semantic-art__gold-line" d="M104 90a11 11 0 0 1 8-3" />
-            <path className="semantic-art__spark" d="M112 78v-8m18 12 6-5m-48 5-6-5" />
+            <g className="semantic-art__motion-part"><g className="semantic-art__prop-glint">
+              {/* The cut-out really is a hole: the door remains visible through it. */}
+              <path className="semantic-art__gold semantic-art__outlined" fillRule="evenodd" d="M123 98a11 11 0 1 1-22 0 11 11 0 0 1 22 0Zm-7 0a4 4 0 1 0-8 0 4 4 0 0 0 8 0Z" />
+              <path className="semantic-art__gold-deep" d="M120 91q8 13-5 18h-5q11-4 10-18Z" />
+              <path className="semantic-art__gold semantic-art__outlined" d="M122 94h32v9h-8v7h-6v-7h-6v9h-6v-9h-6Z" />
+              <path className="semantic-art__gold-lit" d="M123 95h29v2h-29Z" />
+              <path className="semantic-art__gold-deep" d="M123 100h30v3h-7v7h-3v-10h-9v12h-3v-12Z" />
+              <path className="semantic-art__highlight semantic-art__detail--thin" d="M104 96q1-6 7-6" />
+            </g></g>
+            <path className="semantic-art__spark semantic-art__motion-part" d="M112 78v-8m18 12 6-5m-48 5-6-5" />
           </SceneLayer>
         </>
       );

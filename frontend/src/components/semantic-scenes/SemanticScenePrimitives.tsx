@@ -352,16 +352,21 @@ export function SpeechBubble({
   tail?: 'left' | 'right';
 }): React.JSX.Element {
   const bubble = tail === 'left'
-    ? 'M0 0h47a10 10 0 0 1 10 10v15a10 10 0 0 1-10 10H26l-10 9 2-9H0A10 10 0 0 1-10 25V10A10 10 0 0 1 0 0Z'
-    : 'M0 0h47a10 10 0 0 1 10 10v15a10 10 0 0 1-10 10H31l10 9-2-9H0A10 10 0 0 1-10 25V10A10 10 0 0 1 0 0Z';
+    ? 'M2 0h43Q57 0 57 12v11q0 12-12 12H28q-4 6-12 9 3-6 2-9H2q-12 0-12-12V12Q-10 0 2 0Z'
+    : 'M2 0h43Q57 0 57 12v11q0 12-12 12h-6q-1 3 2 9-8-3-12-9H2q-12 0-12-12V12Q-10 0 2 0Z';
   return (
     <g transform={`translate(${x} ${y})`} data-bubble-tail={tail}>
-      {/* Offset copy behind the bubble: a drop shadow that lifts it off the scene. */}
-      <path className="semantic-art__bubble-shadow" d={bubble} transform="translate(3 4)" />
+      <g className="semantic-art__motion-part"><g className="semantic-art__prop-bob">
+      {/* Two restrained offset silhouettes soften the shadow without a filter. */}
+      <path className="semantic-art__bubble-shadow" d={bubble} transform="translate(3 4)" opacity="0.3" />
+      <path className="semantic-art__bubble-shadow" d={bubble} transform="translate(1.5 2)" opacity="0.5" />
       <path className="semantic-art__surface semantic-art__bubble semantic-art__outlined" d={bubble} />
+      <path className="semantic-art__surface-deep" d="M-8 23q0 10 11 10h41q10 0 11-10v3q-1 8-11 8H3q-11 0-11-11Z" />
+      <path className="semantic-art__surface-lit" d="M-6 10q0-7 10-7h36v2H4q-7 0-8 5Z" />
       {question
         ? <path className="semantic-art__detail" d="M21 10c0-7 14-7 14 0 0 5-7 5-7 10m0 7h.1" />
         : <path className="semantic-art__detail" d="M7 13h33M12 23h23" />}
+      </g></g>
     </g>
   );
 }

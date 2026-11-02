@@ -129,11 +129,17 @@ export function RegisterScene({ visualKey, hintStage }: RegisterSceneProps): Rea
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <g data-scene-cue="solo-heavy-load">
               <SemanticPerson x={72} y={106} shirt="coral" pose="hold" scale={1.04} />
-              <g transform="rotate(-7 111 119)">
+              <g transform="rotate(-7 111 119)"><g className="semantic-art__motion-part semantic-art__prop-pivot"><g className="semantic-art__prop-sway">
                 <path className="semantic-art__gold semantic-art__outlined" d="M76 96h70v43H76Z" />
-                <path className="semantic-art__gold-lit" d="M78 98h66v10H78Z" />
-                <path className="semantic-art__detail semantic-art__detail--thin" d="M111 98v39" />
-              </g>
+                <path className="semantic-art__gold-deep" d="m136 96 10 0v43h-10Z" />
+                <path className="semantic-art__gold-lit" d="m77 97 9 7h49l10-7Z" />
+                <path className="semantic-art__gold-deep" d="M77 135q28 2 59-3v6H77Z" />
+                {/* Folded flaps meet under a broad strip of packing tape. */}
+                <path className="semantic-art__gold-soft" d="M108 97h7v40h-7Z" />
+                <path className="semantic-art__gold-lit" d="M109 97h2v39h-2Z" />
+                <path className="semantic-art__grain" d="M79 104h28m9 0h18m2 0v28m-55-23v19" />
+                <path className="semantic-art__gold-deep" d="m138 106 5-5v4l-5 5Z" />
+              </g></g></g>
               <path className="semantic-art__coral-line" d="M48 74 40 68m12 18-11-1m35-20 2-11" />
             </g>
             <SemanticPerson x={198} y={109} shirt="teal" facing="left" pose="reach" scale={1.0} />
