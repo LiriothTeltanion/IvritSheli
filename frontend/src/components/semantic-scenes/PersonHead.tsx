@@ -6,7 +6,7 @@
  */
 import type * as React from 'react';
 
-export type Expression = 'neutral' | 'smile' | 'talk' | 'surprised' | 'worried';
+export type Expression = 'neutral' | 'smile' | 'talk' | 'surprised' | 'worried' | 'sleep';
 export type Shirt = 'teal' | 'coral' | 'gold' | 'blue';
 
 // Scene coordinates, facing +x. The caller owns position, scale and mirroring.
@@ -66,6 +66,7 @@ export function PersonHead(props: {
   const { shirt, expression } = props;
   const hair = HAIR[shirt];
   const surprised = expression === 'surprised';
+  const sleeping = expression === 'sleep';
   const older = shirt === 'gold' || shirt === 'blue';
 
   return (
@@ -128,10 +129,20 @@ export function PersonHead(props: {
             : 'M-1-27.7Q.3-28.6 1.8-28.4M4.3-28.4Q5.3-28.8 6.1-28.2'}
       />
       <g className="semantic-art__face-eyes">
-        <ellipse className="semantic-art__eye" cx=".9" cy="-25.4" rx=".79" ry={surprised ? '1.14' : expression === 'smile' ? '.91' : '1'} />
-        <ellipse className="semantic-art__eye" cx="5.2" cy="-25.7" rx=".65" ry={surprised ? '1.05' : expression === 'smile' ? '.83' : '.91'} />
-        <ellipse className="semantic-art__eye-light" cx="1.08" cy="-25.76" rx=".23" ry=".28" />
-        <ellipse className="semantic-art__eye-light" cx="5.35" cy="-26.03" rx=".19" ry=".25" />
+        {sleeping ? (
+          // Closed lids remain closed through the shared blink animation.
+          <path
+            className="semantic-art__brow semantic-art__face-line"
+            d="M-.4-25.5Q.9-24.3 2.1-25.6M4.2-25.8Q5.2-24.8 6.1-25.9"
+          />
+        ) : (
+          <>
+            <ellipse className="semantic-art__eye" cx=".9" cy="-25.4" rx=".79" ry={surprised ? '1.14' : expression === 'smile' ? '.91' : '1'} />
+            <ellipse className="semantic-art__eye" cx="5.2" cy="-25.7" rx=".65" ry={surprised ? '1.05' : expression === 'smile' ? '.83' : '.91'} />
+            <ellipse className="semantic-art__eye-light" cx="1.08" cy="-25.76" rx=".23" ry=".28" />
+            <ellipse className="semantic-art__eye-light" cx="5.35" cy="-26.03" rx=".19" ry=".25" />
+          </>
+        )}
       </g>
 
       {older && (
@@ -166,7 +177,7 @@ export function PersonHead(props: {
         ) : (
           <path
             className="semantic-art__mouth semantic-art__face-line"
-            d={MOUTH[expression]}
+            d={MOUTH[sleeping ? 'neutral' : expression]}
           />
         )}
       </g>

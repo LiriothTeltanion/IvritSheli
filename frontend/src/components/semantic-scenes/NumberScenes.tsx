@@ -38,49 +38,41 @@ function CountingRow({ count, of = count }: { count: number; of?: number }): Rea
   );
 }
 
-/**
- * An open hand for five.
- *
- * One deliberately uses a countable object instead: an isolated raised finger
- * can become an offensive gesture across cultures and at small card sizes.
- * The thumb is separate so the open hand reads as five rather than a mitten.
+/** Shared palm for counting and stopping: four fingers and one opposing thumb.
+ * Local (0, 0) is the cuff's upper edge; callers own position and scale.
+ * One contour joins fingers, palm and wrist without the old overlapping boxes.
  */
+export function OpenPalm(): React.JSX.Element {
+  return (
+    <g className="semantic-art__motion-part semantic-art__prop-pivot">
+      <g className="semantic-art__prop-sway">
+        <path
+          className="semantic-art__hand"
+          d="M-16 2l-1-21q-10-5-14-17l-8-19c-3-7 4-12 9-6l10 16-3-39c-1-10 10-12 11-2l4 29q1 3 3 0l-1-36c0-10 11-11 12-1l1 37q1 3 3 0l2-32c1-9 11-8 11 1l-1 34q1 3 3 0l4-23c2-8 11-6 10 2l-4 40q-2 18-14 28L17 2Z"
+        />
+        {/* Light follows each rounded finger; the deep plane runs down the
+            little-finger edge and around the heel of the palm. */}
+        <path className="semantic-art__skin-lit" d="M-21-84q0-6 4-5l3 30-3 6ZM-5-93q1-6 5-5l1 40-3 3ZM12-86q1-5 4-4l-1 34-3 3ZM27-72q2-5 4-3l-3 22-3 4ZM-35-58l14 19 1 9-17-23q-1-3 2-5Z" />
+        <path className="semantic-art__skin-shade" d="m33-72-4 39q-2 18-14 28L14 2H6l3-15q14-13 16-29l4-30Z" />
+        <path className="semantic-art__skin-lit" d="M-17-43q8 3 13 15l-3 15-7 5-2-14q-5-9-1-21Z" />
+        {/* Reuse the body's fine crease language, enlarged with the hand. */}
+        <g transform="scale(3)">
+          <path className="semantic-art__body-hand-detail" d="M-5.7-14q3 1.5 4 5.5M-4-8q5 2 9-1M-5.7-21l2-.2M-1.2-23h2M3.8-22h2M8.5-18l1.6.3M-3.7-4q3.5 1 7 0" />
+        </g>
+        <path className="semantic-art__sleeve" d="M-22 0q22 3 44 0v18h-44Z" />
+        <path className="semantic-art__shirt-lit" d="M-22 0q5 1 9 1v17h-9Z" />
+        <path className="semantic-art__shirt-deep" d="m14 1 8-1v18h-8Z" />
+        <path className="semantic-art__body-sleeve-outline" d="M-22 0q22 3 44 0v18h-44ZM-20 6q20 3 40 0" />
+      </g>
+    </g>
+  );
+}
+
+/** Keep the five count dots unobstructed: the cuff ends at y=150. */
 function FiveFingerHand(): React.JSX.Element {
   return (
-    <g>
-      {/*
-        Scaled down and set on a forearm. At full size, with nothing below the
-        palm, it was eighty-six units of floating skin and read as a mitten —
-        the fingers had already been redrawn once to fix that and it was never
-        the fingers. A wrist and a cuff are what give a hand its scale.
-      */}
-      <g transform="translate(4 -8) scale(0.84)">
-      {/*
-        Fingers rise from the top edge of the palm and overlap it, rather than
-        being rotated boxes parked above it — detached fingers were what made
-        this read as a mitten with sticks glued on.
-      */}
-      <path className="semantic-art__skin semantic-art__outlined" d="M98 100V62a7 7 0 0 1 14 0v38Z" />
-      <path className="semantic-art__skin semantic-art__outlined" d="M114 100V52a7 7 0 0 1 14 0v48Z" />
-      <path className="semantic-art__skin semantic-art__outlined" d="M130 100V56a7 7 0 0 1 14 0v44Z" />
-      <path className="semantic-art__skin semantic-art__outlined" d="M146 102V68a7 7 0 0 1 13 0v34Z" />
-      <path className="semantic-art__skin semantic-art__outlined" d="M92 106q0-12 12-12h44q12 0 12 12v20q0 16-16 19h-36q-16-3-16-19Z" />
-      {/* Thumb, out to the side and slightly forward of the palm. */}
-      <path className="semantic-art__skin semantic-art__outlined" d="M92 116 74 106a7 7 0 0 1 7-12l16 9Z" />
-      <path className="semantic-art__skin-highlight" d="M102 112q0-9 12-9" />
-      <path className="semantic-art__skin-shade" d="M142 94h6q12 0 12 12v20q0 14-14 18 8-24 4-50Z" />
-      </g>
-      {/*
-        The cuff stops above y=153, where the counting row begins. Run down to
-        the foot of the card it covered three of the five dots — on the two
-        scenes whose whole job is that the dots can be counted.
-      */}
-      <path className="semantic-art__skin semantic-art__outlined" d="M86 106h44v30H86Z" />
-      <path className="semantic-art__skin-shade" d="M116 106h14v30h-14Z" />
-      <path className="semantic-art__teal semantic-art__outlined" d="M80 132h56v18H80Z" />
-      <path className="semantic-art__teal-deep" d="M118 132h18v18h-18Z" />
-      <path className="semantic-art__teal-lit" d="M80 132h12v18H80Z" />
-      <path className="semantic-art__garment-line" d="M84 140h48" />
+    <g className="semantic-art__person--teal" transform="translate(108 132)">
+      <OpenPalm />
     </g>
   );
 }

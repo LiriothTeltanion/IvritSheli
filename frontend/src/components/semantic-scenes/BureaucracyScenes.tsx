@@ -28,6 +28,7 @@
 import type { A0VisualKey } from '../../visuals/a0VisualRecipes';
 import type { SemanticHintStage } from '../SemanticWordIllustration';
 import { PaintedRoom, SceneLayer, SemanticPerson } from './SemanticScenePrimitives';
+import { PersonHead } from './PersonHead';
 
 interface BureaucracySceneProps {
   visualKey: A0VisualKey;
@@ -101,9 +102,19 @@ export function BureaucracyScene({
               card size.
             */}
             <path className="semantic-art__surface semantic-art__outlined" d="M28 80h44v48H28Z" />
-            <circle className="semantic-art__skin semantic-art__outlined" cx="50" cy="98" r="12" />
-            <path className="semantic-art__hair" d="M39 96c-1-10 5-15 11-14 7 1 11 5 10 14-6-4-15-4-21 0Z" />
-            <path className="semantic-art__teal" d="M34 128c1-14 7-22 16-22s15 8 16 22Z" />
+            {/* The photograph uses the same young adult as the living scenes;
+                a cropped bust fits inside the existing 44 by 48 photo frame. */}
+            <g className="semantic-art__person--teal">
+              <path className="semantic-art__skin" d="M46 104h8v9l-4 4-4-4Z" />
+              <path className="semantic-art__skin-shade" d="M46 104h8v5l-8-2Z" />
+              <path className="semantic-art__shirt" d="M34 128l1-9q1-8 11-9l4 4 4-4q10 1 11 9l1 9Z" />
+              <path className="semantic-art__shirt-lit" d="M35 119q1-7 8-8l-4 17h-5Z" />
+              <path className="semantic-art__shirt-deep" d="M58 111q6 2 7 8l1 9h-7Z" />
+              <path className="semantic-art__body-sleeve-outline" d="m46 111 4 4 4-4" />
+              <g transform="translate(49 98) scale(1.25) translate(0 25)">
+                <PersonHead shirt="teal" expression="neutral" />
+              </g>
+            </g>
             <path className="semantic-art__detail" d="M84 84h84m-84 16h60" />
             <BoxedField x={84} y={110} count={9} w={10} />
           </SceneLayer>

@@ -4,6 +4,8 @@
 import type { ReactNode } from 'react';
 import type { A0VisualKey } from '../../visuals/a0VisualRecipes';
 import type { SemanticHintStage } from '../SemanticWordIllustration';
+import { PersonHead } from './PersonHead';
+import { OpenPalm } from './NumberScenes';
 import {
   CalendarPage,
   PaintedRoom,
@@ -349,21 +351,15 @@ export function GreetingTimeScene({
             <path className="semantic-art__green semantic-art__outlined" d="M223 96c-13 1-18-9-11-15 8-6 16 5 11 15Z" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
-            <SemanticPerson x={54} y={100} shirt="coral" pose="neutral" scale={1.05} />
-            {/*
-              A raised palm at the size a palm actually is. It used to be fifty
-              units tall and read as a paddle; here the forearm gives it a
-              scale to be read against.
-            */}
-            <path className="semantic-art__skin-line" d="M64 104 80 86" />
-            <path className="semantic-art__skin semantic-art__outlined" d="M74 78h28a5 5 0 0 1 5 5v9a11 11 0 0 1-11 11h-16a11 11 0 0 1-11-11v-9a5 5 0 0 1 5-5Z" />
-            {/*
-              Four fingers, not two. With a pair of them the raised hand
-              read as a V sign, which is a different message in half the
-              places this app will be opened.
-            */}
-            <path className="semantic-art__skin semantic-art__outlined" d="M73 80V70a4 4 0 0 1 8 0v10Zm10 0V64a4 4 0 0 1 8 0v16Zm10 0V62a4 4 0 0 1 8 0v18Zm10 3V71a4 4 0 0 1 7 0v12Z" />
-            <path className="semantic-art__skin-shade" d="M99 78h3a5 5 0 0 1 5 5v9a11 11 0 0 1-10 11c5-8 6-17 2-25Z" />
+            <SemanticPerson x={54} y={100} shirt="coral" pose="ask" scale={1.05} />
+            {/* The raised arm's existing hand anchor meets the cuff, avoiding
+                a second forearm laid over the neutral character's arm. The
+                four fingers and thumb make the stop gesture unambiguous. */}
+            <g className="semantic-art__person--coral">
+              <g transform="translate(88 99) scale(.43)">
+                <OpenPalm />
+              </g>
+            </g>
             {/*
               Shaking: the arcs run side to side, against up and down for
               `yes`. They sit clear above the head — drawn across it they read
@@ -430,27 +426,39 @@ export function GreetingTimeScene({
                 water, and it now has a token that says so. */}
             <path className="semantic-art__night-sky" d="M148 40h48v49h-48Z" />
             <path className="semantic-art__detail semantic-art__detail--thin" d="M172 37v55m-27-27h54" />
-            <CrescentMoon x={166} y={61} scale={0.5} />
+            <g className="semantic-art__motion-part semantic-art__prop-glint">
+              <CrescentMoon x={166} y={61} scale={0.5} />
+            </g>
             <path className="semantic-art__shade" d="M20 24h200v130H20Z" />
             <path className="semantic-art__window-lit" d="m145 92 54-55v18l-36 37Z" opacity="0.35" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <ellipse className="semantic-art__prop-shadow" cx="103" cy="147" rx="76" ry="7" />
             <path className="semantic-art__teal semantic-art__outlined" d="M34 101h137v43H34Z" />
-            <path className="semantic-art__surface semantic-art__outlined" d="M40 88h51c17 0 28 12 28 29H40Z" />
-            <path className="semantic-art__gloss" d="M48 95c14-2 30-2 43 1" />
-            <circle className="semantic-art__skin semantic-art__outlined" cx="77" cy="98" r="13" />
-            <circle className="semantic-art__skin-lit" cx="73" cy="94" r="7" />
-            <path className="semantic-art__hair" d="M64 97c2-15 19-20 29-9-12 0-19 4-29 9Z" />
-            <path className="semantic-art__coral semantic-art__outlined" d="M101 106h70v38h-70Z" />
-            {/* Folds in the blanket, and its far edge in shadow. */}
-            <path className="semantic-art__grain" d="M118 110v30m17-30v30m17-30v30" />
-            <path className="semantic-art__shade" d="M101 132h70v12h-70Z" />
+            <path className="semantic-art__teal-lit" d="M35 102h8v41h-8Z" />
+            <path className="semantic-art__teal-deep" d="M35 136h136v8H35Z" />
+            {/* The pillow has a soft crown, compressed edge and sewn seam.
+                Its footprint and the bed's ground contact remain unchanged. */}
+            <path className="semantic-art__surface semantic-art__outlined" d="M40 89q26-8 51-1c17 0 28 12 28 29H40Z" />
+            <path className="semantic-art__surface-deep" d="M41 108q36 6 76 1l2 8H40Z" />
+            <path className="semantic-art__gloss" d="M47 92q22-5 44 0" />
+            <path className="semantic-art__grain" d="M44 110q34 5 70 0" />
+            <g className="semantic-art__person--teal">
+              <path className="semantic-art__skin" d="m84 100 14 4 7 8-20-2Z" />
+              <g transform="translate(77 98) rotate(-65) scale(1.4) translate(0 25)">
+                <PersonHead shirt="teal" expression="sleep" />
+              </g>
+            </g>
+            <g className="semantic-art__body-breath">
+              <path className="semantic-art__coral semantic-art__outlined" d="M101 106q30-8 70 0v38h-70Z" />
+              <path className="semantic-art__coral-lit" d="M102 106q31-7 69 0v6q-36-5-69 0Z" />
+              <path className="semantic-art__coral-deep" d="M159 105l12 1v38h-70v-8h57Z" />
+              <path className="semantic-art__grain" d="M115 111q-3 12 1 25m18-27q-3 13 0 27m18-26q-3 12 0 26M104 139h54" />
+            </g>
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            <path className="semantic-art__face" d="M70 99h5m7 0h5m-13 7q6 3 11 0" />
             <path className="semantic-art__motion semantic-art__motion-part" d="M104 76q11-9 21 0m-14-13q8-7 16 0" />
-            <path className="semantic-art__spark" d="m205 30 3 6 6 3-6 3-3 6-3-6-6-3 6-3Z" />
+            <path className="semantic-art__spark semantic-art__prop-glint" d="m205 30 3 6 6 3-6 3-3 6-3-6-6-3 6-3Z" />
           </SceneLayer>
         </>
       );

@@ -290,15 +290,29 @@ export function CoreGreetingTimeScene({
             <path className="semantic-art__gloss" d="M60 68v72" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            <path
-              className="semantic-art__skin semantic-art__outlined"
-              d="M23 147c21-27 43-45 72-57l21 23c-22 15-38 30-49 48H23Z"
-            />
-            <path className="semantic-art__skin-line" d="M85 113 111 96" />
-            <path
-              className="semantic-art__coral semantic-art__outlined"
-              d="m112 90 7 13 15 2-11 10 3 15-14-7-14 7 3-15-11-10 15-2Z"
-            />
+            {/* Index behind the star, thumb in front: a real pinch preserves
+                the original star position and the forearm's lower-left entry. */}
+            <g className="semantic-art__person--teal">
+              <g className="semantic-art__motion-part semantic-art__prop-pivot">
+                <g className="semantic-art__prop-sway">
+                  <path className="semantic-art__hand" d="M23 147c21-27 43-45 66-54q10-5 17-1 7 5 1 10l-9 6q10-5 16-2 7 4 1 10l-12 8q-8 4-15-2-13 10-21 25l-6 14H23Z" />
+                  <path className="semantic-art__skin-lit" d="M39 136q27-29 51-39 9-4 13-2l-14 10q-24 12-45 36Z" />
+                  <path className="semantic-art__skin-shade" d="M62 161h-9q12-29 35-44 9 6 17 3l10-6-12 10q-8 4-15-2-13 10-21 25Z" />
+                  <path className="semantic-art__sleeve" d="m23 147 19-23q13 8 27 23l-8 14H23Z" />
+                  <path className="semantic-art__shirt-lit" d="m23 147 19-23 5 4-18 26v7h-6Z" />
+                  <path className="semantic-art__shirt-deep" d="m59 138 10 9-8 14H50Z" />
+                  <path className="semantic-art__body-sleeve-outline" d="m23 147 19-23q13 8 27 23l-8 14H23Zm16-18q13 9 26 23" />
+                  <path className="semantic-art__coral semantic-art__outlined" d="m112 90 7 13 15 2-11 10 3 15-14-7-14 7 3-15-11-10 15-2Z" />
+                  <path className="semantic-art__coral-lit" d="m112 90 1 18-23-3 15-2Z" />
+                  <path className="semantic-art__coral-deep" d="m113 108 21-3-11 10 3 15-14-7Z" />
+                  <path className="semantic-art__hand" d="M93 111q3-10 11-12l6 1q4 2 1 5l-8 5q-1 7-6 8" />
+                  <path className="semantic-art__skin-lit" d="M96 109q3-7 8-8h4l-8 6-2 4Z" />
+                  <g transform="scale(2)">
+                    <path className="semantic-art__body-hand-detail" d="M45 52.5q1 2.5 3 3M46 58q1.5 1 3 .5M49.5 61l2-1M51 49l2-1" />
+                  </g>
+                </g>
+              </g>
+            </g>
           </SceneLayer>
         </>
       );
