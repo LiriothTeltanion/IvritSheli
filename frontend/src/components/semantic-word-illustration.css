@@ -569,7 +569,9 @@
 .semantic-art__painted-room { pointer-events: none; }
 :root[data-theme="dark"] .semantic-art__painted-room,
 :root[data-theme="dark"] [data-painted-backdrop] { filter: brightness(.6) saturate(.85); }
-@media (prefers-contrast: more), (forced-colors: active) {
+/* Kevin compared both on 2026-11-02 and kept the paintings in the app's high contrast too, as the living-scene
+   backdrops already were. Only the system forced-colours mode still drops the rooms. */
+@media (forced-colors: active) {
   .semantic-art__painted-room { display: none; }
 }
 @media (prefers-contrast: more), (forced-colors: active) {
