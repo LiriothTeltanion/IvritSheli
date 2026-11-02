@@ -755,6 +755,18 @@ describe('App cloud session flow', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('greets her with the same name as the profile menu after a rename on this device', async () => {
+    /* The greeting read the dashboard's copy of the profile, loaded once, so the menu said Kiko while the
+       greeting still said Ana (Kevin saw it on 2026-11-02). Both now read the chosen name. */
+    localStorage.setItem('ivrit-sheli:learner-identity:v1:42', JSON.stringify({ displayName: 'Kiko' }));
+    vi.stubGlobal('fetch', routeFetch(googleSession, { ...profile, display_name: 'Ana' }));
+    renderApp();
+
+    expect(await screen.findByRole('button', { name: /Open profile menu: Kiko/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Shalom, Kiko/i })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: /Shalom, Ana/i })).not.toBeInTheDocument();
+  });
+
   it('falls back to the session name while no name has been chosen', async () => {
     // 'Learner' is the profiles column default: it means nobody has chosen
     // anything, so it must not outrank the name on the session.

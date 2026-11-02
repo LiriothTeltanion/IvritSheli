@@ -1149,6 +1149,7 @@ export default function App(): React.JSX.Element {
           {view === 'today' && !firstStepsOpen && (
             <TodayDashboard
               dashboard={dashboard}
+              learnerName={identityName}
               firstStepsComplete={firstStepsComplete}
               onWordClick={openDictionary}
               onCapture={() => setCaptureOpen(true)}

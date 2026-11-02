@@ -22,6 +22,11 @@ import { DailyMetrics } from './DailyMetrics';
 
 interface TodayDashboardProps {
   dashboard: Dashboard;
+  /**
+   * The name she chose, as the profile menu shows it. Required on purpose: the greeting used to read the
+   * dashboard's copy of the profile, loaded once, so after a rename it still said the old name (2026-11-02).
+   */
+  learnerName: string;
   firstStepsComplete: boolean;
   onWordClick: (word: string) => void;
   onCapture: () => void;
@@ -38,6 +43,7 @@ interface TodayDashboardProps {
 
 export function TodayDashboard({
   dashboard,
+  learnerName,
   firstStepsComplete,
   onWordClick,
   onCapture,
@@ -123,7 +129,7 @@ export function TodayDashboard({
         ? word.translation_es
         : word.translation_en
   );
-  const firstName = dashboard.profile.display_name.split(' ')[0] || dashboard.profile.display_name;
+  const firstName = learnerName.split(' ')[0] || learnerName;
   const focusReason = (() => {
     if (locale === 'en') return dashboard.focus.reason;
     if (dashboard.focus.reason.startsWith('No recurring mistake pattern')) return t('balancedFocusReason');
