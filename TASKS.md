@@ -16,7 +16,7 @@ GitHub Release; Render Free staging is live and verified for a private pilot
 **Public Contest Boundary:** The contest freeze **expired on 2026-08-25**. The
 latest published source release is **v2.12.2 (2026-08-27)** on `main`. The former
 2.4.0 hosted service is currently offline. Deployment remains a separate
-decision that only Kevin can authorize, per `AGENTS.md` hard rule 1.
+decision that only Kevin can authorize, per project hard rule 1.
 
 ---
 
@@ -71,23 +71,16 @@ omitted; it was a diagnostic session, never a product URL.
 > anything — `Get-NetTCPConnection -LocalPort 5173 -State Listen` — and use
 > `frontend-alt` on 5179 instead.
 >
-> Rule 3 in `AGENTS.md` still stands: a CSP defect is invisible on the Vite
+> Project rule 3 still stands: a CSP defect is invisible on the Vite
 > port and only appears on the served path, so confirm on the backend port too.
 
 ---
 
 ## 🧭 Paneles de seguimiento
 
-El **Centro de mando** manda sobre los demás: dice el estado real y, para cada
-otro panel, qué sigue siendo cierto y qué ya no. Empieza siempre por ahí.
-
-| Panel | Qué cubre | Estado |
-|---|---|---|
-| [Centro de mando](https://claude.ai/code/artifact/23ca714a-9a56-4c4c-955a-aa8f3311808d) | Estado real, los otros paneles, y todo lo pendiente con dueño | **Autoridad** |
-| [Escaneo del repositorio](https://claude.ai/code/artifact/13fc2920-210f-465d-859e-ebd541716e67) | Estado medido, reparaciones, peso, bloqueos | Al día (23 ago) |
-| [Repintado Nocturne](https://claude.ai/code/artifact/dd431abf-e079-4e6d-9f0f-320346ec2432) | Las 240 escenas: cobertura, defectos, familias, antes/después | Cuerpo válido, cabecera vencida (17 ago) |
-| [Sistema de ilustración](https://claude.ai/code/artifact/b91c5fb8-f9f6-498e-a539-0bfb60fa13f7) | Paleta, reglas de dibujo, láminas por categoría | Muestra 144 de 240 escenas (9 ago) |
-| [Inventario · Imágenes](https://claude.ai/code/artifact/d049d2fd-997f-4adb-92db-3fd7a7a9b9f5) | Inventario de recursos gráficos | Sin revisar (19 jul) |
+Los paneles de seguimiento (centro de mando, escaneo del repositorio, repintado,
+sistema de ilustración e inventario de imágenes) son privados y no forman parte
+del repositorio público.
 
 ---
 
@@ -127,7 +120,7 @@ runs `ed59eb84`.
 
 ## 📋 Master Task Tracker
 ### Completed Operational Fixes (2026-08-27)
-- [x] **CI Pipeline Verification & Fixes:** Debugged and permanently resolved GitHub Actions pipeline failures (`checksum_manifest_drift` and `release_truth_drift`). Documented strict rule in `AGENTS.md` prohibiting any trailing whitespaces (which caused `git diff --check HEAD^ HEAD` to fail) and enforcing exact regex matches for Release Truth Gate in `verify_package.py`.
+- [x] **CI Pipeline Verification & Fixes:** Debugged and permanently resolved GitHub Actions pipeline failures (`checksum_manifest_drift` and `release_truth_drift`). Documented a strict project rule prohibiting any trailing whitespaces (which caused `git diff --check HEAD^ HEAD` to fail) and enforcing exact regex matches for Release Truth Gate in `verify_package.py`.
 
 
 ### ✅ Completed Tasks (2.12.3 candidate & recent sessions)
@@ -487,7 +480,7 @@ runs `ed59eb84`.
       the "not run" list.
 - [x] **The Claro card in Ajustes did nothing** — `theme` and `onThemeChange`
       were never passed to `SettingsPanel`. Fourth prop of this kind; now
-      `AGENTS.md` hard rule 8.
+      project hard rule 8.
 - [x] **Settings could crash outright** — `payload?.recent_feedback.length`
       guarded one level and not the next. Found by the test written for the
       theme bug.
@@ -499,10 +492,10 @@ runs `ed59eb84`.
       covered the drawer at `20`, so every tap closed the menu instead of
       navigating. Now drawer 50 > backdrop 45 > bottom nav 40, guarded by
       `sidebarStacking.test.ts`. No vitest test could have caught it:
-      `AGENTS.md` hard rule 9.
+      project hard rule 9.
 - [x] **The avatar grid looked broken** — fifteen presets, six to a row, ragged
       last row. All fifteen files are present; the grid is now five columns.
-- [x] **The contest freeze expired** — `AGENTS.md` hard rule 1 rewritten without
+- [x] **The contest freeze expired** — project hard rule 1 rewritten without
       a date in it.
 
 - [ ] **Three more avatars, if the roster should be eighteen** — not a defect,
