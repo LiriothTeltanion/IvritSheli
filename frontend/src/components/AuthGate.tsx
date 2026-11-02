@@ -16,6 +16,7 @@ import { markIntroLessonSeen } from './PreAccountLesson';
 import { PreAccountLesson } from './PreAccountLesson';
 import { AVATAR_PRESETS } from '../profileAvatarPresets';
 import { VERSION_HISTORY_COPY } from '../versionHistory';
+import { LanguageSwitch } from './LanguageSwitch';
 
 
 type AuthGateSavedAccount = {
@@ -381,16 +382,7 @@ export function AuthGate({
           </small>
         </a>
         <div className="auth-header__actions">
-          <div className="locale-switch auth-locale" aria-label={t('interfaceLanguage')}>
-            {(['en', 'es', 'he'] as Locale[]).map((code) => (
-              <button key={code} type="button" className={locale === code ? 'active' : ''} onClick={() => {
-                window.localStorage.setItem('ivrit-sheli-locale-explicit', 'true');
-                setLocale(code);
-              }}>
-                {code.toUpperCase()}
-              </button>
-            ))}
-          </div>
+          <LanguageSwitch className="auth-locale" />
         </div>
       </header>
 

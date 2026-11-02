@@ -21,6 +21,7 @@ import { BeginnerOnboarding } from './components/BeginnerOnboarding';
 import { FirstStepsLesson } from './components/FirstStepsLesson';
 import { Icon, type IconName } from './components/Icon';
 import { IvritSheliWordmark } from './components/IvritSheliWordmark';
+import { LanguageSwitch } from './components/LanguageSwitch';
 import { warmSceneLayer } from './warmSceneLayer';
 import {
   forgetSavedAccount,
@@ -798,21 +799,7 @@ export default function App(): React.JSX.Element {
             <IvritSheliWordmark label={t('appName')} />
             <small>{t('firstSteps')}</small>
           </a>
-          <div className="locale-switch" aria-label={t('interfaceLanguage')}>
-            {(['en', 'es', 'he'] as Locale[]).map((code) => (
-              <button
-                key={code}
-                type="button"
-                className={locale === code ? 'active' : ''}
-                onClick={() => {
-                  window.localStorage.setItem('ivrit-sheli-locale-explicit', 'true');
-                  setLocale(code);
-                }}
-              >
-                {code.toUpperCase()}
-              </button>
-            ))}
-          </div>
+          <LanguageSwitch />
         </header>
         <section className="onboarding-card local-pilot-welcome__card">
           <div className="local-pilot-welcome__copy">
@@ -999,18 +986,16 @@ export default function App(): React.JSX.Element {
           <div className="topbar-context"><span>{pageTitle}</span><i /> <strong>{t('appTagline')}</strong><em className="learner-mode-chip">{t(learnerModeLabelKey(learnerMode))}</em><em className="cefr-level-chip">{t('level')} {profile.cefr_band ?? profile.hebrew_level}</em></div>
           <div className="topbar-actions">
             <span className={`network-chip ${online ? '' : 'is-offline'}`}><Icon name={online ? 'cloud' : 'offline'} size={15} />{online ? t('online') : t('offline')}</span>
-            <div className="locale-switch" aria-label={t('interfaceLanguage')}>
-              {(['en', 'es', 'he'] as Locale[]).map((code) => <button key={code} type="button" className={locale === code ? 'active' : ''} onClick={() => {
-                window.localStorage.setItem('ivrit-sheli-locale-explicit', 'true');
-                setLocale(code);
+            <LanguageSwitch
+              onChoose={(code) => {
                 // Saved to the profile as well, so the next device opens in the language chosen here.
                 if (!auth.read_only) {
                   void api.updateProfile({ interface_language: code }).then(setProfile).catch(() => {
                     // The device keeps the choice; the next successful save carries it.
                   });
                 }
-              }}>{code.toUpperCase()}</button>)}
-            </div>
+              }}
+            />
             <button type="button" className="icon-button" onClick={() => chooseTheme(theme === 'dark' ? 'light' : 'dark')} aria-label={t('toggleTheme')}>{theme === 'dark' ? '☀' : '☾'}</button>
             {learnerMode === 'guided' && (
               <button type="button" className="topbar-help" onClick={() => handleSetView('help')}>

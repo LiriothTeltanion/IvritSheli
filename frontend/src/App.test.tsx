@@ -203,7 +203,7 @@ describe('App cloud session flow', () => {
     expect(screen.getByRole('button', { name: 'Explore read-only demo' })).toBeEnabled();
     expect(screen.getByText(/No password is created or stored here/i)).toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: 'HE' }));
+    await user.click(screen.getByRole('radio', { name: 'עברית' }));
     expect(screen.getByRole('heading', { name: 'העברית שלך. ההתקדמות שלך. המקום שלך.' })).toBeInTheDocument();
     expect(screen.getAllByText('הדרך שלך לעברית').length).toBeGreaterThan(0);
     // The tagline now appears in the hero and again in the footer, where the
@@ -213,7 +213,7 @@ describe('App cloud session flow', () => {
     expect(screen.getByLabelText('יכולות מרחב הלימוד')).toBeInTheDocument();
     expect(document.documentElement).toHaveAttribute('dir', 'rtl');
 
-    await user.click(screen.getByRole('button', { name: 'ES' }));
+    await user.click(screen.getByRole('radio', { name: 'Español' }));
     expect(screen.getByRole('heading', { name: 'Tu hebreo. Tu progreso. Tu espacio.' })).toBeInTheDocument();
     expect(document.documentElement).toHaveAttribute('dir', 'ltr');
   });
@@ -337,7 +337,7 @@ describe('App cloud session flow', () => {
 
     await screen.findByText('Your progress is saved');
     const switcher = document.querySelector<HTMLElement>('.topbar .locale-switch')!;
-    await user.click(within(switcher).getByRole('button', { name: 'ES' }));
+    await user.click(within(switcher).getByRole('radio', { name: 'Español' }));
 
     await waitFor(() => {
       const saves = fetchMock.mock.calls.filter(([url, init]) => String(url).endsWith('/profile') && init?.method === 'PUT');
