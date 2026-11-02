@@ -66,3 +66,13 @@ Thumbs.db
 .env*.bak
 .env.admin.bak-*
 .env.*.bak
+
+# 2026-11-02: internal agent and packaging files stay on Kevin's machine and are
+# no longer published. They are still read locally by the assistants.
+/NOVA_HANDOFF.md
+/NOVA_PHASE4_REPORT.md
+/PROMPT-NUEVA-SESION.md
+/COMO-CORRER-COSAS.md
+/CODEX.md
+/Compress-IvritSheli-Clean-v2.ps1
+/RUN_Compress_IvritSheli_Clean_v2.cmd
