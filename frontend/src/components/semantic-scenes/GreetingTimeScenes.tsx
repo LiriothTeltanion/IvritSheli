@@ -220,12 +220,27 @@ export function GreetingTimeScene({
             <SemanticPerson x={44} y={104} shirt="blue" pose="reach" scale={1.05} />
             <SemanticPerson x={162} y={104} shirt="coral" facing="left" pose="hold" scale={1.05} />
             {/* The parcel, held between the two of them. */}
-            <path className="semantic-art__gold semantic-art__outlined" d="M84 84h48v40H84Z" />
-            <path className="semantic-art__gold-lit" d="M84 84h12v40H84Z" />
-            <path className="semantic-art__gold-deep" d="M120 84h12v40h-12Z" />
-            <path className="semantic-art__coral semantic-art__outlined" d="M78 76h60v14H78Z" />
-            <path className="semantic-art__coral-line" d="M102 76v48" />
-            <path className="semantic-art__coral semantic-art__outlined" d="M100 76c-13-14 2-25 17 0m6 0c14-14-1-25-6 0Z" />
+            <path className="semantic-art__gold semantic-art__outlined" d="M84 84H132V124H84Z" />
+            <path className="semantic-art__gold-lit" d="M85 88H96V123H85Z" />
+            <path className="semantic-art__gold-deep" d="M120 88H132V124H120Z" />
+            {/* Crossed ribbon wraps all three visible faces; the lid casts a
+                narrow contact shadow instead of floating over the parcel. */}
+            <path className="semantic-art__coral" d="M103 89H111V124H103ZM84 103H132V110H84Z" />
+            <path className="semantic-art__coral-lit" d="M103 90H106V124H103ZM85 103H96V106H85Z" />
+            <path className="semantic-art__coral-deep" d="M120 103H132V110H120ZM108 90H111V124H108Z" />
+            <path className="semantic-art__gold-deep" d="M84 88H132V94H84Z" />
+            <path className="semantic-art__coral semantic-art__outlined" d="M78 80L83 76H133L138 80V90H78Z" />
+            <path className="semantic-art__coral-lit" d="M79 80L84 77H131L135 80Z" />
+            <path className="semantic-art__coral-deep" d="M128 81H138V90H128ZM79 87H128V90H79Z" />
+            <path className="semantic-art__coral-deep" d="M105 75Q99 85 96 97L102 94L106 99L110 77ZM110 76Q116 84 124 93L118 92L116 97L107 78Z" />
+            <path className="semantic-art__coral-lit" d="M104 78L99 92L102 91L108 78ZM111 78L119 89L116 87L108 78Z" />
+            <g className="semantic-art__motion-part semantic-art__prop-pivot">
+              <path className="semantic-art__coral semantic-art__outlined" d="M107 75C96 75 89 70 90 63C92 54 106 59 109 72C111 61 120 55 125 60C132 68 120 76 110 76Z" />
+              <path className="semantic-art__coral-deep" d="M105 72Q96 71 95 65Q101 64 105 72ZM113 72Q116 65 122 64Q122 70 113 72Z" />
+              <path className="semantic-art__coral-lit" d="M92 62Q98 57 105 67Q97 61 94 65ZM115 63Q122 57 125 64Q121 61 115 67Z" />
+              <path className="semantic-art__coral semantic-art__outlined" d="M104 71Q108 69 112 72L112 77Q108 79 104 76Z" />
+              <path className="semantic-art__coral-lit" d="M105 72H108V76H105Z" />
+            </g>
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
             {/*
@@ -233,10 +248,13 @@ export function GreetingTimeScene({
               used to be a heart the size of the parcel, and two other greeting
               scenes carried one too.
             */}
-            <g transform="translate(150 22) scale(-0.5 0.5)">
-              <SpeechBubble x={0} y={0} />
-            </g>
-            <path className="semantic-art__coral semantic-art__outlined" d="M126 36c0-9 11-10 14-3 4-7 15-6 15 3 0 9-15 17-15 17s-14-8-14-17Z" />
+            {/* A dedicated heart bubble avoids the shared speech lines showing
+                through the symbol, and its tail points to the recipient. */}
+            <path className="semantic-art__bubble-shadow" d="M125 24H151Q157 24 157 30V46Q157 51 151 51H146L151 59L139 51H125Q120 51 120 46V30Q120 24 125 24Z" transform="translate(1 2)" />
+            <path className="semantic-art__surface semantic-art__bubble semantic-art__outlined" d="M125 24H151Q157 24 157 30V46Q157 51 151 51H146L151 59L139 51H125Q120 51 120 46V30Q120 24 125 24Z" />
+            <path className="semantic-art__coral semantic-art__outlined" d="M138 33C132 25 123 31 127 38Q130 43 138 48Q146 43 150 38C155 30 144 25 138 33Z" />
+            <path className="semantic-art__coral-deep" d="M149 33Q152 39 138 48L138 44Q147 38 149 33Z" />
+            <path className="semantic-art__coral-lit" d="M129 32Q132 29 135 33L133 35Q129 33 129 37Q127 34 129 32Z" />
             <path className="semantic-art__spark" d="m66 62 4 8 8 4-8 4-4 8-4-8-8-4 8-4Z" />
             <path className="semantic-art__gloss" d="M90 92v24" />
           </SceneLayer>

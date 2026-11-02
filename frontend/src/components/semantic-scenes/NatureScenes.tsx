@@ -32,18 +32,28 @@ function NatureSun({ x, y, r = 17, hot = false }: {
   );
 }
 
-/** Broadleaf tree: rounded crown on a short trunk. Used by tree/garden/forest. */
+/** Olive-like broadleaf: the same bounds and rooted base for every caller. */
 function LeafTree({ x, y, scale = 1, dark = false }: {
   x: number; y: number; scale?: number; dark?: boolean;
 }): React.JSX.Element {
   return (
     <g transform={`translate(${x} ${y}) scale(${scale})`}>
-      <path className="semantic-art__wood semantic-art__outlined" d="M-5 10h10v42H-5Z" />
-      <path className="semantic-art__detail semantic-art__detail--thin" d="M-1 18v28M-5 16l-9-8M5 24l9-8" />
-      <circle className={`${dark ? 'semantic-art__green' : 'semantic-art__green-soft'} semantic-art__outlined`} cx="-13" cy="-2" r="17" />
-      <circle className="semantic-art__green semantic-art__outlined" cx="12" cy="-5" r="19" />
-      <circle className={`${dark ? 'semantic-art__green' : 'semantic-art__green-soft'} semantic-art__outlined`} cx="0" cy="-21" r="18" />
-      <path className="semantic-art__leaf-lit" d="M-10-30c8-6 18-4 24 3M-25-6c-2-8 1-14 7-18" />
+      <ellipse className="semantic-art__prop-shadow" cx="0" cy="52" rx="14" ry="2.5" />
+      <path className="semantic-art__wood semantic-art__outlined" d="M-5 52q3-16 2-28L-13 7l4-3L1 19 12 3l4 3L5 26q-2 13 0 26Z" />
+      <path className="semantic-art__wood-deep" d="M1 24 12 3l4 3L5 26q-2 13 0 26H1q-2-15 0-28Z" />
+      <path className="semantic-art__wood-lit" d="M-4 48q3-12 2-23l-7-15 3 2 6 12q0 14-1 24Z" />
+      <path className="semantic-art__grain" d="M-1 32v9m4-21 4-7" />
+      {/* Irregular overlapping clusters read as foliage, even when detail is
+          hidden in thumbnails. Only the canopy sways; the roots stay planted. */}
+      <g className="semantic-art__motion-part semantic-art__prop-foliage">
+        <path className="semantic-art__green-deep semantic-art__outlined" d="M-28 3q-5-10 3-16-1-10 10-12 8-3 15 6 10-9 22-3 11 3 9 14 2 10-8 14-8 7-19 3-9 9-19 4-12 2-13-10Z" />
+        <path className={`${dark ? 'semantic-art__green' : 'semantic-art__green-soft'} semantic-art__outlined`} d="M-29-3q-3-9 5-13 0-8 9-9 9-2 14 6 5 7-1 15-2 8-12 9-11 3-15-8Z" />
+        <path className="semantic-art__green semantic-art__outlined" d="M0-17q5-10 16-7 6 0 9 7 8 2 6 11-1 9-11 11-9 4-17-2-7-7-3-20Z" />
+        <path className="semantic-art__green-deep" d="M4-6q11 8 25-3 2 10-9 14-9 4-17-2Z" />
+        <path className={`${dark ? 'semantic-art__green' : 'semantic-art__green-soft'} semantic-art__outlined`} d="M-17-24q-3-9 5-12 6-5 14-2 10-2 14 7 5 8-1 15-5 8-16 5-12 2-16-8Z" />
+        <path className="semantic-art__green-lit" d="M-13-29q2-7 10-6 8-3 14 4-7-3-11 2-6-3-13 0ZM-24-13q3-8 11-8l5 3q-9-1-16 5Z" />
+        <path className="semantic-art__leaf-lit" d="m-9-28 4-2m13 12 4 1m-33 5 3-2" />
+      </g>
     </g>
   );
 }
@@ -74,10 +84,14 @@ export function NatureScene({
             <path className="semantic-art__sun-rays semantic-art__sun-rays--hot semantic-art__motion-part" d="M22 92h34m14 0h26" />
             {/* A lone acacia and three camel tracks: scale, and that this is
                 somewhere people cross rather than an abstract gradient. */}
-            <path className="semantic-art__wood semantic-art__outlined" d="M44 132h5v22h-5Z" />
-            <path className="semantic-art__green semantic-art__outlined" d="M26 128q20-14 40 0-20 10-40 0Z" />
-            <path className="semantic-art__leaf-lit" d="M32 126q14-8 28 0" />
             <ellipse className="semantic-art__prop-shadow" cx="47" cy="155" rx="14" ry="3" />
+            <path className="semantic-art__wood semantic-art__outlined" d="M44 154q3-10 1-15l-8-9 2-2 8 8 7-10 2 1-7 13v14Z" />
+            <path className="semantic-art__wood-deep" d="m47 138 7-12 2 1-7 13v14h-2Z" />
+            <g className="semantic-art__motion-part semantic-art__prop-foliage">
+              <path className="semantic-art__green-deep semantic-art__outlined" d="M26 128q-1-4 5-5 1-4 8-3 5-3 10-1 5-2 9 2 6-1 8 7-7 4-15 3-6 4-12 0-8 2-13-3Z" />
+              <path className="semantic-art__green" d="M27 126q3-4 8-3 3-4 10-2 5-2 10 1 6-1 9 4-10 2-18 0-10 3-19 0Z" />
+              <path className="semantic-art__green-lit" d="M30 125q3-3 8-2 6-3 12-1 5-1 9 2l-11-1-8 2Z" />
+            </g>
             <path className="semantic-art__grain" d="M104 158h6m10 2h6m10-2h6" />
           </SceneLayer>
         </>
@@ -378,8 +392,27 @@ export function NatureScene({
             <PaintedRoom name="scene-field" x={12} y={12} width={216} height={156} />
             <NatureSun x={202} y={32} r={13} />
             {/* Village on the skyline, small, so the field stays the subject. */}
-            <path className="semantic-art__surface semantic-art__outlined" d="M26 78h20v14H26Zm26 0h16v14H52Zm22-4h18v18H74Z" />
-            <path className="semantic-art__coral semantic-art__outlined" d="m24 78 12-10 12 10Zm26 0 8-8 10 8Zm22-4 9-9 11 9Z" />
+            {/* Three moshav homes keep the exact roof peaks and ground line.
+                Eaves, a shaded return wall and small openings give them scale. */}
+            {([
+              { left: 24, ridge: 36, right: 48, top: 68, eave: 78, wall: 26, end: 46 },
+              { left: 50, ridge: 58, right: 68, top: 70, eave: 78, wall: 52, end: 68 },
+              { left: 72, ridge: 81, right: 92, top: 65, eave: 74, wall: 74, end: 92 },
+            ] as const).map(({ left, ridge, right, top, eave, wall, end }) => (
+              <g key={left}>
+                <path className="semantic-art__surface semantic-art__outlined" d={`M${wall} ${eave}H${end}V92H${wall}Z`} />
+                <path className="semantic-art__surface-deep" d={`M${end - 4} ${eave}h4V92h-4Z`} />
+                <path className="semantic-art__coral semantic-art__outlined" d={`M${left} ${eave} ${ridge} ${top} ${right} ${eave}Z`} />
+                <path className="semantic-art__coral-deep" d={`M${ridge} ${top} ${right} ${eave}h-4Z M${wall} ${eave}H${end}v1.5H${wall}Z`} />
+                <path className="semantic-art__coral-lit" d={`M${left + 3} ${eave - 1} ${ridge} ${top + 1.5} ${ridge - 1} ${top + 3.5}Z`} />
+                {/* Tile courses use filled slivers rather than thick strokes:
+                    the roof is only eight to ten scene units high. */}
+                <path className="semantic-art__coral-deep" d={`M${left + 4} ${eave - 2.5}H${right - 4}v0.4H${left + 4}Z M${ridge - 3} ${eave - 5}h6v0.4h-6Z M${ridge - 1} ${eave - 4.8}h0.4v2.3h-0.4Z M${ridge - 4} ${eave - 2.3}h0.4v2h-0.4Z M${ridge + 2} ${eave - 2.3}h0.4v2h-0.4Z`} />
+                <path className="semantic-art__wood-deep" d={`M${wall + 7} 92v-7h3v7Z`} />
+                <path className="semantic-art__window semantic-art__outlined" d={`M${wall + 2} ${eave + 4}h3v3h-3Z`} />
+                <path className="semantic-art__surface-lit" d={`M${wall + 1.5} ${eave + 7}h4v1h-4Z`} />
+              </g>
+            ))}
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <path className="semantic-art__green semantic-art__outlined semantic-art__glaze" d="M12 92h216v70H12Z" />
@@ -409,15 +442,32 @@ export function NatureScene({
             {/* Trunks at varying widths read as depth into the wood. */}
             {([[22, 9], [46, 7], [66, 5], [176, 9], [200, 7], [218, 5]] as const).map(([x, w]) => (
               <g key={x}>
-                <path className="semantic-art__wood semantic-art__outlined" d={`M${x} 30h${w}q2 66-1 132h${-w + 1}q3-66 1-132Z`} />
-                <path className="semantic-art__wood-deep" d={`M${x + w * 0.6} 30h${w * 0.4}q2 66-1 132h${-w * 0.4}Z`} />
-                <path className="semantic-art__grain" d={`M${x + w * 0.4} 44v104`} />
+                {/* A slender side branch emerges at a different height in
+                    each row, behind the continuous lit trunk plane. */}
+                <path className="semantic-art__wood" d={`M${x + w * 0.6} ${67 - (x % 3) * 5}q-8-7-9-20l2 3q2 8 6 11l4-14 1-1-2 19Z`} />
+                <path className="semantic-art__wood semantic-art__outlined" d={`M${x + 1} 162q3-62 1-104l-2-28h${w * 0.6}q4 68 ${w * 0.4 - 0.6} 132Z`} />
+                <path className="semantic-art__wood-deep" d={`M${x + w * 0.6} 30q4 68 ${w * 0.4 - 0.6} 132h${-w * 0.34}q2-68 ${-w * 0.06} -132Z`} />
+                <path className="semantic-art__wood-lit" d={`M${x + 2} 158q2-56 0-110l${w * 0.2} 7q2 57 0 103Z`} />
+                {/* Broken bark seams and one knot avoid a ruled-post trunk. */}
+                <path className="semantic-art__grain" d={`M${x + w * 0.45} 76l-0.5 14m1 8 0.5 20m-1 10-0.5 13M${x + 3} 46l1 6`} />
+                <ellipse className="semantic-art__wood-deep" cx={x + w * 0.45} cy={104 + (x % 3) * 9} rx={w * 0.15} ry="2.5" />
               </g>
             ))}
-            <circle className="semantic-art__green semantic-art__outlined" cx="34" cy="34" r="26" />
-            <circle className="semantic-art__green semantic-art__outlined" cx="76" cy="26" r="24" />
-            <circle className="semantic-art__green semantic-art__outlined" cx="190" cy="30" r="26" />
-            <circle className="semantic-art__green semantic-art__outlined" cx="224" cy="26" r="22" />
+            {/* Broad oak/pine masses retain the four original crown envelopes.
+                Placement lives outside the animated group so replay cannot
+                replace its SVG translation or scale. */}
+            {([[34, 34, 26], [76, 26, 24], [190, 30, 26], [224, 26, 22]] as const).map(([x, y, r]) => (
+              <g key={x} transform={`translate(${x} ${y}) scale(${r / 26})`}>
+                <g className="semantic-art__motion-part semantic-art__prop-foliage">
+                  <path className="semantic-art__green-deep semantic-art__outlined" d="M-25 3q-3-9 3-15-1-9 9-10 7-7 16-2 10-4 15 5 9 3 7 12 4 10-5 16-1 10-13 10-9 9-18 3-11 0-14-10Z" />
+                  <path className="semantic-art__green" d="M-24-1q-3-9 5-13 0-8 10-8 7-5 13 0 11-3 14 6 8 3 6 11-5 8-14 4-7 7-15 2-11 5-19-2Z" />
+                  <path className="semantic-art__green-soft" d="M-20-10q0-8 10-9 6-5 14 0-9-1-12 5-7-2-12 4Z" />
+                  <path className="semantic-art__green-lit" d="M-15-16q5-7 13-3l4 2q-8-1-12 3Z" />
+                  <path className="semantic-art__green-deep" d="M2-4q8-5 15 0-7-1-9 4-7 0-11 7l-3-2Z" />
+                  <path className="semantic-art__leaf-lit" d="m-16-9 5-3m16-2 5 2" />
+                </g>
+              </g>
+            ))}
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
             {/* The path, narrowing away from the viewer. */}

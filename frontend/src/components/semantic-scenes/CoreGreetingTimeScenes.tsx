@@ -156,10 +156,15 @@ export function CoreGreetingTimeScene({
               floating between them, which says affection, not parting — and
               two other greeting scenes carried the same heart.
             */}
-            <path className="semantic-art__clay semantic-art__outlined" d="M150 118h40v28h-40Z" />
-            <path className="semantic-art__clay-deep" d="M178 118h12v28h-12Z" />
-            <path className="semantic-art__detail" d="M162 118v-6a8 5 0 0 1 16 0v6" />
-            <path className="semantic-art__detail semantic-art__detail--thin" d="M150 130h40" />
+            {/* Soft travel duffel: the handle still meets the traveller's hand,
+                while the end panel and piping explain the bag's volume. */}
+            <path className="semantic-art__detail" d="M162 119V113Q162 107 170 107Q178 107 178 113V119" />
+            <path className="semantic-art__clay semantic-art__outlined" d="M150 124Q150 118 156 118H182Q189 118 190 125V141Q190 146 185 146H155Q150 146 150 141Z" />
+            <path className="semantic-art__clay-lit" d="M152 125Q152 120 157 120H181L178 125Z" />
+            <path className="semantic-art__clay-deep" d="M181 119Q189 119 190 126V141Q190 146 185 146H179Q183 140 182 131Z" />
+            <path className="semantic-art__wood-deep" d="M158 120H161V144H158ZM174 120H177V144H174Z" />
+            <path className="semantic-art__grain" d="M153 128H179M154 142H180M185 125Q188 135 185 141" />
+            <path className="semantic-art__metal-lit" d="M169 126H172V130H169Z" />
           </SceneLayer>
         </>
       );

@@ -357,11 +357,32 @@ export function SemanticBus({
 }): React.JSX.Element {
   return (
     <g transform={`translate(${x} ${y})`}>
-      <path className="semantic-art__blue semantic-art__outlined" d="M0 8c0-8 6-14 14-14h55c9 0 15 6 15 15v34H0Z" />
-      <path className="semantic-art__window" d="M10 4h23v17H10Zm30 0h28v17H40Z" />
-      <path className="semantic-art__surface semantic-art__outlined" d="M61 24h15v19H61Z" />
+      {/* A low-floor bus: one long glazing belt, a short nose, double
+          passenger doors and a blank destination display above the driver. */}
+      <path className="semantic-art__blue semantic-art__outlined" d="M0 8C0 0 6-6 14-6H69Q84-6 84 9V43H0Z" />
+      <path className="semantic-art__blue-lit" d="M3 5Q3-3 14-3H68Q76-3 79 2H5Z" />
+      <path className="semantic-art__blue-deep" d="M77 4Q83 6 84 13V43H75Z" />
+      <path className="semantic-art__ink" d="M4 5H77V24H4Z" />
+      <path className="semantic-art__window" d="M7 7H21V21H7ZM25 7H39V21H25ZM43 7H54V21H43ZM68 7H78L80 24H68Z" />
+      <path className="semantic-art__window-lit" d="M8 8H18L8 17ZM26 8H36L26 17ZM44 8H51L44 15ZM70 9H76L77 14H70Z" />
+      <path className="semantic-art__surface" d="M1 29H55V41H1ZM69 29H82V41H69Z" />
+      <path className="semantic-art__blue-deep" d="M1 39H55V43H1ZM69 39H83V43H69Z" />
+      <path className="semantic-art__ink" d="M55 5H68V42H55Z" />
+      <path className="semantic-art__window" d="M57 8H60V35H57ZM63 8H66V35H63Z" />
+      <path className="semantic-art__metal" d="M56 38H67V41H56Z" />
+      <path className="semantic-art__ink" d="M61-2H77V3H61Z" />
+      <path className="semantic-art__gold" d="M63-.5H74V1H63Z" />
+      <path className="semantic-art__metal-deep" d="M81 12H84V21H82V15H80Z" />
+      <path className="semantic-art__gold-lit" d="M78 29H82V33H78Z" />
+      <path className="semantic-art__coral-deep" d="M1 29H3V34H1Z" />
+      <path className="semantic-art__metal-deep" d="M1 41H7V44H1ZM77 41H84V44H77Z" />
+      <path className="semantic-art__ink" d="M8 44a9 9 0 0 1 18 0ZM58 44a9 9 0 0 1 18 0Z" />
       <circle className="semantic-art__ink" cx="17" cy="45" r="7" />
+      <circle className="semantic-art__metal" cx="17" cy="45" r="3.6" />
+      <circle className="semantic-art__metal-lit" cx="16" cy="44" r="1.5" />
       <circle className="semantic-art__ink" cx="67" cy="45" r="7" />
+      <circle className="semantic-art__metal" cx="67" cy="45" r="3.6" />
+      <circle className="semantic-art__metal-lit" cx="66" cy="44" r="1.5" />
       {departing && <path className="semantic-art__motion semantic-art__motion-part" d="M-9 5h-19M-7 18h-27M-8 31h-16" />}
     </g>
   );

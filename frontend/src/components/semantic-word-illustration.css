@@ -708,6 +708,12 @@
   stroke-linecap: round;
 }
 
+/* Canopies pivot above their fixed trunks; placement stays on the parent. */
+.semantic-art__prop-foliage {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+}
+
 .semantic-art__ground-rim {
   fill: none;
   stroke: var(--semantic-ground-rim);
@@ -1560,6 +1566,12 @@
   stroke: var(--semantic-brew);
   stroke-width: 7;
   stroke-linecap: round;
+}
+
+/* Redrawn roof beacons and gift bow pivot on their attachment, not the SVG origin. */
+.semantic-art__prop-pivot {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
 }
 
 .semantic-art__spark {

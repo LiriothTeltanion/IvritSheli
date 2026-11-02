@@ -14,6 +14,7 @@
 
 import type { A0VisualKey } from '../../visuals/a0VisualRecipes';
 import type { SemanticHintStage } from '../SemanticWordIllustration';
+import { PersonHead } from './PersonHead';
 import { MagenDavid, MedicalCross, PaintedRoom, SceneLayer, SemanticPerson } from './SemanticScenePrimitives';
 
 interface HealthSceneProps {
@@ -225,25 +226,47 @@ export function HealthScene({
               The second person is seated with bent legs. A second upright
               figure would turn the same joined hands into a greeting.
             */}
-            <circle className="semantic-art__skin semantic-art__outlined" cx="174" cy="79" r="15" />
-            <circle className="semantic-art__skin-lit" cx="169" cy="75" r="6" />
-            <path className="semantic-art__hair" d="M160 77q1-18 15-18 14 1 14 18-14-8-29 0Z" />
-            <path className="semantic-art__coral semantic-art__outlined" d="M158 96q17-9 29 3l8 36h-48q3-25 11-39Z" />
-            <path className="semantic-art__coral-lit" d="M158 97q6-5 12-5-7 18-8 43h-15q3-25 11-38Z" />
-            <path className="semantic-art__coral-deep" d="M178 95q7 1 9 5l8 35h-13q0-27-4-40Z" />
-            <path className="semantic-art__face" d="M164 82q4 3 8 0" />
-            <circle className="semantic-art__eye" cx="165" cy="77" r="1.7" />
-            <circle className="semantic-art__eye" cx="173" cy="77" r="1.7" />
-            {/* Bent knees and grounded shoes make the lower posture legible. */}
-            <path className="semantic-art__limb" d="M160 134 145 148h-25m61-14 17 13h18" />
-            <path className="semantic-art__shoe" d="M120 148h-9m105-1h10" />
-            <path className="semantic-art__skin-line" d="M180 103 196 119" />
-            <circle className="semantic-art__hand" cx="198" cy="121" r="4" />
+            <g className="semantic-art__person semantic-art__person--coral" data-person-pose="seated">
+              {/* Folded thighs rise to the knees, then shins descend to the
+                  original road contact. Neither leg is a straight stick. */}
+              <path className="semantic-art__trousers" d="M179 128Q169 123 158 120Q149 117 145 126L130 141L137 148L155 133Q166 141 180 139Z" />
+              <path className="semantic-art__trousers" d="M177 128Q187 125 194 121Q201 117 205 126L218 143L211 148L196 134Q185 141 175 139Z" />
+              <path className="semantic-art__trouser-seam" d="M174 135L156 126Q152 124 150 129L136 143M186 134L197 127L213 144" />
+              <path className="semantic-art__shoe" d="M129 142L138 146L137 150H115Q113 146 120 145ZM211 143L218 142L223 145Q226 146 226 149H211Z" />
+              <path className="semantic-art__body-shoe-detail" d="M118 148h16M214 147h9" />
+              <path className="semantic-art__skin" d="M170 89H179L180 100L168 101Z" />
+              <path className="semantic-art__skin-shade" d="M170 89H179V95Q175 97 170 94Z" />
+              <g className="semantic-art__body-breath">
+                <path className="semantic-art__shirt" d="M169 97Q164 94 158 99Q154 107 154 117L150 132Q169 139 190 133L186 108Q184 99 178 97Q174 101 169 97Z" />
+                <path className="semantic-art__shirt-lit" d="M159 100Q163 96 169 98Q160 107 161 117L158 134L151 132L155 116Z" />
+                <path className="semantic-art__shirt-deep" d="M178 98Q184 100 186 108L190 133L180 135Q182 118 178 98Z" />
+                <path className="semantic-art__garment-line" d="M169 98Q174 104 179 98M157 128Q169 132 185 129M179 119l-4 4" />
+              </g>
+              {/* The same adult face, turned toward the helper. Its own finite
+                  nod/blink hooks remain on PersonHead rather than a new face. */}
+              <g transform="translate(176 111) scale(-1.35 1.35)">
+                <PersonHead shirt="coral" expression="worried" />
+              </g>
+              <path className="semantic-art__limb-edge" d="M183 105Q188 112 194 115L198 121" />
+              <path className="semantic-art__skin-line" d="M183 105Q188 112 194 115L198 121" />
+              <path className="semantic-art__sleeve" d="M179 99Q186 98 190 108L183 113L177 106Z" />
+              <path className="semantic-art__body-sleeve-outline" d="M180 99Q186 98 190 108L183 113" />
+              <path className="semantic-art__hand" d="M195 118Q193 116 194 115Q195 114 197 117L201 119Q203 120 202 123L201 125Q199 126 197 124L194 122Z" />
+              <path className="semantic-art__body-hand-detail" d="M197 120l3 2M196 119l-1 2" />
+            </g>
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
             {/* One arm and one hand meet the helper's existing outstretched hand. */}
-            <path className="semantic-art__skin-line" d="M158 96q-17 0-32 6" />
-            <circle className="semantic-art__hand semantic-art__outlined" cx="126" cy="102" r="5" />
+            <g className="semantic-art__person semantic-art__person--coral">
+              <path className="semantic-art__limb-edge" d="M160 101Q150 96 142 99L126 102" />
+              <path className="semantic-art__skin-line" d="M160 101Q150 96 142 99L126 102" />
+              <path className="semantic-art__sleeve" d="M164 97Q158 95 154 97L152 105L161 109L165 103Z" />
+              <path className="semantic-art__body-sleeve-outline" d="M164 97Q158 95 154 97L152 105L161 109" />
+              {/* Palm wraps the original (126, 102) anchor and overlaps the
+                  helper's reach hand at (120.5, 104.3). */}
+              <path className="semantic-art__hand" d="M130 100L126 99Q125 96 123 97Q122 98 124 101L122 102Q120 103 122 105Q126 107 130 104Z" />
+              <path className="semantic-art__body-hand-detail" d="M124 102l3 1M124 101l1 2" />
+            </g>
             {/* A short lift cue explains the action; reduced motion makes it still. */}
             <path className="semantic-art__motion semantic-art__motion-part" d="M151 124q-8-13 1-25m-7 5 7-5 4 8" />
           </SceneLayer>
@@ -422,18 +445,40 @@ export function HealthScene({
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <ellipse className="semantic-art__prop-shadow" cx="120" cy="130" rx="96" ry="8" />
-            {/* Tall boxy body, short bonnet: an ambulance silhouette. */}
-            <path className="semantic-art__surface semantic-art__outlined" d="M28 44h116v82H28Z" />
-            <path className="semantic-art__surface semantic-art__outlined" d="M144 70h34l32 26v30h-66Z" />
-            <path className="semantic-art__window" d="M150 76h24l22 18h-46Z" />
-            <path className="semantic-art__shade" d="M188 96h22v30h-22Z" />
+            {/* Box ambulance, with a shallow roof and a shaded lower sill.
+                Wheel centres and the road line are unchanged. */}
+            <path className="semantic-art__surface semantic-art__outlined" d="M28 48Q28 44 32 44H140Q144 44 144 48V126H28Z" />
+            <path className="semantic-art__surface-deep" d="M28 114H144V126H28ZM134 48H144V114H137Z" />
+            <path className="semantic-art__metal-lit" d="M32 45H140V49H32Z" />
+            <path className="semantic-art__surface semantic-art__outlined" d="M144 70H178L206 93Q210 96 210 101V126H144Z" />
+            <path className="semantic-art__surface-deep" d="M199 97L210 101V126H199ZM144 115H199V126H144Z" />
+            {/* Red MDA side band continues across the cab, behind the emblem. */}
+            <path className="semantic-art__coral" d="M29 80H143V91H29ZM145 99H209V109H145Z" />
+            <path className="semantic-art__coral-deep" d="M29 88H143V92H29ZM199 99H209V109H199Z" />
+            <path className="semantic-art__window" d="M35 55H51V72H35ZM109 55H134V72H109ZM151 76H173L193 94H151Z" />
+            <path className="semantic-art__window-lit" d="M37 57H48L37 68ZM111 57H129L111 68ZM153 78H171L178 84H153Z" />
+            <path className="semantic-art__detail semantic-art__detail--thin" d="M55 51V116M100 51V116M139 51V118M147 98V115M181 99V111M113 96h8M153 111h8" />
+            <path className="semantic-art__metal-deep" d="M197 90L201 87L204 91V98H200V93L197 94Z" />
+            <path className="semantic-art__gold-lit semantic-art__outlined" d="M201 103H209V112H202Z" />
+            <path className="semantic-art__coral-deep" d="M29 99H33V111H29Z" />
+            <path className="semantic-art__metal-deep" d="M28 119H43V126H28ZM199 120H210V126H199Z" />
+            <path className="semantic-art__ink" d="M43 126a17 17 0 0 1 34 0ZM163 126a17 17 0 0 1 34 0Z" />
+            <path className="semantic-art__gloss" d="M33 51H133M149 73H175" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
             {/* Magen David Adom on the flank, as Israeli ambulances carry. */}
-            <MagenDavid x={82} y={82} size={48} />
+            <path className="semantic-art__surface" d="M58 62H98V108H58Z" />
+            <MagenDavid x={78} y={85} size={36} />
             {/* Beacons lit on the roof. */}
-            <path className="semantic-art__coral semantic-art__outlined" d="M62 34h20v10H62Z" />
-            <path className="semantic-art__blue semantic-art__outlined" d="M96 34h20v10H96Z" />
+            <path className="semantic-art__metal-deep" d="M60 42H118V46H60Z" />
+            <g className="semantic-art__motion-part semantic-art__prop-pivot">
+              <path className="semantic-art__coral semantic-art__outlined" d="M62 36Q62 34 64 34H80Q82 34 82 36V42H62Z" />
+              <path className="semantic-art__coral-lit" d="M64 35H78V38H64Z" />
+              <path className="semantic-art__coral-deep" d="M77 38H81V42H77Z" />
+              <path className="semantic-art__blue semantic-art__outlined" d="M96 36Q96 34 98 34H114Q116 34 116 36V42H96Z" />
+              <path className="semantic-art__blue-lit" d="M98 35H112V38H98Z" />
+              <path className="semantic-art__blue-deep" d="M111 38H115V42H111Z" />
+            </g>
             <path className="semantic-art__sun-rays semantic-art__motion-part" d="M72 26V16M56 30l-8-6m58 6 8-6M106 26V16" />
             <Wheel />
           </SceneLayer>
@@ -450,9 +495,15 @@ function Wheel(): React.JSX.Element {
   return (
     <>
       <circle className="semantic-art__ink" cx="60" cy="126" r="14" />
+      <circle className="semantic-art__metal-deep" cx="60" cy="126" r="9" />
       <circle className="semantic-art__metal" cx="60" cy="126" r="6" />
+      <path className="semantic-art__metal-lit" d="M55 125a5 5 0 0 1 9-2l-5 3Z" />
+      <circle className="semantic-art__ink" cx="60" cy="126" r="1.8" />
       <circle className="semantic-art__ink" cx="180" cy="126" r="14" />
+      <circle className="semantic-art__metal-deep" cx="180" cy="126" r="9" />
       <circle className="semantic-art__metal" cx="180" cy="126" r="6" />
+      <path className="semantic-art__metal-lit" d="M175 125a5 5 0 0 1 9-2l-5 3Z" />
+      <circle className="semantic-art__ink" cx="180" cy="126" r="1.8" />
     </>
   );
 }
