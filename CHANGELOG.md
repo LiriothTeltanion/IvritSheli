@@ -33,6 +33,14 @@
 - 2026-11-02: the learner's theme is saved with their profile (SQLite migration 11; the cloud keeps it in the tenant
   snapshot), the language choice follows the profile, Today greets by the chosen name, the capture button never
   wraps, and the accuracy card shows a dash until the first answer.
+- 2026-11-02: one language picker for every header. On phones, where it used to be hidden, a 44 px button with the
+  current code opens the same three-language choice; it mirrors in Hebrew and its name starts with the visible code
+  (WCAG 2.5.3). The top bar keeps one line from 320 to 430 px.
+- 2026-11-02: the Today metric cards follow the theme tokens, so the light theme no longer shows grey slabs with white
+  numbers; the phone help button keeps its ? badge; and until a name is chosen Today greets "Shalom" instead of
+  "Shalom, Local".
+- 2026-11-02: README visual proof moves to 2.13.0: five captures from a clean commit and a ten-second tour that plays
+  once and includes the painted scenes. The 2.12.3 and 2.12.2 sets and the 2.13.0 art-pass sheets stay preserved.
 
 # Changelog
 

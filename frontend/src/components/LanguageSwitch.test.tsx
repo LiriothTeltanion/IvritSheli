@@ -37,7 +37,7 @@ describe('LanguageSwitch', () => {
   it('offers the same choice from one compact button and closes after a tap', async () => {
     const user = userEvent.setup();
     render(<I18nProvider><LanguageSwitch /></I18nProvider>);
-    const trigger = screen.getByRole('button', { name: 'Interface language: English' });
+    const trigger = screen.getByRole('button', { name: 'EN · Interface language: English' });
     expect(trigger).toHaveAttribute('aria-expanded', 'false');
     await user.click(trigger);
     expect(trigger).toHaveAttribute('aria-expanded', 'true');
@@ -51,7 +51,7 @@ describe('LanguageSwitch', () => {
   it('closes the compact list with Escape', async () => {
     const user = userEvent.setup();
     render(<I18nProvider><LanguageSwitch /></I18nProvider>);
-    const trigger = screen.getByRole('button', { name: 'Interface language: English' });
+    const trigger = screen.getByRole('button', { name: 'EN · Interface language: English' });
     await user.click(trigger);
     await user.keyboard('{Escape}');
     expect(trigger).toHaveAttribute('aria-expanded', 'false');

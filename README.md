@@ -109,6 +109,12 @@ That service is **verified staging for a private pilot, not production**: the ga
 table below were exercised against the live host on 2026-08-27 with 2.12.3, while the human
 gates — Hebrew-content acceptance and the first real learner — remain open.
 
+On 2026-11-02 the service was redeployed by hand from `main` at `7a4756a`, the 2.13.0
+candidate, and rechecked: `/version` reported that commit, `/health/ready` reported
+`postgresql: true` with the 240-entry dictionary, the strict CSP and HSTS headers were
+present, the painted scenes loaded, and the Google sign-in redirect started correctly. A
+completed Google sign-in on this deploy has not been run yet.
+
 The latest published release is still **v2.12.2**; `2.12.3` and `2.13.0` are deliberately untagged.
 
 | Component | Status | Details |
@@ -125,15 +131,15 @@ The latest published release is still **v2.12.2**; `2.12.3` and `2.13.0` are del
 > the link yourself a minute before sharing it, or the first person to tap it meets a
 > blank screen and concludes the app is broken.
 
-## 📸 2.12.3 Visual Proof
+## 📸 2.13.0 Visual Proof
 
 <p align="center">
-  <img src="assets/readme/proof/2.12.3/today-desktop-dark-es.webp" width="100%" alt="Spanish dark-theme Ivrit Sheli Today dashboard" />
+  <img src="assets/readme/proof/2.13.0/today-desktop-dark-es.webp" width="100%" alt="Spanish dark-theme Ivrit Sheli 2.13.0 Today dashboard: a Shalom greeting over a painted evening street, the כְּדַאי (kedai, worth it) word card, and the streak, level and accuracy cards." />
 </p>
 <p align="center">
-  <img src="assets/readme/proof/2.12.3/ivrit-sheli-tour.gif" width="960" alt="Eight-second non-looping Ivrit Sheli tour showing the Spanish two-cup Today dashboard, light Alphabet Studio, dark linked dictionary, and Hebrew RTL Today dashboard." />
+  <img src="assets/readme/proof/2.13.0/ivrit-sheli-tour.gif" width="960" alt="Ten-second non-looping Ivrit Sheli 2.13.0 tour: the Spanish Today dashboard, twelve painted word scenes, the light Alphabet Studio, the dark linked dictionary and the Hebrew RTL Today dashboard." />
 </p>
-<p align="center"><em>An eight-second, non-looping tour built from four privacy-reviewed 2.12.3 candidate captures.</em></p>
+<p align="center"><em>A ten-second, non-looping tour: four privacy-reviewed 2.13.0 candidate captures and the painted-scene showcase.</em></p>
 
 <table>
   <tr>
@@ -141,8 +147,8 @@ The latest published release is still **v2.12.2**; `2.12.3` and `2.13.0` are del
     <td width="60%" align="center"><strong>Real Hebrew RTL layout</strong></td>
   </tr>
   <tr>
-    <td><img src="assets/readme/proof/2.12.3/today-phone-light-es.webp" width="100%" alt="Spanish light-theme mobile Today dashboard with the two-cup שתיים card, first-lesson action and bottom navigation." /></td>
-    <td><img src="assets/readme/proof/2.12.3/today-desktop-dark-he.webp" width="100%" alt="Hebrew RTL dark-theme Today dashboard with mirrored navigation and a two-coffee-cup שתיים learning card." /></td>
+    <td><img src="assets/readme/proof/2.13.0/today-phone-light-es.webp" width="100%" alt="Spanish light-theme phone Today dashboard: the compact ES language button, help and capture actions, the כְּדַאי word card over a painted sunlit window, the first-lesson button and bottom navigation." /></td>
+    <td><img src="assets/readme/proof/2.13.0/today-desktop-dark-he.webp" width="100%" alt="Hebrew RTL dark-theme Today dashboard with mirrored navigation, the כְּדַאי word card and a painted evening street behind the greeting." /></td>
   </tr>
 </table>
 
@@ -152,23 +158,23 @@ The latest published release is still **v2.12.2**; `2.12.3` and `2.13.0` are del
     <td width="50%" align="center"><strong>Linked dictionary</strong></td>
   </tr>
   <tr>
-    <td><img src="assets/readme/proof/2.12.3/alphabet-desktop-light-es.webp" width="100%" alt="Spanish light-theme Alphabet Studio in Ivrit Sheli, explaining 22 Hebrew base letters plus 5 positional final forms." /></td>
-    <td><img src="assets/readme/proof/2.12.3/dictionary-desktop-dark-es.webp" width="100%" alt="Spanish dark-theme linked dictionary workspace in Ivrit Sheli with an empty multilingual Hebrew search field." /></td>
+    <td><img src="assets/readme/proof/2.13.0/alphabet-desktop-light-es.webp" width="100%" alt="Spanish light-theme Alphabet Studio in Ivrit Sheli, explaining 22 Hebrew base letters plus 5 positional final forms." /></td>
+    <td><img src="assets/readme/proof/2.13.0/dictionary-desktop-dark-es.webp" width="100%" alt="Spanish dark-theme linked dictionary in Ivrit Sheli with an empty search field for Hebrew, English or Spanish." /></td>
   </tr>
 </table>
 
-These five WebP assets were captured on 2026-08-27 Asia/Jerusalem from a fresh,
-generic local learner with no personal progress. Every image was reviewed at
-full size, at GitHub display scale and in grayscale. The GIF was rendered twice
-to byte-identical output, checked at four representative frames, and contains
+These five WebP assets were captured on 2026-11-02 Asia/Jerusalem from a fresh,
+generic local learner with no personal progress, built from a clean commit. Every
+image was reviewed at full size, at GitHub display scale and in grayscale. The GIF
+was rendered twice to byte-identical output, checked frame by frame, and contains
 no loop extension. Hashes, physical dimensions, source PNG hashes, locale,
-direction, viewport, timestamps, privacy findings, process provenance and the
-dirty-tree boundary are recorded in the
-[`2.12.3 candidate visual-proof manifest`](assets/readme/proof/2.12.3/manifest.json).
-The immutable
-[`2.12.2 published visual record`](assets/readme/proof/2.12.2/manifest.json)
-remains preserved separately; the older 17-PNG candidate set is not presented
-as current proof.
+direction, viewport, timestamps, privacy findings and process provenance are
+recorded in the
+[`2.13.0 candidate visual-proof manifest`](assets/readme/proof/2.13.0/manifest.json).
+The [`2.12.3 candidate proof`](assets/readme/proof/2.12.3/manifest.json) and the
+immutable [`2.12.2 published visual record`](assets/readme/proof/2.12.2/manifest.json)
+remain preserved separately; the before-and-after sheets from the 2.13.0 art pass
+are kept in [`art-pass`](assets/readme/proof/2.13.0/art-pass/manifest.json).
 
 
 ## ⚡ Tech Stack & Architecture

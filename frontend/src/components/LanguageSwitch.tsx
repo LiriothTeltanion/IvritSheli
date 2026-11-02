@@ -72,7 +72,8 @@ export function LanguageSwitch({
         className="locale-compact"
         aria-expanded={open}
         aria-controls={menuId}
-        aria-label={`${t('interfaceLanguage')}: ${current.name}`}
+        // The name starts with the visible code (WCAG 2.5.3), so a voice user can say "click EN".
+        aria-label={`${current.code.toUpperCase()} · ${t('interfaceLanguage')}: ${current.name}`}
         onClick={() => setOpen((value) => !value)}
       >
         <span aria-hidden="true">{current.code.toUpperCase()}</span>

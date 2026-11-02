@@ -51,9 +51,18 @@ def test_checked_in_portfolio_manifest_preserves_truth_boundaries() -> None:
         "url": "https://ivrit-sheli.onrender.com",
         "status": "staging-verified",
         "provider": "render-free",
-        "last_checked_on": "2026-09-12",
+        "last_checked_on": "2026-11-02",
         "boundary": (
-            "A free Render service runs the 2.12.3 source as staging for a private pilot, not as production. Moved from Singapore to Frankfurt on 2026-09-12 and renamed, so the URL no longer says staging. Verified against the live host that day: /health/live at 0.149 s against 0.287 s from the old Singapore service, /health/ready with postgresql true and a 240-entry dictionary, /version reporting 2.12.3, a strict production CSP with default-src 'self', HSTS for a year with includeSubDomains, a Secure HttpOnly SameSite=lax session cookie, and a Google OAuth redirect using PKCE with the exact new callback. /health/ready still costs about 2 s in both regions because the database is far from either. The free plan sleeps after 15 minutes and the wake-up is not a fixed cost: two measurements the same day gave 38.6 s and 218 s, so a first request can take minutes. Anyone checking the service should wait before concluding it is down. The human Hebrew-content and first-learner gates remain open, and no v2.12.3 tag exists. The historical Railway service is offline."
+            "A free Render service runs the private candidate source as staging for a private pilot, not as "
+            "production. Redeployed by hand from main at 7a4756a on 2026-11-02 and rechecked that day: /version "
+            "reporting 2.13.0 at that commit, /health/ready with postgresql true and a 240-entry dictionary, the "
+            "strict CSP and HSTS headers, painted scenes served under img-src 'self', and a Google OAuth redirect "
+            "that starts correctly; a completed sign-in on this deploy has not been run. It runs in Frankfurt "
+            "since 2026-09-12, when /health/live answered in 0.149 s and the session cookie was Secure, HttpOnly "
+            "and SameSite=lax. The free plan sleeps after 15 minutes and the wake-up varies (38.6 s and 218 s on "
+            "the same day), so a first request can take minutes: wait before concluding it is down. The human "
+            "Hebrew-content and first-learner gates remain open, no v2.12.3 or v2.13.0 tag exists, and the "
+            "historical Railway service is offline."
         ),
     }
 

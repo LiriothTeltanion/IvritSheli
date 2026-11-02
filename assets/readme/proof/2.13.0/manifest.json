@@ -1,61 +1,267 @@
 {
   "schema_version": 3,
-  "collection": "Ivrit Sheli 2.13.0 private-candidate art proof (living scenes and all-scene pass)",
+  "collection": "Ivrit Sheli 2.13.0 private-candidate visual proof",
   "source_version": "2.13.0",
   "publication_status": "private-candidate",
   "latest_published_release": "v2.12.2",
-  "promoted_at": "2026-10-23T10:00:00+03:00",
-  "status": "pull_request_evidence",
-  "asset_count": 3,
+  "promoted_at": "2026-11-02T22:05:00+02:00",
+  "status": "approved_for_readme_use",
+  "asset_count": 6,
   "runtime_evidence": {
-    "repository_commit_before_proof": "19e32048bb940f39ea2af95da9bf4fb01c7e98db",
+    "repository_commit": "ed08c188a2e5bba4e4bff144a6712140050a6bc7",
+    "repository_working_tree_dirty": false,
     "environment": "local",
     "storage": "sqlite",
-    "capture": "Playwright screenshots of the locally served build: the visual-QA gallery (?visualQa=1) and the living-scenes studio, composed into before/after sheets with Pillow.",
-    "boundary": "These images prove the locally served 2.13.0 candidate art. They do not claim publication, learner recognition, hosted staging or byte identity with any release."
+    "boundary": "These images prove the locally served 2.13.0 private candidate built from the recorded clean commit. They do not claim publication, a tagged release, provider availability, PostgreSQL behaviour, OAuth or the hosted staging service. The capture commit belongs to the pull-request branch; main receives it inside a squash commit, so the hash is reachable through that pull request."
   },
-  "ai_provenance": "Painted backdrops, rooms and the gouache grain in the 'after' images were generated with Google Gemini; see frontend/public/art-direction/living-scenes/painted/manifest.json.",
+  "capture_identity": {
+    "authentication_mode": "local",
+    "session_user_id": "local-device",
+    "session_display_name": "Local learner",
+    "profile_display_name": "Learner",
+    "activity_state": "fresh generic starter state",
+    "personal_account_data_used": false,
+    "enforcement": "The capture tool rejects non-local authentication, personal profile data, nonzero recent accuracy or XP, achievements, and unexpected learning-item counts before it writes a candidate."
+  },
   "privacy_review": {
     "status": "passed",
-    "reviewed_at": "2026-10-23T10:00:00+03:00",
-    "method": "Visual inspection of all three WebP files.",
+    "reviewed_at": "2026-11-02T22:05:00+02:00",
+    "method": "Visual inspection of all five final WebP files and all five GIF frames, in colour and in grayscale, plus the capture tool's generic local-identity and fresh-activity gate.",
     "checks": {
       "personal_names": false,
       "email_addresses": false,
       "account_handles": false,
+      "provider_avatars": false,
       "personal_learning_content": false,
       "personal_progress": false,
       "credentials_or_tokens": false,
       "absolute_machine_paths": false
-    }
+    },
+    "visible_identity": "Only the generic L initial is present; the greeting shows no name."
   },
+  "provenance_runs": [
+    {
+      "run_id": "readme-2.13.0-es",
+      "capture_manifest_schema": 2,
+      "capture_manifest_sha256": "3E534266AAD7A9D438DE14ADF1DF2D5FA21BCD7EDC5D5F2B213D7BB3E5E6E834",
+      "capture_status": "candidate",
+      "publication_status": "not-published",
+      "public_assets_written_by_capture": false,
+      "language": "es",
+      "direction": "ltr",
+      "authentication_mode": "local",
+      "started_at": "2026-11-02T19:46:30.454Z",
+      "finished_at": "2026-11-02T19:46:58.775Z",
+      "repository_commit": "ed08c188a2e5bba4e4bff144a6712140050a6bc7",
+      "repository_working_tree_dirty": false,
+      "runtime_version": "2.13.0",
+      "runtime_environment": "development",
+      "runtime_storage": "sqlite",
+      "capture_script_sha256": "891BBE9C6ABD9A0754535EB81B471D0514BD9BDA7BA6BB6F0E5567C8AA1554C0",
+      "capture_errors": 0
+    },
+    {
+      "run_id": "readme-2.13.0-he",
+      "capture_manifest_schema": 2,
+      "capture_manifest_sha256": "52B89EBF9CF421802793373A308F758A93094143408100A199A4A953BFEE7CE6",
+      "capture_status": "candidate",
+      "publication_status": "not-published",
+      "public_assets_written_by_capture": false,
+      "language": "he",
+      "direction": "rtl",
+      "authentication_mode": "local",
+      "started_at": "2026-11-02T19:46:59.021Z",
+      "finished_at": "2026-11-02T19:47:01.670Z",
+      "repository_commit": "ed08c188a2e5bba4e4bff144a6712140050a6bc7",
+      "repository_working_tree_dirty": false,
+      "runtime_version": "2.13.0",
+      "runtime_environment": "development",
+      "runtime_storage": "sqlite",
+      "capture_script_sha256": "891BBE9C6ABD9A0754535EB81B471D0514BD9BDA7BA6BB6F0E5567C8AA1554C0",
+      "capture_errors": 0
+    }
+  ],
+  "derivative_policy": "Desktop captures are downscaled from 2880x1800 to 1600x1000 and the phone capture from 1082x2202 to 720x1466 with Lanczos, then encoded as WebP quality 82. The GIF is rendered by ffmpeg from the same WebP files and the README showcase with one shared palette, and two renders were byte-identical.",
+  "visual_review": "Every asset reviewed at full size and at GitHub display scale on 2026-11-02.",
+  "grayscale_review": "All five WebP files and all five GIF frames remain legible in grayscale.",
   "assets": [
     {
-      "path": "assets/readme/proof/2.13.0/all-scenes-before-after.webp",
-      "bytes": 140344,
-      "sha256": "319ee2df64d4214406abc887a25c0b066e1d38bf9c97f040bfaa38ea4b7e31f9",
+      "file": "today-desktop-dark-es.webp",
       "media_type": "image/webp",
-      "width": 1520,
-      "height": 1610,
-      "description": "Nine of the 234 non-pilot scenes before (left) and after (right) the shared character, family portrait, frame, grain and painted-room pass."
+      "bytes": 63726,
+      "dimensions": {
+        "width": 1600,
+        "height": 1000
+      },
+      "pixel_format": "yuv420p",
+      "sha256": "B1E7098CE235E09A66CCCA1CA93259EB1C4FE10A090A41AB65B92BA929CDFE2B",
+      "language": "es",
+      "direction": "ltr",
+      "theme": "dark",
+      "viewport": "desktop",
+      "source": {
+        "run_id": "readme-2.13.0-es",
+        "artifact": "today-desktop-dark-es.png",
+        "captured_at": "2026-11-02T19:46:31.047Z",
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "dimensions": {
+          "width": 2880,
+          "height": 1800
+        },
+        "bytes": 2068078,
+        "sha256": "4E641121F206F199743DB07DD33BBD29079E3F984864D6789B339897642A1485"
+      },
+      "alt": "Spanish dark-theme Ivrit Sheli 2.13.0 Today dashboard: a Shalom greeting over a painted evening street, the כְּדַאי (kedai, worth it) word card, and the streak, level and accuracy cards."
     },
     {
-      "path": "assets/readme/proof/2.13.0/pilot-before-after-light.webp",
-      "bytes": 138974,
-      "sha256": "a2535369ccc21d7c7e45e056252c205a944740d77b5750e7b79d84ff17fb0e11",
+      "file": "alphabet-desktop-light-es.webp",
       "media_type": "image/webp",
-      "width": 1060,
-      "height": 2630,
-      "description": "The six living pilot scenes before and after, light theme, with the painted backdrops."
+      "bytes": 69264,
+      "dimensions": {
+        "width": 1600,
+        "height": 1000
+      },
+      "pixel_format": "yuv420p",
+      "sha256": "C8E00B510C4C5752B55A309CFB5C6E0855D9FD53176828A615E13BBE6572A03B",
+      "language": "es",
+      "direction": "ltr",
+      "theme": "light",
+      "viewport": "desktop",
+      "source": {
+        "run_id": "readme-2.13.0-es",
+        "artifact": "learn-desktop-light-es.png",
+        "captured_at": "2026-11-02T19:46:40.597Z",
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "dimensions": {
+          "width": 2880,
+          "height": 1800
+        },
+        "bytes": 1409535,
+        "sha256": "425E6F6FA40CDD89AC0C68513DD3BE8AF73E37150C175FB05BA72AD58474E200"
+      },
+      "alt": "Spanish light-theme Alphabet Studio in Ivrit Sheli, explaining 22 Hebrew base letters plus 5 positional final forms."
     },
     {
-      "path": "assets/readme/proof/2.13.0/dark-theme-sample.webp",
-      "bytes": 25440,
-      "sha256": "3d4541012d9377c95cea6edcff473fbf07d988135d6fb28e7b4a4e1b875aa185",
+      "file": "dictionary-desktop-dark-es.webp",
       "media_type": "image/webp",
-      "width": 1390,
-      "height": 256,
-      "description": "Four upgraded scenes in the dark theme: painted rooms dimmed, portrait busts in the family genealogy."
+      "bytes": 51866,
+      "dimensions": {
+        "width": 1600,
+        "height": 1000
+      },
+      "pixel_format": "yuv420p",
+      "sha256": "34C6D094C4BDCA8E5DAC6B4BB5F6124D317795B5F3D703D4CDCCA077A2A7639D",
+      "language": "es",
+      "direction": "ltr",
+      "theme": "dark",
+      "viewport": "desktop",
+      "source": {
+        "run_id": "readme-2.13.0-es",
+        "artifact": "dictionary-desktop-dark-es.png",
+        "captured_at": "2026-11-02T19:46:35.823Z",
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "dimensions": {
+          "width": 2880,
+          "height": 1800
+        },
+        "bytes": 1397459,
+        "sha256": "48EAAD89445FC6BE65A63F637BEFF7843C802B7B514FE0C4E4145EF2089C86C0"
+      },
+      "alt": "Spanish dark-theme linked dictionary in Ivrit Sheli with an empty search field for Hebrew, English or Spanish."
+    },
+    {
+      "file": "today-desktop-dark-he.webp",
+      "media_type": "image/webp",
+      "bytes": 71302,
+      "dimensions": {
+        "width": 1600,
+        "height": 1000
+      },
+      "pixel_format": "yuv420p",
+      "sha256": "258205145778552F45ADCF475A2D8211F50253251D89A214C0D10097D5CAB302",
+      "language": "he",
+      "direction": "rtl",
+      "theme": "dark",
+      "viewport": "desktop",
+      "source": {
+        "run_id": "readme-2.13.0-he",
+        "artifact": "today-desktop-dark-he.png",
+        "captured_at": "2026-11-02T19:46:59.535Z",
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "dimensions": {
+          "width": 2880,
+          "height": 1800
+        },
+        "bytes": 2270911,
+        "sha256": "F73AA10154DC562F3092E0A7F56C3DC5E08E4981EB7D5E378D79A2353EE09664"
+      },
+      "alt": "Hebrew RTL dark-theme Today dashboard with mirrored navigation, the כְּדַאי word card and a painted evening street behind the greeting."
+    },
+    {
+      "file": "today-phone-light-es.webp",
+      "media_type": "image/webp",
+      "bytes": 56494,
+      "dimensions": {
+        "width": 720,
+        "height": 1466
+      },
+      "pixel_format": "yuv420p",
+      "sha256": "EE958D525AB56449856C40833546800C42AB56A79F250E8072626964C1BA12EE",
+      "language": "es",
+      "direction": "ltr",
+      "theme": "light",
+      "viewport": "phone",
+      "source": {
+        "run_id": "readme-2.13.0-es",
+        "artifact": "today-phone-light-es.png",
+        "captured_at": "2026-11-02T19:46:52.553Z",
+        "viewport": {
+          "width": 412,
+          "height": 839
+        },
+        "dimensions": {
+          "width": 1082,
+          "height": 2202
+        },
+        "bytes": 1285310,
+        "sha256": "61EA37FD2D7C0DF1BB63E5897CFE8647883710E978A19082F3F6C327803FEDAA"
+      },
+      "alt": "Spanish light-theme phone Today dashboard: the compact ES language button, help and capture actions, the כְּדַאי word card over a painted sunlit window, the first-lesson button and bottom navigation."
+    },
+    {
+      "file": "ivrit-sheli-tour.gif",
+      "media_type": "image/gif",
+      "bytes": 822639,
+      "dimensions": {
+        "width": 960,
+        "height": 600
+      },
+      "frame_count": 5,
+      "duration_seconds": 10.0,
+      "frame_duration_ms": 2000,
+      "loop_policy": "no-loop",
+      "sha256": "4E8EC89F4B675D5758A4B0B05C9AF8F38D05A1AF8E147A5B1B734F1F23E046AF",
+      "source_assets": [
+        "today-desktop-dark-es.webp",
+        "assets/readme/showcase/living-scenes-2.13.0-light.webp",
+        "alphabet-desktop-light-es.webp",
+        "dictionary-desktop-dark-es.webp",
+        "today-desktop-dark-he.webp"
+      ],
+      "motion_review": "Plays once; five two-second views joined by clean cuts, with no flashing, strobing or fades.",
+      "alt": "Ten-second non-looping Ivrit Sheli 2.13.0 tour: the Spanish Today dashboard, twelve painted word scenes, the light Alphabet Studio, the dark linked dictionary and the Hebrew RTL Today dashboard."
     }
   ]
 }
