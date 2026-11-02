@@ -295,8 +295,16 @@ export function FoodHomeScene({
             <path className="semantic-art__gold-soft semantic-art__outlined" d="M188 146q4-30 20-30t14 30Z" />
             <path className="semantic-art__coral" d="M188 146q1-8 3-14h27q2 6 2 14Z" />
             <path className="semantic-art__detail semantic-art__detail--thin" d="M202 129h6" />
-            <path className="semantic-art__skin semantic-art__outlined" d="M25 116c27-19 46-20 61-6l-8 29H25Z" />
-            <path className="semantic-art__skin-highlight" d="M33 115c19-11 33-11 43-2" />
+            {/* A thumb curves over the apple, four fingers cradle it below.
+                Keep the original wrist and contact footprint on the board. */}
+            <g className="semantic-art__person--teal semantic-art__motion-part semantic-art__prop-pivot semantic-art__prop-sway">
+              <path className="semantic-art__shirt" d="M25 114h10l4 25H25Z" />
+              <path className="semantic-art__shirt-deep" d="M25 132h13l1 7H25Z" />
+              <path className="semantic-art__hand" d="m35 115 13-9q9-7 20-4l13 3q6 3 3 6-1 2-5 1l-14-2-7 7 23-2q6 0 5 4-1 2-5 3l-16 2 16-1q5 1 4 4-1 2-5 2l-16 1 13 1q5 1 3 4-1 2-5 1l-14 1q-12 2-23-2Z" />
+              <path className="semantic-art__skin-shade" d="m38 129 15 4 23-1 4 1q1 4-5 3l-14 1q-12 2-23-2Z" />
+              <path className="semantic-art__skin-lit" d="m40 115 11-7q7-5 16-3l10 3-14-1q-6 0-11 5l-9 7Z" />
+              <path className="semantic-art__body-hand-detail" d="m56 116 9-6m-5 14 5-1m-6 7h6m-17-12q4 6 10 6" />
+            </g>
           </SceneLayer>
         </>
       );
@@ -343,27 +351,52 @@ export function FoodHomeScene({
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__tiles" d="M20 24h200v78H20ZM70 24v78m50-78v78m50-78v78M20 63h200" />
             <path className="semantic-art__metal semantic-art__outlined" d="M20 119h200v34H20Z" />
-            {/* Burner rings, so the flat band reads as a stovetop. */}
-            <circle className="semantic-art__grain" cx="52" cy="136" r="13" />
-            <circle className="semantic-art__grain" cx="188" cy="136" r="13" />
+            <path className="semantic-art__metal-lit" d="M20 119h200v8H20Z" />
+            <path className="semantic-art__metal-deep" d="M20 141h200v12H20Z" />
+            {/* The hob has depth, a recessed burner and a separate control rail. */}
+            <ellipse className="semantic-art__ink semantic-art__outlined" cx="188" cy="132" rx="15" ry="8" />
+            <ellipse className="semantic-art__metal-deep" cx="188" cy="132" rx="10" ry="5" />
+            <path className="semantic-art__metal-line" d="M188 122v20m-17-10h34" />
+            <circle className="semantic-art__ink" cx="46" cy="147" r="3.5" />
+            <circle className="semantic-art__ink" cx="65" cy="147" r="3.5" />
+            <path className="semantic-art__gloss" d="M46 145v2m19-2v2M23 122h26m143 0h24" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
-            <ellipse className="semantic-art__ink semantic-art__outlined" cx="110" cy="116" rx="76" ry="36" />
-            <path className="semantic-art__ink semantic-art__outlined" d="M178 108h41v15h-41Z" />
-            <path className="semantic-art__gloss" d="M52 100c14-9 34-14 58-14" />
-            <path
-              className="semantic-art__surface semantic-art__outlined"
-              d="M59 111c4-24 27-34 44-21 16-18 44-10 51 13 19 9 10 34-12 36H76c-24-1-34-21-17-28Z"
-            />
-            <circle className="semantic-art__gold semantic-art__outlined" cx="109" cy="113" r="22" />
-            {/* Yolk: one lit crescent and one shaded one turn a disc into a dome. */}
-            <path className="semantic-art__shade" d="M109 91a22 22 0 0 1 0 44 16 22 0 0 0 0-44Z" />
-            <path className="semantic-art__gloss" d="M97 103c4-5 10-8 16-8" />
+            <g className="semantic-art__motion-part semantic-art__prop-pivot">
+              <ellipse className="semantic-art__prop-shadow" cx="110" cy="142" rx="75" ry="9" />
+              <path className="semantic-art__metal-deep semantic-art__outlined" d="M34 112h152v9c-4 42-148 42-152 0Z" />
+              <ellipse className="semantic-art__metal semantic-art__outlined" cx="110" cy="112" rx="76" ry="31" />
+              <ellipse className="semantic-art__ink" cx="110" cy="111" rx="71" ry="26" />
+              <path className="semantic-art__metal semantic-art__outlined" d="M177 108h16v10h-16Z" />
+              <path className="semantic-art__ink semantic-art__outlined" fillRule="evenodd" d="M191 106h26q6 0 6 6v4q0 6-6 6h-26Zm19 5v6h7v-6Z" />
+              <path className="semantic-art__metal-deep" d="M192 118h17v3h-17Z" />
+              <path className="semantic-art__gloss" d="M47 101q23-17 63-17m-62 45q33 18 83 9m63-29h11" />
+              <path
+                className="semantic-art__surface semantic-art__outlined"
+                d="M59 110c4-19 27-27 44-16 16-15 42-8 49 9 20 7 14 24-10 28l-66 2c-24-1-34-16-17-23Z"
+              />
+              <path className="semantic-art__surface-deep" d="M63 122q22 12 64 5 28-2 33-16 8 15-18 20l-66 2q-15-1-20-8Z" />
+              <path className="semantic-art__surface-lit" d="M68 105q9-14 27-8l-7 6q-14-3-20 9Z" />
+              <ellipse className="semantic-art__gold-deep" cx="109" cy="116" rx="24" ry="20" />
+              <ellipse className="semantic-art__gold semantic-art__outlined" cx="109" cy="111" rx="22" ry="20" />
+              {/* Yolk: one lit crescent and one shaded one turn a disc into a dome. */}
+              <path className="semantic-art__gold-deep" d="M115 92q22 7 14 27-5 12-20 12 17-11 6-39Z" />
+              <path className="semantic-art__gold-lit semantic-art__prop-glint" d="M94 106q4-12 17-11l5 3q-13-1-19 10Z" />
+            </g>
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            <path className="semantic-art__surface semantic-art__outlined" d="M34 55c10-25 31-25 41 0-11 18-29 18-41 0Zm42 0c10-25 31-25 41 0-11 18-29 18-41 0Z" />
+            <g className="semantic-art__motion-part semantic-art__prop-pivot">
+              {/* Intact eggs taper at the crown and broaden toward the base. */}
+              <ellipse className="semantic-art__prop-shadow" cx="55" cy="65" rx="22" ry="4" />
+              <path className="semantic-art__surface semantic-art__outlined" d="M35 54c0-11 11-28 20-28s20 17 20 28c0 18-40 18-40 0Z" />
+              <path className="semantic-art__surface-deep" d="M59 27c9 5 16 18 16 27 0 13-20 18-31 8q29 4 15-35Z" />
+              <path className="semantic-art__gloss" d="M43 46q3-10 10-13" />
+              <ellipse className="semantic-art__prop-shadow" cx="98" cy="67" rx="22" ry="4" />
+              <path className="semantic-art__surface semantic-art__outlined" d="M78 56c0-11 11-28 20-28s20 17 20 28c0 18-40 18-40 0Z" />
+              <path className="semantic-art__surface-deep" d="M102 29c9 5 16 18 16 27 0 13-20 18-31 8q29 4 15-35Z" />
+              <path className="semantic-art__gloss" d="M86 48q3-10 10-13" />
+            </g>
             <path className="semantic-art__detail" d="m75 47 7 8-7 8" />
-            <path className="semantic-art__gloss" d="M42 50c5-11 13-14 21-9" />
             <path className="semantic-art__steam" d="M92 77c-7-11 7-14 0-27m34 28c-7-11 7-14 0-27" />
           </SceneLayer>
         </>

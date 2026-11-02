@@ -872,6 +872,37 @@ function Mug({
   );
 }
 
+/** Breakfast-only ceramic; the single counting cup retains its own artwork. */
+function BreakfastCup(): React.JSX.Element {
+  return (
+    <g data-scene-cue="breakfast-coffee-cup">
+      <ellipse className="semantic-art__prop-shadow" cx="126" cy="133" rx="48" ry="7" />
+      <ellipse className="semantic-art__surface-deep semantic-art__outlined" cx="123" cy="129" rx="47" ry="9" />
+      <ellipse className="semantic-art__surface-lit" cx="123" cy="127" rx="43" ry="7" />
+      <ellipse className="semantic-art__surface-deep" cx="126" cy="126" rx="33" ry="4" />
+      <g className="semantic-art__motion-part semantic-art__prop-pivot">
+        {/* Closed outer/inner handle contours make a real ceramic loop. */}
+        <path className="semantic-art__teal-deep semantic-art__outlined" fillRule="evenodd" d="M158 81c37-9 38 38 4 38l-1-9c22 0 24-23-2-21Z" />
+        <path className="semantic-art__teal-lit" d="M164 83q23-1 21 19-3-15-20-14Z" />
+        {/* Pilot scenes do not mount SceneFrame's material ramps. Use solid
+            palette steps here so a missing ramp URL cannot make a cup clear. */}
+        <path className="semantic-art__teal-deep semantic-art__outlined" d="M86 77h78v30c0 24-78 26-78 0Z" />
+        <path className="semantic-art__teal-deep" d="M141 79h23v28q-1 15-27 18 17-16 4-46Z" />
+        <path className="semantic-art__teal-lit" d="M89 80h35v28q0 12 13 17-44 4-48-19Z" />
+        <path className="semantic-art__gloss semantic-art__prop-glint" d="M96 87v14q0 8 6 11" />
+        <ellipse className="semantic-art__teal-lit semantic-art__outlined" cx="125" cy="77" rx="39" ry="9" />
+        <ellipse className="semantic-art__wood-deep" cx="125" cy="78" rx="34" ry="6" />
+        <path className="semantic-art__wood-lit" d="M97 77q25-8 56 0-27-4-56 2Z" />
+        <path className="semantic-art__gloss" d="M89 78q34 13 71 0" />
+      </g>
+      {/* Preserve the original steam hooks, finite animation and reduced motion. */}
+      <g className="living__steam">
+        <path className="living__steam-ink" d="M112 62c-11-13 9-17 1-30m22 30c-10-13 9-16 2-28" fill="none" strokeWidth="1.5" strokeLinecap="round" />
+      </g>
+    </g>
+  );
+}
+
 function Morning({ sceneId: id, hintStage }: Props): React.JSX.Element {
   return (
     <>
@@ -950,18 +981,21 @@ function Morning({ sceneId: id, hintStage }: Props): React.JSX.Element {
         />
         <path d="M51 133q70 17 142 0v4q-71 20-142 0Z" fill="#785438" />
         <g transform="translate(20 70) scale(.46)">
-          <Mug id={id} />
+          <BreakfastCup />
         </g>
         <g transform="translate(103 73) scale(.43)">
-          <Mug id={id} />
+          <BreakfastCup />
         </g>
-        <ellipse cx="126" cy="134" rx="20" ry="4" fill="#ded8bc" />
-        <path
-          d="m117 132 9-8 10 10Z"
-          fill="#d1a062"
-          stroke="#9c7041"
-          strokeWidth=".8"
-        />
+        <ellipse className="semantic-art__surface-deep" cx="126" cy="135" rx="20" ry="4" />
+        <ellipse className="semantic-art__surface-lit" cx="126" cy="134" rx="18" ry="3" />
+        <g className="semantic-art__motion-part semantic-art__prop-pivot">
+          {/* A cut sponge wedge: top crust, crumb face and a darker end plane. */}
+          <path className="semantic-art__gold-soft semantic-art__outlined" d="m117 131 9-9 10 10v4l-19-1Z" />
+          <path className="semantic-art__gold-lit" d="m117 131 9-9 10 10Z" />
+          <path className="semantic-art__gold-deep" d="m126 122 10 10v4l-8-3Z" />
+          <path className="semantic-art__surface-lit" d="m118 132 10 1v1l-10-.5Z" />
+          <path className="semantic-art__gold-lit" d="m120 130 6-6 3 6Z" />
+        </g>
       </SceneLayer>
     </>
   );
