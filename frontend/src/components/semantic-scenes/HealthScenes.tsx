@@ -333,6 +333,7 @@ export function HealthScene({
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wall semantic-art__outlined" d="M12 12h216v150H12Z" />
+            <PaintedRoom name="scene-pharmacy" x={12} y={12} width={216} height={156} />
             {/* Shelves of packets: what a pharmacy has and a clinic does not. */}
             <PharmacyShelf y={54} />
             <PharmacyShelf y={86} />

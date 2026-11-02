@@ -10,6 +10,7 @@
 import type { A0VisualKey } from '../../visuals/a0VisualRecipes';
 import type { SemanticHintStage } from '../SemanticWordIllustration';
 import {
+  PaintedRoom,
   SceneLayer,
   SemanticMaterialDefs,
   SemanticPerson,
@@ -350,6 +351,7 @@ export function FoodHomeScene({
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__tiles" d="M20 24h200v78H20ZM70 24v78m50-78v78m50-78v78M20 63h200" />
+            <PaintedRoom name="scene-egg" x={12} y={12} width={216} height={156} />
             <path className="semantic-art__metal semantic-art__outlined" d="M20 119h200v34H20Z" />
             <path className="semantic-art__metal-lit" d="M20 119h200v8H20Z" />
             <path className="semantic-art__metal-deep" d="M20 141h200v12H20Z" />
@@ -405,9 +407,10 @@ export function FoodHomeScene({
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
+            <PaintedRoom name="scene-restaurant" x={12} y={12} width={216} height={156} />
             <path className="semantic-art__awning semantic-art__outlined" d="M19 24h202l-13 31H32Z" />
             <path className="semantic-art__awning-lines" d="m55 24-6 31m45-31-2 31m54-31 2 31m38-31 6 31" />
-            <path className="semantic-art__wall semantic-art__outlined" d="M31 55h178v92H31Z" />
+            <path className="semantic-art__wall semantic-art__outlined semantic-art__glaze" d="M31 55h178v92H31Z" />
             {/* Brick courses: the wall was a blank rectangle before. */}
             <path className="semantic-art__grain" d="M31 73h178M31 89h178M31 105h60M150 105h59" />
             <path className="semantic-art__shade" d="M188 55h21v92h-21Z" />
@@ -470,6 +473,7 @@ export function FoodHomeScene({
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__tiles" d="M21 24h198v126H21ZM70 24v126m50-126v126m50-126v126M21 66h198M21 108h198" />
+            <PaintedRoom name="scene-kitchen" x={12} y={12} width={216} height={156} />
             <path className="semantic-art__wood semantic-art__outlined" d="M24 101h192v49H24Z" />
             <path className="semantic-art__grain" d="M32 122h176M32 133h176M32 143h120" />
             {/* Counter edge: a lit lip so the worktop has thickness. */}
