@@ -968,9 +968,11 @@ legend {
   .connector-grid, .settings-grid { grid-template-columns: 1fr; }
   .bug-card form { grid-template-columns: 1fr; }
 }
-@media (max-width: 420px) {
-  /* Past the menu button the whole lockup and four actions need 388px of a 354px row, so the actions wrapped to
-     a second line. On a phone the brand is the complete app icon alone, a little larger. */
+@media (max-width: 930px) {
+  /* Wherever the menu button shows, the brand starts past it, and the whole lockup no longer fits beside the
+     actions: at 390 px they wrapped to a second line, at 768 px the page overflowed sideways. So here the brand
+     is the complete app icon alone, a little larger (88 px with its offset, against 126 px for the old lockup).
+     The full lockup stays at the top of the menu. */
   .mobile-brand .ivrit-wordmark__text { display: none; }
   .mobile-brand .ivrit-wordmark--compact .ivrit-wordmark__icon { width: 36px; height: 36px; }
 }
