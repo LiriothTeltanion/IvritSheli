@@ -292,6 +292,35 @@ describe('App cloud session flow', () => {
     expect(localStorage.getItem('ivrit-sheli-locale')).toBeNull();
   });
 
+  it('opens in the profile language even after this device showed another one', async () => {
+    // A tap on EN/ES/HE on the sign-in screen stores a locale without making it an explicit choice. The old check
+    // treated any stored locale as a choice, so the saved profile language was never applied again (2026-11-02).
+    localStorage.setItem('ivrit-sheli-locale', 'en');
+    const spanishProfile = { ...profile, interface_language: 'es' as const };
+    vi.stubGlobal('fetch', routeFetch(googleSession, spanishProfile));
+    renderApp();
+
+    expect(await screen.findByText('Tu progreso está guardado')).toBeInTheDocument();
+    expect(document.documentElement).toHaveAttribute('lang', 'es');
+  });
+
+  it('saves a language chosen in the top bar to the profile, so the next device opens in it', async () => {
+    const fetchMock = routeFetch(googleSession);
+    vi.stubGlobal('fetch', fetchMock);
+    const user = userEvent.setup();
+    renderApp();
+
+    await screen.findByText('Your progress is saved');
+    const switcher = document.querySelector<HTMLElement>('.topbar .locale-switch')!;
+    await user.click(within(switcher).getByRole('button', { name: 'ES' }));
+
+    await waitFor(() => {
+      const saves = fetchMock.mock.calls.filter(([url, init]) => String(url).endsWith('/profile') && init?.method === 'PUT');
+      expect(saves.map(([, init]) => JSON.parse(String(init?.body)))).toContainEqual({ interface_language: 'es' });
+    });
+    expect(localStorage.getItem('ivrit-sheli-locale-explicit')).toBe('true');
+  });
+
   it.each([
     ['guided', false, false],
     ['explorer', true, false],

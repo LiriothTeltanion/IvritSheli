@@ -448,7 +448,16 @@ export default function App(): React.JSX.Element {
       setProfile(nextProfile);
       setGamification(nextGamification);
       setError('');
-      if (!localeOverrideFromSearch(window.location.search) && !localStorage.getItem('ivrit-sheli-locale')) {
+      /* The learner's saved language wins over whatever this device last showed. The old check was "no locale
+         stored yet", but every tap on EN/ES/HE stores one, including on the sign-in screen, so once a device had
+         shown any language the profile's was never applied again (2026-11-02). Only a ?lang= visit or a choice
+         made explicitly on this device still outranks it, and those choices are now written to the profile too.
+         The read-only demo is excluded: its profile is the sample's, not the visitor's. */
+      if (
+        !auth?.read_only
+        && !localeOverrideFromSearch(window.location.search)
+        && localStorage.getItem('ivrit-sheli-locale-explicit') !== 'true'
+      ) {
         setLocale(nextProfile.interface_language);
       }
     } catch (reason) {
@@ -456,7 +465,7 @@ export default function App(): React.JSX.Element {
     } finally {
       setLoading(false);
     }
-  }, [setLocale]);
+  }, [auth?.read_only, setLocale]);
 
   const checkAuth = useCallback(async (): Promise<void> => {
     setAuthChecking(true);
@@ -979,6 +988,12 @@ export default function App(): React.JSX.Element {
               {(['en', 'es', 'he'] as Locale[]).map((code) => <button key={code} type="button" className={locale === code ? 'active' : ''} onClick={() => {
                 window.localStorage.setItem('ivrit-sheli-locale-explicit', 'true');
                 setLocale(code);
+                // Saved to the profile as well, so the next device opens in the language chosen here.
+                if (!auth.read_only) {
+                  void api.updateProfile({ interface_language: code }).then(setProfile).catch(() => {
+                    // The device keeps the choice; the next successful save carries it.
+                  });
+                }
               }}>{code.toUpperCase()}</button>)}
             </div>
             <button type="button" className="icon-button" onClick={toggleTheme} aria-label={t('toggleTheme')}>{theme === 'dark' ? '☀' : '☾'}</button>
