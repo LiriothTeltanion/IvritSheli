@@ -30,6 +30,37 @@ function Wheel({ cx, cy, r = 12 }: { cx: number; cy: number; r?: number }): Reac
   );
 }
 
+/** Two passenger decks, recessed vestibule doors and paired railway bogies.
+ * Each carriage keeps the existing footprint and the original rail contact. */
+function TrainCar({ x, width, cab = false }: { x: number; width: number; cab?: boolean }): React.JSX.Element {
+  return <g transform={`translate(${x} 0)`}>
+    <g className="semantic-art__motion-part semantic-art__prop-pivot semantic-art__prop-bob">
+      <path className="semantic-art__coral semantic-art__outlined" d={cab ? `M0 72Q2 48 20 46h${width - 20}v88H0Z` : `M0 50q0-4 5-4h${width - 10}q5 0 5 4v84H0Z`} />
+      <path className="semantic-art__coral-lit" d={`M${cab ? 13 : 4} 49h${width - (cab ? 16 : 8)}v5H${cab ? 9 : 4}Z`} />
+      <path className="semantic-art__coral-deep" d={`M${width - 7} 52h7v80h-7ZM0 124h${width}v10H0Z`} />
+      <path className="semantic-art__surface" d={`M${cab ? 8 : 2} 58h${width - (cab ? 10 : 4)}v24H2v-9ZM2 91h${width - 4}v23H2Z`} />
+      {/* Two separated rows are the recognition cue, even in thumbnails. */}
+      {[61, 94].map((y) => <g key={y}>
+        {(cab ? [11, 25, 39] : [5, 19, 33]).map((wx) => <g key={wx}>
+          <path className="semantic-art__window" d={`M${wx} ${y}h11v16H${wx}Z`} />
+          <path className="semantic-art__window-lit semantic-art__prop-glint" d={`M${wx + 1} ${y + 1}h7l-7 10Z`} />
+        </g>)}
+      </g>)}
+      <path className="semantic-art__ink" d={`M${width - 16} 84h13v45h-13Z`} />
+      <path className="semantic-art__coral-deep" d={`M${width - 14} 86h9v41h-9Z`} />
+      <path className="semantic-art__window" d={`M${width - 13} 89h7v15h-7Z`} />
+      <path className="semantic-art__metal" d={`M${width - 14} 125h11v3h-11Z`} />
+      <path className="semantic-art__grain" d={`M3 87h${width - 22}M3 118h${width - 22}`} />
+      {cab && <path className="semantic-art__gold-lit" d="M1 116h4v5H1Z" />}
+    </g>
+    {[15, width - 16].map((bx) => <g key={bx}>
+      <path className="semantic-art__metal-deep semantic-art__outlined" d={`M${bx - 9} 129h18v8h-18Z`} />
+      <Wheel cx={bx - 5} cy={141.3} r={4.7} /><Wheel cx={bx + 5} cy={141.3} r={4.7} />
+      <path className="semantic-art__metal-line" d={`M${bx - 4} 130h8`} />
+    </g>)}
+  </g>;
+}
+
 /**
  * A road that turns, mirrored for `left`.
  *
@@ -74,17 +105,37 @@ export function TransportScene({
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <ellipse className="semantic-art__prop-shadow" cx="120" cy="140" rx="104" ry="8" />
-            <path className="semantic-art__blue semantic-art__outlined" d="M16 60q0-14 14-14h182q12 0 12 14v72H16Z" />
-            <path className="semantic-art__window" d="M26 56h30v26H26Zm38 0h30v26H64Zm38 0h30v26h-30Zm38 0h30v26h-30Zm38 0h26v26h-26Z" />
-            <path className="semantic-art__window-lit" d="M29 59h24v20H29Zm38 0h24v20H67Zm38 0h24v20h-24Zm38 0h24v20h-24Z" />
-            <path className="semantic-art__shade" d="M196 46h16q12 0 12 14v72h-28Z" />
+            <g className="semantic-art__motion-part semantic-art__prop-pivot">
+              {/* Same low-floor body language as SemanticBus: dark glazing belt,
+                  white lower panels, blue skirt, paired doors and a short nose. */}
+              <path className="semantic-art__blue semantic-art__outlined" d="M16 60q0-14 16-14h169q23 0 23 21v65H16Z" />
+              <path className="semantic-art__blue-lit" d="M20 56q2-7 14-7h164q12 0 17 7Z" />
+              <path className="semantic-art__blue-deep" d="M211 56q13 3 13 15v61h-13Z" />
+              <path className="semantic-art__ink" d="M22 59h191v40H22Z" />
+              {[27, 59, 91, 123].map((x) => <g key={x}>
+                <path className="semantic-art__window" d={`M${x} 63h26v30h-26Z`} />
+                <path className="semantic-art__window-lit semantic-art__prop-glint" d={`M${x + 2} 65h17l-17 20Z`} />
+              </g>)}
+              <path className="semantic-art__window" d="M191 64h18l6 32h-24Z" />
+              <path className="semantic-art__window-lit" d="M194 67h11l2 8h-13Z" />
+              <path className="semantic-art__surface" d="M17 102h135v24H17Zm171 0h34v24h-34Z" />
+              <path className="semantic-art__blue-deep" d="M17 125h135v7H17Zm171 0h35v7h-35Z" />
+              <path className="semantic-art__ink" d="M152 60h36v70h-36Z" />
+              <path className="semantic-art__window" d="M156 65h11v51h-11Zm16 0h11v51h-11Z" />
+              <path className="semantic-art__metal" d="M155 121h30v5h-30Z" />
+              <path className="semantic-art__ink" d="M177 49h30v8h-30Z" />
+              <path className="semantic-art__gold" d="M181 52h20v2h-20Z" />
+              <path className="semantic-art__metal-deep" d="M211 73h12v17h-5V78h-7Z" />
+              <path className="semantic-art__gold-lit" d="M215 106h7v7h-7Z" />
+              <path className="semantic-art__coral" d="M17 104h4v8h-4Z" />
+              <path className="semantic-art__grain" d="M27 112h14m-14 4h14m50-4h25m-25 4h25" />
+              <path className="semantic-art__ink" d="M36 132a18 18 0 0 1 36 0Zm124 0a18 18 0 0 1 36 0Z" />
+              <path className="semantic-art__metal-deep" d="M17 127h10v6H17Zm194 0h13v6h-13Z" />
+            </g>
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            {/* Concertina doors: the detail that separates bus from train. */}
-            <path className="semantic-art__detail" d="M156 90h34v42h-34Zm17 0v42" />
             <Wheel cx={54} cy={132} r={14} />
             <Wheel cx={178} cy={132} r={14} />
-            <path className="semantic-art__gold semantic-art__outlined" d="M22 92h22v14H22Z" />
           </SceneLayer>
         </>
       );
@@ -103,26 +154,15 @@ export function TransportScene({
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <ellipse className="semantic-art__prop-shadow" cx="120" cy="140" rx="108" ry="7" />
-            {/* Front car plus two carriages: repetition is what says train. */}
-            <path className="semantic-art__coral semantic-art__outlined" d="M12 62q10-16 26-16h44v88H12Z" />
-            <path className="semantic-art__coral semantic-art__outlined" d="M88 46h64v88H88Z" />
-            <path className="semantic-art__coral semantic-art__outlined" d="M158 46h62v88h-62Z" />
-            {/* The far end of the last carriage turns away from the light. This
-                used to be drawn in the anchor layer, after the glass, so it cut a
-                hard vertical seam straight through the lit window and the carriage
-                read as a building standing in front of the train. */}
-            <path className="semantic-art__shade" d="M198 46h22v88h-22Z" />
-            <path className="semantic-art__window" d="M22 62h50v26H22Zm74 0h48v26H96Zm70 0h46v26h-46Z" />
-            <path className="semantic-art__window-lit" d="M25 65h44v20H25Zm74 0h42v20H99Zm70 0h40v20h-40Z" />
+            <TrainCar x={12} width={70} cab />
+            <TrainCar x={88} width={64} />
+            <TrainCar x={158} width={62} />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
-            <path className="semantic-art__metal-line" d="M82 60v74m70-74v74" />
-            <Wheel cx={38} cy={136} r={10} />
-            <Wheel cx={68} cy={136} r={10} />
-            <Wheel cx={112} cy={136} r={10} />
-            <Wheel cx={140} cy={136} r={10} />
-            <Wheel cx={182} cy={136} r={10} />
-            <Wheel cx={208} cy={136} r={10} />
+            {/* Flexible gangways at passenger height; couplers below the body. */}
+            <path className="semantic-art__metal-deep semantic-art__outlined" d="M82 63h6v59h-6Zm70 0h6v59h-6Z" />
+            <path className="semantic-art__grain" d="M84 67v50m70-50v50" />
+            <path className="semantic-art__metal-line" d="M82 129h6m64 0h6" />
           </SceneLayer>
         </>
       );

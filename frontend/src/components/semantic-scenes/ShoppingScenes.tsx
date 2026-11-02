@@ -40,6 +40,20 @@ function Note({ x, y, w = 70, h = 36 }: { x: number; y: number; w?: number; h?: 
   );
 }
 
+/** A fabric parasol with separate light, shade and a moving scalloped hem. */
+function BeachUmbrella(): React.JSX.Element {
+  return <g>
+    <path className="semantic-art__wood semantic-art__outlined" d="M174 117h4v21h-4Z" />
+    <path className="semantic-art__wood-lit" d="M175 118h1v18h-1Z" />
+    <g className="semantic-art__motion-part semantic-art__prop-pivot semantic-art__prop-flutter">
+      <path className="semantic-art__coral semantic-art__outlined" d="M158 118q18-24 36 0l-6 2-12-1-11 1Z" />
+      <path className="semantic-art__coral-lit" d="M159 117q8-10 17-11-7 5-10 12Z" />
+      <path className="semantic-art__coral-deep" d="M176 106q11 1 18 12l-6 2q-3-9-12-14Z" />
+      <path className="semantic-art__grain" d="M166 118q3-9 10-12 7 5 12 13m-12-13v12" />
+    </g>
+  </g>;
+}
+
 export function ShoppingScene({
   visualKey,
   hintStage,
@@ -57,18 +71,38 @@ export function ShoppingScene({
             <PaintedRoom name="scene-store" x={12} y={12} width={216} height={156} />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
-            <path className="semantic-art__awning semantic-art__outlined" d="M20 44h200l-12 28H32Z" />
-            <path className="semantic-art__awning-lines" d="m56 44-5 28m44-28-2 28m45-28 2 28m44-28 5 28" />
+            <path className="semantic-art__wood-deep" d="M30 71h180v9H30Z" />
+            <g className="semantic-art__motion-part semantic-art__prop-pivot semantic-art__prop-flutter">
+              <path className="semantic-art__awning semantic-art__outlined" d="M20 44h200l-12 28H32Z" />
+              <path className="semantic-art__gold-lit" d="M21 45h198l-3 5H24Z" />
+              <path className="semantic-art__coral" d="M43 44h17l-5 28H39Zm39 0h17l-2 28H79Zm39 0h17l2 28h-19Zm39 0h17l5 28h-18Zm39 0h20l-12 28h-4Z" />
+              <path className="semantic-art__awning-lines" d="m56 44-5 28m44-28-2 28m45-28 2 28m44-28 5 28" />
+              <path className="semantic-art__gold-deep semantic-art__outlined" d="M32 70h176v5q-9 5-18 0-9 5-18 0-9 5-18 0-9 5-18 0-9 5-18 0-9 5-18 0-9 5-18 0-9 5-18 0-9 5-18 0-7 4-14 0Z" />
+            </g>
+            <path className="semantic-art__surface semantic-art__outlined" d="M27 78h76v65H27Zm90 0h60v65h-60Z" />
             <path className="semantic-art__window semantic-art__outlined" d="M30 80h70v60H30Zm90 0h54v60h-54Z" />
-            <path className="semantic-art__window-lit" d="M34 84h62v52H34Zm90 0h46v52h-46Z" />
-            <path className="semantic-art__gloss" d="m40 132 44-44m34 44 30-32" />
+            <path className="semantic-art__teal-deep" d="M34 84h62v52H34Zm90 0h46v52h-46Z" />
+            <path className="semantic-art__wood" d="M33 105h64v4H33Zm0 24h64v4H33Zm90-12h48v4h-48Z" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
             {/* Goods in the window, and a door to go in by. */}
             <path className="semantic-art__coral semantic-art__outlined" d="M40 108h20v22H40Zm26 0h20v22H66Z" />
+            <path className="semantic-art__coral-lit" d="M42 110h5v17h-5Zm26 0h5v17h-5Z" />
+            <path className="semantic-art__gold-soft semantic-art__outlined" d="M42 92q0-5 5-5h4q5 0 5 5v12H42Zm21 0h7v12h-7Zm15 3h12v9H78Z" />
+            <path className="semantic-art__green semantic-art__outlined" d="M134 108q-6-12 2-15 8 3 2 15Zm12 0q-4-17 4-18 7 4 1 18Z" />
+            <path className="semantic-art__clay semantic-art__outlined" d="M129 108h14l-2 9h-10Zm15 0h14l-2 9h-10Z" />
+            <path className="semantic-art__gold semantic-art__outlined" d="M128 125h12v11h-12Zm17 0h17v11h-17Z" />
+            <path className="semantic-art__gloss semantic-art__prop-glint" d="m36 99 13-13m35 0 8 0-33 37m69-23 13-13" />
+            <path className="semantic-art__surface semantic-art__outlined" d="M181 81h40v62h-40Z" />
             <path className="semantic-art__teal semantic-art__outlined" d="M184 84h34v56h-34Z" />
+            <path className="semantic-art__teal-deep" d="M210 85h7v54h-7Z" />
+            <path className="semantic-art__window" d="M190 89h20v17h-20Z" />
+            <path className="semantic-art__teal-deep" d="M190 118h20v16h-20Z" />
+            <path className="semantic-art__metal" d="M182 138h39v5h-39Z" />
             <circle className="semantic-art__gold" cx="190" cy="112" r="4" />
             <path className="semantic-art__surface semantic-art__outlined" d="M120 30h60v14h-60Z" />
+            <path className="semantic-art__surface-lit" d="M123 32h54v3h-54Z" />
+            <path className="semantic-art__surface-deep" d="M122 40h56v3h-56Z" />
           </SceneLayer>
         </>
       );
@@ -438,20 +472,34 @@ export function ShoppingScene({
                 the row of balconies is what separates a hotel from an office. */}
             <path className="semantic-art__surface semantic-art__outlined" d="M40 34h108v76H40Z" />
             <path className="semantic-art__surface-deep" d="M124 34h24v76h-24Z" />
+            <path className="semantic-art__surface-lit" d="M42 36h4v72h-4Z" />
+            <path className="semantic-art__surface semantic-art__outlined" d="M37 32h114v5H37Z" />
             <path className="semantic-art__window semantic-art__outlined" d="M50 44h18v16H50Zm26 0h18v16H76Zm26 0h18v16h-18Zm-52 24h18v16H50Zm26 0h18v16H76Zm26 0h18v16h-18Z" />
             <path className="semantic-art__window-lit" d="M52 46h14v12H52Zm52 0h14v12h-14Zm-26 24h14v12H78Z" />
-            <path className="semantic-art__metal-line" d="M46 62h78M46 86h78" />
-            <path className="semantic-art__grain" d="M54 62v-4m18 4v-4m18 4v-4m18 4v-4M54 86v-4m18 4v-4m18 4v-4m18 4v-4" />
+            {[60, 84].map((y) => <g key={y}>
+              <path className="semantic-art__surface-deep" d={`M46 ${y + 3}h79v5H46Z`} />
+              <path className="semantic-art__metal-line" d={`M47 ${y - 3}h77m-76 0v7m25-7v7m26-7v7m24-7v7`} />
+              <path className="semantic-art__surface semantic-art__outlined" d={`M45 ${y + 3}h81v3H45Z`} />
+            </g>)}
+            <path className="semantic-art__window" d="M131 45h10v15h-10Zm0 24h10v15h-10Z" />
             {/* Roofline plant room, so the block does not end in a flat cut. */}
             <path className="semantic-art__surface-deep semantic-art__outlined" d="M62 34V24h34v10Z" />
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
             {/* Canopy over the entrance, and parasols on the sand. */}
             <path className="semantic-art__coral semantic-art__outlined" d="M70 96h48v10H70Z" />
+            <path className="semantic-art__coral-lit" d="m70 96 5-4h48l-5 4Z" />
+            <path className="semantic-art__coral-deep" d="M70 103h48v3H70Z" />
+            <path className="semantic-art__surface semantic-art__outlined" d="M78 107h32v18H78Z" />
             <path className="semantic-art__teal semantic-art__outlined" d="M84 106h20v18H84Z" />
+            <path className="semantic-art__window" d="M87 109h14v12H87Z" />
+            <path className="semantic-art__metal-line" d="M94 107v17" />
+            <path className="semantic-art__gold" d="M91 116h1v4h-1Zm5 0h1v4h-1Z" />
+            <path className="semantic-art__surface-deep" d="M78 124h33v3H78Z" />
             <path className="semantic-art__surface semantic-art__outlined" d="M52 20h84v14H52Z" />
-            <path className="semantic-art__coral semantic-art__outlined" d="M158 118q18-22 36 0Z" />
-            <path className="semantic-art__wood-line" d="M176 118v20" />
+            <path className="semantic-art__surface-lit" d="M55 22h78v3H55Z" />
+            <path className="semantic-art__surface-deep" d="M54 30h80v3H54Z" />
+            <BeachUmbrella />
           </SceneLayer>
         </>
       );
