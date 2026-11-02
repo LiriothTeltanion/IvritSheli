@@ -287,9 +287,18 @@ Hand centres, arm ends and feet are an API: place props at the existing hand anc
 **Painting a scene.** Render the scene's own context with people, props, sun and clouds hidden, cropped to
 `12..228 × 12..168`, and repaint it image-to-image (Codex `image_gen` has given the best alignment) keeping every
 ground, shelf and desk line. Make a dark-theme version at the same time of day — never turn a morning into night.
-Save `scene-<name>.webp` and `scene-<name>-dark.webp` (quality 80, about 10–45 kB), record them in
+Save `scene-<name>.webp` and `scene-<name>-dark.webp` (quality 80, about 25–150 kB), record them in
 `painted/manifest.json`, list the name in `DARK_PAINTINGS`, and place `PaintedRoom` in the context layer over the
-flat ground and under anything animated. Check edge alignment and the scene in light, dark and high contrast.
+flat ground and under anything animated. Check edge alignment and the scene in light, dark and high contrast;
+`paintedFiles.test.ts` fails if a named painting, its dark version or its manifest entry is missing.
+
+**Brief each scene by name, not "repaint this".** Most contexts are a bare wall and a ground band; handed only that,
+the image model returns the same bare wall with paper texture (first attempt, 2026-11-02). Treat the render as a
+placeholder for the ground lines and write, per scene, what the setting contains (stone apartment blocks with
+balconies, a crater rim on the horizon, mailboxes in a lobby), the pixel lines that must not move, and which areas
+stay calm because a person or a teaching prop is drawn there. Hide props, vehicles, doors, benches and suns from
+the render first; the model tends to keep whatever it is shown. Never ask for a "plain wall behind" a building: it
+paints one, and it shows beside the roof where sky belongs.
 
 **Motion is part of the art.** Every scene must react to hover, keyboard focus and a press (`data-exploring`); the
 adults nod, blink, breathe and, when talking, speak. All motion is finite and lives inside
