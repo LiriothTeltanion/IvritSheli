@@ -976,6 +976,16 @@ legend {
   .mobile-brand .ivrit-wordmark__text { display: none; }
   .mobile-brand .ivrit-wordmark--compact .ivrit-wordmark__icon { width: 36px; height: 36px; }
 }
+@media (min-width: 931px) and (max-width: 1279px) {
+  /* Between the phone layout and 1280 px the top-bar context ("Hoy · Modo guiado · Nivel A0") was clipped, to 28
+     of its 228 px at 931 px. Mode and level are already in the sidebar footer, so they go first. */
+  .topbar-context .learner-mode-chip,
+  .topbar-context .cefr-level-chip { display: none; }
+}
+@media (min-width: 931px) and (max-width: 1099px) {
+  /* Narrower still, the page title goes too: the sidebar already highlights the current page. */
+  .topbar-context { display: none; }
+}
 @media (max-width: 360px) {
   /* At 320 px the four top-bar actions (48 px each) wrapped under the brand: the row needed 324 px of 302. Here
      they are 44 px, the platform touch minimum, with tighter gaps and side padding (measured 2026-11-02). */
