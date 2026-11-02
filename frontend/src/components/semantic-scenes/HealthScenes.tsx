@@ -14,7 +14,7 @@
 
 import type { A0VisualKey } from '../../visuals/a0VisualRecipes';
 import type { SemanticHintStage } from '../SemanticWordIllustration';
-import { MagenDavid, MedicalCross, SceneLayer, SemanticPerson } from './SemanticScenePrimitives';
+import { MagenDavid, MedicalCross, PaintedRoom, SceneLayer, SemanticPerson } from './SemanticScenePrimitives';
 
 interface HealthSceneProps {
   visualKey: A0VisualKey;
@@ -383,6 +383,8 @@ export function HealthScene({
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__surface semantic-art__outlined" d="M12 122h216v40H12Z" />
             <path className="semantic-art__gloss" d="M20 128h200" />
+            {/* Painted wall and shelf (2026-11-02, Codex) over the flat shelf. */}
+            <PaintedRoom name="scene-allergy" x={12} y={12} width={216} height={156} />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <ellipse className="semantic-art__prop-shadow" cx="66" cy="126" rx="34" ry="6" />

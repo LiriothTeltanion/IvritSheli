@@ -6,6 +6,7 @@ import type { A0VisualKey } from '../../visuals/a0VisualRecipes';
 import type { SemanticHintStage } from '../SemanticWordIllustration';
 import {
   CalendarPage,
+  PaintedRoom,
   SceneLayer,
   SemanticPerson,
   SpeechBubble,
@@ -640,6 +641,8 @@ export function GreetingTimeScene({
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wood semantic-art__outlined" d="M20 139h200v20H20Z" />
             <path className="semantic-art__grain" d="M28 146h184M28 153h122" />
+            {/* Painted study wall and desk (2026-11-02, Codex), under the vector sun and cloud. */}
+            <PaintedRoom name="scene-yesterday" x={12} y={12} width={216} height={156} />
             <circle className="semantic-art__sun-halo" cx="42" cy="35" r="24" />
             <circle className="semantic-art__gold-soft semantic-art__outlined" cx="42" cy="35" r="13" />
             <path className="semantic-art__cloud semantic-art__outlined" d="M171 30c4-16 29-18 35-2 15-2 20 17 6 23h-48c-13-5-8-22 7-21Z" />

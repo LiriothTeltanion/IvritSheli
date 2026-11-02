@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import type { A0VisualKey } from '../../visuals/a0VisualRecipes';
 import type { SemanticHintStage } from '../SemanticWordIllustration';
 import {
+  PaintedRoom,
   SceneLayer,
   SemanticPerson,
   SpeechBubble,
@@ -301,14 +302,17 @@ export function CoreDailyScene({
           hintStage={hintStage}
           context={(
             <>
-              <circle className="semantic-art__sun-halo" cx="199" cy="34" r="30" />
-              <circle className="semantic-art__gold semantic-art__outlined" cx="199" cy="34" r="17" />
-              <circle className="semantic-art__sun-core" cx="195" cy="30" r="8" />
               <path
                 className="semantic-art__green-soft semantic-art__outlined"
                 d="M14 144q37-61 75 0Zm146 0q34-58 70 0Z"
               />
               <path className="semantic-art__leaf-lit" d="M28 138q26-40 48-8m118 8q-22-38-44-6" />
+              {/* Painted neighbourhood (2026-11-02, Codex) over the flat hills; the sun is drawn after it so it
+                  stays a live vector. */}
+              <PaintedRoom name="scene-house" x={12} y={12} width={216} height={156} />
+              <circle className="semantic-art__sun-halo" cx="199" cy="34" r="30" />
+              <circle className="semantic-art__gold semantic-art__outlined" cx="199" cy="34" r="17" />
+              <circle className="semantic-art__sun-core" cx="195" cy="30" r="8" />
             </>
           )}
           meaning={(

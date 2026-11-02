@@ -12,7 +12,7 @@
 
 import type { A0VisualKey } from '../../visuals/a0VisualRecipes';
 import type { SemanticHintStage } from '../SemanticWordIllustration';
-import { SceneLayer, SemanticPerson } from './SemanticScenePrimitives';
+import { PaintedRoom, SceneLayer, SemanticPerson } from './SemanticScenePrimitives';
 
 interface NatureSceneProps {
   visualKey: A0VisualKey;
@@ -208,6 +208,8 @@ export function NatureScene({
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__green-soft semantic-art__outlined" d="M12 118h216v44H12Z" />
             <path className="semantic-art__grain" d="M20 128h200M20 140h200M20 151h132" />
+            {/* Painted park (2026-11-02, Codex): over the flat lawn, under the animated sun. */}
+            <PaintedRoom name="scene-garden" x={12} y={12} width={216} height={156} />
             <NatureSun x={204} y={32} r={13} />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
