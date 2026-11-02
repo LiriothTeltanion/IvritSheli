@@ -83,7 +83,9 @@ function SunHeat({ x = 193, y = 38 }: { x?: number; y?: number }): React.JSX.Ele
 function Snowflake({ x, y, scale = 0.5 }: { x: number; y: number; scale?: number }): React.JSX.Element {
   return (
     <g transform={`translate(${x} ${y}) scale(${scale})`}>
-      <path className="semantic-art__snowflake semantic-art__motion-part semantic-art__prop-bob" d="M0-22V22M-19-11 19 11M-19 11 19-11M-5-17 0-12 5-17M-5 17 0 12 5 17M-17-4-10-6-12-13M17 4 10 6 12 13M-17 4-10 6-12 13M17-4 10-6 12-13" />
+      <g className="semantic-art__motion-part semantic-art__prop-bob">
+        <path className={`semantic-art__snowflake${scale < 0.25 ? ' semantic-art__prop-glint' : ''}`} d="M0-22V22M-19-11 19 11M-19 11 19-11M-5-17 0-12 5-17M-5 17 0 12 5 17M-17-4-10-6-12-13M17 4 10 6 12 13M-17 4-10 6-12 13M17-4 10-6 12-13" />
+      </g>
     </g>
   );
 }
@@ -94,12 +96,14 @@ function SnowCloud(): React.JSX.Element {
       {/* One continuous heavy cloud, with overlapping rounded volumes rather
           than a straight icon baseline. Its shadow belongs to the cloud. */}
       <g transform="translate(7 3) scale(0.75)">
-        <g className="semantic-art__cloud semantic-art__motion-part semantic-art__prop-bob">
+        <g className="semantic-art__cloud semantic-art__motion-part">
         <path className="semantic-art__metal semantic-art__outlined" d="M29 49q-2-12 11-16 1-13 16-13 9-13 23-7 15-6 24 9 15-3 21 10 13 1 15 12 3 12-10 16-9 5-21 1-11 5-23 0-13 5-25 0-17 4-28-3Z" />
         <path className="semantic-art__metal-deep" d="M30 46q10 9 22 2 11 10 26 4 12 9 28 1 17 8 32-5 1 10-10 12-10 5-20 1-11 5-23 0-13 5-25 0-18 4-28-3Z" />
         <path className="semantic-art__metal-lit" d="M33 41q2-10 13-9 0-12 13-10 8-12 20-6 14-6 22 10 13-3 18 7-14-5-22 3-8-12-22-7-13-5-19 6-13-3-23 6Z" />
         <path className="semantic-art__metal-lit" d="M54 25q8-10 20-7-9 1-14 8Z M34 41q4-6 12-5-6 1-9 6Z" />
         <path className="semantic-art__metal" d="M55 48q5-10 15-5-8-1-10 7Z M96 44q12-6 20 3-9-4-17 0Z" />
+        <path className="semantic-art__metal-deep" d="M40 53q8 4 15 1 12 6 23 2 14 5 28 0 11 3 21-1-10 7-21 4-14 4-28 0-12 4-23-1-9 2-15-5Z" />
+        <path className="semantic-art__metal-lit" d="M77 35q9-5 15 3-8-4-15-3Z M119 40q7-1 10 5-6-4-10-5Z" />
         </g>
       </g>
       {/* Different heights and scales read as drifting snow, not a row of glyphs. */}
@@ -490,9 +494,6 @@ export function CoreDailyScene({
           )}
           meaning={(
             <>
-              <path className="semantic-art__skin" d="M13 132q20-23 40-32l11-7q7-4 12 0l13 15q9 10 1 20l-9 32H13Z" />
-              <path className="semantic-art__skin-shade" d="M69 105q15 5 20 3 10 10 1 20l-9 32H59l14-38Z" />
-              <path className="semantic-art__skin-lit" d="M24 128q20-19 37-25l3 4q-21 9-36 25Z" />
               {/* Place the keyhole at the turning group's local origin. The
                   stationary placement group retains the shared base-pivot
                   class; only its child rotates, keeping the inserted tip in
@@ -500,6 +501,15 @@ export function CoreDailyScene({
               <g transform="translate(174 91)" className="semantic-art__prop-pivot">
                 <g className="semantic-art__motion-part">
                   <g transform="translate(-174 -91) rotate(-6 174 91)">
+                    {/* One continuous arm. Wrist, cuff and sleeve share the
+                        key's turning parent; no legacy forearm remains below. */}
+                    <path className="semantic-art__teal semantic-art__outlined" d="M13 135 37 115 63 141 54 160H13Z" />
+                    <path className="semantic-art__teal-deep" d="m37 115 26 26-9 19H40l11-18Z" />
+                    <path className="semantic-art__teal-lit" d="m15 136 21-17 5 5-24 23Z" />
+                    <path className="semantic-art__hand" d="m44 118 15-13 13 10 9 13-16 13Z" />
+                    <path className="semantic-art__skin-shade" d="m62 119 9-4 10 13-16 13-5-6 10-8Z" />
+                    <path className="semantic-art__surface semantic-art__outlined" d="m37 115 5-4 27 26-6 7Z" />
+                    <path className="semantic-art__garment-line" d="m20 147 6-5m16 8 6-7" />
                     {/* Index behind the bow; three relaxed fingers curl into
                         the palm below it. Thumb is painted over the brass. */}
                     <path className="semantic-art__hand" d="M56 108q-4-11 1-21l7-10q4-5 8-1 3 3 0 7l-5 9 3 11 15 5q8 1 10 7 2 5-4 9l-10 7q-12 5-21-3Z" />
@@ -520,11 +530,6 @@ export function CoreDailyScene({
                   </g>
                 </g>
               </g>
-              <path className="semantic-art__teal semantic-art__outlined" d="M13 135 37 115 63 141 54 160H13Z" />
-              <path className="semantic-art__teal-deep" d="m37 115 26 26-9 19H40l11-18Z" />
-              <path className="semantic-art__teal-lit" d="m15 136 21-17 5 5-24 23Z" />
-              <path className="semantic-art__surface semantic-art__outlined" d="m37 115 5-4 27 26-6 7Z" />
-              <path className="semantic-art__garment-line" d="m20 147 6-5m16 8 6-7" />
             </>
           )}
           anchor={(
@@ -558,46 +563,76 @@ export function CoreDailyScene({
           )}
           meaning={(
             <>
-              <path
-                className="semantic-art__glass semantic-art__outlined"
-                d="M29 38h117v105H29Z"
-              />
-              {/* Steamed glass: two diagonals are all it takes to read as a screen. */}
-              <path className="semantic-art__gloss" d="M46 140 108 42m-16 98 44-70" />
-              <path
-                className="semantic-art__metal semantic-art__outlined"
-                d="M47 55q43-36 80 0v19h-12V59q-28-24-56 0v15H47Z"
-              />
-              <path
-                className="semantic-art__water-stream semantic-art__motion-part"
-                d="M68 73v45m23-45v45m23-45v45"
-              />
-              <path
-                className="semantic-art__surface semantic-art__outlined"
-                d="M25 126h126l-12 25H38Z"
-              />
-              <path className="semantic-art__gloss" d="M31 130h114" />
+              {/* Bevelled mirror ends above the fittings; its soft diagonal
+                  reflection is independent of the solid porcelain below. */}
+              <path className="semantic-art__prop-shadow" d="M33 39h116v57H33Z" />
+              <path className="semantic-art__metal-deep semantic-art__outlined" d="M29 35h117v57H29Z" />
+              <path className="semantic-art__metal-lit" d="M31 37h113v3H34v49h-3Z" />
+              <path className="semantic-art__glass semantic-art__outlined" d="M36 42h103v43H36Z" />
+              <path className="semantic-art__blue-soft" d="m38 80 32-36h25L59 83H38Z" />
+              <g className="semantic-art__prop-glint">
+                <path className="semantic-art__gloss" d="m46 72 23-25m30 29 26-29" />
+              </g>
+              {/* Towel folds hang over a separate metal rail. Only the fabric
+                  flutters; the mounting bosses stay attached to the wall. */}
+              <circle className="semantic-art__metal-deep semantic-art__outlined" cx="32" cy="101" r="3" />
+              <circle className="semantic-art__metal-deep semantic-art__outlined" cx="65" cy="101" r="3" />
+              <path className="semantic-art__metal-line" d="M32 101h33" />
+              <g className="semantic-art__motion-part semantic-art__prop-pivot">
+                <g className="semantic-art__prop-flutter">
+                  <path className="semantic-art__teal semantic-art__outlined" d="M38 99h21l2 24q-11 4-24 0Z" />
+                  <path className="semantic-art__teal-deep" d="M52 100h7l2 23-8 2Z" />
+                  <path className="semantic-art__teal-lit" d="M39 100h5l-1 21-4-1Z" />
+                  <path className="semantic-art__surface-lit" d="m38 117 22 1v3l-22-1Z" />
+                  <path className="semantic-art__garment-line" d="m48 103-1 10m9-7 1 8" />
+                </g>
+              </g>
+              {/* A single bent spout, with a dark underside and lit top edge.
+                  Running water lands inside the cavity, never on its rim. */}
+              <path className="semantic-art__metal-deep semantic-art__outlined" d="M104 126V99q0-11-11-11H80v8h12q4 0 4 4v26Z" />
+              <path className="semantic-art__metal" d="M99 124v-24q0-9-8-9H81v3h11q6 0 6 7v23Z" />
+              <path className="semantic-art__gloss" d="M102 119V99q0-9-9-9H83" />
+              <path className="semantic-art__metal semantic-art__outlined" d="M100 105h14v5h-14Z" />
+              <path className="semantic-art__surface semantic-art__outlined" d="M25 126h126l-12 25H38Z" />
+              <path className="semantic-art__surface-deep" d="M28 131q58 17 120 0l-9 20H38Z" />
+              <path className="semantic-art__surface-lit" d="M27 127h122l-3 5H30Z" />
+              <ellipse className="semantic-art__metal-deep semantic-art__outlined" cx="87" cy="129" rx="46" ry="9" />
+              <path className="semantic-art__blue-soft" d="M45 129q42-8 84 0-4 7-42 7t-42-7Z" />
+              <ellipse className="semantic-art__metal-deep" cx="88" cy="132" rx="5" ry="2" />
+              <path className="semantic-art__gloss" d="M37 128q42-14 95-1" />
+              <g className="semantic-art__prop-bob">
+                <path className="semantic-art__water-stream" d="M83 98v28" />
+                <path className="semantic-art__gloss" d="M82 99v23" />
+              </g>
+              <g className="semantic-art__motion-part">
+                <path className="semantic-art__water-stream" d="m77 129-4-3m16 3 5-3" />
+                <path className="semantic-art__water-drop" d="M71 118q-4 5 0 5t0-5Z M97 120q-3 4 0 4t0-4Z" />
+              </g>
             </>
           )}
           anchor={(
             <>
               <ellipse className="semantic-art__prop-shadow" cx="189" cy="157" rx="27" ry="5" />
-              <path
-                className="semantic-art__surface semantic-art__outlined"
-                d="M164 102h47v36c0 12-9 21-21 21h-5c-12 0-21-9-21-21Z"
-              />
-              <path className="semantic-art__shade" d="M198 102h13v36c0 9-5 16-13 19Z" />
-              <rect
-                className="semantic-art__surface semantic-art__outlined"
-                x="169"
-                y="67"
-                width="37"
-                height="34"
-                rx="6"
-              />
-              <path className="semantic-art__gloss" d="M175 73v22" />
-              {/* Folded towel: the stripe that says textile, not tile. */}
-              <path className="semantic-art__teal-soft" d="M169 84h37v7h-37Z" />
+              {/* The cistern is a porcelain box, with its own lid and flush
+                  button. The raised seat lid sits behind the bowl. */}
+              <path className="semantic-art__surface semantic-art__outlined" d="M169 69q0-3 4-3h29q4 0 4 4v34h-37Z" />
+              <path className="semantic-art__surface-deep" d="M199 70h7v34h-7Z" />
+              <path className="semantic-art__surface-lit semantic-art__outlined" d="M168 65h39v6h-39Z" />
+              <path className="semantic-art__gloss" d="M173 75v23" />
+              <ellipse className="semantic-art__metal semantic-art__outlined" cx="188" cy="68" rx="5" ry="2" />
+              <g className="semantic-art__motion-part semantic-art__prop-pivot">
+                <path className="semantic-art__surface semantic-art__outlined" d="M168 112V97q0-9 10-9h22q10 0 10 9v15Z" />
+                <path className="semantic-art__surface-deep" d="M174 109V99q0-5 6-5h18q6 0 6 5v10Z" />
+                <path className="semantic-art__surface-lit" d="M177 106v-6q0-3 4-3h15q5 0 5 3v6Z" />
+              </g>
+              <path className="semantic-art__surface semantic-art__outlined" d="M179 134h21l3 22h-29Z" />
+              <path className="semantic-art__surface-deep" d="M191 137h9l3 19h-10Z" />
+              <path className="semantic-art__surface semantic-art__outlined" d="M164 114h47v13q-2 17-22 17t-25-17Z" />
+              <path className="semantic-art__surface-deep" d="M197 116h14v11q-2 16-22 17l-8-1q19-2 16-27Z" />
+              <ellipse className="semantic-art__surface-lit semantic-art__outlined" cx="188" cy="114" rx="25" ry="9" />
+              <ellipse className="semantic-art__metal-deep" cx="188" cy="114" rx="17" ry="5" />
+              <ellipse className="semantic-art__water" cx="188" cy="115" rx="12" ry="2.5" />
+              <path className="semantic-art__gloss" d="M168 113q6-6 18-5m-16 14q0 11 11 14" />
               <path
                 className="semantic-art__spark"
                 d="m181 43 5 10 10 5-10 5-5 10-5-10-10-5 10-5Z"
@@ -761,8 +796,20 @@ export function CoreDailyScene({
                   <path className="semantic-art__shirt" d="M-13 31q-2-15-1-29-1-9 6-15l5 4h7l5-4q7 5 6 15l-1 29q-13 5-27 0Z" />
                   <path className="semantic-art__shirt-lit" d="M-12 29q-2-15-1-27-1-8 5-12l3 3q-6 11-3 38Z" />
                   <path className="semantic-art__shirt-deep" d="M9-11q7 4 6 13l-1 29-6 1q3-22-2-40Z" />
+                  {/* Broken frost gathers on the upward-facing shoulders;
+                      small blue gaps keep it powdery rather than a collar. */}
+                  <path className="semantic-art__metal-lit" d="M-13-7q1-4 4-5l3 2q-1 2-3 1l-1 2-2-1Z M7-11q3 0 5 4l-2 1-1-2-2 1Z" />
+                  <path className="semantic-art__surface-lit" d="M-11-9q1-2 2-2l1 2-3 1Z m19-1q2 0 2 2l-2-1Z" />
                   <path className="semantic-art__garment-line" d="M0-4v34M-11 26q12 3 23 0M-9 19l5 2m10 0 5-2" />
                   <circle className="semantic-art__gold-deep" cx="2" cy="23" r="0.9" />
+                  <g className="semantic-art__motion-part semantic-art__prop-pivot">
+                    <g className="semantic-art__prop-flutter">
+                      <path className="semantic-art__shirt" d="M-13 27q13 5 27 0l1 5-12 2-3-3-2 3-12-2Z" />
+                      <path className="semantic-art__shirt-deep" d="m0 30 3 2 12-3v3l-12 2-3-3-2 3-12-2v-2l12 2Z" />
+                      <path className="semantic-art__shirt-lit" d="M-12 28q5 2 10 2v1l-10-1Z" />
+                      <path className="semantic-art__garment-line" d="M0 28v3m-11-1 7 1m8 0 8-1" />
+                    </g>
+                  </g>
                 </g>
                 <g className="semantic-art__motion-part semantic-art__prop-pivot">
                   {/* Far sleeve crosses first; the near sleeve wraps over it. */}
@@ -783,6 +830,8 @@ export function CoreDailyScene({
                 <path className="semantic-art__blue-lit" d="M-7-32q0-7 7-7-5 3-5 8Z" />
                 <path className="semantic-art__shirt" d="M-9-30q9-3 19 0v5q-10-3-19 0Z" />
                 <path className="semantic-art__garment-line" d="m-6-30 .4 4m3-4 .3 4m3-4v4m3-4-.2 4m3-3-.3 3M-4-35l1-2m3 0 1 2" />
+                <path className="semantic-art__metal-lit" d="M-7-35q1-5 6-5l2 1q-1 2-3 1l-1 2-2-1Z M-8-29q1-2 3-1l2 1q2-2 4 0l-1 1-3-1q-3 1-5 0Z" />
+                <path className="semantic-art__surface-lit semantic-art__prop-glint" d="m-4-38 1-1 1 1-1 1Z m10 11 .5-1 .5 1 1 .5-1 .5-.5 1-.5-1-1-.5Z" />
                 <g className="semantic-art__motion-part semantic-art__prop-pivot">
                   <g className="semantic-art__prop-flutter">
                     <path className="semantic-art__coral" d="M6-10q10-4 17-1l13-1 1 6q-9 4-18 0L7-3Z" />
@@ -807,6 +856,11 @@ export function CoreDailyScene({
           )}
           anchor={(
             <>
+              {/* Visible exhalation starts at the mouth, not in the wind.
+                  Steam's existing finite rise also fades the vapour at rest. */}
+              <g className="semantic-art__steam semantic-art__motion-part">
+                <path className="semantic-art__gloss" d="M132 81q8 1 10-5t8-8m-15 16q12 1 14-6t10-5" />
+              </g>
               <g className="semantic-art__motion-part semantic-art__prop-bob">
                 <path className="semantic-art__breath" d="M150 77q12-5 25-1t30-3m-43 10q13-3 25-1t25-3M24 101q9-4 17-1t14-1" />
                 <path className="semantic-art__surface-lit" d="m181 77 3-1 3 1-4 2Z m21-8 3-1 2 2-3 1Z m-11 18 4-1 2 1-4 2Z" />

@@ -159,17 +159,18 @@ export function AutonomyScene({ visualKey, hintStage }: AutonomySceneProps): Rea
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <SemanticPerson x={92} y={109} shirt="teal" pose="hold" scale={1.1} />
             <g className="semantic-art__motion-part semantic-art__prop-pivot">
-              {/* A large ring bow stays at the original hold-hand anchor
-                  (92, 131). The blade projects clear of the torso, and the
-                  fingers pinch the bow's lower left edge, never the teeth. */}
-              <path className="semantic-art__gold-deep semantic-art__outlined" fillRule="evenodd" d="M96 110A14 14 0 1 1 103 137L97 153H88L90 145H85L87 138H91L92 135A14 14 0 0 1 96 110ZM98 116a8 8 0 1 0 4 15 8 8 0 0 0-4-15Z" />
-              <path className="semantic-art__gold semantic-art__outlined" fillRule="evenodd" d="M96 108A14 14 0 1 1 103 135L97 151H88L90 143H85L87 136H91L92 133A14 14 0 0 1 96 108ZM98 114a8 8 0 1 0 4 15 8 8 0 0 0-4-15Z" />
-              <path className="semantic-art__gold-lit" d="M86 121Q86 109 97 109L101 110Q89 111 89 122L87 126ZM96 135l3 1-5 12h-3Z" />
-              <path className="semantic-art__gold-deep" d="M108 114Q115 126 104 132L101 131Q111 125 108 114Z" />
-              <path className="semantic-art__gloss semantic-art__prop-glint" d="M90 118Q92 113 97 113" />
+              {/* The lower bow edge stays at the hold-hand anchor (92,131).
+                  A straight horizontal blade, two square teeth and an open
+                  round bow remain distinct even in the 96 px thumbnail. */}
+              <path className="semantic-art__gold-deep semantic-art__outlined" fillRule="evenodd" d="M108 121h37v7h-5v8h-6v-5h-5v5h-6v-8h-15a13 13 0 1 1 0-7ZM89 124.5a7 7 0 1 0 14 0 7 7 0 0 0-14 0Z" />
+              <path className="semantic-art__gold semantic-art__outlined" fillRule="evenodd" d="M108 118h37v7h-5v8h-6v-5h-5v5h-6v-8h-15a13 13 0 1 1 0-7ZM89 121.5a7 7 0 1 0 14 0 7 7 0 0 0-14 0Z" />
+              <path className="semantic-art__gold-lit" d="M85 122q-1-13 12-13l4 2q-12-1-13 11Z M110 119h33v2h-33Z" />
+              <path className="semantic-art__gold-deep" d="M104 115q6 11-4 17l-3-1q10-5 7-16Z M111 123h28v2h-28Z" />
+              <path className="semantic-art__gloss semantic-art__prop-glint" d="M88 117q2-6 8-6m38 8h5" />
               <g className="semantic-art__person--teal">
-                <path className="semantic-art__hand" d="M87 131Q86 128 89 126L92 124Q95 124 95 126L92 130Q97 128 98 131Q99 134 95 135L90 135Z" />
-                <path className="semantic-art__body-hand-detail" d="M90 130 93 132" />
+                <path className="semantic-art__hand" d="M87 131q-2-4 1-7l3-4q3-2 4 1l-2 6 5-2q3 0 3 3l-2 5q-4 4-9 2Z" />
+                <path className="semantic-art__skin-lit" d="m89 127 3-5 1 1-2 5Z" />
+                <path className="semantic-art__body-hand-detail" d="m94 130 4-2m-5 5 4-2" />
               </g>
             </g>
           </SceneLayer>
