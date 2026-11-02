@@ -3261,6 +3261,11 @@ button.registry-card__status:active {
   --danger: #9f2f3d;
   --shadow-soft: 0 12px 34px rgba(83, 66, 35, 0.09);
   --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.9) inset, 0 14px 36px rgba(83, 66, 35, 0.09);
+  /* The soft tints too (2026-11-02). Without them the dark-theme values #153a36 and friends leaked in, so every
+     selected language, level, minute and goal card was a dark green with navy text: 1.31:1 on first run. */
+  --warm-teal-soft: #dff4ed;
+  --warm-gold-soft: #fff0c7;
+  --warm-coral-soft: #ffe4dc;
   color: var(--text);
 }
 
