@@ -177,6 +177,10 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .grid-noise { position: fixed; inset: 0; pointer-events: none; z-index: -2; opacity: 0.32; background-image: linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px); background-size: 42px 42px; mask-image: radial-gradient(circle at 50% 30%, black, transparent 78%); }
 
 .sidebar { position: sticky; top: 0; height: 100vh; padding: 24px 18px; display: flex; flex-direction: column; background: color-mix(in srgb, var(--bg-deep) 88%, transparent); backdrop-filter: blur(24px); border-inline-end: 1px solid var(--border); z-index: 20; }
+/* A long menu scrolls instead of being cut off (2026-11-02: on a 480 px phone 115 px, Settings included, were
+   unreachable), and its blocks keep their height instead of being squashed to fit. */
+.sidebar { overflow-y: auto; overscroll-behavior: contain; }
+.sidebar > * { flex-shrink: 0; }
 .brand-lockup { display: grid; gap: 6px; padding: 4px 10px 24px; }
 .brand-lockup > span:last-child { color: var(--teal); font-size: var(--text-2xs); font-weight: 800; letter-spacing: .18em; }
 .side-nav { display: grid; gap: 6px; }
@@ -914,6 +918,7 @@ legend {
   .sidebar {
     position: fixed;
     inset: 0 auto 0 0;
+    height: 100dvh;
     width: min(var(--sidebar-width), 84vw);
     transform: translateX(-100%);
     opacity: 0;

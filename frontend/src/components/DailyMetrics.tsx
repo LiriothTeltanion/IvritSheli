@@ -35,8 +35,8 @@ export function DailyMetrics({ dashboard }: DailyMetricsProps): React.JSX.Elemen
             <strong>{locale === 'es' ? `Nivel ${dashboard.xp.level}` : locale === 'he' ? `רמה ${dashboard.xp.level}` : `Level ${dashboard.xp.level}`}</strong>
             <span className="xp-text">{dashboard.xp.xp_in_level} / {dashboard.xp.next_threshold} XP</span>
           </div>
-          <div className="xp-bar">
-            <div className="xp-bar-fill" style={{ width: `${Math.min(100, Math.max(0, dashboard.xp.percent))}%` }} />
+          <div className="daily-metrics__xp-track">
+            <div className="daily-metrics__xp-fill" style={{ width: `${Math.min(100, Math.max(0, dashboard.xp.percent))}%` }} />
           </div>
         </div>
       </div>
