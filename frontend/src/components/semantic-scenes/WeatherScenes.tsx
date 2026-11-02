@@ -180,6 +180,7 @@ export function WeatherScene({
             <path className="semantic-art__blue semantic-art__outlined" d="M12 12h216v134H12Z" />
             {/* Bands of lighter air toward the horizon give the sky depth. */}
             <path className="semantic-art__gloss" d="M12 104h216M12 118h216M12 130h216" />
+            <PaintedRoom name="scene-sky" x={12} y={12} width={216} height={156} />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <Cloud x={26} y={36} scale={0.72} />
@@ -188,7 +189,7 @@ export function WeatherScene({
           </SceneLayer>
           <SceneLayer name="anchor" minimumStage={2} hintStage={hintStage}>
             {/* A thin strip of land at the very bottom: all the rest is sky. */}
-            <path className="semantic-art__green semantic-art__outlined" d="M12 144h216v18H12Z" />
+            <path className="semantic-art__green semantic-art__outlined semantic-art__glaze" d="M12 144h216v18H12Z" />
             <path
               className="semantic-art__detail semantic-art__detail--thin"
               d="M70 108q9-9 18 0-9-5-18 0m26-10q8-8 16 0-8-4-16 0m30 16q7-7 14 0-7-4-14 0"
@@ -210,6 +211,7 @@ export function WeatherScene({
             <path className="semantic-art__wall semantic-art__outlined" d="M12 12h216v150H12Z" />
             <path className="semantic-art__floor" d="M12 134h216v28H12Z" />
             <path className="semantic-art__grain" d="M52 134v28m48-28v28m48-28v28m48-28v28" />
+            <PaintedRoom name="scene-winter" x={12} y={12} width={216} height={156} />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <path className="semantic-art__wood semantic-art__outlined" d="M132 20h84v122h-84Z" />

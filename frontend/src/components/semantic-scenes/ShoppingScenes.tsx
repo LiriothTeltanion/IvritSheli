@@ -10,7 +10,7 @@
 
 import type { A0VisualKey } from '../../visuals/a0VisualRecipes';
 import type { SemanticHintStage } from '../SemanticWordIllustration';
-import { SceneLayer, SemanticPerson } from './SemanticScenePrimitives';
+import { PaintedRoom, SceneLayer, SemanticPerson } from './SemanticScenePrimitives';
 
 interface ShoppingSceneProps {
   visualKey: A0VisualKey;
@@ -54,6 +54,7 @@ export function ShoppingScene({
             <path className="semantic-art__grain" d="M12 40h216M12 68h216" />
             <path className="semantic-art__facade-shade" d="M204 12h24v128h-24Z" />
             <path className="semantic-art__floor" d="M12 140h216v22H12Z" />
+            <PaintedRoom name="scene-store" x={12} y={12} width={216} height={156} />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <path className="semantic-art__awning semantic-art__outlined" d="M20 44h200l-12 28H32Z" />
@@ -425,8 +426,9 @@ export function ShoppingScene({
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
-            <path className="semantic-art__water" d="M12 108q20-12 40 0t40 0 40 0 40 0 36 0v54H12Z" />
-            <path className="semantic-art__water-deep" d="M12 136h216v26H12Z" />
+            <PaintedRoom name="scene-hotel" x={12} y={12} width={216} height={156} />
+            <path className="semantic-art__water semantic-art__glaze" d="M12 108q20-12 40 0t40 0 40 0 40 0 36 0v54H12Z" />
+            <path className="semantic-art__water-deep semantic-art__glaze" d="M12 136h216v26H12Z" />
             <path className="semantic-art__foam" d="M28 106q18-10 34 0m18 0q18-10 34 0" />
             <circle className="semantic-art__sun-halo" cx="204" cy="30" r="28" />
             <circle className="semantic-art__gold semantic-art__outlined" cx="204" cy="30" r="15" />

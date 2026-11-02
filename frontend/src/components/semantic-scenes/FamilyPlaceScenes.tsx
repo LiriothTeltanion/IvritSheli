@@ -357,9 +357,10 @@ export function FamilyPlaceScene({
           hintStage={hintStage}
           context={(
             <>
+              <PaintedRoom name="scene-city" x={12} y={12} width={216} height={156} />
               <Building x={18} y={43} width={57} height={98} color="blue" />
               <Building x={166} y={59} width={55} height={82} color="coral" />
-              <path className="semantic-art__floor" d="M15 141h210v20H15Z" />
+              <path className="semantic-art__floor semantic-art__glaze" d="M15 141h210v20H15Z" />
             </>
           )}
           meaning={(
@@ -511,6 +512,7 @@ export function FamilyPlaceScene({
           hintStage={hintStage}
           context={(
             <>
+              <PaintedRoom name="scene-school" x={12} y={12} width={216} height={156} />
               <path className="semantic-art__surface semantic-art__outlined" d="M35 62h170v93H35Z" />
               <path className="semantic-art__coral semantic-art__outlined" d="m25 66 95-47 95 47Z" />
               <path className="semantic-art__window semantic-art__outlined" d="M53 81h30v25H53Zm104 0h30v25h-30Z" />

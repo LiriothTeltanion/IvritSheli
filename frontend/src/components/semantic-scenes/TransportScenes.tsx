@@ -70,6 +70,7 @@ export function TransportScene({
             <path className="semantic-art__grain" d="M12 44h60M12 74h60M168 44h60M168 74h60" />
             <path className="semantic-art__ink" d="M12 126h216v36H12Z" />
             <path className="semantic-art__gloss" d="M20 144h40m20 0h40m20 0h40m20 0h30" />
+            <PaintedRoom name="scene-bus" x={12} y={12} width={216} height={156} />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <ellipse className="semantic-art__prop-shadow" cx="120" cy="140" rx="104" ry="8" />
@@ -97,6 +98,8 @@ export function TransportScene({
             {/* Rails and sleepers, converging — a track, not a road. */}
             <path className="semantic-art__metal-line" d="M12 152h216M12 138h216" />
             <path className="semantic-art__grain" d="M30 134v22m34-22v22m34-22v22m34-22v22m34-22v22m34-22v22" />
+            {/* The painting carries its own rails, so it goes over the flat ones the wheels would otherwise double. */}
+            <PaintedRoom name="scene-train" x={12} y={12} width={216} height={156} />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
             <ellipse className="semantic-art__prop-shadow" cx="120" cy="140" rx="108" ry="7" />

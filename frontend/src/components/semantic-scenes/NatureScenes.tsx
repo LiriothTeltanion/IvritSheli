@@ -124,7 +124,8 @@ export function NatureScene({
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
-            <path className="semantic-art__green-soft semantic-art__outlined" d="M14 132h212v30H14Z" />
+            <PaintedRoom name="scene-tree" x={12} y={12} width={216} height={156} />
+            <path className="semantic-art__green-soft semantic-art__outlined semantic-art__glaze" d="M14 132h212v30H14Z" />
             <path className="semantic-art__grain" d="M22 140h196M22 150h140" />
             <NatureSun x={206} y={34} r={14} />
           </SceneLayer>
@@ -351,7 +352,8 @@ export function NatureScene({
       return (
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
-            <path className="semantic-art__green-soft semantic-art__outlined" d="M12 88q50-28 104-4 48-26 112 4v74H12Z" />
+            <PaintedRoom name="scene-stream" x={12} y={12} width={216} height={156} />
+            <path className="semantic-art__green-soft semantic-art__outlined semantic-art__glaze" d="M12 88q50-28 104-4 48-26 112 4v74H12Z" />
             <path className="semantic-art__leaf-lit" d="M28 84q42-22 78-2" />
             <NatureSun x={200} y={34} r={13} />
           </SceneLayer>
