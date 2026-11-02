@@ -98,11 +98,14 @@ export function ReviewCard({
     return <section className="review-shell card"><div className="skeleton skeleton--review" /></section>;
   }
   if (!item) {
+    // An empty queue on arrival means nothing has been learned yet; only a queue that ran out was a session.
+    // A new learner used to be told "Session complete" before doing anything.
+    const finished = items.length > 0;
     return (
       <section className="review-shell card empty-state">
-        <span className="success-orb"><Icon name="check" size={28} /></span>
-        <h2>{t('sessionComplete')}</h2>
-        <p>{t('empty')}</p>
+        {finished && <span className="success-orb"><Icon name="check" size={28} /></span>}
+        <h2>{t(finished ? 'sessionComplete' : 'reviewNothingYet')}</h2>
+        <p>{finished ? t('empty') : t('reviewNothingYetBody')}</p>
         {onStartPractice && (
           <button type="button" className="primary-button" onClick={onStartPractice}>
             <Icon name="play" size={18} /> {t('dailyPractice')}

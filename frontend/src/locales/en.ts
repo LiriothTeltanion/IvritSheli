@@ -422,6 +422,8 @@ export const enMessages = {
     social: 'Social',
     travel: 'Travel',
     sessionComplete: 'Session complete',
+    reviewNothingYet: 'Nothing to review yet',
+    reviewNothingYetBody: 'The words you learn will appear here so you can review them.',
     demoReviewNotice: 'Reveal and study the answer; grading is disabled in the seeded demo.',
     meaning: 'Meaning',
     missingMeaning: 'Add a meaning to this item.',

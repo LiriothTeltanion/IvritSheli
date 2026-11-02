@@ -422,6 +422,8 @@ export const esMessages = {
     social: 'Social',
     travel: 'Viajes',
     sessionComplete: 'Sesión completada',
+    reviewNothingYet: 'Todavía no hay nada que repasar',
+    reviewNothingYetBody: 'Las palabras que aprendas aparecerán aquí para que puedas repasarlas.',
     demoReviewNotice: 'Revela y estudia la respuesta; la calificación está desactivada en la demo de ejemplo.',
     meaning: 'Significado',
     missingMeaning: 'Añade un significado a este elemento.',

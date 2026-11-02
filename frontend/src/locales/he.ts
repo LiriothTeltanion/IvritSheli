@@ -422,6 +422,8 @@ export const heMessages = {
     social: 'חברה',
     travel: 'נסיעות',
     sessionComplete: 'התרגול הושלם',
+    reviewNothingYet: 'עדיין אין מה לחזור עליו',
+    reviewNothingYetBody: 'המילים שתלמדו יופיעו כאן כדי שתוכלו לחזור עליהן.',
     demoReviewNotice: 'אפשר לחשוף וללמוד את התשובה; הדירוג מושבת בהדגמה.',
     meaning: 'משמעות',
     missingMeaning: 'אפשר להוסיף משמעות לפריט הזה.',
