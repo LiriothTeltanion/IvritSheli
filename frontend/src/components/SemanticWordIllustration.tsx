@@ -184,7 +184,7 @@ export function hasSemanticWordIllustration(key: string): boolean {
 
 /** Longer than the slowest press-triggered animation (820 ms), so none is cut off. */
 const EXPLORE_MS = 1200;
-/** The wake-up motion when a scene comes into view: two 2.4 s breaths. Under the five seconds WCAG 2.2.2 allows. */
+/** The wake-up motion when a scene comes into view: two breaths in one pass. Under the five seconds WCAG 2.2.2 allows. */
 const AWAKE_MS = 4800;
 
 function SemanticSceneCanvas({

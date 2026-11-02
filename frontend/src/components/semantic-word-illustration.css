@@ -1898,11 +1898,12 @@
 
 /* Alive at rest (2026-11-02, approved by Kevin): when a card or hero scene comes into view it "wakes" once —
    two slow breaths, two blinks, a small tilt of the head, the sun glowing, clouds and steam drifting — and then is
-   still. It ends inside five seconds, so nothing moves on its own for longer than WCAG 2.2.2 allows, and the
-   press/hover rules below are declared later so a tap always replays the stronger exploring motion. */
+   still. Every animation is a single 4.8 s pass with any repeats inside its keyframes (the living-scene check
+   counts iterations), so nothing moves on its own for longer than the five seconds WCAG 2.2.2 allows. The
+   press/hover rules below are declared later, so a tap always replays the stronger exploring motion. */
 @keyframes semanticIdleBreath {
-  0%, 100% { transform: scale(1, 1); }
-  50% { transform: scale(1.01, 1.022); }
+  0%, 50%, 100% { transform: scale(1, 1); }
+  25%, 75% { transform: scale(1.01, 1.022); }
 }
 @keyframes semanticIdleBlink {
   0%, 20%, 30%, 74%, 84%, 100% { transform: scaleY(1); }
@@ -1914,8 +1915,8 @@
   70% { transform: rotate(-1.2deg); }
 }
 @keyframes semanticIdleGlow {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.06); opacity: 0.86; }
+  0%, 50%, 100% { transform: scale(1); opacity: 1; }
+  25%, 75% { transform: scale(1.06); opacity: 0.86; }
 }
 @keyframes semanticIdleTurn {
   0%, 100% { transform: rotate(0deg); }
@@ -1926,13 +1927,12 @@
   50% { transform: translateX(3.5px); }
 }
 @keyframes semanticIdleRise {
-  0% { transform: translateY(0); opacity: 1; }
-  60% { transform: translateY(-2.5px); opacity: 0.7; }
-  100% { transform: translateY(0); opacity: 1; }
+  0%, 50%, 100% { transform: translateY(0); opacity: 1; }
+  30%, 80% { transform: translateY(-2.5px); opacity: 0.7; }
 }
 @keyframes semanticIdleBob {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(1.2px); }
+  0%, 50%, 100% { transform: translateY(0); }
+  25%, 75% { transform: translateY(1.2px); }
 }
 @keyframes semanticIdleSway {
   0%, 100% { transform: rotate(0deg); }
@@ -1941,11 +1941,11 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .semantic-art[data-awake] .semantic-art__body-breath { animation: semanticIdleBreath 2.4s ease-in-out 2; }
+  .semantic-art[data-awake] .semantic-art__body-breath { animation: semanticIdleBreath 4.8s ease-in-out; }
   .semantic-art[data-awake] .semantic-art__face-eyes { animation: semanticIdleBlink 4.8s ease-in-out; }
   .semantic-art[data-awake] .semantic-art__face-head { animation: semanticIdleTilt 4.8s ease-in-out; }
   .semantic-art[data-awake] .semantic-art__sun-halo {
-    animation: semanticIdleGlow 2.4s ease-in-out 2;
+    animation: semanticIdleGlow 4.8s ease-in-out;
     transform-box: fill-box;
     transform-origin: center;
   }
@@ -1956,9 +1956,9 @@
   }
   .semantic-art[data-awake] .semantic-art__cloud { animation: semanticIdleDrift 4.8s ease-in-out; }
   .semantic-art[data-awake] .semantic-art__prop-foliage { animation: semanticIdleSway 4.8s ease-in-out; }
-  .semantic-art[data-awake] .semantic-art__steam { animation: semanticIdleRise 2.4s ease-in-out 2; }
+  .semantic-art[data-awake] .semantic-art__steam { animation: semanticIdleRise 4.8s ease-in-out; }
   .semantic-art[data-awake] .semantic-art__foam,
-  .semantic-art[data-awake] .semantic-art__water-deep { animation: semanticIdleBob 2.4s ease-in-out 2; }
+  .semantic-art[data-awake] .semantic-art__water-deep { animation: semanticIdleBob 4.8s ease-in-out; }
 }
 
 @media (prefers-reduced-motion: no-preference) {
