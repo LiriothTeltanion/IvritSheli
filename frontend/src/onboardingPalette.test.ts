@@ -22,4 +22,11 @@ describe('first-run light palette', () => {
     expect(body).toMatch(/--warm-gold-soft:\s*#fff0c7/);
     expect(body).toMatch(/--warm-coral-soft:\s*#ffe4dc/);
   });
+
+  it('redefines the accents and the wordmark inks, not only the surfaces', () => {
+    const body = /\.beginner-onboarding,\s*\.first-steps-lesson,\s*\.first-steps-complete\s*\{([^}]*)\}/.exec(css)![1]!;
+    for (const token of ['--teal', '--teal-strong', '--gold', '--rose', '--wordmark-ink-1', '--wordmark-ink-3', '--brand-signature']) {
+      expect(body).toMatch(new RegExp(`${token}:`));
+    }
+  });
 });

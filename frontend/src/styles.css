@@ -945,7 +945,10 @@ legend {
   }
   .sidebar-toggle { display: inline-grid; }
   .topbar { padding-inline: 18px; }
-  .mobile-brand { display: flex; }
+  /* The menu button is fixed at 14px and 46px wide, and the brand used to start under it: the two squares were
+     stacked, so the app icon showed as a small tile behind the menu lines (2026-11-02). Start the brand past it. */
+  .mobile-brand { display: flex; margin-inline-start: 52px; }
+
   .topbar-context { display: none; }
   .sidebar-footer { padding-bottom: 16px; }
   .content { padding: 24px 18px 94px; }
@@ -959,6 +962,12 @@ legend {
   .coach-output { min-height: 520px; }
   .connector-grid, .settings-grid { grid-template-columns: 1fr; }
   .bug-card form { grid-template-columns: 1fr; }
+}
+@media (max-width: 420px) {
+  /* Past the menu button the whole lockup and four actions need 388px of a 354px row, so the actions wrapped to
+     a second line. On a phone the brand is the complete app icon alone, a little larger. */
+  .mobile-brand .ivrit-wordmark__text { display: none; }
+  .mobile-brand .ivrit-wordmark--compact .ivrit-wordmark__icon { width: 36px; height: 36px; }
 }
 
 /* At 200% browser zoom a 1440px display exposes 720 CSS pixels. Compact the
@@ -3266,6 +3275,26 @@ button.registry-card__status:active {
   --warm-teal-soft: #dff4ed;
   --warm-gold-soft: #fff0c7;
   --warm-coral-soft: #ffe4dc;
+  /* And the accents, the same as :root[data-theme="light"]: with the dark-theme --teal (#5eead4) the active
+     language button read pale cyan on cream. */
+  --teal: var(--warm-teal);
+  --teal-strong: #0b625c;
+  --teal-fill: #55c7b7;
+  --cyan-fill: #87d9cf;
+  --gold: #996b13;
+  --rose: #bd4f42;
+  --blue: #315fae;
+  --violet: #6842bd;
+  --green: #0b6b46;
+  /* The wordmark inks as well: with the dark-theme ones the light journey drew "Ivrit" in white and pale cyan. */
+  --brand-signature: #d90429;
+  --brand-signature-shadow: rgba(217, 4, 41, 0.25);
+  --brand-cyan-underline: #0284c7;
+  --brand-cyan-shadow: rgba(2, 132, 199, 0.35);
+  --wordmark-ink-1: #0d2436;
+  --wordmark-ink-2: #10557a;
+  --wordmark-ink-3: #0284c7;
+  --wordmark-crown: #8a5a0c;
   color: var(--text);
 }
 
