@@ -31,4 +31,13 @@ describe('generated paintings', () => {
     expect(displaysFor('.semantic-art[data-spatial-family="diagram"] [data-painted-backdrop]', css)).toContain('none');
     expect(displaysFor('.semantic-art[data-spatial-family="diagram"] .semantic-art__context-grain', css)).toContain('none');
   });
+
+  it('never show in high contrast or forced colours, whichever component drew them', () => {
+    const block = /@media \(prefers-contrast: more\), \(forced-colors: active\) \{((?:[^{}]*\{[^{}]*\})*[^{}]*)\}/g;
+    const highContrast = [...css.matchAll(block)].map((match) => match[1]).join('\n');
+    // PaintedRoom carries the class; PaintedBackdrop (the six living scenes) carries only the data attribute.
+    expect(displaysFor('.semantic-art__painted-room', highContrast)).toContain('none');
+    expect(displaysFor('[data-painted-backdrop]', highContrast)).toContain('none');
+    expect(displaysFor('.semantic-art__context-grain', highContrast)).toContain('none');
+  });
 });
