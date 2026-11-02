@@ -1,7 +1,7 @@
 // Module: semantic word illustration
 // Purpose: Render detailed, exact-meaning A0 scenes from the shared visual recipe catalog.
 
-import { useId, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { usePrefersReducedMotion } from '../usePrefersReducedMotion';
 import { isLivingSceneKey, SCENE_PLAYBACK_COPY } from '../visuals/livingScenePilot';
 import { LivingScenePilot } from './semantic-scenes/LivingScenePilot';
@@ -182,6 +182,9 @@ export function hasSemanticWordIllustration(key: string): boolean {
   return isA0SemanticVisualKey(key);
 }
 
+/** Longer than the slowest press-triggered animation (820 ms), so none is cut off. */
+const EXPLORE_MS = 1200;
+
 function SemanticSceneCanvas({
   visual,
   locale,
@@ -196,6 +199,24 @@ function SemanticSceneCanvas({
   onExplore?: () => void;
 }): React.JSX.Element | null {
   const titleId = useId();
+  /*
+   * A press or a click plays the same finite motion a mouse gets on hover. Fingers have no hover, so before this
+   * a learner on a phone never saw any of the 234 non-living scenes move. The attribute only names the moment;
+   * every rule it triggers sits inside prefers-reduced-motion: no-preference, so reduced motion stays still.
+   */
+  const [exploring, setExploring] = useState(false);
+  useEffect(() => {
+    if (!exploring) return undefined;
+    const timer = window.setTimeout(() => setExploring(false), EXPLORE_MS);
+    return () => window.clearTimeout(timer);
+  }, [exploring]);
+  const explore = (): void => {
+    onExplore?.();
+    // Drop the attribute for about a frame so a second press restarts the motion instead of being ignored.
+    // A timer rather than requestAnimationFrame, which never fires in a background tab.
+    setExploring(false);
+    window.setTimeout(() => setExploring(true), 16);
+  };
   if (!isA0SemanticVisualKey(visual.key)) return null;
   const recipe = getA0VisualRecipe(visual.key);
   const sceneCategory = visual.key.split('.', 1)[0];
@@ -232,9 +253,11 @@ function SemanticSceneCanvas({
       data-motion-cue={motionCue}
       data-motion-direction={motionDirection}
       data-living-scene={isLivingSceneKey(visual.key) ? 'editorial-v1' : undefined}
+      data-exploring={exploring ? '' : undefined}
       onPointerEnter={(event) => {
         if (event.pointerType === 'mouse') onExplore?.();
       }}
+      onPointerDown={explore}
       focusable="false"
     >
       {!decorative && <title id={titleId}>{title}</title>}
