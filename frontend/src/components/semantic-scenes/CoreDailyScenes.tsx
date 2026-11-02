@@ -44,6 +44,8 @@ function SceneLayers({
 function MarketCounter(): React.JSX.Element {
   return (
     <>
+      {/* The shopping street behind every market stall. */}
+      <PaintedRoom name="scene-buy" x={12} y={12} width={216} height={156} />
       <path
         className="semantic-art__awning semantic-art__outlined"
         d="M21 25h198l-13 27H34Z"
@@ -733,7 +735,6 @@ export function CoreDailyScene({
           hintStage={hintStage}
           context={(
             <>
-              <PaintedRoom name="scene-buy" x={12} y={12} width={216} height={156} />
               <SunHeat />
               <path
                 className="semantic-art__gold-soft semantic-art__outlined"
