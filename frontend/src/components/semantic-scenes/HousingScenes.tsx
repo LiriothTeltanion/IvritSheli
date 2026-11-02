@@ -27,7 +27,7 @@
 
 import type { A0VisualKey } from '../../visuals/a0VisualRecipes';
 import type { SemanticHintStage } from '../SemanticWordIllustration';
-import { SceneLayer, SemanticPerson } from './SemanticScenePrimitives';
+import { PaintedRoom, SceneLayer, SemanticPerson } from './SemanticScenePrimitives';
 
 interface HousingSceneProps {
   visualKey: A0VisualKey;
@@ -281,6 +281,7 @@ export function HousingScene({ visualKey, hintStage }: HousingSceneProps): React
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wood semantic-art__outlined" d="M12 12h216v154H12Z" />
             <path className="semantic-art__grain" d="M12 46h216M12 96h216M12 146h216" />
+            <PaintedRoom name="desk-top" x={12} y={12} width={216} height={156} />
             <ellipse className="semantic-art__prop-shadow" cx="118" cy="156" rx="76" ry="8" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>
@@ -314,6 +315,7 @@ export function HousingScene({ visualKey, hintStage }: HousingSceneProps): React
             <path className="semantic-art__wall semantic-art__outlined" d="M12 12h216v122H12Z" />
             <path className="semantic-art__floor" d="M12 134h216v32H12Z" />
             <path className="semantic-art__surface-deep" d="M12 128h216v6H12Z" />
+            <PaintedRoom name="scene-landlord" x={12} y={12} width={216} height={156} />
             {/* The door they are standing at. */}
             <path className="semantic-art__wood semantic-art__outlined" d="M92 26h56v102H92Z" />
             <path className="semantic-art__wood-deep" d="M134 26h14v102h-14Z" />

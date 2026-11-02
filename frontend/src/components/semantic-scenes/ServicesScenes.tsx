@@ -73,6 +73,7 @@ export function ServicesScene({
         <>
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <Interior painted={false} />
+            <PaintedRoom name="scene-supermarket" x={12} y={12} width={216} height={156} />
             {/* Two shelf runs converging: the corridor is the whole idea. */}
             <path className="semantic-art__metal semantic-art__outlined" d="M14 26h64v104H14Zm148 0h64v104h-64Z" />
             <path className="semantic-art__metal-line" d="M14 52h64m84 0h64M14 78h64m84 0h64M14 104h64m84 0h64" />
@@ -303,6 +304,7 @@ export function ServicesScene({
           <SceneLayer name="context" minimumStage={0} hintStage={hintStage}>
             <path className="semantic-art__wood semantic-art__outlined" d="M14 14h212v152H14Z" />
             <path className="semantic-art__grain" d="M14 48h212M14 96h212M14 144h212" />
+            <PaintedRoom name="desk-top" x={12} y={12} width={216} height={156} />
             <ellipse className="semantic-art__prop-shadow" cx="122" cy="158" rx="70" ry="7" />
           </SceneLayer>
           <SceneLayer name="meaning" minimumStage={1} hintStage={hintStage}>

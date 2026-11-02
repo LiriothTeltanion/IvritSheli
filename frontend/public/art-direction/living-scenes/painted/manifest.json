@@ -968,6 +968,206 @@
       "generated": "2026-11-02",
       "generator": "OpenAI Codex CLI image_gen (underlying model not exposed), painted over the scene's own vector layout",
       "role": "painted setting of weather.winter under its SVG props, people, sun and clouds (dark theme, same time of day); no people, text or letters"
+    },
+    "desk-top.webp": {
+      "sha256": "2c60505c7242bae2cacd8b18722c576aa7c4ced492f2cd8b75ecb495b1358937",
+      "bytes": 37238,
+      "width": 960,
+      "height": 693,
+      "source_png_sha256": "c855231766945f3b689779e31f57b0fd5f3d38f06cca3e8397decb106061b483",
+      "generated": "2026-11-02",
+      "generator": "OpenAI Codex CLI image_gen (underlying model not exposed), painted over the scene's own vector layout",
+      "role": "painted setting of the shared document desk under its SVG props, people, sun and clouds; no people, text or letters"
+    },
+    "desk-top-dark.webp": {
+      "sha256": "ad0ec7352f21b9f829daaf024aee819618eef727412969d6cd1c2b156f4062ef",
+      "bytes": 23044,
+      "width": 960,
+      "height": 693,
+      "source_png_sha256": "16669609fa1ed7cabab7e4b1be0647634b3c1c9b88429a2a557198699821c737",
+      "generated": "2026-11-02",
+      "generator": "OpenAI Codex CLI image_gen (underlying model not exposed), painted over the scene's own vector layout",
+      "role": "painted setting of the shared document desk under its SVG props, people, sun and clouds (dark theme, same time of day); no people, text or letters"
+    },
+    "scene-bathroom.webp": {
+      "sha256": "7a6152d28841fd531897e53d0659ff42d328ffef8257003010f767c525a5ed4d",
+      "bytes": 14582,
+      "width": 960,
+      "height": 693,
+      "source_png_sha256": "2648b8f796feec7393de8e39c639af1c3c635f34b672c6b70ecf0edc9a6d91d0",
+      "generated": "2026-11-02",
+      "generator": "OpenAI Codex CLI image_gen (underlying model not exposed), painted over the scene's own vector layout",
+      "role": "painted setting of home.bathroom under its SVG props, people, sun and clouds; no people, text or letters"
+    },
+    "scene-bathroom-dark.webp": {
+      "sha256": "0db9faea49b4949da869d0fdf4f2814f6c6dde1498f7792204eeb0c42de4ad8b",
+      "bytes": 9098,
+      "width": 960,
+      "height": 693,
+      "source_png_sha256": "aa4e2048712ec81c0f089d357cf7e0ed018b8d5ae8b0b346650637ed3ec35e63",
+      "generated": "2026-11-02",
+      "generator": "OpenAI Codex CLI image_gen (underlying model not exposed), painted over the scene's own vector layout",
+      "role": "painted setting of home.bathroom under its SVG props, people, sun and clouds (dark theme, same time of day); no people, text or letters"
+    },
+    "scene-egg.webp": {
+      "sha256": "2eb400601b6fc7d66fdd1accdab77dfa00736c7fa0623f72520d94dcfecba9bd",
+      "bytes": 22950,
+      "width": 960,
+      "height": 693,
+      "source_png_sha256": "a5e01480d164edad8075abb00d6d7805c6eebe98db7d12cb0f1c0d1ca92bdf6b",
+      "generated": "2026-11-02",
+      "generator": "OpenAI Codex CLI image_gen (underlying model not exposed), painted over the scene's own vector layout",
+      "role": "painted setting of food.egg under its SVG props, people, sun and clouds; no people, text or letters"
+    },
+    "scene-egg-dark.webp": {
+      "sha256": "8454126b15d81034bf8912afc2afdb62288178546c92ca67b872efc7f2eb3332",
+      "bytes": 13268,
+      "width": 960,
+      "height": 693,
+      "source_png_sha256": "8798dcc736dbc3f9e77721db63f9e470de2e40660db3a89351e6d44f0578e6ea",
+      "generated": "2026-11-02",
+      "generator": "OpenAI Codex CLI image_gen (underlying model not exposed), painted over the scene's own vector layout",
+      "role": "painted setting of food.egg under its SVG props, people, sun and clouds (dark theme, same time of day); no people, text or letters"
+    },
+    "scene-good-night.webp": {
+      "sha256": "87e4666ca759278c15df689babab9af5a2ccc35ac0bb2d9085a002544dfe62f3",
+      "bytes": 11770,
+      "width": 960,
+      "height": 693,
+      "source_png_sha256": "6b9f11493f5b49c03dd2642cbd6ebb8b7b1a5c6f30d29d87e200b2d9265c9f21",
+      "generated": "2026-11-02",
+      "generator": "OpenAI Codex CLI image_gen (underlying model not exposed), painted over the scene's own vector layout",
+      "role": "painted setting of greetings.good_night under its SVG props, people, sun and clouds; no people, text or letters"
+    },
+    "scene-good-night-dark.webp": {
+      "sha256": "eb64301d62bb151c8b189779c663a1104e8be43ff3a1b9d91f58ad22fd5944e9",
+      "bytes": 6904,
+      "width": 960,
+      "height": 693,
+      "source_png_sha256": "77e77c0c1530176b6bcb7410f6f0e1bf336f80cd9cde3ae6d922820f35e83489",
+      "generated": "2026-11-02",
+      "generator": "OpenAI Codex CLI image_gen (underlying model not exposed), painted over the scene's own vector layout",
+      "role": "painted setting of greetings.good_night under its SVG props, people, sun and clouds (dark theme, same time of day); no people, text or letters"
+    },
+    "scene-kitchen.webp": {
+      "sha256": "6ca00f1ed4802c88e854faa882d1bd50de7d84768942f80e2888f9e9f78d4f9a",
+      "bytes": 28842,
+      "width": 960,
+      "height": 693,
+      "source_png_sha256": "3be7a197e9478430cf0b45bec752ceb16c461566db65b975f12b8fad2b57a007",
+      "generated": "2026-11-02",
+      "generator": "OpenAI Codex CLI image_gen (underlying model not exposed), painted over the scene's own vector layout",
+      "role": "painted setting of home.kitchen under its SVG props, people, sun and clouds; no people, text or letters"
+    },
+    "scene-kitchen-dark.webp": {
+      "sha256": "197d84595571ee6772a2277f9e804a9a020ce015e558ae1e0e2cd212ba3d64f7",
+      "bytes": 14406,
+      "width": 960,
+      "height": 693,
+      "source_png_sha256": "264aa7874220e6461d8e09cf1e946c5dec84bd18b501f62aaa3220be7f1bf12b",
+      "generated": "2026-11-02",
+      "generator": "OpenAI Codex CLI image_gen (underlying model not exposed), painted over the scene's own vector layout",
+      "role": "painted setting of home.kitchen under its SVG props, people, sun and clouds (dark theme, same time of day); no people, text or letters"
+    },
+    "scene-landlord.webp": {
+      "sha256": "5cabedf3bb59e7df0e9466ff5675c42c156ccf29add651fc4a62c8197d112b7e",
+      "bytes": 18976,
+      "width": 960,
+      "height": 693,
+      "source_png_sha256": "0744faba0a610f778257cb45d1a527eed30102e921737d6240dc9a882cf3d26b",
+      "generated": "2026-11-02",
+      "generator": "OpenAI Codex CLI image_gen (underlying model not exposed), painted over the scene's own vector layout",
+      "role": "painted setting of housing.landlord under its SVG props, people, sun and clouds; no people, text or letters"
+    },
+    "scene-landlord-dark.webp": {
+      "sha256": "904d3c85201d934648710f75ebd1cbdc335ba8046a6172fdf0c0e038e9ca6bd4",
+      "bytes": 9402,
+      "width": 960,
+      "height": 693,
+      "source_png_sha256": "4255e407864174db03db4f3cc6b813d77fe6d1069715990c6595c0ceb14b4d77",
+      "generated": "2026-11-02",
+      "generator": "OpenAI Codex CLI image_gen (underlying model not exposed), painted over the scene's own vector layout",
+      "role": "painted setting of housing.landlord under its SVG props, people, sun and clouds (dark theme, same time of day); no people, text or letters"
+    },
+    "scene-pharmacy.webp": {
+      "sha256": "0cd3275710098ee49d71fdb13ec026be5c94fe2ae6a58dfdc877e264618d3b19",
+      "bytes": 13182,
+      "width": 960,
+      "height": 693,
+      "source_png_sha256": "b3a21d54b79b4c443ab1e065983d840650120bbc9f750de65cf55c08155dc2bf",
+      "generated": "2026-11-02",
+      "generator": "OpenAI Codex CLI image_gen (underlying model not exposed), painted over the scene's own vector layout",
+      "role": "painted setting of health.pharmacy under its SVG props, people, sun and clouds; no people, text or letters"
+    },
+    "scene-pharmacy-dark.webp": {
+      "sha256": "000ae51b76711377c56db38d2fc0f95184b4ecfaecdf470abcb2c784bdd9fa62",
+      "bytes": 8452,
+      "width": 960,
+      "height": 693,
+      "source_png_sha256": "5444a7578784e8eddec6ef997b7bd0a9d0e8628b787bd315232a90a68d2ab5a3",
+      "generated": "2026-11-02",
+      "generator": "OpenAI Codex CLI image_gen (underlying model not exposed), painted over the scene's own vector layout",
+      "role": "painted setting of health.pharmacy under its SVG props, people, sun and clouds (dark theme, same time of day); no people, text or letters"
+    },
+    "scene-restaurant.webp": {
+      "sha256": "4c1217f72c9196c9fede444646a23191d0e0cb03066e6832323f47b670f4ffc3",
+      "bytes": 32364,
+      "width": 960,
+      "height": 693,
+      "source_png_sha256": "180b0f50432fb95c87b764caccd408dd12f05bde9d3ef5b751e64664310a0f4d",
+      "generated": "2026-11-02",
+      "generator": "OpenAI Codex CLI image_gen (underlying model not exposed), painted over the scene's own vector layout",
+      "role": "painted setting of food.restaurant under its SVG props, people, sun and clouds; no people, text or letters"
+    },
+    "scene-restaurant-dark.webp": {
+      "sha256": "77bd4eb907b91294c6e54a1b3889227e9de04033ff4744a9cbda8ff3fab77cfa",
+      "bytes": 17164,
+      "width": 960,
+      "height": 693,
+      "source_png_sha256": "91254d7e0e9c6fd0968b08d2086668279040a62b632bef356b569e99e5fc93b8",
+      "generated": "2026-11-02",
+      "generator": "OpenAI Codex CLI image_gen (underlying model not exposed), painted over the scene's own vector layout",
+      "role": "painted setting of food.restaurant under its SVG props, people, sun and clouds (dark theme, same time of day); no people, text or letters"
+    },
+    "scene-room.webp": {
+      "sha256": "deae740a2e11a7df828e32632ae8a9cb36447a99d5e1ca6b342ae70af49024b4",
+      "bytes": 22142,
+      "width": 960,
+      "height": 693,
+      "source_png_sha256": "d895f6796f6f7bee6e68d430b464c2132cbb3bf979ba4c347604d87b8a845cca",
+      "generated": "2026-11-02",
+      "generator": "OpenAI Codex CLI image_gen (underlying model not exposed), painted over the scene's own vector layout",
+      "role": "painted setting of home.room under its SVG props, people, sun and clouds; no people, text or letters"
+    },
+    "scene-room-dark.webp": {
+      "sha256": "932e4ce88531b65d9cad4c480fe26feaa03986e916f202ae76de6f598b4bb00a",
+      "bytes": 10584,
+      "width": 960,
+      "height": 693,
+      "source_png_sha256": "74fb2ebfd3d244dd39313d6bf0ec368f106104c58c45025a9e7028d88c7b6499",
+      "generated": "2026-11-02",
+      "generator": "OpenAI Codex CLI image_gen (underlying model not exposed), painted over the scene's own vector layout",
+      "role": "painted setting of home.room under its SVG props, people, sun and clouds (dark theme, same time of day); no people, text or letters"
+    },
+    "scene-supermarket.webp": {
+      "sha256": "6e69e4f58548acd6faeb04f79eacbdb506ff50bd33f889d03c9612d6cb80cc88",
+      "bytes": 17078,
+      "width": 960,
+      "height": 693,
+      "source_png_sha256": "5fc716f8b95aa7bfc2a7ed967f7d56daa9cb19880806f52d2f12872ca5c2bf54",
+      "generated": "2026-11-02",
+      "generator": "OpenAI Codex CLI image_gen (underlying model not exposed), painted over the scene's own vector layout",
+      "role": "painted setting of services.supermarket under its SVG props, people, sun and clouds; no people, text or letters"
+    },
+    "scene-supermarket-dark.webp": {
+      "sha256": "b4709564f46fa43004a289fa46986b310f1b10e3dee2300ddb2095f046f9d04c",
+      "bytes": 11886,
+      "width": 960,
+      "height": 693,
+      "source_png_sha256": "6189d2f0835724ae007730a3fae736990203b44de371191b266186885814fbf9",
+      "generated": "2026-11-02",
+      "generator": "OpenAI Codex CLI image_gen (underlying model not exposed), painted over the scene's own vector layout",
+      "role": "painted setting of services.supermarket under its SVG props, people, sun and clouds (dark theme, same time of day); no people, text or letters"
     }
   }
 }
