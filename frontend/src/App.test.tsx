@@ -767,6 +767,15 @@ describe('App cloud session flow', () => {
     expect(screen.queryByRole('heading', { name: /Shalom, Ana/i })).not.toBeInTheDocument();
   });
 
+  it('greets without a name while the learner has not chosen one', async () => {
+    // Local mode's only name is the session placeholder "Local learner"; the greeting read "Shalom, Local".
+    vi.stubGlobal('fetch', routeFetch(localSession, { ...profile, display_name: 'Learner' }));
+    renderApp();
+
+    expect(await screen.findByRole('heading', { name: /^Shalom$/i })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: /Shalom, Local/i })).not.toBeInTheDocument();
+  });
+
   it('falls back to the session name while no name has been chosen', async () => {
     // 'Learner' is the profiles column default: it means nobody has chosen
     // anything, so it must not outrank the name on the session.

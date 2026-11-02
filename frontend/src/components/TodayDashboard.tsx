@@ -20,6 +20,9 @@ import { MetricRing } from './MetricRing';
 import { PersonalCoachCard } from './PersonalCoachCard';
 import { DailyMetrics } from './DailyMetrics';
 
+/** The profile default and the local session's name: neither is a name the learner chose. */
+const GENERIC_LEARNER_NAMES = new Set(['Learner', 'Local learner']);
+
 interface TodayDashboardProps {
   dashboard: Dashboard;
   /**
@@ -129,7 +132,8 @@ export function TodayDashboard({
         ? word.translation_es
         : word.translation_en
   );
-  const firstName = learnerName.split(' ')[0] || learnerName;
+  // The placeholder names mean nobody has chosen one yet: greet without a name instead of "Shalom, Local".
+  const firstName = GENERIC_LEARNER_NAMES.has(learnerName.trim()) ? '' : learnerName.split(' ')[0] || learnerName;
   const focusReason = (() => {
     if (locale === 'en') return dashboard.focus.reason;
     if (dashboard.focus.reason.startsWith('No recurring mistake pattern')) return t('balancedFocusReason');
@@ -196,7 +200,7 @@ export function TodayDashboard({
             <span aria-hidden="true">🌱</span>
             <span>{readOnly ? t('readOnly') : t('yourProgressIsSaved')}</span>
           </div>
-          <h1>{t('hello')}, <span>{firstName}</span> <b aria-hidden="true">👋</b></h1>
+          <h1>{t('hello')}{firstName && <>, <span>{firstName}</span></>} <b aria-hidden="true">👋</b></h1>
           <p>{t('guidedPlanDescription', { count: dashboard.today.estimated_minutes })}</p>
           <div className="hero-actions">
             <button type="button" className="primary-button primary-button--large" onClick={onStart}><Icon name="play" size={19} /> {firstStepsComplete ? t('continueMyLesson') : t('startFirstLesson')}</button>

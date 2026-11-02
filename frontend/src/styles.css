@@ -4803,6 +4803,8 @@ body { line-height: 1.5; }
 
 @media (max-width: 680px) {
   .topbar-help { width: 44px; padding: 0; font-size: 0; }
+  /* font-size 0 hides the word «Help»; the ? badge needs its own size back or the button is a blank dot. */
+  .topbar-help > span { font-size: 0.875rem; }
   .pre-account-word { grid-template-columns: 86px minmax(0, 1fr); gap: 12px; }
   .pre-account-word__visual .word-art { max-width: 86px; }
   .pre-account-quiz > div { grid-template-columns: 1fr; }
