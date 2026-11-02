@@ -206,6 +206,8 @@ export function CoreDailyScene({
                 d="M17 123h206v31H17Z"
               />
               <path className="semantic-art__grain" d="M25 132h190M25 141h190M25 149h128" />
+              <path className="semantic-art__wood-lit" d="M18 124h204v3H18Z" />
+              <path className="semantic-art__wood-deep" d="M18 150h204v4H18Z" />
               <path
                 className="semantic-art__detail semantic-art__detail--thin"
                 d="M36 154v10m168-10v10"
@@ -215,47 +217,48 @@ export function CoreDailyScene({
           meaning={(
             <>
               <ellipse className="semantic-art__prop-shadow" cx="122" cy="116" rx="88" ry="42" />
-              <ellipse
-                className="semantic-art__surface semantic-art__outlined"
-                cx="120"
-                cy="106"
-                rx="88"
-                ry="48"
-              />
-              {/* Rim light across the near edge of the platter. */}
-              <path className="semantic-art__gloss" d="M46 90a88 48 0 0 1 60-31" />
-              <ellipse
-                className="semantic-art__gold-soft semantic-art__outlined"
-                cx="120"
-                cy="102"
-                rx="64"
-                ry="31"
-              />
-              <path
-                className="semantic-art__green semantic-art__outlined"
-                d="M67 103c18-31 43-25 48 3-18 14-36 13-48-3Zm58 7c17-32 45-26 50 3-19 15-37 14-50-3Z"
-              />
-              <path className="semantic-art__leaf-lit" d="M76 98c14-19 32-16 39 2m14 5c14-20 34-16 41 3" />
-              <circle className="semantic-art__coral semantic-art__outlined" cx="117" cy="91" r="13" />
-              <circle className="semantic-art__gloss" cx="113" cy="87" r="5" />
-              {/* Two more helpings, so the platter reads as a shared meal. */}
-              <circle className="semantic-art__gold semantic-art__outlined" cx="88" cy="118" r="10" />
-              <circle className="semantic-art__coral semantic-art__outlined" cx="152" cy="120" r="9" />
-              <path className="semantic-art__shade" d="M152 111a9 9 0 0 1 0 18 7 9 0 0 0 0-18Z" />
+              <g className="semantic-art__motion-part semantic-art__prop-pivot">
+                {/* Boxed ceramic rim: the lower ellipse is the plate's depth,
+                    while the inner well receives the food and its shadow. */}
+                <ellipse className="semantic-art__surface-deep semantic-art__outlined" cx="120" cy="111" rx="88" ry="46" />
+                <ellipse className="semantic-art__surface semantic-art__outlined" cx="120" cy="106" rx="88" ry="48" />
+                <ellipse className="semantic-art__surface-deep" cx="120" cy="105" rx="72" ry="35" />
+                <ellipse className="semantic-art__surface-lit" cx="120" cy="108" rx="69" ry="32" />
+                <path className="semantic-art__gloss" d="M46 90a88 48 0 0 1 60-31m-53 68q65 37 127-4" />
+                {/* Hummus, a broad scooped well with golden olive oil following
+                    its spiral. Parsley is a few leaves, not a second green blob. */}
+                <path className="semantic-art__gold-lit semantic-art__outlined" d="M61 99q-1-23 34-23 32 0 35 22 3 25-31 28-35 1-38-27Z" />
+                <path className="semantic-art__milk" d="M66 94q7-16 29-15 20-1 29 14-15-11-32-8-18 3-26 14Z" />
+                <path className="semantic-art__gold" d="M71 96q7-14 29-10 27 4 19 22-7 14-30 8-18-4-11-14 6-8 22-5 9 2 5 8-2 5-13 4 15-7 4-8-13-1-12 6 1 8 20 5 14-3 10-13-4-12-27-9-10 1-16 6Z" />
+                <path className="semantic-art__gold-deep" d="M84 108q11 4 21-1-2 7-13 5Z" />
+                <path className="semantic-art__green-deep" d="m86 91 5-3 2 4-4 2Zm15 24 5-2 2 3-4 2Zm-27-12 3-2 2 3-3 2Z" />
+                {/* Israeli chopped salad: cucumber faces, tomato wedges and a
+                    few pale onion pieces remain separate at card scale. */}
+                <path className="semantic-art__green-deep" d="m137 84 20-4 22 12-1 22-18 7-24-9-5-15Z" />
+                <path className="semantic-art__green semantic-art__outlined" d="m137 89 10-5 8 8-4 10-13-3Zm21 17 9-7 10 8-7 9-11-1Z" />
+                <path className="semantic-art__green-lit" d="m139 90 7-3 5 5-4 6-7-2Zm24 17 5-4 6 4-5 5-5-1Z" />
+                <path className="semantic-art__surface-lit" d="m142 91 4-1 2 2-2 3-3-1Zm24 16 2-1 2 1-2 3Z" />
+                <path className="semantic-art__coral semantic-art__outlined" d="m156 84 12 3 2 10-14 1-5-7Zm-17 17 11 1 6 10-10 5-10-8Z" />
+                <path className="semantic-art__coral-lit" d="m157 87 8 2 1 4-9 1Zm-15 17 5 1 5 7-6 1Z" />
+                <path className="semantic-art__surface-lit" d="m174 94 5 3-4 5-3-3Zm-18 7 4-2 3 3-4 3Z" />
+                {/* Three falafel with irregular crusts and small fried facets. */}
+                <path className="semantic-art__wood-deep" d="M95 126q0-13 13-14 14 0 14 14-1 11-14 12-12-1-13-12Zm24 5q-1-13 12-14 14 0 15 12-1 12-13 13-12 0-14-11Zm22-7q0-13 12-13 14 0 14 13-1 12-13 12-12-1-13-12Z" />
+                <path className="semantic-art__wood" d="M96 124q0-12 12-12 12 0 12 12-1 9-12 10-10-1-12-10Zm24 5q0-11 11-12 13 0 13 11-1 10-11 10-11 0-13-9Zm22-7q0-11 11-11 12 0 12 11-1 10-11 10-11 0-12-10Z" />
+                <path className="semantic-art__gold-lit" d="m101 118 4-3 6 1-3 3-5 2Zm-2 7 4-1 2 3-4 1Zm27-2 4-3 6 2-3 2Zm19-5 4-4 6 1-2 3Zm-1 6 4-1 2 3-4 1Z" />
+                <path className="semantic-art__green-deep" d="m111 124 3-2 2 3-3 2Zm17 8 3-2 3 2-3 2Zm27-10 3-1 1 3-3 1Z" />
+              </g>
             </>
           )}
           anchor={(
             <>
-              {/* Fork and knife. Drawn with `__detail`, which reads
-                  `--semantic-detail-ink` — a teal-grey in the dark theme — the
-                  cutlery came out blue and read as tally marks beside the
-                  platter rather than as metal. They also carried `__motion-part`,
-                  so they twitched on hover; the steam is the motion cue here,
-                  not the cutlery. */}
-              <path
-                className="semantic-art__metal-line"
-                d="M37 59v77m-9-77v30m18-30v30m157-30v77"
-              />
+              {/* Tines join a real fork shoulder; the knife has a broad blade,
+                  a narrowed handle and separate lit edges. Both rest still. */}
+              <path className="semantic-art__metal semantic-art__outlined" d="M27 59h3v21h5V59h3v21h5V59h3v28q0 6-7 8l1 38q0 4-3 4t-3-4l1-38q-8-2-8-8Z" />
+              <path className="semantic-art__metal-deep" d="M37 83h7q-1 8-6 9l1 42h-2V93q6-3 0-10Z" />
+              <path className="semantic-art__metal-lit" d="M28 60h1v24h-1Zm8 0h1v24h-1Zm-1 38h1v35h-1Z" />
+              <path className="semantic-art__metal semantic-art__outlined" d="M205 59q-9 13-9 40h6l-1 34q0 4 3 4t3-4V59Z" />
+              <path className="semantic-art__metal-lit" d="M204 63q-6 12-6 34h2q-1-20 4-34Z" />
+              <path className="semantic-art__metal-deep" d="M204 103h2v31h-2Z" />
               <path
                 className="semantic-art__steam semantic-art__motion-part"
                 d="M94 65c-9-12 9-15 0-29m29 27c-9-12 9-15 0-29m29 33c-9-12 9-15 0-29"
@@ -276,7 +279,10 @@ export function CoreDailyScene({
                 d="M122 119h99v30h-99Z"
               />
               <path className="semantic-art__grain" d="M128 128h87M128 138h87" />
+              <path className="semantic-art__wood-lit" d="M123 120h97v3h-97Z" />
+              <path className="semantic-art__wood-deep" d="M123 145h97v4h-97Z" />
               <ellipse className="semantic-art__prop-shadow" cx="172" cy="122" rx="39" ry="10" />
+              <ellipse className="semantic-art__surface-deep semantic-art__outlined" cx="170" cy="119" rx="39" ry="14" />
               <ellipse
                 className="semantic-art__surface semantic-art__outlined"
                 cx="170"
@@ -284,8 +290,10 @@ export function CoreDailyScene({
                 rx="39"
                 ry="14"
               />
-              {/* An empty plate is the point of the word: nothing on it. */}
-              <ellipse className="semantic-art__gloss" cx="170" cy="116" rx="27" ry="9" />
+              {/* The recessed well stays EMPTY: depth must not look like food. */}
+              <ellipse className="semantic-art__surface-deep" cx="170" cy="115" rx="30" ry="9" />
+              <ellipse className="semantic-art__surface-lit" cx="170" cy="117" rx="28" ry="7" />
+              <path className="semantic-art__gloss" d="M135 113q9-9 26-9m-16 20q23 8 49-2" />
             </>
           )}
           meaning={(
@@ -295,24 +303,29 @@ export function CoreDailyScene({
                 className="semantic-art__motion semantic-art__motion-part"
                 d="M89 92q18-12 32 0M91 108q18-12 32 0"
               />
-              <path
-                className="semantic-art__detail"
-                d="M61 64q18-12 36 0"
-              />
             </>
           )}
           anchor={(
-            <>
+            <g className="semantic-art__motion-part">
+              <g className="semantic-art__prop-bob">
               <path
                 className="semantic-art__surface semantic-art__outlined semantic-art__thought"
                 d="M121 26h73a18 18 0 0 1 0 36h-73a18 18 0 0 1 0-36Z"
               />
               <circle className="semantic-art__surface semantic-art__outlined" cx="111" cy="72" r="5" />
-              <path
-                className="semantic-art__gold semantic-art__outlined"
-                d="M135 47c13-18 34-18 47 0-15 12-33 12-47 0Z"
-              />
-            </>
+              {/* A stuffed pita with a toasted pocket, a visible cut lip and
+                  diced filling; the old solid lens could have been a lemon. */}
+              <path className="semantic-art__gold semantic-art__outlined" d="M135 44q23-21 47 0-1 13-23 13-21 0-24-13Z" />
+              <path className="semantic-art__gold-lit" d="M137 43q21-17 42 0l-4 3q-17-9-35 0Z" />
+              <path className="semantic-art__gold-deep" d="M136 45q24 7 45-1-5 13-22 13-16 0-23-12Z" />
+              <path className="semantic-art__wood-deep" d="M137 44q22-10 43 0-23 8-43 0Z" />
+              <path className="semantic-art__green" d="m140 42 7-4 6 3 8-3 8 3 7-1 2 4-35 2Z" />
+              <path className="semantic-art__green-lit" d="m145 41 4-1 2 3-5 1Zm17 0 5-1 3 3-6 1Z" />
+              <path className="semantic-art__coral" d="m153 41 5-2 4 4-6 2Zm17 2 4-1 2 3-4 1Z" />
+              <path className="semantic-art__gold-lit" d="M138 46q21 5 41-1l-3 3q-20 5-36 0Z" />
+              <path className="semantic-art__wood" d="m146 51 3-1 1 2-3 1Zm13 2 3-1 1 2-3 1Zm9-3 2-1 1 1-2 1Z" />
+              </g>
+            </g>
           )}
         />
       );
