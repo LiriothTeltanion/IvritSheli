@@ -18,6 +18,7 @@ import { DictionaryVisualCue } from './DictionaryVisualCue';
 import { LivingHebrewAtlas, type AtlasRegionId } from './LivingHebrewAtlas';
 import { MetricRing } from './MetricRing';
 import { PersonalCoachCard } from './PersonalCoachCard';
+import { isPaintedLeadScene } from './SemanticWordIllustration';
 import { DailyMetrics } from './DailyMetrics';
 
 /** The profile default and the local session's name: neither is a name the learner chose. */
@@ -124,7 +125,9 @@ export function TodayDashboard({
   const visualSpotlight = dashboard.visual_spotlight?.length
     ? dashboard.visual_spotlight.slice(0, 6)
     : fallbackSpotlight;
-  const firstWord = visualSpotlight[0]!;
+  // The hero card leads with a painted place. The daily rotation can open on a counting diagram or a notice card,
+  // which teach well in the strip below but read as a chart in the largest card on the page.
+  const firstWord = visualSpotlight.find((word) => isPaintedLeadScene(word.visual.key)) ?? visualSpotlight[0]!;
   const localizedSpotlightMeaning = (word: VisualSpotlightEntry): string => (
     locale === 'he'
       ? word.translation_he
