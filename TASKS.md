@@ -1,4 +1,11 @@
-# Local illustration pilot — 2.13.0 — 2026-10-18
+# Current state — 2.13.0 source release — 2026-11-03
+
+`v2.13.0` "Living Painted Scenes" is the latest tagged GitHub Release, with a reproducible ZIP and its SHA-256
+digest. Render Free staging in Frankfurt runs the same 2.13.0 product (`9d64fc7`) for a private pilot.
+Open: human five-second recognition, the native-speaker review of the new Hebrew strings and the pilot with
+the first real learner. The pilot note below is kept as history.
+
+# Local illustration pilot — 2.13.0 — 2026-10-18 (historical)
 
 Implemented and locally tested on `codex/living-scenes-pilot`: six original
 editorial SVG scenes, finite semantic animation, accessible replay and a
@@ -9,10 +16,10 @@ The roadmap and hosting records below retain their original historical scope.
 
 # Ivrit Sheli — Tasks & Operational Roadmap
 
-**Current Version:** `2.12.3 — Clear Counting` (source on `main`; untagged)
+**Current Version:** `2.13.0 — Living Painted Scenes` (tagged `v2.13.0`, 2026-11-03)
 **Baseline Branch:** `main`
-**State:** Source published on `main`; `v2.12.2` remains the latest tagged
-GitHub Release; Render Free staging is live and verified for a private pilot
+**State:** `v2.13.0` is the latest tagged GitHub Release; Render Free staging
+in Frankfurt is live and verified for a private pilot
 **Public Contest Boundary:** The contest freeze **expired on 2026-08-25**. The
 latest published source release is **v2.12.2 (2026-08-27)** on `main`. The former
 2.4.0 hosted service is currently offline. Deployment remains a separate

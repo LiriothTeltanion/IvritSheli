@@ -1,4 +1,4 @@
-<!-- Local executable candidate: 2.13.0, 2026-10-18. API behavior unchanged. -->
+<!-- Source release: 2.13.0, 2026-11-03. API behavior unchanged. -->
 
 # 2.12.3 private-candidate API contract — 2026-08-27
 

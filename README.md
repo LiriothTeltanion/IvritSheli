@@ -1,7 +1,7 @@
-> **Living painted scenes — 2026-11-02.** **Current private candidate:** `2.13.0`.
+> **Living painted scenes — 2026-11-03.** **Current published source release:** `2.13.0`.
 > One family of animated adults now runs through all 240 scenes, 157 of the 165 paintable scenes sit on painted
 > gouache settings with dark-theme versions, and every scene wakes with a short, finite motion when it scrolls into
-> view. **Latest published release:** `v2.12.2`. The staging host is redeployed by hand from `main`, so it can trail
+> view. **Latest published release:** [`v2.13.0`](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.13.0). The staging host is redeployed by hand from `main`, so it can trail
 > the source; its `/version` endpoint reports what it runs.
 > Details: [Visual Bible](docs/VISUAL_BIBLE.md) · [Living Scenes pilot](docs/LIVING_SCENES_PILOT.md).
 
@@ -15,8 +15,7 @@
 
   <p>
     <a href="https://ivrit-sheli.onrender.com"><img src="https://img.shields.io/badge/Live_Staging-Render-46E3B7?style=flat-square&logo=render" alt="Live Staging"></a>
-    <img src="https://img.shields.io/badge/Candidate-v2.13.0-3B82F6?style=flat-square" alt="Version">
-    <img src="https://img.shields.io/badge/Release-v2.12.2-3B82F6?style=flat-square" alt="Latest published release v2.12.2">
+    <a href="https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.13.0"><img src="https://img.shields.io/badge/Release-v2.13.0-3B82F6?style=flat-square" alt="Latest published release v2.13.0"></a>
     <img src="https://img.shields.io/badge/React_19_%2B_Vite-passing-22C55E?style=flat-square" alt="React 19">
     <img src="https://img.shields.io/badge/FastAPI_%2B_Python-ready-38BDF8?style=flat-square" alt="FastAPI">
     <img src="https://img.shields.io/badge/Database-PostgreSQL_17-336791?style=flat-square&logo=postgresql" alt="PostgreSQL">
@@ -39,7 +38,7 @@
 <p align="center">
   <img src="assets/readme/showcase/living-scenes-2.13.0-dark.webp" width="100%" alt="Four of the same scenes in the dark theme, painted at the same time of day in a low-key palette." />
 </p>
-<p align="center"><em>Captured from the 2.13.0 candidate on 2026-11-02: light theme above, dark theme below.</em></p>
+<p align="center"><em>Captured from the 2.13.0 source on 2026-11-02: light theme above, dark theme below.</em></p>
 
 Every word in the starter catalog is taught by a scene, and in 2.13.0 those scenes grew up:
 
@@ -104,25 +103,26 @@ Three persistent depths change how information is presented without hiding rooms
   <img src="assets/readme/deployment.svg" width="100%" alt="Deployment Animation" />
 </p>
 
-The private candidate source on `main` runs on a free Render service that is redeployed by hand.
+The 2.13.0 source on `main` runs on a free Render service that is redeployed by hand.
 That service is **verified staging for a private pilot, not production**: the gates in the
 table below were exercised against the live host on 2026-08-27 with 2.12.3, while the human
 gates — Hebrew-content acceptance and the first real learner — remain open.
 
-On 2026-11-02 the service was redeployed by hand from `main` at `7a4756a`, the 2.13.0
-candidate, and rechecked: `/version` reported that commit, `/health/ready` reported
+On 2026-11-02 the service was redeployed by hand from `main` at `9d64fc7`, the final 2.13.0
+product commit, and rechecked: `/version` reported that commit, `/health/ready` reported
 `postgresql: true` with the 240-entry dictionary, the strict CSP and HSTS headers were
-present, the painted scenes loaded, and the Google sign-in redirect started correctly. A
-completed Google sign-in on this deploy has not been run yet.
+present, the painted scenes loaded, and a Google sign-in was completed by hand on that
+deploy. `/version` and `/health/ready` were checked again on 2026-11-03.
 
-The latest published release is still **v2.12.2**; `2.12.3` and `2.13.0` are deliberately untagged.
+The latest published release is **[v2.13.0](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.13.0)**, a GitHub source release with a
+reproducible ZIP and its SHA-256 digest. `2.12.3` stays an untagged candidate on the way there.
 
 | Component | Status | Details |
 |---|---|---|
 | **Web service** | 🟢 Live (staging) | [ivrit-sheli.onrender.com](https://ivrit-sheli.onrender.com) — Render Free, Frankfurt |
 | **Database** | 🟢 Live | Supabase PostgreSQL 17 over the IPv4 session pooler |
 | **Authentication** | 🟢 Live | Google OAuth 2.0 with PKCE (`S256`) and strict origin validation |
-| **Tagged release** | `v2.12.2` | `2.12.3` and `2.13.0` are on `main` but deliberately untagged |
+| **Tagged release** | [`v2.13.0`](https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.13.0) | Source release of 2026-11-03; staging runs the same 2.13.0 product |
 
 > **The free plan sleeps.** Render Free suspends the service after 15 minutes without
 > traffic, and the next visitor waits while it wakes. Measured against the live host on
@@ -139,7 +139,7 @@ The latest published release is still **v2.12.2**; `2.12.3` and `2.13.0` are del
 <p align="center">
   <img src="assets/readme/proof/2.13.0/ivrit-sheli-tour.gif" width="960" alt="Ten-second non-looping Ivrit Sheli 2.13.0 tour: the English Today dashboard, twelve painted word scenes, the light Alphabet Studio, the dark linked dictionary and the Hebrew RTL Today dashboard." />
 </p>
-<p align="center"><em>A ten-second, non-looping tour: privacy-reviewed 2.13.0 candidate captures in English and Hebrew and the painted-scene showcase.</em></p>
+<p align="center"><em>A ten-second, non-looping tour: privacy-reviewed 2.13.0 captures in English and Hebrew and the painted-scene showcase.</em></p>
 
 <table>
   <tr>
@@ -170,7 +170,7 @@ was rendered twice to byte-identical output, checked frame by frame, and contain
 no loop extension. Hashes, physical dimensions, source PNG hashes, locale,
 direction, viewport, timestamps, privacy findings and process provenance are
 recorded in the
-[`2.13.0 candidate visual-proof manifest`](assets/readme/proof/2.13.0/manifest.json).
+[`2.13.0 visual-proof manifest`](assets/readme/proof/2.13.0/manifest.json).
 The [`2.12.3 candidate proof`](assets/readme/proof/2.12.3/manifest.json) and the
 immutable [`2.12.2 published visual record`](assets/readme/proof/2.12.2/manifest.json)
 remain preserved separately; the before-and-after sheets from the 2.13.0 art pass

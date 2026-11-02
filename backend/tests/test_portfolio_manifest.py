@@ -45,24 +45,23 @@ def test_checked_in_portfolio_manifest_preserves_truth_boundaries() -> None:
 
     assert verify_package.verify_portfolio_manifest() == []
     assert manifest["source_version"] == "2.13.0"
-    assert manifest["source_status"] == "private-candidate"
-    assert manifest["latest_published_release"] == "v2.12.2"
+    assert manifest["source_status"] == "published-source-release"
+    assert manifest["latest_published_release"] == "v2.13.0"
     assert manifest["durable_demo"] == {
         "url": "https://ivrit-sheli.onrender.com",
         "status": "staging-verified",
         "provider": "render-free",
-        "last_checked_on": "2026-11-02",
+        "last_checked_on": "2026-11-03",
         "boundary": (
-            "A free Render service runs the private candidate source as staging for a private pilot, not as "
-            "production. Redeployed by hand from main at 7a4756a on 2026-11-02 and rechecked that day: /version "
-            "reporting 2.13.0 at that commit, /health/ready with postgresql true and a 240-entry dictionary, the "
-            "strict CSP and HSTS headers, painted scenes served under img-src 'self', and a Google OAuth redirect "
-            "that starts correctly; a completed sign-in on this deploy has not been run. It runs in Frankfurt "
-            "since 2026-09-12, when /health/live answered in 0.149 s and the session cookie was Secure, HttpOnly "
-            "and SameSite=lax. The free plan sleeps after 15 minutes and the wake-up varies (38.6 s and 218 s on "
-            "the same day), so a first request can take minutes: wait before concluding it is down. The human "
-            "Hebrew-content and first-learner gates remain open, no v2.12.3 or v2.13.0 tag exists, and the "
-            "historical Railway service is offline."
+            "A free Render service runs the 2.13.0 source as staging for a private pilot, not as production. "
+            "Redeployed by hand from main at 9d64fc7 on 2026-11-02 and checked that day: /version reporting "
+            "2.13.0 at that commit, /health/ready with postgresql true and a 240-entry dictionary, the strict CSP "
+            "and HSTS headers, painted scenes served under img-src 'self', and a Google sign-in completed by "
+            "hand. Rechecked on 2026-11-03. It runs in Frankfurt since 2026-09-12, when /health/live answered in "
+            "0.149 s and the session cookie was Secure, HttpOnly and SameSite=lax. The free plan sleeps after 15 "
+            "minutes and the wake-up varies (38.6 s and 218 s on the same day), so a first request can take "
+            "minutes: wait before concluding it is down. The human Hebrew-content and first-learner gates remain "
+            "open, and the historical Railway service is offline."
         ),
     }
 
@@ -210,18 +209,18 @@ def test_manifest_rejects_hard_coded_quick_tunnel_url(
     assert any("Quick Tunnel URLs must not be hard-coded" in failure for failure in failures)
 
 
-def test_private_candidate_preserves_latest_release_with_staging() -> None:
-    """A staging candidate must not silently advance GitHub published claims."""
+def test_published_release_keeps_staging_separate_from_production() -> None:
+    """The tag, the GitHub release and the staging demo advance together, without a production claim."""
     manifest = _current_manifest()
 
     assert manifest["publication"] == {
-        "latest_git_tag": "v2.12.2",
-        "latest_github_release": "v2.12.2",
-        "source_version_tagged": False,
-        "source_version_github_release_published": False,
-        "release_state": "2.13.0-private-candidate-staging-verified",
+        "latest_git_tag": "v2.13.0",
+        "latest_github_release": "v2.13.0",
+        "source_version_tagged": True,
+        "source_version_github_release_published": True,
+        "release_state": "2.13.0-published-source-release-staging-verified",
     }
-    assert manifest["candidate"]["published"] is False
+    assert manifest["candidate"]["published"] is True
     assert manifest["durable_demo"]["status"] == "staging-verified"
     assert manifest["historical_deployment"]["current_availability"] == "offline"
 
@@ -289,7 +288,7 @@ def test_manifest_accepts_a_coherent_verified_staging_transition(
     """A staging URL becomes valid only with HTTPS, provider, date, and privacy parity."""
     manifest = _current_manifest()
     manifest["summary"] = (
-        "The private 2.13.0 candidate is a trilingual Hebrew-learning PWA with 240 exact "
+        "The published 2.13.0 source release is a trilingual Hebrew-learning PWA with 240 exact "
         "semantic scenes and a verified HTTPS staging demo for invited testers."
     )
 
@@ -311,7 +310,7 @@ def test_manifest_accepts_a_coherent_verified_staging_transition(
 
     publication = copy.deepcopy(manifest["publication"])
     assert isinstance(publication, dict)
-    publication["release_state"] = "2.13.0-private-candidate-staging-verified"
+    publication["release_state"] = "2.13.0-published-source-release-staging-verified"
     manifest["publication"] = publication
 
     privacy = copy.deepcopy(manifest["privacy"])

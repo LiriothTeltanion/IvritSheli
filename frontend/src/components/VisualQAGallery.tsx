@@ -196,7 +196,7 @@ const GALLERY_COPY: Record<Locale, GalleryCopy> = {
     accountProviderUnknown: 'Saved locally',
     notebookTitle: 'Living Hebrew notebook',
     notebookSummary: 'Unpublished candidate workbench used for visual QA and onboarding context.',
-    notebookVersion: '2.13.0 LOCAL PRIVATE CANDIDATE · six-scene illustration pilot · latest tagged release v2.12.2',
+    notebookVersion: '2.13.0 SOURCE RELEASE · six-scene illustration pilot · latest tagged release v2.13.0',
     notebookHistoryTitle: 'Release history',
     notebookHistorySummary: 'Candidate, latest published release, and historical milestones.',
     notebookVersionHistory: [

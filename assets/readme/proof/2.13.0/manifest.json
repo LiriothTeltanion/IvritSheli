@@ -1,9 +1,9 @@
 {
   "schema_version": 3,
-  "collection": "Ivrit Sheli 2.13.0 private-candidate visual proof",
+  "collection": "Ivrit Sheli 2.13.0 visual proof (v2.13.0 source release)",
   "source_version": "2.13.0",
-  "publication_status": "private-candidate",
-  "latest_published_release": "v2.12.2",
+  "publication_status": "published-source-release",
+  "latest_published_release": "v2.13.0",
   "promoted_at": "2026-11-02T22:30:00+02:00",
   "status": "approved_for_readme_use",
   "asset_count": 6,
@@ -12,7 +12,7 @@
     "repository_working_tree_dirty": false,
     "environment": "local",
     "storage": "sqlite",
-    "boundary": "These images prove the locally served 2.13.0 private candidate built from the recorded clean commit. They do not claim publication, a tagged release, provider availability, PostgreSQL behaviour, OAuth or the hosted staging service. The capture commit belongs to the pull-request branch; main receives it inside a squash commit, so the hash is reachable through that pull request."
+    "boundary": "These images prove the locally served 2.13.0 source built from the recorded clean commit; the same product shipped as the v2.13.0 source release on 2026-11-03. They do not claim provider availability, PostgreSQL behaviour, OAuth or the hosted staging service. The capture commit belongs to the pull-request branch; main receives it inside a squash commit, so the hash is reachable through that pull request."
   },
   "capture_identity": {
     "authentication_mode": "local",

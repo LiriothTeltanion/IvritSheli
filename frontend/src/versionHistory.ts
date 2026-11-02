@@ -15,7 +15,7 @@ export const VERSION_HISTORY_COPY: Record<Locale, { title: string, summary: stri
         name: '2.13.0 — Living Painted Scenes',
         date: '2026-11-02',
         highlights: [
-          'Private candidate, untagged; the latest published release remains v2.12.2.',
+          'Published on GitHub as source release v2.13.0 on 2026-11-03.',
           'Painted settings of everyday Israel, with dark-theme versions, behind 157 of the 165 paintable scenes.',
           'One family of adults with faces, sleeves and hands runs through all 240 exact scenes.',
           'Scenes replay on a tap and wake once when they come into view, still within five seconds.',
@@ -159,7 +159,7 @@ export const VERSION_HISTORY_COPY: Record<Locale, { title: string, summary: stri
         name: '2.13.0 — Escenas pintadas vivas',
         date: '2026-11-02',
         highlights: [
-          'Candidata privada sin etiqueta; la última versión publicada sigue siendo v2.12.2.',
+          'Publicada en GitHub como versión de código v2.13.0 el 2026-11-03.',
           'Lugares pintados del Israel cotidiano, con versión oscura, detrás de 157 de las 165 escenas pintables.',
           'Una misma familia de adultos, con caras, mangas y manos, recorre las 240 escenas exactas.',
           'Las escenas se mueven al tocarlas y despiertan una vez al aparecer, siempre en menos de cinco segundos.',
@@ -303,7 +303,7 @@ export const VERSION_HISTORY_COPY: Record<Locale, { title: string, summary: stri
         name: '2.13.0 — סצנות מצוירות חיות',
         date: '2026-11-02',
         highlights: [
-          'גרסת מועמד פרטית ללא תג; הגרסה האחרונה שפורסמה נשארת v2.12.2.',
+          'פורסמה ב-GitHub כגרסת קוד מקור v2.13.0 ב-2026-11-03.',
           'מקומות מצוירים מהחיים בישראל, עם גרסה כהה, מאחורי 157 מתוך 165 הסצנות שאפשר לצייר.',
           'אותה משפחת מבוגרים, עם פנים, שרוולים וידיים, מופיעה בכל 240 הסצנות.',
           'הסצנות זזות בנגיעה ומתעוררות פעם אחת כשהן מופיעות, תמיד בפחות מחמש שניות.',

@@ -1,9 +1,9 @@
-# Ivrit Sheli 2.13.0 — Living Editorial Scenes
+# Ivrit Sheli 2.13.0 — Living Painted Scenes
 
 - Source version: `2.13.0`
-- Latest published source release: `v2.12.2`
-- Status: local private candidate, unpublished, 2026-10-18.
-- Scope: six scenes within the 240-scene catalog; accessible replay and private studio.
+- Latest published source release: `v2.13.0`
+- Status: published GitHub source release, 2026-11-03: annotated tag, reproducible ZIP and SHA-256 digest.
+- Scope: the 240-scene catalog, 157 of 165 paintable scenes on painted settings, one family of animated adults.
 - Historical package and verification records below remain attached to their original versions.
 
 # Ivrit Sheli 2.12.3 — Clear Counting & Safer Visuals Package Manifest

@@ -1,6 +1,19 @@
-# Local candidate update
+# Latest release
 
-## 2.13.0 — Living Editorial Scenes — Private candidate — 2026-10-18
+## 2.13.0 — Living Painted Scenes — 2026-11-03
+
+### GitHub source release — 2026-11-03
+
+- Publishes the reviewed 2.13.0 source with the annotated `v2.13.0` tag and a GitHub Release containing a
+  reproducible ZIP plus its separate SHA-256 digest.
+- Source release only. The free Render staging service already runs the same 2.13.0 product (`9d64fc7`); the
+  release does not redeploy it or change a database, OAuth setting, provider or Devpost entry.
+- Kevin approved publication on 2026-11-03 with four gates in `TEST_REPORT.md` still open: human five-second
+  recognition, the native-speaker review of the new Hebrew strings, PostgreSQL integration with live credentials
+  and the first-learner pilot. The pilot with Kevin's mother is planned for 2026-11-03 or 2026-11-04; what it
+  finds goes into 2.13.1.
+
+### Candidate work — 2026-10-18 to 2026-11-02
 
 - Repainted six original SVG scenes with shared editorial materials and distinct semantic motion.
 - Added touch/keyboard replay, reduced-motion stills and a private trilingual before/after studio.

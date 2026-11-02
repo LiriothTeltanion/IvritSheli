@@ -1,9 +1,12 @@
-# Ivrit Sheli 2.13.0 — Local illustration pilot
+# Ivrit Sheli 2.13.0 — Living Painted Scenes
 
-- **Current private candidate:** `2.13.0` / local branch `codex/living-scenes-pilot`.
-- Date: 2026-10-18. No push, release or deployment.
-- Current scoped evidence: `docs/LIVING_SCENES_PILOT.md`.
-- Human recognition, Hebrew acceptance and the first-learner pilot remain unrun.
+- **Current published source release:** `2.13.0` / annotated tag `v2.13.0` and GitHub Release, 2026-11-03.
+- Hosted staging: Render Free in Frankfurt runs `9d64fc7`, the same 2.13.0 product; the release commit changes
+  documentation and release labels only.
+- Current scoped evidence: `docs/LIVING_SCENES_PILOT.md` and the gates below.
+- Human five-second recognition, the native-speaker review of the new Hebrew strings, PostgreSQL integration with
+  live credentials and the first-learner pilot remain unrun; Kevin approved the source release with them open.
+  The first-learner pilot is planned for 2026-11-03 or 2026-11-04.
 - Everything below is a historical ledger, with original version labels preserved.
 
 ## Executed local gate — 2026-11-02 (phone header, Today fixes, README proof)
@@ -17,8 +20,10 @@
   GIF files reviewed at full size, at display scale and in grayscale; the GIF rendered twice to identical bytes.
 - Hosted staging rechecked on 2026-11-02 after a manual redeploy of `7a4756a`: `/version` 2.13.0 at that commit,
   `/health/ready` with `postgresql: true` and 240 entries, strict CSP and HSTS headers, Google redirect starts.
-- Not run: PostgreSQL integration, a completed Google sign-in, human five-second recognition, native-speaker review of
-  the new Hebrew strings and the first-learner pilot.
+- Not run: PostgreSQL integration, human five-second recognition, native-speaker review of the new Hebrew strings
+  and the first-learner pilot.
+- After the merge, staging was redeployed by hand at `9d64fc7` and Kevin completed a Google sign-in on it
+  (observed by hand, not automated).
 
 ## Executed local gate — 2026-11-02 (living painted scenes)
 
