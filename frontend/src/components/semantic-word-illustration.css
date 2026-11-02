@@ -1462,6 +1462,22 @@
 .semantic-art__face-eyes,
 .semantic-art__face-mouth { transform-box: fill-box; transform-origin: center; }
 .semantic-art__face-head { transform-box: fill-box; transform-origin: 50% 100%; }
+/* Bodies (2026-11-02, PersonBody.tsx by Codex): a crease in each palm and a seam on each shoe, both small enough
+   to drop in thumbnails. The arm hooks only name the two paint layers of an arm; the torso breathes from its
+   waist. */
+.semantic-art__body-hand-detail,
+.semantic-art__body-shoe-detail {
+  fill: none;
+  stroke: color-mix(in srgb, var(--semantic-skin-edge, #6a3e26) 62%, transparent);
+  stroke-width: .42;
+  stroke-linecap: round;
+}
+.semantic-art__body-shoe-detail { stroke: color-mix(in srgb, var(--semantic-trouser-edge, #1d2c37) 55%, #fff 10%); }
+.semantic-art__body-arm-edge,
+.semantic-art__body-arm-fill { stroke-linejoin: round; }
+.semantic-art__body-breath { transform-box: fill-box; transform-origin: 50% 100%; }
+.semantic-art--thumbnail .semantic-art__body-hand-detail,
+.semantic-art--thumbnail .semantic-art__body-shoe-detail { display: none; }
 
 .semantic-art__bubble {
   stroke-width: 2.4;
@@ -1929,6 +1945,11 @@
   33%, 67% { transform: scaleY(1.12); }
 }
 
+@keyframes semanticBodyBreath {
+  0%, 100% { transform: scale(1, 1); }
+  45% { transform: scale(1.015, 1.03); }
+}
+
 @keyframes semanticFaceNod {
   0%, 100% { transform: rotate(0deg) translateY(0); }
   30% { transform: rotate(5deg) translateY(0.4px); }
@@ -1941,6 +1962,12 @@
   button:hover .semantic-art .semantic-art__face-head,
   button:focus-visible .semantic-art .semantic-art__face-head {
     animation: semanticFaceNod 760ms ease-in-out;
+  }
+  .semantic-art--hero:hover .semantic-art__body-breath,
+  .semantic-art[data-exploring] .semantic-art__body-breath,
+  button:hover .semantic-art .semantic-art__body-breath,
+  button:focus-visible .semantic-art .semantic-art__body-breath {
+    animation: semanticBodyBreath 900ms ease-in-out;
   }
   .semantic-art--hero:hover .semantic-art__face-eyes,
   .semantic-art[data-exploring] .semantic-art__face-eyes,

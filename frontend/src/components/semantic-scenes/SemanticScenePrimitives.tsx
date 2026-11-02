@@ -4,6 +4,7 @@
 import type { ReactNode } from 'react';
 import type { SemanticHintStage } from '../SemanticWordIllustration';
 import type { VisualTemplate } from '../../visuals/a0VisualRecipes';
+import { PersonBody } from './PersonBody';
 import { PersonHead, type Expression, type Shirt } from './PersonHead';
 
 export type SpatialSceneFamily =
@@ -196,90 +197,7 @@ export function SemanticPerson({
   scale?: number;
 }): React.JSX.Element {
   const direction = facing === 'left' ? -scale : scale;
-  /*
-   * Where each pose's arms actually end.
-   *
-   * The arms are single strokes, so without this they stop in mid-air and the
-   * figure reads as unfinished. `wave` and `point` are deliberately absent a
-   * hand on the active arm: there the drawing already ends in splayed fingers
-   * or a pointing finger, and a disc on top would bury it.
-   */
-  const hands: ReadonlyArray<readonly [number, number, number]> = (() => {
-    switch (pose) {
-      case 'wave': return [[-14, 18, -16]];
-      case 'point': return [[-14, 18, -16]];
-      case 'stomach': return [[0, 16, 0]];
-      case 'shiver': return [[-2, 14, -22], [2, 14, 22]];
-      case 'listen': return [[-14, 18, -16], [15, -18, 72]];
-      case 'hold': return [[0, 20, 0]];
-      case 'reach': return [[-18, 12, -18], [30, -2, -8]];
-      case 'ask': return [[-14, 18, -16], [28, 5, -8]];
-      case 'answer': return [[-14, 18, -16], [25, 8, 8]];
-      case 'request': return [[0, 18, 0]];
-      // The gesturing arm ends at (38, -2) and had no hand there, so every
-      // explaining figure pointed with a blunt tube.
-      case 'explain': return [[-14, 18, -16], [38, -2, -6]];
-      case 'walk': return [[-13, 18, -18], [22, 18, 18]];
-      default: return [[-14, 18, -16], [22, 18, 16]];
-    }
-  })();
-  /*
-   * The arm geometry, separated from how it is painted.
-   *
-   * A stroke cannot carry an outline, so each arm is drawn twice — a wider copy
-   * in the skin's edge colour, then the skin stroke over it. Keeping the path in
-   * one place is what lets all thirteen poses gain a contour without any of them
-   * being redrawn.
-   */
-  const RESTING_ARM = 'M-8 3q-3 8-6 15';
-  /*
-   * `still` is the arm that hangs; `gesture` is the one the meaning lives in and
-   * the only one that animates. They used to share a single path, so a figure
-   * asking a question swung both arms at once.
-   *
-   * `wave`, `point` and `listen` had no resting arm at all, yet all three placed
-   * a hand at (-14, 18) — exactly where a hanging arm ends. Every waving,
-   * pointing and listening figure in the catalogue therefore had a disc of skin
-   * floating beside its hip, attached to nothing.
-   */
-  const armPath: { still?: string; gesture?: string } = (() => {
-    switch (pose) {
-      // The raised arm stops at the wrist and the hand is drawn below. As three
-      // splayed strokes at the arm's own width it fused into a mitten roughly the
-      // size of the head.
-      case 'wave': return { still: RESTING_ARM, gesture: 'M8 4 19-7l3-15' };
-      case 'point': return { still: `${RESTING_ARM}M8 3q9-7 18-5h12` };
-      case 'listen': return { still: `${RESTING_ARM}M8 3q8-2 9-11l-2-10` };
-      case 'stomach': return { still: 'M-8 5 0 16 10 7M8 5 0 16-9 8' };
-      case 'shiver': return { gesture: 'M-9 5-2 14 7 4M9 5 2 14-7 5' };
-      case 'hold': return { still: 'M-8 5-2 18 0 20M8 5 2 18 0 20' };
-      case 'reach': return { still: 'M-8 3q-5 5-10 9M8 3q10-3 22-5' };
-      case 'ask': return { still: RESTING_ARM, gesture: 'M8 3q9 8 20 2' };
-      case 'answer': return { still: RESTING_ARM, gesture: 'M8 3q8 1 17 5' };
-      case 'request': return { still: 'M-8 3q1 10 8 15M8 3q-1 10-8 15' };
-      case 'explain': return { still: RESTING_ARM, gesture: 'M8 3q10-5 30-5' };
-      default: return { still: 'M-8 3q-3 8-6 15M8 3q5 8 14 15' };
-    }
-  })();
-  const limb = (d: string, motion: boolean): React.JSX.Element => (
-    <>
-      <path className={`semantic-art__limb-edge${motion ? ' semantic-art__motion-part' : ''}`} d={d} />
-      <path className={`semantic-art__skin-line${motion ? ' semantic-art__motion-part' : ''}`} d={d} />
-    </>
-  );
-  const arm = (
-    <>
-      {armPath.still && limb(armPath.still, false)}
-      {armPath.gesture && limb(armPath.gesture, true)}
-      {pose === 'wave' && (
-        <g className="semantic-art__motion-part">
-          <path className="semantic-art__finger" d="M19-26l-2-5M22-27v-6M25.5-26l2.5-5" />
-          <ellipse className="semantic-art__hand" cx="22" cy="-23" rx="4.4" ry="3.8" />
-        </g>
-      )}
-    </>
-  );
-  const standing = pose !== 'walk';
+  const expression = expressionForPose(pose);
   return (
     <g
       className={`semantic-art__person semantic-art__person--${shirt}`}
@@ -289,55 +207,16 @@ export function SemanticPerson({
       data-person-character={PERSON_CHARACTERS[shirt].name}
       data-person-gender={PERSON_CHARACTERS[shirt].gender}
     >
-      {/* 2026-10-20 redraw, in the pilot neighbours' language: a shorter neck, square shoulders with short
-          sleeves, straight standing legs and a three-quarter face (one ear, a lit eye, brow, cheek and a thin
-          smile) turned the way the figure faces. Anchors, hands and the animated arm are unchanged. */}
-      <path className="semantic-art__skin" d="M-3-15h6v9h-6Z" />
-      <path className="semantic-art__skin-shade" d="M-3-15h6v3.5h-6Z" />
-      <path className="semantic-art__shirt" d="M-12 27C-12.5 12-12 0-10-4.5Q-6-8 0-8.4 6-8 10-4.5C12 0 12.5 12 12 27Z" />
-      <path className="semantic-art__shirt-lit" d="M-12 27C-12.5 12-12 0-10-4.5Q-7-7.3-3-8c-4 6-5.5 19-5 35Z" />
-      <path className="semantic-art__shirt-deep" d="M5-7.6Q8.5-6.5 10-4.5C12 0 12.5 12 12 27H6.5C7 13 6.6 1 5-7.6Z" />
-      <path className="semantic-art__garment-line" d="M-4.5-8q4.5 4.5 9 0M-11.5 23h23" />
-      {shirt === 'gold' && <path className="semantic-art__garment-line" d="M0-3.5v24m-2-16h4m-4 7h4" />}
-      {shirt === 'blue' && <path className="semantic-art__garment-line" d="M-10.5 8h6m9 0h6" />}
-      <path
-        className="semantic-art__trousers"
-        d={standing
-          ? 'M-10.5 25.5h21l-1.2 29.5h-7.6L.6 33.4-1.8 55h-7.6Z'
-          : 'M-10 27h20L5 38l13 13-5 4L0 43-9 55l-6-4 9-15Z'}
-      />
-      <path className="semantic-art__trouser-seam" d={standing ? 'M-5.6 35v18M5.4 35v18' : 'M0 30 5 38M-5 36-9 51'} />
-      <g transform="translate(0 2.2)" data-person-expression={expressionForPose(pose)}>
-        <PersonHead shirt={shirt} expression={expressionForPose(pose)} />
-      </g>
-      {arm}
-      {/* Short sleeves cap the top of each arm, so it starts at a shoulder instead of inside the torso. */}
-      <ellipse className="semantic-art__sleeve" cx="-9" cy="1.2" rx="3.6" ry="4.6" transform="rotate(14 -9 1.2)" />
-      <ellipse className="semantic-art__sleeve" cx="9" cy="1.2" rx="3.6" ry="4.6" transform="rotate(-14 9 1.2)" />
-      {/*
-       * A hand has to be wider than the arm it ends, or it is not a hand.
-       *
-       * These were 3 × 2.15 — six units across — while the arm is a 5.3 stroke
-       * inside a 7.4 contour. The hand was therefore *narrower* than the limb it
-       * terminated and vanished inside it, so every reaching, offering and
-       * handing-over figure in the catalogue ended in a blunt tube. It is the
-       * single most common defect in the `interior` family, where two people
-       * holding one object between them is the standard composition.
-       */}
-      {hands.map(([hx, hy, angle]) => (
-        <ellipse
-          key={`${hx},${hy}`}
-          className="semantic-art__hand"
-          cx={hx}
-          cy={hy}
-          rx="4.4"
-          ry="3.4"
-          transform={`rotate(${angle} ${hx} ${hy})`}
-        />
-      ))}
-      <path
-        className="semantic-art__shoe"
-        d={pose === 'walk' ? 'M-9 51h-8q-3 0-3 4h12Zm22 0 6 2q3 1 2 4h-9Z' : 'M-9.6 52.5h7.3q2.6.4 3 3.5H-9.6ZM1.7 52.5h7.6q3.4.4 3.7 3.5H1.7Z'}
+      {/* 2026-11-02: body and head drawn by Codex (PersonBody.tsx, PersonHead.tsx). Hand centres, arm ends and
+          feet keep the coordinates scenes attach objects and floors to. */}
+      <PersonBody
+        shirt={shirt}
+        pose={pose}
+        head={(
+          <g transform="translate(0 2.2)" data-person-expression={expression}>
+            <PersonHead shirt={shirt} expression={expression} />
+          </g>
+        )}
       />
     </g>
   );
