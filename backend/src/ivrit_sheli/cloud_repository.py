@@ -15,6 +15,7 @@ from typing import Any, TypeVar, cast
 from ivrit_sheli.cloud_store import CloudStore
 from ivrit_sheli.database import Database
 from ivrit_sheli.repository import LearningRepository
+from ivrit_sheli.scheduler import ReviewPolicy
 from ivrit_sheli.seed import STARTER_ITEMS
 
 STATE_FORMAT = "ivrit-sheli-postgres-state-v2"
@@ -59,8 +60,10 @@ class CloudLearningRepository:
         display_name: str,
         *,
         seed_demo: bool = False,
+        review_scheduler: ReviewPolicy = "sm2",
     ) -> None:
         self.store = store
+        self.review_scheduler: ReviewPolicy = review_scheduler
         self.user_id = user_id
         self.display_name = display_name
         self.seed_demo = seed_demo
@@ -152,7 +155,7 @@ class CloudLearningRepository:
                         tuple(hydrated_row[column] for column in columns),
                     )
             connection.commit()
-        return database, LearningRepository(database)
+        return database, LearningRepository(database, self.review_scheduler)
 
     @staticmethod
     def _snapshot(database: Database) -> dict[str, Any]:
