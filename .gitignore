@@ -69,6 +69,8 @@ Thumbs.db
 
 # 2026-11-02: internal agent and packaging files stay on Kevin's machine and are
 # no longer published. They are still read locally by the assistants.
+# AGENTS.md and CLAUDE.md are published again since 2026-11-03, with technical
+# guidance only.
 /NOVA_HANDOFF.md
 /NOVA_PHASE4_REPORT.md
 /PROMPT-NUEVA-SESION.md
@@ -76,6 +78,4 @@ Thumbs.db
 /CODEX.md
 /Compress-IvritSheli-Clean-v2.ps1
 /RUN_Compress_IvritSheli_Clean_v2.cmd
-/AGENTS.md
-/CLAUDE.md
 /docs/IMAGE_PROMPTS_SKILL.md
