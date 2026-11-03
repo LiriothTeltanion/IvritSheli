@@ -17,6 +17,7 @@ con una escena pintada que se mueve, escuchar el hebreo y ver tu progreso.
 ▶ Abre la app en español: https://ivrit-sheli.onrender.com/?lang=es
 🎬 Cómo está hecha (en inglés): (YouTube link pending)
 💻 Código y versión 2.13.0: https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.13.0
+🕰 Edición anterior (julio de 2026, versión 2.4, en inglés): https://www.youtube.com/watch?v=JxWyJJH87Rk
 
 Capítulos
 0:00 Tu primera palabra · Abre el enlace
@@ -28,9 +29,13 @@ Capítulos
 La demo es de solo lectura: para guardar tu progreso, entra con Google.
 La primera visita puede tardar cerca de un minuto mientras el servidor despierta.
 
+Narración: voz de Kevin Cusnir, generada a partir de su propia voz.
+Música: (se acredita al elegirla)
 Hecha por Kevin Cusnir en Be'er Sheva · KC ✦ LT
 Built with AI-assisted tooling; I reviewed, tested and can explain every change.
 ```
+
+**Tags:** hebreo, aprender hebreo, hebreo para principiantes, hebreo en español, Israel, olim, ulpan, vida en Israel, app para aprender idiomas, Ivrit Sheli, Kevin Cusnir
 
 **Subtitles:** `subtitles/cut1-es.es.srt` (Spanish). The captions are also burned into the video.
 
@@ -48,6 +53,7 @@ take your first lesson with a painted scene that moves, hear the Hebrew and see 
 ▶ Open the app: https://ivrit-sheli.onrender.com/?lang=en
 🎬 What it is and how it is built: (YouTube link pending)
 💻 Source and the 2.13.0 release: https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.13.0
+🕰 Previous edition (July 2026, version 2.4): https://www.youtube.com/watch?v=JxWyJJH87Rk
 
 Chapters
 0:00 Your first word · Open the link
@@ -59,9 +65,13 @@ Chapters
 The demo is read-only: continue with Google to save your progress.
 The first visit can take about a minute while the server wakes up.
 
+Narration: Kevin Cusnir's voice, generated from his own voice.
+Music: (to be credited once chosen)
 Made by Kevin Cusnir in Be'er Sheva · KC ✦ LT
 Built with AI-assisted tooling; I reviewed, tested and can explain every change.
 ```
+
+**Tags:** learn Hebrew, Hebrew for beginners, Hebrew app, Israel, olim, ulpan, new immigrants Israel, language learning app, Ivrit Sheli, Kevin Cusnir
 
 **Subtitles:** `subtitles/cut1-en.en.srt` (English). The captions are also burned into the video.
 
@@ -81,8 +91,8 @@ word scenes, accessibility, the tests, PostgreSQL with row-level security, and t
 ▶ Try it: https://ivrit-sheli.onrender.com
 💻 Source, tests and release notes: https://github.com/LiriothTeltanion/IvritSheli
 📦 Release 2.13.0 (ZIP + SHA-256): https://github.com/LiriothTeltanion/IvritSheli/releases/tag/v2.13.0
-🏠 How to use it, for learners (Spanish): (enlace de YouTube pendiente)
-🕰 The July 2026 Build Week video (version 2.4): https://www.youtube.com/watch?v=JxWyJJH87Rk
+🏠 How to use it, for learners: (YouTube link pending) (English) · (enlace de YouTube pendiente) (Spanish)
+🕰 Previous edition (July 2026 Build Week, version 2.4): https://www.youtube.com/watch?v=JxWyJJH87Rk
 
 Chapters
 0:00 A Hebrew app for newcomers · Three languages, right to left
@@ -96,9 +106,13 @@ Chapters
 Numbers in this video: 157 of 165 paintable scenes on painted settings; 1,096 frontend and 434 backend tests
 passing on the release commit (run 2026-11-03).
 
+Narration: Kevin Cusnir's voice, generated from his own voice.
+Music: (to be credited once chosen)
 Made by Kevin Cusnir in Be'er Sheva · KC ✦ LT
 Built with AI-assisted tooling; I reviewed, tested and can explain every change.
 ```
+
+**Tags:** Ivrit Sheli, Kevin Cusnir, Hebrew learning app, trilingual app, right to left, RTL, React, TypeScript, FastAPI, Python, PostgreSQL, row-level security, accessibility, WCAG, portfolio project, junior developer
 
 **Spanish description (YouTube translation):**
 
@@ -111,6 +125,7 @@ publicación verificada.
 ▶ Pruébala: https://ivrit-sheli.onrender.com/?lang=es
 💻 Código, pruebas y notas de la versión: https://github.com/LiriothTeltanion/IvritSheli
 🏠 Cómo se usa (en español): (enlace de YouTube pendiente)
+🕰 Edición anterior (julio de 2026, versión 2.4): https://www.youtube.com/watch?v=JxWyJJH87Rk
 
 Capítulos
 0:00 A Hebrew app for newcomers · Three languages, right to left
@@ -121,8 +136,32 @@ Capítulos
 1:27 PostgreSQL with row-level security · A verified release
 1:51 Kevin Cusnir
 
+Narración: voz de Kevin Cusnir, generada a partir de su propia voz.
+Música: (se acredita al elegirla)
 Hecha por Kevin Cusnir en Be'er Sheva · KC ✦ LT
 Built with AI-assisted tooling; I reviewed, tested and can explain every change.
 ```
 
 **Subtitles:** `subtitles/cut2-en.en.srt` (English) and `subtitles/cut2-en.es.srt` (Spanish).
+
+## Playlist
+
+- **Name:** Ivrit Sheli by Kevin Cusnir
+- **Description (EN):** Ivrit Sheli, a trilingual app for learning everyday Hebrew in Israel: how to use it, and how it is built. By Kevin Cusnir.
+- **Description (ES):** Ivrit Sheli, una app trilingüe para aprender el hebreo de todos los días en Israel: cómo se usa y cómo está hecha. Por Kevin Cusnir.
+- **Order:** 1. Cómo se usa (ES) · 2. How to use it (EN) · 3. What it is and how it is built (EN) · 4. The July 2026
+  edition, only with Kevin's OK (adding it to a playlist does not change the video itself).
+
+## Upload settings (every video)
+
+| Setting | Value |
+|---|---|
+| Visibility | Kevin decides at the final confirmation (suggested: Public; Unlisted for a quiet first look) |
+| Audience | No, it is not made for kids |
+| Altered or synthetic content | **Yes**: the narration is a synthetic clone of Kevin's own voice |
+| Category | Education |
+| Video language / title language | ES for "Cómo se usa"; EN for the other two |
+| Captions | Upload the SRT files of this folder as tracks (they match the published timing) |
+| Thumbnail | `thumbnails/<film>.jpg` |
+| Chapters | Already in the description; the first one starts at 0:00 |
+| Licence | Standard YouTube licence |

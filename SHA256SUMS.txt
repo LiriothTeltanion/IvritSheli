@@ -303,7 +303,7 @@ f6476c99d73c1492468dad298f48845b08615bee1f030d7e076981c1e27ccd21  docs/releases/
 7dac993064f5201748b4e75dbdd6f7ab4490bb5d1ff58824603320b8018a5a88  docs/releases/v2.13.0.md
 c4a00e94ae5d2dd003fdec7e551c9c918d8e86ba4c49c8ae8be9e0086b258207  docs/research/ivrit-sheli-learning-research.pdf
 c074930a2afa3141a638df89a9da769b7d50d11dbe0ed2f17737dd6c334036e9  docs/video/2.13.0/VIDEO_SCRIPT_2.13.0.md
-e1ef02884cd4cd02d3fdeee4fd0780e1b5db764db99865d8424f38d58f661d23  docs/video/2.13.0/YOUTUBE.md
+82bea859c5a586863a66609cf6e231b721402f25608b2e11004753f4cc26f9d2  docs/video/2.13.0/YOUTUBE.md
 ce4302aa08dc36315924c694c49865e3bb4860672222fed5dffa1b0e19999764  docs/video/2.13.0/subtitles/cut1-en.en.srt
 10786c9b4b294b587709dea94d2447583036d631dc890495d10e9ce573ee0aa4  docs/video/2.13.0/subtitles/cut1-es.es.srt
 9e6fb0d4802e61cf02ec684afecac1d5e399d8520194aed12f1a60756eb94f55  docs/video/2.13.0/subtitles/cut2-en.en.srt
