@@ -1,0 +1,179 @@
+1
+00:00:00,420 --> 00:00:00,960
+Shalom.
+
+2
+00:00:00,920 --> 00:00:03,583
+This is Ivrit Sheli, a Hebrew app I built
+
+3
+00:00:03,543 --> 00:00:06,332
+for adults who have just arrived in Israel:
+
+4
+00:00:06,292 --> 00:00:08,933
+new to Hebrew, and often new to apps.
+
+5
+00:00:09,753 --> 00:00:11,638
+It speaks their language first.
+
+6
+00:00:11,598 --> 00:00:13,830
+The whole interface works in English,
+
+7
+00:00:13,790 --> 00:00:15,791
+Spanish and Hebrew, and in Hebrew
+
+8
+00:00:15,751 --> 00:00:17,811
+it mirrors from right to left.
+
+9
+00:00:18,631 --> 00:00:21,466
+Every word is taught by a scene.
+
+10
+00:00:21,426 --> 00:00:22,689
+In version 2.
+
+11
+00:00:22,649 --> 00:00:23,038
+13.
+
+12
+00:00:22,998 --> 00:00:27,318
+0, 157 of the 165 paintable scenes sit on painted
+
+13
+00:00:27,278 --> 00:00:31,888
+gouache settings, each with a dark-theme version.
+
+14
+00:00:32,708 --> 00:00:35,032
+People and objects stay vector, so each
+
+15
+00:00:34,992 --> 00:00:37,202
+scene wakes once with a short motion,
+
+16
+00:00:37,162 --> 00:00:39,719
+and is still again within five seconds.
+
+17
+00:00:40,539 --> 00:00:42,843
+Today is the daily starting point.
+
+18
+00:00:42,803 --> 00:00:45,496
+A first lesson teaches five useful words
+
+19
+00:00:45,456 --> 00:00:48,083
+with sound and a quick check, and every
+
+20
+00:00:48,043 --> 00:00:50,896
+Hebrew word opens its dictionary entry.
+
+21
+00:00:51,716 --> 00:00:53,965
+The Alphabet Studio starts from the
+
+22
+00:00:53,925 --> 00:00:56,359
+letters themselves: twenty-two letters
+
+23
+00:00:56,319 --> 00:00:58,507
+and five final forms, one shape at
+
+24
+00:00:58,467 --> 00:01:00,884
+a time, with sound and real words.
+
+25
+00:01:01,704 --> 00:01:03,705
+Accessibility is designed in.
+
+26
+00:01:03,665 --> 00:01:05,861
+With reduced motion, every scene
+
+27
+00:01:05,821 --> 00:01:08,148
+is a complete still, and automated
+
+28
+00:01:08,108 --> 00:01:10,762
+accessibility scans run in the browser,
+
+29
+00:01:10,722 --> 00:01:13,601
+in all three languages and both themes.
+
+30
+00:01:14,421 --> 00:01:17,898
+Under the hood: React 19 and TypeScript,
+
+31
+00:01:17,858 --> 00:01:21,167
+with FastAPI and Python on the server.
+
+32
+00:01:21,127 --> 00:01:24,352
+On the release commit, 1,096 frontend
+
+33
+00:01:24,312 --> 00:01:27,408
+tests and 434 backend tests pass.
+
+34
+00:01:28,228 --> 00:01:30,215
+Accounts live in PostgreSQL.
+
+35
+00:01:30,175 --> 00:01:32,633
+Row-level security and a restricted
+
+36
+00:01:32,593 --> 00:01:34,916
+runtime role keep every learner's
+
+37
+00:01:34,876 --> 00:01:37,489
+data visible only to that learner.
+
+38
+00:01:38,309 --> 00:01:39,227
+Version 2.
+
+39
+00:01:39,187 --> 00:01:39,578
+13.
+
+40
+00:01:39,538 --> 00:01:42,475
+0 is a published source release:
+
+41
+00:01:42,435 --> 00:01:46,426
+a reproducible ZIP with its SHA-256 checksum,
+
+42
+00:01:46,386 --> 00:01:50,579
+and continuous integration green on the tag.
+
+43
+00:01:51,399 --> 00:01:54,084
+Ivrit Sheli: living Hebrew for every day.
+
+44
+00:01:54,044 --> 00:01:56,728
+I'm Kevin Cusnir, and the code, the tests
+
+45
+00:01:56,688 --> 00:01:59,537
+and the release notes are all on GitHub.
