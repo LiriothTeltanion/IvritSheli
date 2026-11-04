@@ -2,6 +2,8 @@
 
 @AGENTS.md
 
+Personal local context: `CLAUDE.local.md` (git-ignored, loaded automatically by Claude Code).
+
 AGENTS.md is the contract for every agent in this repository. Edit it, not
 this file. Below is only what is specific to Claude Code.
 

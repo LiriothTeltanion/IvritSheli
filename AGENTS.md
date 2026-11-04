@@ -4,6 +4,10 @@ Guide for every coding agent (Claude Code, Codex, Copilot, Cursor, Gemini,
 Antigravity) and human contributor working in this repository. **This file is
 the contract**; `CLAUDE.md` imports it and only adds Claude Code specifics.
 
+Local, private context for this repo may exist in `AGENTS.local.md` and
+`CLAUDE.local.md`. They are git-ignored, never committed, and should be read
+when present.
+
 **Ivrit Sheli** is a trilingual (EN/ES/HE) progressive web app for learning
 everyday Hebrew in Israel: React + TypeScript frontend, FastAPI backend,
 PostgreSQL with row-level security, and 240 deterministic SVG scenes. Its
@@ -314,8 +318,10 @@ placeholder integrations or mocks presented as production evidence.
   If a section above defines a different body format for this repository,
   that one wins.
 
-  Commits written with an AI assistant add the matching `Co-Authored-By:`
-  trailer. Lirioth is never a co-author.
+  Commit authorship: every commit, PR title and PR description is authored
+  by Kevin Cusnir (Lirioth Teltanion). Do not add AI co-author trailers,
+  "Generated with/by" footers, session links or AI tool or model names to
+  Git metadata. (Policy updated 2026-11-04.)
 - **Author identity:** `Kevin Cusnir (Lirioth Teltanion)`.
 - One concern per commit and per pull request. Small vertical slices that can
   ship on their own beat big rewrites.

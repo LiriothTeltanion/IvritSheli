@@ -79,3 +79,9 @@ Thumbs.db
 /Compress-IvritSheli-Clean-v2.ps1
 /RUN_Compress_IvritSheli_Clean_v2.cmd
 /docs/IMAGE_PROMPTS_SKILL.md
+
+# Local private agent context (never committed)
+AGENTS.local.md
+CLAUDE.local.md
+*.local.md
+.claude/settings.local.json
