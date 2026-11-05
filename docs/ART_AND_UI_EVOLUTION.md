@@ -47,13 +47,43 @@ Re-check anything that can drift (versions, counts, open gates) against the repo
 - `assets/readme/screenshots/hero_composed.jpg` and `themes_composed.jpg`: real screenshots composited over generated backgrounds (commit `e2fad25` says so); updated for 2.13.0 in `9d64fc7`.
 - No interface screenshots exist in the repo for 1.0 or for 2.4–2.5 apart from the 2.5 atlas.
 
-## 6. Open gates in v2.13.0 (as stated by the repo on 2026-11-03)
+## 6. Interface at a glance
+Screenshots already in this repo, oldest first. Relative links, so they render on GitHub.
+
+| Version | Today (desktop) | Phone |
+|---|---|---|
+| 2.0 · 2026-07-16 | ![Today 2.0](../assets/readme/ivrit-sheli-2-dashboard.png) | ![Phone 2.0](../assets/readme/ivrit-sheli-2-mobile.png) |
+| 2.8 · 2026-07-26 | ![Today 2.8](../assets/readme/ivrit-sheli-2.8-dashboard.png) | ![Phone 2.8](../assets/readme/ivrit-sheli-2.8-mobile.png) |
+| 2.10 · 2026-08-11 | ![Today 2.10](../assets/readme/ivrit-sheli-2.10-dashboard.png) | ![Phone 2.10](../assets/readme/ivrit-sheli-2.10-mobile.png) |
+| 2.12.3 · 2026-08-27 | ![Today 2.12.3](../assets/readme/proof/2.12.3/today-desktop-dark-es.webp) | ![Phone 2.12.3](../assets/readme/proof/2.12.3/today-phone-light-es.webp) |
+| 2.13.0 · 2026-11-02 | ![Today 2.13.0](../assets/readme/proof/2.13.0/today-desktop-dark-en.webp) | ![Phone 2.13.0](../assets/readme/proof/2.13.0/today-phone-light-en.webp) |
+
+Hebrew (RTL) versions of the same screens: `ivrit-sheli-2-hebrew-rtl.png`, `ivrit-sheli-2.8-hebrew-rtl.png`, `ivrit-sheli-2.10-hebrew-rtl.png` in `assets/readme/`, and `today-desktop-dark-he.webp` in the 2.12.2 and 2.13.0 proof sets.
+The 2.13.0 art pass before/after images are in `assets/readme/proof/2.13.0/art-pass/`.
+
+## 7. Scene evolution, word by word
+Each strip shows one scene in five versions, left to right: 2.8.3 (2026-07-26), 2.10 (2026-08-11), Nocturne (2026-08-14), 2.12.3 (2026-08-27) and 2.13.0 (2026-11-03). A grey tile means the scene did not exist yet. These are renders from each commit's source (see section 9), not screenshots.
+
+| Word | Five versions |
+|---|---|
+| שלום · shalom · hello | ![hello](art-direction/evolution/greetings-hello.webp) |
+| בוקר טוב · boker tov · good morning | ![good morning](art-direction/evolution/greetings-good_morning.webp) |
+| לחם · lekhem · bread | ![bread](art-direction/evolution/food-bread.webp) |
+| מים · mayim · water | ![water](art-direction/evolution/food-water.webp) |
+| קפה · kafe · coffee | ![coffee](art-direction/evolution/food-coffee.webp) |
+| אחת · akhat · one | ![one](art-direction/evolution/numbers-one.webp) |
+| לכתוב · likhtov · to write | ![write](art-direction/evolution/actions-write.webp) |
+| שעה · sha'a · hour | ![hour](art-direction/evolution/time-hour.webp) |
+| אוטובוס · otobus · bus | ![bus](art-direction/evolution/transport-bus.webp) |
+| אמא · ima · mother | ![mother](art-direction/evolution/family-mother.webp) |
+
+## 8. Open gates in v2.13.0 (as stated by the repo on 2026-11-03)
 - Human 5-second recognition test of each scene.
 - Native Hebrew review of the new 2.13 texts.
 - Pilot with Kevin's mother; findings planned for 2.13.1.
 - Live PostgreSQL integration.
 
-## 7. Companion visual page
+## 9. Companion visual page
 - A private visual companion (timeline, 10-word deep dive, gallery of all 240 scenes in five versions, interface screenshots) was built on 2026-11-04/05 outside this repo. It is not published, so agents should not expect to open it.
 - How its scene images were made, so the method can be repeated: each scene was rendered with `react-dom/server` from the source of commits `7adc204`, `3078fc2`, `41b75d2`, `ea8aff8` and tag `v2.13.0`, with that commit's CSS, light theme, card size 240×180, no animation, then rasterized with headless Chromium. They are renders, not screenshots of the app at the time.
 - Change percentages were measured with ImageMagick (`compare -metric AE -fuzz 2%`) against the previous version.
