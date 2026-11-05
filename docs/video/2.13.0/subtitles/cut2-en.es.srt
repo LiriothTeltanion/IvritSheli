@@ -1,0 +1,203 @@
+1
+00:00:00,420 --> 00:00:00,835
+Shalom.
+
+2
+00:00:00,795 --> 00:00:02,959
+Esto es Ivrit Sheli, una app de hebreo
+
+3
+00:00:02,919 --> 00:00:04,708
+que construí para adultos recién
+
+4
+00:00:04,668 --> 00:00:06,894
+llegados a Israel: nuevos con el hebreo,
+
+5
+00:00:06,854 --> 00:00:08,933
+y a menudo también con las apps.
+
+6
+00:00:09,753 --> 00:00:11,638
+Primero les habla en su idioma.
+
+7
+00:00:11,598 --> 00:00:13,772
+Toda la interfaz funciona en inglés,
+
+8
+00:00:13,732 --> 00:00:15,675
+español y hebreo, y en hebreo se
+
+9
+00:00:15,635 --> 00:00:17,811
+refleja de derecha a izquierda.
+
+10
+00:00:18,631 --> 00:00:21,466
+Cada palabra se enseña con una escena.
+
+11
+00:00:21,426 --> 00:00:22,689
+En la versión 2.
+
+12
+00:00:22,649 --> 00:00:23,038
+13.
+
+13
+00:00:22,998 --> 00:00:25,659
+0, 157 de las 165 escenas pintables
+
+14
+00:00:25,619 --> 00:00:28,366
+tienen fondos pintados a la gouache,
+
+15
+00:00:28,326 --> 00:00:31,888
+cada uno con su versión para el tema oscuro.
+
+16
+00:00:32,708 --> 00:00:34,347
+Las personas y los objetos siguen siendo
+
+17
+00:00:34,307 --> 00:00:35,946
+vectores, así que cada escena despierta
+
+18
+00:00:35,906 --> 00:00:37,659
+una vez con un movimiento corto y vuelve a
+
+19
+00:00:37,619 --> 00:00:39,719
+quedarse quieta en menos de cinco segundos.
+
+20
+00:00:40,539 --> 00:00:42,779
+Hoy es el punto de partida de cada día.
+
+21
+00:00:42,739 --> 00:00:44,590
+Una primera lección enseña cinco
+
+22
+00:00:44,550 --> 00:00:46,401
+palabras útiles con sonido y una
+
+23
+00:00:46,361 --> 00:00:48,407
+comprobación rápida, y cada palabra
+
+24
+00:00:48,367 --> 00:00:50,896
+hebrea abre su entrada del diccionario.
+
+25
+00:00:51,716 --> 00:00:53,904
+El Estudio del Alfabeto empieza por
+
+26
+00:00:53,864 --> 00:00:56,113
+las letras mismas: veintidós letras
+
+27
+00:00:56,073 --> 00:00:58,323
+y cinco formas finales, una forma a
+
+28
+00:00:58,283 --> 00:01:00,884
+la vez, con sonido y palabras reales.
+
+29
+00:01:01,704 --> 00:01:03,705
+La accesibilidad está en el diseño.
+
+30
+00:01:03,665 --> 00:01:05,338
+Con movimiento reducido, cada
+
+31
+00:01:05,298 --> 00:01:07,364
+escena es una imagen fija completa,
+
+32
+00:01:07,324 --> 00:01:08,998
+y los escaneos automáticos de
+
+33
+00:01:08,958 --> 00:01:11,089
+accesibilidad corren en el navegador,
+
+34
+00:01:11,049 --> 00:01:13,601
+en los tres idiomas y en los dos temas.
+
+35
+00:01:14,421 --> 00:01:17,395
+Por dentro: React 19 y TypeScript,
+
+36
+00:01:17,355 --> 00:01:20,496
+con FastAPI y Python en el servidor.
+
+37
+00:01:20,456 --> 00:01:23,765
+En el commit de la versión pasan 1096
+
+38
+00:01:23,725 --> 00:01:27,408
+pruebas del frontend y 434 del backend.
+
+39
+00:01:28,228 --> 00:01:30,014
+Las cuentas viven en PostgreSQL.
+
+40
+00:01:29,974 --> 00:01:32,297
+La seguridad a nivel de fila y un rol de
+
+41
+00:01:32,257 --> 00:01:34,782
+ejecución restringido hacen que los datos de
+
+42
+00:01:34,742 --> 00:01:37,489
+cada estudiante solo los vea ese estudiante.
+
+43
+00:01:38,309 --> 00:01:39,403
+La versión 2.
+
+44
+00:01:39,363 --> 00:01:39,754
+13.
+
+45
+00:01:39,714 --> 00:01:42,826
+0 es una publicación de código fuente:
+
+46
+00:01:42,786 --> 00:01:45,372
+un ZIP reproducible con su suma
+
+47
+00:01:45,332 --> 00:01:48,094
+SHA-256, y la integración continua
+
+48
+00:01:48,054 --> 00:01:50,579
+en verde sobre la etiqueta.
+
+49
+00:01:51,399 --> 00:01:53,895
+Ivrit Sheli: hebreo vivo para cada día.
+
+50
+00:01:53,855 --> 00:01:56,603
+Soy Kevin Cusnir, y el código, las pruebas
+
+51
+00:01:56,563 --> 00:01:59,537
+y las notas de la versión están en GitHub.
