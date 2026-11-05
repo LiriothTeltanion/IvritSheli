@@ -10,6 +10,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
+from typing import Literal
+
+# Which spaced-repetition policy schedules reviews. SM-2 is the default; FSRS is opt-in
+# through REVIEW_SCHEDULER=fsrs and lives in `ivrit_sheli.fsrs_scheduler`.
+ReviewPolicy = Literal["sm2", "fsrs"]
+REVIEW_POLICIES: tuple[ReviewPolicy, ...] = ("sm2", "fsrs")
 
 
 @dataclass(frozen=True, slots=True)
@@ -191,3 +197,27 @@ def review_urgency(due_at: datetime, now: datetime | None = None) -> float:
         return min(1.0, 0.55 + seconds / (7 * 86400) * 0.45)
     days_until = abs(seconds) / 86400
     return max(0.0, 0.55 - days_until / 14)
+
+
+def parse_review_policy(value: str | None) -> ReviewPolicy:
+    """Validate a configured review policy name.
+
+    Args:
+        value: Raw configuration value; empty means the SM-2 default.
+
+    Returns:
+        The normalized policy name.
+
+    Raises:
+        ValueError: If the value names an unknown policy.
+
+    Example:
+        >>> parse_review_policy(" FSRS ")
+        'fsrs'
+    """
+    normalized = (value or "sm2").strip().lower()
+    if normalized == "sm2":
+        return "sm2"
+    if normalized == "fsrs":
+        return "fsrs"
+    raise ValueError("REVIEW_SCHEDULER must be one of: fsrs, sm2")

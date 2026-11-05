@@ -21,6 +21,7 @@ from uuid import uuid4
 from zoneinfo import ZoneInfo
 
 from ivrit_sheli.database import Database
+from ivrit_sheli.fsrs_scheduler import FsrsMemory, PolicyDecision, schedule_with_policy
 from ivrit_sheli.gamification import (
     ACHIEVEMENTS,
     XPAction,
@@ -73,7 +74,7 @@ from ivrit_sheli.local_learning_engine import (
 from ivrit_sheli.normalization import normalize_hebrew
 from ivrit_sheli.personalization import MasteryState, focus_summary, update_mastery
 from ivrit_sheli.recommendation import RecommendationCandidate, rank_candidates
-from ivrit_sheli.scheduler import ReviewState, review_urgency, schedule_review
+from ivrit_sheli.scheduler import ReviewPolicy, ReviewState, review_urgency
 
 PRONUNCIATION_MASTERY_THRESHOLD = 70
 # One full lesson loop is 7 attempts, so a single active session can easily
@@ -152,14 +153,16 @@ class LearningRepository:
 
     Args:
         database: Initialized application database.
+        review_scheduler: Spaced-repetition policy for reviews, `sm2` or `fsrs`.
 
     Example:
         >>> db = Database(Path(":memory:")); db.initialize()
         >>> repo = LearningRepository(db); repo.ensure_default_profile()
     """
 
-    def __init__(self, database: Database) -> None:
+    def __init__(self, database: Database, review_scheduler: ReviewPolicy = "sm2") -> None:
         self.database = database
+        self.review_scheduler: ReviewPolicy = review_scheduler
 
     def ensure_default_profile(self, display_name: str = "Learner") -> None:
         """Create the single local profile and starter goals if absent.
@@ -2013,8 +2016,7 @@ class LearningRepository:
         with self.database.transaction() as connection:
             row = connection.execute(
                 """
-                SELECT i.*, r.interval_days, r.ease_factor, r.repetitions,
-                       r.lapses, r.due_at
+                SELECT r.*
                 FROM learning_items i
                 JOIN review_state r ON r.item_id = i.id
                 WHERE i.id = ?
@@ -2024,37 +2026,17 @@ class LearningRepository:
             if row is None:
                 raise KeyError(f"Learning item {item_id} not found")
 
-            previous = ReviewState(
-                interval_days=float(row["interval_days"]),
-                ease_factor=float(row["ease_factor"]),
-                repetitions=int(row["repetitions"]),
-                lapses=int(row["lapses"]),
-                due_at=datetime.fromisoformat(row["due_at"]),
-            )
-            decision = schedule_review(
-                previous,
+            previous = self._review_state_from_row(row)
+            result = self._apply_review_policy(
+                connection,
+                item_id=item_id,
+                row=row,
                 is_correct=is_correct,
                 confidence=confidence,
                 hints_used=hints_used,
-                now=now_dt,
+                now_dt=now_dt,
             )
-            connection.execute(
-                """
-                UPDATE review_state
-                SET interval_days = ?, ease_factor = ?, repetitions = ?,
-                    lapses = ?, due_at = ?, last_reviewed_at = ?
-                WHERE item_id = ?
-                """,
-                (
-                    decision.state.interval_days,
-                    decision.state.ease_factor,
-                    decision.state.repetitions,
-                    decision.state.lapses,
-                    decision.state.due_at.isoformat(timespec="seconds"),
-                    now,
-                    item_id,
-                ),
-            )
+            decision = result.decision
             connection.execute(
                 """
                 INSERT INTO attempts(
@@ -2123,12 +2105,7 @@ class LearningRepository:
 
         return {
             "item_id": item_id,
-            "schedule": {
-                **asdict(decision.state),
-                "due_at": decision.state.due_at.isoformat(timespec="seconds"),
-                "quality": decision.quality,
-                "reason": decision.reason,
-            },
+            "schedule": self._schedule_payload(result),
             "mastery": asdict(mastery),
             "xp_awarded": xp_after - xp_before,
             "xp": level_progress(xp_after),
@@ -4503,8 +4480,8 @@ class LearningRepository:
         )
         return {field: item.get(field) for field in fields}
 
-    @staticmethod
     def _schedule_learning_core_review(
+        self,
         connection: Any,
         *,
         item_id: int,
@@ -4517,54 +4494,142 @@ class LearningRepository:
             "SELECT * FROM review_state WHERE item_id = ?",
             (item_id,),
         ).fetchone()
-        previous = (
-            ReviewState(
-                interval_days=float(row["interval_days"]),
-                ease_factor=float(row["ease_factor"]),
-                repetitions=int(row["repetitions"]),
-                lapses=int(row["lapses"]),
-                due_at=datetime.fromisoformat(str(row["due_at"])),
-            )
-            if row is not None
-            else ReviewState.new(now_dt)
-        )
-        decision = schedule_review(
-            previous,
+        result = self._apply_review_policy(
+            connection,
+            item_id=item_id,
+            row=row,
             is_correct=is_correct,
             confidence=confidence,
             hints_used=hints_used,
+            now_dt=now_dt,
+        )
+        return self._schedule_payload(result)
+
+    @staticmethod
+    def _review_state_from_row(row: Any) -> ReviewState:
+        """Read the SM-2-compatible state that both policies share."""
+        return ReviewState(
+            interval_days=float(row["interval_days"]),
+            ease_factor=float(row["ease_factor"]),
+            repetitions=int(row["repetitions"]),
+            lapses=int(row["lapses"]),
+            due_at=datetime.fromisoformat(str(row["due_at"])),
+        )
+
+    @staticmethod
+    def _fsrs_memory_from_row(row: Any) -> FsrsMemory | None:
+        """Return stored FSRS memory only when FSRS made the item's last decision.
+
+        After SM-2 reviews an item its FSRS columns are kept but no longer current, so
+        FSRS seeds again from the SM-2 columns instead of trusting stale memory.
+        """
+        if row["scheduler"] != "fsrs" or row["fsrs_stability"] is None:
+            return None
+        if row["fsrs_difficulty"] is None or row["fsrs_state"] is None:
+            return None
+        step = row["fsrs_step"]
+        return FsrsMemory(
+            stability=float(row["fsrs_stability"]),
+            difficulty=float(row["fsrs_difficulty"]),
+            state=int(row["fsrs_state"]),
+            step=None if step is None else int(step),
+        )
+
+    def _apply_review_policy(
+        self,
+        connection: Any,
+        *,
+        item_id: int,
+        row: Any | None,
+        is_correct: bool,
+        confidence: int,
+        hints_used: int,
+        now_dt: datetime,
+    ) -> PolicyDecision:
+        """Schedule one answer with the configured policy and persist the result.
+
+        The SM-2 columns are always written, so either policy can pick up where the
+        other stopped. SM-2 writes leave the FSRS columns untouched (nothing is
+        deleted) and mark the row as `sm2`, which tells FSRS to reseed next time.
+
+        Args:
+            connection: Active SQLite connection inside a transaction.
+            item_id: Learning item being reviewed.
+            row: Current `review_state` row, or None when the item has none yet.
+            is_correct: Whether the answer was correct.
+            confidence: Learner confidence from 1 to 5.
+            hints_used: Number of hints used.
+            now_dt: Review timestamp.
+
+        Returns:
+            The decision, the policy that made it, and FSRS memory when applicable.
+        """
+        if row is None:
+            previous = ReviewState.new(now_dt)
+            memory = None
+            last_reviewed_at = None
+        else:
+            previous = self._review_state_from_row(row)
+            memory = self._fsrs_memory_from_row(row)
+            last_raw = row["last_reviewed_at"]
+            last_reviewed_at = datetime.fromisoformat(str(last_raw)) if last_raw else None
+        result = schedule_with_policy(
+            self.review_scheduler,
+            previous,
+            is_correct,
+            confidence,
+            hints_used,
             now=now_dt,
+            memory=memory,
+            last_reviewed_at=last_reviewed_at,
         )
+        state = result.decision.state
+        values: dict[str, Any] = {
+            "item_id": item_id,
+            "interval_days": state.interval_days,
+            "ease_factor": state.ease_factor,
+            "repetitions": state.repetitions,
+            "lapses": state.lapses,
+            "due_at": state.due_at.isoformat(timespec="seconds"),
+            "last_reviewed_at": now_dt.isoformat(timespec="seconds"),
+            "scheduler": result.policy,
+        }
+        if result.memory is not None:
+            values.update(
+                {
+                    "fsrs_stability": result.memory.stability,
+                    "fsrs_difficulty": result.memory.difficulty,
+                    "fsrs_state": result.memory.state,
+                    "fsrs_step": result.memory.step,
+                }
+            )
+        columns = tuple(values)
+        updates = ", ".join(f"{column} = excluded.{column}" for column in columns[1:])
         connection.execute(
-            """
-            INSERT INTO review_state(
-                item_id, interval_days, ease_factor, repetitions,
-                lapses, due_at, last_reviewed_at
-            ) VALUES(?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT(item_id) DO UPDATE SET
-                interval_days = excluded.interval_days,
-                ease_factor = excluded.ease_factor,
-                repetitions = excluded.repetitions,
-                lapses = excluded.lapses,
-                due_at = excluded.due_at,
-                last_reviewed_at = excluded.last_reviewed_at
+            f"""
+            INSERT INTO review_state({", ".join(columns)})
+            VALUES({", ".join("?" for _ in columns)})
+            ON CONFLICT(item_id) DO UPDATE SET {updates}
             """,
-            (
-                item_id,
-                decision.state.interval_days,
-                decision.state.ease_factor,
-                decision.state.repetitions,
-                decision.state.lapses,
-                decision.state.due_at.isoformat(timespec="seconds"),
-                now_dt.isoformat(timespec="seconds"),
-            ),
+            tuple(values.values()),
         )
-        return {
+        return result
+
+    @staticmethod
+    def _schedule_payload(result: PolicyDecision) -> dict[str, Any]:
+        """Serialize one scheduling decision for the API."""
+        decision = result.decision
+        payload: dict[str, Any] = {
             **asdict(decision.state),
             "due_at": decision.state.due_at.isoformat(timespec="seconds"),
             "quality": decision.quality,
             "reason": decision.reason,
+            "scheduler": result.policy,
         }
+        if result.memory is not None:
+            payload["fsrs_stability"] = result.memory.stability
+            payload["fsrs_difficulty"] = result.memory.difficulty
+        return payload
 
     def _unlock_achievements(self, connection: Any, unlocked_at: str) -> list[Any]:
         """Persist newly satisfied achievements inside an active transaction.

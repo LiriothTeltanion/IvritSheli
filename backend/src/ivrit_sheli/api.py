@@ -524,7 +524,7 @@ def build_services(
     database.initialize()
     dictionary = DictionaryStore(settings.dictionary_db_path)
     dictionary.initialize()
-    repository = LearningRepository(database)
+    repository = LearningRepository(database, settings.review_scheduler)
     repository.ensure_default_profile()
     # An empty install still gets clickable Hebrew and useful dashboard content.
     if dictionary.stats()["entries"] == 0:
@@ -976,6 +976,7 @@ def repository_for(
             identity.user.id,
             identity.user.display_name,
             seed_demo=identity.user.is_demo,
+            review_scheduler=container.settings.review_scheduler,
         )
     return container.repository
 

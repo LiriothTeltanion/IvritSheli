@@ -1,5 +1,12 @@
 # Latest release
 
+## Unreleased
+
+- Added an opt-in FSRS review scheduler (`REVIEW_SCHEDULER=fsrs`, py-fsrs 6.3.2) beside the bounded SM-2
+  policy, which stays the default. Migration 12 adds nullable FSRS memory columns to `review_state`
+  without rewriting any row; SM-2 cards are converted lazily on their next FSRS review, and switching back
+  needs no data change. A synthetic 20-card test compares how both policies space identical answers.
+
 ## 2.13.0 — Living Painted Scenes — 2026-11-03
 
 ### GitHub source release — 2026-11-03

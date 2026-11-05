@@ -15,6 +15,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from ivrit_sheli.cloud_store import RUNTIME_DATABASE_ROLE, database_url_role
+from ivrit_sheli.scheduler import ReviewPolicy, parse_review_policy
 
 SUPPORTED_APP_ENVS = frozenset({"development", "local", "test", "production"})
 
@@ -116,6 +117,7 @@ class Settings:
         debug: Whether debug responses may include extra detail.
         ai_provider: Preferred provider name.
         allow_cloud_processing: Explicit master consent for cloud calls.
+        review_scheduler: Spaced-repetition policy, `sm2` (default) or `fsrs`.
         openai_api_key: Optional OpenAI key.
         openai_text_model: Structured-output model.
         openai_embedding_model: Embedding model.
@@ -166,6 +168,7 @@ class Settings:
     debug: bool = False
     ai_provider: str = "offline"
     allow_cloud_processing: bool = False
+    review_scheduler: ReviewPolicy = "sm2"
     openai_api_key: str = ""
     openai_text_model: str = "gpt-5.6-luna"
     openai_embedding_model: str = "text-embedding-3-small"
@@ -371,6 +374,7 @@ class Settings:
             allow_cloud_processing=parse_bool(
                 values.get("ALLOW_CLOUD_PROCESSING"), False
             ),
+            review_scheduler=parse_review_policy(values.get("REVIEW_SCHEDULER")),
             openai_api_key=value("OPENAI_API_KEY", ""),
             openai_text_model=value("OPENAI_TEXT_MODEL", "gpt-5.6-luna"),
             openai_embedding_model=value(
