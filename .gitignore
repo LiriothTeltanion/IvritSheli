@@ -79,3 +79,9 @@ Thumbs.db
 /AGENTS.md
 /CLAUDE.md
 /docs/IMAGE_PROMPTS_SKILL.md
+
+# Local private agent context (never committed)
+AGENTS.local.md
+CLAUDE.local.md
+*.local.md
+.claude/settings.local.json
