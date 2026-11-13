@@ -40,6 +40,11 @@ Browser Push services are operated by their respective browser/platform
 providers and remain subject to those providers' terms. This repository does
 not distribute VAPID keys or live Push subscriptions.
 
+## Spaced-repetition scheduling
+
+- `fsrs 6.3.2` (py-fsrs, Open Spaced Repetition), MIT License. Used only when
+  `REVIEW_SCHEDULER=fsrs`; the optional optimizer extra (PyTorch) is not installed.
+
 ## Google Workspace
 
 Google Calendar, Gmail, and Drive are optional read-only integrations. No Google credentials are distributed. Users configure their own OAuth application and consent scopes.

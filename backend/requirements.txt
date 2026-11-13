@@ -18,3 +18,7 @@ av==17.1.0
 pywebpush==2.5.0
 cryptography==50.0.2
 PyJWT==2.15.1
+# FSRS spaced-repetition scheduler (py-fsrs, MIT, Open Spaced Repetition). Pure Python;
+# its only runtime dependency is typing-extensions. The optional torch optimizer extra
+# is deliberately not installed. Used only when REVIEW_SCHEDULER=fsrs.
+fsrs==6.3.2
