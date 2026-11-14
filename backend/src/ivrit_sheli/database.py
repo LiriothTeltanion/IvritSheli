@@ -560,6 +560,29 @@ MIGRATIONS = (
             CHECK (theme IN ('', 'light', 'dark'));
         """,
     ),
+    Migration(
+        version=12,
+        name="fsrs_memory_state",
+        sql="""
+        -- FSRS memory lives beside the SM-2 columns instead of replacing them
+        -- (2026-11-03). Nothing is rewritten: every existing row keeps its
+        -- interval, ease, repetitions, lapses, and due date, and the FSRS
+        -- columns stay NULL until FSRS reviews that item. `scheduler` records
+        -- which policy made the last decision, so FSRS only trusts memory it
+        -- wrote itself and seeds from SM-2 otherwise. Switching
+        -- REVIEW_SCHEDULER back to sm2 needs no data change.
+        ALTER TABLE review_state ADD COLUMN scheduler TEXT NOT NULL DEFAULT 'sm2'
+            CHECK (scheduler IN ('sm2', 'fsrs'));
+        ALTER TABLE review_state ADD COLUMN fsrs_stability REAL
+            CHECK (fsrs_stability IS NULL OR fsrs_stability > 0);
+        ALTER TABLE review_state ADD COLUMN fsrs_difficulty REAL
+            CHECK (fsrs_difficulty IS NULL OR fsrs_difficulty BETWEEN 1 AND 10);
+        ALTER TABLE review_state ADD COLUMN fsrs_state INTEGER
+            CHECK (fsrs_state IS NULL OR fsrs_state IN (1, 2, 3));
+        ALTER TABLE review_state ADD COLUMN fsrs_step INTEGER
+            CHECK (fsrs_step IS NULL OR fsrs_step >= 0);
+        """,
+    ),
 )
 SCHEMA_VERSION = MIGRATIONS[-1].version
 

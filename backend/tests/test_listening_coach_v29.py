@@ -51,7 +51,7 @@ def test_schema_head_is_stamped_and_carries_every_migrated_column(
         ).fetchall()
     }
 
-    assert SCHEMA_VERSION == 11
+    assert SCHEMA_VERSION == 12
     assert version is not None and int(version["value"]) == SCHEMA_VERSION
     assert {
         "learning_feedback",

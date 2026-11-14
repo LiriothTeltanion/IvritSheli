@@ -1163,7 +1163,8 @@ legend {
 .auth-ambient--one { inset: -190px auto auto 22%; background: var(--teal); }
 .auth-ambient--two { inset: auto -170px -200px auto; background: var(--violet); animation-delay: -7s; }
 .auth-header, .auth-footer, .auth-stage, .auth-lower-deck { position: relative; z-index: 1; width: min(1240px, 100%); margin-inline: auto; }
-.auth-header { min-height: 96px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+/* Keep the header's language menu above the sibling hero stacking context. */
+.auth-header { z-index: 2; min-height: 96px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
 .auth-brand { display: flex; align-items: center; gap: 12px; color: var(--text); text-decoration: none; }
 .auth-brand > small { color: var(--teal); font-size: var(--text-2xs); font-weight: 850; letter-spacing: .22em; }
 .auth-header__actions { display: flex; align-items: center; gap: 13px; }

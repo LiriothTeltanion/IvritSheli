@@ -65,6 +65,41 @@ test.describe('responsive learning workspace', () => {
   });
 });
 
+test.describe('welcome language menu on a phone', () => {
+  test.use({ hasTouch: true });
+
+  for (const { name, locale, dir } of [
+    { name: 'Español', locale: 'es', dir: 'ltr' },
+    { name: 'עברית', locale: 'he', dir: 'rtl' },
+  ]) {
+    test(`can tap ${name} before signing in`, async ({ page }, testInfo) => {
+      mobileOnly(testInfo.project.name);
+      await page.route('**/api/v1/auth/me', (route) => route.fulfill({
+        json: {
+          authenticated: false,
+          demo: false,
+          read_only: false,
+          user: null,
+          mode: 'cloud',
+          capabilities: {
+            audio_scoring: false,
+            connectors: false,
+            local_first: false,
+          },
+        },
+      }));
+      await page.goto('/?lang=en');
+
+      const menu = page.getByRole('button', { name: /interface language: english/i });
+      await menu.tap();
+      await page.getByRole('radio', { name, exact: true }).tap();
+
+      await expect(page.locator('html')).toHaveAttribute('lang', locale);
+      await expect(page.locator('html')).toHaveAttribute('dir', dir);
+    });
+  }
+});
+
 test.describe('language, direction, and learner depth', () => {
   for (const locale of ['en', 'es', 'he'] as TestLocale[]) {
     test(`${locale} applies the correct document language and direction`, async ({ page }, testInfo) => {

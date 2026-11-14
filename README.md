@@ -20,6 +20,7 @@
     <img src="https://img.shields.io/badge/FastAPI_%2B_Python-ready-38BDF8?style=flat-square" alt="FastAPI">
     <img src="https://img.shields.io/badge/Database-PostgreSQL_17-336791?style=flat-square&logo=postgresql" alt="PostgreSQL">
   </p>
+  <p><em>The live demo runs on a free server that sleeps when idle, so the first visit can take up to a minute to wake it.</em></p>
   <p>
     <img src="https://img.shields.io/badge/Languages-EN_%7C_ES_%7C_HE-9333EA?style=flat-square" alt="Languages">
     <img src="https://img.shields.io/badge/Direction-RTL_Native-F59E0B?style=flat-square" alt="RTL Native">
