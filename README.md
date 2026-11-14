@@ -31,6 +31,21 @@
 
 > **The Living Hebrew Journey** — explore a beautifully crafted, evidence-based learning environment with 240 exact semantic scenes that adapts to your language, your pacing, and your daily life in Israel. Privacy is built-in; your progress stays local by default until you decide to back it up.
 
+## 🎬 Watch it
+
+<p align="center">
+  <a href="https://www.youtube.com/watch?v=PENDING_CUT2"><img src="assets/readme/video/2.13.0/thumbnail-how-it-is-built.webp" width="720" alt="Video: Ivrit Sheli by Kevin Cusnir, a trilingual Hebrew app, what it is and how it is built. A painted Jerusalem alley where two people wave hello, beside the Hebrew word shalom." /></a>
+</p>
+<p align="center">
+  <a href="https://www.youtube.com/watch?v=PENDING_CUT2"><strong>What it is and how it is built</strong></a> (2:02, English, Spanish subtitles) ·
+  <a href="https://www.youtube.com/watch?v=PENDING_CUT1_ES"><strong>Cómo se usa</strong></a> (1:09, español) ·
+  <a href="https://www.youtube.com/watch?v=PENDING_CUT1_EN"><strong>How to use it</strong></a> (1:09, English)
+</p>
+<p align="center">
+  <img src="assets/readme/video/2.13.0/ivrit-sheli-2.13.0-teaser.gif" width="720" alt="Fourteen-second non-looping teaser: a painted scene of two people waving hello wakes up beside the Hebrew word shalom, then the Today screen switches from English to Spanish to Hebrew, which mirrors right to left." />
+</p>
+<p align="center"><em>Captured from the live 2.13.0 demo on 2026-11-03. Scripts, subtitles and YouTube texts: <a href="docs/video/2.13.0/VIDEO_SCRIPT_2.13.0.md">docs/video/2.13.0</a>.</em></p>
+
 ## 🎨 2.13.0 — Living, painted scenes
 
 <p align="center">
@@ -204,6 +219,7 @@ For deep technical dives, deployment runbooks, or local installation, please ref
 - [🌐 Live Deployment Rules](docs/DEPLOYMENT.md)
 - [🔒 Privacy & Data Ownership](PRIVACY.md)
 - [🧪 Test Reports](TEST_REPORT.md)
+- [🎬 2.13.0 video scripts, subtitles and YouTube texts](docs/video/2.13.0/VIDEO_SCRIPT_2.13.0.md)
 
 ## 👤 Author and License
 
